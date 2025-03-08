@@ -1,0 +1,1 @@
+{  "parent": "minecraft:item/generated",  "textures": {    "layer0": "gtladditions:item/outstanding_soc_wafer"  }}

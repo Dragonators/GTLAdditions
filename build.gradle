@@ -1,0 +1,260 @@
+plugins {
+    id "dev.architectury.loom" version "1.6-SNAPSHOT"
+    id "maven-publish"
+    id "com.diffplug.spotless" version "6.25.0"
+}
+
+base {
+    archivesName = project.archives_base_name
+}
+
+String buildNumber = System.getenv("GITHUB_ACTION_NUMBER")
+version = "${mod_version}" + (buildNumber != null ? "-build_${System.getenv("GITHUB_RUN_NUMBER")}" : "")
+//version = project.mod_version
+group = project.maven_group
+
+java {
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+}
+
+loom {
+    silentMojangMappingsLicense()
+    forge {
+        mixinConfigs = [
+                "gtladditions.mixin.json"
+        ]
+
+        dataGen {
+            mod(mod_id)
+        }
+    }
+
+    runConfigs.named("data").configure {
+        programArg("--existing=" + file("src/main/resources").absolutePath)
+    }
+}
+
+repositories {
+    mavenLocal()
+    flatDir {
+        dir 'libs'
+    }
+    mavenCentral()
+    maven {
+        name 'FirstDarkDev'
+        url "https://maven.firstdarkdev.xyz/snapshots/"
+    }
+    maven {
+        name 'Quilt'
+        url 'https://maven.quiltmc.org/repository/release/'
+    }
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
+    }
+    maven {
+        url "https://maven.saps.dev/releases/"
+        content {
+            includeGroup "dev.latvian.mods"
+            includeGroup "dev.ftb.mods"
+        }
+    }
+    maven { // Registrate
+        url = "https://maven.tterrag.com/"
+        content {
+            // need to be specific here due to version overlaps
+            includeGroup("com.jozufozu.flywheel")
+            includeGroup("com.tterrag.registrate")
+            includeGroup("com.simibubi.create")
+        }
+    }
+    maven {
+        // Patchouli, JEI
+        name = "BlameJared"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        url = "https://maven.theillusivec4.top/"
+    }
+    maven {
+        // Curse Forge File
+        url "https://cursemaven.com/"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
+        url "https://maven.architectury.dev/"
+    }
+    maven { // ModernUI
+        name 'IzzelAliz Maven'
+        url 'https://maven.izzel.io/releases/'
+    }
+    maven { // Ad Astra
+        url "https://maven.teamresourceful.com/repository/maven-public/"
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:$project.minecraft_version"
+    forge "net.minecraftforge:forge:$project.minecraft_version-$project.forge_version"
+    // layered mappings - Mojmap names, parchment and QM docs and parameters
+    mappings loom.layered {
+        it.mappings("org.quiltmc:quilt-mappings:$project.minecraft_version+build.$project.quilt_mappings:intermediary-v2")
+        it.parchment("org.parchmentmc.data:parchment-$project.minecraft_version:$project.parchment_mappings@zip")
+        it.officialMojangMappings { nameSyntheticMembers = false }
+    }
+
+    modCompileOnly("mezz.jei:jei-$project.minecraft_version-forge-api:$project.jei_version") { transitive = false }
+    modCompileOnly("mezz.jei:jei-$project.minecraft_version-common-api:$project.jei_version") { transitive = false }
+
+    modImplementation("com.gregtechceu.gtceu:gtceu-$project.minecraft_version:$project.gtceu_version") { transitive = false }
+   // modImplementation("dev:gtceu:1.20.1:$project.gtceu_version") { transitive false }
+    modImplementation("com.lowdragmc.ldlib:ldlib-forge-$project.minecraft_version:$project.ldlib_version") { transitive = false }
+    modImplementation("com.tterrag.registrate:Registrate:$project.registrate_version")
+    modImplementation("dev.latvian.mods:kubejs-forge:$project.kubejs_version")
+
+    modImplementation("maven.modrinth:jade-1.20.1-forge-$project.jade_version")
+
+    // Mixin Extras
+    implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:$project.mixinextras_version"))
+    implementation(include("io.github.llamalad7:mixinextras-forge:$project.mixinextras_version"))
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    modImplementation 'appeng:appliedenergistics2-forge-15.2.1'
+
+    modImplementation("dev.architectury:architectury-forge:${project.architectury_version}")
+
+    modImplementation("dev.toma.configuration:configuration-forge-$project.minecraft_version:$project.configuration_version")
+
+    forgeRuntimeLibrary("com.teamresourceful:yabn:1.0.3")
+    forgeRuntimeLibrary("com.teamresourceful:bytecodecs:1.0.2")
+    modImplementation("com.teamresourceful.resourcefullib:resourcefullib-forge-${project.minecraft_version}:${project.resourcefullib_version}")
+    modImplementation("com.teamresourceful.resourcefulconfig:resourcefulconfig-forge-${project.minecraft_version}:${project.resourcefulconfig_version}")
+    modImplementation("earth.terrarium.botarium:botarium-forge-${project.minecraft_version}:${project.botarium_version}")
+    modImplementation("earth.terrarium.adastra:ad_astra-forge-${project.minecraft_version}:${ad_astra_version}") { transitive false }
+
+    modImplementation("dev:gtmthings-1.3.5.a")
+    modImplementation("dev:gtlcore-1.1")
+
+    modImplementation("curse.maven:glodium-957920:5006780")
+    modImplementation("dev:ExtendedAE-1.20-1.1.12-forge")
+
+    modImplementation("org.moddingx:LibX:1.20.1-5.0.1")
+    modImplementation("dev:TravelAnchors-1.20.1-5.0.1")
+
+    modCompileOnly("dev:Re-Avaritia-forged-1.20.1-1.3.8.3")
+
+    // ftb-chunk
+    modImplementation("dev.ftb.mods:ftb-chunks-forge:2001.3.1"){ transitive = false }
+    modRuntimeOnly("dev.ftb.mods:ftb-library-forge:2001.2.4"){ transitive = false }
+    modRuntimeOnly("dev.ftb.mods:ftb-teams-forge:2001.3.0"){ transitive = false }
+
+    // ftbu
+    modImplementation("dev.ftb.mods:ftb-ultimine-forge:2001.1.5"){ transitive = false }
+
+
+    modRuntimeOnly("mezz.jei:jei-$project.minecraft_version-forge:$project.jei_version") { transitive = false }
+
+    modRuntimeOnly("maven.modrinth:embeddium:0.3.30+mc1.20.1")
+
+    modRuntimeOnly("dev:rubidium-extra:0.5.4.3+mc1.20.1-build.121")
+
+    modRuntimeOnly("dev:jecharacters:1.20.1-forge-4.5.11-dev-shadow")
+
+    forgeRuntimeLibrary(runtimeOnly("icyllis.modernui:ModernUI-Core:3.10.1")) // Modern UI core framework
+    forgeRuntimeLibrary(runtimeOnly("icyllis.modernui:ModernUI-Markdown:3.10.1")) { transitive = false }
+    // Modern UI core extensions
+    modRuntimeOnly("icyllis.modernui:ModernUI-Forge:1.20.1-3.10.1.4") { transitive = false } // ModernUI
+
+}
+
+processResources {
+    // set up properties for filling into metadata
+    var properties = [
+            "mod_license"      : mod_license,
+            "mod_id"           : mod_id,
+            "version"          : version,
+            "mod_name"         : mod_name,
+            "mod_author"       : mod_author,
+            "forge_version"    : forge_version.split("\\.")[0], // only specify major version of forge
+            "minecraft_version": minecraft_version,
+            "gtceu_version"    : gtceu_version,
+            "ad_astra_version" : ad_astra_version,
+            "kubejs_version"   : kubejs_version,
+            "jei_version"      : jei_version,
+    ]
+    inputs.properties(properties)
+
+    filesMatching("META-INF/mods.toml") {
+        expand properties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    // If Javadoc is generated, this must be specified in that task too.
+    options.encoding = "UTF-8"
+    options.release.set(17)
+}
+
+java {
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
+}
+
+jar {
+    // add some additional metadata to the jar manifest
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : mod_author,
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : version,
+                "Implementation-Vendor"   : mod_author,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
+    }
+}
+
+spotless {
+    encoding 'UTF-8'
+
+    java {
+        target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+
+        def orderFile = file("$rootDir/spotless/spotless.importorder")
+        def formatFile = file("$rootDir/spotless/spotless.eclipseformat.xml")
+
+        toggleOffOn()
+        importOrderFile(orderFile)
+        removeUnusedImports('cleanthat-javaparser-unnecessaryimport')
+        endWithNewline()
+        eclipse('4.31').configFile(formatFile)
+    }
+}

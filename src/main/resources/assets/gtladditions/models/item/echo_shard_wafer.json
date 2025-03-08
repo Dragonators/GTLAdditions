@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gtladditions:item/echo_shard_wafer"
+  }
+}

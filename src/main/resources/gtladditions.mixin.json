@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.gtladd.gtladditions.Mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "gtladditions.refmap.json",
+  "client": [
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
