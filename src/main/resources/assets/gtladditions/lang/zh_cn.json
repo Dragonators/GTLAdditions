@@ -25,12 +25,25 @@
   "item.gtladditions.starmetal_boule": "星辉掺杂的单晶硅",
   "item.gtladditions.starmetal_wafer": "星辉掺杂的晶圆",
   "item.gtladditions.dragon_element_starmetal_wafer": "龙素涂覆的掺星辉晶圆",
-  "item.gtladditions.chaos_soc": "混沌soc晶圆",
-  "item.gtladditions.chaos_soc_wafer": "混沌soc芯片",
+  "item.gtladditions.chaos_soc": "混沌soc芯片",
+  "item.gtladditions.chaos_soc_wafer": "混沌soc晶圆",
   "item.gtladditions.extraordinary_soc": "超凡soc芯片",
   "item.gtladditions.extraordinary_soc_wafer": "超凡soc晶圆",
   "item.gtladditions.prepare_extraordinary_soc_wafer": "预备超凡soc晶圆",
   "item.gtladditions.outstanding_soc": "卓越soc芯片",
   "item.gtladditions.outstanding_soc_wafer": "卓越soc晶圆",
-  "material.gtladditions.gallium_oxide": "氧化镓"
+  "item.gtladditions.periodicium_boule": "錭錤錶掺杂的单晶硅",
+  "item.gtladditions.periodicium_wafer": "錭錤錶掺杂的晶圆",
+  "item.gtladditions.prepare_spacetime_soc_wafer": "预备时空soc晶圆",
+  "item.gtladditions.spacetime_soc_wafer": "时空soc晶圆",
+  "item.gtladditions.spacetime_soc": "时空soc芯片",
+  "item.gtladditions.infinity_boule": "无尽掺杂的单晶硅",
+  "item.gtladditions.infinity_wafer": "无尽掺杂的晶圆",
+  "item.gtladditions.prepare_primary_soc_wafer": "预备原初soc晶圆",
+  "item.gtladditions.primary_soc_wafer": "原初soc晶圆",
+  "item.gtladditions.primary_soc": "原初soc芯片",
+  "item.gtladditions.spacetime_lens": "时空织构透镜",
+  "material.gtladditions.gallium_oxide": "氧化镓",
+  "material.gtladditions.ammonium_gallium_sulfate": "硫酸镓铵"
+
 }

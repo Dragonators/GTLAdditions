@@ -4,14 +4,14 @@ import com.gregtechceu.gtceu.api.addon.GTAddon;
 import com.gregtechceu.gtceu.api.addon.IGTAddon;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 
-import com.gtladd.gtladditions.data.Recipes.Process.process;
 import net.minecraft.data.recipes.FinishedRecipe;
 
-import com.gtladd.gtladditions.Common.Items.GTLAddItems;
-import com.gtladd.gtladditions.Common.Machine.GTLAddMachine;
-import com.gtladd.gtladditions.api.Registry.GTLAddRegistration;
-import com.gtladd.gtladditions.data.Recipes.*;
-import com.gtladd.gtladditions.data.Recipes.NewMachineRecipe.*;
+import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
+import com.gtladd.gtladditions.common.items.GTLAddItems;
+import com.gtladd.gtladditions.common.machine.GTLAddMachine;
+import com.gtladd.gtladditions.data.recipes.*;
+import com.gtladd.gtladditions.data.recipes.newmachinerecipe.*;
+import com.gtladd.gtladditions.data.recipes.process.socprocess;
 
 import java.util.function.Consumer;
 
@@ -51,6 +51,6 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         Mixer.init(provider);
         NewMultiBlockMachineController.init(provider);
         Qft.init(provider);
-        process.init(provider);
+        socprocess.init(provider);
     }
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gtladditions:item/prepare_spacetime_soc_wafer"
+  }
+}

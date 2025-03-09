@@ -29,17 +29,3 @@ mandatory = true
 versionRange = "[1.1,)"
 ordering = "AFTER"
 side = "BOTH"
-
-[[dependencies.${mod_id}]]
-modId = "gtceu"
-mandatory = true
-versionRange = "[${gtceu_version},)"
-ordering = "AFTER"
-side = "BOTH"
-
-[[dependencies.${mod_id}]]
-modId = "ae2"
-mandatory = true
-versionRange = "[15.2.,)"
-ordering = "AFTER"
-side = "BOTH"

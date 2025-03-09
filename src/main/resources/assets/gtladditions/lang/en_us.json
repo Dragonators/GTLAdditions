@@ -32,5 +32,17 @@
   "item.gtladditions.prepare_extraordinary_soc_wafer": "Prepare Extraordinary Soc Wafer",
   "item.gtladditions.outstanding_soc": "Outstanding Soc",
   "item.gtladditions.outstanding_soc_wafer": "Outstanding Soc Wafer",
-  "material.gtladditions.gallium_oxide": "Gallium Oxide"
+  "item.gtladditions.periodicium_boule": "Periodicium Boule",
+  "item.gtladditions.periodicium_wafer": "Periodicium Wafer",
+  "item.gtladditions.prepare_spacetime_soc_wafer": "Prepare Spacetime Soc Wafer",
+  "item.gtladditions.spacetime_soc_wafer": "Spacetime Soc Wafer",
+  "item.gtladditions.spacetime_soc": "Spacetime Soc",
+  "item.gtladditions.infinity_boule": "Infinity Boule",
+  "item.gtladditions.infinity_wafer": "Infinity Wafer",
+  "item.gtladditions.prepare_primary_soc_wafer": "Prepare Primary Soc Wafer",
+  "item.gtladditions.primary_soc_wafer": "Primary Soc Wafer",
+  "item.gtladditions.primary_soc": "Primary Soc",
+  "item.gtladditions.spacetime_lens": "Spacetime Lens",
+  "material.gtladditions.gallium_oxide": "Gallium Oxide",
+  "material.gtladditions.ammonium_gallium_sulfate": "Ammonium Gallium Sulfate"
 }
