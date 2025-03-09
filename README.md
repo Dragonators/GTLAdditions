@@ -59,8 +59,8 @@ Here is the process to get it.
 
 | Machine                | Input                                                 | Output                                                                 |
 | ---------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------- |
-| Chemical Reactor       | 1 dust of $Ga$+ 2 B of'$H_{2}SO_{4}$ + 1B of $NH_{3}$ | 1 dust of $Ga(NH_{4})(SO_{4})_{2}$                                     |
-| Large Chemical Reactor | 4 dusts of $Ga(NH_{4})(SO_{4})_{2}$ + 15B of $O$      | 2 dusts of $Ga_{2}O_{3}$ + 2B of $N$ + 8B of $SO_{3}$ + 8B of $H_{2}O$ |
+| Chemical Reactor       | 1 dust of $`Ga`$+ 2 B of $`H_{2}SO_{4}`$ + 1B of $`NH_{3}`$ | 1 dust of $`Ga(NH_{4})(SO_{4})_{2}`$                                     |
+| Large Chemical Reactor | 4 dusts of $`Ga(NH_{4})(SO_{4})_{2}`$ + 15B of $`O`$      | 2 dusts of $`Ga_{2}O_{3}`$ + 2B of $`N`$ + 8B of $`SO_{3}`$ + 8B of $`H_{2}O`$ |
 
 ### About Processers
 
