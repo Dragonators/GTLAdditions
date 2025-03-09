@@ -26,6 +26,6 @@ description = "Add some MultiBlockMachine and Recipes"
 [[dependencies.${mod_id}]]
 modId = "gtlcore"
 mandatory = true
-versionRange = "[1.1.1,)"
+versionRange = "[1.1,)"
 ordering = "AFTER"
 side = "BOTH"

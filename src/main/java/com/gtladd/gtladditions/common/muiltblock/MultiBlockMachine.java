@@ -477,7 +477,6 @@ public class MultiBlockMachine {
                 .pattern((definition) -> GTLMachines.DTPF
                         .where("a", Predicates.controller(Predicates.blocks(definition.get())))
                         .where("e", Predicates.blocks(GTBlocks.CASING_PTFE_INERT.get())
-                                .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
                                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
