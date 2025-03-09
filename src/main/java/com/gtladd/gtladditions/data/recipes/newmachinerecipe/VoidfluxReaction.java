@@ -26,12 +26,11 @@ public class VoidfluxReaction {
             for (int tier = GTValues.UHV; tier < GTValues.MAX; tier++) {
                 final int amplifier = (int) Math.pow(2, tier - BASE_TIER);
                 final String voltageName = GTValues.VN[tier].toLowerCase();
-                GTLAddRecipeBuilder builder = new GTLAddRecipeBuilder(
-                        String.format("%s_air_collector_%d", dimension, tier - BASE_TIER),
-                        GTLAddRecipesTypes.VOIDFLUX_REACTION).notConsumable("kubejs:" + dimension + "_data", 64)
+                GTLAddRecipeBuilder builder = new GTLAddRecipeBuilder(String.format("%s_air_collector_%d", dimension, tier - BASE_TIER), GTLAddRecipesTypes.VOIDFLUX_REACTION)
+                        .notConsumable("kubejs:" + dimension + "_data", 64)
                         .notConsumable("gtceu:" + voltageName + "_fluid_regulator");
                 final int[] durations = { 20, 200 };
-                int finalTier = tier - BASE_TIER;
+                int finalTier = tier - 2;
                 IntStream.range(0, 2).forEach(mode -> {
                     GTRecipeBuilder modeBuilder = ((mode == 0) ?
                             builder.copy(String.format("%s_%s_air_collector_%d", voltageName, dimension, mode)).circuitMeta(1) :
