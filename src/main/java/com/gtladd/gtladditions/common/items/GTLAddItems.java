@@ -10,20 +10,20 @@ import static com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 public class GTLAddItems {
 
     public static ItemEntry<Item> ECHO_SHARD_BOULE;
-    public static ItemEntry<Item> BIOWARE_ECHO_SHARD_BOULE;
     public static ItemEntry<Item> ECHO_SHARD_WAFER;
+    public static ItemEntry<Item> BIOWARE_ECHO_SHARD_BOULE;
+    public static ItemEntry<Item> OUTSTANDING_SOC_WAFER;
+    public static ItemEntry<Item> OUTSTANDING_SOC;
     public static ItemEntry<Item> HASSIUM_BOULE;
     public static ItemEntry<Item> HASSIUM_WAFER;
+    public static ItemEntry<Item> PREPARE_EXTRAORDINARY_SOC_WAFER;
+    public static ItemEntry<Item> EXTRAORDINARY_SOC_WAFER;
+    public static ItemEntry<Item> EXTRAORDINARY_SOC;
     public static ItemEntry<Item> STARMETAL_BOULE;
     public static ItemEntry<Item> STARMETAL_WAFER;
     public static ItemEntry<Item> DRAGON_ELEMENT_STARMETAL_WAFER;
-    public static ItemEntry<Item> CHAOS_SOC;
     public static ItemEntry<Item> CHAOS_SOC_WAFER;
-    public static ItemEntry<Item> EXTRAORDINARY_SOC;
-    public static ItemEntry<Item> EXTRAORDINARY_SOC_WAFER;
-    public static ItemEntry<Item> PREPARE_EXTRAORDINARY_SOC_WAFER;
-    public static ItemEntry<Item> OUTSTANDING_SOC;
-    public static ItemEntry<Item> OUTSTANDING_SOC_WAFER;
+    public static ItemEntry<Item> CHAOS_SOC;
     public static ItemEntry<Item> PERIODICIUM_BOULE;
     public static ItemEntry<Item> PERIODICIUM_WAFER;
     public static ItemEntry<Item> PREPARE_SPACETIME_SOC_WAFER;
@@ -44,21 +44,22 @@ public class GTLAddItems {
 
     static {
         REGISTRATE.creativeModeTab(() -> GTLAddCreativeModeTabs.GTLADD_ITEMS);
+        SPACETIME_LENS = register("spacetime_lens", "Spacetime Lens");
         ECHO_SHARD_BOULE = register("echo_shard_boule", "Echo Shard Boule");
         ECHO_SHARD_WAFER = register("echo_shard_wafer", "Echo Shard Wafer");
+        BIOWARE_ECHO_SHARD_BOULE = register("bioware_echo_shard_wafer", "Bioware Echo Shard Wafer");
+        OUTSTANDING_SOC_WAFER = register("outstanding_soc_wafer", "Outstanding Soc Wafer");
+        OUTSTANDING_SOC = register("outstanding_soc", "Outstanding Soc");
         HASSIUM_BOULE = register("hassium_boule", "Hassium Boule");
         HASSIUM_WAFER = register("hassium_wafer", "Hassium Wafer");
+        PREPARE_EXTRAORDINARY_SOC_WAFER = register("prepare_extraordinary_soc_wafer", "Prepare Extraordinary Soc Wafer");
+        EXTRAORDINARY_SOC_WAFER = register("extraordinary_soc_wafer", "Extraordinary Soc Wafer");
+        EXTRAORDINARY_SOC = register("extraordinary_soc", "Extraordinary Soc");
         STARMETAL_BOULE = register("starmetal_boule", "Starmetal Boule");
         STARMETAL_WAFER = register("starmetal_wafer", "Starmetal Wafer");
-        BIOWARE_ECHO_SHARD_BOULE = register("bioware_echo_shard_wafer", "Bioware Echo Shard Wafer");
         DRAGON_ELEMENT_STARMETAL_WAFER = register("dragon_element_starmetal_wafer", "Dragon Element Starmetal Wafer");
-        CHAOS_SOC = register("chaos_soc", "Chaos Soc");
         CHAOS_SOC_WAFER = register("chaos_soc_wafer", "Chaos Soc Wafer");
-        EXTRAORDINARY_SOC = register("extraordinary_soc", "Extraordinary Soc");
-        EXTRAORDINARY_SOC_WAFER = register("extraordinary_soc_wafer", "Extraordinary Soc Wafer");
-        PREPARE_EXTRAORDINARY_SOC_WAFER = register("prepare_extraordinary_soc_wafer", "Prepare Extraordinary Soc Wafer");
-        OUTSTANDING_SOC = register("outstanding_soc", "Outstanding Soc");
-        OUTSTANDING_SOC_WAFER = register("outstanding_soc_wafer", "Outstanding Soc Wafer");
+        CHAOS_SOC = register("chaos_soc", "Chaos Soc");
         PERIODICIUM_BOULE = register("periodicium_boule", "Periodicuim Boule");
         PERIODICIUM_WAFER = register("periodicium_wafer", "Periodicuim Wafer");
         PREPARE_SPACETIME_SOC_WAFER = register("prepare_spacetime_soc_wafer", "Prepare Spacetime Soc Wafer");
@@ -69,6 +70,5 @@ public class GTLAddItems {
         PREPARE_PRIMARY_SOC_WAFER = register("prepare_primary_soc_wafer", "Prepare Primary Soc Wafer");
         PRIMARY_SOC_WAFER = register("primary_soc_wafer", "Primary Soc Wafer");
         PRIMARY_SOC = register("primary_soc", "Primary Soc");
-        SPACETIME_LENS = register("spacetime_lens", "Spacetime Lens");
     }
 }

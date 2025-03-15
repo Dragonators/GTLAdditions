@@ -6,8 +6,8 @@ license = "${mod_license}"
 modId = "${mod_id}"
 version = "${version}"
 displayName = "${mod_name}"
-authors="${mod_author}"
-description = "Add some MultiBlockMachine and Recipes"
+authors="アドニス、疏影"
+description = "添加了一些新机器和简化配方，结构与材质由疏影提供"
 
 [[dependencies.${mod_id}]]
     modId="forge"

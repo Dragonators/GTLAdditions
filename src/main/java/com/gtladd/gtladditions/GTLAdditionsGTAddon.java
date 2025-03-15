@@ -52,5 +52,6 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         NewMultiBlockMachineController.init(provider);
         Qft.init(provider);
         socprocess.init(provider);
+        Misc.init(provider);
     }
 }

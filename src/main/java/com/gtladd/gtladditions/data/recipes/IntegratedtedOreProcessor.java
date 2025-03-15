@@ -31,31 +31,22 @@ public class IntegratedtedOreProcessor {
         };
         for (String[] pure : platinum_group_sludge_dust_list) {
             new GTLAddRecipeBuilder("purified_" + pure[0] + "_ore_8", INTEGRATED_ORE_PROCESSOR)
-                    .circuitMeta(8)
-                    .inputItemsTag("ores/" + pure[0])
+                    .circuitMeta(8).inputItemsTag("ores/" + pure[0])
                     .inputFluids(GTMaterials.DistilledWater.getFluid(2L * orefluid))
                     .outputItems("gtceu:purified_" + pure[0] + "_ore", 2 * orenumber)
                     .chancedOutputItems("gtceu:" + pure[1] + "_dust", 14, 8.5)
                     .chancedOutputItems("gtceu:" + pure[1] + "_dust", 2 * orenumber, 33, 0)
                     .outputItems(TagPrefix.dust, GTMaterials.Stone, 2 * orenumber)
-                    .EUt(30)
-                    .duration(26 + 200 * 2 * orenumber)
-                    .save(provider);
-
-            if (Objects.equals(pure[0], "chalcocite")) {
-                return;
-            }
+                    .EUt(30).duration(26 + 200 * 2 * orenumber).save(provider);
+            if (Objects.equals(pure[0], "chalcocite")) return;
             new GTLAddRecipeBuilder("purified_" + pure[0] + "_ore_9", INTEGRATED_ORE_PROCESSOR)
-                    .circuitMeta(9)
-                    .inputItemsTag("ores/" + pure[0])
+                    .circuitMeta(9).inputItemsTag("ores/" + pure[0])
                     .inputFluids("gtceu:" + pure[3], 2 * orefluid)
                     .outputItems("gtceu:purified_" + pure[0] + "_ore", 2 * orenumber)
                     .chancedOutputItems("gtceu:" + pure[1] + "_dust", 14, 8.5)
                     .chancedOutputItems("gtceu:" + pure[1] + "_dust", 2 * orenumber, 33, 0)
                     .outputItems(TagPrefix.dust, GTMaterials.Stone, 2 * orenumber)
-                    .EUt(30)
-                    .duration(26 + 200 * 2 * orenumber)
-                    .save(provider);
+                    .EUt(30).duration(26 + 200 * 2 * orenumber).save(provider);
 
         }
 

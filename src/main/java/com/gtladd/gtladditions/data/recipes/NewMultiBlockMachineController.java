@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.data.recipes;
 
+import com.gtladd.gtladditions.common.items.GTLAddItems;
 import org.gtlcore.gtlcore.common.data.GTLBlocks;
 import org.gtlcore.gtlcore.common.data.GTLItems;
 import org.gtlcore.gtlcore.common.data.GTLMaterials;
@@ -292,7 +293,7 @@ public class NewMultiBlockMachineController {
                         .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024))
                 .save(provider);
 
-        GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("advanced_resource_collection")
+        GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("nebula_reaper")
                 .inputItems(AdvancedMultiBlockMachine.SPACE_ELEVATOR, 16)
                 .inputItems(AdvancedMultiBlockMachine.RESOURCE_COLLECTION, 64)
                 .inputItems(AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER, 32)
@@ -316,7 +317,7 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.NEBULA_REAPER)
                 .EUt(GTValues.VA[GTValues.UXV])
                 .duration(1200)
-                .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.RESOURCE_COLLECTION.asStack())
+                .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.asStack())
                         .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024))
                 .save(provider);
 
@@ -375,6 +376,35 @@ public class NewMultiBlockMachineController {
                 .stationResearch((b) -> b.researchStack(Registries.getItem("gtceu:large_gas_collector").getDefaultInstance())
                         .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UIV]).CWUt(832))
                 .save(provider);
+
+        GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder("fuxi_bagua_heaven_forging_furnace")
+                .inputItems(TagPrefix.frameGt, GTLMaterials.Eternity, 16)
+                .inputItems(Registries.getItem("kubejs:dimension_creation_casing"), 16)
+                .inputItems(MultiBlockMachineA.ADVANCED_SPS_CRAFTING, 64)
+                .inputItems(AdvancedMultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE, 64)
+                .inputItems(MultiBlockMachineA.STAR_ULTIMATE_MATERIAL_FORGE_FACTORY, 64)
+                .inputItems(Registries.getItem("kubejs:supracausal_mainframe"), 64)
+                .inputItems(TagPrefix.wireGtHex, GTLMaterials.SpaceTime, 16)
+                .inputItems(GTLItems.MEGA_ULTIMATE_BATTERY, 16)
+                .inputItems(Registries.getItem("kubejs:graviton_transducer"), 64)
+                .inputItems(GTLAddItems.SPACETIME_SOC, 64)
+                .inputItems(Registries.getItem("gtceu:transcendentmetal_nanoswarm"), 16)
+                .inputItems(Registries.getItem("kubejs:draconic_energy_core"), 4)
+                .inputItems(Registries.getItem("kubejs:two_way_foil"), 64)
+                .inputItems(Registries.getItem("kubejs:hypercube"), 64)
+                .inputItems(TagPrefix.plateDouble, GTLMaterials.Shirabon, 16)
+                .inputItems(TagPrefix.plateDouble, GTLMaterials.Cosmic, 16)
+                .inputFluids(GTLMaterials.Magmatter.getFluid(10000))
+                .inputFluids(GTLMaterials.MagnetohydrodynamicallyConstrainedStarMatter.getFluid(10000))
+                .inputFluids(GTLMaterials.CosmicNeutronium.getFluid(100000))
+                .inputFluids(GTLMaterials.Chaos.getFluid(100000))
+                .outputItems(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE)
+                .EUt(GTValues.VA[GTValues.MAX] * 4096L)
+                .duration(72000)
+                .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE.asStack())
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.MAX]).CWUt(16384))
+                .save(provider);
+
 
         new GTLAddRecipeBuilder("advanced_slaughter_house", GTRecipeTypes.ASSEMBLER_RECIPES)
                 .inputItems(AdvancedMultiBlockMachine.SLAUGHTERHOUSE, 32)

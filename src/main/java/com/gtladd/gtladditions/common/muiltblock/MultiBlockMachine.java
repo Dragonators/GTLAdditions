@@ -1,16 +1,5 @@
 package com.gtladd.gtladditions.common.muiltblock;
 
-import org.gtlcore.gtlcore.GTLCore;
-import org.gtlcore.gtlcore.client.renderer.machine.EyeOfHarmonyRenderer;
-import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock;
-import org.gtlcore.gtlcore.common.data.GTLBlocks;
-import org.gtlcore.gtlcore.common.data.GTLMachines;
-import org.gtlcore.gtlcore.common.data.GTLRecipeTypes;
-import org.gtlcore.gtlcore.common.machine.multiblock.electric.CoilWorkableElectricMultipleRecipesMultiblockMachine;
-import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine;
-import org.gtlcore.gtlcore.utils.Registries;
-import org.gtlcore.gtlcore.utils.TextUtil;
-
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
@@ -21,11 +10,9 @@ import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
-
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.Block;
-
+import com.gregtechceu.gtceu.utils.FormattingUtil;
 import com.gtladd.gtladditions.api.machine.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine;
+import com.gtladd.gtladditions.api.machine.GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine;
 import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricMultipleRecipesMachine;
 import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricParallelHatchMultipleRecipesMachine;
 import com.gtladd.gtladditions.api.machine.special.AdvancedHarmonyMachine;
@@ -35,6 +22,20 @@ import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
 import com.gtladd.gtladditions.common.muiltblock.structure.MultiBlockStructure;
 import com.hepdd.gtmthings.data.CustomMachines;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.level.block.Block;
+import org.gtlcore.gtlcore.GTLCore;
+import org.gtlcore.gtlcore.client.renderer.machine.EyeOfHarmonyRenderer;
+import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock;
+import org.gtlcore.gtlcore.common.data.GTLBlocks;
+import org.gtlcore.gtlcore.common.data.GTLMachines;
+import org.gtlcore.gtlcore.common.data.GTLRecipeTypes;
+import org.gtlcore.gtlcore.common.machine.multiblock.electric.CoilWorkableElectricMultipleRecipesMultiblockMachine;
+import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine;
+import org.gtlcore.gtlcore.utils.Registries;
+import org.gtlcore.gtlcore.utils.TextUtil;
 
 public class MultiBlockMachine {
 
@@ -313,7 +314,8 @@ public class MultiBlockMachine {
                 .nonYAxisRotation()
                 .recipeType(GTLRecipeTypes.COSMOS_SIMULATION_RECIPES)
                 .recipeModifier(AdvancedHarmonyMachine::recipeModifier)
-                .tooltips(new Component[] { Component.literal("最大并行数：256") })
+                .tooltips(new Component[] { Component.literal("最大并行数：2048") })
+                .tooltips(new Component[] { Component.literal("仅量子爆弹和宇宙素的消耗量增加，其他资源消耗量不变") })
                 .tooltips(new Component[] { Component.translatable("gtceu.machine.eye_of_harmony.tooltip.0") })
                 .tooltips(new Component[] { Component.translatable("gtceu.machine.eye_of_harmony.tooltip.1") })
                 .tooltips(new Component[] { Component.translatable("gtceu.machine.eye_of_harmony.tooltip.2") })
@@ -372,7 +374,7 @@ public class MultiBlockMachine {
         DRACONIC_COLLAPSE_CORE = GTLAddRegistration.REGISTRATE.multiblock("draconic_collapse_core", WorkableElectricMultiblockMachine::new)
                 .nonYAxisRotation()
                 .tooltipText("电压等级每高出UEV一级最大并行数X8")
-                .tooltipTextLaser()
+                .tooltipText("只能使用激光仓")
                 .tooltipTextPerfectOverclock()
                 .tooltipText("可用配方类型：聚合装置")
                 .tooltipTextAdd()
@@ -477,6 +479,7 @@ public class MultiBlockMachine {
                 .pattern((definition) -> GTLMachines.DTPF
                         .where("a", Predicates.controller(Predicates.blocks(definition.get())))
                         .where("e", Predicates.blocks(GTBlocks.CASING_PTFE_INERT.get())
+                                .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
                                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
@@ -524,14 +527,16 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTCEu.id("block/casings/hpca/high_power_casing"), GTCEu.id("block/machines/gas_collector"))
                 .register();
 
-        FUXI_BAGUA_HEAVEN_FORGING_FURNACE = GTLAddRegistration.REGISTRATE.multiblock("fuxi_bagua_heaven_forging_furnace", GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine::new)
+        FUXI_BAGUA_HEAVEN_FORGING_FURNACE = GTLAddRegistration.REGISTRATE.multiblock("fuxi_bagua_heaven_forging_furnace", GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine::new)
                 .nonYAxisRotation()
-                .tooltipTextCoilParallel()
-                .tooltipTextLaser()
+                .tooltipTextParallelHatch()
+                .tooltipText("只能使用激光仓")
                 .tooltipTextSuperMultiRecipes()
-                .tooltipText("可用配方类型：星焰跃迁")
+                .tooltipText("可用配方类型：星焰跃迁、混沌炼金")
                 .tooltipTextAdd()
                 .recipeType(GTLAddRecipesTypes.STELLAR_LGNITION)
+                .recipeType(GTLAddRecipesTypes.CHAOTIC_ALCHEMY)
+                .recipeModifier(GTRecipeModifiers.PARALLEL_HATCH)
                 .appearanceBlock(GTLBlocks.DIMENSION_INJECTION_CASING)
                 .pattern(definition -> MultiBlockStructure.FUXI_BAGUA_HEAVEN_FORGING_FURNACE_STRUCTURE
                         .where("D", Predicates.controller(Predicates.blocks(definition.get())))
@@ -541,7 +546,8 @@ public class MultiBlockMachine {
                                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
-                                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2)))
+                                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2))
+                                .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1)))
                         .where("X", Predicates.heatingCoils())
                         .where("J", Predicates.blocks(Registries.getBlock("kubejs:dimensional_bridge_casing")))
                         .where("F", Predicates.blocks(Registries.getBlock("gtlcore:graviton_field_constraint_casing")))
@@ -556,8 +562,14 @@ public class MultiBlockMachine {
                         .where("M", Predicates.blocks(Registries.getBlock("kubejs:dimensional_stability_casing")))
                         .where("O", Predicates.blocks(Registries.getBlock("kubejs:restraint_device")))
                         .build())
-                .additionalDisplay(GTLAddMultiBlockMachineModifier.MULTIPLERECIPES_COIL_PARALLEL)
-                .additionalDisplay(GTLMachines.TEMPERATURE)
+                .additionalDisplay((controller, components) -> {
+                    if (controller instanceof GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine coilMachine) {
+                        if (controller.isFormed()) {
+                            components.add(Component.translatable("gtceu.multiblock.blast_furnace.max_temperature", Component.translatable(FormattingUtil.formatNumbers(coilMachine.getCoilType().getCoilTemperature()) + "K").setStyle(Style.EMPTY.withColor(ChatFormatting.RED))));
+                        }
+                    }
+
+                })
                 .workableCasingRenderer(GTLCore.id("block/casings/dimension_injection_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
                 .register();
 

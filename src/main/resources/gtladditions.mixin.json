@@ -7,6 +7,8 @@
   "client": [
   ],
   "mixins": [
+    "gtceu.AlloyBlastRecipeProducerMixin",
+    "gtlcore.AutoConfigurationMaintenanceHatchPartMachineMixin"
   ],
   "injectors": {
     "defaultRequire": 1

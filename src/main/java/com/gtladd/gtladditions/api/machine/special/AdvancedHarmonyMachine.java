@@ -21,7 +21,7 @@ public class AdvancedHarmonyMachine extends HarmonyMachine {
     public static @Nullable GTRecipe recipeModifier(MetaMachine machine, @NotNull GTRecipe recipe, @NotNull OCParams params, @NotNull OCResult result) {
         GTRecipe recipe1 = HarmonyMachine.recipeModifier(machine, recipe, params, result);
         if (recipe1 != null) {
-            return GTRecipeModifiers.accurateParallel(machine, recipe1, 256, false).getFirst();
+            return GTRecipeModifiers.accurateParallel(machine, recipe1, 2048, false).getFirst();
         }
         return null;
     }

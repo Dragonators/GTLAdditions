@@ -64,8 +64,7 @@ public class socprocess {
                 .inputFluids(GTLMaterials.CosmicMesh.getFluid(FluidStorageKeys.PLASMA, 1000))
                 .inputFluids(GTLMaterials.CosmicElement.getFluid(10000))
                 .inputFluids(GTLMaterials.SpaceTime.getFluid(500))
-                .outputItems(GTLAddItems.PREPARE_SPACETIME_SOC_WAFER, 4).EUt(GTValues.VA[GTValues.OpV]).duration(200)
-                .cleanroom(GTLCleanroomType.LAW_CLEANROOM).addCondition(new GravityCondition(true)).save(provider);
+                .outputItems(GTLAddItems.PREPARE_SPACETIME_SOC_WAFER, 4).EUt(GTValues.VA[GTValues.OpV]).duration(200).save(provider);
         GTLRecipeTypes.DIMENSIONALLY_TRANSCENDENT_MIXER_RECIPES.recipeBuilder("prepare_primary_soc_wafer")
                 .notConsumable(new ItemStack(Registries.getItem("kubejs:eternity_catalyst")))
                 .inputItems(GTLAddItems.INFINITY_WAFER, 4)
@@ -86,6 +85,7 @@ public class socprocess {
     }
 
     static class electricblastfurnace {
+
         public static void init(Consumer<FinishedRecipe> provider) {
             GTRecipeTypes.BLAST_RECIPES.recipeBuilder("echo_shard_boule")
                     .inputItems(GTItems.SILICON_BOULE, 64).inputItems(TagPrefix.dust, GTLAddMaterial.GALLIUM_OXIDE, 16).inputItems(new ItemStack(Registries.getItem("gtceu:echo_shard_dust"), 16))
@@ -99,6 +99,9 @@ public class socprocess {
                     .inputItems(TagPrefix.dust, GTMaterials.Gallium).inputFluids(GTMaterials.SulfuricAcid.getFluid(2000)).inputFluids(GTMaterials.Ammonia.getFluid(1000))
                     .outputItems(TagPrefix.dust, GTLAddMaterial.AMMONIUM_GALIUM_SULFATE).EUt(GTValues.VA[GTValues.EV]).duration(200).save(provider);
             GTRecipeTypes.LARGE_CHEMICAL_RECIPES.recipeBuilder("ammonium_gallium_sulfate")
+                    .inputItems(TagPrefix.dust, GTMaterials.Gallium).inputFluids(GTMaterials.SulfuricAcid.getFluid(2000)).inputFluids(GTMaterials.Ammonia.getFluid(1000))
+                    .outputItems(TagPrefix.dust, GTLAddMaterial.AMMONIUM_GALIUM_SULFATE).EUt(GTValues.VA[GTValues.EV]).duration(200).save(provider);
+            GTRecipeTypes.LARGE_CHEMICAL_RECIPES.recipeBuilder("gallium_oxide")
                     .inputItems(TagPrefix.dust, GTLAddMaterial.AMMONIUM_GALIUM_SULFATE, 4).inputFluids(GTMaterials.Oxygen.getFluid(15000))
                     .outputItems(TagPrefix.dust, GTLAddMaterial.GALLIUM_OXIDE, 2).outputFluids(GTMaterials.Nitrogen.getFluid(2000)).outputFluids(GTMaterials.SulfurTrioxide.getFluid(8000))
                     .outputFluids(GTMaterials.Water.getFluid(8000)).EUt(GTValues.VA[GTValues.IV]).duration(200).save(provider);
@@ -120,7 +123,7 @@ public class socprocess {
             addCutterRecipe("extraordinary_soc_wafer", GTLAddItems.EXTRAORDINARY_SOC_WAFER, 6, GTLAddItems.EXTRAORDINARY_SOC, GTValues.VA[GTValues.UHV], GTLCleanroomType.LAW_CLEANROOM, provider);
             addCutterRecipe("starmetal_wafer", GTLAddItems.STARMETAL_BOULE, 16, GTLAddItems.STARMETAL_WAFER, GTValues.VA[GTValues.UEV], GTLCleanroomType.LAW_CLEANROOM, provider);
             addCutterRecipe("chaos_soc", GTLAddItems.CHAOS_SOC_WAFER, 6, GTLAddItems.CHAOS_SOC, GTValues.VA[GTValues.UEV], GTLCleanroomType.LAW_CLEANROOM, provider);
-            addCutterRecipe("periodicium_wafer", GTLAddItems.PERIODICIUM_BOULE, 16, GTLAddItems.PERIODICIUM_WAFER, GTValues.VA[GTValues.UXV], GTLCleanroomType.LAW_CLEANROOM, provider);
+            addCutterRecipe("periodicium_wafer", GTLAddItems.PERIODICIUM_BOULE, 256, GTLAddItems.PERIODICIUM_WAFER, GTValues.VA[GTValues.UXV], GTLCleanroomType.LAW_CLEANROOM, provider);
             addCutterRecipe("spacetime_soc", GTLAddItems.SPACETIME_SOC_WAFER, 6, GTLAddItems.SPACETIME_SOC, GTValues.VA[GTValues.UXV], GTLCleanroomType.LAW_CLEANROOM, provider);
             addCutterRecipe("infinity_wafer", GTLAddItems.INFINITY_BOULE, 16, GTLAddItems.INFINITY_WAFER, GTValues.VA[GTValues.OpV], GTLCleanroomType.LAW_CLEANROOM, provider);
             addCutterRecipe("primary_soc", GTLAddItems.PRIMARY_SOC_WAFER, 6, GTLAddItems.PRIMARY_SOC, GTValues.VA[GTValues.OpV], GTLCleanroomType.LAW_CLEANROOM, provider);

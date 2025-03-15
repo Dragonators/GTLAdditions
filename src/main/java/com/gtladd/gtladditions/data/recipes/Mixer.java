@@ -14,12 +14,8 @@ public class Mixer {
 
     public static void init(Consumer<FinishedRecipe> provider) {
         new GTLAddRecipeBuilder("warped_ender_pearl", GTRecipeTypes.MIXER_RECIPES)
-                .inputItems("minecraft:bone_meal", 4)
-                .inputItems("minecraft:blaze_powder", 4)
-                .inputItems("minecraft:ender_pearl")
+                .inputItems("minecraft:bone_meal", 4).inputItems("minecraft:blaze_powder", 4).inputItems("minecraft:ender_pearl")
                 .outputItems("kubejs:warped_ender_pearl", 4)
-                .TierEUtVA(4)
-                .duration(200)
-                .save(provider);
+                .TierEUtVA(4).duration(200).save(provider);
     }
 }

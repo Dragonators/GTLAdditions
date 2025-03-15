@@ -16,6 +16,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.api.recipe.ingredient.IntCircuitIngredient;
+import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.common.recipe.condition.CleanroomCondition;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
@@ -48,7 +49,7 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
     }
 
     public GTLAddRecipeBuilder inputItems(String input, int number) {
-        return (GTLAddRecipeBuilder) super.inputItems(Registries.getItem(input), number);
+        return (GTLAddRecipeBuilder) super.inputItems(new ItemStack(Registries.getItem(input), number));
     }
 
     public GTLAddRecipeBuilder inputItems(String input) {
@@ -61,7 +62,7 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
     }
 
     public GTLAddRecipeBuilder inputItemsTag(String input, int number) {
-        return (GTLAddRecipeBuilder) super.inputItems(TagUtil.createItemTag(input), number);
+        return (GTLAddRecipeBuilder) super.inputItems(SizedIngredient.create(TagUtil.createItemTag(input), number));
     }
 
     public GTLAddRecipeBuilder inputItemsTag(String input) {
@@ -69,7 +70,7 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
     }
 
     public GTLAddRecipeBuilder inputItemsModTag(String input, int number) {
-        return (GTLAddRecipeBuilder) super.inputItems(TagUtil.createModItemTag(input), number);
+        return (GTLAddRecipeBuilder) super.inputItems(SizedIngredient.create(TagUtil.createModItemTag(input), number));
     }
 
     public GTLAddRecipeBuilder inputItemsModTag(String input) {
@@ -111,7 +112,7 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
     }
 
     public GTLAddRecipeBuilder outputItems(String output, int number) {
-        return (GTLAddRecipeBuilder) super.outputItems(Registries.getItem(output), number);
+        return (GTLAddRecipeBuilder) super.outputItems(new ItemStack(Registries.getItem(output), number));
     }
 
     public GTLAddRecipeBuilder outputItems(String output) {
@@ -213,11 +214,15 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
     }
 
     public GTLAddRecipeBuilder notConsumable(String input) {
-        return (GTLAddRecipeBuilder) super.notConsumable(new ItemStack(Registries.getItem(input)));
+        return this.notConsumable(input, 1);
     }
 
     public GTLAddRecipeBuilder notConsumable(String input, int count) {
         return (GTLAddRecipeBuilder) super.notConsumable(new ItemStack(Registries.getItem(input), count));
+    }
+
+    public GTLAddRecipeBuilder notConsumableFluid(FluidStack fluid) {
+        return (GTLAddRecipeBuilder) super.notConsumableFluid(FluidIngredient.of(TagUtil.createFluidTag(BuiltInRegistries.FLUID.getKey(fluid.getFluid()).getPath()), fluid.getAmount()));
     }
 
     @Override

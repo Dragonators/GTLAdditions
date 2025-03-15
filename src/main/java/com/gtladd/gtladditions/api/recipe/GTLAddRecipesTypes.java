@@ -16,11 +16,13 @@ import com.lowdragmc.lowdraglib.utils.LocalizationUtils;
 
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 import com.gtladd.gtladditions.common.data.RecipesModify;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class GTLAddRecipesTypes {
 
@@ -30,6 +32,7 @@ public class GTLAddRecipesTypes {
     public static final GTRecipeType BIOLOGICAL_SIMULATION;
     public static final GTRecipeType VOIDFLUX_REACTION;
     public static final GTRecipeType STELLAR_LGNITION;
+    public static final GTRecipeType CHAOTIC_ALCHEMY;
 
     public GTLAddRecipesTypes() {}
 
@@ -86,6 +89,31 @@ public class GTLAddRecipesTypes {
                             .map(coil -> new ItemStack(coil.getValue().get())).toList());
                     widgetGroup.addWidget(new SlotWidget(new CycleItemStackHandler(items), 0,
                             widgetGroup.getSize().width - 50, widgetGroup.getSize().height - 40, false, false));
+                }).setSound(GTSoundEntries.ARC);
+        CHAOTIC_ALCHEMY = GTRecipeTypes.register("chaotic_alchemy", GTRecipeTypes.MULTIBLOCK)
+                .setMaxIOSize(9, 0, 3, 1)
+                .setEUIO(IO.IN).setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+                .setSlotOverlay(false, false, false, GuiTextures.FURNACE_OVERLAY_1)
+                .setSlotOverlay(false, false, true, GuiTextures.FURNACE_OVERLAY_1)
+                .setSlotOverlay(false, true, false, GuiTextures.FURNACE_OVERLAY_2)
+                .setSlotOverlay(false, true, true, GuiTextures.FURNACE_OVERLAY_2)
+                .setSlotOverlay(true, true, false, GuiTextures.FURNACE_OVERLAY_2)
+                .setSlotOverlay(true, true, true, GuiTextures.FURNACE_OVERLAY_2)
+                .addDataInfo((data) -> {
+                    int temp = data.getInt("ebf_temp");
+                    return LocalizationUtils.format("gtceu.recipe.temperature", FormattingUtil.formatNumbers(temp));
+                }).addDataInfo((data) -> {
+                    int temp = data.getInt("ebf_temp");
+                    ICoilType requiredCoil = ICoilType.getMinRequiredType(temp);
+                    return requiredCoil != null && requiredCoil.getMaterial() != null ? LocalizationUtils.format("gtceu.recipe.coil.tier", I18n.get(requiredCoil.getMaterial().getUnlocalizedName())) : "";
+                }).setMaxTooltips(4).setUiBuilder((recipe, widgetGroup) -> {
+                    int temp = recipe.data.getInt("ebf_temp");
+                    List<List<ItemStack>> items = new ArrayList<>();
+                    items.add(GTCEuAPI.HEATING_COILS.entrySet().stream()
+                            .filter((coil) -> coil.getKey().getCoilTemperature() >= temp)
+                            .map((coil) -> new ItemStack((ItemLike) ((Supplier<?>) coil.getValue()).get()))
+                            .toList());
+                    widgetGroup.addWidget(new SlotWidget(new CycleItemStackHandler(items), 0, widgetGroup.getSize().width - 25, widgetGroup.getSize().height - 40, false, false));
                 }).setSound(GTSoundEntries.ARC);
     }
 }
