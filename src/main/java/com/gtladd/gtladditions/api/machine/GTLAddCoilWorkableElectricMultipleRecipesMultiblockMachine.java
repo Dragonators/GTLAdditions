@@ -25,6 +25,6 @@ public class GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine extends 
 
     @Override
     public int getMaxParallel() {
-        return Math.min(Integer.MAX_VALUE, (int) Math.pow(2.0, (double) this.getCoilType().getCoilTemperature() / 900.0));
+        return Math.min(Integer.MAX_VALUE, 1 << (this.getCoilType().getCoilTemperature() / 900));
     }
 }

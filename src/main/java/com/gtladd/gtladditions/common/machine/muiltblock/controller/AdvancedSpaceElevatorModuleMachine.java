@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.api.machine.special;
+package com.gtladd.gtladditions.common.machine.muiltblock.controller;
 
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
 import org.gtlcore.gtlcore.common.data.GTLBlocks;
@@ -39,7 +39,7 @@ public class AdvancedSpaceElevatorModuleMachine extends WorkableElectricMultiblo
         this.SEPMTier = SEPMTier;
     }
 
-    public RecipeLogic createRecipeLogic(@NotNull Object... args) {
+    public @NotNull RecipeLogic createRecipeLogic(@NotNull Object @NotNull ... args) {
         return new GTLAddMultipleRecipesLogic(this);
     }
 
@@ -66,28 +66,18 @@ public class AdvancedSpaceElevatorModuleMachine extends WorkableElectricMultiblo
                 };
                 for (BlockPos j : coordinatess) {
                     RecipeLogic logic = GTCapabilityHelper.getRecipeLogic(level, j, null);
-                    if (logic != null && logic.getMachine().getDefinition() == AdvancedMultiBlockMachine.SPACE_ELEVATOR && logic.isWorking() && logic.getProgress() > 80) {
-                        this.SpaceElevatorTier = ((SpaceElevatorMachine) logic.machine).getTier() - 7;
-                        this.ModuleTier = ((SpaceElevatorMachine) logic.machine).getCasingTier();
+                    if (logic != null && logic.getMachine().getDefinition() == AdvancedMultiBlockMachine.SPACE_ELEVATOR) {
+                        if (logic.isWorking() && logic.getProgress() > 80) {
+                            this.SpaceElevatorTier = ((SpaceElevatorMachine) logic.machine).getTier() - 7;
+                            this.ModuleTier = ((SpaceElevatorMachine) logic.machine).getCasingTier();
+                        } else if (!logic.isWorking()) {
+                            this.SpaceElevatorTier = 0;
+                            this.ModuleTier = 0;
+                        }
                     }
                 }
             }
         }
-    }
-
-    @Nullable
-    public static GTRecipe recipeModifier(MetaMachine machine, @NotNull GTRecipe recipe, @NotNull OCParams params,
-                                          @NotNull OCResult result) {
-        if (machine instanceof AdvancedSpaceElevatorModuleMachine advancedSpaceElevatorModuleMachine) {
-            if (advancedSpaceElevatorModuleMachine.SpaceElevatorTier < 1) {
-                return null;
-            }
-            if (advancedSpaceElevatorModuleMachine.SEPMTier && recipe.data.getInt("SEPMTier") > advancedSpaceElevatorModuleMachine.ModuleTier) {
-                return null;
-            }
-            return GTLRecipeModifiers.reduction(machine, recipe, 0.75, advancedSpaceElevatorModuleMachine.getReDuctionDuration());
-        }
-        return null;
     }
 
     public static boolean beforeWorking(IRecipeLogicMachine machine, @NotNull GTRecipe recipe) {
@@ -101,14 +91,13 @@ public class AdvancedSpaceElevatorModuleMachine extends WorkableElectricMultiblo
 
     public boolean onWorking() {
         boolean value = super.onWorking();
-        if (this.getOffsetTimer() % 20L == 0L) {
+        if (this.getOffsetTimer() % 10L == 0L) {
             this.getSpaceElevatorTier();
             if (this.SpaceElevatorTier < 1) {
                 this.getRecipeLogic().interruptRecipe();
                 return false;
             }
         }
-
         return value;
     }
 
@@ -122,15 +111,11 @@ public class AdvancedSpaceElevatorModuleMachine extends WorkableElectricMultiblo
                     Component.translatable(FormattingUtil.formatNumbers(getMaxParallel())).withStyle(ChatFormatting.DARK_PURPLE))
                     .withStyle(ChatFormatting.GRAY));
             textList.add(Component.translatable((this.SpaceElevatorTier < 1 ? "未" : "已") + "连接正在运行的太空电梯"));
-            textList.add(Component.translatable("gtceu.machine.duration_multiplier.tooltip", getReDuctionDuration()));
         }
     }
 
     public int getMaxParallel() {
-        return (int) Math.pow(8.0, this.ModuleTier - 1);
+        return  (2 << 3) << (this.ModuleTier - 1);
     }
 
-    public int getReDuctionDuration() {
-        return (int) Math.pow(0.7, this.SpaceElevatorTier - 1);
-    }
 }

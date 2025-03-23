@@ -5,5 +5,10 @@
   "gtceu.biological_simulation": "生物数据模拟",
   "gtceu.voidflux_reaction": "虚空聚流反应",
   "gtceu.stellar_lgnition": "星焰跃迁",
-  "gtceu.chaotic_alchemy": "混沌炼金"
+  "gtceu.chaotic_alchemy": "混沌炼金",
+  "gtceu.antientropy_condensation": "反熵冷凝",
+  "gtceu.molecular_deconstruction": "分子解构",
+  "gtceu.universe_sandbox": "宇宙沙盘",
+  "gtceu.multiblock.cleanroom": "当前维护等级：%s",
+  "gtceu.multiblock.gravity": "当前重力等级：%s"
 }

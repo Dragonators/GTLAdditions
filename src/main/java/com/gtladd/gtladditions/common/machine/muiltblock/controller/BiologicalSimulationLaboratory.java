@@ -1,9 +1,4 @@
-package com.gtladd.gtladditions.api.machine.special;
-
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
-import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers;
-import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine;
-import org.gtlcore.gtlcore.utils.Registries;
+package com.gtladd.gtladditions.common.machine.muiltblock.controller;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
@@ -13,41 +8,45 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
-import com.gregtechceu.gtceu.api.recipe.logic.OCParams;
-import com.gregtechceu.gtceu.api.recipe.logic.OCResult;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
-
+import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-
-import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic;
+import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
+import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine;
+import org.gtlcore.gtlcore.utils.Registries;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 
 public class BiologicalSimulationLaboratory extends StorageMachine implements ParallelMachine {
 
-    public static double reDuctionEUt = 1.0;
-    public static double reDuctionDuration = 1.0;
-    public static int Max_Parallels = 64;
-    public static boolean Is_MultiRecipe = false;
+    private static double reDuctionEUt = 1.0;
+    private static double reDuctionDuration = 1.0;
+    private static int Max_Parallels = 64;
+    private static boolean Is_MultiRecipe = false;
+    private static final ItemStack RHENIUM_NANOSWARM = Registries.getItemStack("gtceu:rhenium_nanoswarm");
+    private static final ItemStack ORICHALCUM_NANOSWARM = Registries.getItemStack("gtceu:orichalcum_nanoswarm");
+    private static final ItemStack INFUSCOLIUM_NANOSWARM = Registries.getItemStack("gtceu:infuscolium_nanoswarm");
+    private static final ItemStack NAN_CERTIFICATE = Registries.getItemStack("gtceu:nan_certificate");
 
     public BiologicalSimulationLaboratory(IMachineBlockEntity holder) {
         super(holder, 1);
     }
 
-    protected RecipeLogic createRecipeLogic(Object... args) {
+    protected @NotNull RecipeLogic createRecipeLogic(Object... args) {
         return new BiologicalSimulationLaboratoryLogic(this);
     }
 
-    public static @Nullable GTRecipe recipeModifier(MetaMachine machine, @NotNull GTRecipe recipe, @NotNull OCParams params, @NotNull OCResult result) {
-        if (machine instanceof BiologicalSimulationLaboratory biologicalSimulationLaboratory) {
-            return GTLRecipeModifiers.reduction(machine, recipe, reDuctionEUt, reDuctionDuration);
-        }
-        return null;
+    protected boolean filter(@NotNull ItemStack itemStack) {
+        Item item = itemStack.getItem();
+        if (RHENIUM_NANOSWARM.is(item)) return true;
+        else if (ORICHALCUM_NANOSWARM.is(item)) return true;
+        else if (INFUSCOLIUM_NANOSWARM.is(item)) return true;
+        else return NAN_CERTIFICATE.is(item);
     }
 
     public static boolean beforeWorking(IRecipeLogicMachine machine, @NotNull GTRecipe recipe) {
@@ -64,6 +63,9 @@ public class BiologicalSimulationLaboratory extends StorageMachine implements Pa
     public void addDisplayText(@NotNull List<Component> textList) {
         super.addDisplayText(textList);
         if (this.isFormed) {
+            if (this.holder.getOffsetTimer() % 20L == 0L) {
+                this.setparameter(this);
+            }
             textList.add(Component.translatable("gtceu.multiblock.parallel", Component.translatable(FormattingUtil.formatNumbers(Max_Parallels)).withStyle(ChatFormatting.DARK_PURPLE)).withStyle(ChatFormatting.GRAY));
             textList.add(Component.translatable((Is_MultiRecipe ? "已" : "未") + "解锁寰宇支配之剑的配方"));
             textList.add(Component.translatable("gtceu.machine.eut_multiplier.tooltip", Component.translatable(FormattingUtil.formatNumbers(reDuctionEUt))));
@@ -72,58 +74,39 @@ public class BiologicalSimulationLaboratory extends StorageMachine implements Pa
     }
 
     private int getTier(MetaMachine machine) {
-        int tier = 0;
         if (machine instanceof BiologicalSimulationLaboratory biologicalSimulationLaboratory) {
-            ItemStack item = biologicalSimulationLaboratory.getMachineStorageItem();
-            if (Objects.equals(item.getItem(), Registries.getItem("gtceu:rhenium_nanoswarm"))) {
-                tier = 1;
-            } else if (Objects.equals(item.getItem(), Registries.getItem("gtceu:orichalcum_nanoswarm"))) {
-                tier = 2;
-            } else if (Objects.equals(item.getItem(), Registries.getItem("gtceu:infuscolium_nanoswarm"))) {
-                tier = 3;
-            } else if (Objects.equals(item.getItem(), Registries.getItem("gtceu:nan_certificate"))) {
-                tier = 4;
-            } else {
-                tier = 5;
-            }
+            Item item = biologicalSimulationLaboratory.machineStorage.storage.getStackInSlot(0).getItem();
+            if (RHENIUM_NANOSWARM.is(item)) return 1;
+            else if (ORICHALCUM_NANOSWARM.is(item)) return 2;
+            else if (INFUSCOLIUM_NANOSWARM.is(item)) return 3;
+            else if (NAN_CERTIFICATE.is(item)) return 4;
         }
-        return tier;
+        return 0;
     }
 
     private void setparameter(MetaMachine machine) {
         int tier = getTier(machine);
         switch (tier) {
-            case 1 -> {
-                setmachine(false, 2048, 0.9, 0.9);
-            }
-            case 2 -> {
-                setmachine(false, 16384, 0.8, 0.6);
-            }
-            case 3 -> {
-                setmachine(false, 262144, 0.6, 0.4);
-            }
-            case 4 -> {
-                setmachine(true, 4194304, 0.25, 0.1);
-            }
-            default -> {
-                setmachine(false, 64, 1.0, 1.0);
-            }
+            case 1 -> setMachine(false, 2048, 0.9, 0.9);
+            case 2 -> setMachine(false, 16384, 0.8, 0.6);
+            case 3 -> setMachine(false, 262144, 0.6, 0.4);
+            case 4 -> setMachine(true, 4194304, 0.25, 0.1);
+            default -> setMachine(false, 64, 1.0, 1.0);
         }
     }
 
-    private void setmachine(boolean isMultiRecipe, int maxParallel, double Reductioneut, double Reductionduration) {
+    private void setMachine(boolean isMultiRecipe, int maxParallel, double Reductioneut, double Reductionduration) {
         Is_MultiRecipe = isMultiRecipe;
         Max_Parallels = maxParallel;
         reDuctionEUt = Reductioneut;
         reDuctionDuration = Reductionduration;
     }
-
     @Override
     public int getMaxParallel() {
         return Max_Parallels;
     }
 
-    static class BiologicalSimulationLaboratoryLogic extends GTLAddMultipleRecipesLogic {
+    private static class BiologicalSimulationLaboratoryLogic extends GTLAddMultipleRecipesLogic {
 
         public BiologicalSimulationLaboratoryLogic(WorkableElectricMultiblockMachine machine) {
             super((ParallelMachine) machine);
@@ -155,7 +138,7 @@ public class BiologicalSimulationLaboratory extends StorageMachine implements Pa
             recipe = parallelRecipe(recipe, getMachine().getMaxParallel());
             RecipeHelper.setInputEUt(recipe, (long) Math.max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt)));
             recipe.duration = (int) Math.max(1.0, (double) recipe.duration *
-                    reDuctionDuration / Math.pow(2, (getMachine().getTier() - RecipeHelper.getRecipeEUtTier(recipe))));
+                    reDuctionDuration / (1 << (getMachine().getTier() - RecipeHelper.getRecipeEUtTier(recipe))));
             return recipe;
         }
 

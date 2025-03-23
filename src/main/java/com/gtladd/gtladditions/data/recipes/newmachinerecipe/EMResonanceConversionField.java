@@ -28,11 +28,14 @@ public class EMResonanceConversionField {
                     .TierEUtVA(m.EUt).duration(20).save(provider);
         }
     }
+
     static class Material {
+
         String id;
         String input;
         String output;
         int EUt;
+
         public Material(String input, String output, int EUt, String id) {
             this.input = input;
             this.output = output;

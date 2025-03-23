@@ -5,5 +5,10 @@
   "gtceu.biological_simulation": "Biological Simulation",
   "gtceu.voidflux_reaction": "Voidflux Reaction",
   "gtceu.stellar_lgnition": "Stellar Lgnition",
-  "gtceu.chaotic_alchemy": "Chaotic Alchemy"
+  "gtceu.chaotic_alchemy": "Chaotic Alchemy",
+  "gtceu.antientropy_condensation": "Antientropy Condensation",
+  "gtceu.molecular_deconstruction": "Molecular Deconstruction",
+  "gtceu.universe_sandbox": "Universe Sandbox",
+  "gtceu.multiblock.cleanroom": "Cleanroom Tier: %s",
+  "gtceu.multiblock.gravity": "Gravity: %s"
 }

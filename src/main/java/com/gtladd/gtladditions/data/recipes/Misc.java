@@ -1,14 +1,18 @@
 package com.gtladd.gtladditions.data.recipes;
 
-import com.gregtechceu.gtceu.common.data.GTMaterials;
-import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
-import net.minecraft.data.recipes.FinishedRecipe;
 import org.gtlcore.gtlcore.common.data.GTLMaterials;
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes;
+
+import com.gregtechceu.gtceu.common.data.GTMaterials;
+
+import net.minecraft.data.recipes.FinishedRecipe;
+
+import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
 
 import java.util.function.Consumer;
 
 public class Misc {
+
     public Misc() {}
 
     public static void init(Consumer<FinishedRecipe> provider) {

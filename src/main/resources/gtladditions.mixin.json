@@ -7,8 +7,14 @@
   "client": [
   ],
   "mixins": [
-    "gtceu.AlloyBlastRecipeProducerMixin",
-    "gtlcore.AutoConfigurationMaintenanceHatchPartMachineMixin"
+    "gtceu.NotifiableItemStackHandlerMixin",
+    "gtceu.WorkableElectricMultiblockMachineMixin",
+    "gtceu.recipe.AlloyBlastRecipeProducerMixin",
+    "gtceu.recipe.GCyMRecipesMixin",
+    "gtceu.recipe.MaterialRecipeHandlerMixin",
+    "gtceu.recipe.RecyclingRecipesMixin",
+    "gtlcore.AutoConfigurationMaintenanceHatchPartMachineMixin",
+    "gtlcore.machine.HarmonyMachineMixin"
   ],
   "injectors": {
     "defaultRequire": 1

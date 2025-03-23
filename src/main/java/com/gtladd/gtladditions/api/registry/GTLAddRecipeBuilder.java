@@ -32,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -165,54 +166,6 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
         return (GTLAddRecipeBuilder) output(FluidRecipeCapability.CAP, FluidIngredient.of(output));
     }
 
-    @Override
-    public GTLAddRecipeBuilder chancedFluidOutput(FluidStack stack, String fraction, int tierChanceBoost) {
-        if (stack.isEmpty()) {
-            return this;
-        } else {
-            String[] split = fraction.split("/");
-            if (split.length != 2) {
-                GTCEu.LOGGER.error("Fraction was not parsed correctly! Expected format is \"1/3\". Actual: \"{}\".", fraction, new Throwable());
-                return this;
-            } else {
-                int chance;
-                int maxChance;
-                try {
-                    chance = Integer.parseInt(split[0]);
-                    maxChance = Integer.parseInt(split[1]);
-                } catch (NumberFormatException var11) {
-                    GTCEu.LOGGER.error("Fraction was not parsed correctly! Expected format is \"1/3\". Actual: \"{}\".", fraction, new Throwable());
-                    return this;
-                }
-
-                if (0 < chance && chance <= ChanceLogic.getMaxChancedValue()) {
-                    if (chance < maxChance && maxChance <= ChanceLogic.getMaxChancedValue()) {
-                        int scalar = Math.floorDiv(ChanceLogic.getMaxChancedValue(), maxChance);
-                        chance *= scalar;
-                        maxChance *= scalar;
-                        int lastChance = this.chance;
-                        int lastMaxChance = this.maxChance;
-                        int lastTierChanceBoost = this.tierChanceBoost;
-                        this.chance = chance;
-                        this.maxChance = maxChance;
-                        this.tierChanceBoost = tierChanceBoost;
-                        this.outputFluids(stack);
-                        this.chance = lastChance;
-                        this.maxChance = lastMaxChance;
-                        this.tierChanceBoost = lastTierChanceBoost;
-                        return this;
-                    } else {
-                        GTCEu.LOGGER.error("Max Chance cannot be less or equal to Chance or more than {}. Actual: {}.", ChanceLogic.getMaxChancedValue(), maxChance, new Throwable());
-                        return this;
-                    }
-                } else {
-                    GTCEu.LOGGER.error("Chance cannot be less or equal to 0 or more than {}. Actual: {}.", ChanceLogic.getMaxChancedValue(), chance, new Throwable());
-                    return this;
-                }
-            }
-        }
-    }
-
     public GTLAddRecipeBuilder notConsumable(String input) {
         return this.notConsumable(input, 1);
     }
@@ -221,6 +174,14 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
         return (GTLAddRecipeBuilder) super.notConsumable(new ItemStack(Registries.getItem(input), count));
     }
 
+    @Override
+    public GTLAddRecipeBuilder notConsumable(Supplier<? extends Item> item) {
+        int lastChance = this.chance;
+        this.chance = 0;
+        this.inputItems(item);
+        this.chance = lastChance;
+        return this;
+    }
     public GTLAddRecipeBuilder notConsumableFluid(FluidStack fluid) {
         return (GTLAddRecipeBuilder) super.notConsumableFluid(FluidIngredient.of(TagUtil.createFluidTag(BuiltInRegistries.FLUID.getKey(fluid.getFluid()).getPath()), fluid.getAmount()));
     }
@@ -236,7 +197,6 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
             this.tickOutput.remove(EURecipeCapability.CAP);
             this.outputEU(-eu);
         }
-
         this.perTick = lastPerTick;
         return this;
     }
@@ -247,10 +207,6 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
 
     public GTLAddRecipeBuilder TierEUtVA(int tier) {
         return (GTLAddRecipeBuilder) super.EUt(GTValues.VA[tier]);
-    }
-
-    public GTLAddRecipeBuilder TierEUtVH(int tier) {
-        return (GTLAddRecipeBuilder) super.EUt(GTValues.VH[tier]);
     }
 
     @Override
@@ -267,17 +223,6 @@ public class GTLAddRecipeBuilder extends GTRecipeBuilder {
     @Override
     public GTLAddRecipeBuilder blastFurnaceTemp(int blastTemp) {
         return (GTLAddRecipeBuilder) this.addData("ebf_temp", blastTemp);
-    }
-
-    public GTLAddRecipeBuilder StationResearch(ItemStack researchId, ItemStack dataStack, int EUt, int CWUt) {
-        return (GTLAddRecipeBuilder) super.stationResearch((b) -> b.researchStack(researchId)
-                .dataStack(dataStack)
-                .EUt(EUt)
-                .CWUt(CWUt));
-    }
-
-    public GTLAddRecipeBuilder StationResearch(String researchId, String dataStack, int EUt, int CWUt) {
-        return this.StationResearch(new ItemStack(Registries.getItem(researchId)), new ItemStack(Registries.getItem(dataStack)), EUt, CWUt);
     }
 
     public void save(Consumer<FinishedRecipe> consumer) {

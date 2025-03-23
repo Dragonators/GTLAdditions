@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.common.muiltblock;
+package com.gtladd.gtladditions.common.machine.muiltblock;
 
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine;
 import org.gtlcore.gtlcore.utils.Registries;

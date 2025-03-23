@@ -33,6 +33,9 @@ public class GTLAddRecipesTypes {
     public static final GTRecipeType VOIDFLUX_REACTION;
     public static final GTRecipeType STELLAR_LGNITION;
     public static final GTRecipeType CHAOTIC_ALCHEMY;
+    public static final GTRecipeType ANTIENTROPY_CONDENSATION;
+    public static final GTRecipeType MOLECULAR_DECONSTRUCTION;
+    public static final GTRecipeType UNIVERSE_SANDBOX;
 
     public GTLAddRecipesTypes() {}
 
@@ -42,30 +45,20 @@ public class GTLAddRecipesTypes {
 
     static {
         PHOTON_MATRIX_ETCH = GTRecipeTypes.register("photon_matrix_etch", GTRecipeTypes.MULTIBLOCK)
-                .setEUIO(IO.IN)
-                .setMaxIOSize(3, 1, 1, 0)
-                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-                .setSound(GTSoundEntries.ARC);
+                .setEUIO(IO.IN).setMaxIOSize(3, 1, 1, 0)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
         EM_RESONANCE_CONVERSION_FIELD = GTRecipeTypes.register("em_resonance_conversion_field", GTRecipeTypes.MULTIBLOCK)
-                .setEUIO(IO.IN)
-                .setMaxIOSize(2, 1, 0, 0)
-                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-                .setSound(GTSoundEntries.ARC);
+                .setEUIO(IO.IN).setMaxIOSize(2, 1, 0, 0)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
         TECTONIC_FAULT_GENERATOR = GTRecipeTypes.register("tectonic_fault_generator", GTRecipeTypes.MULTIBLOCK)
-                .setEUIO(IO.IN)
-                .setMaxIOSize(2, 1, 0, 0)
-                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-                .setSound(GTSoundEntries.ARC);
+                .setEUIO(IO.IN).setMaxIOSize(2, 1, 0, 0)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
         BIOLOGICAL_SIMULATION = GTRecipeTypes.register("biological_simulation", GTRecipeTypes.MULTIBLOCK)
-                .setEUIO(IO.IN)
-                .setMaxIOSize(3, 7, 2, 0)
-                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-                .setSound(GTSoundEntries.ARC);
+                .setEUIO(IO.IN).setMaxIOSize(3, 7, 2, 0)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
         VOIDFLUX_REACTION = GTRecipeTypes.register("voidflux_reaction", GTRecipeTypes.MULTIBLOCK)
-                .setEUIO(IO.IN)
-                .setMaxIOSize(3, 0, 0, 1)
-                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-                .setSound(GTSoundEntries.ARC);
+                .setEUIO(IO.IN).setMaxIOSize(3, 0, 0, 1)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
         STELLAR_LGNITION = GTRecipeTypes.register("stellar_lgnition", GTRecipeTypes.MULTIBLOCK)
                 .setEUIO(IO.IN)
                 .setMaxIOSize(1, 0, 1, 1)
@@ -115,5 +108,14 @@ public class GTLAddRecipesTypes {
                             .toList());
                     widgetGroup.addWidget(new SlotWidget(new CycleItemStackHandler(items), 0, widgetGroup.getSize().width - 25, widgetGroup.getSize().height - 40, false, false));
                 }).setSound(GTSoundEntries.ARC);
+        ANTIENTROPY_CONDENSATION = GTRecipeTypes.register("antientropy_condensation", GTRecipeTypes.MULTIBLOCK)
+                .setEUIO(IO.IN).setMaxIOSize(2, 2, 2, 1)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
+        MOLECULAR_DECONSTRUCTION = GTRecipeTypes.register("molecular_deconstruction", GTRecipeTypes.MULTIBLOCK)
+                .setEUIO(IO.IN).setMaxIOSize(1, 0, 0, 1)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
+        UNIVERSE_SANDBOX = GTRecipeTypes.register("universe_sandbox", GTRecipeTypes.MULTIBLOCK)
+                .setEUIO(IO.IN).setMaxIOSize(1, 1, 0, 1)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
     }
 }

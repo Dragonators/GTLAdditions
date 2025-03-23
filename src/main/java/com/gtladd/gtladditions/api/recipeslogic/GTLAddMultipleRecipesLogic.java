@@ -1,5 +1,7 @@
 package com.gtladd.gtladditions.api.recipeslogic;
 
+import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
+
 import com.gregtechceu.gtceu.api.capability.recipe.*;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine;
@@ -11,11 +13,11 @@ import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 public class GTLAddMultipleRecipesLogic extends RecipeLogic {
 
@@ -46,7 +48,8 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic {
     protected GTRecipe getRecipe() {
         if (!machine.hasProxies()) return null;
         GTRecipe[] recipes = LookupRecipe();
-        if (recipes.length == 0) return null;
+        int length = recipes.length;
+        if (length == 0) return null;
         GTRecipe match = recipes[0];
         if (match == null) return null;
         GTRecipe recipe = buildEmptyRecipe();
@@ -57,10 +60,11 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic {
         int parallel = this.parallel.getMaxParallel();
         for (int i = 0; i < 64; i++) {
             if (checkRecipe(match)) {
-                match = recipes[(i + 1) % recipes.length];
+                match = recipes[(i + 1) % length];
                 continue;
             }
             match = parallelRecipe(match, parallel);
+            match.inputs.clear();
             GTRecipe input = buildEmptyRecipe();
             input.inputs.putAll(match.inputs);
             if (input.matchRecipe(machine).isSuccess() && input.handleRecipeIO(IO.IN, machine, getChanceCaches())) {
@@ -70,8 +74,8 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic {
                 List<Content> fluid = match.outputs.get(FluidRecipeCapability.CAP);
                 if (fluid != null) recipe.outputs.get(FluidRecipeCapability.CAP).addAll(fluid);
             }
-            match = recipes[(i + 1) % recipes.length];
-            if (match == null || totalEu > maxEUt) break;
+            match = recipes[(i + 1) % length];
+            if (totalEu > maxEUt || match == null) break;
         }
         if (recipe.outputs.get(ItemRecipeCapability.CAP).equals(new ArrayList<>()) && recipe.outputs.get(FluidRecipeCapability.CAP).equals(new ArrayList<>())) return null;
         double d = (double) totalEu / maxEUt;

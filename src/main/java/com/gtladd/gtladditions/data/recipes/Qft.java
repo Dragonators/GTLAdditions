@@ -45,6 +45,12 @@ public class Qft {
                 .inputFluids(GTLMaterials.RadoxGas.getFluid(21600)).inputFluids(GTMaterials.Oxygen.getFluid(175000))
                 .inputFluids(GTLMaterials.Titanium50.getFluid(1000))
                 .outputFluids(GTLMaterials.Radox.getFluid(10800))
-                .EUt(GTValues.VA[14] * 4096L).duration(2560).save(provider);
+                .EUt(GTValues.VA[14] * 256L).duration(2560).save(provider);
+        new GTLAddRecipeBuilder("super_mutated_living_solder", GTLRecipeTypes.QFT_RECIPES).notConsumable("kubejs:spacetime_catalyst")
+                .InputItems("256x kubejs:essence_seed").InputItems("256x kubejs:draconium_dust").InputItems("256x ae2:sky_dust").InputItems("4x gtceu:nether_star_dust")
+                .inputFluids(GTLMaterials.MutatedLivingSolder.getFluid(100000)).inputFluids(GTMaterials.Biomass.getFluid(1000000))
+                .inputFluids(GTMaterials.SterileGrowthMedium.getFluid(1000000))
+                .outputFluids(GTLMaterials.SuperMutatedLivingSolder.getFluid(100000))
+                .EUt(GTValues.VA[GTValues.MAX]).duration(7200).save(provider);
     }
 }

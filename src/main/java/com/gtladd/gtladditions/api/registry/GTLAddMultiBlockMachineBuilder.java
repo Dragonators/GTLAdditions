@@ -40,19 +40,19 @@ public class GTLAddMultiBlockMachineBuilder extends MultiblockMachineBuilder {
     }
 
     public GTLAddMultiBlockMachineBuilder allRotation() {
-        return (GTLAddMultiBlockMachineBuilder) this.rotationState(RotationState.ALL);
+        return (GTLAddMultiBlockMachineBuilder) super.rotationState(RotationState.ALL);
     }
 
     public GTLAddMultiBlockMachineBuilder nonYAxisRotation() {
-        return (GTLAddMultiBlockMachineBuilder) this.rotationState(RotationState.NON_Y_AXIS).allowExtendedFacing(false);
+        return (GTLAddMultiBlockMachineBuilder) super.rotationState(RotationState.NON_Y_AXIS).allowExtendedFacing(false);
     }
 
     public GTLAddMultiBlockMachineBuilder noneRotation() {
-        return (GTLAddMultiBlockMachineBuilder) this.rotationState(RotationState.NONE).allowExtendedFacing(false).allowFlip(false);
+        return (GTLAddMultiBlockMachineBuilder) super.rotationState(RotationState.NONE).allowExtendedFacing(false).allowFlip(false);
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipText(String string) {
-        return (GTLAddMultiBlockMachineBuilder) this.tooltips(new Component[] { Component.literal(string) });
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.literal(string) });
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipTextCoilParallel() {
@@ -80,10 +80,10 @@ public class GTLAddMultiBlockMachineBuilder extends MultiblockMachineBuilder {
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipTextAdd() {
-        return (GTLAddMultiBlockMachineBuilder) this.tooltips(Component.literal(TextUtil.full_color("由GTLAdditions添加")));
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(Component.literal(TextUtil.full_color("由GTLAdditions添加")));
     }
 
     public GTLAddMultiBlockMachineBuilder coilparalleldisplay() {
-        return (GTLAddMultiBlockMachineBuilder) this.additionalDisplay(GTLMachines.MULTIPLERECIPES_COIL_PARALLEL);
+        return (GTLAddMultiBlockMachineBuilder) super.additionalDisplay(GTLMachines.MULTIPLERECIPES_COIL_PARALLEL);
     }
 }

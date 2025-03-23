@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.data.recipes;
 
-import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import org.gtlcore.gtlcore.common.data.GTLMaterials;
 
 import com.gregtechceu.gtceu.api.GTValues;
@@ -98,31 +97,39 @@ public class Assembler {
             if (val[0].equals("lv") || val[0].equals("mv")) builder.inputItemsModTag(val[1], 4);
             else builder.inputItems(val[1], 4);
             builder.inputItems("gtceu:" + val[2] + "_plate", 2).inputItems("gtceu:" + val[3] + "_cable", 2)
-                   .inputItems("gtceu:" + val[0] + "_machine_hull")
-                   .outputItems("gtceu:" + val[0] + "_diode")
-                   .TierEUtVA(4).duration(1200).save(provider);
+                    .inputItems("gtceu:" + val[0] + "_machine_hull")
+                    .outputItems("gtceu:" + val[0] + "_diode")
+                    .TierEUtVA(4).duration(1200).save(provider);
         }
-        new GTLAddRecipeBuilder("electric_blast_furnace", ASSEMBLER_RECIPES)//电力高炉
+        new GTLAddRecipeBuilder("electric_blast_furnace", ASSEMBLER_RECIPES)// 电力高炉
                 .InputItems("3x minecraft:furnace").inputItemsModTag("circuits/lv", 3).InputItems("2x gtceu:tin_single_cable")
                 .inputItems("gtceu:heatproof_machine_casing")
                 .outputItems("gtceu:electric_blast_furnace").EUt(120).duration(1200).save(provider);
-        new GTLAddRecipeBuilder("mega_blast_furnace", ASSEMBLER_RECIPES)//转底炉
+        new GTLAddRecipeBuilder("mega_blast_furnace", ASSEMBLER_RECIPES)// 转底炉
                 .inputItems("gtceu:electric_blast_furnace").InputItems("2x gtceu:naquadah_spring").InputItems("2x gtceu:zpm_field_generator")
                 .InputItems("2x gtceu:dense_naquadah_alloy_plate").inputItems("gtceu:enriched_naquadah_trinium_europium_duranide_quadruple_wire")
                 .inputItemsModTag("circuits/zpm")
                 .outputItems("gtceu:mega_blast_furnace").EUt(480).duration(1200).save(provider);
-        new GTLAddRecipeBuilder("mega_alloy_blast_smelter", ASSEMBLER_RECIPES)//巨型合金冶炼炉
+        new GTLAddRecipeBuilder("mega_alloy_blast_smelter", ASSEMBLER_RECIPES)// 巨型合金冶炼炉
                 .inputItems("gtceu:alloy_blast_smelter").InputItems("2x gtceu:naquadah_alloy_spring").InputItems("2x gtceu:zpm_field_generator")
                 .InputItems("2x gtceu:dense_darmstadtium_plate").inputItems("gtceu:enriched_naquadah_trinium_europium_duranide_hex_wire")
                 .inputItemsModTag("circuits/zpm")
                 .outputItems("gtceu:mega_alloy_blast_smelter").EUt(480).duration(1200).save(provider);
-        new GTLAddRecipeBuilder("ev_alloy_smelter", ASSEMBLER_RECIPES)//进阶合金炉III
+        new GTLAddRecipeBuilder("ev_alloy_smelter", ASSEMBLER_RECIPES)// 进阶合金炉III
                 .inputItems("gtceu:ev_machine_hull").InputItems("4x gtceu:nichrome_quadruple_wire").InputItems("2x gtceu:aluminium_single_cable")
                 .inputItemsModTag("circuits/ev", 2)
                 .outputItems("gtceu:ev_alloy_smelter").EUt(120).duration(1200).save(provider);
-        new GTLAddRecipeBuilder("alloy_blast_smelter", ASSEMBLER_RECIPES)//合金冶炼炉
+        new GTLAddRecipeBuilder("alloy_blast_smelter", ASSEMBLER_RECIPES)// 合金冶炼炉
                 .inputItems("gtceu:ev_alloy_smelter").InputItems("4x gtceu:tantalum_carbide_plate").InputItems("2x gtceu:aluminium_single_cable")
                 .inputItemsModTag("circuits/ev", 2)
                 .outputItems("gtceu:alloy_blast_smelter").EUt(120).duration(1200).save(provider);
+        new GTLAddRecipeBuilder("vacuum_freezer", ASSEMBLER_RECIPES)// 真空冷冻机
+                .inputItems("gtceu:frostproof_machine_casing").InputItems("3x gtceu:hv_electric_pump")
+                .inputItemsModTag("circuits/ev", 3).InputItems("2x gtceu:gold_single_cable")
+                .outputItems("gtceu:vacuum_freezer").EUt(120).duration(1200).save(provider);
+        new GTLAddRecipeBuilder("mega_vacuum_freezer", ASSEMBLER_RECIPES)// 巨型真空冷冻机
+                .inputItems("gtceu:vacuum_freezer").InputItems("2x gtceu:zpm_field_generator").InputItems("2x gtceu:dense_rhodium_plated_palladium_plate")
+                .inputItemsModTag("circuits/zpm").inputItems("gtceu:ruthenium_trinium_americium_neutronate_quadruple_wire")
+                .outputItems("gtceu:mega_vacuum_freezer").EUt(480).duration(1200).save(provider);
     }
 }

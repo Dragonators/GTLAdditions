@@ -2,7 +2,7 @@ package com.gtladd.gtladditions.common.machine;
 
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs;
-import com.gtladd.gtladditions.common.muiltblock.MultiBlockMachine;
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine;
 
 public class GTLAddMachine {
 
