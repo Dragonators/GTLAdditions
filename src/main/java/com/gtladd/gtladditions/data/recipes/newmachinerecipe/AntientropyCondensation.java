@@ -11,7 +11,6 @@ import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
 import net.minecraft.data.recipes.FinishedRecipe;
 import org.gtlcore.gtlcore.common.data.GTLMaterials;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class AntientropyCondensation {
@@ -30,7 +29,7 @@ public class AntientropyCondensation {
         Material[] ingots = {GTLMaterials.Mithril, GTLMaterials.Orichalcum, GTLMaterials.Enderium, GTLMaterials.Adamantium,
                 GTLMaterials.Infuscolium, GTLMaterials.Echoite, GTLMaterials.Vibranium,
                 GTLMaterials.Legendarium, GTLMaterials.HeavyQuarkDegenerateMatter, GTLMaterials.Starmetal,
-                GTLMaterials.QuantumChromodynamicallyConfinedMatter, GTLMaterials.AstralTitanium, GTLMaterials.CelestialTungsten};
+                GTLMaterials.QuantumChromodynamicallyConfinedMatter};
         for (Material ingot : ingots) {
             new GTLAddRecipeBuilder(ingot.getName() + "_ingot_condenser", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION).notConsumable("kubejs:ingot_field_shape")
                     .inputFluids(ingot.getFluid(FluidStorageKeys.PLASMA, 144)).outputItems(TagPrefix.ingotHot, ingot)

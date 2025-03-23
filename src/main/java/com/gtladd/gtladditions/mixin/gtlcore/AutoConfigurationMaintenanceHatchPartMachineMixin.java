@@ -1,5 +1,7 @@
 package com.gtladd.gtladditions.mixin.gtlcore;
 
+import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
+import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.AutoConfigurationMaintenanceHatchPartMachine;
 import org.gtlcore.gtlcore.utils.Registries;
 
@@ -33,19 +35,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(AutoConfigurationMaintenanceHatchPartMachine.class)
-public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPartMachine {
+public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPartMachine implements IMachineLife {
 
     private float MAX_DURATION = getMax();
     private float MIN_DURATION = getMin();
     private static final ItemStack BIOWARE_MAINFRAME = Registries.getItemStack("kubejs:bioware_mainframe", 16);
     private static final ItemStack COSMIC_MAINFRAME = Registries.getItemStack("kubejs:cosmic_mainframe", 16);
     private static final ItemStack CREATIVE_MAINFRAME = Registries.getItemStack("kubejs:suprachronal_mainframe_complex", 16);
-    @Unique
+    @Persisted
     private final NotifiableItemStackHandler gtladditions$max = new NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH, (slots) -> new ItemStackTransfer(1) {
         public int getSlotLimit(int slot) {
             return 16;
         }
     });
+    @Persisted
     private final NotifiableItemStackHandler gtladditions$min = new NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH, (slots) -> new ItemStackTransfer(1) {
         public int getSlotLimit(int slot) {
             return 16;
@@ -83,6 +86,12 @@ public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPar
         MIN_DURATION = getMin();
         incInternalMultiplier(0);
         decInternalMultiplier(0);
+    }
+
+    @Unique
+    public void onMachineRemoved() {
+        this.clearInventory(this.gtladditions$max.storage);
+        this.clearInventory(this.gtladditions$min.storage);
     }
 
     private @NotNull List<Component> gtladditions$setMaxTooltips() {
