@@ -7,7 +7,6 @@
   "client": [
   ],
   "mixins": [
-    "gtceu.NotifiableItemStackHandlerMixin",
     "gtceu.WorkableElectricMultiblockMachineMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",
     "gtceu.recipe.GCyMRecipesMixin",
