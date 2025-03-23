@@ -64,7 +64,6 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic {
                 continue;
             }
             match = parallelRecipe(match, parallel);
-            match.inputs.clear();
             GTRecipe input = buildEmptyRecipe();
             input.inputs.putAll(match.inputs);
             if (input.matchRecipe(machine).isSuccess() && input.handleRecipeIO(IO.IN, machine, getChanceCaches())) {

@@ -28,7 +28,7 @@ public class GTLAddRecipeLookup extends GTRecipeLookup {
     @NotNull
     public GTRecipe[] findAllRecipes(@NotNull IRecipeCapabilityHolder holder) {
         AdvancedRecipeIterator iterator = GetRecipeIterator(holder, recipe -> recipe.matchRecipe(holder).isSuccess());
-        List<GTRecipe> recipes = new ArrayList<>(iterator.ingredients.size());
+        Set<GTRecipe> recipes = new HashSet<>(iterator.ingredients.size());
         while (iterator.hasNext()) {
             recipes.add(iterator.next());
         }
