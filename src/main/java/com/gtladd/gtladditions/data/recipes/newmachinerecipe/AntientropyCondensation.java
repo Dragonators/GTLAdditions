@@ -49,7 +49,7 @@ public class AntientropyCondensation {
                 .EUt(GTValues.VA[GTValues.MV]).duration(180).save(provider);
         new GTLAddRecipeBuilder("cosmic_mesh", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
                 .inputItems("kubejs:cosmic_mesh_containment_unit")
-                .outputItems("kubejs:time_dilation_containment_unit").outputFluids(GTLMaterials.CosmicMesh.getFluid(1000))
+                .outputItems("kubejs:time_dilation_containment_unit").outputFluids(GTLMaterials.CosmicMesh.getFluid(FluidStorageKeys.LIQUID, 1000))
                 .EUt(GTValues.VA[GTValues.OpV]).duration(800).save(provider);
         new GTLAddRecipeBuilder("iron_ingot", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
                 .notConsumable("kubejs:ingot_field_shape")
@@ -61,7 +61,7 @@ public class AntientropyCondensation {
                 .EUt(GTValues.VA[GTValues.UHV]).duration(50).save(provider);
         new GTLAddRecipeBuilder("degenerate_rhenium", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
                 .inputItems("kubejs:rhenium_plasma_containment_cell")
-                .outputFluids(GTLMaterials.DegenerateRhenium.getFluid(1000)).outputItems("kubejs:plasma_containment_cell")
+                .outputFluids(GTLMaterials.DegenerateRhenium.getFluid(FluidStorageKeys.LIQUID, 1000)).outputItems("kubejs:plasma_containment_cell")
                 .EUt(GTValues.VA[GTValues.UEV]).duration(1200).save(provider);
         new GTLAddRecipeBuilder("draconiumawakened", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
                 .inputItems("kubejs:draconiumawakened_plasma_containment_cell")
@@ -90,7 +90,7 @@ public class AntientropyCondensation {
                 .EUt(GTValues.VA[GTValues.OpV]).duration(1600).save(provider);
         new GTLAddRecipeBuilder("metastable_hassium", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
                 .inputFluids(GTLMaterials.MetastableHassium.getFluid(FluidStorageKeys.PLASMA, 1000))
-                .outputFluids(GTLMaterials.MetastableHassium.getFluid(1000))
+                .outputFluids(GTLMaterials.MetastableHassium.getFluid(FluidStorageKeys.LIQUID, 1000))
                 .EUt(GTValues.VA[GTValues.UHV]).duration(1200).save(provider);
         new GTLAddRecipeBuilder("actinium_superhydride_dust", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
                 .inputItems("kubejs:actinium_superhydride_plasma_containment_cell")

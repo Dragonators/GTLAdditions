@@ -27,5 +27,18 @@ public class AE2 {
                 .inputItems("kubejs:scrap_box", 480).circuitMeta(3)
                 .outputItems("ae2:singularity", 9)
                 .TierEUtVA(10).duration(1).save(provider);
+        new GTLAddRecipeBuilder("quartz_glassquartz_glass", GTRecipeTypes.ALLOY_SMELTER_RECIPES)
+                .inputItemsTag("glass").inputItems("gtceu:certus_quartz_dust")
+                .outputItems("ae2:quartz_glass")
+                .EUt(7).duration(150).save(provider);
+        new GTLAddRecipeBuilder("energy_cell", GTRecipeTypes.ASSEMBLER_RECIPES)
+                .inputItemsTag("gems/certus_quartz", 4)
+                .InputItems("4x ae2:fluix_dust").inputItems("ae2:quartz_glass")
+                .outputItems("ae2:energy_cell")
+                .EUt(32).duration(10).save(provider);
+        new GTLAddRecipeBuilder("dense_energy_cell", GTRecipeTypes.ASSEMBLER_RECIPES)
+                .InputItems("8x ae2:energy_cell").inputItems("ae2:calculation_processor")
+                .outputItems("ae2:dense_energy_cell")
+                .EUt(32).duration(10).save(provider);
     }
 }

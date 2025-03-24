@@ -1,5 +1,8 @@
 package com.gtladd.gtladditions.data.recipes;
 
+import com.gregtechceu.gtceu.api.data.tag.TagUtil;
+import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.gtlcore.gtlcore.common.data.GTLMaterials;
 import org.gtlcore.gtlcore.config.ConfigHolder;
 
@@ -23,6 +26,18 @@ public class IntegratedtedOreProcessor {
     public IntegratedtedOreProcessor() {}
 
     public static void init(Consumer<FinishedRecipe> provider) {
+        INTEGRATED_ORE_PROCESSOR.recipeBuilder("jasper_ore_processed")
+                .circuitMeta(24)
+                .inputItems(SizedIngredient.create(Ingredient.of(TagUtil.createItemTag("ores/jasper"))))
+                .inputFluids(GTMaterials.DistilledWater.getFluid(2L * orefluid))
+                .outputItems(TagPrefix.dust, GTLMaterials.Jasper, 2 * orenumber)
+                .chancedOutput(TagPrefix.dust, GTMaterials.Talc, 1400, 850)
+                .chancedOutput(TagPrefix.dust, GTMaterials.Talc, 2 * orenumber, 3300, 0)
+                .outputItems(TagPrefix.dust, GTMaterials.Stone, 2 * orenumber)
+                .chancedOutput(TagPrefix.dust, GTMaterials.Boron, 2 * orenumber, 1400, 850)
+                .chancedOutput(TagPrefix.dust, GTLMaterials.RawTengam, 2 * orenumber, 1000, 0)
+                .chancedOutput(TagPrefix.dust, GTLMaterials.RawTengam, 2 * orenumber, 500, 0)
+                .EUt(30).duration(26 + 800 * 2 * orenumber).save(provider);
         String[][] platinum_group_sludge_dust_list = {
                 { "cooperite", "nickel", "palladium", "mercury" },
                 { "bornite", "pyrite", "gold", "mercury" },
@@ -47,22 +62,6 @@ public class IntegratedtedOreProcessor {
                     .chancedOutputItems("gtceu:" + pure[1] + "_dust", 2 * orenumber, 33, 0)
                     .outputItems(TagPrefix.dust, GTMaterials.Stone, 2 * orenumber)
                     .EUt(30).duration(26 + 200 * 2 * orenumber).save(provider);
-
         }
-
-        new GTLAddRecipeBuilder("jasper_processed", INTEGRATED_ORE_PROCESSOR)
-                .circuitMeta(8)
-                .inputItemsTag("ores/jasper")
-                .inputFluids(GTMaterials.DistilledWater.getFluid(2L * orefluid))
-                .outputItems(TagPrefix.dust, GTLMaterials.Jasper, 2 * orenumber)
-                .chancedOutput(TagPrefix.dust, GTMaterials.Talc, 1400, 850)
-                .chancedOutput(TagPrefix.dust, GTMaterials.Talc, 2 * orenumber, 3300, 0)
-                .outputItems(TagPrefix.dust, GTMaterials.Stone, 2 * orenumber)
-                .chancedOutput(TagPrefix.dust, GTMaterials.Boron, 2 * orenumber, 1400, 850)
-                .chancedOutput(TagPrefix.dust, GTLMaterials.RawTengam, 2 * orenumber, 1000, 0)
-                .chancedOutput(TagPrefix.dust, GTLMaterials.RawTengam, 2 * orenumber, 500, 0)
-                .EUt(30)
-                .duration(26 + 800 * 2 * orenumber)
-                .save(provider);
     }
 }

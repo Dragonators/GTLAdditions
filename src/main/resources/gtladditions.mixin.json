@@ -13,7 +13,9 @@
     "gtceu.recipe.MaterialRecipeHandlerMixin",
     "gtceu.recipe.RecyclingRecipesMixin",
     "gtlcore.AutoConfigurationMaintenanceHatchPartMachineMixin",
-    "gtlcore.machine.HarmonyMachineMixin"
+    "gtlcore.WirelessOpticalDataHatchMachineMixin",
+    "gtlcore.machine.HarmonyMachineMixin",
+    "gtmtings.WirelessOpticalComputationHatchMachineMIxin"
   ],
   "injectors": {
     "defaultRequire": 1
