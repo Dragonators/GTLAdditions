@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.data.recipes;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
 import org.gtlcore.gtlcore.common.data.GTLBlocks;
 import org.gtlcore.gtlcore.common.data.GTLItems;
 import org.gtlcore.gtlcore.common.data.GTLMaterials;
@@ -43,7 +42,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.SUPER_FACTORY_MKI)
                 .EUt(GTValues.VA[GTValues.UXV]).duration(1200)
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.PROCESSING_PLANT.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("super_factory_mk2")
                 .inputItems(Registries.getItem("gtceu:large_chemical_bath"), 64).inputItems(Registries.getItem("gtceu:large_sifting_funnel"), 64)
                 .inputItems(Registries.getItem("gtceu:large_centrifuge"), 64).inputItems(MultiBlockMachineA.SUPERCONDUCTING_ELECTROMAGNETISM, 32)
@@ -56,7 +56,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.SUPER_FACTORY_MKII)
                 .EUt(GTValues.VA[GTValues.UXV]).duration(1200)
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.SEPARATED_PLANT.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("super_factory_mk3")
                 .inputItems(MultiBlockMachineA.CRYSTALLINE_INFINITY, 32).inputItems(MultiBlockMachineA.MEGA_EXTRACTOR, 32)
                 .inputItems(MultiBlockMachineA.MEGA_DISTILLERY, 32).inputItems(MultiBlockMachineA.MEGA_FLUID_HEATER, 32)
@@ -69,7 +70,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.SUPER_FACTORY_MKIII)
                 .EUt(GTValues.VA[GTValues.UXV]).duration(1200)
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.MIXED_PLANT.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("super_factory_mk4")
                 .inputItems(MultiBlockMachineA.MEGA_CANNER, 32).inputItems(MultiBlockMachineA.SUPERCONDUCTING_ELECTROMAGNETISM, 32)
                 .inputItems(MultiBlockMachineA.MAGE_ASSEMBLER, 32).inputItems(MultiBlockMachineA.PRECISION_ASSEMBLER, 64)
@@ -82,7 +84,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.SUPER_FACTORY_MKIV)
                 .EUt(GTValues.VA[GTValues.UXV]).duration(1200)
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.ASSEMBLE_PLANT.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("advanced_precision_laser_engraver")
                 .inputItems(AdvancedMultiBlockMachine.SUPER_COMPUTATION, 16).inputItems(MultiBlockMachineA.DIMENSIONAL_FOCUS_ENGRAVING_ARRAY, 32)
                 .inputItems(MultiBlockMachineA.ENGRAVING_LASER_PLANT, 64).inputItems(Registries.getItem("gtceu:large_engraving_laser"), 64)
@@ -97,7 +100,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.LUCID_ETCHDREAMER)
                 .EUt(GTValues.VA[GTValues.OpV]).duration(2560)
                 .stationResearch((b) -> b.researchStack(MultiBlockMachineA.DIMENSIONAL_FOCUS_ENGRAVING_ARRAY.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.OpV]).CWUt(4096)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.OpV]).CWUt(4096))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("advanced_block_conversion")
                 .inputItems(AdvancedMultiBlockMachine.BLOCK_CONVERSION_ROOM, 64).inputItems(AdvancedMultiBlockMachine.LARGE_BLOCK_CONVERSION_ROOM, 64)
                 .inputItems(Registries.getItem("gtceu:block_bus"), 64).inputItems(Registries.getItem("kubejs:draconium_block_charged"), 64)
@@ -112,8 +116,9 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.ATOMIC_TRANSMUTATIOON_CORE)
                 .EUt(GTValues.VA[GTValues.UXV]).duration(2560)
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.LARGE_BLOCK_CONVERSION_ROOM.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UIV]).CWUt(768)).save(provider);
-        GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder("advanced_eye_of_harmony")
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UIV]).CWUt(768))
+                .save(provider);
+        GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder("arcanic_astrograph")
                 .inputItems(Registries.getItem("gtceu:magnetohydrodynamicallyconstrainedstarmatter_block"), 64).inputItems(Registries.getItem("gtceu:cosmic_block"), 64)
                 .inputItems(Registries.getItem("gtceu:transcendentmetal_block"), 64).inputItems(GTLBlocks.CREATE_CASING, 64)
                 .inputItems(AdvancedMultiBlockMachine.EYE_OF_HARMONY, 64).inputItems(Registries.getItem("kubejs:create_aggregatione_core"), 16)
@@ -125,9 +130,10 @@ public class NewMultiBlockMachineController {
                 .inputFluids(GTLMaterials.MagnetohydrodynamicallyConstrainedStarMatter.getFluid(6553600)).inputFluids(GTLMaterials.TemporalFluid.getFluid(6553600))
                 .inputFluids(GTLMaterials.Chaos.getFluid(6553600)).inputFluids(GTLMaterials.DimensionallyTranscendentResidue.getFluid(2147483647))
                 .outputItems(MultiBlockMachine.ARCANIC_ASTROGRAPH)
-                .duration(288000).EUt(65536L * GTValues.VA[GTValues.MAX])
+                .duration(288000).EUt(262144L * GTValues.VA[GTValues.MAX])
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.EYE_OF_HARMONY.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.MAX]).CWUt(131072)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.MAX]).CWUt(131072))
+                .save(provider);
         GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder("advanced_assembler_module")
                 .inputItems(TagPrefix.frameGt, GTLMaterials.Infinity, 64).inputItems(AdvancedMultiBlockMachine.SPACE_ELEVATOR, 64)
                 .inputItems(AdvancedMultiBlockMachine.ASSEMBLER_MODULE, 64).inputItems(GTLBlocks.POWER_MODULE_5, 64)
@@ -142,31 +148,33 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.ASTRAL_CONVERGENCE_NEXUS)
                 .duration(72000).EUt(4096L * GTValues.VA[GTValues.MAX])
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.SPACE_ELEVATOR.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.OpV]).CWUt(8192)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.OpV]).CWUt(8192))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("advanced_aggregation_device")
-                .inputItems(Registries.getItem("gtceu:infinity_frame"), 16).inputItems(MultiBlockMachineA.AGGREGATION_DEVICE, 16)
-                .inputItems(TagUtil.createModItemTag("circuits/max"), 16).inputItems(Registries.getItem("kubejs:draconic_energy_core"))
+                .inputItems(Registries.getItemStack("gtceu:infinity_frame", 16)).inputItems(MultiBlockMachineA.AGGREGATION_DEVICE, 16)
+                .inputItems(TagUtil.createModItemTag("circuits/max"), 16).inputItems(Registries.getItemStack("kubejs:wyvern_energy_core", 16))
                 .inputItems(GTLItems.INSANELY_ULTIMATE_BATTERY).inputItems(GTItems.FIELD_GENERATOR_OpV, 4)
                 .inputItems(GTItems.SENSOR_OpV, 8).inputItems(GTItems.ROBOT_ARM_OpV, 8)
                 .inputItems(TagPrefix.rodLong, GTLMaterials.Vibramantium, 16).inputItems(TagPrefix.rodLong, GTLMaterials.CosmicNeutronium, 16)
                 .inputItems(TagPrefix.wireGtQuadruple, GTLMaterials.DraconiumAwakened, 16).inputItems(TagPrefix.wireGtQuadruple, GTLMaterials.Crystalmatrix, 16)
                 .inputItems(TagPrefix.foil, GTLMaterials.BlackDwarfMatter, 32).inputItems(TagPrefix.foil, GTLMaterials.WhiteDwarfMatter, 32)
                 .inputItems(TagPrefix.foil, GTLMaterials.Legendarium, 32).inputItems(TagPrefix.foil, GTLMaterials.Radox, 32)
-                .inputFluids(GTLMaterials.SuperMutatedLivingSolder.getFluid(32768)).inputFluids(GTLMaterials.Hypogen.getFluid(9216))
+                .inputFluids(GTLMaterials.SuperMutatedLivingSolder.getFluid(32768)).inputFluids(GTLMaterials.SpaceTime.getFluid(9216))
                 .inputFluids(GTLMaterials.DegenerateRhenium.getFluid(9216)).inputFluids(GTLMaterials.RawStarMatter.getFluid(FluidStorageKeys.PLASMA, 9216))
                 .outputItems(MultiBlockMachine.DRACONIC_COLLAPSE_CORE)
                 .EUt(GTValues.VA[GTValues.OpV]).duration(6000)
                 .stationResearch((b) -> b.researchStack(MultiBlockMachineA.AGGREGATION_DEVICE.asStack())
                         .dataStack(GTItems.TOOL_DATA_MODULE.asStack())
                         .EUt(GTValues.VA[GTValues.OpV])
-                        .CWUt(2048)).save(provider);
+                        .CWUt(2048))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("advanced_bedrock_drilling_rig")
                 .inputItems(AdvancedMultiBlockMachine.BEDROCK_DRILLING_RIG, 16).inputItems(Registries.getItem("kubejs:machine_casing_grinding_head"), 64)
                 .inputItems(TagUtil.createModItemTag("circuits/opv"), 32).inputItems(GTLItems.EXTREMELY_ULTIMATE_BATTERY)
-                .inputItems(Registries.getItem("kubejs:awakened_core"), 16).inputItems(GTItems.FIELD_GENERATOR_UXV, 4)
+                .inputItems(Registries.getItemStack("kubejs:awakened_core", 16)).inputItems(GTItems.FIELD_GENERATOR_UXV, 4)
                 .inputItems(GTItems.SENSOR_UXV, 8).inputItems(GTItems.EMITTER_UXV, 8)
-                .inputItems(Registries.getItem("kubejs:bedrock_drill"), 64).inputItems(Registries.getItem("kubejs:bedrock_drill"), 64)
-                .inputItems(Registries.getItem("kubejs:bedrock_drill"), 64).inputItems(Registries.getItem("kubejs:bedrock_drill"), 64)
+                .inputItems(Registries.getItemStack("kubejs:bedrock_drill", 64)).inputItems(Registries.getItemStack("kubejs:bedrock_drill", 64))
+                .inputItems(Registries.getItemStack("kubejs:bedrock_drill", 64)).inputItems(Registries.getItemStack("kubejs:bedrock_drill", 64))
                 .inputItems(TagPrefix.plateDouble, GTMaterials.UraniumRhodiumDinaquadide, 32).inputItems(TagPrefix.plateDouble, GTLMaterials.Echoite, 32)
                 .inputItems(TagPrefix.plateDouble, GTLMaterials.Legendarium, 32).inputItems(TagPrefix.plateDouble, GTLMaterials.TriniumTitanium, 32)
                 .inputFluids(GTLMaterials.SuperMutatedLivingSolder.getFluid(16000)).inputFluids(GTMaterials.Nobelium.getFluid(4608))
@@ -174,7 +182,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.TITAN_CRIP_EARTHBORE)
                 .EUt(GTValues.VA[GTValues.UXV]).duration(1800)
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.BEDROCK_DRILLING_RIG.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("nebula_reaper")
                 .inputItems(AdvancedMultiBlockMachine.SPACE_ELEVATOR, 16).inputItems(AdvancedMultiBlockMachine.RESOURCE_COLLECTION, 64)
                 .inputItems(AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER, 32).inputItems(Registries.getItem("gtceu:zpm_fluid_drilling_rig"), 64)
@@ -189,7 +198,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.NEBULA_REAPER)
                 .EUt(GTValues.VA[GTValues.UXV]).duration(1200)
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("dimensionally_transcendent_chemical_plant")
                 .inputItems(TagPrefix.frameGt, GTLMaterials.BlackTitanium, 16).inputItems(MultiBlockMachineA.LARGE_CHEMICAL_PLANT, 16)
                 .inputItems(MultiBlockMachineA.CHEMICAL_PLANT, 32).inputItems(Registries.getItem("gtceu:large_chemical_reactor"), 64)
@@ -204,7 +214,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT)
                 .EUt(GTValues.VA[GTValues.UXV]).duration(1200)
                 .stationResearch((b) -> b.researchStack(MultiBlockMachineA.LARGE_CHEMICAL_PLANT.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UXV]).CWUt(1024))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("quantum_syphon_matrix")
                 .inputItems(Registries.getItem("gtceu:large_gas_collector"), 64).inputItems(Registries.getItem("gtceu:luv_gas_collector"), 64)
                 .inputItems(Registries.getItem("gtceu:zpm_gas_collector"), 32).inputItems(Registries.getItem("gtceu:uv_gas_collector"), 16)
@@ -219,7 +230,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.QUANTUM_SYPHON_MATRIX)
                 .EUt(GTValues.VA[GTValues.UIV]).duration(1200)
                 .stationResearch((b) -> b.researchStack(Registries.getItem("gtceu:large_gas_collector").getDefaultInstance())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UIV]).CWUt(832)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UIV]).CWUt(832))
+                .save(provider);
         GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder("fuxi_bagua_heaven_forging_furnace")
                 .inputItems(TagPrefix.frameGt, GTLMaterials.Eternity, 16).inputItems(Registries.getItem("kubejs:dimension_creation_casing"), 16)
                 .inputItems(MultiBlockMachineA.ADVANCED_SPS_CRAFTING, 64).inputItems(AdvancedMultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE, 64)
@@ -234,7 +246,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE)
                 .EUt(GTValues.VA[GTValues.MAX] * 4096L).duration(72000)
                 .stationResearch((b) -> b.researchStack(AdvancedMultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.MAX]).CWUt(16384)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.MAX]).CWUt(16384))
+                .save(provider);
         GTRecipeTypes.ASSEMBLY_LINE_RECIPES.recipeBuilder("antientropy_condensation_center")
                 .inputItems(TagPrefix.frameGt, GTLMaterials.BlackTitanium, 16).inputItems(MultiBlockMachineA.COOLING_TOWER, 16)
                 .inputItems(MultiBlockMachineA.PLASMA_CONDENSER, 32).inputItems(Registries.getItemStack("gtceu:mega_vacuum_freezer", 32))
@@ -248,7 +261,8 @@ public class NewMultiBlockMachineController {
                 .outputItems(MultiBlockMachine.ANTIENTROPY_CONDENSATION_CENTER)
                 .EUt(GTValues.VA[GTValues.UIV]).duration(2560)
                 .stationResearch((b) -> b.researchStack(MultiBlockMachineA.COOLING_TOWER.asStack())
-                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UIV]).CWUt(832)).save(provider);
+                        .dataStack(GTItems.TOOL_DATA_MODULE.asStack()).EUt(GTValues.VA[GTValues.UIV]).CWUt(832))
+                .save(provider);
         new GTLAddRecipeBuilder("advanced_slaughter_house", GTRecipeTypes.ASSEMBLER_RECIPES)
                 .inputItems(AdvancedMultiBlockMachine.SLAUGHTERHOUSE, 32).inputItems("gtceu:iv_world_accelerator", 8)
                 .inputItems("gtceu:luv_world_accelerator", 8).inputItemsModTag("circuits/uv", 8)

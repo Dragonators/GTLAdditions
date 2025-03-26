@@ -1,15 +1,15 @@
 package com.gtladd.gtladditions.data.recipes;
 
-import com.gregtechceu.gtceu.api.data.tag.TagUtil;
-import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
-import net.minecraft.world.item.crafting.Ingredient;
 import org.gtlcore.gtlcore.common.data.GTLMaterials;
 import org.gtlcore.gtlcore.config.ConfigHolder;
 
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
+import com.gregtechceu.gtceu.api.data.tag.TagUtil;
+import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
 

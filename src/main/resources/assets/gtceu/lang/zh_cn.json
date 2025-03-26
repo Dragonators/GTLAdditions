@@ -10,5 +10,6 @@
   "gtceu.molecular_deconstruction": "分子解构",
   "gtceu.universe_sandbox": "宇宙沙盘",
   "gtceu.multiblock.cleanroom": "当前维护等级：%s",
-  "gtceu.multiblock.gravity": "当前重力等级：%s"
+  "gtceu.multiblock.gravity": "当前重力等级：%s",
+  "gtceu.multiblock.titans_crip_earthbore_parallel": "同时处理至多%d个配方"
 }

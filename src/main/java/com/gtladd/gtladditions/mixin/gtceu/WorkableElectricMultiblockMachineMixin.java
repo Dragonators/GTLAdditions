@@ -1,14 +1,17 @@
 package com.gtladd.gtladditions.mixin.gtceu;
 
+import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.IGravityPartMachine;
+
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDisplayUIMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
 import com.gregtechceu.gtceu.api.misc.EnergyContainerList;
+
+import net.minecraft.network.chat.Component;
+
 import com.gtladd.gtladditions.common.machine.muiltblock.GTLAddMultiblockDisplayTextBuilder;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.network.chat.Component;
-import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.IGravityPartMachine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,17 +25,20 @@ import java.util.stream.Stream;
 
 @Mixin(WorkableElectricMultiblockMachine.class)
 public class WorkableElectricMultiblockMachineMixin extends WorkableMultiblockMachine implements IDisplayUIMachine {
+
     @Shadow(remap = false)
     protected EnergyContainerList energyContainer;
     @Shadow(remap = false)
     protected int tier;
+
     public WorkableElectricMultiblockMachineMixin(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
     }
 
     @Inject(method = "addDisplayText",
             at = @At(value = "INVOKE", target = "Lcom/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText;builder(Ljava/util/List;Z)Lcom/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText$Builder;", shift = At.Shift.BEFORE),
-            remap = false, cancellable = true)
+            remap = false,
+            cancellable = true)
     public void addDisplayText(List<Component> textList, CallbackInfo ci, @Local(ordinal = 0) int numParallels) {
         int gravity = 50;
         Stream Gravity = this.getParts().stream();
@@ -44,7 +50,7 @@ public class WorkableElectricMultiblockMachineMixin extends WorkableMultiblockMa
             IGravityPartMachine gravityPartMachine = optional.get();
             gravity = gravityPartMachine.getCurrentGravity();
         }
-        GTLAddMultiblockDisplayTextBuilder.builder(textList,  this.isFormed())
+        GTLAddMultiblockDisplayTextBuilder.builder(textList, this.isFormed())
                 .setWorkingStatus(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive())
                 .addEnergyUsageLine(this.energyContainer).addEnergyTierLine(this.tier)
                 .addMachineModeLine(this.getRecipeType()).addParallelsLine(numParallels)
@@ -54,5 +60,4 @@ public class WorkableElectricMultiblockMachineMixin extends WorkableMultiblockMa
         IDisplayUIMachine.super.addDisplayText(textList);
         ci.cancel();
     }
-
 }

@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(WirelessOpticalComputationHatchMachine.class)
 public class WirelessOpticalComputationHatchMachineMIxin {
+
     /**
      * @author
      * @reason

@@ -1,13 +1,13 @@
 package com.gtladd.gtladditions.mixin.gtlcore;
 
-import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
-import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.AutoConfigurationMaintenanceHatchPartMachine;
 import org.gtlcore.gtlcore.utils.Registries;
+import org.gtlcore.gtlcore.utils.TextUtil;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredPartMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 
@@ -15,6 +15,7 @@ import com.lowdragmc.lowdraglib.gui.widget.SlotWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer;
+import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -22,7 +23,6 @@ import net.minecraft.world.item.ItemStack;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.architectury.patchedmixin.staticmixin.spongepowered.asm.mixin.Overwrite;
-import org.gtlcore.gtlcore.utils.TextUtil;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,12 +44,14 @@ public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPar
     private static final ItemStack CREATIVE_MAINFRAME = Registries.getItemStack("kubejs:suprachronal_mainframe_complex", 16);
     @Persisted
     private final NotifiableItemStackHandler gtladditions$max = new NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH, (slots) -> new ItemStackTransfer(1) {
+
         public int getSlotLimit(int slot) {
             return 16;
         }
     });
     @Persisted
     private final NotifiableItemStackHandler gtladditions$min = new NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH, (slots) -> new ItemStackTransfer(1) {
+
         public int getSlotLimit(int slot) {
             return 16;
         }

@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.api.recipeslogic;
 
+import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
 
 import com.gregtechceu.gtceu.api.capability.recipe.*;
@@ -63,7 +64,10 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic {
                 match = recipes[(i + 1) % length];
                 continue;
             }
-            match = parallelRecipe(match, parallel);
+            if (parallel > 1) {
+                match = match.copy(ContentModifier.multiplier(parallel), false);
+                match.parallels *= parallel;
+            }
             GTRecipe input = buildEmptyRecipe();
             input.inputs.putAll(match.inputs);
             if (input.matchRecipe(machine).isSuccess() && input.handleRecipeIO(IO.IN, machine, getChanceCaches())) {
@@ -90,18 +94,6 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic {
 
     protected GTRecipe buildEmptyRecipe() {
         return GTRecipeBuilder.ofRaw().buildRawRecipe();
-    }
-
-    protected GTRecipe parallelRecipe(GTRecipe recipe, int max) {
-        int maxMultipliers = Integer.MAX_VALUE;
-        for (RecipeCapability<?> cap : recipe.inputs.keySet()) {
-            if (cap.doMatchInRecipe()) {
-                int currentMultiplier = cap.getMaxParallelRatio(machine, recipe, max);
-                if (currentMultiplier < maxMultipliers) maxMultipliers = currentMultiplier;
-            }
-        }
-        if (maxMultipliers > 0) recipe = recipe.copy(ContentModifier.multiplier(maxMultipliers), false);
-        return recipe;
     }
 
     @Override

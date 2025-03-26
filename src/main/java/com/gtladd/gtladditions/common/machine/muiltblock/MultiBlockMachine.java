@@ -1,7 +1,7 @@
 package com.gtladd.gtladditions.common.machine.muiltblock;
 
-import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.*;
+import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import org.gtlcore.gtlcore.GTLCore;
 import org.gtlcore.gtlcore.client.renderer.machine.EyeOfHarmonyRenderer;
 import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock;
@@ -19,6 +19,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
+import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
@@ -36,6 +37,7 @@ import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricMultipleRecipes
 import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricParallelHatchMultipleRecipesMachine;
 import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.*;
 import com.gtladd.gtladditions.common.machine.muiltblock.structure.MultiBlockStructure;
 import com.hepdd.gtmthings.data.CustomMachines;
 
@@ -406,14 +408,16 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLFusionCasingBlock.getCasingType(10).getTexture(), GTCEu.id("block/multiblock/fusion_reactor"))
                 .register();
 
-        TITAN_CRIP_EARTHBORE = GTLAddRegistration.REGISTRATE.multiblock("titan_crip_earthbore", (holder) -> new StorageMachine(holder, 64))
+        TITAN_CRIP_EARTHBORE = GTLAddRegistration.REGISTRATE.multiblock("titan_crip_earthbore", WorkableElectricMultiblockMachine::new)
                 .noneRotation()
-                .tooltipText("在主机中放入基岩钻头可获得对应数量X4的并行")
+                .tooltipText("电压每高出LuV一级最大并行数X2")
                 .tooltipTextPerfectOverclock()
                 .tooltipText("可用配方类型：地脉断层发生器")
                 .tooltipTextAdd()
                 .recipeType(GTLAddRecipesTypes.TECTONIC_FAULT_GENERATOR)
-                .recipeModifiers(GTLAddMultiBlockMachineModifier.TITAN_CRIP_EARTHBORE_MODIFIER)
+                .recipeModifiers(new RecipeModifier[]{(machine, recipe, params, result) ->
+                        GTRecipeModifiers.accurateParallel(machine, recipe, (int)Math.pow(2.0, ((WorkableElectricMultiblockMachine)machine).getTier() - 6), false).getFirst(),
+                        GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK)})
                 .appearanceBlock(GTLBlocks.ECHO_CASING)
                 .pattern(definition -> MultiBlockStructure.TITAN_CRIP_EARTHBORE_STRUCTURE
                         .where("~", Predicates.controller(Predicates.blocks(definition.get())))
@@ -429,6 +433,12 @@ public class MultiBlockMachine {
                                 .or(Predicates.autoAbilities(definition.getRecipeTypes()))
                                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
                         .build())
+                .additionalDisplay((controller, components) -> {
+                    if (controller.isFormed()) {
+                        components.add(Component.translatable("gtceu.multiblock.parallel", Component.literal(FormattingUtil.formatNumbers(Math.pow(2.0, ((WorkableElectricMultiblockMachine)controller).getTier() - 6)))
+                                .withStyle(ChatFormatting.DARK_PURPLE)).withStyle(ChatFormatting.GRAY));
+                    }
+                })
                 .workableCasingRenderer(GTLCore.id("block/casings/echo_casing"), GTCEu.id("block/multiblock/cleanroom"))
                 .register();
 

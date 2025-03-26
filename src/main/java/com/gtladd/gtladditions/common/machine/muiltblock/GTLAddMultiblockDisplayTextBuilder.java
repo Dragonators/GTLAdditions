@@ -1,5 +1,7 @@
 package com.gtladd.gtladditions.common.machine.muiltblock;
 
+import org.gtlcore.gtlcore.api.machine.multiblock.GTLCleanroomType;
+
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.api.machine.feature.ICleanroomProvider;
@@ -8,25 +10,28 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 import com.gregtechceu.gtceu.utils.GTUtil;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
-import org.gtlcore.gtlcore.api.machine.multiblock.GTLCleanroomType;
 
 import java.util.List;
 import java.util.Set;
 
 public class GTLAddMultiblockDisplayTextBuilder {
+
     public static Builder builder(List<Component> textList, boolean isStructureFormed) {
         return new Builder(textList, isStructureFormed, true);
     }
 
     public static class Builder {
+
         private final List<Component> textList;
         private final boolean isStructureFormed;
         private boolean isWorkingEnabled;
         private boolean isActive;
+
         private Builder(List<Component> textList, boolean isStructureFormed, boolean showIncompleteStructureWarning) {
             this.textList = textList;
             this.isStructureFormed = isStructureFormed;
@@ -35,13 +40,14 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 Component hover = Component.translatable("gtceu.multiblock.invalid_structure.tooltip").withStyle(ChatFormatting.GRAY);
                 textList.add(base.withStyle((style) -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover))));
             }
-
         }
+
         public Builder setWorkingStatus(boolean isWorkingEnabled, boolean isActive) {
             this.isWorkingEnabled = isWorkingEnabled;
             this.isActive = isActive;
             return this;
         }
+
         public Builder addEnergyUsageLine(IEnergyContainer energyContainer) {
             if (!this.isStructureFormed) return this;
             else {
@@ -56,6 +62,7 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 return this;
             }
         }
+
         public Builder addEnergyTierLine(int tier) {
             if (!this.isStructureFormed) return this;
             else if (tier >= 0 && tier <= 14) {
@@ -66,6 +73,7 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 return this;
             } else return this;
         }
+
         public Builder addMachineModeLine(GTRecipeType recipeType) {
             if (!this.isStructureFormed) return this;
             else {
@@ -73,6 +81,7 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 return this;
             }
         }
+
         public Builder addParallelsLine(int numParallels) {
             if (!this.isStructureFormed) return this;
             else {
@@ -83,11 +92,13 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 return this;
             }
         }
+
         public Builder addWorkingStatusLine() {
             if (!this.isStructureFormed) return this;
             else if (!this.isWorkingEnabled) return this.addWorkPausedLine(false);
             else return this.isActive ? this.addRunningPerfectlyLine(false) : this.addIdlingLine(false);
         }
+
         public Builder addWorkPausedLine(boolean checkState) {
             if (!this.isStructureFormed) return this;
             else {
@@ -97,6 +108,7 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 return this;
             }
         }
+
         public Builder addRunningPerfectlyLine(boolean checkState) {
             if (!this.isStructureFormed) return this;
             else {
@@ -106,6 +118,7 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 return this;
             }
         }
+
         public Builder addIdlingLine(boolean checkState) {
             if (!this.isStructureFormed) return this;
             else {
@@ -115,13 +128,15 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 return this;
             }
         }
+
         public Builder addProgressLine(double progressPercent) {
             if (this.isStructureFormed && this.isActive) {
-                int currentProgress = (int)(progressPercent * 100.0);
+                int currentProgress = (int) (progressPercent * 100.0);
                 this.textList.add(Component.translatable("gtceu.multiblock.progress", currentProgress));
                 return this;
             } else return this;
         }
+
         public Builder addMaintenanceTierLines(ICleanroomProvider cleanroomTypes) {
             if (!this.isStructureFormed || !ConfigHolder.INSTANCE.machines.enableMaintenance) return this;
             else {
@@ -130,9 +145,9 @@ public class GTLAddMultiblockDisplayTextBuilder {
                     Set<CleanroomType> cleaningRooms = cleanroomTypes.getTypes();
                     if (cleaningRooms.contains(GTLCleanroomType.LAW_CLEANROOM)) {
                         cleanroomType = Component.literal("绝对洁净").withStyle(ChatFormatting.RED);
-                    } else if (cleaningRooms.contains(CleanroomType.STERILE_CLEANROOM)){
+                    } else if (cleaningRooms.contains(CleanroomType.STERILE_CLEANROOM)) {
                         cleanroomType = Component.literal("无菌").withStyle(ChatFormatting.RED);
-                    } else if (cleaningRooms.contains(CleanroomType.CLEANROOM)){
+                    } else if (cleaningRooms.contains(CleanroomType.CLEANROOM)) {
                         cleanroomType = Component.literal("超净").withStyle(ChatFormatting.RED);
                     } else {
                         cleanroomType = Component.literal("无").withStyle(ChatFormatting.RED);
@@ -144,11 +159,12 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 return this;
             }
         }
+
         public Builder addGravityLine(int hasGravity) {
             if (!this.isStructureFormed) return this;
             else {
                 Component gravity;
-                if (hasGravity == 0){
+                if (hasGravity == 0) {
                     gravity = Component.literal("无重力").withStyle(ChatFormatting.RED);
                 } else if (hasGravity == 100) {
                     gravity = Component.literal("强重力").withStyle(ChatFormatting.RED);

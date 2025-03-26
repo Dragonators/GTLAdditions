@@ -1,35 +1,41 @@
 package com.gtladd.gtladditions.data.recipes.newmachinerecipe;
 
+import org.gtlcore.gtlcore.common.data.GTLMaterials;
+
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
+
+import net.minecraft.data.recipes.FinishedRecipe;
+
 import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
-import net.minecraft.data.recipes.FinishedRecipe;
-import org.gtlcore.gtlcore.common.data.GTLMaterials;
+import org.gtlcore.gtlcore.utils.Registries;
 
 import java.util.function.Consumer;
 
 public class AntientropyCondensation {
+
     public AntientropyCondensation() {}
+
     public static void init(Consumer<FinishedRecipe> provider) {
-        Material[] fluids = {GTMaterials.Argon, GTMaterials.Helium, GTMaterials.Nickel, GTMaterials.Iron,
+        Material[] fluids = { GTMaterials.Argon, GTMaterials.Helium, GTMaterials.Nickel, GTMaterials.Iron,
                 GTMaterials.Nitrogen, GTMaterials.Oxygen, GTLMaterials.Mithril, GTLMaterials.Orichalcum, GTLMaterials.Enderium,
                 GTLMaterials.Adamantium, GTLMaterials.Infuscolium, GTLMaterials.Echoite, GTLMaterials.Vibranium, GTLMaterials.TaraniumRichLiquidHelium4,
                 GTLMaterials.Legendarium, GTLMaterials.HeavyQuarkDegenerateMatter, GTLMaterials.Starmetal,
-                GTLMaterials.QuantumChromodynamicallyConfinedMatter, GTLMaterials.AstralTitanium, GTLMaterials.CelestialTungsten};
+                GTLMaterials.QuantumChromodynamicallyConfinedMatter, GTLMaterials.AstralTitanium, GTLMaterials.CelestialTungsten };
         for (Material fluid : fluids) {
             new GTLAddRecipeBuilder(fluid.getName() + "_fluid_condenser", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
                     .inputFluids(fluid.getFluid(FluidStorageKeys.PLASMA, 1000)).outputFluids(fluid.getFluid(1000)).circuitMeta(1)
                     .EUt(GTValues.VA[GTValues.UHV]).duration(600).save(provider);
         }
-        Material[] ingots = {GTLMaterials.Mithril, GTLMaterials.Orichalcum, GTLMaterials.Enderium, GTLMaterials.Adamantium,
+        Material[] ingots = { GTLMaterials.Mithril, GTLMaterials.Orichalcum, GTLMaterials.Enderium, GTLMaterials.Adamantium,
                 GTLMaterials.Infuscolium, GTLMaterials.Echoite, GTLMaterials.Vibranium,
                 GTLMaterials.Legendarium, GTLMaterials.HeavyQuarkDegenerateMatter, GTLMaterials.Starmetal,
-                GTLMaterials.QuantumChromodynamicallyConfinedMatter};
+                GTLMaterials.QuantumChromodynamicallyConfinedMatter };
         for (Material ingot : ingots) {
             new GTLAddRecipeBuilder(ingot.getName() + "_ingot_condenser", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION).notConsumable("kubejs:ingot_field_shape")
                     .inputFluids(ingot.getFluid(FluidStorageKeys.PLASMA, 144)).outputItems(TagPrefix.ingotHot, ingot)
@@ -41,6 +47,13 @@ public class AntientropyCondensation {
         GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder("liquid_hydrogen")
                 .inputFluids(GTMaterials.Hydrogen.getFluid(1000)).outputFluids(GTLMaterials.LiquidHydrogen.getFluid(1000))
                 .EUt(GTValues.VA[GTValues.EV]).duration(240).save(provider);
+        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder("metaastable_oganesson")
+                .inputItems(Registries.getItemStack("kubejs:dust_cryotheum")).inputFluids(GTLMaterials.HotOganesson.getFluid(4000))
+                .outputFluids(GTLMaterials.MetastableOganesson.getFluid(576)).outputItems(TagPrefix.dustSmall, GTLMaterials.Enderium, 2)
+                .EUt(GTValues.VA[GTValues.UV]).duration(280).save(provider);
+        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder("draconium")
+                .inputItems(TagPrefix.ingotHot, GTLMaterials.Draconium).outputItems(TagPrefix.ingot, GTLMaterials.Draconium)
+                .EUt(GTValues.VA[GTValues.UXV]).duration(100).save(provider);
         new GTLAddRecipeBuilder("fullerene_polymer_matrix_fine_tubing", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
                 .inputItems("kubejs:fullerene_polymer_matrix_soft_tubing").outputItems("kubejs:fullerene_polymer_matrix_fine_tubing")
                 .EUt(500).duration(240).save(provider);
@@ -114,6 +127,7 @@ public class AntientropyCondensation {
         addRecipe(GTMaterials.Helium, provider);
         addRecipe(GTMaterials.Oxygen, provider);
     }
+
     private static void addRecipe(Material material, Consumer<FinishedRecipe> provider) {
         GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(material.getName())
                 .inputFluids(material.getFluid(1000)).outputFluids(material.getFluid(FluidStorageKeys.LIQUID, 1000))

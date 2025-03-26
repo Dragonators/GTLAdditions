@@ -36,6 +36,7 @@ public class GTLAddRecipeLookup extends GTRecipeLookup {
     }
 
     static class AdvancedRecipeIterator implements Iterator<GTRecipe> {
+
         private final GTRecipeLookup lookup;
         public final List<List<AbstractMapIngredient>> ingredients;
         private final Predicate<GTRecipe> canHandle;

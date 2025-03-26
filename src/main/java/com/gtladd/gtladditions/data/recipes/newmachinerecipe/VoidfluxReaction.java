@@ -15,18 +15,12 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 public class VoidfluxReaction {
-
-    private static final String[] DIMENSIONS = { "overworld", "nether", "end" };
-    private static final int BASE_TIER = 8;
-
     public VoidfluxReaction() {}
-
     public static void init(Consumer<FinishedRecipe> provider) {
-        for (String dimension : DIMENSIONS) {
-            for (int tier = GTValues.UHV; tier < GTValues.MAX; tier++) {
-                final int amplifier = (int) Math.pow(2, tier - BASE_TIER);
+        for (String dimension : new String[]{"overworld", "nether", "end"}) {
+            for (int tier = GTValues.UEV; tier < GTValues.OpV; tier++) {
                 final String voltageName = GTValues.VN[tier].toLowerCase();
-                GTLAddRecipeBuilder builder = new GTLAddRecipeBuilder(String.format("%s_air_collector_%d", dimension, tier - BASE_TIER), GTLAddRecipesTypes.VOIDFLUX_REACTION)
+                GTLAddRecipeBuilder builder = new GTLAddRecipeBuilder(String.format("%s_air_collector_%d", dimension, tier - 8), GTLAddRecipesTypes.VOIDFLUX_REACTION)
                         .notConsumable("kubejs:" + dimension + "_data", 64)
                         .notConsumable("gtceu:" + voltageName + "_fluid_regulator");
                 final int[] durations = { 20, 200 };
@@ -35,7 +29,7 @@ public class VoidfluxReaction {
                     GTRecipeBuilder modeBuilder = ((mode == 0) ?
                             builder.copy(String.format("%s_%s_air_collector_%d", voltageName, dimension, mode)).circuitMeta(1) :
                             builder.copy(String.format("%s_%s_air_collector_%d", voltageName, dimension, mode)).notConsumable(MultiBlockMachineA.COOLING_TOWER.asStack()));
-                    setAir(modeBuilder, dimension, mode, amplifier);
+                    setAir(modeBuilder, dimension, mode, (int) Math.pow(4, finalTier - 5));
                     modeBuilder.duration(durations[mode])
                             .EUt(GTValues.VA[finalTier])
                             .save(provider);
@@ -43,20 +37,19 @@ public class VoidfluxReaction {
             }
         }
     }
-
     private static void setAir(GTRecipeBuilder builder, String s, int i, int j) {
         switch (s) {
             case "overworld" -> {
-                if (i == 0) builder.outputFluids(GTMaterials.Air.getFluid(100000L * j));
-                else builder.outputFluids(GTMaterials.LiquidAir.getFluid(100000L * j));
+                if (i == 0) builder.outputFluids(GTMaterials.Air.getFluid(10000L * j));
+                else builder.outputFluids(GTMaterials.LiquidAir.getFluid(10000L * j));
             }
             case "nether" -> {
-                if (i == 0) builder.outputFluids(GTMaterials.NetherAir.getFluid(100000L * j));
-                else builder.outputFluids(GTMaterials.LiquidNetherAir.getFluid(100000L * j));
+                if (i == 0) builder.outputFluids(GTMaterials.NetherAir.getFluid(10000L * j));
+                else builder.outputFluids(GTMaterials.LiquidNetherAir.getFluid(10000L * j));
             }
             case "end" -> {
-                if (i == 0) builder.outputFluids(GTMaterials.EnderAir.getFluid(100000L * j));
-                else builder.outputFluids(GTMaterials.LiquidEnderAir.getFluid(100000L * j));
+                if (i == 0) builder.outputFluids(GTMaterials.EnderAir.getFluid(10000L * j));
+                else builder.outputFluids(GTMaterials.LiquidEnderAir.getFluid(10000L * j));
             }
         }
     }

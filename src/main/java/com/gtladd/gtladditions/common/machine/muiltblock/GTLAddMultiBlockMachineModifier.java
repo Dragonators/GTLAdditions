@@ -21,19 +21,6 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public class GTLAddMultiBlockMachineModifier {
-
-    public static final RecipeModifier[] TITAN_CRIP_EARTHBORE_MODIFIER = new RecipeModifier[] {
-            (machine, recipe, params, result) -> {
-                boolean isParallel = false;
-                int p = 0;
-                if (machine instanceof StorageMachine storageMachine) {
-                    ItemStack item = storageMachine.getMachineStorageItem();
-                    p = item.getCount() * 4;
-                    isParallel = Objects.equals(item.getItem(), Registries.getItem("kubejs:bedrock_drill"));
-                }
-                return isParallel ? GTRecipeModifiers.accurateParallel(machine, recipe, p, false).getFirst() : recipe;
-            }, GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK)
-    };
     public static final RecipeModifier[] DRACONIC_COLLAPSE_CORE_MODIFIER = new RecipeModifier[] { (machine, recipe, params, result) -> GTRecipeModifiers.accurateParallel(machine, recipe, (int) Math.pow(8.0, ((WorkableElectricMultiblockMachine) machine).getTier() - 10), false).getFirst(),
             GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK)
     };

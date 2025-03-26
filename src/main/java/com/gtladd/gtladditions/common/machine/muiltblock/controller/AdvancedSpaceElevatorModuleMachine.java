@@ -2,19 +2,15 @@ package com.gtladd.gtladditions.common.machine.muiltblock.controller;
 
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
 import org.gtlcore.gtlcore.common.data.GTLBlocks;
-import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers;
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine;
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine;
 
 import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
-import com.gregtechceu.gtceu.api.recipe.logic.OCParams;
-import com.gregtechceu.gtceu.api.recipe.logic.OCResult;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.ChatFormatting;
@@ -24,7 +20,6 @@ import net.minecraft.world.level.Level;
 
 import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -39,7 +34,7 @@ public class AdvancedSpaceElevatorModuleMachine extends WorkableElectricMultiblo
         this.SEPMTier = SEPMTier;
     }
 
-    public @NotNull RecipeLogic createRecipeLogic(@NotNull Object @NotNull ... args) {
+    public @NotNull RecipeLogic createRecipeLogic(@NotNull Object @NotNull... args) {
         return new GTLAddMultipleRecipesLogic(this);
     }
 
@@ -115,7 +110,6 @@ public class AdvancedSpaceElevatorModuleMachine extends WorkableElectricMultiblo
     }
 
     public int getMaxParallel() {
-        return  (2 << 3) << (this.ModuleTier - 1);
+        return (2 << 3) << (this.ModuleTier - 1);
     }
-
 }

@@ -24,18 +24,18 @@ public class Assembler {
                 .inputItems("gtceu:quantum_star").inputItems("gtceu:industrial_tnt").inputItems("gtceu:naquadria_dust")
                 .inputItems("gtceu:tiny_hexanitrohexaaxaisowurtzitane_dust", 4).inputItems("gtceu:double_thorium_plate")
                 .inputFluids(GTLMaterials.Antimatter.getFluid(1))
-                .outputItems("kubejs:naquadria_charge", 64)
+                .outputItems("kubejs:naquadria_charge", 16)
                 .TierEUtVA(13).duration(200).save(provider);
         new GTLAddRecipeBuilder("leptonic_charge", ASSEMBLER_RECIPES)
                 .inputItems("gtceu:gravi_star").inputItems("gtceu:industrial_tnt").inputItems("gtceu:degenerate_rhenium_dust")
                 .inputItems("gtceu:small_hexanitrohexaaxaisowurtzitane_dust", 2).inputItems("gtceu:double_enderium_plate")
                 .inputFluids(GTLMaterials.Antimatter.getFluid(10))
-                .outputItems("kubejs:leptonic_charge", 64)
+                .outputItems("kubejs:leptonic_charge", 16)
                 .TierEUtVA(14).duration(200).save(provider);
         new GTLAddRecipeBuilder("quantum_chromodynamic_charge", ASSEMBLER_RECIPES).notConsumable("gtceu:eternity_nanoswarm")
                 .inputItems("kubejs:unstable_star").inputItems("kubejs:leptonic_charge").inputItems("kubejs:quantumchromodynamic_protective_plating")
                 .inputFluids(GTLMaterials.Antimatter.getFluid(100))
-                .outputItems("kubejs:quantum_chromodynamic_charge", 64)
+                .outputItems("kubejs:quantum_chromodynamic_charge", 16)
                 .duration(200).EUt(4L * GTValues.VA[GTValues.MAX]).save(provider);
         new GTLAddRecipeBuilder("electric_blast_furnace", ASSEMBLER_RECIPES)// 电力高炉
                 .InputItems("3x minecraft:furnace").inputItemsModTag("circuits/lv", 3).InputItems("2x gtceu:tin_single_cable")
@@ -89,7 +89,8 @@ public class Assembler {
                 .outputItems("gtceu:filter_casing")
                 .EUt(32).duration(240).save(provider);
     }
-    private static void addWorldAccelerator(Consumer<FinishedRecipe> provider){
+
+    private static void addWorldAccelerator(Consumer<FinishedRecipe> provider) {
         for (int i = 1; i < 9; i++) {
             String tierName = GTValues.VN[i].toLowerCase();
             new GTLAddRecipeBuilder(tierName + "_world_accelerator", ASSEMBLER_RECIPES).circuitMeta(24)
@@ -101,7 +102,8 @@ public class Assembler {
                     .duration(200).EUt(480).save(provider);
         }
     }
-    private static void addDiode(Consumer<FinishedRecipe> provider){
+
+    private static void addDiode(Consumer<FinishedRecipe> provider) {
         String[][] diode = {
                 { "lv", "diodes", "steel", "tin_quadruple" },
                 { "mv", "diodes", "aluminium", "copper_quadruple" },
@@ -127,7 +129,8 @@ public class Assembler {
                     .TierEUtVA(4).duration(1200).save(provider);
         }
     }
-    private static void addHermeticCasing(Consumer<FinishedRecipe> provider){
+
+    private static void addHermeticCasing(Consumer<FinishedRecipe> provider) {
         String[][] hermetic_casing = {
                 { "lv", "", "super", "lv", "gtceu", "steel", "polyethylene_large_fluid_pipe" },
                 { "mv", "", "super", "mv", "gtceu", "aluminium", "polyvinyl_chloride_large_item_pipe" },

@@ -10,5 +10,6 @@
   "gtceu.molecular_deconstruction": "Molecular Deconstruction",
   "gtceu.universe_sandbox": "Universe Sandbox",
   "gtceu.multiblock.cleanroom": "Cleanroom Tier: %s",
-  "gtceu.multiblock.gravity": "Gravity: %s"
+  "gtceu.multiblock.gravity": "Gravity: %s",
+  "gtceu.multiblock.titans_crip_earthbore_parallel": "Titans Crip Earthbore Parallel: %d"
 }

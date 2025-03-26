@@ -1,5 +1,9 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller;
 
+import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
+import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine;
+import org.gtlcore.gtlcore.utils.Registries;
+
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
@@ -9,14 +13,13 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
-import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
-import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine;
-import org.gtlcore.gtlcore.utils.Registries;
+
+import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -101,6 +104,7 @@ public class BiologicalSimulationLaboratory extends StorageMachine implements Pa
         reDuctionEUt = Reductioneut;
         reDuctionDuration = Reductionduration;
     }
+
     @Override
     public int getMaxParallel() {
         return Max_Parallels;
@@ -135,7 +139,7 @@ public class BiologicalSimulationLaboratory extends StorageMachine implements Pa
             if (!machine.hasProxies()) return null;
             GTRecipe recipe = this.machine.getRecipeType().getLookup().findRecipe(machine);
             if (recipe == null || RecipeHelper.getRecipeEUtTier(recipe) > getMachine().getTier()) return null;
-            recipe = parallelRecipe(recipe, getMachine().getMaxParallel());
+            recipe.parallels *= getMachine().getMaxParallel();
             RecipeHelper.setInputEUt(recipe, (long) Math.max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt)));
             recipe.duration = (int) Math.max(1.0, (double) recipe.duration *
                     reDuctionDuration / (1 << (getMachine().getTier() - RecipeHelper.getRecipeEUtTier(recipe))));

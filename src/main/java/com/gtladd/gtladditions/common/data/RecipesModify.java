@@ -13,6 +13,9 @@ public class RecipesModify {
     public RecipesModify() {}
 
     public static void init() {
+        GTLRecipeTypes.DOOR_OF_CREATE_RECIPES.setMaxIOSize(1, 1, 0, 0);
+        GTLRecipeTypes.CREATE_AGGREGATION_RECIPES.setMaxIOSize(2, 1, 0, 0);
+        GTRecipeTypes.EVAPORATION_RECIPES.setMaxIOSize(0, 1, 1, 7);
         GTRecipeTypes.LASER_ENGRAVER_RECIPES.onRecipeBuild((recipeBuilder, provider) -> {
             GTRecipeBuilder recipe = GTLAddRecipesTypes.PHOTON_MATRIX_ETCH.copyFrom(recipeBuilder)
                     .duration((int) ((double) recipeBuilder.duration * 0.2)).EUt(recipeBuilder.EUt());

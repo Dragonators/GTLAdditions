@@ -49,6 +49,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         AE2.init(provider);
         Assembler.init(provider);
         Distort.init(provider);
+        ElectricBlastFurnace.init(provider);
         IntegratedtedOreProcessor.init(provider);
         Mixer.init(provider);
         NewMultiBlockMachineController.init(provider);

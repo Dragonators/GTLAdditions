@@ -5,11 +5,11 @@ import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.common.data.GTItems;
-import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 import com.gregtechceu.gtceu.data.recipe.misc.alloyblast.AlloyBlastRecipeProducer;
 
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
+
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.level.material.Fluid;
 
@@ -38,10 +38,11 @@ public abstract class AlloyBlastRecipeProducerMixin {
         GTRecipeBuilder builder = this.gtladd$createBuilder(property, material);
         this.buildRecipes(property, material.getFluid(), this.addInputs(material, builder), material.getMaterialComponents().size(), builder, provider);
     }
+
     @Inject(method = "addFreezerRecipes", at = @At(value = "HEAD"), remap = false)
-    protected void addFreezerRecipes(@NotNull Material material, @NotNull Fluid molten, int temperature, Consumer<FinishedRecipe> provider, CallbackInfo ci){
+    protected void addFreezerRecipes(@NotNull Material material, @NotNull Fluid molten, int temperature, Consumer<FinishedRecipe> provider, CallbackInfo ci) {
         GTRecipeBuilder freezerBuilder = GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(material.getName())
-                .inputFluids(FluidStack.create(molten, 144L)).duration((int)material.getMass() * 3)
+                .inputFluids(FluidStack.create(molten, 144L)).duration((int) material.getMass() * 3)
                 .notConsumable(GTItems.SHAPE_MOLD_INGOT.asStack()).outputItems(TagPrefix.ingot, material);
         freezerBuilder.EUt(120).save(provider);
     }
