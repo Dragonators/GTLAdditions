@@ -1,7 +1,5 @@
 package com.gtladd.gtladditions.common.machine.muiltblock;
 
-import com.gregtechceu.gtceu.api.recipe.GTRecipe;
-import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import org.gtlcore.gtlcore.GTLCore;
 import org.gtlcore.gtlcore.client.renderer.machine.EyeOfHarmonyRenderer;
 import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock;
@@ -9,7 +7,6 @@ import org.gtlcore.gtlcore.common.data.GTLBlocks;
 import org.gtlcore.gtlcore.common.data.GTLMachines;
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes;
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.CoilWorkableElectricMultipleRecipesMultiblockMachine;
-import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine;
 import org.gtlcore.gtlcore.utils.Registries;
 import org.gtlcore.gtlcore.utils.TextUtil;
 
@@ -20,6 +17,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
+import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
@@ -415,9 +413,8 @@ public class MultiBlockMachine {
                 .tooltipText("可用配方类型：地脉断层发生器")
                 .tooltipTextAdd()
                 .recipeType(GTLAddRecipesTypes.TECTONIC_FAULT_GENERATOR)
-                .recipeModifiers(new RecipeModifier[]{(machine, recipe, params, result) ->
-                        GTRecipeModifiers.accurateParallel(machine, recipe, (int)Math.pow(2.0, ((WorkableElectricMultiblockMachine)machine).getTier() - 6), false).getFirst(),
-                        GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK)})
+                .recipeModifiers(new RecipeModifier[] { (machine, recipe, params, result) -> GTRecipeModifiers.accurateParallel(machine, recipe, (int) Math.pow(2.0, ((WorkableElectricMultiblockMachine) machine).getTier() - 6), false).getFirst(),
+                        GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK) })
                 .appearanceBlock(GTLBlocks.ECHO_CASING)
                 .pattern(definition -> MultiBlockStructure.TITAN_CRIP_EARTHBORE_STRUCTURE
                         .where("~", Predicates.controller(Predicates.blocks(definition.get())))
@@ -435,7 +432,7 @@ public class MultiBlockMachine {
                         .build())
                 .additionalDisplay((controller, components) -> {
                     if (controller.isFormed()) {
-                        components.add(Component.translatable("gtceu.multiblock.parallel", Component.literal(FormattingUtil.formatNumbers(Math.pow(2.0, ((WorkableElectricMultiblockMachine)controller).getTier() - 6)))
+                        components.add(Component.translatable("gtceu.multiblock.parallel", Component.literal(FormattingUtil.formatNumbers(Math.pow(2.0, ((WorkableElectricMultiblockMachine) controller).getTier() - 6)))
                                 .withStyle(ChatFormatting.DARK_PURPLE)).withStyle(ChatFormatting.GRAY));
                     }
                 })

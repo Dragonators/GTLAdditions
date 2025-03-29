@@ -139,7 +139,7 @@ public class BiologicalSimulationLaboratory extends StorageMachine implements Pa
             if (!machine.hasProxies()) return null;
             GTRecipe recipe = this.machine.getRecipeType().getLookup().findRecipe(machine);
             if (recipe == null || RecipeHelper.getRecipeEUtTier(recipe) > getMachine().getTier()) return null;
-            recipe.parallels *= getMachine().getMaxParallel();
+            recipe = parallelRecipe(recipe, getMachine().getMaxParallel());
             RecipeHelper.setInputEUt(recipe, (long) Math.max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt)));
             recipe.duration = (int) Math.max(1.0, (double) recipe.duration *
                     reDuctionDuration / (1 << (getMachine().getTier() - RecipeHelper.getRecipeEUtTier(recipe))));

@@ -1,15 +1,14 @@
 package com.gtladd.gtladditions.data.recipes.newmachinerecipe;
 
-import com.gregtechceu.gtceu.api.GTValues;
 import org.gtlcore.gtlcore.common.data.GTLMaterials;
+import org.gtlcore.gtlcore.utils.Registries;
 
+import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 
 import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
-import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
-import org.gtlcore.gtlcore.utils.Registries;
 
 import java.util.function.Consumer;
 

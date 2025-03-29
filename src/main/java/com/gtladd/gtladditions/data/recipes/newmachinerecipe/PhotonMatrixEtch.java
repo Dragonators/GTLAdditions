@@ -31,7 +31,7 @@ public class PhotonMatrixEtch {
         addRecipe("nm_wafer", "kubejs:rutherfordium_neutronium_wafer", "kubejs:lithography_mask", "gtceu:orange_glass_lens", 400, 7, GTLMaterials.Photoresist, provider);
         addRecipe("pm_wafer", "kubejs:taranium_wafer", "kubejs:lithography_mask", "gtceu:lime_glass_lens", 800, 8, GTLMaterials.EuvPhotoresist, provider);
         addRecipe("fm_wafer", "kubejs:pm_wafer", "kubejs:grating_lithography_mask", "gtceu:pink_glass_lens", 1080, 9, GTLMaterials.GammaRaysPhotoresist, provider);
-        addRecipe("prepared_cosmic_soc_wafer", "kubejs:taranium_wafer", "kubejs:lithography_mask", "gtceu:black_glass_lens", 2160, 10, GTLMaterials.GammaRaysPhotoresist, provider);
+        addRecipe("prepared_cosmic_soc_wafer", "kubejs:taranium_wafer", "kubejs:lithography_mask", "gtceu:light_gray_glass_lens", 2160, 10, GTLMaterials.GammaRaysPhotoresist, provider);
         addRecipe("high_precision_crystal_soc", "gtceu:crystal_soc", "kubejs:lithography_mask", "gtceu:cyan_glass_lens", 960, 9, GTLMaterials.EuvPhotoresist, provider);
     }
 

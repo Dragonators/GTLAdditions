@@ -1,8 +1,5 @@
 package com.gtladd.gtladditions.common.machine.muiltblock;
 
-import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine;
-import org.gtlcore.gtlcore.utils.Registries;
-
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
@@ -12,15 +9,14 @@ import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 
 import com.gtladd.gtladditions.api.machine.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public class GTLAddMultiBlockMachineModifier {
+
     public static final RecipeModifier[] DRACONIC_COLLAPSE_CORE_MODIFIER = new RecipeModifier[] { (machine, recipe, params, result) -> GTRecipeModifiers.accurateParallel(machine, recipe, (int) Math.pow(8.0, ((WorkableElectricMultiblockMachine) machine).getTier() - 10), false).getFirst(),
             GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK)
     };

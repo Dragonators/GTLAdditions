@@ -93,13 +93,13 @@ public class Distort {
                 .InputItems("256x gtceu:meat_dust").InputItems("225x minecraft:bone").InputItems("64x gtceu:sulfur_dust").InputItems("16x gtceu:phosphorus_dust")
                 .inputFluids(GTMaterials.DistilledWater.getFluid(128000)).inputFluids(GTMaterials.Oxygen.getFluid(128000))
                 .OutputItems("384x gtceu:agar_dust")
-                .TierEUtVA(9).duration(2560).blastFurnaceTemp(16000).cleanroom(CleanroomType.STERILE_CLEANROOM).save(provider);
+                .TierEUtVA(9).duration(320).blastFurnaceTemp(16000).cleanroom(CleanroomType.STERILE_CLEANROOM).save(provider);
         new GTLAddRecipeBuilder("tcetieseaweedextract", GTLRecipeTypes.DISTORT_RECIPES).notConsumable("gtceu:infuscolium_nanoswarm")
                 .InputItems("450x gtceu:salt_dust").InputItems("450x gtceu:agar_dust").InputItems("450x gtceu:meat_dust").InputItems("228x minecraft:kelp")
                 .InputItems("90x gtceu:alien_algae_dust").InputItems("36x gtceu:energium_dust").InputItems("4x gtceu:mithril_dust")
                 .inputFluids(GTLMaterials.UnknowWater.getFluid(112000)).inputFluids(GTMaterials.Methane.getFluid(225000))
                 .inputFluids(GTMaterials.Naphthalene.getFluid(90000)).inputFluids(GTMaterials.Oxygen.getFluid(180000))
                 .OutputItems("256x kubejs:tcetieseaweedextract")
-                .TierEUtVA(11).duration(1200).blastFurnaceTemp(18000).cleanroom(GTLCleanroomType.LAW_CLEANROOM).save(provider);
+                .TierEUtVA(11).duration(480).blastFurnaceTemp(18000).cleanroom(GTLCleanroomType.LAW_CLEANROOM).save(provider);
     }
 }

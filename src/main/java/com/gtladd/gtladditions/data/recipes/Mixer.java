@@ -1,8 +1,11 @@
 package com.gtladd.gtladditions.data.recipes;
 
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
+
 import net.minecraft.data.recipes.FinishedRecipe;
+
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
+
 import java.util.function.Consumer;
 
 public class Mixer {

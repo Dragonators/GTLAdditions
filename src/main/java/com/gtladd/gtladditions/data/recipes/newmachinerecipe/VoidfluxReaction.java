@@ -15,9 +15,11 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 public class VoidfluxReaction {
+
     public VoidfluxReaction() {}
+
     public static void init(Consumer<FinishedRecipe> provider) {
-        for (String dimension : new String[]{"overworld", "nether", "end"}) {
+        for (String dimension : new String[] { "overworld", "nether", "end" }) {
             for (int tier = GTValues.UEV; tier < GTValues.OpV; tier++) {
                 final String voltageName = GTValues.VN[tier].toLowerCase();
                 GTLAddRecipeBuilder builder = new GTLAddRecipeBuilder(String.format("%s_air_collector_%d", dimension, tier - 8), GTLAddRecipesTypes.VOIDFLUX_REACTION)
@@ -37,6 +39,7 @@ public class VoidfluxReaction {
             }
         }
     }
+
     private static void setAir(GTRecipeBuilder builder, String s, int i, int j) {
         switch (s) {
             case "overworld" -> {

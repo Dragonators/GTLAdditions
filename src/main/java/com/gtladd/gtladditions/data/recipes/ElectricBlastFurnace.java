@@ -4,12 +4,15 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
+
 import net.minecraft.data.recipes.FinishedRecipe;
 
 import java.util.function.Consumer;
 
 public class ElectricBlastFurnace {
+
     public ElectricBlastFurnace() {}
+
     public static void init(Consumer<FinishedRecipe> provider) {
         GTRecipeTypes.BLAST_RECIPES.recipeBuilder("magnesium_chloride_dust")
                 .inputItems(TagPrefix.dust, GTMaterials.Magnesia).inputItems(TagPrefix.dust, GTMaterials.Carbon)

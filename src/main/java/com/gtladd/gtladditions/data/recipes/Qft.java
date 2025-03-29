@@ -32,7 +32,7 @@ public class Qft {
                 .inputFluids(GTMaterials.Nitrogen.getFluid(32000))
                 .outputFluids(GTLMaterials.GammaRaysPhotoresist.getFluid(16000))
                 .TierEUtVA(14).duration(2560).save(provider);
-        new GTLAddRecipeBuilder("radox_easy", GTLRecipeTypes.QFT_RECIPES)
+        GTLRecipeTypes.QFT_RECIPES.recipeBuilder("radox_easy")
                 .inputItems(TagPrefix.dust, GTMaterials.Chromium, 4).inputItems(TagPrefix.dust, GTMaterials.Boron, 4)
                 .inputItems(TagPrefix.dust, GTMaterials.Silver, 4).inputItems(TagPrefix.dust, GTMaterials.Cobalt, 4)
                 .inputItems(TagPrefix.dust, GTMaterials.Silicon, 4).inputItems(TagPrefix.dust, GTMaterials.Molybdenum, 4)
@@ -43,7 +43,7 @@ public class Qft {
                 .inputItems(TagPrefix.dust, GTMaterials.Lead, 4).inputItems(TagPrefix.dust, GTMaterials.Potassium, 4)
                 .inputItems(TagPrefix.dust, GTMaterials.Germanium, 4).inputItems(TagPrefix.dust, GTMaterials.RareEarth, 4)
                 .inputFluids(GTLMaterials.RadoxGas.getFluid(21600)).inputFluids(GTMaterials.Oxygen.getFluid(175000))
-                .inputFluids(GTLMaterials.Titanium50.getFluid(1000))
+                .inputFluids(GTLMaterials.Titanium50.getFluid(576))
                 .outputFluids(GTLMaterials.Radox.getFluid(10800))
                 .EUt(GTValues.VA[14] * 256L).duration(2560).save(provider);
         new GTLAddRecipeBuilder("super_mutated_living_solder", GTLRecipeTypes.QFT_RECIPES).notConsumable("kubejs:spacetime_catalyst")
