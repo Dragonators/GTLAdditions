@@ -26,11 +26,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class AdvancedHarmonyMachine extends HarmonyMachine {
+public class ArcanicAstrograph extends HarmonyMachine {
 
     public final NotifiableItemStackHandler machineStorage;
 
-    public AdvancedHarmonyMachine(IMachineBlockEntity holder, Object... args) {
+    public ArcanicAstrograph(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
         this.machineStorage = this.createMachineStorage();
     }

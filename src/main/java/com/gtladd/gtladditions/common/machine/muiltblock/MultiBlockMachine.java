@@ -311,10 +311,10 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/space_elevator_mechanical_casing"), GTCEu.id("block/multiblock/gcym/large_assembler"))
                 .register();
 
-        ARCANIC_ASTROGRAPH = GTLAddRegistration.REGISTRATE.multiblock("arcanic_astrograph", holder1 -> new AdvancedHarmonyMachine(holder1))
+        ARCANIC_ASTROGRAPH = GTLAddRegistration.REGISTRATE.multiblock("arcanic_astrograph", ArcanicAstrograph::new)
                 .nonYAxisRotation()
                 .recipeType(GTLRecipeTypes.COSMOS_SIMULATION_RECIPES)
-                .recipeModifier(AdvancedHarmonyMachine::recipeModifier)
+                .recipeModifier(ArcanicAstrograph::recipeModifier)
                 .tooltips(new Component[] { Component.literal("最大并行数：2048") })
                 .tooltips(new Component[] { Component.literal("仅量子爆弹和宇宙素的消耗量增加，其他资源消耗量不变") })
                 .tooltips(new Component[] { Component.translatable("gtceu.machine.eye_of_harmony.tooltip.0") })

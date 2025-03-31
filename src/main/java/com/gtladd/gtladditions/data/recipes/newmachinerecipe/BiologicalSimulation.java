@@ -76,13 +76,13 @@ public class BiologicalSimulation {
     }
 
     private static void addOutputItems(GTLAddRecipeBuilder builder, ItemStacks item, Sword sword) {
-        builder.chancedOutputItems(item.O1, sword.factor * 4, item.O1f, 0);
-        if (item.O2 != null) builder.chancedOutputItems(item.O2, sword.factor * 4, item.O2f, 0);
-        if (item.O3 != null) builder.chancedOutputItems(item.O3, sword.factor * 4, item.O3f, 0);
-        if (item.O4 != null) builder.chancedOutputItems(item.O4, sword.factor * 4, item.O4f, 0);
-        if (item.O5 != null) builder.chancedOutputItems(item.O5, sword.factor * 4, item.O5f, 0);
-        if (item.O6 != null) builder.chancedOutputItems(item.O6, sword.factor * 4, item.O6f, 0);
-        if (item.O7 != null) builder.chancedOutputItems(item.O7, sword.factor * 4, item.O7f, 0);
+        builder.chancedOutputItems(item.O1, sword.factor * 2, item.O1f, 0);
+        if (item.O2 != null) builder.chancedOutputItems(item.O2, sword.factor * 2, item.O2f, 0);
+        if (item.O3 != null) builder.chancedOutputItems(item.O3, sword.factor * 2, item.O3f, 0);
+        if (item.O4 != null) builder.chancedOutputItems(item.O4, sword.factor * 2, item.O4f, 0);
+        if (item.O5 != null) builder.chancedOutputItems(item.O5, sword.factor * 2, item.O5f, 0);
+        if (item.O6 != null) builder.chancedOutputItems(item.O6, sword.factor * 2, item.O6f, 0);
+        if (item.O7 != null) builder.chancedOutputItems(item.O7, sword.factor * 2, item.O7f, 0);
     }
 
     private static void addInputItems(GTLAddRecipeBuilder builder, ItemStacks item) {
