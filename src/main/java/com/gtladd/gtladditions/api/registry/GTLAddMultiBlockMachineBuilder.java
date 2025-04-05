@@ -1,7 +1,6 @@
 package com.gtladd.gtladditions.api.registry;
 
 import org.gtlcore.gtlcore.common.data.GTLMachines;
-import org.gtlcore.gtlcore.utils.TextUtil;
 
 import com.gregtechceu.gtceu.api.block.IMachineBlock;
 import com.gregtechceu.gtceu.api.data.RotationState;
@@ -56,31 +55,23 @@ public class GTLAddMultiBlockMachineBuilder extends MultiblockMachineBuilder {
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipTextCoilParallel() {
-        return tooltipText("线圈温度每增加900K，并行数X2");
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.translatable("gtceu.multiblock.coil_parallel") });
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipTextLaser() {
-        return tooltipText("允许使用激光仓");
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.translatable("gtceu.multiblock.laser.tooltip") });
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipTextMultiRecipes() {
-        return tooltipText("支持跨配方并行");
-    }
-
-    public GTLAddMultiBlockMachineBuilder tooltipTextSuperMultiRecipes() {
-        return tooltipText("拥有特殊的跨配方并行");
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.translatable("gtceu.machine.multiple_recipes.tooltip") });
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipTextParallelHatch() {
-        return tooltipText("通过并行控制仓让机器同时处理多个相同配方");
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.translatable("gtceu.multiblock.parallelizable.tooltip") });
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipTextPerfectOverclock() {
-        return tooltipText("超频不会损失能耗");
-    }
-
-    public GTLAddMultiBlockMachineBuilder tooltipTextAdd() {
-        return (GTLAddMultiBlockMachineBuilder) super.tooltips(Component.literal(TextUtil.full_color("由GTLAdditions添加")));
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.translatable("gtceu.machine.perfect_oc") });
     }
 
     public GTLAddMultiBlockMachineBuilder coilparalleldisplay() {

@@ -144,18 +144,18 @@ public class GTLAddMultiblockDisplayTextBuilder {
                 if (cleanroomTypes != null) {
                     Set<CleanroomType> cleaningRooms = cleanroomTypes.getTypes();
                     if (cleaningRooms.contains(GTLCleanroomType.LAW_CLEANROOM)) {
-                        cleanroomType = Component.literal("绝对洁净").withStyle(ChatFormatting.RED);
+                        cleanroomType = Component.translatable(GTLCleanroomType.LAW_CLEANROOM.getTranslationKey()).withStyle(ChatFormatting.RED);
                     } else if (cleaningRooms.contains(CleanroomType.STERILE_CLEANROOM)) {
-                        cleanroomType = Component.literal("无菌").withStyle(ChatFormatting.RED);
+                        cleanroomType = Component.translatable(CleanroomType.STERILE_CLEANROOM.getTranslationKey()).withStyle(ChatFormatting.RED);
                     } else if (cleaningRooms.contains(CleanroomType.CLEANROOM)) {
-                        cleanroomType = Component.literal("超净").withStyle(ChatFormatting.RED);
+                        cleanroomType = Component.translatable(CleanroomType.CLEANROOM.getTranslationKey()).withStyle(ChatFormatting.RED);
                     } else {
-                        cleanroomType = Component.literal("无").withStyle(ChatFormatting.RED);
+                        cleanroomType = Component.translatable("gtceu.io.none").withStyle(ChatFormatting.RED);
                     }
                 } else {
-                    cleanroomType = Component.literal("无").withStyle(ChatFormatting.RED);
+                    cleanroomType = Component.translatable("gtceu.io.none").withStyle(ChatFormatting.RED);
                 }
-                this.textList.add(Component.translatable("gtceu.multiblock.cleanroom", cleanroomType).withStyle(ChatFormatting.WHITE));
+                this.textList.add(Component.translatable("gtceu.multiblock.cleanroom_tier", cleanroomType).withStyle(ChatFormatting.WHITE));
                 return this;
             }
         }
@@ -165,14 +165,14 @@ public class GTLAddMultiblockDisplayTextBuilder {
             else {
                 Component gravity;
                 if (hasGravity == 0) {
-                    gravity = Component.literal("无重力").withStyle(ChatFormatting.RED);
+                    gravity = Component.translatable("gtceu.multiblock.gravity_none").withStyle(ChatFormatting.RED);
                 } else if (hasGravity == 100) {
-                    gravity = Component.literal("强重力").withStyle(ChatFormatting.RED);
+                    gravity = Component.translatable("gtceu.multiblock.gravity_strong").withStyle(ChatFormatting.RED);
                 } else {
-                    this.textList.add(Component.literal("当前机器处于正常重力状态").withStyle(ChatFormatting.WHITE));
+                    this.textList.add(Component.translatable("gtceu.multiblock.gravity_partial").withStyle(ChatFormatting.WHITE));
                     return this;
                 }
-                this.textList.add(Component.translatable("gtceu.multiblock.gravity", gravity).withStyle(ChatFormatting.WHITE));
+                this.textList.add(Component.translatable("gtceu.multiblock.gravity_tier", gravity).withStyle(ChatFormatting.WHITE));
                 return this;
             }
         }

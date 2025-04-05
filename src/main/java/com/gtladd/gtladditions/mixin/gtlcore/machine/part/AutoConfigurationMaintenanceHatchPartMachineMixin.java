@@ -1,0 +1,179 @@
+package com.gtladd.gtladditions.mixin.gtlcore.machine.part;
+
+import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.AutoConfigurationMaintenanceHatchPartMachine;
+import org.gtlcore.gtlcore.utils.Registries;
+import org.gtlcore.gtlcore.utils.TextUtil;
+
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.gui.GuiTextures;
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
+import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredPartMachine;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
+import com.gregtechceu.gtceu.client.util.TooltipHelper;
+
+import com.lowdragmc.lowdraglib.gui.widget.*;
+import com.lowdragmc.lowdraglib.misc.ItemStackTransfer;
+import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+
+import dev.architectury.patchedmixin.staticmixin.spongepowered.asm.mixin.Overwrite;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
+@Mixin(AutoConfigurationMaintenanceHatchPartMachine.class)
+public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPartMachine implements IMachineLife {
+
+    private float MAX_DURATION = getMax();
+    private float MIN_DURATION = getMin();
+    private static final ItemStack BIOWARE_MAINFRAME = Registries.getItemStack("kubejs:bioware_mainframe");
+    private static final ItemStack COSMIC_MAINFRAME = Registries.getItemStack("kubejs:cosmic_mainframe");
+    private static final ItemStack CREATIVE_MAINFRAME = Registries.getItemStack("kubejs:suprachronal_mainframe_complex");
+    @Persisted
+    private final NotifiableItemStackHandler gtladditions$max = this.createMachineStorage();
+    @Persisted
+    private final NotifiableItemStackHandler gtladditions$min = this.createMachineStorage();
+
+    private NotifiableItemStackHandler createMachineStorage() {
+        return new NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH, (slots) -> new ItemStackTransfer(1) {
+
+            public int getSlotLimit(int slot) {
+                return 1;
+            }
+        });
+    }
+
+    @Shadow(remap = false)
+    private float durationMultiplier;
+
+    @Shadow(remap = false)
+    private static Component getTextWidgetText(Supplier<Float> multiplier) {
+        return null;
+    }
+
+    @Shadow(remap = false)
+    public float getDurationMultiplier() {
+        return 0;
+    }
+
+    public AutoConfigurationMaintenanceHatchPartMachineMixin(IMachineBlockEntity holder) {
+        super(holder, 5);
+    }
+
+    @Unique
+    public boolean canShared() {
+        return true;
+    }
+
+    @Overwrite(remap = false)
+    public void incInternalMultiplier(int multiplier) {
+        durationMultiplier = Math.min(durationMultiplier + 0.01F * (float) multiplier, MAX_DURATION);
+    }
+
+    @Overwrite(remap = false)
+    private void decInternalMultiplier(int multiplier) {
+        durationMultiplier = Math.max(durationMultiplier - 0.01F * (float) multiplier, MIN_DURATION);
+    }
+
+    @Overwrite(remap = false)
+    public Widget createUIWidget() {
+        WidgetGroup group = new WidgetGroup(0, 0, 150, 70);
+        group.addWidget((new DraggableScrollableWidgetGroup(4, 4, 142, 62)).setBackground(GuiTextures.DISPLAY).addWidget((new ComponentPanelWidget(4, 5, (list) -> {
+            list.add(getTextWidgetText(this::getDurationMultiplier));
+            MutableComponent buttonText = Component.translatable("gtceu.maintenance.configurable_duration.modify");
+            buttonText.append(" ");
+            buttonText.append(ComponentPanelWidget.withButton(Component.literal("[-]"), "sub"));
+            buttonText.append(" ");
+            buttonText.append(ComponentPanelWidget.withButton(Component.literal("[+]"), "add"));
+            list.add(buttonText);
+        })).setMaxWidthLimit(130).clickHandler((componentData, clickData) -> {
+            if (!clickData.isRemote) {
+                int multiplier = clickData.isCtrlClick ? 100 : (clickData.isShiftClick ? 10 : 1);
+                if (componentData.equals("sub")) this.setSubDuration(multiplier);
+                else if (componentData.equals("add")) this.setAddDuration(multiplier);
+            }
+        }))).setBackground(GuiTextures.BACKGROUND_INVERSE);
+        group.addWidget((new SlotWidget(gtladditions$max.storage, 0, 120, 40, true, true))
+                .setBackground(GuiTextures.SLOT).setHoverTooltips(gtladditions$setMaxTooltips()));
+        group.addWidget((new SlotWidget(gtladditions$min.storage, 0, 100, 40, true, true))
+                .setBackground(GuiTextures.SLOT).setHoverTooltips(gtladditions$setMinTooltips()));
+        this.setSubDuration(0);
+        this.setAddDuration(0);
+        return group;
+    }
+
+    private void setDurationMultiplier() {
+        MAX_DURATION = getMax();
+        MIN_DURATION = getMin();
+    }
+
+    private void setSubDuration(int multiplier) {
+        this.setDurationMultiplier();
+        this.decInternalMultiplier(multiplier);
+    }
+
+    private void setAddDuration(int multiplier) {
+        this.setDurationMultiplier();
+        this.incInternalMultiplier(multiplier);
+    }
+
+    @Unique
+    public void onMachineRemoved() {
+        this.clearInventory(this.gtladditions$max.storage);
+        this.clearInventory(this.gtladditions$min.storage);
+    }
+
+    private @NotNull List<Component> gtladditions$setMaxTooltips() {
+        List<Component> gtladditions$tooltips = new ArrayList<>();
+        gtladditions$tooltips.add(Component.translatable("gtceu.universal.enabled"));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_different_mainframe"));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_bioware_mainframe", 3.0));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_cosmic_mainframe", 7.5));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_suprachronal_mainframe_complex", 25.0));
+        gtladditions$tooltips.add(Component.literal(TextUtil.full_color("由GTLAdditions修改"))
+                .withStyle((style) -> style.withColor(TooltipHelper.RAINBOW.getCurrent())));
+        return gtladditions$tooltips;
+    }
+
+    private @NotNull List<Component> gtladditions$setMinTooltips() {
+        List<Component> gtladditions$tooltips = new ArrayList<>();
+        gtladditions$tooltips.add(Component.translatable("gtceu.universal.enabled"));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_different_mainframe"));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_bioware_mainframe", 0.15));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_cosmic_mainframe", 0.1));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_suprachronal_mainframe_complex", 0.05));
+        gtladditions$tooltips.add(Component.literal(TextUtil.full_color("由GTLAdditions修改"))
+                .withStyle((style) -> style.withColor(TooltipHelper.RAINBOW.getCurrent())));
+        return gtladditions$tooltips;
+    }
+
+    private float getMax() {
+        Item stack = gtladditions$max != null ? gtladditions$max.storage.getStackInSlot(0).getItem() : null;
+        if (stack != null) {
+            if (BIOWARE_MAINFRAME.is(stack)) return 3.0F;
+            else if (COSMIC_MAINFRAME.is(stack)) return 7.5F;
+            else if (CREATIVE_MAINFRAME.is(stack)) return 25.0F;
+        }
+        return 1.2F;
+    }
+
+    private float getMin() {
+        Item stack = gtladditions$min != null ? gtladditions$min.storage.getStackInSlot(0).getItem() : null;
+        if (stack != null) {
+            if (BIOWARE_MAINFRAME.is(stack)) return 0.15F;
+            else if (COSMIC_MAINFRAME.is(stack)) return 0.1F;
+            else if (CREATIVE_MAINFRAME.is(stack)) return 0.05F;
+        }
+        return 0.2F;
+    }
+}

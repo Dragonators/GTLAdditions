@@ -8,7 +8,6 @@ import org.gtlcore.gtlcore.common.data.GTLMachines;
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes;
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.CoilWorkableElectricMultipleRecipesMultiblockMachine;
 import org.gtlcore.gtlcore.utils.Registries;
-import org.gtlcore.gtlcore.utils.TextUtil;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
@@ -38,6 +37,8 @@ import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.*;
 import com.gtladd.gtladditions.common.machine.muiltblock.structure.MultiBlockStructure;
 import com.hepdd.gtmthings.data.CustomMachines;
+
+import static com.gtladd.gtladditions.common.machine.GTLAddMachine.GTLAdd_TOOLTIP;
 
 public class MultiBlockMachine {
 
@@ -70,9 +71,9 @@ public class MultiBlockMachine {
                 .allRotation()
                 .tooltipText("最大并行数：2147483647")
                 .tooltipTextLaser()
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：车床，卷板机，压缩机，锻造锤，切割机，压模器，搅拌机，线材轧机，冲压车床，两极磁化机")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTRecipeTypes.LATHE_RECIPES)// 车床
                 .recipeType(GTRecipeTypes.BENDER_RECIPES)// 卷板机
                 .recipeType(GTRecipeTypes.COMPRESSOR_RECIPES)// 压缩机
@@ -84,7 +85,7 @@ public class MultiBlockMachine {
                 .recipeType(GTRecipeTypes.FORMING_PRESS_RECIPES)// 冲压车床
                 .recipeType(GTRecipeTypes.POLARIZER_RECIPES)// 两极磁化机
                 .appearanceBlock(GTLBlocks.MULTI_FUNCTIONAL_CASING)
-                .pattern((definition) -> MultiBlockStructure.ARCANIC_ASTROGRAPH_STRUCTURE
+                .pattern((definition) -> MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE
                         .where("~", Predicates.controller(Predicates.blocks(definition.get())))
                         .where("A", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
                         .where("B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
@@ -105,9 +106,9 @@ public class MultiBlockMachine {
                 .allRotation()
                 .tooltipText("最大并行数：2147483647")
                 .tooltipTextLaser()
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：碎岩机, 洗矿机，离心机，电解机，筛选机，研磨机，脱水机，热力离心机，电磁选矿机")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTRecipeTypes.ROCK_BREAKER_RECIPES)// 碎岩机
                 .recipeType(GTRecipeTypes.ORE_WASHER_RECIPES)// 洗矿机
                 .recipeType(GTRecipeTypes.CENTRIFUGE_RECIPES)// 离心机
@@ -118,7 +119,7 @@ public class MultiBlockMachine {
                 .recipeType(GTRecipeTypes.THERMAL_CENTRIFUGE_RECIPES)// 热力离心机
                 .recipeType(GTRecipeTypes.ELECTROMAGNETIC_SEPARATOR_RECIPES)// 电磁选矿机
                 .appearanceBlock(GTLBlocks.MULTI_FUNCTIONAL_CASING)
-                .pattern((definition) -> MultiBlockStructure.ARCANIC_ASTROGRAPH_STRUCTURE
+                .pattern((definition) -> MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE
                         .where("~", Predicates.controller(Predicates.blocks(definition.get())))
                         .where("A", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
                         .where("B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
@@ -139,9 +140,9 @@ public class MultiBlockMachine {
                 .allRotation()
                 .tooltipText("最大并行数：2147483647")
                 .tooltipTextLaser()
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：蒸发, 高压釜, 提取机, 酿造机, 发酵槽, 蒸馏室, 蒸馏塔, 流体加热机, 流体固化机, 化学浸洗机")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTRecipeTypes.EVAPORATION_RECIPES)// 蒸发
                 .recipeType(GTRecipeTypes.AUTOCLAVE_RECIPES)// 高压釜
                 .recipeType(GTRecipeTypes.EXTRACTOR_RECIPES)// 提取机
@@ -153,7 +154,7 @@ public class MultiBlockMachine {
                 .recipeType(GTRecipeTypes.FLUID_SOLIDFICATION_RECIPES)// 流体固化机
                 .recipeType(GTRecipeTypes.CHEMICAL_BATH_RECIPES)// 化学浸洗机
                 .appearanceBlock(GTLBlocks.MULTI_FUNCTIONAL_CASING)
-                .pattern((definition) -> MultiBlockStructure.ARCANIC_ASTROGRAPH_STRUCTURE
+                .pattern((definition) -> MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE
                         .where("~", Predicates.controller(Predicates.blocks(definition.get())))
                         .where("A", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
                         .where("B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
@@ -174,9 +175,9 @@ public class MultiBlockMachine {
                 .allRotation()
                 .tooltipText("最大并行数：2147483647")
                 .tooltipTextLaser()
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：装罐机, 电弧炉, 闪电处理, 组装机, 精密组装, 电路组装机")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTRecipeTypes.CANNER_RECIPES)// 装罐机
                 .recipeType(GTRecipeTypes.ARC_FURNACE_RECIPES)// 电弧炉
                 .recipeType(GTLRecipeTypes.LIGHTNING_PROCESSOR_RECIPES)// 闪电处理
@@ -184,7 +185,7 @@ public class MultiBlockMachine {
                 .recipeType(GTLRecipeTypes.PRECISION_ASSEMBLER_RECIPES)// 精密组装
                 .recipeType(GTRecipeTypes.CIRCUIT_ASSEMBLER_RECIPES)// 电路组装机
                 .appearanceBlock(GTLBlocks.MULTI_FUNCTIONAL_CASING)
-                .pattern((definition) -> MultiBlockStructure.ARCANIC_ASTROGRAPH_STRUCTURE
+                .pattern((definition) -> MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE
                         .where("~", Predicates.controller(Predicates.blocks(definition.get())))
                         .where("A", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
                         .where("B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
@@ -207,8 +208,8 @@ public class MultiBlockMachine {
                 .tooltipTextLaser()
                 .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：电磁共振转化场")
-                .tooltipTextAdd()
                 .coilparalleldisplay()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD)
                 .appearanceBlock(GTLBlocks.ALUMINIUM_BRONZE_CASING)
                 .pattern((definition) -> FactoryBlockPattern.start()
@@ -238,10 +239,10 @@ public class MultiBlockMachine {
                 .nonYAxisRotation()
                 .tooltipTextCoilParallel()
                 .tooltipTextLaser()
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：光子晶阵蚀刻")
-                .tooltipTextAdd()
                 .coilparalleldisplay()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLAddRecipesTypes.PHOTON_MATRIX_ETCH)
                 .appearanceBlock(GTLBlocks.IRIDIUM_CASING)
                 .pattern(definition -> MultiBlockStructure.LUCID_ETCHDREAMER_STRUCTURE
@@ -268,9 +269,9 @@ public class MultiBlockMachine {
                 .nonYAxisRotation()
                 .tooltipText("最大并行数：8^(动力模块等级-1)")
                 .tooltipTextLaser()
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：太空组装")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLRecipeTypes.ASSEMBLER_MODULE_RECIPES)// 太空组装
                 .appearanceBlock(GTLBlocks.SPACE_ELEVATOR_MECHANICAL_CASING).pattern((definition) -> FactoryBlockPattern.start()
                         .aisle("aaa", "bcb", "bbb", "bbb", "bbb")
@@ -291,9 +292,9 @@ public class MultiBlockMachine {
                 .nonYAxisRotation()
                 .tooltipText("最大并行数：8^(动力模块等级-1)")
                 .tooltipTextLaser()
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：太空采矿、太空钻井")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLRecipeTypes.MINER_MODULE_RECIPES)// 太空采矿
                 .recipeType(GTLRecipeTypes.DRILLING_MODULE_RECIPES)// 太空钻井
                 .appearanceBlock(GTLBlocks.SPACE_ELEVATOR_MECHANICAL_CASING).pattern((definition) -> FactoryBlockPattern.start()
@@ -325,9 +326,9 @@ public class MultiBlockMachine {
                 .tooltips(new Component[] { Component.translatable("gtceu.machine.eye_of_harmony.tooltip.5") })
                 .tooltips(new Component[] { Component.translatable("gtceu.machine.eye_of_harmony.tooltip.6") })
                 .tooltips(new Component[] { Component.translatable("gtceu.machine.available_recipe_map_1.tooltip", Component.translatable("gtceu.cosmos_simulation")) })
-                .tooltips(Component.literal(TextUtil.full_color("由GTLADDitions添加")))
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .appearanceBlock(GTBlocks.HIGH_POWER_CASING)
-                .pattern((definition) -> MultiBlockStructure.ARCANIC_ASTROGRAPH_STRUCTURE
+                .pattern((definition) -> MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE
                         .where('~', Predicates.controller(Predicates.blocks(definition.get())))
                         .where('A', Predicates.blocks(GTLBlocks.CREATE_CASING.get()))
                         .where('B', Predicates.blocks(GTBlocks.HIGH_POWER_CASING.get())
@@ -351,8 +352,8 @@ public class MultiBlockMachine {
                 .tooltipTextLaser()
                 .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：打包机")
-                .tooltipTextAdd()
                 .coilparalleldisplay()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTRecipeTypes.PACKER_RECIPES)
                 .appearanceBlock(GTLBlocks.PIKYONIUM_MACHINE_CASING)
                 .pattern(definition -> FactoryBlockPattern.start()
@@ -378,7 +379,7 @@ public class MultiBlockMachine {
                 .tooltipText("只能使用激光仓")
                 .tooltipTextPerfectOverclock()
                 .tooltipText("可用配方类型：聚合装置")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLRecipeTypes.AGGREGATION_DEVICE_RECIPES)
                 .recipeModifiers(GTLAddMultiBlockMachineModifier.DRACONIC_COLLAPSE_CORE_MODIFIER)
                 .appearanceBlock(GTBlocks.FUSION_CASING)
@@ -411,7 +412,7 @@ public class MultiBlockMachine {
                 .tooltipText("电压每高出LuV一级最大并行数X2")
                 .tooltipTextPerfectOverclock()
                 .tooltipText("可用配方类型：地脉断层发生器")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLAddRecipesTypes.TECTONIC_FAULT_GENERATOR)
                 .recipeModifiers(new RecipeModifier[] { (machine, recipe, params, result) -> GTRecipeModifiers.accurateParallel(machine, recipe, (int) Math.pow(2.0, ((WorkableElectricMultiblockMachine) machine).getTier() - 6), false).getFirst(),
                         GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK) })
@@ -452,7 +453,7 @@ public class MultiBlockMachine {
                 .tooltipText("放入§c不再是菜鸟的证明§r时解锁跨配方·改")
                 .tooltipText("允许使用激光仓，但只能使用UXV以上的激光仓")
                 .tooltipText("可用配方类型：生物数据模拟")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLAddRecipesTypes.BIOLOGICAL_SIMULATION)
                 .appearanceBlock(GTLBlocks.NAQUADAH_ALLOY_CASING)
                 .pattern(definition -> MultiBlockStructure.BIOLOGICAL_SIMULATION_LABORATORY_STRUCTURE
@@ -477,9 +478,9 @@ public class MultiBlockMachine {
                 .tooltipText("高效的化学反应堆")
                 .tooltipTextCoilParallel()
                 .tooltipTextLaser()
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：大型化学反应釜")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTRecipeTypes.LARGE_CHEMICAL_RECIPES)
                 .appearanceBlock(GTBlocks.CASING_PTFE_INERT)
                 .pattern((definition) -> GTLMachines.DTPF
@@ -506,9 +507,9 @@ public class MultiBlockMachine {
                 .noneRotation()
                 .tooltipTextParallelHatch()
                 .tooltipTextLaser()
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：虚空聚流反应")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLAddRecipesTypes.VOIDFLUX_REACTION)
                 .recipeModifier(GTRecipeModifiers.PARALLEL_HATCH)
                 .appearanceBlock(GTBlocks.HIGH_POWER_CASING)
@@ -537,13 +538,14 @@ public class MultiBlockMachine {
                 .nonYAxisRotation()
                 .tooltipTextParallelHatch()
                 .tooltipText("只能使用激光仓")
-                .tooltipTextSuperMultiRecipes()
-                .tooltipText("可用配方类型：星焰跃迁、混沌炼金、分子解构")
-                .tooltipTextAdd()
+                .tooltipTextMultiRecipes()
+                .tooltipText("可用配方类型：星焰跃迁、混沌炼金、分子解构、终极物质锻造")
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLAddRecipesTypes.STELLAR_LGNITION)
                 .recipeType(GTLAddRecipesTypes.CHAOTIC_ALCHEMY)
                 .recipeType(GTLAddRecipesTypes.MOLECULAR_DECONSTRUCTION)
                 .recipeModifier(GTRecipeModifiers.PARALLEL_HATCH)
+                .recipeType(GTLRecipeTypes.ULTIMATE_MATERIAL_FORGE_RECIPES)
                 .appearanceBlock(GTLBlocks.DIMENSION_INJECTION_CASING)
                 .pattern(definition -> MultiBlockStructure.FUXI_BAGUA_HEAVEN_FORGING_FURNACE_STRUCTURE
                         .where("D", Predicates.controller(Predicates.blocks(definition.get())))
@@ -585,9 +587,9 @@ public class MultiBlockMachine {
                 .tooltipText("电压每高一级，消耗的凛冰粉数量/2")
                 .tooltipTextParallelHatch()
                 .tooltipText("只能使用激光仓")
-                .tooltipTextSuperMultiRecipes()
+                .tooltipTextMultiRecipes()
                 .tooltipText("可用配方类型：反熵冷凝")
-                .tooltipTextAdd()
+                .tooltipBuilder(GTLAdd_TOOLTIP)
                 .recipeType(GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
                 .recipeModifier(GTRecipeModifiers.PARALLEL_HATCH)
                 .appearanceBlock(GTLBlocks.ANTIFREEZE_HEATPROOF_MACHINE_CASING)

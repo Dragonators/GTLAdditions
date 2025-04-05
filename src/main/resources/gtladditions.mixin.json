@@ -8,16 +8,16 @@
   ],
   "mixins": [
     "gtceu.WorkableElectricMultiblockMachineMixin",
+    "gtceu.api.recipe.ContentMixin",
+    "gtceu.machine.FusionReactorMachineMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",
     "gtceu.recipe.GCyMRecipesMixin",
     "gtceu.recipe.MaterialRecipeHandlerMixin",
     "gtceu.recipe.RecyclingRecipesMixin",
-    "gtlcore.AutoConfigurationMaintenanceHatchPartMachineMixin",
-    "gtlcore.WirelessOpticalDataHatchMachineMixin",
+    "gtlcore.machine.part.AutoConfigurationMaintenanceHatchPartMachineMixin",
+    "gtlcore.machine.part.WirelessOpticalDataHatchMachineMixin",
     "gtlcore.machine.HarmonyMachineMixin",
+    "gtlcore.machine.LargeSteamParallelMultiblockMachineMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMIxin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
-  }
+  ]
 }

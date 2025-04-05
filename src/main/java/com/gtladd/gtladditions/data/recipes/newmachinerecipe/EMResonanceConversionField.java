@@ -30,7 +30,6 @@ public class EMResonanceConversionField {
     }
 
     private static void addRecipe(Block input, Block output, int EUt, Consumer<FinishedRecipe> provider) {
-        GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD.recipeBuilder(output.getDescriptionId())
-                .inputItems(input.asItem()).circuitMeta(1).outputItems(output.asItem()).EUt(GTValues.VA[EUt]).save(provider);
+        GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD.recipeBuilder(output.getDescriptionId()).inputItems(input.asItem()).circuitMeta(1).outputItems(output.asItem()).EUt(GTValues.VA[EUt]).save(provider);
     }
 }

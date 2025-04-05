@@ -48,6 +48,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         StellarLgnition.init(provider);
         AE2.init(provider);
         Assembler.init(provider);
+        AssemblyLine.init(provider);
         Distort.init(provider);
         ElectricBlastFurnace.init(provider);
         IntegratedtedOreProcessor.init(provider);

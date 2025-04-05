@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.mixin.gtlcore;
+package com.gtladd.gtladditions.mixin.gtlcore.machine.part;
 
 import org.gtlcore.gtlcore.common.machine.multiblock.part.WirelessOpticalDataHatchMachine;
 

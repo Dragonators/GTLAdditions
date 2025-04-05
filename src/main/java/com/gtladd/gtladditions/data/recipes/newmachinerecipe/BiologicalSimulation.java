@@ -26,7 +26,7 @@ public class BiologicalSimulation {
         };
         ItemStacks[] itemStacks = {
                 new ItemStacks("blaze", "nether", "minecraft:blaze_rod", 5, 7),
-                new ItemStacks("chicken", "overworld", "minecraft:chicken", 75, "minecraft:feather", 40, 2),
+                new ItemStacks("chicken", "overworld", "minecraft:chicken", 75, "minecraft:feather", 40, "minecraft:egg", 10, 2),
                 new ItemStacks("cow", "overworld", "minecraft:beef", 75, "minecraft:leather", 25, 2),
                 new ItemStacks("drowned", "overworld", "minecraft:rotten_flesh", 75, "minecraft:copper_ingot", 6, 3),
                 new ItemStacks("enderman", "end", "minecraft:ender_pearl", 5, 6),

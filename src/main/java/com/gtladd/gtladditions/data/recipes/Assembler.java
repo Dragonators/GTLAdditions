@@ -1,12 +1,22 @@
 package com.gtladd.gtladditions.data.recipes;
 
+import org.gtlcore.gtlcore.common.data.GTLMachines;
 import org.gtlcore.gtlcore.common.data.GTLMaterials;
+import org.gtlcore.gtlcore.utils.Registries;
 
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.data.chemical.material.Material;
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
+import com.gregtechceu.gtceu.api.data.tag.TagUtil;
+import com.gregtechceu.gtceu.common.data.*;
+import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.world.item.ItemStack;
 
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
+import com.gtladd.gtladditions.common.machine.GTLAddMachine;
+import com.hepdd.gtmthings.GTMThings;
 
 import java.util.function.Consumer;
 
@@ -14,12 +24,26 @@ import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES;
 
 public class Assembler {
 
+    private static final ItemStack nmChip = Registries.getItemStack("kubejs:nm_chip", 2);
+    private static final ItemStack pmChip = Registries.getItemStack("kubejs:pm_chip", 2);
+    private static final ItemStack fmChip = Registries.getItemStack("kubejs:fm_chip", 2);
+    private static final Material[][] transFormer = {
+            { GTMaterials.Tin, GTMaterials.Copper }, { GTMaterials.Copper, GTMaterials.Gold }, { GTMaterials.Gold, GTMaterials.Aluminium },
+            { GTMaterials.Aluminium, GTMaterials.Platinum }, { GTMaterials.Platinum, GTMaterials.NiobiumTitanium },
+            { GTMaterials.NiobiumTitanium, GTMaterials.VanadiumGallium }, { GTMaterials.VanadiumGallium, GTMaterials.YttriumBariumCuprate },
+            { GTMaterials.YttriumBariumCuprate, GTMaterials.Europium }, { GTMaterials.Europium, GTLMaterials.Mithril },
+            { GTLMaterials.Mithril, GTMaterials.Neutronium }, { GTMaterials.Neutronium, GTLMaterials.Taranium },
+            { GTLMaterials.Taranium, GTLMaterials.Crystalmatrix }, { GTLMaterials.Crystalmatrix, GTLMaterials.CosmicNeutronium }
+    };
+
     public Assembler() {}
 
     public static void init(Consumer<FinishedRecipe> provider) {
         addWorldAccelerator(provider);
         addHermeticCasing(provider);
         addDiode(provider);
+        addTransformer(provider);
+        addHugeOutput(provider);
         new GTLAddRecipeBuilder("naquadria_charge_more", ASSEMBLER_RECIPES)
                 .inputItems("gtceu:quantum_star").inputItems("gtceu:industrial_tnt").inputItems("gtceu:naquadria_dust")
                 .inputItems("gtceu:tiny_hexanitrohexaaxaisowurtzitane_dust", 4).inputItems("gtceu:double_thorium_plate")
@@ -71,6 +95,10 @@ public class Assembler {
                 .InputItems("3x minecraft:iron_bars").InputItems("3x gtceu:item_filter")
                 .inputItems("gtceu:mv_electric_motor").inputItems("gtceu:steel_frame").inputItems("gtceu:steel_rotor")
                 .outputItems("gtceu:filter_casing").EUt(32).duration(240).save(provider);
+        ASSEMBLER_RECIPES.recipeBuilder("power_substation").circuitMeta(8)
+                .inputItems(GTBlocks.CASING_PALLADIUM_SUBSTATION.asStack()).inputItems(GTItems.LAPOTRON_CRYSTAL, 4)
+                .inputItems(TagUtil.createModItemTag("circuits/luv"), 2).inputItems(GTItems.POWER_INTEGRATED_CIRCUIT, 2)
+                .outputItems(GTMachines.POWER_SUBSTATION.asStack()).EUt(480).duration(1200).save(provider);
     }
 
     private static void addWorldAccelerator(Consumer<FinishedRecipe> provider) {
@@ -147,5 +175,53 @@ public class Assembler {
                 builder.outputItems("gtceu:" + val[3] + "_" + val[2] + s).TierEUtVA(4).duration(1200).save(provider);
             }
         }
+    }
+
+    private static void addTransformer(Consumer<FinishedRecipe> provider) {
+        for (int tier = 1; tier < 14; tier++) {
+            ItemStack pic = setPic(tier);
+            String eu = GTValues.VN[tier].toLowerCase();
+            ItemStack machine_hull = Registries.getItemStack("gtceu:" + eu + "_machine_hull");
+            for (int e : new int[] { 1, 2, 4 }) {
+                GTRecipeBuilder builder = ASSEMBLER_RECIPES.recipeBuilder(eu + "_transformer_" + e + "a")
+                        .inputItems(machine_hull).outputItems(Registries.getItemStack("gtceu:" + eu + "_transformer_" + e + "a")).EUt(30).duration(200);
+                TagPrefix cable = e == 1 ? TagPrefix.cableGtSingle : (e == 2 ? TagPrefix.cableGtDouble : TagPrefix.cableGtQuadruple);
+                if (pic != null) {
+                    builder.inputItems(pic);
+                    if ((pic.is(nmChip.getItem()) || pic.is(pmChip.getItem()) || pic.is(fmChip.getItem())) &&
+                            e == 4)
+                        builder.inputItems(TagPrefix.cableGtDouble, transFormer[tier - 1][0], 4);
+                    else builder.inputItems(cable, transFormer[tier - 1][0], 4);
+                }
+                if (tier == 1) builder.inputItems(cable, transFormer[tier - 1][0], 4);
+                builder.inputItems(cable, transFormer[tier - 1][1]).circuitMeta(1).save(provider);
+            }
+        }
+    }
+
+    private static void addHugeOutput(Consumer<FinishedRecipe> provider) {
+        for (int tier = 1; tier < 14; ++tier) {
+            String s = GTValues.VN[tier].toLowerCase();
+            ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("huge_output_dual_hatch_" + s))
+                    .inputItems(GTLMachines.HUGE_FLUID_EXPORT_HATCH[tier].asStack())
+                    .inputItems(tier > 4 ? GTMachines.QUANTUM_CHEST[tier] : GTMachines.SUPER_CHEST[tier])
+                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(144L))
+                    .outputItems(GTLAddMachine.HUGE_OUTPUT_DUAL_HATCH[tier].asStack())
+                    .duration(200).EUt(GTValues.VA[tier]).save(provider);
+        }
+    }
+
+    private static ItemStack setPic(int tier) {
+        return switch (tier) {
+            case 2 -> GTItems.ULTRA_LOW_POWER_INTEGRATED_CIRCUIT.asStack(2);
+            case 3 -> GTItems.LOW_POWER_INTEGRATED_CIRCUIT.asStack(2);
+            case 4 -> GTItems.POWER_INTEGRATED_CIRCUIT.asStack(2);
+            case 5, 6 -> GTItems.HIGH_POWER_INTEGRATED_CIRCUIT.asStack(2);
+            case 7, 8, 9 -> GTItems.ULTRA_HIGH_POWER_INTEGRATED_CIRCUIT.asStack(2);
+            case 10 -> nmChip;
+            case 11, 12 -> pmChip;
+            case 13 -> fmChip;
+            default -> null;
+        };
     }
 }
