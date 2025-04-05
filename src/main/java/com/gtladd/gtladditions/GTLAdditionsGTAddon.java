@@ -8,7 +8,7 @@ import net.minecraft.data.recipes.FinishedRecipe;
 
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
 import com.gtladd.gtladditions.common.items.GTLAddItems;
-import com.gtladd.gtladditions.common.machine.GTLAddMachine;
+import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.gtladd.gtladditions.data.recipes.*;
 import com.gtladd.gtladditions.data.recipes.newmachinerecipe.*;
 import com.gtladd.gtladditions.data.recipes.process.socprocess;
@@ -28,7 +28,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
     @Override
     public void initializeAddon() {
         GTLAddItems.init();
-        GTLAddMachine.init();
+        GTLAddMachines.init();
     }
 
     @Override

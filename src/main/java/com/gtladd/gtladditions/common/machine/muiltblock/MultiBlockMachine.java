@@ -38,7 +38,7 @@ import com.gtladd.gtladditions.common.machine.muiltblock.controller.*;
 import com.gtladd.gtladditions.common.machine.muiltblock.structure.MultiBlockStructure;
 import com.hepdd.gtmthings.data.CustomMachines;
 
-import static com.gtladd.gtladditions.common.machine.GTLAddMachine.GTLAdd_TOOLTIP;
+import static com.gtladd.gtladditions.common.machine.GTLAddMachines.GTLAdd_TOOLTIP;
 
 public class MultiBlockMachine {
 

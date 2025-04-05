@@ -19,7 +19,7 @@ import net.minecraft.data.recipes.FinishedRecipe;
 
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
 import com.gtladd.gtladditions.common.items.GTLAddItems;
-import com.gtladd.gtladditions.common.machine.GTLAddMachine;
+import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine;
 
 import java.util.function.Consumer;
@@ -290,7 +290,7 @@ public class NewMultiBlockMachineController {
                 .inputItems(TagPrefix.gear, GTMaterials.HSSG, 4)
                 .inputItems(Registries.getItemStack("ad_astra:desh_plate", 4))
                 .inputFluids(GTMaterials.SolderingAlloy.getFluid(1296))
-                .outputItems(GTLAddMachine.HUGE_STEAM_HATCH)
+                .outputItems(GTLAddMachines.HUGE_STEAM_HATCH)
                 .EUt(GTValues.VA[GTValues.EV]).duration(1200).cleanroom(CleanroomType.CLEANROOM).save(provider);
     }
 }

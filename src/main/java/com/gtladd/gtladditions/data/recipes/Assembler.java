@@ -15,7 +15,7 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.item.ItemStack;
 
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
-import com.gtladd.gtladditions.common.machine.GTLAddMachine;
+import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.hepdd.gtmthings.GTMThings;
 
 import java.util.function.Consumer;
@@ -206,7 +206,7 @@ public class Assembler {
                     .inputItems(GTLMachines.HUGE_FLUID_EXPORT_HATCH[tier].asStack())
                     .inputItems(tier > 4 ? GTMachines.QUANTUM_CHEST[tier] : GTMachines.SUPER_CHEST[tier])
                     .inputFluids(GTMaterials.SolderingAlloy.getFluid(144L))
-                    .outputItems(GTLAddMachine.HUGE_OUTPUT_DUAL_HATCH[tier].asStack())
+                    .outputItems(GTLAddMachines.HUGE_OUTPUT_DUAL_HATCH[tier].asStack())
                     .duration(200).EUt(GTValues.VA[tier]).save(provider);
         }
     }

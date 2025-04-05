@@ -31,7 +31,7 @@ import static com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 import static com.hepdd.gtmthings.data.CustomMachines.registerTieredMachines;
 import static com.hepdd.gtmthings.data.WirelessMachines.registerWirelessLaserHatch;
 
-public class GTLAddMachine {
+public class GTLAddMachines {
 
     public static final int[] WIRELL_ENERGY_HIGH_TIERS = GTValues.tiersBetween(5, 14);
     public static final MachineDefinition HUGE_STEAM_HATCH;
@@ -51,10 +51,8 @@ public class GTLAddMachine {
         MultiBlockMachine.init();
     }
 
-    public static final BiConsumer<ItemStack, List<Component>> GTLAdd_TOOLTIP = (stack, components) -> {
-        components.add(Component.literal(TextUtil.full_color("由GTLAdditions添加"))
-                .withStyle((style) -> style.withColor(TooltipHelper.RAINBOW.getCurrent())));
-    };
+    public static final BiConsumer<ItemStack, List<Component>> GTLAdd_TOOLTIP = (stack, components) -> components.add(Component.literal(TextUtil.full_color("由GTLAdditions添加"))
+            .withStyle((style) -> style.withColor(TooltipHelper.RAINBOW.getCurrent())));
 
     static {
         LASER_INPUT_HATCH_16777216A = GTMachines.registerLaserHatch(IO.IN, 16777216, PartAbility.INPUT_LASER);

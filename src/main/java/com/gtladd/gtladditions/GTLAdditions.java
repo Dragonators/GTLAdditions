@@ -23,7 +23,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs;
-import com.gtladd.gtladditions.common.machine.GTLAddMachine;
+import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.gtladd.gtladditions.common.material.GTLAddMaterial;
 import com.gtladd.gtladditions.config.Config;
 import com.mojang.logging.LogUtils;
@@ -80,7 +80,7 @@ public class GTLAdditions {
 
     @SubscribeEvent
     public void registerMachines(GTCEuAPI.RegisterEvent<ResourceLocation, MachineDefinition> event) {
-        GTLAddMachine.init();
+        GTLAddMachines.init();
     }
 
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
