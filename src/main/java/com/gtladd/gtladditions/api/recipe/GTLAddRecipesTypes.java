@@ -45,7 +45,7 @@ public class GTLAddRecipesTypes {
 
     static {
         PHOTON_MATRIX_ETCH = GTRecipeTypes.register("photon_matrix_etch", GTRecipeTypes.MULTIBLOCK)
-                .setEUIO(IO.IN).setMaxIOSize(3, 1, 1, 0)
+                .setEUIO(IO.IN).setMaxIOSize(3, 1, 1, 0).setMaxTooltips(4)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
         EM_RESONANCE_CONVERSION_FIELD = GTRecipeTypes.register("em_resonance_conversion_field", GTRecipeTypes.MULTIBLOCK)
                 .setEUIO(IO.IN).setMaxIOSize(2, 1, 0, 0)
@@ -115,7 +115,7 @@ public class GTLAddRecipesTypes {
                 .setEUIO(IO.IN).setMaxIOSize(1, 0, 0, 1)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
         UNIVERSE_SANDBOX = GTRecipeTypes.register("universe_sandbox", GTRecipeTypes.MULTIBLOCK)
-                .setEUIO(IO.IN).setMaxIOSize(1, 1, 0, 1)
+                .setEUIO(IO.IN).setMaxIOSize(1, 120, 1, 18)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
     }
 }

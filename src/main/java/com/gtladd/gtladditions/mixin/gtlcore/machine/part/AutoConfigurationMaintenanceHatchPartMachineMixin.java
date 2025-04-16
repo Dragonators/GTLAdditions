@@ -4,10 +4,12 @@ import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.AutoConfig
 import org.gtlcore.gtlcore.utils.Registries;
 import org.gtlcore.gtlcore.utils.TextUtil;
 
+import com.gregtechceu.gtceu.api.capability.ICleanroomReceiver;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredPartMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 import com.gregtechceu.gtceu.client.util.TooltipHelper;
@@ -30,6 +32,8 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+
+import static org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.ICleaningRoom.DUMMY_CLEANROOM;
 
 @Mixin(AutoConfigurationMaintenanceHatchPartMachine.class)
 public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPartMachine implements IMachineLife {
@@ -175,5 +179,17 @@ public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPar
             else if (CREATIVE_MAINFRAME.is(stack)) return 0.05F;
         }
         return 0.2F;
+    }
+
+    @Unique
+    public void addedToController(@NotNull IMultiController controller) {
+        super.addedToController(controller);
+        if (controller instanceof ICleanroomReceiver receiver) receiver.setCleanroom(null);
+    }
+
+    @Unique
+    public void removedFromController(@NotNull IMultiController controller) {
+        super.removedFromController(controller);
+        if (controller instanceof ICleanroomReceiver receiver) if (receiver.getCleanroom() == DUMMY_CLEANROOM) receiver.setCleanroom(null);
     }
 }

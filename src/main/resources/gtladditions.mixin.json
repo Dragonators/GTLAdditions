@@ -5,19 +5,21 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "gtladditions.refmap.json",
   "client": [
+    "gtceu.api.recipe.ContentMixin"
   ],
   "mixins": [
     "gtceu.WorkableElectricMultiblockMachineMixin",
-    "gtceu.api.recipe.ContentMixin",
     "gtceu.machine.FusionReactorMachineMixin",
+    "gtceu.machine.part.AutoMaintenanceHatchPartMachineMixin",
+    "gtceu.machine.part.MaintenanceHatchPartMachineMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",
     "gtceu.recipe.GCyMRecipesMixin",
     "gtceu.recipe.MaterialRecipeHandlerMixin",
     "gtceu.recipe.RecyclingRecipesMixin",
-    "gtlcore.machine.part.AutoConfigurationMaintenanceHatchPartMachineMixin",
-    "gtlcore.machine.part.WirelessOpticalDataHatchMachineMixin",
     "gtlcore.machine.HarmonyMachineMixin",
     "gtlcore.machine.LargeSteamParallelMultiblockMachineMixin",
+    "gtlcore.machine.part.AutoConfigurationMaintenanceHatchPartMachineMixin",
+    "gtlcore.machine.part.WirelessOpticalDataHatchMachineMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMIxin"
   ]
 }

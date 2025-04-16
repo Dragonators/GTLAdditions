@@ -140,20 +140,18 @@ public class GTLAddMultiblockDisplayTextBuilder {
         public Builder addMaintenanceTierLines(ICleanroomProvider cleanroomTypes) {
             if (!this.isStructureFormed || !ConfigHolder.INSTANCE.machines.enableMaintenance) return this;
             else {
-                Component cleanroomType;
+                Component cleanroomType = Component.translatable("gtceu.io.none").withStyle(ChatFormatting.RED);
                 if (cleanroomTypes != null) {
-                    Set<CleanroomType> cleaningRooms = cleanroomTypes.getTypes();
-                    if (cleaningRooms.contains(GTLCleanroomType.LAW_CLEANROOM)) {
-                        cleanroomType = Component.translatable(GTLCleanroomType.LAW_CLEANROOM.getTranslationKey()).withStyle(ChatFormatting.RED);
-                    } else if (cleaningRooms.contains(CleanroomType.STERILE_CLEANROOM)) {
-                        cleanroomType = Component.translatable(CleanroomType.STERILE_CLEANROOM.getTranslationKey()).withStyle(ChatFormatting.RED);
-                    } else if (cleaningRooms.contains(CleanroomType.CLEANROOM)) {
-                        cleanroomType = Component.translatable(CleanroomType.CLEANROOM.getTranslationKey()).withStyle(ChatFormatting.RED);
-                    } else {
-                        cleanroomType = Component.translatable("gtceu.io.none").withStyle(ChatFormatting.RED);
-                    }
-                } else {
-                    cleanroomType = Component.translatable("gtceu.io.none").withStyle(ChatFormatting.RED);
+                    if (cleanroomTypes.isClean()) {
+                        Set<CleanroomType> cleaningRooms = cleanroomTypes.getTypes();
+                        if (cleaningRooms.contains(GTLCleanroomType.LAW_CLEANROOM)) {
+                            cleanroomType = Component.translatable(GTLCleanroomType.LAW_CLEANROOM.getTranslationKey()).withStyle(ChatFormatting.RED);
+                        } else if (cleaningRooms.contains(CleanroomType.STERILE_CLEANROOM)) {
+                            cleanroomType = Component.translatable(CleanroomType.STERILE_CLEANROOM.getTranslationKey()).withStyle(ChatFormatting.RED);
+                        } else if (cleaningRooms.contains(CleanroomType.CLEANROOM)) {
+                            cleanroomType = Component.translatable(CleanroomType.CLEANROOM.getTranslationKey()).withStyle(ChatFormatting.RED);
+                        }
+                    } else cleanroomType = Component.translatable("gtceu.io.none").withStyle(ChatFormatting.RED);
                 }
                 this.textList.add(Component.translatable("gtceu.multiblock.cleanroom_tier", cleanroomType).withStyle(ChatFormatting.WHITE));
                 return this;

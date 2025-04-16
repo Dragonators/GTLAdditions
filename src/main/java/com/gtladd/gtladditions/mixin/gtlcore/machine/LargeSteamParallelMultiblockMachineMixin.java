@@ -53,7 +53,6 @@ public class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblock
     private boolean isOC;
     @Shadow(remap = false)
     private int amountOC;
-
     @Shadow(remap = false)
     @Final
     private int max_parallels;
@@ -72,9 +71,7 @@ public class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblock
             GTRecipe result = GTRecipeModifiers.accurateParallel(machine, recipe, mixin.max_parallels, false).getFirst();
             recipe = result == recipe ? result.copy() : result;
             if (isHuge) reductionDuration = 0.0;
-            if (machine1.getDefinition() == MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_STEAM_OVEN) {
-                recipe.tickInputs.put(EURecipeCapability.CAP, List.of(new Content((long) Math.max(1.0, (double) RecipeHelper.getInputEUt(recipe) * 0.01), ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0, null, null)));
-            }
+            if (machine1.getDefinition() == MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_STEAM_OVEN) recipe.tickInputs.put(EURecipeCapability.CAP, List.of(new Content((long) Math.max(1.0, (double) RecipeHelper.getInputEUt(recipe) * 0.01), ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0, null, null)));
             recipe.duration = (int) Math.max(1.0, (double) recipe.duration * reductionDuration / (isLarge ? Math.pow(2.0, mixin.amountOC) : 1.0));
         }
         return recipe;

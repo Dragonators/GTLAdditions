@@ -2,8 +2,9 @@ package com.gtladd.gtladditions.mixin.gtceu;
 
 import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.IGravityPartMachine;
 
+import com.gregtechceu.gtceu.api.capability.IParallelHatch;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDisplayUIMachine;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
 import com.gregtechceu.gtceu.api.misc.EnergyContainerList;
@@ -11,20 +12,16 @@ import com.gregtechceu.gtceu.api.misc.EnergyContainerList;
 import net.minecraft.network.chat.Component;
 
 import com.gtladd.gtladditions.common.machine.muiltblock.GTLAddMultiblockDisplayTextBuilder;
-import com.llamalad7.mixinextras.sugar.Local;
+import earth.terrarium.adastra.api.planets.Planet;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Mixin(WorkableElectricMultiblockMachine.class)
-public class WorkableElectricMultiblockMachineMixin extends WorkableMultiblockMachine implements IDisplayUIMachine {
+public abstract class WorkableElectricMultiblockMachineMixin extends WorkableMultiblockMachine {
 
     @Shadow(remap = false)
     protected EnergyContainerList energyContainer;
@@ -35,29 +32,26 @@ public class WorkableElectricMultiblockMachineMixin extends WorkableMultiblockMa
         super(holder, args);
     }
 
-    @Inject(method = "addDisplayText",
-            at = @At(value = "INVOKE", target = "Lcom/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText;builder(Ljava/util/List;Z)Lcom/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText$Builder;", shift = At.Shift.BEFORE),
-            remap = false,
-            cancellable = true)
-    public void addDisplayText(List<Component> textList, CallbackInfo ci, @Local(ordinal = 0) int numParallels) {
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite(remap = false)
+    public void addDisplayText(List<Component> textList) {
+        int numParallels = 0;
         int gravity = 50;
-        Stream Gravity = this.getParts().stream();
-        Objects.requireNonNull(IGravityPartMachine.class);
-        Gravity = Gravity.filter(IGravityPartMachine.class::isInstance);
-        Objects.requireNonNull(IGravityPartMachine.class);
-        Optional<IGravityPartMachine> optional = Gravity.map(IGravityPartMachine.class::cast).findAny();
-        if (optional.isPresent()) {
-            IGravityPartMachine gravityPartMachine = optional.get();
-            gravity = gravityPartMachine.getCurrentGravity();
+        for (IMultiPart part : this.getParts()) {
+            if (part instanceof IParallelHatch parallelPart) numParallels = parallelPart.getCurrentParallel();
+            else if (part instanceof IGravityPartMachine gravityPart) {
+                if (Objects.requireNonNull(this.getLevel()).dimension() == Planet.EARTH_ORBIT) gravity = 0;
+                else gravity = gravityPart.getCurrentGravity();
+            }
         }
         GTLAddMultiblockDisplayTextBuilder.builder(textList, this.isFormed())
                 .setWorkingStatus(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive())
-                .addEnergyUsageLine(this.energyContainer).addEnergyTierLine(this.tier)
-                .addMachineModeLine(this.getRecipeType()).addParallelsLine(numParallels)
-                .addMaintenanceTierLines(this.getCleanroom()).addGravityLine(gravity)
+                .addEnergyUsageLine(this.energyContainer).addEnergyTierLine(this.tier).addMachineModeLine(this.getRecipeType())
+                .addParallelsLine(numParallels).addMaintenanceTierLines(this.getCleanroom()).addGravityLine(gravity)
                 .addWorkingStatusLine().addProgressLine(this.recipeLogic.getProgressPercent());
         this.getDefinition().getAdditionalDisplay().accept(this, textList);
-        IDisplayUIMachine.super.addDisplayText(textList);
-        ci.cancel();
     }
 }

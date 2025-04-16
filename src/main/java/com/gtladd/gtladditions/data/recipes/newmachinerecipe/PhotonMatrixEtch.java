@@ -36,12 +36,8 @@ public class PhotonMatrixEtch {
     }
 
     private static void addRecipe(String id, String input, String notitem_1, String notitem_2, int duration, int EUt, Material Fluid, Consumer<FinishedRecipe> provider) {
-        new GTLAddRecipeBuilder(id, GTLAddRecipesTypes.PHOTON_MATRIX_ETCH)
-                .inputItems(input).notConsumable(notitem_1).notConsumable(notitem_2)
-                .inputFluids(Fluid.getFluid(50))
-                .outputItems("kubejs:" + id)
-                .TierEUtVA(EUt).duration(duration).cleanroom(CleanroomType.CLEANROOM)
-                .save(provider);
+        new GTLAddRecipeBuilder(id, GTLAddRecipesTypes.PHOTON_MATRIX_ETCH).inputItems(input).notConsumable(notitem_2).notConsumable(notitem_1)
+                .inputFluids(Fluid.getFluid(50)).outputItems("kubejs:" + id).TierEUtVA(EUt).duration(duration).cleanroom(CleanroomType.CLEANROOM).save(provider);
     }
 
     private static class Engraving {

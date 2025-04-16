@@ -17,7 +17,7 @@ import java.util.List;
 
 public class AntientropyCondensationCenter extends GTLAddWorkableElectricParallelHatchMultipleRecipesMachine {
 
-    private static int ITEM_INPUT;
+    private int ITEM_INPUT;
 
     public AntientropyCondensationCenter(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
@@ -26,7 +26,7 @@ public class AntientropyCondensationCenter extends GTLAddWorkableElectricParalle
     public static boolean beforeWorking(IRecipeLogicMachine machine, @NotNull GTRecipe recipe) {
         if (machine instanceof AntientropyCondensationCenter machines) {
             machines.setFluidInput();
-            if (MachineIO.inputItem(machines, Registries.getItemStack("kubejs:dust_cryotheum", ITEM_INPUT))) return true;
+            if (MachineIO.inputItem(machines, Registries.getItemStack("kubejs:dust_cryotheum", machines.ITEM_INPUT))) return true;
         }
         machine.getRecipeLogic().interruptRecipe();
         return false;
