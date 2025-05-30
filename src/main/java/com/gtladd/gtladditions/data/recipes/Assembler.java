@@ -14,6 +14,7 @@ import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.item.ItemStack;
 
+import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
 import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.hepdd.gtmthings.GTMThings;
@@ -95,7 +96,7 @@ public class Assembler {
                 .InputItems("3x minecraft:iron_bars").InputItems("3x gtceu:item_filter")
                 .inputItems("gtceu:mv_electric_motor").inputItems("gtceu:steel_frame").inputItems("gtceu:steel_rotor")
                 .outputItems("gtceu:filter_casing").EUt(32).duration(240).save(provider);
-        ASSEMBLER_RECIPES.recipeBuilder("power_substation").circuitMeta(8)
+        ASSEMBLER_RECIPES.recipeBuilder(GTLAdditions.id("power_substation")).circuitMeta(8)
                 .inputItems(GTBlocks.CASING_PALLADIUM_SUBSTATION.asStack()).inputItems(GTItems.LAPOTRON_CRYSTAL, 4)
                 .inputItems(TagUtil.createModItemTag("circuits/luv"), 2).inputItems(GTItems.POWER_INTEGRATED_CIRCUIT, 2)
                 .outputItems(GTMachines.POWER_SUBSTATION.asStack()).EUt(480).duration(1200).save(provider);
@@ -183,7 +184,7 @@ public class Assembler {
             String eu = GTValues.VN[tier].toLowerCase();
             ItemStack machine_hull = Registries.getItemStack("gtceu:" + eu + "_machine_hull");
             for (int e : new int[] { 1, 2, 4 }) {
-                GTRecipeBuilder builder = ASSEMBLER_RECIPES.recipeBuilder(eu + "_transformer_" + e + "a")
+                GTRecipeBuilder builder = ASSEMBLER_RECIPES.recipeBuilder(GTLAdditions.id(eu + "_transformer_" + e + "a"))
                         .inputItems(machine_hull).outputItems(Registries.getItemStack("gtceu:" + eu + "_transformer_" + e + "a")).EUt(30).duration(200);
                 TagPrefix cable = e == 1 ? TagPrefix.cableGtSingle : (e == 2 ? TagPrefix.cableGtDouble : TagPrefix.cableGtQuadruple);
                 if (pic != null) {

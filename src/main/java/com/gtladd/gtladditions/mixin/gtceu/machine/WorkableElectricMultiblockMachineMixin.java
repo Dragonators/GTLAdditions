@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.mixin.gtceu;
+package com.gtladd.gtladditions.mixin.gtceu.machine;
 
 import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.IGravityPartMachine;
 

@@ -14,8 +14,7 @@ import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Nullable;
 
@@ -48,10 +47,10 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic {
     protected GTRecipe getRecipe() {
         if (!machine.hasProxies()) return null;
         GTRecipe[] recipes = LookupRecipe();
+        if (recipes == null) return null;
         int length = recipes.length;
         if (length == 0) return null;
         GTRecipe match = recipes[0];
-        if (match == null) return null;
         GTRecipe recipe = buildEmptyRecipe();
         recipe.outputs.put(ItemRecipeCapability.CAP, new ArrayList<>());
         recipe.outputs.put(FluidRecipeCapability.CAP, new ArrayList<>());
@@ -68,13 +67,13 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic {
             input.inputs.putAll(match.inputs);
             if (input.matchRecipe(machine).isSuccess() && input.handleRecipeIO(IO.IN, machine, getChanceCaches())) {
                 totalEu += match.duration * RecipeHelper.getInputEUt(match);
+                if (totalEu > maxEUt) break;
                 List<Content> item = match.outputs.get(ItemRecipeCapability.CAP);
                 if (item != null) recipe.outputs.get(ItemRecipeCapability.CAP).addAll(item);
                 List<Content> fluid = match.outputs.get(FluidRecipeCapability.CAP);
                 if (fluid != null) recipe.outputs.get(FluidRecipeCapability.CAP).addAll(fluid);
             }
             match = recipes[(i + 1) % length];
-            if (totalEu > maxEUt || match == null) break;
         }
         if (recipe.outputs.get(ItemRecipeCapability.CAP).equals(new ArrayList<>()) && recipe.outputs.get(FluidRecipeCapability.CAP).equals(new ArrayList<>())) return null;
         double d = (double) totalEu / maxEUt;
@@ -85,7 +84,8 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic {
     }
 
     protected GTRecipe[] LookupRecipe() {
-        return new GTLAddRecipeLookup(machine.getRecipeType()).findAllRecipes(machine);
+        Set<GTRecipe> recipeSet = this.machine.getRecipeType().getLookup().findRecipeCollisions(this.machine);
+        return recipeSet != null ? recipeSet.toArray(new GTRecipe[0]) : null;
     }
 
     protected GTRecipe buildEmptyRecipe() {

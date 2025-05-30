@@ -25,22 +25,21 @@ public class AntientropyCondensationCenter extends GTLAddWorkableElectricParalle
 
     public static boolean beforeWorking(IRecipeLogicMachine machine, @NotNull GTRecipe recipe) {
         if (machine instanceof AntientropyCondensationCenter machines) {
-            machines.setFluidInput();
-            if (MachineIO.inputItem(machines, Registries.getItemStack("kubejs:dust_cryotheum", machines.ITEM_INPUT))) return true;
+            machines.setItemInput();
+            return MachineIO.inputItem(machines, Registries.getItemStack("kubejs:dust_cryotheum", machines.ITEM_INPUT));
         }
-        machine.getRecipeLogic().interruptRecipe();
         return false;
     }
 
     public void addDisplayText(@NotNull List<Component> textList) {
         super.addDisplayText(textList);
         if (this.isFormed()) {
-            this.setFluidInput();
+            this.setItemInput();
             textList.add(Component.literal("需要凛冰粉：" + ITEM_INPUT + "个"));
         }
     }
 
-    private void setFluidInput() {
+    private void setItemInput() {
         ITEM_INPUT = 1 << (GTValues.MAX - this.getTier());
     }
 }

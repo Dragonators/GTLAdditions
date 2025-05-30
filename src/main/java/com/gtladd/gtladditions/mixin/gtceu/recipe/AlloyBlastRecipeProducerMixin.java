@@ -13,7 +13,8 @@ import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.level.material.Fluid;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
+import com.gtladd.gtladditions.GTLAdditions;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,7 +42,7 @@ public abstract class AlloyBlastRecipeProducerMixin {
 
     @Inject(method = "addFreezerRecipes", at = @At(value = "HEAD"), remap = false)
     protected void addFreezerRecipes(@NotNull Material material, @NotNull Fluid molten, int temperature, Consumer<FinishedRecipe> provider, CallbackInfo ci) {
-        GTRecipeBuilder freezerBuilder = GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(material.getName())
+        GTRecipeBuilder freezerBuilder = GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(GTLAdditions.id(material.getName()))
                 .inputFluids(FluidStack.create(molten, 144L)).duration((int) material.getMass() * 3)
                 .notConsumable(GTItems.SHAPE_MOLD_INGOT.asStack()).outputItems(TagPrefix.ingot, material);
         freezerBuilder.EUt(120).save(provider);
@@ -49,7 +50,7 @@ public abstract class AlloyBlastRecipeProducerMixin {
 
     @Unique
     protected @NotNull GTRecipeBuilder gtladd$createBuilder(@NotNull BlastProperty property, @NotNull Material material) {
-        GTRecipeBuilder builder = GTLAddRecipesTypes.CHAOTIC_ALCHEMY.recipeBuilder(material.getName());
+        GTRecipeBuilder builder = GTLAddRecipesTypes.CHAOTIC_ALCHEMY.recipeBuilder(GTLAdditions.id(material.getName()));
         builder.duration(property.getDurationOverride() < 0 ? Math.max(1, (int) (material.getMass() * (long) property.getBlastTemperature() / 100L)) : (int) (property.getDurationOverride() * 0.75));
         builder.EUt(property.getEUtOverride() < 0 ? GTValues.VA[2] : property.getEUtOverride() / 2);
         return builder.blastFurnaceTemp(property.getBlastTemperature());

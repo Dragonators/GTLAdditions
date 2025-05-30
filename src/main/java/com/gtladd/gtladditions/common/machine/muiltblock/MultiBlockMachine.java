@@ -1,15 +1,16 @@
 package com.gtladd.gtladditions.common.machine.muiltblock;
 
 import org.gtlcore.gtlcore.GTLCore;
+import org.gtlcore.gtlcore.api.pattern.GTLPredicates;
 import org.gtlcore.gtlcore.client.renderer.machine.EyeOfHarmonyRenderer;
 import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock;
 import org.gtlcore.gtlcore.common.data.GTLBlocks;
 import org.gtlcore.gtlcore.common.data.GTLMachines;
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes;
-import org.gtlcore.gtlcore.common.machine.multiblock.electric.CoilWorkableElectricMultipleRecipesMultiblockMachine;
 import org.gtlcore.gtlcore.utils.Registries;
 
 import com.gregtechceu.gtceu.GTCEu;
+import com.gregtechceu.gtceu.api.data.RotationState;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
@@ -32,12 +33,12 @@ import com.gtladd.gtladditions.api.machine.GTLAddCoilWorkableElectricMultipleRec
 import com.gtladd.gtladditions.api.machine.GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine;
 import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricMultipleRecipesMachine;
 import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricParallelHatchMultipleRecipesMachine;
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
-import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.*;
 import com.gtladd.gtladditions.common.machine.muiltblock.structure.MultiBlockStructure;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 import com.hepdd.gtmthings.data.CustomMachines;
 
+import static com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE;
 import static com.gtladd.gtladditions.common.machine.GTLAddMachines.GTLAdd_TOOLTIP;
 
 public class MultiBlockMachine {
@@ -60,14 +61,14 @@ public class MultiBlockMachine {
     public static final MultiblockMachineDefinition FUXI_BAGUA_HEAVEN_FORGING_FURNACE;
     public static final MultiblockMachineDefinition ANTIENTROPY_CONDENSATION_CENTER;
     public static final MultiblockMachineDefinition SINGULARITU_INVERSE_CALCULATOR;
-    public static final MultiblockMachineDefinition SINGULARITU_INVERSE_CALCULATOR_MODULE;
+    public static final MultiblockMachineDefinition TAIXU_TURBID_ARRAY;
 
     public MultiBlockMachine() {}
 
     public static void init() {}
 
     static {
-        SUPER_FACTORY_MKI = GTLAddRegistration.REGISTRATE.multiblock("super_factory_mk1", GTLAddWorkableElectricMultipleRecipesMachine::new)
+        SUPER_FACTORY_MKI = REGISTRATE.multiblock("super_factory_mk1", GTLAddWorkableElectricMultipleRecipesMachine::new)
                 .allRotation()
                 .tooltipText("最大并行数：2147483647")
                 .tooltipTextLaser()
@@ -102,7 +103,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/multi_functional_casing"), GTCEu.id("block/multiblock/gcym/large_assembler"))
                 .register();
 
-        SUPER_FACTORY_MKII = GTLAddRegistration.REGISTRATE.multiblock("super_factory_mk2", GTLAddWorkableElectricMultipleRecipesMachine::new)
+        SUPER_FACTORY_MKII = REGISTRATE.multiblock("super_factory_mk2", GTLAddWorkableElectricMultipleRecipesMachine::new)
                 .allRotation()
                 .tooltipText("最大并行数：2147483647")
                 .tooltipTextLaser()
@@ -136,7 +137,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/multi_functional_casing"), GTCEu.id("block/multiblock/gcym/large_assembler"))
                 .register();
 
-        SUPER_FACTORY_MKIII = GTLAddRegistration.REGISTRATE.multiblock("super_factory_mk3", GTLAddWorkableElectricMultipleRecipesMachine::new)
+        SUPER_FACTORY_MKIII = REGISTRATE.multiblock("super_factory_mk3", GTLAddWorkableElectricMultipleRecipesMachine::new)
                 .allRotation()
                 .tooltipText("最大并行数：2147483647")
                 .tooltipTextLaser()
@@ -171,7 +172,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/multi_functional_casing"), GTCEu.id("block/multiblock/gcym/large_assembler"))
                 .register();
 
-        SUPER_FACTORY_MKIV = GTLAddRegistration.REGISTRATE.multiblock("super_factory_mk4", GTLAddWorkableElectricMultipleRecipesMachine::new)
+        SUPER_FACTORY_MKIV = REGISTRATE.multiblock("super_factory_mk4", GTLAddWorkableElectricMultipleRecipesMachine::new)
                 .allRotation()
                 .tooltipText("最大并行数：2147483647")
                 .tooltipTextLaser()
@@ -202,7 +203,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/multi_functional_casing"), GTCEu.id("block/multiblock/gcym/large_assembler"))
                 .register();
 
-        ATOMIC_TRANSMUTATIOON_CORE = GTLAddRegistration.REGISTRATE.multiblock("atomic_transmutation_core", CoilWorkableElectricMultipleRecipesMultiblockMachine::new)
+        ATOMIC_TRANSMUTATIOON_CORE = REGISTRATE.multiblock("atomic_transmutation_core", GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine::new)
                 .noneRotation()
                 .tooltipTextCoilParallel()
                 .tooltipTextLaser()
@@ -232,10 +233,11 @@ public class MultiBlockMachine {
                         .where("B", Predicates.blocks(Registries.getBlock("gtceu:cleanroom_glass")))
                         .where(" ", Predicates.any())
                         .build())
+                .additionalDisplay(GTLAddMultiBlockMachineModifier.MULTIPLERECIPES_COIL_PARALLEL)
                 .workableCasingRenderer(GTLCore.id("block/casings/aluminium_bronze_casing"), GTCEu.id("block/multiblock/cleanroom"))
                 .register();
 
-        LUCID_ETCHDREAMER = GTLAddRegistration.REGISTRATE.multiblock("lucid_etchdreamer", GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine::new)
+        LUCID_ETCHDREAMER = REGISTRATE.multiblock("lucid_etchdreamer", GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine::new)
                 .nonYAxisRotation()
                 .tooltipTextCoilParallel()
                 .tooltipTextLaser()
@@ -265,7 +267,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/casings/iridium_casing"), GTCEu.id("block/multiblock/gcym/large_engraving_laser"))
                 .register();
 
-        ASTRAL_CONVERGENCE_NEXUS = GTLAddRegistration.REGISTRATE.multiblock("astral_convergence_nexus", (holder) -> new AdvancedSpaceElevatorModuleMachine(holder, true))
+        ASTRAL_CONVERGENCE_NEXUS = REGISTRATE.multiblock("astral_convergence_nexus", (holder) -> new AdvancedSpaceElevatorModuleMachine(holder, true))
                 .nonYAxisRotation()
                 .tooltipText("最大并行数：8^(动力模块等级-1)")
                 .tooltipTextLaser()
@@ -288,7 +290,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/space_elevator_mechanical_casing"), GTCEu.id("block/multiblock/gcym/large_assembler"))
                 .register();
 
-        NEBULA_REAPER = GTLAddRegistration.REGISTRATE.multiblock("nebula_reaper", (holder) -> new AdvancedSpaceElevatorModuleMachine(holder, true))
+        NEBULA_REAPER = REGISTRATE.multiblock("nebula_reaper", (holder) -> new AdvancedSpaceElevatorModuleMachine(holder, true))
                 .nonYAxisRotation()
                 .tooltipText("最大并行数：8^(动力模块等级-1)")
                 .tooltipTextLaser()
@@ -312,7 +314,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/space_elevator_mechanical_casing"), GTCEu.id("block/multiblock/gcym/large_assembler"))
                 .register();
 
-        ARCANIC_ASTROGRAPH = GTLAddRegistration.REGISTRATE.multiblock("arcanic_astrograph", ArcanicAstrograph::new)
+        ARCANIC_ASTROGRAPH = REGISTRATE.multiblock("arcanic_astrograph", ArcanicAstrograph::new)
                 .nonYAxisRotation()
                 .recipeType(GTLRecipeTypes.COSMOS_SIMULATION_RECIPES)
                 .recipeModifier(ArcanicAstrograph::recipeModifier)
@@ -346,7 +348,7 @@ public class MultiBlockMachine {
                 .hasTESR(true)
                 .register();
 
-        ARCANE_CACHE_VAULT = GTLAddRegistration.REGISTRATE.multiblock("arcane_cache_vault", CoilWorkableElectricMultipleRecipesMultiblockMachine::new)
+        ARCANE_CACHE_VAULT = REGISTRATE.multiblock("arcane_cache_vault", GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine::new)
                 .allRotation()
                 .tooltipTextCoilParallel()
                 .tooltipTextLaser()
@@ -370,10 +372,11 @@ public class MultiBlockMachine {
                                 .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                         .where("B", Predicates.heatingCoils())
                         .build())
+                .additionalDisplay(GTLAddMultiBlockMachineModifier.MULTIPLERECIPES_COIL_PARALLEL)
                 .workableCasingRenderer(GTLCore.id("block/casings/pikyonium_machine_casing"), GTCEu.id("block/multiblock/gcym/large_packer"))
                 .register();
 
-        DRACONIC_COLLAPSE_CORE = GTLAddRegistration.REGISTRATE.multiblock("draconic_collapse_core", WorkableElectricMultiblockMachine::new)
+        DRACONIC_COLLAPSE_CORE = REGISTRATE.multiblock("draconic_collapse_core", WorkableElectricMultiblockMachine::new)
                 .nonYAxisRotation()
                 .tooltipText("电压等级每高出UEV一级最大并行数X8")
                 .tooltipText("只能使用激光仓")
@@ -407,7 +410,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLFusionCasingBlock.getCasingType(10).getTexture(), GTCEu.id("block/multiblock/fusion_reactor"))
                 .register();
 
-        TITAN_CRIP_EARTHBORE = GTLAddRegistration.REGISTRATE.multiblock("titan_crip_earthbore", WorkableElectricMultiblockMachine::new)
+        TITAN_CRIP_EARTHBORE = REGISTRATE.multiblock("titan_crip_earthbore", WorkableElectricMultiblockMachine::new)
                 .noneRotation()
                 .tooltipText("电压每高出LuV一级最大并行数X2")
                 .tooltipTextPerfectOverclock()
@@ -440,7 +443,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/casings/echo_casing"), GTCEu.id("block/multiblock/cleanroom"))
                 .register();
 
-        BIOLOGICAL_SIMULATION_LABORATORY = GTLAddRegistration.REGISTRATE.multiblock("biological_simulation_laboratory", BiologicalSimulationLaboratory::new)
+        BIOLOGICAL_SIMULATION_LABORATORY = REGISTRATE.multiblock("biological_simulation_laboratory", BiologicalSimulationLaboratory::new)
                 .allRotation()
                 .tooltipText("更高效的获取生物掉落物")
                 .tooltipText("初始最大并行数为64")
@@ -450,7 +453,7 @@ public class MultiBlockMachine {
                 .tooltipText("§c魔金纳米蜂群§r（§o并行§r：262144，§o耗电§r：0.6，§o耗时§r：0.4）")
                 .tooltipText("§c不再是菜鸟的证明§r（§o并行§r：4194304，§o耗电§r：0.25，§o耗时§r：0.1）")
                 .tooltipText("放入§c不再是菜鸟的证明§r时解锁寰宇支配之剑的配方")
-                .tooltipText("放入§c不再是菜鸟的证明§r时解锁跨配方·改")
+                .tooltipText("放入§c不再是菜鸟的证明§r时解锁跨配方")
                 .tooltipText("允许使用激光仓，但只能使用UXV以上的激光仓")
                 .tooltipText("可用配方类型：生物数据模拟")
                 .tooltipBuilder(GTLAdd_TOOLTIP)
@@ -473,7 +476,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/casings/hyper_mechanical_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
                 .register();
 
-        DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT = GTLAddRegistration.REGISTRATE.multiblock("dimensionally_transcendent_chemical_plant", GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine::new)
+        DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT = REGISTRATE.multiblock("dimensionally_transcendent_chemical_plant", GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine::new)
                 .nonYAxisRotation()
                 .tooltipText("高效的化学反应堆")
                 .tooltipTextCoilParallel()
@@ -503,7 +506,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTCEu.id("block/casings/solid/machine_casing_inert_ptfe"), GTCEu.id("block/machines/chemical_reactor"))
                 .register();
 
-        QUANTUM_SYPHON_MATRIX = GTLAddRegistration.REGISTRATE.multiblock("quantum_syphon_matrix", GTLAddWorkableElectricParallelHatchMultipleRecipesMachine::new)
+        QUANTUM_SYPHON_MATRIX = REGISTRATE.multiblock("quantum_syphon_matrix", GTLAddWorkableElectricParallelHatchMultipleRecipesMachine::new)
                 .noneRotation()
                 .tooltipTextParallelHatch()
                 .tooltipTextLaser()
@@ -534,7 +537,7 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTCEu.id("block/casings/hpca/high_power_casing"), GTCEu.id("block/machines/gas_collector"))
                 .register();
 
-        FUXI_BAGUA_HEAVEN_FORGING_FURNACE = GTLAddRegistration.REGISTRATE.multiblock("fuxi_bagua_heaven_forging_furnace", GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine::new)
+        FUXI_BAGUA_HEAVEN_FORGING_FURNACE = REGISTRATE.multiblock("fuxi_bagua_heaven_forging_furnace", GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine::new)
                 .nonYAxisRotation()
                 .tooltipTextParallelHatch()
                 .tooltipText("只能使用激光仓")
@@ -581,7 +584,7 @@ public class MultiBlockMachine {
                 })
                 .workableCasingRenderer(GTLCore.id("block/casings/dimension_injection_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
                 .register();
-        ANTIENTROPY_CONDENSATION_CENTER = GTLAddRegistration.REGISTRATE.multiblock("antientropy_condensation_center", AntientropyCondensationCenter::new)
+        ANTIENTROPY_CONDENSATION_CENTER = REGISTRATE.multiblock("antientropy_condensation_center", AntientropyCondensationCenter::new)
                 .allRotation()
                 .tooltipText("每次工作前需要提供凛冰粉")
                 .tooltipText("电压每高一级，消耗的凛冰粉数量/2")
@@ -618,18 +621,20 @@ public class MultiBlockMachine {
                 .workableCasingRenderer(GTLCore.id("block/casings/antifreeze_heatproof_machine_casing"), GTCEu.id("block/multiblock/vacuum_freezer"))
                 .beforeWorking(AntientropyCondensationCenter::beforeWorking)
                 .register();
-        SINGULARITU_INVERSE_CALCULATOR = GTLAddRegistration.REGISTRATE.multiblock("singularity_inverse_calculator", SingularityInverseCalculator::new)
+        SINGULARITU_INVERSE_CALCULATOR = REGISTRATE.multiblock("singularity_inverse_calculator", SingularityInverseCalculator::new)
                 .nonYAxisRotation()
                 .tooltipText("可安装至多三个拓展模块")
                 .tooltipText("固定耗电16安MAX")
                 .recipeType(GTLAddRecipesTypes.UNIVERSE_SANDBOX)
-                .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(new OverclockingLogic(1.0, 4.0, false)))
+                .recipeModifier(SingularityInverseCalculator::recipeModifier)
                 .appearanceBlock(GTLBlocks.DIMENSIONALLY_TRANSCENDENT_CASING)
                 .pattern(definition -> MultiBlockStructure.UNIVERSE_SANDBOX_STRUCTURE
                         .where("C", Predicates.controller(Predicates.blocks(definition.get())))
                         .where("B", Predicates.blocks(Registries.getBlock("gtlcore:dimensionally_transcendent_casing"))
+                                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
-                                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(1)))
+                                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
+                                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1)))
                         .where("N", Predicates.blocks(Registries.getBlock("gtlcore:super_cooler_component")))
                         .where("J", Predicates.blocks(Registries.getBlock("kubejs:dimensional_bridge_casing")))
                         .where("M", Predicates.blocks(Registries.getBlock("gtlcore:rhenium_reinforced_energy_glass")))
@@ -654,30 +659,53 @@ public class MultiBlockMachine {
                         .build())
                 .workableCasingRenderer(GTLCore.id("block/casings/dimensionally_transcendent_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
                 .register();
-        SINGULARITU_INVERSE_CALCULATOR_MODULE = GTLAddRegistration.REGISTRATE.multiblock("singularity_inverse_calculator_module", SingularityInverseCalculatorModule::new)
-                .nonYAxisRotation()
-                .tooltipText("安装在宇宙沙盘结构的维度桥接方块上")
-                .tooltipText("由无线电网供应能量")
-                .recipeType(GTLAddRecipesTypes.UNIVERSE_SANDBOX)
-                .recipeModifier(SingularityInverseCalculatorModule::recipeModifier)
-                .appearanceBlock(GTLBlocks.DIMENSIONALLY_TRANSCENDENT_CASING)
-                .pattern(definition -> FactoryBlockPattern.start()
-                        .aisle("EFE", "GFG", "GFG")
-                        .aisle("C C", "CDC", "C C")
-                        .aisle("AAA", "ABA", "AAA")
-                        .where("B", Predicates.controller(Predicates.blocks(definition.get())))
-                        .where("A", Predicates.blocks(Registries.getBlock("gtlcore:dimensionally_transcendent_casing"))
-                                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
-                                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
-                                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
-                                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1)))
-                        .where("F", Predicates.blocks(Registries.getBlock("gtlcore:dimension_injection_casing")))
-                        .where("G", Predicates.blocks(Registries.getBlock("gtlcore:molecular_casing")))
-                        .where("D", Predicates.blocks(Registries.getBlock("kubejs:dimensional_bridge_casing")))
-                        .where("C", Predicates.blocks(Registries.getBlock("gtlcore:dimensionally_transcendent_casing")))
-                        .where("E", Predicates.blocks(Registries.getBlock("gtceu:high_power_casing")))
+        TAIXU_TURBID_ARRAY = REGISTRATE.multiblock("taixu_turbid_array", TaixuTurbidArray::new)
+                .rotationState(RotationState.Y_AXIS)
+                .tooltips(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.0"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.1"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.12"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.2"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.3"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.13"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.4"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.5"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.6"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.8"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.9"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.14"), Component.translatable("gtceu.machine.taixuturbidarray.tooltip.15"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.7"), Component.translatable("gtceu.machine.taixuturbidarray.tooltip.11"),
+                        Component.translatable("gtceu.machine.taixuturbidarray.tooltip.10"))
+                .tooltipBuilder(GTLAdd_TOOLTIP)
+                .recipeType(GTLAddRecipesTypes.CHAOS_WEAVE)
+                .recipeModifier(TaixuTurbidArray::recipeModifier)
+                .appearanceBlock(GTBlocks.MACHINE_CASING_UHV)
+                .pattern(definition -> MultiBlockStructure.TAIXU_TURBID_ARRAY_STRUCTURE
+                        .where("T", Predicates.controller(Predicates.blocks(definition.get())))
+                        .where("K", Predicates.blocks(Registries.getBlock("gtceu:uhv_machine_casing"))
+                                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
+                                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1))
+                                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1))
+                                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(1)))
+                        .where("H", Predicates.blocks(Registries.getBlock("gtceu:uhv_machine_casing")))
+                        .where("E", Predicates.blocks(Registries.getBlock("gtceu:woods_glass_block")))
+                        .where("J", Predicates.blocks(Registries.getBlock("gtlcore:dimension_injection_casing")))
+                        .where("B", Predicates.blocks(Registries.getBlock("gtlcore:dimensionally_transcendent_casing")))
+                        .where("R", Predicates.blocks(Registries.getBlock("kubejs:force_field_glass")))
+                        .where("S", GTLPredicates.countBlock("SpeedPipe", Registries.getBlock("kubejs:speeding_pipe")))
+                        .where("G", Predicates.blocks(Registries.getBlock("kubejs:hollow_casing")))
+                        .where("F", Predicates.blocks(Registries.getBlock("gtceu:naquadah_alloy_frame")))
+                        .where("N", Predicates.blocks(Registries.getBlock("gtlcore:fusion_casing_mk5")))
+                        .where("I", Predicates.blocks(Registries.getBlock("gtlcore:sps_casing")))
+                        .where("P", Predicates.blocks(Registries.getBlock("gtceu:fusion_glass")))
+                        .where("M", GTLPredicates.tierCasings(GTLBlocks.scmap, "SCTier"))
+                        .where("A", Predicates.blocks(Registries.getBlock("gtlcore:iridium_casing")))
+                        .where("L", Predicates.blocks(Registries.getBlock("kubejs:containment_field_generator")))
+                        .where("Q", Predicates.blocks(Registries.getBlock("kubejs:dimensional_bridge_casing")))
+                        .where("C", Predicates.blocks(Registries.getBlock("gtceu:atomic_casing")))
+                        .where("D", Predicates.blocks(Registries.getBlock("gtceu:mithril_frame")))
+                        .where("O", Predicates.heatingCoils())
                         .build())
-                .workableCasingRenderer(GTLCore.id("block/casings/dimensionally_transcendent_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
+                .workableCasingRenderer(GTCEu.id("block/casings/voltage/uhv/side"), GTCEu.id("block/multiblock/fusion_reactor"))
                 .register();
     }
 }

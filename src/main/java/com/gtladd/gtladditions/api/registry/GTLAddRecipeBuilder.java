@@ -2,7 +2,6 @@ package com.gtladd.gtladditions.api.registry;
 
 import org.gtlcore.gtlcore.utils.Registries;
 
-import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
@@ -29,6 +28,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import com.gtladd.gtladditions.GTLAdditions;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -40,7 +41,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class GTLAddRecipeBuilder extends GTRecipeBuilder {
 
     public GTLAddRecipeBuilder(String id, GTRecipeType recipeType) {
-        super(GTCEu.id(id), recipeType);
+        super(GTLAdditions.id(id), recipeType);
     }
 
     @Override

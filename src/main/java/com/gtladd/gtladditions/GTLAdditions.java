@@ -20,11 +20,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs;
 import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.gtladd.gtladditions.common.material.GTLAddMaterial;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 import com.gtladd.gtladditions.config.Config;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;

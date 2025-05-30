@@ -1,10 +1,10 @@
 package com.gtladd.gtladditions.data.recipes.newmachinerecipe;
 
-import org.gtlcore.gtlcore.common.data.GTLMaterials;
 import org.gtlcore.gtlcore.utils.Registries;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
+import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 
@@ -13,14 +13,12 @@ import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 
 import java.util.function.Consumer;
 
-public class TitansCripEarthbore {
+public class ChaosWeave {
 
-    public TitansCripEarthbore() {}
+    public ChaosWeave() {}
 
     public static void init(Consumer<FinishedRecipe> provider) {
-        GTLAddRecipesTypes.TECTONIC_FAULT_GENERATOR.recipeBuilder(GTLAdditions.id("bedrock_dust"))
-                .chancedInput(Registries.getItemStack("kubejs:bedrock_drill"), 100, 0).circuitMeta(1)
-                .outputItems(TagPrefix.dust, GTLMaterials.Bedrock, 64)
-                .EUt(GTValues.VA[11]).duration(1200).save(provider);
+        GTLAddRecipesTypes.CHAOS_WEAVE.recipeBuilder(GTLAdditions.id("chaos_weave")).inputItems(TagPrefix.dust, GTMaterials.Stone, 64)
+                .outputItems(Registries.getItemStack("kubejs:scrap_box", 24)).duration(100).EUt(GTValues.V[10]).save(provider);
     }
 }

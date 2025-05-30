@@ -9,7 +9,8 @@ import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
+import com.gtladd.gtladditions.GTLAdditions;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 
 import java.util.function.Consumer;
 
@@ -34,7 +35,7 @@ public class StellarLgnition {
     }
 
     private static void addRecipe(Material material, int temperature, Consumer<FinishedRecipe> provider) {
-        GTLAddRecipesTypes.STELLAR_LGNITION.recipeBuilder(material.getName()).circuitMeta(1)
+        GTLAddRecipesTypes.STELLAR_LGNITION.recipeBuilder(GTLAdditions.id(material.getName())).circuitMeta(1)
                 .inputFluids(material.getFluid(10000)).outputFluids(material.getFluid(FluidStorageKeys.PLASMA, 10000))
                 .blastFurnaceTemp(temperature).EUt(GTValues.VA[GTValues.UEV]).duration(100).save(provider);
     }

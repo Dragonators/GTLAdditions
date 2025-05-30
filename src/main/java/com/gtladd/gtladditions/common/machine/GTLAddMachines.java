@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs;
+import com.gtladd.gtladditions.common.data.MultiBlockModify;
 import com.gtladd.gtladditions.common.machine.hatch.HugeSteamHatchPartMachine;
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine;
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeDualHatchPartMachine;
@@ -49,6 +50,7 @@ public class GTLAddMachines {
 
     public static void init() {
         MultiBlockMachine.init();
+        MultiBlockModify.init();
     }
 
     public static final BiConsumer<ItemStack, List<Component>> GTLAdd_TOOLTIP = (stack, components) -> components.add(Component.literal(TextUtil.full_color("由GTLAdditions添加"))

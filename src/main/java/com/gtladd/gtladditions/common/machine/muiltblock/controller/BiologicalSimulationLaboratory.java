@@ -46,10 +46,7 @@ public class BiologicalSimulationLaboratory extends StorageMachine implements Pa
 
     protected boolean filter(@NotNull ItemStack itemStack) {
         Item item = itemStack.getItem();
-        if (RHENIUM_NANOSWARM.is(item)) return true;
-        else if (ORICHALCUM_NANOSWARM.is(item)) return true;
-        else if (INFUSCOLIUM_NANOSWARM.is(item)) return true;
-        else return NAN_CERTIFICATE.is(item);
+        return NAN_CERTIFICATE.is(item) || INFUSCOLIUM_NANOSWARM.is(item) || ORICHALCUM_NANOSWARM.is(item) || RHENIUM_NANOSWARM.is(item);
     }
 
     public static boolean beforeWorking(IRecipeLogicMachine machine, @NotNull GTRecipe recipe) {
@@ -66,9 +63,7 @@ public class BiologicalSimulationLaboratory extends StorageMachine implements Pa
     public void addDisplayText(@NotNull List<Component> textList) {
         super.addDisplayText(textList);
         if (this.isFormed) {
-            if (this.holder.getOffsetTimer() % 20L == 0L) {
-                this.setparameter(this);
-            }
+            if (this.holder.getOffsetTimer() % 20L == 0L) this.setparameter(this);
             textList.add(Component.translatable("gtceu.multiblock.parallel", Component.translatable(FormattingUtil.formatNumbers(Max_Parallels)).withStyle(ChatFormatting.DARK_PURPLE)).withStyle(ChatFormatting.GRAY));
             textList.add(Component.translatable((Is_MultiRecipe ? "已" : "未") + "解锁寰宇支配之剑的配方"));
             textList.add(Component.translatable("gtceu.machine.eut_multiplier.tooltip", Component.translatable(FormattingUtil.formatNumbers(reDuctionEUt))));

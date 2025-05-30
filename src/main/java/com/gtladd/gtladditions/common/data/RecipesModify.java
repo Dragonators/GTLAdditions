@@ -8,7 +8,7 @@ import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import com.lowdragmc.lowdraglib.utils.LocalizationUtils;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 
 import java.text.NumberFormat;
 
@@ -25,7 +25,7 @@ public class RecipesModify {
                 getFusionTier(data.getLong("eu_to_start") / 1000000)));
         GTRecipeTypes.LASER_ENGRAVER_RECIPES.onRecipeBuild((recipeBuilder, provider) -> {
             GTRecipeBuilder recipe = GTLAddRecipesTypes.PHOTON_MATRIX_ETCH.copyFrom(recipeBuilder)
-                    .duration((int) ((double) recipeBuilder.duration * 0.2)).EUt(recipeBuilder.EUt());
+                    .duration((int) (recipeBuilder.duration * 0.2)).EUt(recipeBuilder.EUt());
             recipe.save(provider);
             GTRecipeBuilder recipe1 = GTLRecipeTypes.DIMENSIONAL_FOCUS_ENGRAVING_ARRAY_RECIPES.copyFrom(recipeBuilder)
                     .duration((int) ((double) recipeBuilder.duration * 0.2)).EUt(recipeBuilder.EUt() * 4L);

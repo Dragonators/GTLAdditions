@@ -8,8 +8,8 @@
     "gtceu.api.recipe.ContentMixin"
   ],
   "mixins": [
-    "gtceu.WorkableElectricMultiblockMachineMixin",
     "gtceu.machine.FusionReactorMachineMixin",
+    "gtceu.machine.WorkableElectricMultiblockMachineMixin",
     "gtceu.machine.part.AutoMaintenanceHatchPartMachineMixin",
     "gtceu.machine.part.MaintenanceHatchPartMachineMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",

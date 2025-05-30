@@ -8,8 +8,9 @@ import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
+import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
@@ -23,18 +24,15 @@ public class VoidfluxReaction {
             for (int tier = GTValues.UEV; tier < GTValues.OpV; tier++) {
                 final String voltageName = GTValues.VN[tier].toLowerCase();
                 GTLAddRecipeBuilder builder = new GTLAddRecipeBuilder(String.format("%s_air_collector_%d", dimension, tier - 8), GTLAddRecipesTypes.VOIDFLUX_REACTION)
-                        .notConsumable("kubejs:" + dimension + "_data", 64)
-                        .notConsumable("gtceu:" + voltageName + "_fluid_regulator");
+                        .notConsumable("kubejs:" + dimension + "_data", 64).notConsumable("gtceu:" + voltageName + "_fluid_regulator");
                 final int[] durations = { 20, 200 };
                 int finalTier = tier - 3;
                 IntStream.range(0, 2).forEach(mode -> {
                     GTRecipeBuilder modeBuilder = ((mode == 0) ?
-                            builder.copy(String.format("%s_%s_air_collector_%d", voltageName, dimension, mode)).circuitMeta(1) :
-                            builder.copy(String.format("%s_%s_air_collector_%d", voltageName, dimension, mode)).notConsumable(MultiBlockMachineA.COOLING_TOWER.asStack()));
+                            builder.copy(GTLAdditions.id(String.format("%s_%s_air_collector_%d", voltageName, dimension, mode))).circuitMeta(1) :
+                            builder.copy(GTLAdditions.id(String.format("%s_%s_air_collector_%d", voltageName, dimension, mode))).notConsumable(MultiBlockMachineA.COOLING_TOWER.asStack()));
                     setAir(modeBuilder, dimension, mode, (int) Math.pow(4, finalTier - 5));
-                    modeBuilder.duration(durations[mode])
-                            .EUt(GTValues.VA[finalTier])
-                            .save(provider);
+                    modeBuilder.duration(durations[mode]).EUt(GTValues.VA[finalTier]).save(provider);
                 });
             }
         }

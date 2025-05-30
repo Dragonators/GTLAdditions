@@ -12,8 +12,9 @@ import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
+import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 
 import java.util.function.Consumer;
 
@@ -41,17 +42,17 @@ public class AntientropyCondensation {
                     .inputFluids(ingot.getFluid(FluidStorageKeys.PLASMA, 144)).outputItems(TagPrefix.ingotHot, ingot)
                     .EUt(GTValues.VA[GTValues.UHV]).duration(60).save(provider);
         }
-        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder("ice")
+        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(GTLAdditions.id("ice"))
                 .inputFluids(GTMaterials.Water.getFluid(1000)).outputFluids(GTMaterials.Ice.getFluid(1000))
                 .EUt(GTValues.VA[GTValues.ULV]).duration(50).save(provider);
-        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder("liquid_hydrogen")
+        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(GTLAdditions.id("liquid_hydrogen"))
                 .inputFluids(GTMaterials.Hydrogen.getFluid(1000)).outputFluids(GTLMaterials.LiquidHydrogen.getFluid(1000))
                 .EUt(GTValues.VA[GTValues.EV]).duration(240).save(provider);
-        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder("metaastable_oganesson")
+        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(GTLAdditions.id("metaastable_oganesson"))
                 .inputItems(Registries.getItemStack("kubejs:dust_cryotheum")).inputFluids(GTLMaterials.HotOganesson.getFluid(4000))
                 .outputFluids(GTLMaterials.MetastableOganesson.getFluid(576)).outputItems(TagPrefix.dustSmall, GTLMaterials.Enderium, 2)
                 .EUt(GTValues.VA[GTValues.UV]).duration(280).save(provider);
-        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder("draconium")
+        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(GTLAdditions.id("draconium"))
                 .inputItems(TagPrefix.ingotHot, GTLMaterials.Draconium).outputItems(TagPrefix.ingot, GTLMaterials.Draconium)
                 .EUt(GTValues.VA[GTValues.UXV]).duration(100).save(provider);
         new GTLAddRecipeBuilder("fullerene_polymer_matrix_fine_tubing", GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION)
@@ -129,7 +130,7 @@ public class AntientropyCondensation {
     }
 
     private static void addRecipe(Material material, Consumer<FinishedRecipe> provider) {
-        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(material.getName())
+        GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(GTLAdditions.id(material.getName()))
                 .inputFluids(material.getFluid(1000)).outputFluids(material.getFluid(FluidStorageKeys.LIQUID, 1000))
                 .EUt(GTValues.VA[GTValues.HV]).duration(240).save(provider);
     }

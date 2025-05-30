@@ -8,8 +8,8 @@ import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 
 import java.util.Objects;
 import java.util.function.Consumer;

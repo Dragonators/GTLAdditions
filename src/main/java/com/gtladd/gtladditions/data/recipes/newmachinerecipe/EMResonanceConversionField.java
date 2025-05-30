@@ -11,7 +11,8 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
+import com.gtladd.gtladditions.GTLAdditions;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 
 import java.util.function.Consumer;
 
@@ -30,6 +31,6 @@ public class EMResonanceConversionField {
     }
 
     private static void addRecipe(Block input, Block output, int EUt, Consumer<FinishedRecipe> provider) {
-        GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD.recipeBuilder(output.getDescriptionId()).inputItems(input.asItem()).circuitMeta(1).outputItems(output.asItem()).EUt(GTValues.VA[EUt]).save(provider);
+        GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD.recipeBuilder(GTLAdditions.id(output.getDescriptionId())).inputItems(input.asItem()).circuitMeta(1).outputItems(output.asItem()).EUt(GTValues.VA[EUt]).save(provider);
     }
 }

@@ -17,10 +17,11 @@ import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.item.Item;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
+import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
 import com.gtladd.gtladditions.common.items.GTLAddItems;
 import com.gtladd.gtladditions.common.material.GTLAddMaterial;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import java.util.function.Consumer;
@@ -41,22 +42,22 @@ public class socprocess {
     }
 
     private static void generatedRecipe(Consumer<FinishedRecipe> provider) {
-        CHEMICAL_BATH_RECIPES.recipeBuilder("bioware_echo_shard_wafer")
+        CHEMICAL_BATH_RECIPES.recipeBuilder(GTLAdditions.id("bioware_echo_shard_wafer"))
                 .inputItems(GTLAddItems.ECHO_SHARD_WAFER.asStack()).inputFluids(GTLMaterials.BiohmediumSterilized.getFluid(250))
                 .outputItems(GTLAddItems.BIOWARE_ECHO_SHARD_BOULE.asStack())
                 .EUt(GTValues.VA[GTValues.UHV]).duration(200).cleanroom(CleanroomType.STERILE_CLEANROOM).addCondition(new GravityCondition()).save(provider);
-        LARGE_CHEMICAL_RECIPES.recipeBuilder("prepare_extraordinary_soc_wafer")
+        LARGE_CHEMICAL_RECIPES.recipeBuilder(GTLAdditions.id("prepare_extraordinary_soc_wafer"))
                 .inputItems(GTLAddItems.HASSIUM_WAFER.asStack()).inputItems(TagPrefix.dust, GTLMaterials.FranciumCaesiumCadmiumBromide, 2)
                 .inputFluids(GTLMaterials.SeaborgiumDopedNanotubes.getFluid(144)).inputFluids(GTLMaterials.CarbonNanotubes.getFluid(144))
                 .outputItems(GTLAddItems.PREPARE_EXTRAORDINARY_SOC_WAFER.asStack())
                 .EUt(GTValues.VA[GTValues.UEV]).duration(200).cleanroom(GTLCleanroomType.LAW_CLEANROOM).save(provider);
-        SPS_CRAFTING_RECIPES.recipeBuilder("dragon_element_starmetal_wafer")
+        SPS_CRAFTING_RECIPES.recipeBuilder(GTLAdditions.id("dragon_element_starmetal_wafer"))
                 .inputItems(GTLAddItems.STARMETAL_WAFER, 4)
                 .inputItems(Registries.getItemStack("kubejs:kinetic_matter")).inputItems(Registries.getItemStack("kubejs:unstable_star", 2))
                 .inputFluids(GTLMaterials.Mana.getFluid(10000)).inputFluids(GTLMaterials.DragonElement.getFluid(1000))
                 .inputFluids(GTLMaterials.FreeAlphaGas.getFluid(500)).outputItems(GTLAddItems.DRAGON_ELEMENT_STARMETAL_WAFER, 4)
                 .EUt(GTValues.VA[GTValues.UIV]).duration(200).cleanroom(GTLCleanroomType.LAW_CLEANROOM).addCondition(new GravityCondition()).save(provider);
-        QFT_RECIPES.recipeBuilder("prepare_spacetime_soc_wafer")
+        QFT_RECIPES.recipeBuilder(GTLAdditions.id("prepare_spacetime_soc_wafer"))
                 .inputItems(GTLAddItems.PERIODICIUM_WAFER, 4)
                 .inputItems(Registries.getItemStack("kubejs:charged_lepton_trap_crystal"))
                 .inputItems(Registries.getItemStack("kubejs:nuclear_star", 4))
@@ -64,7 +65,7 @@ public class socprocess {
                 .inputFluids(GTLMaterials.CosmicElement.getFluid(10000))
                 .inputFluids(GTLMaterials.SpaceTime.getFluid(500))
                 .outputItems(GTLAddItems.PREPARE_SPACETIME_SOC_WAFER, 4).EUt(GTValues.VA[GTValues.OpV]).duration(200).save(provider);
-        DIMENSIONALLY_TRANSCENDENT_MIXER_RECIPES.recipeBuilder("prepare_primary_soc_wafer")
+        DIMENSIONALLY_TRANSCENDENT_MIXER_RECIPES.recipeBuilder(GTLAdditions.id("prepare_primary_soc_wafer"))
                 .notConsumable(Registries.getItemStack("kubejs:eternity_catalyst")).inputItems(GTLAddItems.INFINITY_WAFER, 4)
                 .inputItems(Registries.getItemStack("kubejs:quantum_anomaly")).inputItems(Registries.getItemStack("kubejs:two_way_foil"))
                 .inputItems(Registries.getItemStack("kubejs:void_matter")).inputItems(TagPrefix.dust, GTLMaterials.TranscendentMetal, 16)
@@ -82,7 +83,7 @@ public class socprocess {
     static class electricblastfurnace {
 
         public static void init(Consumer<FinishedRecipe> provider) {
-            BLAST_RECIPES.recipeBuilder("echo_shard_boule")
+            BLAST_RECIPES.recipeBuilder(GTLAdditions.id("echo_shard_boule"))
                     .inputItems(GTItems.SILICON_BOULE, 64).inputItems(TagPrefix.dust, GTLAddMaterial.GALLIUM_OXIDE, 16).inputItems(Registries.getItemStack("gtceu:echo_shard_dust", 16))
                     .inputFluids(GTMaterials.Krypton.getFluid(16000))
                     .outputItems(GTLAddItems.ECHO_SHARD_BOULE).EUt(GTValues.VA[GTValues.UV]).duration(21000).blastFurnaceTemp(14400).save(provider);
@@ -90,20 +91,20 @@ public class socprocess {
             addBlastRecipe(GTLMaterials.Starmetal, GTLAddItems.STARMETAL_BOULE, GTValues.VA[GTValues.UEV], 27000, 21000, provider);
             addBlastRecipe(GTLMaterials.Periodicium, GTLAddItems.PERIODICIUM_BOULE, GTValues.VA[GTValues.UXV], 30000, 36000, provider);
             addBlastRecipe(GTLMaterials.Infinity, GTLAddItems.INFINITY_BOULE, GTValues.VA[GTValues.OpV], 33000, 62000, provider);
-            CHEMICAL_RECIPES.recipeBuilder("ammonium_gallium_sulfate")
+            CHEMICAL_RECIPES.recipeBuilder(GTLAdditions.id("ammonium_gallium_sulfate"))
                     .inputItems(TagPrefix.dust, GTMaterials.Gallium).inputFluids(GTMaterials.SulfuricAcid.getFluid(2000)).inputFluids(GTMaterials.Ammonia.getFluid(1000))
                     .outputItems(TagPrefix.dust, GTLAddMaterial.AMMONIUM_GALIUM_SULFATE).EUt(GTValues.VA[GTValues.EV]).duration(200).save(provider);
-            LARGE_CHEMICAL_RECIPES.recipeBuilder("ammonium_gallium_sulfate")
+            LARGE_CHEMICAL_RECIPES.recipeBuilder(GTLAdditions.id("ammonium_gallium_sulfate"))
                     .inputItems(TagPrefix.dust, GTMaterials.Gallium).inputFluids(GTMaterials.SulfuricAcid.getFluid(2000)).inputFluids(GTMaterials.Ammonia.getFluid(1000))
                     .outputItems(TagPrefix.dust, GTLAddMaterial.AMMONIUM_GALIUM_SULFATE).EUt(GTValues.VA[GTValues.EV]).duration(200).save(provider);
-            LARGE_CHEMICAL_RECIPES.recipeBuilder("gallium_oxide")
+            LARGE_CHEMICAL_RECIPES.recipeBuilder(GTLAdditions.id("gallium_oxide"))
                     .inputItems(TagPrefix.dust, GTLAddMaterial.AMMONIUM_GALIUM_SULFATE, 4).inputFluids(GTMaterials.Oxygen.getFluid(15000))
                     .outputItems(TagPrefix.dust, GTLAddMaterial.GALLIUM_OXIDE, 2).outputFluids(GTMaterials.Nitrogen.getFluid(2000)).outputFluids(GTMaterials.SulfurTrioxide.getFluid(8000))
                     .outputFluids(GTMaterials.Water.getFluid(8000)).EUt(GTValues.VA[GTValues.IV]).duration(200).save(provider);
         }
 
         public static void addBlastRecipe(Material input, ItemEntry<Item> output, int EUt, int duration, int temperature, Consumer<FinishedRecipe> provider) {
-            BLAST_RECIPES.recipeBuilder(output.getId())
+            BLAST_RECIPES.recipeBuilder(GTLAdditions.id(output.asItem().toString()))
                     .inputItems(GTItems.SILICON_BOULE, 64).inputItems(TagPrefix.dust, GTLAddMaterial.GALLIUM_OXIDE, 16).inputItems(TagPrefix.dust, input, 16)
                     .inputFluids(GTMaterials.Krypton.getFluid(16000)).outputItems(output).EUt(EUt).duration(duration).blastFurnaceTemp(temperature).save(provider);
         }
@@ -125,15 +126,13 @@ public class socprocess {
         }
 
         private static void addCutterRecipe(String id, ItemEntry<Item> input, int output, ItemEntry<Item> outputitem, int EUt, CleanroomType cleanroomType, Consumer<FinishedRecipe> provider) {
-            GTRecipeBuilder builder = CUTTER_RECIPES.recipeBuilder(id + "_0")
-                    .inputItems(input)
-                    .outputItems(outputitem, output)
-                    .EUt(EUt).cleanroom(cleanroomType);
+            GTRecipeBuilder builder = CUTTER_RECIPES.recipeBuilder(GTLAdditions.id(id + "_0"))
+                    .inputItems(input).outputItems(outputitem, output).EUt(EUt).cleanroom(cleanroomType);
             if (EUt > GTValues.VA[GTValues.UEV]) {
                 builder.inputFluids(GTLMaterials.GradePurifiedWater16.getFluid(EUt > GTValues.VA[GTValues.UXV] ? 1000 : 500)).duration(450).save(provider);
                 return;
             }
-            GTRecipeBuilder recipe = builder.copy(id + "_1");
+            GTRecipeBuilder recipe = builder.copy(GTLAdditions.id(id + "_1"));
             builder.inputFluids(GTLMaterials.GradePurifiedWater8.getFluid(500)).duration(900).save(provider);
             recipe.inputFluids(GTLMaterials.GradePurifiedWater16.getFluid(250)).duration(450).save(provider);
         }
@@ -150,10 +149,10 @@ public class socprocess {
         }
 
         private static void addEngravingRecipe(ItemEntry<Item> input, Material fluid, String noinput, ItemEntry<Item> output, int EUt, int duration, CleanroomType cleanroomType, Consumer<FinishedRecipe> provider) {
-            DIMENSIONAL_FOCUS_ENGRAVING_ARRAY_RECIPES.recipeBuilder(output.getId())
+            DIMENSIONAL_FOCUS_ENGRAVING_ARRAY_RECIPES.recipeBuilder(GTLAdditions.id(output.asItem().toString()))
                     .inputItems(input).notConsumable(Registries.getItemStack(noinput)).inputFluids(fluid.getFluid(100))
                     .outputItems(output).EUt(EUt).duration(duration).cleanroom(cleanroomType).save(provider);
-            GTLAddRecipesTypes.PHOTON_MATRIX_ETCH.recipeBuilder(output.getId())
+            GTLAddRecipesTypes.PHOTON_MATRIX_ETCH.recipeBuilder(GTLAdditions.id(output.asItem().toString()))
                     .inputItems(input).notConsumable(Registries.getItemStack(noinput)).inputFluids(fluid.getFluid(75))
                     .outputItems(output).EUt(EUt / 4).duration((int) (duration * 0.75)).cleanroom(cleanroomType).save(provider);
         }
@@ -176,7 +175,7 @@ public class socprocess {
                 builder.inputFluids(GTLMaterials.SuperMutatedLivingSolder.getFluid(144)).duration(EUt <= GTValues.VA[GTValues.UEV] ? 200 : 150).save(provider);
                 return;
             }
-            GTRecipeBuilder recipe = builder.copy(id + "_1");
+            GTRecipeBuilder recipe = builder.copy(GTLAdditions.id(id + "_1"));
             builder.inputFluids(GTLMaterials.MutatedLivingSolder.getFluid(144)).duration(EUt <= GTValues.VA[GTValues.UEV] ? 200 : 150).save(provider);
             recipe.inputFluids(GTLMaterials.SuperMutatedLivingSolder.getFluid(72)).duration(EUt <= GTValues.VA[GTValues.UEV] ? 200 : 150).save(provider);
         }

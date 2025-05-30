@@ -7,6 +7,8 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 
+import com.gtladd.gtladditions.GTLAdditions;
+
 import java.util.function.Consumer;
 
 public class ElectricBlastFurnace {
@@ -14,7 +16,7 @@ public class ElectricBlastFurnace {
     public ElectricBlastFurnace() {}
 
     public static void init(Consumer<FinishedRecipe> provider) {
-        GTRecipeTypes.BLAST_RECIPES.recipeBuilder("magnesium_chloride_dust")
+        GTRecipeTypes.BLAST_RECIPES.recipeBuilder(GTLAdditions.id("magnesium_chloride_dust"))
                 .inputItems(TagPrefix.dust, GTMaterials.Magnesia).inputItems(TagPrefix.dust, GTMaterials.Carbon)
                 .inputFluids(GTMaterials.Chlorine.getFluid(4000))
                 .outputItems(TagPrefix.dust, GTMaterials.MagnesiumChloride).outputFluids(GTMaterials.CarbonMonoxide.getFluid(1000))

@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 
+import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
 
 import java.util.function.Consumer;
@@ -32,7 +33,7 @@ public class Qft {
                 .inputFluids(GTMaterials.Nitrogen.getFluid(32000))
                 .outputFluids(GTLMaterials.GammaRaysPhotoresist.getFluid(16000))
                 .TierEUtVA(14).duration(2560).save(provider);
-        GTLRecipeTypes.QFT_RECIPES.recipeBuilder("radox_easy")
+        GTLRecipeTypes.QFT_RECIPES.recipeBuilder(GTLAdditions.id("radox_easy"))
                 .inputItems(TagPrefix.dust, GTMaterials.Chromium, 4).inputItems(TagPrefix.dust, GTMaterials.Boron, 4)
                 .inputItems(TagPrefix.dust, GTMaterials.Silver, 4).inputItems(TagPrefix.dust, GTMaterials.Cobalt, 4)
                 .inputItems(TagPrefix.dust, GTMaterials.Silicon, 4).inputItems(TagPrefix.dust, GTMaterials.Molybdenum, 4)

@@ -46,6 +46,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         BiologicalSimulation.init(provider);
         VoidfluxReaction.init(provider);
         StellarLgnition.init(provider);
+        ChaosWeave.init(provider);
         AE2.init(provider);
         Assembler.init(provider);
         AssemblyLine.init(provider);

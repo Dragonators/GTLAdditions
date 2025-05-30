@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.common.data.GTMaterials;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 
+import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
 
 import java.util.Objects;
@@ -26,7 +27,7 @@ public class IntegratedtedOreProcessor {
     public IntegratedtedOreProcessor() {}
 
     public static void init(Consumer<FinishedRecipe> provider) {
-        INTEGRATED_ORE_PROCESSOR.recipeBuilder("jasper_ore_processed")
+        INTEGRATED_ORE_PROCESSOR.recipeBuilder(GTLAdditions.id("jasper_ore_processed"))
                 .circuitMeta(24)
                 .inputItems(SizedIngredient.create(Ingredient.of(TagUtil.createItemTag("ores/jasper"))))
                 .inputFluids(GTMaterials.DistilledWater.getFluid(2L * orefluid))

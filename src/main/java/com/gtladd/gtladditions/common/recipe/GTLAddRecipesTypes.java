@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.api.recipe;
+package com.gtladd.gtladditions.common.recipe;
 
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.block.ICoilType;
@@ -36,6 +36,7 @@ public class GTLAddRecipesTypes {
     public static final GTRecipeType ANTIENTROPY_CONDENSATION;
     public static final GTRecipeType MOLECULAR_DECONSTRUCTION;
     public static final GTRecipeType UNIVERSE_SANDBOX;
+    public static final GTRecipeType CHAOS_WEAVE;
 
     public GTLAddRecipesTypes() {}
 
@@ -116,6 +117,9 @@ public class GTLAddRecipesTypes {
                 .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
         UNIVERSE_SANDBOX = GTRecipeTypes.register("universe_sandbox", GTRecipeTypes.MULTIBLOCK)
                 .setEUIO(IO.IN).setMaxIOSize(1, 120, 1, 18)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
+        CHAOS_WEAVE = GTRecipeTypes.register("chaos_weave", GTRecipeTypes.MULTIBLOCK)
+                .setEUIO(IO.IN).setMaxIOSize(1, 1, 0, 0)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
     }
 }

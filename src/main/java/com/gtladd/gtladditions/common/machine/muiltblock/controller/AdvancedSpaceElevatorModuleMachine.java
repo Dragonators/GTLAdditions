@@ -99,9 +99,7 @@ public class AdvancedSpaceElevatorModuleMachine extends WorkableElectricMultiblo
     public void addDisplayText(@NotNull List<Component> textList) {
         super.addDisplayText(textList);
         if (this.isFormed) {
-            if (this.getOffsetTimer() % 10L == 0L) {
-                this.getSpaceElevatorTier();
-            }
+            if (this.getOffsetTimer() % 10L == 0L) this.getSpaceElevatorTier();
             textList.add(Component.translatable("gtceu.multiblock.parallel",
                     Component.translatable(FormattingUtil.formatNumbers(getMaxParallel())).withStyle(ChatFormatting.DARK_PURPLE))
                     .withStyle(ChatFormatting.GRAY));
@@ -110,6 +108,6 @@ public class AdvancedSpaceElevatorModuleMachine extends WorkableElectricMultiblo
     }
 
     public int getMaxParallel() {
-        return (2 << 3) << (this.ModuleTier - 1);
+        return (int) Math.pow(8, this.ModuleTier - 1);
     }
 }

@@ -14,9 +14,10 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.item.Item;
 
-import com.gtladd.gtladditions.api.recipe.GTLAddRecipesTypes;
+import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder;
 import com.gtladd.gtladditions.common.items.GTLAddItems;
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import java.util.function.Consumer;
@@ -58,7 +59,7 @@ public class PhotonMatrixEtch {
         }
 
         private static void addRecipe(String id, ItemEntry<Item> input, MarkerMaterial color, ItemEntry<Item> output, int count, int duration, int EUt, Consumer<FinishedRecipe> provider) {
-            GTRecipeTypes.LASER_ENGRAVER_RECIPES.recipeBuilder(id).inputItems(input).notConsumable(TagPrefix.lens, color).outputItems(output, count).duration(duration).EUt(EUt).cleanroom(CleanroomType.CLEANROOM).save(provider);
+            GTRecipeTypes.LASER_ENGRAVER_RECIPES.recipeBuilder(GTLAdditions.id(id)).inputItems(input).notConsumable(TagPrefix.lens, color).outputItems(output, count).duration(duration).EUt(EUt).cleanroom(CleanroomType.CLEANROOM).save(provider);
         }
     }
 }
