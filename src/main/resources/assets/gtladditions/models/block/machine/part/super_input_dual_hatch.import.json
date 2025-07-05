@@ -1,0 +1,28 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "block/block",
+  "textures": {
+    "particle": "gtmthings:block/overlay/machine/overlay_hatch",
+    "overlay": "gtmthings:block/overlay/machine/overlay_pipe_in",
+    "overlay_emissive": "gtmthings:block/overlay/machine/overlay_huge_dual_hatch",
+    "bottom": "gtceu:block/casings/voltage/max/bottom",
+    "side": "gtceu:block/casings/voltage/max/side",
+    "top": "gtceu:block/casings/voltage/max/top"
+  },
+  "elements": [
+    {
+      "from": [-0.001, -0.001, -0.001],
+      "to": [16, 16, 0],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#overlay", "cullface": "north"}
+      }
+    },
+    {
+      "from": [-0.001, -0.001, -0.001],
+      "to": [16, 16, 0],
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#overlay_emissive", "cullface": "north", "tintindex": -101, "emissivity":  15}
+      }
+    }
+  ]
+}

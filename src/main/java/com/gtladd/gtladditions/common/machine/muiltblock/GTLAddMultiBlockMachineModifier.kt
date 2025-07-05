@@ -1,48 +1,85 @@
-package com.gtladd.gtladditions.common.machine.muiltblock;
+package com.gtladd.gtladditions.common.machine.muiltblock
 
-import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
-import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
-import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
-import com.gregtechceu.gtceu.utils.FormattingUtil;
+import com.gregtechceu.gtceu.api.machine.MetaMachine
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
+import com.gregtechceu.gtceu.api.recipe.GTRecipe
+import com.gregtechceu.gtceu.api.recipe.OverclockingLogic
+import com.gregtechceu.gtceu.api.recipe.logic.OCParams
+import com.gregtechceu.gtceu.api.recipe.logic.OCResult
+import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier
+import com.gregtechceu.gtceu.common.data.GTRecipeModifiers
+import com.gregtechceu.gtceu.utils.FormattingUtil
+import com.gtladd.gtladditions.api.machine.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine
+import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.Component
+import java.util.function.BiConsumer
+import kotlin.math.min
+import kotlin.math.pow
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-
-import com.gtladd.gtladditions.api.machine.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine;
-
-import java.util.List;
-import java.util.function.BiConsumer;
-
-public class GTLAddMultiBlockMachineModifier {
-
-    public static final RecipeModifier[] DRACONIC_COLLAPSE_CORE_MODIFIER = new RecipeModifier[] { (machine, recipe, params, result) -> GTRecipeModifiers.accurateParallel(machine, recipe, (int) Math.pow(8.0, ((WorkableElectricMultiblockMachine) machine).getTier() - 10), false).getFirst(),
-            GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK)
-    };
-    public static final BiConsumer<IMultiController, List<Component>> MULTIPLERECIPES_COIL_PARALLEL = (controller, components) -> {
-        if (controller instanceof GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine machine) {
-            if (controller.isFormed()) {
-                components.add(Component.translatable("gtceu.multiblock.parallel",
-                        Component.translatable(FormattingUtil.formatNumbers(Math.min(Integer.MAX_VALUE, (int) Math.pow(2.0, (double) machine.getCoilType().getCoilTemperature() / 900.0))))
-                                .withStyle(ChatFormatting.DARK_PURPLE))
-                        .withStyle(ChatFormatting.GRAY));
+object GTLAddMultiBlockMachineModifier {
+    @JvmField
+    val DRACONIC_COLLAPSE_CORE_MODIFIER: Array<RecipeModifier?> = arrayOf(
+        RecipeModifier { machine: MetaMachine?, recipe: GTRecipe?, params: OCParams?, result: OCResult? ->
+            GTRecipeModifiers.accurateParallel(
+                machine,
+                recipe!!,
+                8.0.pow(((machine as WorkableElectricMultiblockMachine).getTier() - 10).toDouble()).toInt(),
+                false
+            ).getFirst()
+        },
+        GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK)
+    )
+    @JvmField
+    val MULTIPLERECIPES_COIL_PARALLEL: BiConsumer<IMultiController?, MutableList<Component?>?> =
+        BiConsumer { controller: IMultiController?, components: MutableList<Component?>? ->
+            if (controller is GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine) {
+                if (controller.isFormed()) {
+                    components!!.add(
+                        Component.translatable(
+                            "gtceu.multiblock.parallel",
+                            Component.translatable(
+                                FormattingUtil.formatNumbers(
+                                    min(
+                                        Int.Companion.MAX_VALUE,
+                                        2.0.pow(controller.coilType.coilTemperature.toDouble() / 900.0)
+                                            .toInt()
+                                    )
+                                )
+                            )
+                                .withStyle(ChatFormatting.DARK_PURPLE)
+                        )
+                            .withStyle(ChatFormatting.GRAY)
+                    )
+                }
             }
         }
-    };
-    public static final BiConsumer<IMultiController, List<Component>> INT_MAX_PARALLEL = (controller, components) -> {
-        if (controller.isFormed()) {
-            components.add(Component.translatable("gtceu.multiblock.parallel", Component.literal("2147483647")
-                    .withStyle(ChatFormatting.DARK_PURPLE))
-                    .withStyle(ChatFormatting.GRAY));
+    @JvmField
+    val INT_MAX_PARALLEL: BiConsumer<IMultiController?, MutableList<Component?>?> =
+        BiConsumer { controller: IMultiController?, components: MutableList<Component?>? ->
+            if (controller!!.isFormed) {
+                components!!.add(
+                    Component.translatable(
+                        "gtceu.multiblock.parallel", Component.literal("2147483647")
+                            .withStyle(ChatFormatting.DARK_PURPLE)
+                    )
+                        .withStyle(ChatFormatting.GRAY)
+                )
+            }
         }
-    };
-    public static final BiConsumer<IMultiController, List<Component>> DRACONIC_COLLAPSE_CORE_ADDTEXT = (controller, components) -> {
-        if (controller.isFormed()) {
-            components.add(Component
-                    .translatable("gtceu.multiblock.parallel", Component.translatable(FormattingUtil.formatNumbers(Math.pow(8.0, ((WorkableElectricMultiblockMachine) controller).getTier() - 10)))
-                            .withStyle(ChatFormatting.DARK_PURPLE))
-                    .withStyle(ChatFormatting.GRAY));
+    @JvmField
+    val DRACONIC_COLLAPSE_CORE_ADDTEXT: BiConsumer<IMultiController?, MutableList<Component?>?> =
+        BiConsumer { controller: IMultiController?, components: MutableList<Component?>? ->
+            if (controller!!.isFormed) {
+                components!!.add(
+                    Component
+                        .translatable(
+                            "gtceu.multiblock.parallel",
+                            Component.translatable(FormattingUtil.formatNumbers(8.0.pow(((controller as WorkableElectricMultiblockMachine).getTier() - 10).toDouble())))
+                                .withStyle(ChatFormatting.DARK_PURPLE)
+                        )
+                        .withStyle(ChatFormatting.GRAY)
+                )
+            }
         }
-    };
 }

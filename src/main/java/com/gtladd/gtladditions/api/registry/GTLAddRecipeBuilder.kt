@@ -1,232 +1,215 @@
-package com.gtladd.gtladditions.api.registry;
+package com.gtladd.gtladditions.api.registry
 
-import org.gtlcore.gtlcore.utils.Registries;
-
-import com.gregtechceu.gtceu.api.GTValues;
-import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
-import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
-import com.gregtechceu.gtceu.api.data.chemical.material.Material;
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
-import com.gregtechceu.gtceu.api.data.tag.TagUtil;
-import com.gregtechceu.gtceu.api.machine.MachineDefinition;
-import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType;
-import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
-import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
-import com.gregtechceu.gtceu.api.recipe.ingredient.IntCircuitIngredient;
-import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
-import com.gregtechceu.gtceu.common.data.GTMaterials;
-import com.gregtechceu.gtceu.common.recipe.condition.CleanroomCondition;
-import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
-
-import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
-
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-
-import com.gtladd.gtladditions.GTLAdditions;
-
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.gregtechceu.gtceu.api.GTValues
+import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
+import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
+import com.gregtechceu.gtceu.api.data.chemical.material.Material
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix
+import com.gregtechceu.gtceu.api.data.tag.TagUtil
+import com.gregtechceu.gtceu.api.machine.MachineDefinition
+import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType
+import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient
+import com.gregtechceu.gtceu.api.recipe.ingredient.IntCircuitIngredient
+import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient
+import com.gregtechceu.gtceu.common.data.GTMaterials
+import com.gregtechceu.gtceu.common.recipe.condition.CleanroomCondition
+import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
+import com.gtladd.gtladditions.GTLAdditions
+import com.lowdragmc.lowdraglib.side.fluid.FluidStack
+import net.minecraft.MethodsReturnNonnullByDefault
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.data.recipes.FinishedRecipe
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import org.gtlcore.gtlcore.utils.Registries
+import java.util.*
+import java.util.function.Consumer
+import java.util.function.Supplier
+import javax.annotation.ParametersAreNonnullByDefault
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class GTLAddRecipeBuilder extends GTRecipeBuilder {
-
-    public GTLAddRecipeBuilder(String id, GTRecipeType recipeType) {
-        super(GTLAdditions.id(id), recipeType);
+class GTLAddRecipeBuilder(id: String, recipeType: GTRecipeType) : GTRecipeBuilder(GTLAdditions.id(id), recipeType) {
+    override fun circuitMeta(configuration: Int): GTLAddRecipeBuilder {
+        return this.notConsumable(IntCircuitIngredient.circuitInput(configuration)) as GTLAddRecipeBuilder
     }
 
-    @Override
-    public GTLAddRecipeBuilder circuitMeta(int configuration) {
-        return (GTLAddRecipeBuilder) this.notConsumable(IntCircuitIngredient.circuitInput(configuration));
+    @JvmOverloads
+    fun inputItems(input: String, number: Int = 1): GTLAddRecipeBuilder {
+        return super.inputItems(ItemStack(Registries.getItem(input), number)) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder inputItems(String input, int number) {
-        return (GTLAddRecipeBuilder) super.inputItems(new ItemStack(Registries.getItem(input), number));
+    fun InputItems(inputitems: String): GTLAddRecipeBuilder {
+        val split: Array<String?> = inputitems.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        return this.inputItems(split[1], split[0]!!.replace("x".toRegex(), "").toInt()) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder inputItems(String input) {
-        return this.inputItems(input, 1);
+    @JvmOverloads
+    fun inputItemsTag(input: String, number: Int = 1): GTLAddRecipeBuilder {
+        return super.inputItems(SizedIngredient.create(TagUtil.createItemTag(input), number)) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder InputItems(String inputitems) {
-        String[] split = inputitems.split(" ");
-        return this.inputItems(split[1], Integer.parseInt(split[0].replaceAll("x", "")));
+    @JvmOverloads
+    fun inputItemsModTag(input: String, number: Int = 1): GTLAddRecipeBuilder {
+        return super.inputItems(SizedIngredient.create(TagUtil.createModItemTag(input), number)) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder inputItemsTag(String input, int number) {
-        return (GTLAddRecipeBuilder) super.inputItems(SizedIngredient.create(TagUtil.createItemTag(input), number));
+    override fun inputItems(orePrefix: TagPrefix, material: Material, count: Int): GTLAddRecipeBuilder {
+        val tag = ChemicalHelper.getTag(orePrefix, material)
+        return (if (tag == null) this.inputItems(ChemicalHelper.get(orePrefix, material, count)) else this.inputItems(
+            tag,
+            count
+        )) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder inputItemsTag(String input) {
-        return this.inputItemsTag(input, 1);
+    override fun inputItems(orePrefix: TagPrefix, material: Material): GTLAddRecipeBuilder {
+        return this.inputItems(orePrefix, material, 1)
     }
 
-    public GTLAddRecipeBuilder inputItemsModTag(String input, int number) {
-        return (GTLAddRecipeBuilder) super.inputItems(SizedIngredient.create(TagUtil.createModItemTag(input), number));
+    override fun inputItems(machine: MachineDefinition, count: Int): GTLAddRecipeBuilder {
+        return super.inputItems(machine.asStack(count)) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder inputItemsModTag(String input) {
-        return this.inputItemsModTag(input, 1);
+    override fun inputItems(machine: MachineDefinition): GTLAddRecipeBuilder {
+        return this.inputItems(machine, 1)
     }
 
-    @Override
-    public GTLAddRecipeBuilder inputItems(TagPrefix orePrefix, Material material, int count) {
-        TagKey<Item> tag = ChemicalHelper.getTag(orePrefix, material);
-        return (GTLAddRecipeBuilder) (tag == null ? this.inputItems(ChemicalHelper.get(orePrefix, material, count)) : this.inputItems(tag, count));
+    fun chancedInputItems(input: String, chance: Double, tierChanceBoost: Double): GTLAddRecipeBuilder {
+        return super.chancedInput(
+            ItemStack(Registries.getItem(input)),
+            chance.toInt() * 100,
+            tierChanceBoost.toInt() * 100
+        ) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder inputItems(TagPrefix orePrefix, Material material) {
-        return this.inputItems(orePrefix, material, 1);
+    override fun inputFluids(input: FluidStack): GTLAddRecipeBuilder {
+        return input(
+            FluidRecipeCapability.CAP, FluidIngredient.of(
+                TagUtil.createFluidTag(BuiltInRegistries.FLUID.getKey(input.fluid).path),
+                input.amount, input.tag
+            )
+        ) as GTLAddRecipeBuilder
     }
 
-    @Override
-    public GTLAddRecipeBuilder inputItems(MachineDefinition machine, int count) {
-        return (GTLAddRecipeBuilder) super.inputItems(machine.asStack(count));
+    fun inputFluids(input: String, count: Int): GTLAddRecipeBuilder {
+        return super.inputFluids(
+            Objects.requireNonNull<Material?>(GTMaterials.get(input)).getFluid(count.toLong())
+        ) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder inputItems(MachineDefinition machine) {
-        return this.inputItems(machine, 1);
+    @JvmOverloads
+    fun outputItems(output: String, number: Int = 1): GTLAddRecipeBuilder {
+        return super.outputItems(ItemStack(Registries.getItem(output), number)) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder chancedInputItems(String input, double chance, double tierChanceBoost) {
-        return (GTLAddRecipeBuilder) super.chancedInput(new ItemStack(Registries.getItem(input)), (int) chance * 100, (int) tierChanceBoost * 100);
+    fun OutputItems(outputitems: String): GTLAddRecipeBuilder {
+        val split: Array<String?> = outputitems.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        return this.outputItems(split[1], split[0]!!.replace("x".toRegex(), "").toInt()) as GTLAddRecipeBuilder
     }
 
-    @Override
-    public GTLAddRecipeBuilder inputFluids(FluidStack input) {
-        return (GTLAddRecipeBuilder) input(FluidRecipeCapability.CAP, FluidIngredient.of(
-                TagUtil.createFluidTag(BuiltInRegistries.FLUID.getKey(input.getFluid()).getPath()),
-                input.getAmount(), input.getTag()));
+    override fun outputItems(orePrefix: TagPrefix, material: Material, count: Int): GTLAddRecipeBuilder {
+        return this.outputItems(ChemicalHelper.get(orePrefix, material, count)) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder inputFluids(String input, int count) {
-        return (GTLAddRecipeBuilder) super.inputFluids(Objects.requireNonNull(GTMaterials.get(input)).getFluid(count));
+    override fun outputItems(orePrefix: TagPrefix, material: Material): GTLAddRecipeBuilder {
+        return this.outputItems(orePrefix, material, 1)
     }
 
-    public GTLAddRecipeBuilder outputItems(String output, int number) {
-        return (GTLAddRecipeBuilder) super.outputItems(new ItemStack(Registries.getItem(output), number));
+    override fun outputItems(machine: MachineDefinition, count: Int): GTLAddRecipeBuilder {
+        return super.outputItems(machine.asStack(count)) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder outputItems(String output) {
-        return this.outputItems(output, 1);
+    override fun outputItems(machine: MachineDefinition): GTLAddRecipeBuilder {
+        return this.outputItems(machine, 1)
     }
 
-    public GTLAddRecipeBuilder OutputItems(String outputitems) {
-        String[] split = outputitems.split(" ");
-        return this.outputItems(split[1], Integer.parseInt(split[0].replaceAll("x", "")));
+    override fun chancedOutput(tag: TagPrefix, mat: Material, chance: Int, tierChanceBoost: Int): GTLAddRecipeBuilder {
+        return this.chancedOutput(tag, mat, 1, chance, tierChanceBoost)
     }
 
-    @Override
-    public GTLAddRecipeBuilder outputItems(TagPrefix orePrefix, Material material, int count) {
-        return (GTLAddRecipeBuilder) this.outputItems(ChemicalHelper.get(orePrefix, material, count));
+    override fun chancedOutput(
+        tag: TagPrefix,
+        mat: Material,
+        count: Int,
+        chance: Int,
+        tierChanceBoost: Int
+    ): GTLAddRecipeBuilder {
+        return super.chancedOutput(ChemicalHelper.get(tag, mat, count), chance, tierChanceBoost) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder outputItems(TagPrefix orePrefix, Material material) {
-        return this.outputItems(orePrefix, material, 1);
+    fun chancedOutputItems(output: String, chance: Double, tierChanceBoost: Double): GTLAddRecipeBuilder {
+        return this.chancedOutputItems(output, 1, chance, tierChanceBoost)
     }
 
-    @Override
-    public GTLAddRecipeBuilder outputItems(MachineDefinition machine, int count) {
-        return (GTLAddRecipeBuilder) super.outputItems(machine.asStack(count));
+    fun chancedOutputItems(output: String, count: Int, chance: Double, tierChanceBoost: Double): GTLAddRecipeBuilder {
+        return super.chancedOutput(
+            ItemStack(Registries.getItem(output), count),
+            (chance * 100).toInt(),
+            (tierChanceBoost * 100).toInt()
+        ) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder outputItems(MachineDefinition machine) {
-        return this.outputItems(machine, 1);
+    override fun outputFluids(output: FluidStack): GTLAddRecipeBuilder {
+        return output(FluidRecipeCapability.CAP, FluidIngredient.of(output)) as GTLAddRecipeBuilder
     }
 
-    @Override
-    public GTLAddRecipeBuilder chancedOutput(TagPrefix tag, Material mat, int chance, int tierChanceBoost) {
-        return this.chancedOutput(tag, mat, 1, chance, tierChanceBoost);
+    @JvmOverloads
+    fun notConsumable(input: String, count: Int = 1): GTLAddRecipeBuilder {
+        return super.notConsumable(ItemStack(Registries.getItem(input), count)) as GTLAddRecipeBuilder
     }
 
-    @Override
-    public GTLAddRecipeBuilder chancedOutput(TagPrefix tag, Material mat, int count, int chance, int tierChanceBoost) {
-        return (GTLAddRecipeBuilder) super.chancedOutput(ChemicalHelper.get(tag, mat, count), chance, tierChanceBoost);
+    override fun notConsumable(item: Supplier<out Item?>): GTLAddRecipeBuilder {
+        val lastChance = this.chance
+        this.chance = 0
+        this.inputItems(item)
+        this.chance = lastChance
+        return this
     }
 
-    public GTLAddRecipeBuilder chancedOutputItems(String output, double chance, double tierChanceBoost) {
-        return this.chancedOutputItems(output, 1, chance, tierChanceBoost);
+    override fun notConsumableFluid(fluid: FluidStack): GTLAddRecipeBuilder {
+        return super.notConsumableFluid(
+            FluidIngredient.of(
+                TagUtil.createFluidTag(
+                    BuiltInRegistries.FLUID.getKey(fluid.fluid).path
+                ), fluid.amount
+            )
+        ) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder chancedOutputItems(String output, int count, double chance, double tierChanceBoost) {
-        return (GTLAddRecipeBuilder) super.chancedOutput(new ItemStack(Registries.getItem(output), count), (int) (chance * 100), (int) (tierChanceBoost * 100));
-    }
-
-    @Override
-    public GTLAddRecipeBuilder outputFluids(FluidStack output) {
-        return (GTLAddRecipeBuilder) output(FluidRecipeCapability.CAP, FluidIngredient.of(output));
-    }
-
-    public GTLAddRecipeBuilder notConsumable(String input) {
-        return this.notConsumable(input, 1);
-    }
-
-    public GTLAddRecipeBuilder notConsumable(String input, int count) {
-        return (GTLAddRecipeBuilder) super.notConsumable(new ItemStack(Registries.getItem(input), count));
-    }
-
-    @Override
-    public GTLAddRecipeBuilder notConsumable(Supplier<? extends Item> item) {
-        int lastChance = this.chance;
-        this.chance = 0;
-        this.inputItems(item);
-        this.chance = lastChance;
-        return this;
-    }
-
-    public GTLAddRecipeBuilder notConsumableFluid(FluidStack fluid) {
-        return (GTLAddRecipeBuilder) super.notConsumableFluid(FluidIngredient.of(TagUtil.createFluidTag(BuiltInRegistries.FLUID.getKey(fluid.getFluid()).getPath()), fluid.getAmount()));
-    }
-
-    @Override
-    public GTLAddRecipeBuilder EUt(long eu) {
-        boolean lastPerTick = this.perTick;
-        this.perTick = true;
+    override fun EUt(eu: Long): GTLAddRecipeBuilder {
+        val lastPerTick = this.perTick
+        this.perTick = true
         if (eu > 0L) {
-            this.tickInput.remove(EURecipeCapability.CAP);
-            this.inputEU(eu);
+            this.tickInput.remove(EURecipeCapability.CAP)
+            this.inputEU(eu)
         } else if (eu < 0L) {
-            this.tickOutput.remove(EURecipeCapability.CAP);
-            this.outputEU(-eu);
+            this.tickOutput.remove(EURecipeCapability.CAP)
+            this.outputEU(-eu)
         }
-        this.perTick = lastPerTick;
-        return this;
+        this.perTick = lastPerTick
+        return this
     }
 
-    public GTLAddRecipeBuilder TierEUtV(int tier) {
-        return (GTLAddRecipeBuilder) super.EUt(GTValues.V[tier]);
+    fun TierEUtVA(tier: Int): GTLAddRecipeBuilder {
+        return super.EUt(GTValues.VA[tier].toLong()) as GTLAddRecipeBuilder
     }
 
-    public GTLAddRecipeBuilder TierEUtVA(int tier) {
-        return (GTLAddRecipeBuilder) super.EUt(GTValues.VA[tier]);
+    override fun duration(duration: Int): GTLAddRecipeBuilder {
+        this.duration = duration
+        return this
     }
 
-    @Override
-    public GTLAddRecipeBuilder duration(int duration) {
-        this.duration = duration;
-        return this;
+    override fun cleanroom(cleanroomType: CleanroomType): GTLAddRecipeBuilder {
+        return this.addCondition(CleanroomCondition(cleanroomType)) as GTLAddRecipeBuilder
     }
 
-    @Override
-    public GTLAddRecipeBuilder cleanroom(CleanroomType cleanroomType) {
-        return (GTLAddRecipeBuilder) this.addCondition(new CleanroomCondition(cleanroomType));
+    override fun blastFurnaceTemp(blastTemp: Int): GTLAddRecipeBuilder {
+        return this.addData("ebf_temp", blastTemp) as GTLAddRecipeBuilder
     }
 
-    @Override
-    public GTLAddRecipeBuilder blastFurnaceTemp(int blastTemp) {
-        return (GTLAddRecipeBuilder) this.addData("ebf_temp", blastTemp);
-    }
-
-    public void save(Consumer<FinishedRecipe> consumer) {
-        super.save(consumer);
+    override fun save(consumer: Consumer<FinishedRecipe?>) {
+        super.save(consumer)
     }
 }

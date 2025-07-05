@@ -1,16 +1,11 @@
-package com.gtladd.gtladditions.api.machine;
+package com.gtladd.gtladditions.api.machine
 
-import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers;
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
 
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-
-public class GTLAddWorkableElectricParallelHatchMultipleRecipesMachine extends GTLAddWorkableElectricMultipleRecipesMachine {
-
-    public GTLAddWorkableElectricParallelHatchMultipleRecipesMachine(IMachineBlockEntity holder, Object... args) {
-        super(holder, args);
-    }
-
-    public int getMaxParallel() {
-        return GTLRecipeModifiers.getHatchParallel(this);
+open class GTLAddWorkableElectricParallelHatchMultipleRecipesMachine(holder: IMachineBlockEntity, vararg args: Any?) :
+    GTLAddWorkableElectricMultipleRecipesMachine(holder, *args) {
+    override fun getMaxParallel(): Int {
+        return GTLRecipeModifiers.getHatchParallel(this)
     }
 }

@@ -1,31 +1,38 @@
-package com.gtladd.gtladditions.common.data;
+package com.gtladd.gtladditions.common.data
 
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine;
+import com.gregtechceu.gtceu.common.data.GTCreativeModeTabs.RegistrateDisplayItemsGenerator
+import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
+import com.gtladd.gtladditions.common.items.GTLAddItems
+import com.tterrag.registrate.util.entry.RegistryEntry
+import net.minecraft.world.item.CreativeModeTab
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
+import java.util.function.Consumer
 
-import com.gregtechceu.gtceu.common.data.GTCreativeModeTabs;
+object GTLAddCreativeModeTabs {
+    @JvmField
+    var GTLADD_ITEMS: RegistryEntry<CreativeModeTab?> = REGISTRATE.defaultCreativeTab("item")
+    { builder : CreativeModeTab.Builder? ->
+        builder !!.displayItems(RegistrateDisplayItemsGenerator("item", REGISTRATE))
+            .title(
+                REGISTRATE.addLang("itemGroup", GTLAdditions.id("item"), "GTLAdditions")
+            )
+            .icon { GTLAddItems.STARMETAL_BOULE?.asStack() }
+            .build()
+    }
+        .register()
+    @JvmField
+    var GTLADD_MACHINE: RegistryEntry<CreativeModeTab?> = REGISTRATE.defaultCreativeTab("machine")
+    { builder : CreativeModeTab.Builder? ->
+        builder !!.displayItems(RegistrateDisplayItemsGenerator("machine", REGISTRATE))
+            .title(
+                REGISTRATE.addLang("itemGroup", GTLAdditions.id("machine"), "GTLAdditions")
+            )
+            .icon { AdvancedMultiBlockMachine.EYE_OF_HARMONY.asStack() }
+            .build()
+    }
+        .register()
 
-import net.minecraft.world.item.CreativeModeTab;
-
-import com.gtladd.gtladditions.GTLAdditions;
-import com.gtladd.gtladditions.common.items.GTLAddItems;
-import com.tterrag.registrate.util.entry.RegistryEntry;
-
-import static com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE;
-
-public class GTLAddCreativeModeTabs {
-
-    public static RegistryEntry<CreativeModeTab> GTLADD_ITEMS = REGISTRATE.defaultCreativeTab("item",
-            builder -> builder.displayItems(new GTCreativeModeTabs.RegistrateDisplayItemsGenerator("item", REGISTRATE))
-                    .title(REGISTRATE.addLang("itemGroup", GTLAdditions.id("item"), "GTLAdditions"))
-                    .icon(GTLAddItems.STARMETAL_BOULE::asStack)
-                    .build())
-            .register();
-    public static RegistryEntry<CreativeModeTab> GTLADD_MACHINE = REGISTRATE.defaultCreativeTab("machine",
-            builder -> builder.displayItems(new GTCreativeModeTabs.RegistrateDisplayItemsGenerator("machine", REGISTRATE))
-                    .title(REGISTRATE.addLang("itemGroup", GTLAdditions.id("machine"), "GTLAdditions"))
-                    .icon(AdvancedMultiBlockMachine.EYE_OF_HARMONY::asStack)
-                    .build())
-            .register();
-
-    public static void init() {}
+    @JvmStatic
+    fun init() {}
 }

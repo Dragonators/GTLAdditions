@@ -1,27 +1,23 @@
-package com.gtladd.gtladditions.common.data;
+package com.gtladd.gtladditions.common.data
 
-import org.gtlcore.gtlcore.common.data.GTLBlocks;
-import org.gtlcore.gtlcore.common.data.GTLMaterials;
-import org.gtlcore.gtlcore.utils.Registries;
+import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix
+import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
+import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
+import com.gregtechceu.gtceu.api.pattern.BlockPattern
+import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern
+import com.gregtechceu.gtceu.api.pattern.Predicates
+import com.gregtechceu.gtceu.utils.SupplierMemoizer
+import org.gtlcore.gtlcore.common.data.GTLBlocks
+import org.gtlcore.gtlcore.common.data.GTLMaterials
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
+import org.gtlcore.gtlcore.utils.Registries
+import java.util.function.Function
+import java.util.function.Supplier
 
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
-import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
-import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
-import com.gregtechceu.gtceu.api.pattern.BlockPattern;
-import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
-import com.gregtechceu.gtceu.api.pattern.Predicates;
-import com.gregtechceu.gtceu.utils.SupplierMemoizer;
-
-import java.util.function.Function;
-
-import static org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.*;
-
-public class MultiBlockModify {
-
-    public MultiBlockModify() {}
-
-    private static final Function<MultiblockMachineDefinition, BlockPattern> doorofPattern = definition -> FactoryBlockPattern.start()
+object MultiBlockModify {
+    private val doorofPattern = Function { definition: MultiblockMachineDefinition? ->
+        FactoryBlockPattern.start()
             .aisle("                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "              a              ", "             aaa             ", "            aaaaa            ", "           aaaaaaa           ", "          aaaaaaaaa          ", "         aaaaaaaaaaa         ", "        aaaaaaaaaaaaa        ", "         aaaaaaaaaaa         ", "          aaaaaaaaa          ", "           aaaaaaa           ", "            aaaaa            ", "             aaa             ", "              a              ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ")
             .aisle("                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "              a              ", "             aaa             ", "             aaa             ", "             aaa             ", "             aaa             ", "             aaa             ", "             acaa            ", "       aaaaaacccaaaaaa       ", "      aaaaaacccccaaaaaa      ", "       aaaaaacccaaaaaa       ", "            aacaa            ", "             aaa             ", "             aaa             ", "             aaa             ", "             aaa             ", "             aaa             ", "              a              ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ")
             .aisle("                             ", "                             ", "                             ", "                             ", "                             ", "              a              ", "             aaa             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "      a               a      ", "     aa               aa     ", "      a               a      ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "             aaa             ", "              a              ", "                             ", "                             ", "                             ", "                             ", "                             ")
@@ -51,17 +47,21 @@ public class MultiBlockModify {
             .aisle("                             ", "                             ", "                             ", "                             ", "                             ", "              a              ", "             aaa             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "      a               a      ", "     aa               aa     ", "      a               a      ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "             aaa             ", "              a              ", "                             ", "                             ", "                             ", "                             ", "                             ")
             .aisle("                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "              a              ", "             aaa             ", "             aaa             ", "             aaa             ", "             aaa             ", "             aaa             ", "            aacaa            ", "       aaaaaacccaaaaaa       ", "      aaaaaacccccaaaaaa      ", "       aaaaaacccaaaaaa       ", "            aacaa            ", "             aaa             ", "             aaa             ", "             aaa             ", "             aaa             ", "             aaa             ", "              a              ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ")
             .aisle("                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "              a              ", "             aaa             ", "            aaaaa            ", "           aaaaaaa           ", "          aaaaaaaaa          ", "         aaaaaaaaaaa         ", "        aaaaaaaaaaaaa        ", "         aaaaaaaaaaa         ", "          aaaaaaaaa          ", "           aaaaaaa           ", "            aaaaa            ", "             aaa             ", "              a              ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ", "                             ")
-            .where("b", Predicates.controller(Predicates.blocks(DOOR_OF_CREATE.get())))
+            .where("b", Predicates.controller(Predicates.blocks(AdvancedMultiBlockMachine.DOOR_OF_CREATE.get())))
             .where("a", Predicates.blocks(GTLBlocks.DIMENSION_CONNECTION_CASING.get()))
-            .where("d", Predicates.blocks(GTLBlocks.DIMENSION_CONNECTION_CASING.get())
+            .where(
+                "d", Predicates.blocks(GTLBlocks.DIMENSION_CONNECTION_CASING.get())
                     .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                     .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
-                    .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(1)))
+                    .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(1))
+            )
             .where("c", Predicates.blocks(Registries.getBlock("kubejs:dimension_creation_casing")))
             .where(" ", Predicates.any())
-            .build();
+            .build()
+    }
 
-    private static final Function<MultiblockMachineDefinition, BlockPattern> createAggregation = definition -> FactoryBlockPattern.start()
+    private val createAggregation = Function { definition: MultiblockMachineDefinition? ->
+        FactoryBlockPattern.start()
             .aisle("          aaaaaaa          ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "          aaaaaaa          ")
             .aisle("       aaaaaaaaaaaaa       ", "             b             ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "             b             ", "       aaaaaaaaaaaaa       ")
             .aisle("     aaaaaaaaaaaaaaaaa     ", "     c      bbb      c     ", "     c       b       c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c       b       c     ", "     c      bbb      c     ", "     aaaaaaaaaaaaaaaaa     ")
@@ -89,22 +89,30 @@ public class MultiBlockModify {
             .aisle("     aaaaaaaaaaaaaaaaa     ", "     c      bbb      c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c               c     ", "     c       b       c     ", "     c      bbb      c     ", "     aaaaaaaaaaaaaaaaa     ")
             .aisle("       aaaaaaaaaaaaa       ", "             b             ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "             b             ", "       aaaaaaaaaaaaa       ")
             .aisle("          aaaaaaa          ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "                           ", "          aaaaaaa          ")
-            .where("a", Predicates.blocks(GTLBlocks.DIMENSION_CONNECTION_CASING.get())
+            .where(
+                "a", Predicates.blocks(GTLBlocks.DIMENSION_CONNECTION_CASING.get())
                     .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1))
                     .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1))
                     .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(1))
-                    .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1)))
+                    .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1))
+            )
             .where("b", Predicates.blocks(Registries.getBlock("kubejs:dimensional_bridge_casing")))
             .where("c", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.frameGt, GTLMaterials.Infinity)))
             .where("d", Predicates.blocks(GTLBlocks.CREATE_CASING.get()))
             .where("e", Predicates.blocks(Registries.getBlock("kubejs:spacetime_compression_field_generator")))
             .where("f", Predicates.blocks(Registries.getBlock("kubejs:create_aggregatione_core")))
-            .where("~", Predicates.controller(Predicates.blocks(definition.get())))
+            .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
             .where(" ", Predicates.any())
-            .build();
+            .build()
+    }
 
-    public static void init() {
-        DOOR_OF_CREATE.setPatternFactory(SupplierMemoizer.memoize(() -> (doorofPattern).apply(DOOR_OF_CREATE)));
-        CREATE_AGGREGATION.setPatternFactory(SupplierMemoizer.memoize(() -> (createAggregation).apply(CREATE_AGGREGATION)));
+    @JvmStatic
+    fun init() {
+        AdvancedMultiBlockMachine.DOOR_OF_CREATE.patternFactory = SupplierMemoizer.memoize {
+            (doorofPattern).apply(AdvancedMultiBlockMachine.DOOR_OF_CREATE)
+        }
+        AdvancedMultiBlockMachine.CREATE_AGGREGATION.patternFactory = SupplierMemoizer.memoize {
+            (createAggregation).apply(AdvancedMultiBlockMachine.CREATE_AGGREGATION)
+        }
     }
 }

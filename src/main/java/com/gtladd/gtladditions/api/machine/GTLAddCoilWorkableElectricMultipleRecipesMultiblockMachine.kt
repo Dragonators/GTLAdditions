@@ -1,30 +1,24 @@
-package com.gtladd.gtladditions.api.machine;
+package com.gtladd.gtladditions.api.machine
 
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine
+import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
+import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
+import kotlin.math.min
+import kotlin.math.pow
 
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
-
-import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic;
-import org.jetbrains.annotations.NotNull;
-
-public class GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine extends CoilWorkableElectricMultiblockMachine implements ParallelMachine {
-
-    public GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(IMachineBlockEntity holder) {
-        super(holder);
+class GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder: IMachineBlockEntity) :
+    CoilWorkableElectricMultiblockMachine(holder), ParallelMachine {
+    public override fun createRecipeLogic(vararg args: Any): RecipeLogic {
+        return GTLAddMultipleRecipesLogic(this)
     }
 
-    public @NotNull RecipeLogic createRecipeLogic(@NotNull Object... args) {
-        return new GTLAddMultipleRecipesLogic(this);
+    override fun getRecipeLogic(): GTLAddMultipleRecipesLogic {
+        return super.getRecipeLogic() as GTLAddMultipleRecipesLogic
     }
 
-    public @NotNull GTLAddMultipleRecipesLogic getRecipeLogic() {
-        return (GTLAddMultipleRecipesLogic) super.getRecipeLogic();
-    }
-
-    @Override
-    public int getMaxParallel() {
-        return Math.min(Integer.MAX_VALUE, (int) Math.pow(2.0, (double) this.getCoilType().getCoilTemperature() / 900.0));
+    override fun getMaxParallel(): Int {
+        return min(Int.Companion.MAX_VALUE, 2.0.pow(this.coilType.coilTemperature.toDouble() / 900.0).toInt())
     }
 }

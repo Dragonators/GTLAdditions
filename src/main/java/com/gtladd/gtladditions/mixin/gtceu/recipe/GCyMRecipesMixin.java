@@ -29,7 +29,7 @@ public class GCyMRecipesMixin {
                 .inputItems(TagPrefix.dust, GTMaterials.Nickel).inputItems(TagPrefix.dust, GTMaterials.Zinc).inputItems(TagPrefix.dust, GTMaterials.Iron, 4)
                 .circuitMeta(6).inputFluids(GTMaterials.Oxygen.getFluid(8000L))
                 .outputFluids(GTMaterials.NickelZincFerrite.getFluid(864L))
-                .duration(1800).EUt((long) GTValues.VA[2]).blastFurnaceTemp(1500).save(provider);
+                .duration(1800).EUt(GTValues.VA[2]).blastFurnaceTemp(1500).save(provider);
     }
 
     @Inject(method = "registerBinaryAlloy", at = @At("HEAD"), remap = false)

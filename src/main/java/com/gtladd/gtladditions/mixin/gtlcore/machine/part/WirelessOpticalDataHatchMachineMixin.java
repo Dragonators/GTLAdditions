@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.Overwrite;
 public class WirelessOpticalDataHatchMachineMixin {
 
     /**
-     * @author
-     * @reason
+     * @author .
+     * @reason .
      */
     @Overwrite(remap = false)
     public boolean canShared() {

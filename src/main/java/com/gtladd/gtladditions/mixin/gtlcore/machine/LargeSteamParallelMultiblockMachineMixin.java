@@ -58,8 +58,8 @@ public class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblock
     private int max_parallels;
 
     /**
-     * @author
-     * @reason
+     * @author .
+     * @reason .
      */
     @Overwrite(remap = false)
     public static GTRecipe recipeModifier(MetaMachine machine, @NotNull GTRecipe recipe, double reductionDuration) {
@@ -78,8 +78,8 @@ public class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblock
     }
 
     /**
-     * @author
-     * @reason
+     * @author .
+     * @reason .
      */
     @Overwrite(remap = false)
     public void onStructureFormed() {

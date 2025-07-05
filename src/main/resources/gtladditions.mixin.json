@@ -5,15 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "gtladditions.refmap.json",
   "client": [
-    "gtceu.api.recipe.ContentMixin"
   ],
   "mixins": [
-    "gtceu.machine.FusionReactorMachineMixin",
-    "gtceu.machine.WorkableElectricMultiblockMachineMixin",
-    "gtceu.machine.part.AutoMaintenanceHatchPartMachineMixin",
-    "gtceu.machine.part.MaintenanceHatchPartMachineMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",
     "gtceu.recipe.GCyMRecipesMixin",
+    "gtceu.recipe.GTRecipeLookupMixin",
     "gtceu.recipe.MaterialRecipeHandlerMixin",
     "gtceu.recipe.RecyclingRecipesMixin",
     "gtlcore.machine.HarmonyMachineMixin",

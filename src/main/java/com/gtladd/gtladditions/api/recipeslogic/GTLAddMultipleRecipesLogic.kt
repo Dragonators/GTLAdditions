@@ -1,130 +1,148 @@
-package com.gtladd.gtladditions.api.recipeslogic;
+package com.gtladd.gtladditions.api.recipeslogic
 
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
+import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
+import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability
+import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
+import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
+import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gregtechceu.gtceu.api.recipe.GTRecipe
+import com.gregtechceu.gtceu.api.recipe.RecipeHelper
+import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic
+import com.gregtechceu.gtceu.api.recipe.content.Content
+import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
+import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
+import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
+import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe
+import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
+import kotlin.math.max
 
-import com.gregtechceu.gtceu.api.capability.recipe.*;
-import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
-import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
-import com.gregtechceu.gtceu.api.recipe.GTRecipe;
-import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
-import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
-import com.gregtechceu.gtceu.api.recipe.content.Content;
-import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
-import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
-
-import java.util.*;
-
-import javax.annotation.Nullable;
-
-public class GTLAddMultipleRecipesLogic extends RecipeLogic {
-
-    protected final ParallelMachine parallel;
-
-    public GTLAddMultipleRecipesLogic(ParallelMachine parallel) {
-        super((IRecipeLogicMachine) parallel);
-        this.parallel = parallel;
+open class GTLAddMultipleRecipesLogic(protected val parallel: ParallelMachine) :
+    RecipeLogic(parallel as IRecipeLogicMachine?), ILockRecipe {
+    override fun getMachine(): WorkableElectricMultiblockMachine? {
+        return super.getMachine() as WorkableElectricMultiblockMachine?
     }
 
-    @Override
-    public WorkableElectricMultiblockMachine getMachine() {
-        return (WorkableElectricMultiblockMachine) super.getMachine();
-    }
-
-    @Override
-    public void findAndHandleRecipe() {
-        lastRecipe = null;
-        var match = getRecipe();
-        if (match != null) {
-            if (match.matchRecipe(this.machine).isSuccess()) {
-                setupRecipe(match);
-            }
+    override fun findAndHandleRecipe() {
+        lastRecipe = null
+        val match = this.recipe
+        if (match != null && RecipeRunnerHelper.matchRecipeOutput(machine, match)) {
+            setupRecipe(match)
         }
     }
 
-    @Nullable
-    protected GTRecipe getRecipe() {
-        if (!machine.hasProxies()) return null;
-        GTRecipe[] recipes = LookupRecipe();
-        if (recipes == null) return null;
-        int length = recipes.length;
-        if (length == 0) return null;
-        GTRecipe match = recipes[0];
-        GTRecipe recipe = buildEmptyRecipe();
-        recipe.outputs.put(ItemRecipeCapability.CAP, new ArrayList<>());
-        recipe.outputs.put(FluidRecipeCapability.CAP, new ArrayList<>());
-        long maxEUt = getMachine().getOverclockVoltage();
-        long totalEu = 0;
-        int parallel = this.parallel.getMaxParallel();
-        for (int i = 0; i < 64; i++) {
-            if (checkRecipe(match)) {
-                match = recipes[(i + 1) % length];
-                continue;
+    protected val recipe: GTRecipe?
+        get() {
+            if (!machine.hasProxies()) return null
+            val recipes = LookupRecipe()
+            if (recipes == null) return null
+            val length = recipes.size
+            if (length == 0) return null
+            var match = recipes[0]
+            val recipe = buildEmptyRecipe()
+            recipe.outputs.put(
+                ItemRecipeCapability.CAP,
+                ArrayList<Content?>()
+            )
+            recipe.outputs.put(
+                FluidRecipeCapability.CAP,
+                ArrayList<Content?>()
+            )
+            val maxEUt = getMachine()!!.overclockVoltage
+            var totalEu: Long = 0
+            val parallel = this.parallel.maxParallel
+            for (i in 0..63) {
+                if (checkRecipe(match)) {
+                    match = recipes[(i + 1) % length]
+                    continue
+                }
+                match = parallelRecipe(match, parallel)
+                val input = buildEmptyRecipe()
+                input.inputs.putAll(match.inputs)
+                input.setId(match.id)
+                if (RecipeRunnerHelper.handleRecipeInput(machine, input)) {
+                    totalEu += match.duration * RecipeHelper.getInputEUt(match)
+                    if (totalEu > maxEUt) break
+                    val item =
+                        match.outputs[ItemRecipeCapability.CAP]
+                    if (item != null) recipe.outputs[ItemRecipeCapability.CAP]!!.addAll(item)
+                    val fluid =
+                        match.outputs[FluidRecipeCapability.CAP]
+                    if (fluid != null) recipe.outputs[FluidRecipeCapability.CAP]!!.addAll(fluid)
+                }
+                match = recipes[(i + 1) % length]
             }
-            match = parallelRecipe(match, parallel);
-            GTRecipe input = buildEmptyRecipe();
-            input.inputs.putAll(match.inputs);
-            if (input.matchRecipe(machine).isSuccess() && input.handleRecipeIO(IO.IN, machine, getChanceCaches())) {
-                totalEu += match.duration * RecipeHelper.getInputEUt(match);
-                if (totalEu > maxEUt) break;
-                List<Content> item = match.outputs.get(ItemRecipeCapability.CAP);
-                if (item != null) recipe.outputs.get(ItemRecipeCapability.CAP).addAll(item);
-                List<Content> fluid = match.outputs.get(FluidRecipeCapability.CAP);
-                if (fluid != null) recipe.outputs.get(FluidRecipeCapability.CAP).addAll(fluid);
-            }
-            match = recipes[(i + 1) % length];
+            if (recipe.outputs[ItemRecipeCapability.CAP] == ArrayList<Any?>() && recipe.outputs[FluidRecipeCapability.CAP] == ArrayList<Any?>()
+            ) return null
+            val d = totalEu.toDouble() / maxEUt
+            val eut = if (d > 20) maxEUt else (maxEUt * d / 20).toLong()
+            recipe.tickInputs.put(
+                EURecipeCapability.CAP,
+                listOf<Content?>(
+                    Content(
+                        eut,
+                        ChanceLogic.getMaxChancedValue(),
+                        ChanceLogic.getMaxChancedValue(),
+                        0,
+                        null,
+                        null
+                    )
+                )
+            )
+            recipe.duration = max(d, 20.0).toInt()
+            return recipe
         }
-        if (recipe.outputs.get(ItemRecipeCapability.CAP).equals(new ArrayList<>()) && recipe.outputs.get(FluidRecipeCapability.CAP).equals(new ArrayList<>())) return null;
-        double d = (double) totalEu / maxEUt;
-        long eut = d > 20 ? maxEUt : (long) (maxEUt * d / 20);
-        recipe.tickInputs.put(EURecipeCapability.CAP, List.of(new Content(eut, ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0, null, null)));
-        recipe.duration = (int) Math.max(d, 20);
-        return recipe;
+
+    protected fun LookupRecipe(): Array<GTRecipe>? {
+        val recipeSet = this.machine.recipeType.lookup.findRecipeCollisions(this.machine)
+        if (this.isLock) {
+            if (this.lockRecipe == null) {
+                this.lockRecipe = if (recipeSet != null && !recipeSet.isEmpty()) recipeSet.iterator().next() else null
+            } else if (!RecipeRunnerHelper.matchRecipeInput(this.machine, this.lockRecipe)) {
+                return null
+            }
+            return arrayOf(this.lockRecipe)
+        }
+        return (if (recipeSet != null && !recipeSet.isEmpty()) recipeSet.toTypedArray<GTRecipe?>() else null) as Array<GTRecipe>?
     }
 
-    protected GTRecipe[] LookupRecipe() {
-        Set<GTRecipe> recipeSet = this.machine.getRecipeType().getLookup().findRecipeCollisions(this.machine);
-        return recipeSet != null ? recipeSet.toArray(new GTRecipe[0]) : null;
+    protected fun buildEmptyRecipe(): GTRecipe {
+        return GTRecipeBuilder.ofRaw().buildRawRecipe()
     }
 
-    protected GTRecipe buildEmptyRecipe() {
-        return GTRecipeBuilder.ofRaw().buildRawRecipe();
-    }
-
-    protected GTRecipe parallelRecipe(GTRecipe recipe, int max) {
-        int maxMultipliers = Integer.MAX_VALUE;
-        for (RecipeCapability<?> cap : recipe.inputs.keySet()) {
+    protected fun parallelRecipe(recipe: GTRecipe, max: Int): GTRecipe {
+        var recipe = recipe
+        var maxMultipliers = Int.Companion.MAX_VALUE
+        for (cap in recipe.inputs.keys) {
             if (cap.doMatchInRecipe()) {
-                int currentMultiplier = cap.getMaxParallelRatio(machine, recipe, max);
-                if (currentMultiplier < maxMultipliers) maxMultipliers = currentMultiplier;
+                val currentMultiplier = cap.getMaxParallelRatio(machine, recipe, max)
+                if (currentMultiplier < maxMultipliers) maxMultipliers = currentMultiplier
             }
         }
-        if (maxMultipliers > 0) recipe = recipe.copy(ContentModifier.multiplier(maxMultipliers), false);
-        return recipe;
+        if (maxMultipliers > 0) recipe = recipe.copy(ContentModifier.multiplier(maxMultipliers.toDouble()), false)
+        return recipe
     }
 
-    @Override
-    public void onRecipeFinish() {
-        machine.afterWorking();
+    override fun onRecipeFinish() {
+        machine.afterWorking()
         if (lastRecipe != null) {
-            lastRecipe.postWorking(this.machine);
-            lastRecipe.handleRecipeIO(IO.OUT, this.machine, this.chanceCaches);
+            lastRecipe!!.postWorking(this.machine)
+            RecipeRunnerHelper.handleRecipeOutput(this.machine, lastRecipe)
         }
-        GTRecipe match = getRecipe();
-        if (match != null) if (match.matchRecipe(this.machine).isSuccess()) {
-            setupRecipe(match);
-            return;
+        val match = this.recipe
+        if (match != null && RecipeRunnerHelper.matchRecipeOutput(machine, match)) {
+            setupRecipe(match)
         }
-        setStatus(Status.IDLE);
-        progress = 0;
-        duration = 0;
+        status = Status.IDLE
+        progress = 0
+        duration = 0
     }
 
-    private boolean checkRecipe(GTRecipe recipe) {
-        boolean eut = RecipeHelper.getRecipeEUtTier(recipe) > getMachine().getTier();
-        boolean ebf_temp = machine instanceof CoilWorkableElectricMultiblockMachine coilMachine &&
-                coilMachine.getCoilType().getCoilTemperature() < recipe.data.getInt("ebf_temp");
-        return eut || ebf_temp;
+    private fun checkRecipe(recipe: GTRecipe): Boolean {
+        val eut = RecipeHelper.getRecipeEUtTier(recipe) > getMachine()!!.getTier()
+        val ebf_temp = machine is CoilWorkableElectricMultiblockMachine &&
+                (machine as CoilWorkableElectricMultiblockMachine).coilType.coilTemperature < recipe.data.getInt("ebf_temp")
+        return eut || ebf_temp
     }
 }

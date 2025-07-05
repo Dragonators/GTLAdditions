@@ -1,31 +1,23 @@
-package com.gtladd.gtladditions.api.machine;
+package com.gtladd.gtladditions.api.machine
 
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
-import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers;
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine
+import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
+import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
+import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
 
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
-
-import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic;
-import org.jetbrains.annotations.NotNull;
-
-public class GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine extends CoilWorkableElectricMultiblockMachine implements ParallelMachine {
-
-    public GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine(IMachineBlockEntity holder) {
-        super(holder);
+class GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine(holder: IMachineBlockEntity) :
+    CoilWorkableElectricMultiblockMachine(holder), ParallelMachine {
+    public override fun createRecipeLogic(vararg args: Any): RecipeLogic {
+        return GTLAddMultipleRecipesLogic(this)
     }
 
-    public @NotNull RecipeLogic createRecipeLogic(@NotNull Object... args) {
-        return new GTLAddMultipleRecipesLogic(this);
+    override fun getRecipeLogic(): GTLAddMultipleRecipesLogic {
+        return super.getRecipeLogic() as GTLAddMultipleRecipesLogic
     }
 
-    public @NotNull GTLAddMultipleRecipesLogic getRecipeLogic() {
-        return (GTLAddMultipleRecipesLogic) super.getRecipeLogic();
-    }
-
-    @Override
-    public int getMaxParallel() {
-        return GTLRecipeModifiers.getHatchParallel(this);
+    override fun getMaxParallel(): Int {
+        return GTLRecipeModifiers.getHatchParallel(this)
     }
 }
