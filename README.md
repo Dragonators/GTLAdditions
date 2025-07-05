@@ -19,7 +19,7 @@ In the later stages of developing our Minecraft tech modpack, we realized that t
 
 ## Install
 
-First,Download `GregTech Leisure`  1.4.31 [here](https://www.123pan.com/s/LDeAjv-EHZ03.html),and install it with your Minecraft Launcher
+First,Download `GregTech Leisure` [here](https://www.123pan.com/s/LDeAjv-EHZ03.html),and install it with your Minecraft Launcher
 
 Second delete `GTLCore` and install newest one in our group
 
@@ -36,64 +36,18 @@ This mod added many better machines to replace original machines
 | Machines                                  | Recipes                            | Usage                                                                      |
 | ----------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------- |
 | SuperFactory mk[1,4]                      | run recipes from `plants`          | General                                                                    |
-| Atomic Transmutation Core                 | Em Resonance Conversion Field      | Transmutation                                                              |
-| Lucid Etchdreamer                         | Photon Matrix Etch                 | Produce `Wafer`and`Gem`                                                    |
-| Astral Convergence Nexus                  | Assembler Module                   | Work as `Assembler Module`                                                 |
-| Nebula Reaper                             | Miner Module *and* Drilling Module | Work as `Miner Module` *and* `Drilling Module`                             |
+| Atomic Transmutation Core                 | Em Resonance Conversion Field      | Work as `Block Conversion Room` but more efficient                         |
+| Lucid Etchdreamer                         | Photon Matrix Etch                 | Work as `Dimensional Focus Engraving Array` but no use `Photoresist`       |
+| Astral Convergence Nexus                  | Space Assembler Module             | Work as `Space Assembler Module`                                           |
+| Nebula Reaper                             | Space Miner Module *and* Space Drilling Module | Work as `Space Miner Module` *and* `Space Drilling Module`     |
 | Arcanic Astrograph                        | Cosmos Simulation                  | Work as `Eye of Harmony`                                                   |
-| Arcane Cache Vault                        | Packer                             | Work as `Packer`                                                           |
-| Draconic Collapse Core                    | Aggregation Device                 | Work as `Aggregation Device`                                               |
+| Arcane Cache Vault                        | Packer                             | Work as `Packer` and use multirecipelogic                                  |
+| Draconic Collapse Core                    | Aggregation Device                 | Work as `Aggregation Device` and more parallel, can use HugeInputHatch     |
 | Titan Crip Earthbore                      | Tectonic Fault Generater           | Produce `Bedrock dust`                                                     |
 | Biological Simulation Laboratoy           | Biological Simulation              | Produce resources from entities with `world data`,`swords` and `spawn egg` |
-| Dimensionally Transcendent Chemical Plant | Large Chemical Reactor             | work as `Large Chemical Reactor`                                           |
+| Dimensionally Transcendent Chemical Plant | Large Chemical Reactor             | work as `Large Chemical Reactor` and use multirecipelogic                  |
 | Quantum Syphon Martix                     | Voidflux Reaction                  | Produce `Air` series                                                       |
-| Fuxi Bagua Heaven Forging Furnace         | Stellar Lgintion                   | Transmute some kinds of`Gas`or`Liquid` into `Plasma`                       |
+| Fuxi Bagua Heaven Forging Furnace | Stellar Lgintion *and* Chaotic Alchemy *and* Molecular Deconstruction *and* Ultimate Material Forge | Stellar Lgintioncan can Transmute some kinds of`Gas`or`Liquid` into `Plasma`, Chaotic Alchemy as `Alloy Blast Smelter` but output `Liquid`, Molecular Deconstruction can extraction some `dust` (It couldn't be extracted directly originally) into `Liquid`|
+|Antientropy Condensation Center            | Antientropy Condensation           | Work as `Cooling Tower` but no use `Liquid Helium`                         |
+|Taixu Turbid Array | Chaos Weave | |
 
-### New Material
-
-- $Ga_{2}O_{3}$ 
-
-- $Ga(NH_{4})(SO_{4})_{2}$
-
-$Ga_{2}O_{3}$ is a important material to produce new `Boubles`.
-
-Here is the process to get it.
-
-| Machine                | Input                                                 | Output                                                                 |
-| ---------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------- |
-| Chemical Reactor       | 1 dust of $`Ga`$+ 2 B of $`H_{2}SO_{4}`$ + 1B of $`NH_{3}`$ | 1 dust of $`Ga(NH_{4})(SO_{4})_{2}`$                                     |
-| Large Chemical Reactor | 4 dusts of $`Ga(NH_{4})(SO_{4})_{2}`$ + 15B of $O_{2}$      | 2 dusts of $`Ga_{2}O_{3}`$ + 2B of $`N`$ + 8B of $`SO_{3}`$ + 8B of $`H_{2}O`$ |
-
-### About Processers
-
-These things can simplificte the process of producing `Processers`
-
-You need $Ga_{2}O_{3}$ to produce these.
-
-#### Boubles
-
-- Echo Shard
-
-- Hassium
-
-- Starmetal
-
-- Periodicium
-
-- Infinity
-
-#### Wafers and SOCs
-
-- Echo Shard  -> Outstanding => Bioware
-
-- Hassium -> Extraordinary => Optical
-
-- Startmetal -> Chaos => Exotic
-
-- Periodicium -> Spacetime => Cosmic
-
-- Infinity -> Primary => Supracausal
-
-> [!NOTE]
-> 
-> To make `Spacetime SOC Wafer` and `Primary SOC Wafer`,you need `Spacetime lens`
