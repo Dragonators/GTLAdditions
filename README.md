@@ -11,11 +11,11 @@
 
 ## Introduction
 
-In the later stages of developing our Minecraft tech modpack, we realized that the original mods' production capabilities were starting to fall short in the high-tech phase.  To address this, we began developing a custom, private mod. Initially, we envisioned simply adding more advanced machines, but we quickly discovered that insufficient production was just the tip of the iceberg. As players advanced technologically, they built a massive number of machines to meet their demands, leading to severe server lag issues.  Therefore, the mod's development direction gradually shifted towards optimizing performance and increasing the efficiency of individual machines to cope with the challenges of large-scale automated production in the late game
+This mod is developed based on the `GregTech Leisure`. On the basis of this Modpacks, many new ideas have been added. While retaining the original hardcore technology framework, it incorporates a large number of innovative designs and balanced optimizations, aiming to bring players a smoother and more strategic automation experience.
 
 ## Requirement
 
-- GTLCore  `Version >= 1.1.1`
+- GTLCore  `Version >= 1.2.1.8`
 
 ## Install
 
@@ -49,5 +49,29 @@ This mod added many better machines to replace original machines
 | Quantum Syphon Martix                     | Voidflux Reaction                  | Produce `Air` series                                                       |
 | Fuxi Bagua Heaven Forging Furnace | Stellar Lgintion *and* Chaotic Alchemy *and* Molecular Deconstruction *and* Ultimate Material Forge | Stellar Lgintioncan can Transmute some kinds of`Gas`or`Liquid` into `Plasma`, Chaotic Alchemy as `Alloy Blast Smelter` but output `Liquid`, Molecular Deconstruction can extraction some `dust` (It couldn't be extracted directly originally) into `Liquid`|
 |Antientropy Condensation Center            | Antientropy Condensation           | Work as `Cooling Tower` but no use `Liquid Helium`                         |
-|Taixu Turbid Array | Chaos Weave | |
+|Taixu Turbid Array | Chaos Weave | Produce `Scrap Box` `UU Amplifier` *and* `UU Matter` |
+
+- The input upper limits of `Gaseous Hydrogen` and `Gaseous Helium` for the `Eye of Harmony` have been restricted
+
+### Multiblock Machine Part
+
+| Hatch                   | General                                                                    |
+| ----------------------- | -------------------------------------------------------------------------- |
+| Laser Hatch             | A larger laser Hatch than the original version , The ampere is `16777216A` `67108863A` *and* `268435455A` |
+| Wireless Laser Hatch    | Similar with `Laser Hatch` but No wiring is required                       |
+| Huge Output Dual Hatch  | Similar with `Huge Input Dual Hatch`                                       |
+| Huge Steam Input Hatch  | Like Large Steam Input Hatch . Raise the steam multiblock recipe restriction to **HV** *and* The duration taken becomes **1t** |
+| Super Input Dual Hatch  | Similar to `Huge Input Dual Hatch` , but with more input space             |
+
+In addition, there are also some defiled Part
+
+- `WirelessOpticalDataHatch` *and* `WirelessOpticalComputationHatch` allow Multiblock Machine **sharing**
+- `AutoConfigurationMaintenanceHatch` series also allow Multiblock Machine **sharing** *And* There is a slot where different items can be stuffed to obtain different bonuses
+
+### Recipe
+
+- Many simplified recipes have been added, which can help optimize large-scale production lines. Please learn to use **`jei`** to find recipes. If this recipe is added by `GTLAdditions`, there will be a prompt to explain(So you can often look through jei in your daily life. You will always find some new recipes)
+- The addition of brand-new SOC chips and wafers enables more efficient circuit production
+
+
 
