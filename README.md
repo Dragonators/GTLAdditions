@@ -11,15 +11,15 @@
 
 ## Introduction
 
-In the later stages of developing our Minecraft tech modpack, we realized that the original mods' production capabilities were starting to fall short in the high-tech phase.  To address this, we began developing a custom, private mod. Initially, we envisioned simply adding more advanced machines, but we quickly discovered that insufficient production was just the tip of the iceberg. As players advanced technologically, they built a massive number of machines to meet their demands, leading to severe server lag issues.  Therefore, the mod's development direction gradually shifted towards optimizing performance and increasing the efficiency of individual machines to cope with the challenges of large-scale automated production in the late game
+This mod is developed based on the `GregTech Leisure`. On the basis of this Modpacks, many new ideas have been added. While retaining the original hardcore technology framework, it incorporates a large number of innovative designs and balanced optimizations, aiming to bring players a smoother and more strategic automation experience.
 
 ## Requirement
 
-- GTLCore  `Version >= 1.1.1`
+- GTLCore  `Version >= 1.2.1.8`
 
 ## Install
 
-First,Download `GregTech Leisure`  1.4.31 [here](https://www.123pan.com/s/LDeAjv-EHZ03.html),and install it with your Minecraft Launcher
+First,Download `GregTech Leisure` [here](https://www.123pan.com/s/LDeAjv-EHZ03.html),and install it with your Minecraft Launcher
 
 Second delete `GTLCore` and install newest one in our group
 
@@ -36,64 +36,42 @@ This mod added many better machines to replace original machines
 | Machines                                  | Recipes                            | Usage                                                                      |
 | ----------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------- |
 | SuperFactory mk[1,4]                      | run recipes from `plants`          | General                                                                    |
-| Atomic Transmutation Core                 | Em Resonance Conversion Field      | Transmutation                                                              |
-| Lucid Etchdreamer                         | Photon Matrix Etch                 | Produce `Wafer`and`Gem`                                                    |
-| Astral Convergence Nexus                  | Assembler Module                   | Work as `Assembler Module`                                                 |
-| Nebula Reaper                             | Miner Module *and* Drilling Module | Work as `Miner Module` *and* `Drilling Module`                             |
+| Atomic Transmutation Core                 | Em Resonance Conversion Field      | Work as `Block Conversion Room` but more efficient                         |
+| Lucid Etchdreamer                         | Photon Matrix Etch                 | Work as `Dimensional Focus Engraving Array` but no use `Photoresist`       |
+| Astral Convergence Nexus                  | Space Assembler Module             | Work as `Space Assembler Module`                                           |
+| Nebula Reaper                             | Space Miner Module *and* Space Drilling Module | Work as `Space Miner Module` *and* `Space Drilling Module`     |
 | Arcanic Astrograph                        | Cosmos Simulation                  | Work as `Eye of Harmony`                                                   |
-| Arcane Cache Vault                        | Packer                             | Work as `Packer`                                                           |
-| Draconic Collapse Core                    | Aggregation Device                 | Work as `Aggregation Device`                                               |
+| Arcane Cache Vault                        | Packer                             | Work as `Packer` and use multirecipelogic                                  |
+| Draconic Collapse Core                    | Aggregation Device                 | Work as `Aggregation Device` and more parallel, can use HugeInputHatch     |
 | Titan Crip Earthbore                      | Tectonic Fault Generater           | Produce `Bedrock dust`                                                     |
 | Biological Simulation Laboratoy           | Biological Simulation              | Produce resources from entities with `world data`,`swords` and `spawn egg` |
-| Dimensionally Transcendent Chemical Plant | Large Chemical Reactor             | work as `Large Chemical Reactor`                                           |
+| Dimensionally Transcendent Chemical Plant | Large Chemical Reactor             | work as `Large Chemical Reactor` and use multirecipelogic                  |
 | Quantum Syphon Martix                     | Voidflux Reaction                  | Produce `Air` series                                                       |
-| Fuxi Bagua Heaven Forging Furnace         | Stellar Lgintion                   | Transmute some kinds of`Gas`or`Liquid` into `Plasma`                       |
+| Fuxi Bagua Heaven Forging Furnace | Stellar Lgintion *and* Chaotic Alchemy *and* Molecular Deconstruction *and* Ultimate Material Forge | Stellar Lgintioncan can Transmute some kinds of`Gas`or`Liquid` into `Plasma`, Chaotic Alchemy as `Alloy Blast Smelter` but output `Liquid`, Molecular Deconstruction can extraction some `dust` (It couldn't be extracted directly originally) into `Liquid`|
+|Antientropy Condensation Center            | Antientropy Condensation           | Work as `Cooling Tower` but no use `Liquid Helium`                         |
+|Taixu Turbid Array | Chaos Weave | Produce `Scrap Box` `UU Amplifier` *and* `UU Matter` |
 
-### New Material
+- The input upper limits of `Gaseous Hydrogen` and `Gaseous Helium` for the `Eye of Harmony` have been restricted
 
-- $Ga_{2}O_{3}$ 
+### Multiblock Machine Part
 
-- $Ga(NH_{4})(SO_{4})_{2}$
+| Hatch                   | General                                                                    |
+| ----------------------- | -------------------------------------------------------------------------- |
+| Laser Hatch             | A larger laser Hatch than the original version , The ampere is `16777216A` `67108863A` *and* `268435455A` |
+| Wireless Laser Hatch    | Similar with `Laser Hatch` but No wiring is required                       |
+| Huge Output Dual Hatch  | Similar with `Huge Input Dual Hatch`                                       |
+| Huge Steam Input Hatch  | Like Large Steam Input Hatch . Raise the steam multiblock recipe restriction to **HV** *and* The duration taken becomes **1t** |
+| Super Input Dual Hatch  | Similar to `Huge Input Dual Hatch` , but with more input space             |
 
-$Ga_{2}O_{3}$ is a important material to produce new `Boubles`.
+In addition, there are also some defiled Part
 
-Here is the process to get it.
+- `WirelessOpticalDataHatch` *and* `WirelessOpticalComputationHatch` allow Multiblock Machine **sharing**
+- `AutoConfigurationMaintenanceHatch` series also allow Multiblock Machine **sharing** *And* There is a slot where different items can be stuffed to obtain different bonuses
 
-| Machine                | Input                                                 | Output                                                                 |
-| ---------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------- |
-| Chemical Reactor       | 1 dust of $`Ga`$+ 2 B of $`H_{2}SO_{4}`$ + 1B of $`NH_{3}`$ | 1 dust of $`Ga(NH_{4})(SO_{4})_{2}`$                                     |
-| Large Chemical Reactor | 4 dusts of $`Ga(NH_{4})(SO_{4})_{2}`$ + 15B of $O_{2}$      | 2 dusts of $`Ga_{2}O_{3}`$ + 2B of $`N`$ + 8B of $`SO_{3}`$ + 8B of $`H_{2}O`$ |
+### Recipe
 
-### About Processers
+- Many simplified recipes have been added, which can help optimize large-scale production lines. Please learn to use **`jei`** to find recipes. If this recipe is added by `GTLAdditions`, there will be a prompt to explain(So you can often look through jei in your daily life. You will always find some new recipes)
+- The addition of brand-new SOC chips and wafers enables more efficient circuit production
 
-These things can simplificte the process of producing `Processers`
 
-You need $Ga_{2}O_{3}$ to produce these.
 
-#### Boubles
-
-- Echo Shard
-
-- Hassium
-
-- Starmetal
-
-- Periodicium
-
-- Infinity
-
-#### Wafers and SOCs
-
-- Echo Shard  -> Outstanding => Bioware
-
-- Hassium -> Extraordinary => Optical
-
-- Startmetal -> Chaos => Exotic
-
-- Periodicium -> Spacetime => Cosmic
-
-- Infinity -> Primary => Supracausal
-
-> [!NOTE]
-> 
-> To make `Spacetime SOC Wafer` and `Primary SOC Wafer`,you need `Spacetime lens`
