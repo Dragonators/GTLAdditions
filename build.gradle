@@ -2,6 +2,7 @@ plugins {
     id "dev.architectury.loom" version "1.6-SNAPSHOT"
     id "maven-publish"
     id "com.diffplug.spotless" version "6.25.0"
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 base {
@@ -14,7 +15,6 @@ version = "${mod_version}" + (buildNumber != null ? "-build_${System.getenv("GIT
 group = project.maven_group
 
 java {
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
 }
 
 loom {
@@ -112,7 +112,8 @@ dependencies {
    // modImplementation("dev:gtceu:1.20.1:$project.gtceu_version") { transitive false }
     modImplementation("com.lowdragmc.ldlib:ldlib-forge-$project.minecraft_version:$project.ldlib_version") { transitive = false }
     modImplementation("com.tterrag.registrate:Registrate:$project.registrate_version")
-    modImplementation("dev.latvian.mods:kubejs-forge:$project.kubejs_version")
+    modImplementation("curse.maven:kubejs-238086:5012072")
+    modImplementation("curse.maven:rhino-416294:6186971")
 
     modImplementation("maven.modrinth:jade-1.20.1-forge-$project.jade_version")
 
@@ -138,7 +139,8 @@ dependencies {
     modImplementation("earth.terrarium.adastra:ad_astra-forge-${project.minecraft_version}:${ad_astra_version}") { transitive false }
 
     modImplementation("dev:gtmthings-1.3.5.a")
-    modImplementation("dev:gtlcore-1.1.1-build_11")
+    modImplementation("dev:gtlcore-1.2.1.8")
+    modImplementation("dev:kotlinforforge-4.11.0-all")
 
     modImplementation("curse.maven:glodium-957920:5006780")
     modImplementation("dev:ExtendedAE-1.20-1.1.12-forge")
@@ -149,12 +151,12 @@ dependencies {
     modCompileOnly("dev:Re-Avaritia-forged-1.20.1-1.3.8.3")
 
     // ftb-chunk
-    modImplementation("dev.ftb.mods:ftb-chunks-forge:2001.3.1"){ transitive = false }
-    modRuntimeOnly("dev.ftb.mods:ftb-library-forge:2001.2.4"){ transitive = false }
-    modRuntimeOnly("dev.ftb.mods:ftb-teams-forge:2001.3.0"){ transitive = false }
+    modImplementation("curse.maven:ftb-chunks-314906:5378090"){ transitive = false }
+    modRuntimeOnly("curse.maven:ftb-library-404465:5567591"){ transitive = false }
+    modRuntimeOnly("curse.maven:ftb-teams-404468:5267190"){ transitive = false }
 
     // ftbu
-    modImplementation("dev.ftb.mods:ftb-ultimine-forge:2001.1.5"){ transitive = false }
+    modImplementation("curse.maven:ftb-ultimine-386134:5363345"){ transitive = false }
 
 
     modRuntimeOnly("mezz.jei:jei-$project.minecraft_version-forge:$project.jei_version") { transitive = false }
@@ -168,7 +170,8 @@ dependencies {
     forgeRuntimeLibrary(runtimeOnly("icyllis.modernui:ModernUI-Core:3.10.1")) // Modern UI core framework
     forgeRuntimeLibrary(runtimeOnly("icyllis.modernui:ModernUI-Markdown:3.10.1")) { transitive = false }
     // Modern UI core extensions
-    modRuntimeOnly("icyllis.modernui:ModernUI-Forge:1.20.1-3.10.1.4") { transitive = false } // ModernUI
+    modRuntimeOnly("icyllis.modernui:ModernUI-Forge:1.20.1-3.10.1.4") { transitive = false }
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
 }
 
@@ -257,4 +260,7 @@ spotless {
         endWithNewline()
         eclipse('4.31').configFile(formatFile)
     }
+}
+kotlin {
+    jvmToolchain(17)
 }

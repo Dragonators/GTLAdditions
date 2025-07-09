@@ -35,7 +35,7 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private va
                 if (logic.isWorking && logic.getProgress() > 80) {
                     SpaceElevatorTier = controller !!.tier - GTValues.ZPM
                     ModuleTier = controller !!.casingTier
-                } else if (! logic.isWorking) {
+                } else if (!logic.isWorking || !controller!!.isFormed) {
                     SpaceElevatorTier = 0
                     ModuleTier = 0
                 }

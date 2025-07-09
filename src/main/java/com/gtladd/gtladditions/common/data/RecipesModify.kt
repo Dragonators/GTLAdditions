@@ -6,7 +6,6 @@ import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLMaterials
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
-import java.util.function.BiConsumer
 import java.util.function.Consumer
 import kotlin.math.log10
 

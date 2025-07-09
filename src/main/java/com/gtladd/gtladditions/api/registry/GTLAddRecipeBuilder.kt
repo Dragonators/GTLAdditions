@@ -22,7 +22,6 @@ import net.minecraft.MethodsReturnNonnullByDefault
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.utils.Registries
 import java.util.*
 import java.util.function.Consumer
@@ -38,12 +37,12 @@ class GTLAddRecipeBuilder(id: String, recipeType: GTRecipeType) : GTRecipeBuilde
 
     @JvmOverloads
     fun inputItems(input: String, number: Int = 1): GTLAddRecipeBuilder {
-        return super.inputItems(ItemStack(Registries.getItem(input), number)) as GTLAddRecipeBuilder
+        return super.inputItems(Registries.getItemStack(input, number)) as GTLAddRecipeBuilder
     }
 
     fun InputItems(inputitems: String): GTLAddRecipeBuilder {
-        val split: Array<String?> = inputitems.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        return this.inputItems(split[1], split[0]!!.replace("x".toRegex(), "").toInt()) as GTLAddRecipeBuilder
+        val split: Array<String?> = inputitems.split("x ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        return this.inputItems(split[1]!!, split[0]!!.toInt())
     }
 
     @JvmOverloads
@@ -78,7 +77,7 @@ class GTLAddRecipeBuilder(id: String, recipeType: GTRecipeType) : GTRecipeBuilde
 
     fun chancedInputItems(input: String, chance: Double, tierChanceBoost: Double): GTLAddRecipeBuilder {
         return super.chancedInput(
-            ItemStack(Registries.getItem(input)),
+            Registries.getItemStack(input),
             chance.toInt() * 100,
             tierChanceBoost.toInt() * 100
         ) as GTLAddRecipeBuilder
@@ -101,12 +100,12 @@ class GTLAddRecipeBuilder(id: String, recipeType: GTRecipeType) : GTRecipeBuilde
 
     @JvmOverloads
     fun outputItems(output: String, number: Int = 1): GTLAddRecipeBuilder {
-        return super.outputItems(ItemStack(Registries.getItem(output), number)) as GTLAddRecipeBuilder
+        return super.outputItems(Registries.getItemStack(output, number)) as GTLAddRecipeBuilder
     }
 
     fun OutputItems(outputitems: String): GTLAddRecipeBuilder {
-        val split: Array<String?> = outputitems.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        return this.outputItems(split[1], split[0]!!.replace("x".toRegex(), "").toInt()) as GTLAddRecipeBuilder
+        val split: Array<String?> = outputitems.split("x ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        return this.outputItems(split[1]!!, split[0]!!.toInt()) as GTLAddRecipeBuilder
     }
 
     override fun outputItems(orePrefix: TagPrefix, material: Material, count: Int): GTLAddRecipeBuilder {
@@ -145,7 +144,7 @@ class GTLAddRecipeBuilder(id: String, recipeType: GTRecipeType) : GTRecipeBuilde
 
     fun chancedOutputItems(output: String, count: Int, chance: Double, tierChanceBoost: Double): GTLAddRecipeBuilder {
         return super.chancedOutput(
-            ItemStack(Registries.getItem(output), count),
+            Registries.getItemStack(output, count),
             (chance * 100).toInt(),
             (tierChanceBoost * 100).toInt()
         ) as GTLAddRecipeBuilder
@@ -157,7 +156,7 @@ class GTLAddRecipeBuilder(id: String, recipeType: GTRecipeType) : GTRecipeBuilde
 
     @JvmOverloads
     fun notConsumable(input: String, count: Int = 1): GTLAddRecipeBuilder {
-        return super.notConsumable(ItemStack(Registries.getItem(input), count)) as GTLAddRecipeBuilder
+        return super.notConsumable(Registries.getItemStack(input, count)) as GTLAddRecipeBuilder
     }
 
     override fun notConsumable(item: Supplier<out Item?>): GTLAddRecipeBuilder {

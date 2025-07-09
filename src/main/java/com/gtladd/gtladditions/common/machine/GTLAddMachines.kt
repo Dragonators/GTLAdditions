@@ -28,8 +28,7 @@ import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.utils.TextUtil
-import java.util.function.*
-import java.util.function.Function
+import java.util.function.BiConsumer
 
 object GTLAddMachines {
     val WIRELL_ENERGY_HIGH_TIERS: IntArray = GTValues.tiersBetween(5, 14)
@@ -121,8 +120,7 @@ object GTLAddMachines {
         HUGE_STEAM_HATCH = REGISTRATE.machine("huge_steam_input_hatch")
         { holder : IMachineBlockEntity? -> HugeSteamHatchPartMachine(holder !!, IO.IN) }
             .rotationState(RotationState.ALL).abilities(PartAbility.STEAM)
-            .tooltips(
-                Component.translatable("gtceu.multiblock.steam_oc_hv"),
+            .tooltips(Component.translatable("gtceu.multiblock.steam_oc_hv"),
                 Component.translatable("gtceu.multiblock.steam_duraiton"),
                 Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity", Int.Companion.MAX_VALUE),
                 Component.translatable("gtceu.machine.steam.steam_hatch.tooltip")
@@ -138,7 +136,7 @@ object GTLAddMachines {
             .langValue("Super Input Dual Hatch").overlayTieredHullRenderer("super_input_dual_hatch.import")
             .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 37))
             .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 24,
-                    FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)))
+                    FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 16)))
             .tooltipBuilder(GTLAdd_TOOLTIP).tier(14).register()
     }
 }

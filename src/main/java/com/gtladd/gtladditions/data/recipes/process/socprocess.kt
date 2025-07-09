@@ -20,7 +20,6 @@ import org.gtlcore.gtlcore.api.machine.multiblock.GTLCleanroomType
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
 import org.gtlcore.gtlcore.common.recipe.condition.GravityCondition
-import org.gtlcore.gtlcore.utils.Registries
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 

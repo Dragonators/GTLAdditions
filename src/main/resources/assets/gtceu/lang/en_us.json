@@ -30,13 +30,13 @@
   "gtceu.molecular_deconstruction": "Molecular Deconstruction",
   "gtceu.chaos_weave": "Chaos Weave",
   "gtceu.multiblock.titans_crip_earthbore_parallel": "Titans Crip Earthbore Parallel: %d",
-  "gtceu.multiblock.steam_oc_hv": "Raise the steam multi-block recipe restriction to HV",
+  "gtceu.multiblock.steam_oc_hv": "Raise the steam multiblock recipe restriction to HV",
   "gtceu.multiblock.steam_duraiton": "The time taken becomes 1t, but it requires more steam to be consumed",
   "gtceu.multiblock.steam_duration_modify": "All recipes have been shortened to 1t",
   "gtceu.multiblock.use_different_mainframe": "Different bonuses require different circuit hosts to unlock",
-  "gtceu.multiblock.use_bioware_mainframe": "Bioware Mainframe: %d",
-  "gtceu.multiblock.use_cosmic_mainframe": "Cosmic Mainframe: %d",
-  "gtceu.multiblock.use_suprachronal_mainframe_complex": "Suprachronal Mainframe Complex: %d",
+  "gtceu.multiblock.use_bioware_mainframe": "Bioware Mainframe: %d, %d",
+  "gtceu.multiblock.use_cosmic_mainframe": "Cosmic Mainframe: %d, %d",
+  "gtceu.multiblock.use_suprachronal_mainframe_complex": "Suprachronal Mainframe Complex: %d, %d",
   "gtceu.machine.taixuturbidarray.tooltip.0": "每级恒星热力容器等级提供的加成α计算公式：8*(2^n-1)*√(电压等级+1)",
   "gtceu.machine.taixuturbidarray.tooltip.1": "每级线圈提供的加成β计算公式：3.8*1.3^线圈等级*(线圈温度/36000)^0.7",
   "gtceu.machine.taixuturbidarray.tooltip.2": "uu增幅液成功概率计算公式：1/(1+e^(-0.1*(α/50+β/100+高度/9))",
@@ -52,5 +52,6 @@
   "gtceu.machine.taixuturbidarray.tooltip.12": "电压等级达到UXV时解锁uu增幅液输出",
   "gtceu.machine.taixuturbidarray.tooltip.13": "电压等级达到MAX时解锁uu物质输出",
   "gtceu.machine.taixuturbidarray.tooltip.14": "固定耗时：5s",
-  "gtceu.machine.taixuturbidarray.tooltip.15": "固定耗能：当前电压耗能*524288安"
+  "gtceu.machine.taixuturbidarray.tooltip.15": "固定耗能：当前电压耗能*524288安",
+  "gtceu.machine.limitduration_configurator": "Limit Duration"
 }

@@ -7,7 +7,6 @@ import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.tterrag.registrate.util.entry.RegistryEntry
 import net.minecraft.world.item.CreativeModeTab
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
-import java.util.function.Consumer
 
 object GTLAddCreativeModeTabs {
     @JvmField

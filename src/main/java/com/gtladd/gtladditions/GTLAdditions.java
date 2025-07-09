@@ -13,9 +13,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -25,7 +23,7 @@ import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs;
 import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.gtladd.gtladditions.common.material.GTLAddMaterial;
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
-import com.gtladd.gtladditions.config.Config;
+import com.gtladd.gtladditions.config.ConfigHolder;
 
 @Mod(GTLAdditions.MOD_ID)
 public class GTLAdditions {
@@ -46,7 +44,6 @@ public class GTLAdditions {
         modEventBus.addListener(this::addMaterialRegistries);
         modEventBus.addListener(this::modifyMaterials);
         modEventBus.addListener(this::addMaterials);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         GTLAddRegistration.REGISTRATE.registerEventListeners(modEventBus);
         modEventBus.addGenericListener(GTRecipeType.class, this::registerRecipeTypes);
         modEventBus.addGenericListener(MachineDefinition.class, this::registerMachines);
@@ -54,6 +51,7 @@ public class GTLAdditions {
 
     public static void init() {
         GTLAddCreativeModeTabs.init();
+        ConfigHolder.init();
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {}

@@ -6,8 +6,6 @@ import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.FancyTankConfigurator
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank
-import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler
-import com.hepdd.gtmthings.api.misc.UnlimitedItemStackTransfer
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeBusPartMachine
 import com.hepdd.gtmthings.common.block.machine.trait.CatalystFluidStackHandler
 import com.hepdd.gtmthings.utils.FormatUtil
@@ -40,7 +38,7 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, vararg args: A
     private var hasItemTransfer = false
 
     protected fun createTank(): NotifiableFluidTank {
-        return object : NotifiableFluidTank(this, 24, Long.Companion.MAX_VALUE, IO.IN) {
+        return object : NotifiableFluidTank(this, 24, Long.Companion.MAX_VALUE shr 16, IO.IN) {
             override fun canCapOutput(): Boolean {
                 return true
             }

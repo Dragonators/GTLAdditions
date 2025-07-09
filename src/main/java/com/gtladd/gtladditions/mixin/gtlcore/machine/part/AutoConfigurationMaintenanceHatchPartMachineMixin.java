@@ -45,8 +45,6 @@ public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPar
     private static final ItemStack CREATIVE_MAINFRAME = Registries.getItemStack("kubejs:suprachronal_mainframe_complex");
     @Persisted
     private final NotifiableItemStackHandler gtladditions$max = this.createMachineStorage();
-    @Persisted
-    private final NotifiableItemStackHandler gtladditions$min = this.createMachineStorage();
 
     private NotifiableItemStackHandler createMachineStorage() {
         return new NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH, (slots) -> new ItemStackTransfer(1) {
@@ -109,8 +107,6 @@ public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPar
         }))).setBackground(GuiTextures.BACKGROUND_INVERSE);
         group.addWidget((new SlotWidget(gtladditions$max.storage, 0, 120, 40, true, true))
                 .setBackground(GuiTextures.SLOT).setHoverTooltips(gtladditions$setMaxTooltips()));
-        group.addWidget((new SlotWidget(gtladditions$min.storage, 0, 100, 40, true, true))
-                .setBackground(GuiTextures.SLOT).setHoverTooltips(gtladditions$setMinTooltips()));
         this.setSubDuration(0);
         this.setAddDuration(0);
         return group;
@@ -134,28 +130,15 @@ public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPar
     @Unique
     public void onMachineRemoved() {
         this.clearInventory(this.gtladditions$max.storage);
-        this.clearInventory(this.gtladditions$min.storage);
     }
 
     private @NotNull List<Component> gtladditions$setMaxTooltips() {
         List<Component> gtladditions$tooltips = new ArrayList<>();
         gtladditions$tooltips.add(Component.translatable("gtceu.universal.enabled"));
         gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_different_mainframe"));
-        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_bioware_mainframe", 3.0));
-        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_cosmic_mainframe", 7.5));
-        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_suprachronal_mainframe_complex", 25.0));
-        gtladditions$tooltips.add(Component.literal(TextUtil.full_color("由GTLAdditions修改"))
-                .withStyle((style) -> style.withColor(TooltipHelper.RAINBOW.getCurrent())));
-        return gtladditions$tooltips;
-    }
-
-    private @NotNull List<Component> gtladditions$setMinTooltips() {
-        List<Component> gtladditions$tooltips = new ArrayList<>();
-        gtladditions$tooltips.add(Component.translatable("gtceu.universal.enabled"));
-        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_different_mainframe"));
-        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_bioware_mainframe", 0.15));
-        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_cosmic_mainframe", 0.1));
-        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_suprachronal_mainframe_complex", 0.05));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_bioware_mainframe", 3.0, 0.15));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_cosmic_mainframe", 7.5, 0.1));
+        gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_suprachronal_mainframe_complex", 25.0, 0.05));
         gtladditions$tooltips.add(Component.literal(TextUtil.full_color("由GTLAdditions修改"))
                 .withStyle((style) -> style.withColor(TooltipHelper.RAINBOW.getCurrent())));
         return gtladditions$tooltips;
@@ -172,7 +155,7 @@ public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPar
     }
 
     private float getMin() {
-        Item stack = gtladditions$min != null ? gtladditions$min.storage.getStackInSlot(0).getItem() : null;
+        Item stack = gtladditions$max != null ? gtladditions$max.storage.getStackInSlot(0).getItem() : null;
         if (stack != null) {
             if (BIOWARE_MAINFRAME.is(stack)) return 0.15F;
             else if (COSMIC_MAINFRAME.is(stack)) return 0.1F;

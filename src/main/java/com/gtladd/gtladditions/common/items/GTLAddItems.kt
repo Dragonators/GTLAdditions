@@ -68,7 +68,7 @@ object GTLAddItems {
     }
 
     init {
-        REGISTRATE.creativeModeTab(Supplier { GTLAddCreativeModeTabs.GTLADD_ITEMS })
+        REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_ITEMS }
         SPACETIME_LENS = register("spacetime_lens", "Spacetime Lens")
         ECHO_SHARD_BOULE = register("echo_shard_boule", "Echo Shard Boule")
         ECHO_SHARD_WAFER = register("echo_shard_wafer", "Echo Shard Wafer")

@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
+import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
 import net.minecraft.ChatFormatting
@@ -118,14 +119,10 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
                 var recipe = this.machine.recipeType.lookup.findRecipe(machine)
                 if (recipe == null || RecipeHelper.getRecipeEUtTier(recipe) > getMachine()!!.getTier()) return null
                 recipe = parallelRecipe(recipe, getMachine()!!.maxParallel)
-                RecipeHelper.setInputEUt(
-                    recipe,
-                    max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt)).toLong()
-                )
+                RecipeHelper.setInputEUt(recipe,
+                    max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt)).toLong())
                 recipe.duration = max(1.0, recipe.duration.toDouble() *
-                            reDuctionDuration / (1 shl (getMachine() !!.getTier() - RecipeHelper.getRecipeEUtTier(
-                        recipe
-                    )))).toInt()
+                            reDuctionDuration / (1 shl (getMachine() !!.getTier() - RecipeHelper.getRecipeEUtTier(recipe)))).toInt()
                 return recipe
             }
 

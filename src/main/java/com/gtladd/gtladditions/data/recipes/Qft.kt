@@ -7,7 +7,6 @@ import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
-import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.QFT_RECIPES
 import java.util.function.Consumer
 
@@ -59,7 +58,7 @@ object Qft {
             .inputItems(TagPrefix.dust, Germanium, 4)
             .inputItems(TagPrefix.dust, RareEarth, 4)
             .inputFluids(RadoxGas.getFluid(21600))
-            .inputFluids(Oxygen.getFluid(175000))
+            .inputFluids(TemporalFluid.getFluid(1000))
             .inputFluids(Titanium50.getFluid(576))
             .outputFluids(Radox.getFluid(10800))
             .EUt(GTValues.VA[14] * 256L).duration(2560).save(provider)
@@ -73,6 +72,6 @@ object Qft {
             .inputFluids(Biomass.getFluid(1000000))
             .inputFluids(SterileGrowthMedium.getFluid(1000000))
             .outputFluids(SuperMutatedLivingSolder.getFluid(100000))
-            .EUt(GTValues.VA[GTValues.MAX].toLong()).duration(7200).save(provider)
+            .EUt(GTValues.VA[GTValues.MAX].toLong() * 4096L).duration(7200).save(provider)
     }
 }

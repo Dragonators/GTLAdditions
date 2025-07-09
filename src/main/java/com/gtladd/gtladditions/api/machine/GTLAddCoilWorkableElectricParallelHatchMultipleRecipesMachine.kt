@@ -8,14 +8,7 @@ import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
 
 class GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine(holder: IMachineBlockEntity) :
-    CoilWorkableElectricMultiblockMachine(holder), ParallelMachine {
-    public override fun createRecipeLogic(vararg args: Any): RecipeLogic {
-        return GTLAddMultipleRecipesLogic(this)
-    }
-
-    override fun getRecipeLogic(): GTLAddMultipleRecipesLogic {
-        return super.getRecipeLogic() as GTLAddMultipleRecipesLogic
-    }
+    GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder), ParallelMachine {
 
     override fun getMaxParallel(): Int {
         return GTLRecipeModifiers.getHatchParallel(this)

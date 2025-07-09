@@ -1,13 +1,18 @@
 package com.gtladd.gtladditions.api.machine
 
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
 import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
+import net.minecraft.nbt.CompoundTag
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 
 open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEntity, vararg args: Any?) :
-    WorkableElectricMultiblockMachine(holder, *args), ParallelMachine {
+    WorkableElectricMultiblockMachine(holder, *args), ParallelMachine, ILimitedDuration {
+        private var limitedDuration = 20
+
     public override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return GTLAddMultipleRecipesLogic(this)
     }
@@ -16,7 +21,30 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
         return super.getRecipeLogic() as GTLAddMultipleRecipesLogic
     }
 
+    override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {
+        super.saveCustomPersistedData(tag, forDrop)
+        tag.putInt("drLimit", limitedDuration)
+    }
+
+    override fun loadCustomPersistedData(tag: CompoundTag) {
+        super.loadCustomPersistedData(tag)
+        limitedDuration = tag.getInt("drLimit")
+    }
+
     override fun getMaxParallel(): Int {
         return Int.Companion.MAX_VALUE
+    }
+
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        configuratorPanel.attachConfigurators(LimitedDurationConfigurator(this))
+    }
+
+    override fun setLimitedDuration(number: Int) {
+        if (number != limitedDuration) limitedDuration = number
+    }
+
+    override fun getLimitedDuration(): Int {
+        return this.limitedDuration
     }
 }

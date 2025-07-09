@@ -30,19 +30,16 @@ import net.minecraft.MethodsReturnNonnullByDefault
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.pattern.util.IValueContainer
 import org.gtlcore.gtlcore.common.data.GTLMaterials
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.TierCasingMachine
 import org.gtlcore.gtlcore.utils.Registries
-import java.util.*
 import javax.annotation.ParametersAreNonnullByDefault
 import kotlin.math.*
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(holder, "SCTier"), ParallelMachine,
-    IMachineModifyDrops {
+open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(holder, "SCTier"), IMachineModifyDrops {
     @Persisted
     val machineStorage: NotifiableItemStackHandler
     private var coilType: ICoilType
@@ -104,7 +101,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
         super.addDisplayText(textList)
         if (this.isFormed) {
             textList.add(Component.literal("高度：" + this.height))
-            textList.add(Component.literal("最大并行数：" + this.maxParallel))
+            textList.add(Component.literal("最大并行数：" + this.getMaxParallel()))
             if (this.energyTier > GTValues.UIV) {
                 textList.add(Component.literal("UU增幅液成功概率：" + this.successRateA() + "%"))
                 textList.add(Component.literal("UU增幅液基础输出量：" + this.baseOutputFluid1() + "mb"))
@@ -142,7 +139,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
         return (2250 * tanh(sqrt(this.frameA() * this.frameB()) * (this.height + this.energyTier) * 0.06 / 200.0)).toInt()
     }
 
-    override fun getMaxParallel(): Int {
+    fun getMaxParallel(): Int {
         return (4096 * 1.5.pow((this.coilType.coilTemperature.toDouble() / 6400))).toInt()
     }
 
@@ -193,7 +190,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
                         .addAll(builder.buildRawRecipe().outputs[FluidRecipeCapability.CAP]!!)
                 }
                 recipe1 =
-                    GTRecipeModifiers.accurateParallel(machine, recipe1, machine.maxParallel, false).getFirst()
+                    GTRecipeModifiers.accurateParallel(machine, recipe1, machine.getMaxParallel(), false).getFirst()
                 recipe1.duration = 100
                 RecipeHelper.setInputEUt(recipe1, 524288L * GTValues.V[machine.energyTier])
                 return recipe1

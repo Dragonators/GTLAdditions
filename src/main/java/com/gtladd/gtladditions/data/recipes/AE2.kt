@@ -1,45 +1,52 @@
 package com.gtladd.gtladditions.data.recipes
 
-import com.gregtechceu.gtceu.common.data.GTRecipeTypes
-import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder
+import com.gregtechceu.gtceu.api.GTValues
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.plate
+import com.gregtechceu.gtceu.api.data.tag.TagUtil
+import com.gregtechceu.gtceu.api.data.tag.TagUtil.createItemTag
+import com.gregtechceu.gtceu.common.data.GTMaterials.*
+import com.gregtechceu.gtceu.common.data.GTRecipeTypes.*
+import com.gtladd.gtladditions.GTLAdditions
 import net.minecraft.data.recipes.FinishedRecipe
-import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
+import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.MATTER_FABRICATOR_RECIPES
+import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object AE2 {
     @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
-        GTLAddRecipeBuilder("cell_component_1k", GTRecipeTypes.FORMING_PRESS_RECIPES)
-            .inputItems("gtceu:certus_quartz_plate")
-            .inputItems("ae2:logic_processor")
-            .inputItems("gtceu:redstone_plate")
-            .outputItems("ae2:cell_component_1k")
+        FORMING_PRESS_RECIPES.recipeBuilder(GTLAdditions.id("cell_component_1k"))
+            .inputItems(plate, CertusQuartz)
+            .inputItems(plate, Redstone)
+            .inputItems(getItemStack("ae2:logic_processor"))
+            .outputItems(getItemStack("ae2:cell_component_1k"))
             .EUt(1).duration(100).save(provider)
-        GTLAddRecipeBuilder("singularity_1", GTLRecipeTypes.MATTER_FABRICATOR_RECIPES)
-            .inputItems("kubejs:scrap", 4320)
+        MATTER_FABRICATOR_RECIPES.recipeBuilder(GTLAdditions.id("singularity_1"))
+            .inputItems(getItemStack("kubejs:scrap", 4320))
             .circuitMeta(3)
-            .outputItems("ae2:singularity")
-            .TierEUtVA(9).duration(1).save(provider)
-        GTLAddRecipeBuilder("singularity_2", GTLRecipeTypes.MATTER_FABRICATOR_RECIPES)
-            .inputItems("kubejs:scrap_box", 480)
+            .outputItems(getItemStack("ae2:singularity"))
+            .EUt(GTValues.VA[9].toLong()).duration(1).save(provider)
+        MATTER_FABRICATOR_RECIPES.recipeBuilder(GTLAdditions.id("singularity_2"))
+            .inputItems(getItemStack("kubejs:scrap_box", 480))
             .circuitMeta(3)
-            .outputItems("ae2:singularity", 9)
-            .TierEUtVA(10).duration(1).save(provider)
-        GTLAddRecipeBuilder("quartz_glassquartz_glass", GTRecipeTypes.ALLOY_SMELTER_RECIPES)
-            .inputItemsTag("glass")
-            .inputItems("gtceu:certus_quartz_dust")
-            .outputItems("ae2:quartz_glass")
+            .outputItems(getItemStack("ae2:singularity", 9))
+            .EUt(GTValues.VA[10].toLong()).duration(1).save(provider)
+        ALLOY_SMELTER_RECIPES.recipeBuilder(GTLAdditions.id("quartz_glassquartz_glass"))
+            .inputItems(createItemTag("glass"))
+            .inputItems(dust, CertusQuartz)
+            .outputItems(getItemStack("ae2:quartz_glass"))
             .EUt(7).duration(150).save(provider)
-        GTLAddRecipeBuilder("energy_cell", GTRecipeTypes.ASSEMBLER_RECIPES)
-            .inputItemsTag("gems/certus_quartz", 4)
-            .InputItems("4x ae2:fluix_dust")
-            .inputItems("ae2:quartz_glass")
-            .outputItems("ae2:energy_cell")
+        ASSEMBLER_RECIPES.recipeBuilder(GTLAdditions.id("energy_cell"))
+            .inputItems(createItemTag("gems/certus_quartz"), 4)
+            .inputItems(getItemStack("ae2:fluix_dust", 4))
+            .inputItems(getItemStack("ae2:quartz_glass"))
+            .outputItems(getItemStack("ae2:energy_cell"))
             .EUt(32).duration(10).save(provider)
-        GTLAddRecipeBuilder("dense_energy_cell", GTRecipeTypes.ASSEMBLER_RECIPES)
-            .InputItems("8x ae2:energy_cell")
-            .inputItems("ae2:calculation_processor")
-            .outputItems("ae2:dense_energy_cell")
+        ASSEMBLER_RECIPES.recipeBuilder(GTLAdditions.id("dense_energy_cell"))
+            .inputItems(getItemStack("ae2:energy_cell", 8))
+            .inputItems(getItemStack("ae2:calculation_processor"))
+            .outputItems(getItemStack("ae2:dense_energy_cell"))
             .EUt(32).duration(10).save(provider)
     }
 }
