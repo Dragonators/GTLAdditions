@@ -1,16 +1,19 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
-import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.utils.FormattingUtil
+import com.gtladd.gtladditions.api.machine.ILimitedDuration
+import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
 import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.common.data.GTLBlocks
@@ -19,7 +22,8 @@ import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachi
 import kotlin.math.pow
 
 class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private val SEPMTier: Boolean) :
-    WorkableElectricMultiblockMachine(holder), ParallelMachine {
+    WorkableElectricMultiblockMachine(holder), ParallelMachine, ILimitedDuration {
+    private var limitedDuration = 20
     private var SpaceElevatorTier = 0
     private var ModuleTier = 0
     private var controller : SpaceElevatorMachine? = null
@@ -33,7 +37,7 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private va
             val logic : RecipeLogic? = controller !!.recipeLogic
             if (logic != null) {
                 if (logic.isWorking && logic.getProgress() > 80) {
-                    SpaceElevatorTier = controller !!.tier - GTValues.ZPM
+                    SpaceElevatorTier = controller !!.tier - 7
                     ModuleTier = controller !!.casingTier
                 } else if (!logic.isWorking || !controller!!.isFormed) {
                     SpaceElevatorTier = 0
@@ -85,14 +89,14 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private va
         getSpaceElevatorTier()
     }
 
-    override fun onStructureInvalid() {
-        super.onStructureInvalid()
-        controller = null
+    override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {
+        super.saveCustomPersistedData(tag, forDrop)
+        tag.putInt("drLimit", limitedDuration)
     }
 
-    override fun onPartUnload() {
-        super.onPartUnload()
-        controller = null
+    override fun loadCustomPersistedData(tag: CompoundTag) {
+        super.loadCustomPersistedData(tag)
+        limitedDuration = tag.getInt("drLimit")
     }
 
     override fun onWorking(): Boolean {
@@ -122,6 +126,19 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private va
 
     override fun getMaxParallel(): Int {
         return 8.0.pow((this.ModuleTier - 1).toDouble()).toInt()
+    }
+
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        configuratorPanel.attachConfigurators(LimitedDurationConfigurator(this))
+    }
+
+    override fun setLimitedDuration(number: Int) {
+        if (number != limitedDuration) limitedDuration = number
+    }
+
+    override fun getLimitedDuration(): Int {
+        return this.limitedDuration
     }
 
     companion object {

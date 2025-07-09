@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
@@ -8,10 +9,12 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
-import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.utils.FormattingUtil
+import com.gtladd.gtladditions.api.machine.ILimitedDuration
+import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
 import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
 import net.minecraft.ChatFormatting
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
@@ -20,9 +23,20 @@ import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine
 import org.gtlcore.gtlcore.utils.Registries
 import kotlin.math.max
 
-class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachine(holder, 1), ParallelMachine {
+class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachine(holder, 1), ParallelMachine, ILimitedDuration {
+    private var limitedDuration = 20
     override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
         return BiologicalSimulationLaboratoryLogic(this)
+    }
+
+    override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {
+        super.saveCustomPersistedData(tag, forDrop)
+        tag.putInt("drLimit", limitedDuration)
+    }
+
+    override fun loadCustomPersistedData(tag: CompoundTag) {
+        super.loadCustomPersistedData(tag)
+        limitedDuration = tag.getInt("drLimit")
     }
 
     override fun filter(itemStack: ItemStack): Boolean {
@@ -90,6 +104,19 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
 
     override fun getMaxParallel(): Int {
         return Max_Parallels
+    }
+
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        configuratorPanel.attachConfigurators(LimitedDurationConfigurator(this))
+    }
+
+    override fun setLimitedDuration(number: Int) {
+        if (number != limitedDuration) limitedDuration = number
+    }
+
+    override fun getLimitedDuration(): Int {
+        return this.limitedDuration
     }
 
     private class BiologicalSimulationLaboratoryLogic(machine: WorkableElectricMultiblockMachine?) :

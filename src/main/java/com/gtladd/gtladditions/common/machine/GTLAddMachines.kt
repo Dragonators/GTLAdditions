@@ -136,7 +136,7 @@ object GTLAddMachines {
             .langValue("Super Input Dual Hatch").overlayTieredHullRenderer("super_input_dual_hatch.import")
             .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 37))
             .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 24,
-                    FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 16)))
+                    FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 12)))
             .tooltipBuilder(GTLAdd_TOOLTIP).tier(14).register()
     }
 }

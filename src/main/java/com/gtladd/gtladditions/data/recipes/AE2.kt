@@ -3,7 +3,6 @@ package com.gtladd.gtladditions.data.recipes
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.plate
-import com.gregtechceu.gtceu.api.data.tag.TagUtil
 import com.gregtechceu.gtceu.api.data.tag.TagUtil.createItemTag
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.*

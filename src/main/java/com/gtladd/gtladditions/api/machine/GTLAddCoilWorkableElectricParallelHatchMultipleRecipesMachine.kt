@@ -1,9 +1,6 @@
 package com.gtladd.gtladditions.api.machine
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
-import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
-import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
 

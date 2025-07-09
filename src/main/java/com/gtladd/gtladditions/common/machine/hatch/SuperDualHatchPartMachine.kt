@@ -38,7 +38,7 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, vararg args: A
     private var hasItemTransfer = false
 
     protected fun createTank(): NotifiableFluidTank {
-        return object : NotifiableFluidTank(this, 24, Long.Companion.MAX_VALUE shr 16, IO.IN) {
+        return object : NotifiableFluidTank(this, 24, Long.Companion.MAX_VALUE shr 12, IO.IN) {
             override fun canCapOutput(): Boolean {
                 return true
             }

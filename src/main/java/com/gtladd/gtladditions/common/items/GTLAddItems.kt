@@ -4,7 +4,6 @@ import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
 import com.tterrag.registrate.util.entry.ItemEntry
 import net.minecraft.world.item.Item
-import java.util.function.Supplier
 
 object GTLAddItems {
     @JvmField
