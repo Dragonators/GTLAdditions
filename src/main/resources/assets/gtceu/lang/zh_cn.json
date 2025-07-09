@@ -43,7 +43,7 @@
   "gtceu.machine.taixuturbidarray.tooltip.3": "uu增幅液的基础产出计算公式：4096*(1-e^(-0.015*α*高度/16+β*ln(电压等级+2)))",
   "gtceu.machine.taixuturbidarray.tooltip.4": "uu物质成功概率计算公式：1/(1-e^(-0.02*((α+β)/20+∛高度*电压等级/7))",
   "gtceu.machine.taixuturbidarray.tooltip.5": "uu物质的基础产出计算公式：2250*tanh(√(α*β)*(高度+电压等级)*0.06/200)",
-  "gtceu.machine.taixuturbidarray.tooltip.6": "并行计算公式：4096*1.5^(线圈温度/6400,12)",
+  "gtceu.machine.taixuturbidarray.tooltip.6": "并行计算公式：4096*1.621^(线圈温度/6400,12)",
   "gtceu.machine.taixuturbidarray.tooltip.7": "最终输出量为并行乘以基础产出",
   "gtceu.machine.taixuturbidarray.tooltip.8": "可以在主机中放入不同物品获得不同的最终概率加成",
   "gtceu.machine.taixuturbidarray.tooltip.9": "具体可放入的物品与加成可在主机中的存储格的悬停提示中查看",
