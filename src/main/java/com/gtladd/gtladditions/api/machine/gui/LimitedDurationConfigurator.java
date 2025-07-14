@@ -10,14 +10,14 @@ import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 
 import net.minecraft.network.chat.Component;
 
-import com.gtladd.gtladditions.api.machine.ILimitedDuration;
+import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe;
 import com.hepdd.gtmthings.GTMThings;
 
 public class LimitedDurationConfigurator implements IFancyConfigurator {
 
-    private final ILimitedDuration machine;
+    private final IGTLAddMultiRecipe machine;
 
-    public LimitedDurationConfigurator(ILimitedDuration machine) {
+    public LimitedDurationConfigurator(IGTLAddMultiRecipe machine) {
         this.machine = machine;
     }
 

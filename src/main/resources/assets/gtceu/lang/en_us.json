@@ -30,6 +30,7 @@
   "gtceu.molecular_deconstruction": "Molecular Deconstruction",
   "gtceu.chaos_weave": "Chaos Weave",
   "gtceu.multiblock.titans_crip_earthbore_parallel": "Titans Crip Earthbore Parallel: %d",
+  "gtceu.multiblock.antientropy_condensation_center.dust_cryotheum": "Needs Dust Cryotheum: %d",
   "gtceu.multiblock.steam_oc_hv": "Raise the steam multiblock recipe restriction to HV",
   "gtceu.multiblock.steam_duraiton": "The time taken becomes 1t, but it requires more steam to be consumed",
   "gtceu.multiblock.steam_duration_modify": "All recipes have been shortened to 1t",

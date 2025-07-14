@@ -1,29 +1,31 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
-import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
-import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
+import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.api.machine.ILimitedDuration
+import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe
 import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
-import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
+import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import net.minecraft.ChatFormatting
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
+import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine
-import org.gtlcore.gtlcore.utils.Registries
+import org.gtlcore.gtlcore.utils.Registries.getItem
+import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import kotlin.math.max
 
-class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachine(holder, 1), ParallelMachine, ILimitedDuration {
+class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachine(holder, 1), ParallelMachine,
+    IGTLAddMultiRecipe {
     private var limitedDuration = 20
     override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
         return BiologicalSimulationLaboratoryLogic(this)
@@ -71,6 +73,15 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
                 )
             )
         }
+    }
+
+    override fun beforeWorking(recipe: GTRecipe?): Boolean {
+        this.setparameter(this as MetaMachine)
+        val input = RecipeHelper.getInputItems(recipe)
+        for (itemstack in input) {
+            if (itemstack.item == getItem("avaritia:infinity_sword") && !Is_MultiRecipe) return false
+        }
+        return super.beforeWorking(recipe)
     }
 
     private fun getTier(machine: MetaMachine?): Int {
@@ -127,7 +138,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
 
         override fun findAndHandleRecipe() {
             lastRecipe = null
-            val match = if (this.isNanCertificate) recipe
+            val match = if (this.isNanCertificate) gtRecipe
             else this.oneRecipe
             if (match != null && RecipeRunnerHelper.matchRecipeOutput(this.machine, match)) {
                 setupRecipe(match)
@@ -137,17 +148,17 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
         val isNanCertificate: Boolean
             get() {
                 val item = getMachine()!!.machineStorageItem
-                return item.item == Registries.getItem("gtceu:nan_certificate")
+                return item.item == getItem("gtceu:nan_certificate")
             }
 
         val oneRecipe: GTRecipe?
             get() {
                 if (!machine.hasProxies()) return null
-                var recipe = this.machine.recipeType.lookup.findRecipe(machine)
+                var recipe = machine.recipeType.lookup.findRecipe(machine)
                 if (recipe == null || RecipeHelper.getRecipeEUtTier(recipe) > getMachine()!!.getTier()) return null
-                recipe = parallelRecipe(recipe, getMachine()!!.maxParallel)
-                RecipeHelper.setInputEUt(recipe,
-                    max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt)).toLong())
+                val p = IParallelLogic.getMaxParallel(machine, recipe, parallel.maxParallel.toLong())
+                if (p > 1) recipe = recipe.copy(ContentModifier.multiplier(p.toDouble()), false)
+                RecipeHelper.setInputEUt(recipe, max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt * p)).toLong())
                 recipe.duration = max(1.0, recipe.duration.toDouble() *
                             reDuctionDuration / (1 shl (getMachine() !!.getTier() - RecipeHelper.getRecipeEUtTier(recipe)))).toInt()
                 return recipe
@@ -157,9 +168,9 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
             machine.afterWorking()
             if (lastRecipe != null) {
                 lastRecipe!!.postWorking(this.machine)
-                lastRecipe!!.handleRecipeIO(IO.OUT, this.machine, this.chanceCaches)
+                RecipeRunnerHelper.handleRecipeOutput(this.machine, lastRecipe!!)
             }
-            val match = if (this.isNanCertificate) recipe else this.oneRecipe
+            val match = if (this.isNanCertificate) gtRecipe else this.oneRecipe
             if (match != null && RecipeRunnerHelper.matchRecipeOutput(this.machine, match)) {
                 setupRecipe(match)
                 return
@@ -175,20 +186,9 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
         private var reDuctionDuration = 1.0
         private var Max_Parallels = 64
         private var Is_MultiRecipe = false
-        private val RHENIUM_NANOSWARM: ItemStack = Registries.getItemStack("gtceu:rhenium_nanoswarm")
-        private val ORICHALCUM_NANOSWARM: ItemStack = Registries.getItemStack("gtceu:orichalcum_nanoswarm")
-        private val INFUSCOLIUM_NANOSWARM: ItemStack = Registries.getItemStack("gtceu:infuscolium_nanoswarm")
-        private val NAN_CERTIFICATE: ItemStack = Registries.getItemStack("gtceu:nan_certificate")
-
-        fun beforeWorking(machine: IRecipeLogicMachine?, recipe: GTRecipe): Boolean {
-            if (machine is BiologicalSimulationLaboratory) {
-                machine.setparameter(machine as MetaMachine)
-                val input = RecipeHelper.getInputItems(recipe)
-                for (itemstack in input) {
-                    if (itemstack.item == Registries.getItem("avaritia:infinity_sword") && !Is_MultiRecipe) return false
-                }
-            }
-            return true
-        }
+        private val RHENIUM_NANOSWARM: ItemStack = getItemStack("gtceu:rhenium_nanoswarm")
+        private val ORICHALCUM_NANOSWARM: ItemStack = getItemStack("gtceu:orichalcum_nanoswarm")
+        private val INFUSCOLIUM_NANOSWARM: ItemStack = getItemStack("gtceu:infuscolium_nanoswarm")
+        private val NAN_CERTIFICATE: ItemStack = getItemStack("gtceu:nan_certificate")
     }
 }

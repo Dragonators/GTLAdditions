@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.common.machine.muiltblock
 
 import com.gregtechceu.gtceu.GTCEu
+import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.data.RotationState
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
@@ -28,7 +29,6 @@ import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricParallelHatchMu
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.AdvancedSpaceElevatorModuleMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.AntientropyCondensationCenter
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ArcanicAstrograph
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.BiologicalSimulationLaboratory
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.TaixuTurbidArray
@@ -46,6 +46,8 @@ import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLMachines
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
+import org.gtlcore.gtlcore.utils.MachineIO
+import org.gtlcore.gtlcore.utils.Registries
 import org.gtlcore.gtlcore.utils.Registries.getBlock
 import java.util.function.Function
 import kotlin.math.pow
@@ -340,9 +342,6 @@ object MultiBlockMachine {
                 .where("c", Predicates.blocks(getBlock("kubejs:module_connector")))
                 .build()
         }
-        .beforeWorking { machine: IRecipeLogicMachine?, recipe: GTRecipe? ->
-            AdvancedSpaceElevatorModuleMachine.Companion.beforeWorking(machine, recipe!!)
-        }
         .workableCasingRenderer(
             GTLCore.id("block/space_elevator_mechanical_casing"),
             GTCEu.id("block/multiblock/gcym/large_assembler")
@@ -377,9 +376,6 @@ object MultiBlockMachine {
                 .where("a", Predicates.blocks(getBlock("kubejs:module_base")))
                 .where("c", Predicates.blocks(getBlock("kubejs:module_connector")))
                 .build()
-        }
-        .beforeWorking { machine: IRecipeLogicMachine?, recipe: GTRecipe? ->
-            AdvancedSpaceElevatorModuleMachine.Companion.beforeWorking(machine, recipe!!)
         }
         .workableCasingRenderer(
             GTLCore.id("block/space_elevator_mechanical_casing"),
@@ -617,9 +613,6 @@ object MultiBlockMachine {
                 .where("F", Predicates.blocks(getBlock("gtceu:zpm_hermetic_casing")))
                 .build()
         }
-        .beforeWorking { machine: IRecipeLogicMachine?, recipe: GTRecipe? ->
-            BiologicalSimulationLaboratory.Companion.beforeWorking(machine, recipe!!)
-        }
         .workableCasingRenderer(
             GTLCore.id("block/casings/hyper_mechanical_casing"),
             GTCEu.id("block/multiblock/fusion_reactor")
@@ -756,7 +749,7 @@ object MultiBlockMachine {
         }
         .additionalDisplay { controller: IMultiController?, components: MutableList<Component?>? ->
             if (controller is GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine) {
-                if (controller!!.isFormed()) {
+                if (controller.isFormed()) {
                     components!!.add(
                         Component.translatable(
                             "gtceu.multiblock.blast_furnace.max_temperature",
@@ -777,7 +770,7 @@ object MultiBlockMachine {
     @JvmField
     val ANTIENTROPY_CONDENSATION_CENTER: MultiblockMachineDefinition = REGISTRATE.multiblock(
         "antientropy_condensation_center",
-        Function { holder: IMachineBlockEntity? -> AntientropyCondensationCenter(holder!!) })
+        Function { holder: IMachineBlockEntity? -> GTLAddWorkableElectricParallelHatchMultipleRecipesMachine(holder!!) })
         .allRotation()
         .tooltipText("每次工作前需要提供凛冰粉")
         .tooltipText("电压每高一级，消耗的凛冰粉数量/2")
@@ -815,13 +808,23 @@ object MultiBlockMachine {
                 .where("L", Predicates.blocks(getBlock("gtlcore:dimension_injection_casing")))
                 .build()
         }
+        .beforeWorking { machine: IRecipeLogicMachine?, recipe: GTRecipe? ->
+            if (machine is GTLAddWorkableElectricParallelHatchMultipleRecipesMachine) {
+                return@beforeWorking MachineIO.inputItem(machine, Registries.getItemStack("kubejs:dust_cryotheum", 1 shl (GTValues.MAX - machine.getTier())))
+            }
+            return@beforeWorking false
+        }
+        .additionalDisplay{controller: IMultiController?, components: MutableList<Component?>? ->
+            if (controller is GTLAddWorkableElectricParallelHatchMultipleRecipesMachine) {
+                if (controller.isFormed()) {
+                    components!!.add(Component.translatable("gtceu.multiblock.antientropy_condensation_center.dust_cryotheum", 1 shl (GTValues.MAX - controller.getTier())))
+                }
+            }
+        }
         .workableCasingRenderer(
             GTLCore.id("block/casings/antifreeze_heatproof_machine_casing"),
             GTCEu.id("block/multiblock/vacuum_freezer")
         )
-        .beforeWorking { machine: IRecipeLogicMachine?, recipe: GTRecipe? ->
-            AntientropyCondensationCenter.Companion.beforeWorking(machine, recipe!!)
-        }
         .register()
 
     @JvmField

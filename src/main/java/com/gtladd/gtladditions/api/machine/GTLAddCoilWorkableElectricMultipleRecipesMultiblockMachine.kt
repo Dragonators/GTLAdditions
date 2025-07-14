@@ -5,14 +5,14 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
-import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
+import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import net.minecraft.nbt.CompoundTag
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import kotlin.math.min
 import kotlin.math.pow
 
 open class GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder: IMachineBlockEntity) :
-    CoilWorkableElectricMultiblockMachine(holder), ParallelMachine, ILimitedDuration {
+    CoilWorkableElectricMultiblockMachine(holder), ParallelMachine, IGTLAddMultiRecipe {
         private var limitedDuration = 20
     public override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return GTLAddMultipleRecipesLogic(this)

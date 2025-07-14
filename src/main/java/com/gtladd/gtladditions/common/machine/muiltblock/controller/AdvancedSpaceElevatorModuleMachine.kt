@@ -3,14 +3,12 @@ package com.gtladd.gtladditions.common.machine.muiltblock.controller
 import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
-import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
-import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.api.machine.ILimitedDuration
+import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe
 import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
-import com.gtladd.gtladditions.api.recipeslogic.GTLAddMultipleRecipesLogic
+import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
@@ -22,7 +20,7 @@ import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachi
 import kotlin.math.pow
 
 class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private val SEPMTier: Boolean) :
-    WorkableElectricMultiblockMachine(holder), ParallelMachine, ILimitedDuration {
+    WorkableElectricMultiblockMachine(holder), ParallelMachine, IGTLAddMultiRecipe {
     private var limitedDuration = 20
     private var SpaceElevatorTier = 0
     private var ModuleTier = 0
@@ -141,15 +139,4 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private va
         return this.limitedDuration
     }
 
-    companion object {
-        @JvmStatic
-        fun beforeWorking(machine: IRecipeLogicMachine?, recipe: GTRecipe): Boolean {
-            if (machine is AdvancedSpaceElevatorModuleMachine) {
-                machine.getSpaceElevatorTier()
-                if (machine.SpaceElevatorTier < 1) return false
-                return !machine.SEPMTier || recipe.data.getInt("SEPMTier") <= machine.ModuleTier
-            }
-            return false
-        }
-    }
 }

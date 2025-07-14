@@ -30,6 +30,7 @@
   "gtceu.molecular_deconstruction": "分子解构",
   "gtceu.chaos_weave": "混沌编织",
   "gtceu.multiblock.titans_crip_earthbore_parallel": "同时处理至多%d个配方",
+  "gtceu.multiblock.antientropy_condensation_center.dust_cryotheum": "需要凛冰粉: %d个",
   "gtceu.multiblock.steam_oc_hv": "将蒸汽多方块配方限制提升到HV",
   "gtceu.multiblock.steam_duraiton": "耗时变为1t，但是需要消耗更多的蒸汽",
   "gtceu.multiblock.steam_duration_modify": "所有配方耗时缩短至1t",
