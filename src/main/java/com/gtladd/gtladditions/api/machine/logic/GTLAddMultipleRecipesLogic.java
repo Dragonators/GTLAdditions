@@ -2,11 +2,12 @@ package com.gtladd.gtladditions.api.machine.logic;
 
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
 import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe;
+import org.gtlcore.gtlcore.api.recipe.IGTRecipeEUTier;
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic;
+import org.gtlcore.gtlcore.api.recipe.RecipeResult;
 
 import com.gregtechceu.gtceu.api.capability.recipe.*;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
-import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
@@ -19,6 +20,7 @@ import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe;
 import it.unimi.dsi.fastutil.objects.*;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 
 import javax.annotation.Nullable;
 
@@ -32,10 +34,19 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
 
     private static final int MAX_THREADS = 128;
 
+    protected BiPredicate<GTRecipe, IRecipeLogicMachine> beforeWorking;
+
     public GTLAddMultipleRecipesLogic(ParallelMachine parallel) {
         super((IRecipeLogicMachine) parallel);
         this.parallel = parallel;
         this.limited = (IGTLAddMultiRecipe) parallel;
+    }
+
+    public GTLAddMultipleRecipesLogic(ParallelMachine parallel, BiPredicate<GTRecipe, IRecipeLogicMachine> beforeWorking) {
+        super((IRecipeLogicMachine) parallel);
+        this.parallel = parallel;
+        this.limited = (IGTLAddMultiRecipe) parallel;
+        this.beforeWorking = beforeWorking;
     }
 
     @Override
@@ -55,6 +66,7 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
     @Nullable
     protected GTRecipe getGTRecipe() {
         if (!machine.hasProxies()) return null;
+        if (this.beforeWorking != null && !this.beforeWorking.test(null, this.machine)) return null;
         Set<GTRecipe> recipes = this.machine.getRecipeType().getLookup().findRecipeCollisions(machine);
         int length = 0;
         if (recipes != null) length = recipes.size();
@@ -91,6 +103,7 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
         GTRecipe recipe = GTRecipeBuilder.ofRaw().buildRawRecipe();
         recipe.outputs.put(ItemRecipeCapability.CAP, new ArrayList<>());
         recipe.outputs.put(FluidRecipeCapability.CAP, new ArrayList<>());
+        long maxEUt = getMachine().getOverclockVoltage();
         long totalEu = 0;
         for (GTRecipe r : recipeList) {
             if (parallels[index] > 1) r = r.copy(ContentModifier.multiplier(parallels[index++]), false);
@@ -101,10 +114,12 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
                 List<Content> fluid = r.outputs.get(FluidRecipeCapability.CAP);
                 if (fluid != null) recipe.outputs.get(FluidRecipeCapability.CAP).addAll(fluid);
             }
+            if (totalEu / maxEUt > 1200) break;
         }
-        if (recipe.outputs.get(ItemRecipeCapability.CAP).isEmpty() && recipe.outputs.get(FluidRecipeCapability.CAP).isEmpty())
+        if (recipe.outputs.get(ItemRecipeCapability.CAP).isEmpty() && recipe.outputs.get(FluidRecipeCapability.CAP).isEmpty()) {
+            if (totalEu / maxEUt > 1200) RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_EU);
             return null;
-        long maxEUt = getMachine().getOverclockVoltage();
+        }
         int minDuration = limited.getLimitedDuration();
         double d = (double) totalEu / maxEUt;
         long eut = d > minDuration ? maxEUt : (long) (maxEUt * d / minDuration);
@@ -116,7 +131,9 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
 
     private GTRecipe getLockGTRecipe() {
         if (!machine.hasProxies()) return null;
-        if (this.getLockRecipe() == null) this.setLockRecipe(machine.getRecipeType().getLookup().findRecipe(machine));
+        if (this.beforeWorking != null && !this.beforeWorking.test(null, this.machine)) return null;
+        if (this.getLockRecipe() == null) this.setLockRecipe(machine.getRecipeType().getLookup().find(machine,
+                (r) -> matchRecipe(machine, r) && checkRecipe(r)));
         else if (!matchRecipe(machine, this.getLockRecipe()) && !checkRecipe(this.getLockRecipe())) return null;
         GTRecipe recipe = this.getLockRecipe();
         if (recipe == null) return null;
@@ -135,7 +152,6 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
     public void onRecipeFinish() {
         machine.afterWorking();
         if (lastRecipe != null) {
-            lastRecipe.postWorking(this.machine);
             handleRecipeOutput(machine, lastRecipe);
         }
         var match = this.isLock() ? getLockGTRecipe() : getGTRecipe();
@@ -148,12 +164,12 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
         duration = 0;
     }
 
-    private boolean checkRecipe(GTRecipe recipe) {
-        boolean eut = RecipeHelper.getRecipeEUtTier(recipe) <= getMachine().getTier();
-        boolean ebf_temp = recipe.data.getInt("ebf_temp") != 0 &&
-                machine instanceof CoilWorkableElectricMultiblockMachine coilMachine &&
-                coilMachine.getCoilType().getCoilTemperature() > recipe.data.getInt("ebf_temp");
-        return eut || ebf_temp;
+    protected boolean checkRecipe(GTRecipe recipe) {
+        int tier = -1;
+        if (recipe.recipeType instanceof IGTRecipeEUTier euTier)
+            tier = euTier.getRecipeTierMap().getOrDefault(recipe.id, -1);
+        if (tier == -1) tier = RecipeHelper.getRecipeEUtTier(recipe);
+        return tier <= getMachine().getTier() && recipe.checkConditions(machine.getRecipeLogic()).isSuccess();
     }
 
     record RecipeData(int index, long remainingWant) {}

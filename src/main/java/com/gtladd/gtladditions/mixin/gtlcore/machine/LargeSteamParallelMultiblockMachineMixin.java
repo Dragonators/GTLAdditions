@@ -63,16 +63,15 @@ public class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblock
      */
     @Overwrite(remap = false)
     public static GTRecipe recipeModifier(MetaMachine machine, @NotNull GTRecipe recipe, double reductionDuration) {
-        if (machine instanceof LargeSteamParallelMultiblockMachine machine1) {
-            LargeSteamParallelMultiblockMachineMixin mixin = (LargeSteamParallelMultiblockMachineMixin) (Object) machine1;
-            boolean isHuge = mixin.gtladditions$isHuge;
-            boolean isLarge = mixin.gtladditions$isLarge;
+        if (machine instanceof LargeSteamParallelMultiblockMachineMixin machine1) {
+            boolean isHuge = machine1.gtladditions$isHuge;
+            boolean isLarge = machine1.gtladditions$isLarge;
             if (RecipeHelper.getInputEUt(recipe) > (long) (isHuge ? 512 : (isLarge ? 128 : 32))) return null;
-            GTRecipe result = GTRecipeModifiers.accurateParallel(machine, recipe, mixin.max_parallels, false).getFirst();
+            GTRecipe result = GTRecipeModifiers.accurateParallel(machine, recipe, machine1.max_parallels, false).getFirst();
             recipe = result == recipe ? result.copy() : result;
             if (isHuge) reductionDuration = 0.0;
             if (machine1.getDefinition() == MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_STEAM_OVEN) recipe.tickInputs.put(EURecipeCapability.CAP, List.of(new Content((long) Math.max(1.0, (double) RecipeHelper.getInputEUt(recipe) * 0.01), ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0, null, null)));
-            recipe.duration = (int) Math.max(1.0, (double) recipe.duration * reductionDuration / (isLarge ? Math.pow(2.0, mixin.amountOC) : 1.0));
+            recipe.duration = (int) Math.max(1.0, (double) recipe.duration * reductionDuration / (isLarge ? Math.pow(2.0, machine1.amountOC) : 1.0));
         }
         return recipe;
     }

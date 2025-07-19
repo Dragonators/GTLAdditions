@@ -6,7 +6,6 @@ import com.gregtechceu.gtceu.api.data.RotationState
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
-import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
@@ -28,10 +27,7 @@ import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricMultipleRecipes
 import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricParallelHatchMultipleRecipesMachine
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.AdvancedSpaceElevatorModuleMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.ArcanicAstrograph
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.BiologicalSimulationLaboratory
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.TaixuTurbidArray
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.*
 import com.gtladd.gtladditions.common.machine.muiltblock.structure.MultiBlockStructure
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.hepdd.gtmthings.data.CustomMachines
@@ -46,8 +42,6 @@ import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLMachines
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
-import org.gtlcore.gtlcore.utils.MachineIO
-import org.gtlcore.gtlcore.utils.Registries
 import org.gtlcore.gtlcore.utils.Registries.getBlock
 import java.util.function.Function
 import kotlin.math.pow
@@ -770,7 +764,7 @@ object MultiBlockMachine {
     @JvmField
     val ANTIENTROPY_CONDENSATION_CENTER: MultiblockMachineDefinition = REGISTRATE.multiblock(
         "antientropy_condensation_center",
-        Function { holder: IMachineBlockEntity? -> GTLAddWorkableElectricParallelHatchMultipleRecipesMachine(holder!!) })
+        Function { holder: IMachineBlockEntity? -> AntientropyCondensationCenter(holder!!) })
         .allRotation()
         .tooltipText("每次工作前需要提供凛冰粉")
         .tooltipText("电压每高一级，消耗的凛冰粉数量/2")
@@ -808,14 +802,8 @@ object MultiBlockMachine {
                 .where("L", Predicates.blocks(getBlock("gtlcore:dimension_injection_casing")))
                 .build()
         }
-        .beforeWorking { machine: IRecipeLogicMachine?, recipe: GTRecipe? ->
-            if (machine is GTLAddWorkableElectricParallelHatchMultipleRecipesMachine) {
-                return@beforeWorking MachineIO.inputItem(machine, Registries.getItemStack("kubejs:dust_cryotheum", 1 shl (GTValues.MAX - machine.getTier())))
-            }
-            return@beforeWorking false
-        }
         .additionalDisplay{controller: IMultiController?, components: MutableList<Component?>? ->
-            if (controller is GTLAddWorkableElectricParallelHatchMultipleRecipesMachine) {
+            if (controller is AntientropyCondensationCenter) {
                 if (controller.isFormed()) {
                     components!!.add(Component.translatable("gtceu.multiblock.antientropy_condensation_center.dust_cryotheum", 1 shl (GTValues.MAX - controller.getTier())))
                 }

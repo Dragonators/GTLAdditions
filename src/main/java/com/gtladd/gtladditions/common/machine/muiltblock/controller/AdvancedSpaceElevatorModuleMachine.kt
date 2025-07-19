@@ -24,7 +24,7 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private va
     private var limitedDuration = 20
     private var SpaceElevatorTier = 0
     private var ModuleTier = 0
-    private var controller : SpaceElevatorMachine? = null
+    private var controller : BlockPos? = null
 
     public override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return GTLAddMultipleRecipesLogic(this)
@@ -32,15 +32,18 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private va
 
     private fun getSpaceElevatorTier() {
         if (controller != null) {
-            val logic : RecipeLogic? = controller !!.recipeLogic
-            if (logic != null) {
+            val logic = GTCapabilityHelper.getRecipeLogic(level!!, controller, null)
+            if (logic != null && logic.getMachine().definition === AdvancedMultiBlockMachine.SPACE_ELEVATOR) {
                 if (logic.isWorking && logic.getProgress() > 80) {
-                    SpaceElevatorTier = controller !!.tier - 7
-                    ModuleTier = controller !!.casingTier
-                } else if (!logic.isWorking || !controller!!.isFormed) {
+                    SpaceElevatorTier = (logic.machine as SpaceElevatorMachine).tier - 7
+                    ModuleTier = (logic.machine as SpaceElevatorMachine).casingTier
+                } else if (!logic.isWorking) {
                     SpaceElevatorTier = 0
                     ModuleTier = 0
                 }
+            } else if (logic == null) {
+                SpaceElevatorTier = 0
+                ModuleTier = 0
             }
         } else {
             val level = this.level
@@ -65,9 +68,8 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private va
                     ) as Array<BlockPos?>
                     for (j in coordinatess) {
                         val logic = GTCapabilityHelper.getRecipeLogic(level, j, null)
-                        if (logic != null && logic.getMachine()
-                                .definition === AdvancedMultiBlockMachine.SPACE_ELEVATOR
-                        ) {
+                        if (logic != null && logic.getMachine().definition === AdvancedMultiBlockMachine.SPACE_ELEVATOR) {
+                            controller = j
                             if (logic.isWorking && logic.getProgress() > 80) {
                                 this.SpaceElevatorTier = (logic.machine as SpaceElevatorMachine).tier - 7
                                 this.ModuleTier = (logic.machine as SpaceElevatorMachine).casingTier

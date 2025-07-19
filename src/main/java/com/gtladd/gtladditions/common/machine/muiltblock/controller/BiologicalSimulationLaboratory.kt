@@ -1,8 +1,10 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
+import com.google.common.primitives.Ints
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
+import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
@@ -18,10 +20,13 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
+import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine
 import org.gtlcore.gtlcore.utils.Registries.getItem
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
+import java.util.function.BiPredicate
+import java.util.function.Predicate
 import kotlin.math.max
 
 class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachine(holder, 1), ParallelMachine,
@@ -75,15 +80,6 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
         }
     }
 
-    override fun beforeWorking(recipe: GTRecipe?): Boolean {
-        this.setparameter(this as MetaMachine)
-        val input = RecipeHelper.getInputItems(recipe)
-        for (itemstack in input) {
-            if (itemstack.item == getItem("avaritia:infinity_sword") && !Is_MultiRecipe) return false
-        }
-        return super.beforeWorking(recipe)
-    }
-
     private fun getTier(machine: MetaMachine?): Int {
         if (machine is BiologicalSimulationLaboratory) {
             val item = machine.machineStorage.storage.getStackInSlot(0).item
@@ -132,6 +128,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
 
     private class BiologicalSimulationLaboratoryLogic(machine: WorkableElectricMultiblockMachine?) :
         GTLAddMultipleRecipesLogic((machine as ParallelMachine?) !!) {
+
         override fun getMachine(): BiologicalSimulationLaboratory? {
             return super.getMachine() as BiologicalSimulationLaboratory?
         }
@@ -154,10 +151,13 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
         val oneRecipe: GTRecipe?
             get() {
                 if (!machine.hasProxies()) return null
-                var recipe = machine.recipeType.lookup.findRecipe(machine)
+                var recipe = machine.recipeType.lookup.find(machine,
+                    Predicate { r: GTRecipe? ->
+                        RecipeRunnerHelper.matchRecipe(machine, r!!) && BEFORE_RECIPE.test(r!!, machine)})
                 if (recipe == null || RecipeHelper.getRecipeEUtTier(recipe) > getMachine()!!.getTier()) return null
                 val p = IParallelLogic.getMaxParallel(machine, recipe, parallel.maxParallel.toLong())
                 if (p > 1) recipe = recipe.copy(ContentModifier.multiplier(p.toDouble()), false)
+                recipe.parallels = Ints.saturatedCast(p)
                 RecipeHelper.setInputEUt(recipe, max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt * p)).toLong())
                 recipe.duration = max(1.0, recipe.duration.toDouble() *
                             reDuctionDuration / (1 shl (getMachine() !!.getTier() - RecipeHelper.getRecipeEUtTier(recipe)))).toInt()
@@ -167,7 +167,6 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
         override fun onRecipeFinish() {
             machine.afterWorking()
             if (lastRecipe != null) {
-                lastRecipe!!.postWorking(this.machine)
                 RecipeRunnerHelper.handleRecipeOutput(this.machine, lastRecipe!!)
             }
             val match = if (this.isNanCertificate) gtRecipe else this.oneRecipe
@@ -178,6 +177,10 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
             status = Status.IDLE
             progress = 0
             duration = 0
+        }
+
+        override fun checkRecipe(recipe: GTRecipe): Boolean {
+            return super.checkRecipe(recipe) && BEFORE_RECIPE.test(recipe, machine)
         }
     }
 
@@ -190,5 +193,18 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
         private val ORICHALCUM_NANOSWARM: ItemStack = getItemStack("gtceu:orichalcum_nanoswarm")
         private val INFUSCOLIUM_NANOSWARM: ItemStack = getItemStack("gtceu:infuscolium_nanoswarm")
         private val NAN_CERTIFICATE: ItemStack = getItemStack("gtceu:nan_certificate")
+        private val BEFORE_RECIPE: BiPredicate<GTRecipe?, IRecipeLogicMachine?> =
+            BiPredicate { recipe: GTRecipe?, machine: IRecipeLogicMachine? ->
+                if (machine !is BiologicalSimulationLaboratory) return@BiPredicate false
+                machine.setparameter(machine)
+                val input = RecipeHelper.getInputItems(recipe!!)
+                for (stack in input) {
+                    if (stack.item == getItem("avaritia:infinity_sword") && !Is_MultiRecipe) {
+                        RecipeResult.of(machine, RecipeResult.fail(Component.literal("该配方需要不再是菜鸟的证明来解锁")))
+                        return@BiPredicate false
+                    }
+                }
+                true
+            }
     }
 }
