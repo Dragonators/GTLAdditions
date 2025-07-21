@@ -15,13 +15,13 @@ This mod is developed based on the `GregTech Leisure`. On the basis of this Modp
 
 ## Requirement
 
-- GTLCore  `Version >= 1.2.1.8`
+- GTLCore  `Version >= 1.2.2.0`
 
 ## Install
 
 First,Download `GregTech Leisure` [here](https://www.123pan.com/s/LDeAjv-EHZ03.html),and install it with your Minecraft Launcher
 
-Second delete `GTLCore` and install newest one in our group
+Second delete `GTLCore` and install newest one
 
 Finally, add this mod to `/mods` folder
 
@@ -57,7 +57,7 @@ This mod added many better machines to replace original machines
 
 | Hatch                   | General                                                                    |
 | ----------------------- | -------------------------------------------------------------------------- |
-| Laser Hatch             | A larger laser Hatch than the original version , The ampere is `16777216A` `67108863A` *and* `268435455A` |
+| Laser Hatch             | A larger laser Hatch than the original version , The ampere is `16777216A` *and* `67108863A` |
 | Wireless Laser Hatch    | Similar with `Laser Hatch` but No wiring is required                       |
 | Huge Output Dual Hatch  | Similar with `Huge Input Dual Hatch`                                       |
 | Huge Steam Input Hatch  | Like Large Steam Input Hatch . Raise the steam multiblock recipe restriction to **HV** *and* The duration taken becomes **1t** |
