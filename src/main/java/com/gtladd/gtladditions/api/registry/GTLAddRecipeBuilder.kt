@@ -36,13 +36,13 @@ class GTLAddRecipeBuilder(id: String, recipeType: GTRecipeType) : GTRecipeBuilde
     }
 
     @JvmOverloads
-    fun inputItems(input: String, number: Int = 1): GTLAddRecipeBuilder {
+    fun inputItemString(input: String, number: Int = 1): GTLAddRecipeBuilder {
         return super.inputItems(Registries.getItemStack(input, number)) as GTLAddRecipeBuilder
     }
 
     fun InputItems(inputitems: String): GTLAddRecipeBuilder {
         val split: Array<String?> = inputitems.split("x ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        return this.inputItems(split[1]!!, split[0]!!.toInt())
+        return this.inputItemString(split[1]!!, split[0]!!.toInt())
     }
 
     @JvmOverloads

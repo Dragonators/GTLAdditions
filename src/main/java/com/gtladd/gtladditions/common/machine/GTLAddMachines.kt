@@ -41,7 +41,6 @@ object GTLAddMachines {
     val LASER_OUTPUT_HATCH_16777216A: Array<MachineDefinition?>
     val LASER_INPUT_HATCH_67108864A: Array<MachineDefinition?>
     val LASER_OUTPUT_HATCH_67108863A: Array<MachineDefinition?>
-    val LASER_INPUT_HATCH_268435455A: Array<MachineDefinition?>
     val WIRELESS_LASER_INPUT_HATCH_16777216A: Array<MachineDefinition?>
     val WIRELESS_LASER_OUTPUT_HATCH_16777216A: Array<MachineDefinition?>
     val WIRELESS_LASER_INPUT_HATCH_67108864A: Array<MachineDefinition?>
@@ -67,7 +66,6 @@ object GTLAddMachines {
         LASER_OUTPUT_HATCH_16777216A = GTMachines.registerLaserHatch(IO.OUT, 16777216, PartAbility.OUTPUT_LASER)
         LASER_INPUT_HATCH_67108864A = GTMachines.registerLaserHatch(IO.IN, 67108864, PartAbility.INPUT_LASER)
         LASER_OUTPUT_HATCH_67108863A = GTMachines.registerLaserHatch(IO.OUT, 67108863, PartAbility.OUTPUT_LASER)
-        LASER_INPUT_HATCH_268435455A = GTMachines.registerLaserHatch(IO.IN, 268435455, PartAbility.INPUT_LASER)
         HUGE_OUTPUT_DUAL_HATCH = CustomMachines.registerTieredMachines("huge_output_dual_hatch",
             { holder: IMachineBlockEntity?, tier: Int? ->
                 HugeDualHatchPartMachine(holder!!, tier!!, IO.OUT) },
@@ -118,7 +116,7 @@ object GTLAddMachines {
         )
         REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_MACHINE }
         HUGE_STEAM_HATCH = REGISTRATE.machine("huge_steam_input_hatch")
-        { holder : IMachineBlockEntity? -> HugeSteamHatchPartMachine(holder !!, IO.IN) }
+        { HugeSteamHatchPartMachine(it !!) }
             .rotationState(RotationState.ALL).abilities(PartAbility.STEAM)
             .tooltips(Component.translatable("gtceu.multiblock.steam_oc_hv"),
                 Component.translatable("gtceu.multiblock.steam_duraiton"),
@@ -130,7 +128,7 @@ object GTLAddMachines {
                 OverlaySteamMachineRenderer(ResourceLocation("gtceu", "block/machine/part/steam_hatch"))
             }.register()
         SUPER_INPUT_DUAL_HATCH = REGISTRATE.machine("super_input_dual_hatch")
-        { holder : IMachineBlockEntity? -> SuperDualHatchPartMachine(holder!!) }
+        { SuperDualHatchPartMachine(it!!) }
             .rotationState(RotationState.ALL)
             .abilities(*GTMachines.DUAL_INPUT_HATCH_ABILITIES)
             .langValue("Super Input Dual Hatch").overlayTieredHullRenderer("super_input_dual_hatch.import")

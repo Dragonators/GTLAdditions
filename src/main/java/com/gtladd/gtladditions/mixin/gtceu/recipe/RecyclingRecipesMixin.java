@@ -40,7 +40,7 @@ public class RecyclingRecipesMixin {
                 if (m.hasProperty(PropertyKey.FLUID) && m.getFluid() != null && prefix == TagPrefix.dust) {
                     ResourceLocation itemPath = BuiltInRegistries.ITEM.getKey(input.getItem());
                     GTRecipeBuilder builder = GTLAddRecipesTypes.MOLECULAR_DECONSTRUCTION.recipeBuilder(GTLAdditions.id("molecular_deconstruction_" + itemPath.getPath()))
-                            .inputItems(TagPrefix.dust, m).outputFluids(m.getFluid(144L)).duration((int) Math.max(1L, ms.amount() * ms.material().getMass() / 3628800L))
+                            .inputItems(TagPrefix.dust, m).outputFluids(m.getFluid(144L)).duration((int) Math.max(1L, ms.amount() * ms.material().getMass() / 4028800L))
                             .EUt((long) GTValues.VA[1] * (long) multiplier / 4L);
                     builder.save(provider);
                 }

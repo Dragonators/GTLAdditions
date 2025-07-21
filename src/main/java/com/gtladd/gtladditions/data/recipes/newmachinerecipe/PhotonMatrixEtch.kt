@@ -66,17 +66,10 @@ object PhotonMatrixEtch {
         )
     }
 
-    private fun addRecipe(
-        id : String,
-        input : String,
-        notitem_1 : String,
-        notitem_2 : String,
-        duration : Int,
-        EUt : Int,
-        Fluid : Material,
-        provider : Consumer<FinishedRecipe?>
-    ) {
-        GTLAddRecipeBuilder(id, GTLAddRecipesTypes.PHOTON_MATRIX_ETCH).inputItems(input).notConsumable(notitem_2)
+    private fun addRecipe(id : String, input : String, notitem_1 : String, notitem_2 : String, duration : Int, EUt : Int, Fluid : Material, provider : Consumer<FinishedRecipe?>) {
+        GTLAddRecipeBuilder(id, GTLAddRecipesTypes.PHOTON_MATRIX_ETCH)
+            .inputItemString(input)
+            .notConsumable(notitem_2)
             .notConsumable(notitem_1)
             .inputFluids(Fluid.getFluid(50))
             .outputItems("kubejs:$id")

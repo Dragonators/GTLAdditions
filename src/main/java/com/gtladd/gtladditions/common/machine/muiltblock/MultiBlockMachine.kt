@@ -3,7 +3,6 @@ package com.gtladd.gtladditions.common.machine.muiltblock
 import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.data.RotationState
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController
@@ -48,9 +47,8 @@ import kotlin.math.pow
 
 object MultiBlockMachine {
     @JvmField
-    val SUPER_FACTORY_MKI: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "super_factory_mk1",
-        Function { holder: IMachineBlockEntity? -> GTLAddWorkableElectricMultipleRecipesMachine(holder!!) })
+    val SUPER_FACTORY_MKI: MultiblockMachineDefinition = REGISTRATE.multiblock("super_factory_mk1",
+        Function { GTLAddWorkableElectricMultipleRecipesMachine(it!!) })
         .allRotation()
         .tooltipText("最大并行数：2147483647")
         .tooltipTextLaser()
@@ -72,12 +70,10 @@ object MultiBlockMachine {
             MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE!!
                 .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
                 .where("A", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
-                .where(
-                    "B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
+                .where("B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("D", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
                 .where("E", Predicates.blocks(getBlock("kubejs:neutronium_pipe_casing")))
                 .where("F", Predicates.blocks(getBlock("gtceu:bronze_pipe_casing")))
@@ -93,9 +89,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val SUPER_FACTORY_MKII: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "super_factory_mk2",
-        Function { holder: IMachineBlockEntity? -> GTLAddWorkableElectricMultipleRecipesMachine(holder!!) })
+    val SUPER_FACTORY_MKII: MultiblockMachineDefinition = REGISTRATE.multiblock("super_factory_mk2",
+        Function { GTLAddWorkableElectricMultipleRecipesMachine(it!!) })
         .allRotation()
         .tooltipText("最大并行数：2147483647")
         .tooltipTextLaser()
@@ -116,12 +111,10 @@ object MultiBlockMachine {
             MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE!!
                 .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
                 .where("A", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
-                .where(
-                    "B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
+                .where("B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("D", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
                 .where("E", Predicates.blocks(getBlock("kubejs:neutronium_pipe_casing")))
                 .where("F", Predicates.blocks(getBlock("gtceu:bronze_pipe_casing")))
@@ -137,9 +130,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val SUPER_FACTORY_MKIII: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "super_factory_mk3",
-        Function { holder: IMachineBlockEntity? -> GTLAddWorkableElectricMultipleRecipesMachine(holder!!) })
+    val SUPER_FACTORY_MKIII: MultiblockMachineDefinition = REGISTRATE.multiblock("super_factory_mk3",
+        Function { GTLAddWorkableElectricMultipleRecipesMachine(it!!) })
         .allRotation()
         .tooltipText("最大并行数：2147483647")
         .tooltipTextLaser()
@@ -161,12 +153,10 @@ object MultiBlockMachine {
             MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE!!
                 .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
                 .where("A", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
-                .where(
-                    "B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
+                .where("B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("D", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
                 .where("E", Predicates.blocks(getBlock("kubejs:neutronium_pipe_casing")))
                 .where("F", Predicates.blocks(getBlock("gtceu:bronze_pipe_casing")))
@@ -182,9 +172,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val SUPER_FACTORY_MKIV: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "super_factory_mk4",
-        Function { holder: IMachineBlockEntity? -> GTLAddWorkableElectricMultipleRecipesMachine(holder!!) })
+    val SUPER_FACTORY_MKIV: MultiblockMachineDefinition = REGISTRATE.multiblock("super_factory_mk4",
+        Function { GTLAddWorkableElectricMultipleRecipesMachine(it!!) })
         .allRotation()
         .tooltipText("最大并行数：2147483647")
         .tooltipTextLaser()
@@ -202,12 +191,10 @@ object MultiBlockMachine {
             MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE!!
                 .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
                 .where("A", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
-                .where(
-                    "B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
+                .where("B", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get())
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("D", Predicates.blocks(GTLBlocks.MULTI_FUNCTIONAL_CASING.get()))
                 .where("E", Predicates.blocks(getBlock("kubejs:neutronium_pipe_casing")))
                 .where("F", Predicates.blocks(getBlock("gtceu:bronze_pipe_casing")))
@@ -223,10 +210,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val LUCID_ETCHDREAMER: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "lucid_etchdreamer",
-        Function { holder: IMachineBlockEntity? ->
-            GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder!!)})
+    val LUCID_ETCHDREAMER: MultiblockMachineDefinition = REGISTRATE.multiblock("lucid_etchdreamer",
+        Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it!!)})
         .nonYAxisRotation()
         .tooltipTextCoilParallel()
         .tooltipTextLaser()
@@ -239,12 +224,10 @@ object MultiBlockMachine {
         .pattern { definition: MultiblockMachineDefinition? ->
             MultiBlockStructure.LUCID_ETCHDREAMER_STRUCTURE!!
                 .where("I", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where(
-                    "A", Predicates.blocks(getBlock("gtlcore:iridium_casing"))
+                .where("A", Predicates.blocks(getBlock("gtlcore:iridium_casing"))
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("D", Predicates.heatingCoils())
                 .where("E", Predicates.blocks(getBlock("kubejs:neutronium_pipe_casing")))
                 .where("B", Predicates.blocks(getBlock("gtlcore:dimensionally_transcendent_casing")))
@@ -264,10 +247,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val ATOMIC_TRANSMUTATIOON_CORE: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "atomic_transmutation_core",
-        Function { holder: IMachineBlockEntity? ->
-            GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder!!) })
+    val ATOMIC_TRANSMUTATIOON_CORE: MultiblockMachineDefinition = REGISTRATE.multiblock("atomic_transmutation_core",
+        Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it!!) })
         .noneRotation()
         .tooltipTextCoilParallel()
         .tooltipTextLaser()
@@ -289,12 +270,10 @@ object MultiBlockMachine {
                 .aisle("AAAAAAAAA", "ACCCCCCCA", "B       B", "B       B", "B       B", "B       B", "AAAAAAAAA")
                 .aisle("AAAAAAAAA", "AAAAAAAAA", "ABBBBBBBA", "ABBBBBBBA", "ABBBBBBBA", "ABBBBBBBA", "AAAAAAAAA")
                 .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where(
-                    "A", Predicates.blocks(getBlock("gtlcore:aluminium_bronze_casing"))
+                .where("A", Predicates.blocks(getBlock("gtlcore:aluminium_bronze_casing"))
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("C", Predicates.heatingCoils())
                 .where("D", Predicates.blocks(getBlock("kubejs:infused_obsidian")))
                 .where("B", Predicates.blocks(getBlock("gtceu:cleanroom_glass")))
@@ -309,10 +288,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val ASTRAL_CONVERGENCE_NEXUS: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "astral_convergence_nexus",
-        Function { holder: IMachineBlockEntity? ->
-            AdvancedSpaceElevatorModuleMachine(holder!!, true) })
+    val ASTRAL_CONVERGENCE_NEXUS: MultiblockMachineDefinition = REGISTRATE.multiblock("astral_convergence_nexus",
+        Function { AdvancedSpaceElevatorModuleMachine(it!!) })
         .nonYAxisRotation()
         .tooltipText("最大并行数：8^(动力模块等级-1)")
         .tooltipTextLaser()
@@ -327,11 +304,9 @@ object MultiBlockMachine {
                 .aisle("aaa", "bbb", "bbb", "bbb", "bbb")
                 .aisle("aaa", "bbb", "bbb", "b~b", "bbb")
                 .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where(
-                    "b", Predicates.blocks(GTLBlocks.SPACE_ELEVATOR_MECHANICAL_CASING.get())
+                .where("b", Predicates.blocks(GTLBlocks.SPACE_ELEVATOR_MECHANICAL_CASING.get())
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("a", Predicates.blocks(getBlock("kubejs:module_base")))
                 .where("c", Predicates.blocks(getBlock("kubejs:module_connector")))
                 .build()
@@ -343,10 +318,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val NEBULA_REAPER: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "nebula_reaper",
-        Function { holder: IMachineBlockEntity? ->
-            AdvancedSpaceElevatorModuleMachine(holder!!, true) })
+    val NEBULA_REAPER: MultiblockMachineDefinition = REGISTRATE.multiblock("nebula_reaper",
+        Function { AdvancedSpaceElevatorModuleMachine(it!!) })
         .nonYAxisRotation()
         .tooltipText("最大并行数：8^(动力模块等级-1)")
         .tooltipTextLaser()
@@ -362,11 +335,9 @@ object MultiBlockMachine {
                 .aisle("aaa", "bbb", "bbb", "bbb", "bbb")
                 .aisle("aaa", "bbb", "bbb", "b~b", "bbb")
                 .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where(
-                    "b", Predicates.blocks(GTLBlocks.SPACE_ELEVATOR_MECHANICAL_CASING.get())
+                .where("b", Predicates.blocks(GTLBlocks.SPACE_ELEVATOR_MECHANICAL_CASING.get())
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("a", Predicates.blocks(getBlock("kubejs:module_base")))
                 .where("c", Predicates.blocks(getBlock("kubejs:module_connector")))
                 .build()
@@ -378,9 +349,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val ARCANIC_ASTROGRAPH: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "arcanic_astrograph",
-        Function { holder: IMachineBlockEntity? -> ArcanicAstrograph(holder!!) })
+    val ARCANIC_ASTROGRAPH: MultiblockMachineDefinition = REGISTRATE.multiblock("arcanic_astrograph",
+        Function { ArcanicAstrograph(it!!) })
         .nonYAxisRotation()
         .recipeType(GTLRecipeTypes.COSMOS_SIMULATION_RECIPES)
         .recipeModifier { machine: MetaMachine?, recipe: GTRecipe?, params: OCParams?, result: OCResult? ->
@@ -409,13 +379,11 @@ object MultiBlockMachine {
             MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE!!
                 .where('~', Predicates.controller(Predicates.blocks(definition!!.get())))
                 .where('A', Predicates.blocks(GTLBlocks.CREATE_CASING.get()))
-                .where(
-                    'B', Predicates.blocks(GTBlocks.HIGH_POWER_CASING.get())
+                .where('B', Predicates.blocks(GTBlocks.HIGH_POWER_CASING.get())
                         .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1))
                         .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
-                        .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
-                )
+                        .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1)))
                 .where('D', Predicates.blocks(GTLBlocks.DIMENSION_INJECTION_CASING.get()))
                 .where('E', Predicates.blocks(getBlock("kubejs:dimension_creation_casing")))
                 .where('F', Predicates.blocks(getBlock("kubejs:spacetime_compression_field_generator")))
@@ -428,10 +396,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val ARCANE_CACHE_VAULT: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "arcane_cache_vault",
-        Function { holder: IMachineBlockEntity? ->
-            GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder!!)})
+    val ARCANE_CACHE_VAULT: MultiblockMachineDefinition = REGISTRATE.multiblock("arcane_cache_vault",
+        Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it!!)})
         .allRotation()
         .tooltipTextCoilParallel()
         .tooltipTextLaser()
@@ -450,12 +416,10 @@ object MultiBlockMachine {
                 .aisle("AAA", "ABA", "AAA")
                 .aisle("AAA", "A~A", "AAA")
                 .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where(
-                    "A", Predicates.blocks(GTLBlocks.PIKYONIUM_MACHINE_CASING.get())
+                .where("A", Predicates.blocks(GTLBlocks.PIKYONIUM_MACHINE_CASING.get())
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("B", Predicates.heatingCoils())
                 .build()
         }
@@ -467,9 +431,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val DRACONIC_COLLAPSE_CORE: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "draconic_collapse_core",
-        Function { holder: IMachineBlockEntity? -> WorkableElectricMultiblockMachine(holder!!) })
+    val DRACONIC_COLLAPSE_CORE: MultiblockMachineDefinition = REGISTRATE.multiblock("draconic_collapse_core",
+        Function { WorkableElectricMultiblockMachine(it!!) })
         .nonYAxisRotation()
         .tooltipText("电压等级每高出UEV一级最大并行数X8")
         .tooltipText("只能使用激光仓")
@@ -482,16 +445,12 @@ object MultiBlockMachine {
         .pattern { definition: MultiblockMachineDefinition? ->
             MultiBlockStructure.DRACONIC_COLLAPSE_CORE_STRUCTURE!!
                 .where("E", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where(
-                    "D", Predicates.blocks(GTLFusionCasingBlock.getCasingState(10))
+                .where("D", Predicates.blocks(GTLFusionCasingBlock.getCasingState(10))
                         .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2))
-                        .setMinGlobalLimited(1)
-                )
-                .where(
-                    "L", Predicates.blocks(GTLFusionCasingBlock.getCasingState(10))
+                        .setMinGlobalLimited(1))
+                .where("L", Predicates.blocks(GTLFusionCasingBlock.getCasingState(10))
                         .or(Predicates.blocks(GTMachines.ITEM_IMPORT_BUS[0].get()))
-                        .or(Predicates.blocks(CustomMachines.HUGE_ITEM_IMPORT_BUS[0].get()))
-                )
+                        .or(Predicates.blocks(CustomMachines.HUGE_ITEM_IMPORT_BUS[0].get())))
                 .where("I", Predicates.blocks(getBlock("gtlcore:molecular_casing")))
                 .where("K", Predicates.blocks(getBlock("kubejs:annihilate_core")))
                 .where("J", Predicates.blocks(getBlock("kubejs:aggregatione_core")))
@@ -501,10 +460,8 @@ object MultiBlockMachine {
                 .where("C", Predicates.blocks(GTLFusionCasingBlock.getCasingState(10)))
                 .where("H", Predicates.blocks(getBlock("kubejs:hollow_casing")))
                 .where("G", Predicates.blocks(GTLFusionCasingBlock.getCompressedCoilState(10)))
-                .where(
-                    "O", Predicates.blocks(GTLFusionCasingBlock.getCasingState(10))
-                        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS))
-                )
+                .where("O", Predicates.blocks(GTLFusionCasingBlock.getCasingState(10))
+                        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS)))
                 .where(" ", Predicates.any())
                 .build()
         }
@@ -516,9 +473,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val TITAN_CRIP_EARTHBORE: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "titan_crip_earthbore",
-        Function { holder: IMachineBlockEntity? -> WorkableElectricMultiblockMachine(holder!!) })
+    val TITAN_CRIP_EARTHBORE: MultiblockMachineDefinition = REGISTRATE.multiblock("titan_crip_earthbore",
+        Function { WorkableElectricMultiblockMachine(it!!) })
         .noneRotation()
         .tooltipText("电压每高出LuV一级最大并行数X2")
         .tooltipTextPerfectOverclock()
@@ -548,11 +504,9 @@ object MultiBlockMachine {
                 .where("A", Predicates.blocks(getBlock("gtlcore:molecular_casing")))
                 .where("F", Predicates.blocks(getBlock("minecraft:bedrock")))
                 .where("D", Predicates.blocks(getBlock("kubejs:molecular_coil")))
-                .where(
-                    "E", Predicates.blocks(getBlock("gtlcore:echo_casing"))
+                .where("E", Predicates.blocks(getBlock("gtlcore:echo_casing"))
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
-                        .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                )
+                        .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
                 .build()
         }
         .additionalDisplay { controller: IMultiController?, components: MutableList<Component?>? ->
@@ -569,9 +523,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val BIOLOGICAL_SIMULATION_LABORATORY: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "biological_simulation_laboratory",
-        Function { holder: IMachineBlockEntity? -> BiologicalSimulationLaboratory(holder!!) })
+    val BIOLOGICAL_SIMULATION_LABORATORY: MultiblockMachineDefinition = REGISTRATE.multiblock("biological_simulation_laboratory",
+        Function { BiologicalSimulationLaboratory(it!!) })
         .allRotation()
         .tooltipText("更高效的获取生物掉落物")
         .tooltipText("初始最大并行数为64")
@@ -590,14 +543,9 @@ object MultiBlockMachine {
         .pattern { definition: MultiblockMachineDefinition? ->
             MultiBlockStructure.BIOLOGICAL_SIMULATION_LABORATORY_STRUCTURE!!
                 .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where(
-                    "A", Predicates.blocks(getBlock("gtlcore:naquadah_alloy_casing"))
+                .where("A", Predicates.blocks(getBlock("gtlcore:naquadah_alloy_casing"))
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
-                        .or(
-                            Predicates.blocks(*PartAbility.INPUT_LASER.getBlockRange(12, 14).toTypedArray<Block?>())
-                                .setMaxGlobalLimited(1)
-                        )
-                )
+                        .or(Predicates.blocks(*PartAbility.INPUT_LASER.getBlockRange(12, 14).toTypedArray<Block?>()).setMaxGlobalLimited(1)))
                 .where("B", Predicates.blocks(getBlock("gtceu:naquadah_alloy_frame")))
                 .where("C", Predicates.blocks(getBlock("gtceu:luv_hermetic_casing")))
                 .where("E", Predicates.blocks(getBlock("gtceu:fusion_glass")))
@@ -614,10 +562,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "dimensionally_transcendent_chemical_plant",
-        Function { holder: IMachineBlockEntity? ->
-            GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder!!) })
+    val DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT: MultiblockMachineDefinition = REGISTRATE.multiblock("dimensionally_transcendent_chemical_plant",
+        Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it!!) })
         .nonYAxisRotation()
         .tooltipText("高效的化学反应堆")
         .tooltipTextCoilParallel()
@@ -630,16 +576,14 @@ object MultiBlockMachine {
         .pattern { definition: MultiblockMachineDefinition? ->
             GTLMachines.DTPF
                 .where("a", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where(
-                    "e", Predicates.blocks(GTBlocks.CASING_PTFE_INERT.get())
+                .where("e", Predicates.blocks(GTBlocks.CASING_PTFE_INERT.get())
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
                         .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2))
-                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
                 .where("b", Predicates.blocks(GTBlocks.HIGH_POWER_CASING.get()))
                 .where("C", Predicates.heatingCoils())
                 .where("d", Predicates.blocks(GTBlocks.CASING_PTFE_INERT.get()))
@@ -655,10 +599,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val QUANTUM_SYPHON_MATRIX: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "quantum_syphon_matrix",
-        Function { holder: IMachineBlockEntity? ->
-            GTLAddWorkableElectricParallelHatchMultipleRecipesMachine(holder!!)})
+    val QUANTUM_SYPHON_MATRIX: MultiblockMachineDefinition = REGISTRATE.multiblock("quantum_syphon_matrix",
+        Function { GTLAddWorkableElectricParallelHatchMultipleRecipesMachine(it!!)})
         .noneRotation()
         .tooltipTextParallelHatch()
         .tooltipTextLaser()
@@ -675,13 +617,11 @@ object MultiBlockMachine {
                 .where("G", Predicates.blocks(getBlock("kubejs:accelerated_pipeline")))
                 .where("D", Predicates.blocks(getBlock("gtlcore:molecular_casing")))
                 .where("H", Predicates.blocks(getBlock("kubejs:neutronium_gearbox")))
-                .where(
-                    "F", Predicates.blocks(GTBlocks.HIGH_POWER_CASING.get())
+                .where("F", Predicates.blocks(GTBlocks.HIGH_POWER_CASING.get())
                         .or(Predicates.autoAbilities(*definition.recipeTypes))
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
                         .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1)))
                 .where("J", Predicates.blocks(getBlock("kubejs:neutronium_pipe_casing")))
                 .where("A", Predicates.blocks(getBlock("gtlcore:naquadah_alloy_casing")))
                 .where("B", Predicates.blocks(getBlock("gtceu:assembly_line_grating")))
@@ -697,10 +637,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val FUXI_BAGUA_HEAVEN_FORGING_FURNACE: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "fuxi_bagua_heaven_forging_furnace",
-        Function { holder: IMachineBlockEntity? ->
-            GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine(holder!!) })
+    val FUXI_BAGUA_HEAVEN_FORGING_FURNACE: MultiblockMachineDefinition = REGISTRATE.multiblock("fuxi_bagua_heaven_forging_furnace",
+        Function { GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine(it!!) })
         .nonYAxisRotation()
         .tooltipTextParallelHatch()
         .tooltipText("只能使用激光仓")
@@ -717,15 +655,13 @@ object MultiBlockMachine {
             MultiBlockStructure.FUXI_BAGUA_HEAVEN_FORGING_FURNACE_STRUCTURE!!
                 .where("D", Predicates.controller(Predicates.blocks(definition!!.get())))
                 .where("K", Predicates.blocks(getBlock("kubejs:neutronium_pipe_casing")))
-                .where(
-                    "C", Predicates.blocks(GTLBlocks.DIMENSION_INJECTION_CASING.get())
+                .where("C", Predicates.blocks(GTLBlocks.DIMENSION_INJECTION_CASING.get())
                         .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2))
-                        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1)))
                 .where("X", Predicates.heatingCoils())
                 .where("J", Predicates.blocks(getBlock("kubejs:dimensional_bridge_casing")))
                 .where("F", Predicates.blocks(getBlock("gtlcore:graviton_field_constraint_casing")))
@@ -762,9 +698,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val ANTIENTROPY_CONDENSATION_CENTER: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "antientropy_condensation_center",
-        Function { holder: IMachineBlockEntity? -> AntientropyCondensationCenter(holder!!) })
+    val ANTIENTROPY_CONDENSATION_CENTER: MultiblockMachineDefinition = REGISTRATE.multiblock("antientropy_condensation_center",
+        Function { AntientropyCondensationCenter(it!!) })
         .allRotation()
         .tooltipText("每次工作前需要提供凛冰粉")
         .tooltipText("电压每高一级，消耗的凛冰粉数量/2")
@@ -786,15 +721,13 @@ object MultiBlockMachine {
                 .where("J", Predicates.blocks(getBlock("kubejs:force_field_glass")))
                 .where("I", Predicates.blocks(getBlock("kubejs:dimensional_bridge_casing")))
                 .where("A", Predicates.blocks(GTLBlocks.ANTIFREEZE_HEATPROOF_MACHINE_CASING.get()))
-                .where(
-                    "X", Predicates.blocks(GTLBlocks.ANTIFREEZE_HEATPROOF_MACHINE_CASING.get())
+                .where("X", Predicates.blocks(GTLBlocks.ANTIFREEZE_HEATPROOF_MACHINE_CASING.get())
                         .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2))
-                        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
-                )
+                        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1)))
                 .where("F", Predicates.blocks(getBlock("gtlcore:compressed_fusion_coil_mk2")))
                 .where("G", Predicates.blocks(getBlock("gtlcore:law_filter_casing")))
                 .where("H", Predicates.blocks(getBlock("kubejs:hollow_casing")))
@@ -805,7 +738,9 @@ object MultiBlockMachine {
         .additionalDisplay{controller: IMultiController?, components: MutableList<Component?>? ->
             if (controller is AntientropyCondensationCenter) {
                 if (controller.isFormed()) {
-                    components!!.add(Component.translatable("gtceu.multiblock.antientropy_condensation_center.dust_cryotheum", 1 shl (GTValues.MAX - controller.getTier())))
+                    components!!.add(
+                        Component.translatable("gtceu.multiblock.antientropy_condensation_center.dust_cryotheum",
+                        1 shl (GTValues.MAX - controller.getTier())))
                 }
             }
         }
@@ -816,9 +751,8 @@ object MultiBlockMachine {
         .register()
 
     @JvmField
-    val TAIXU_TURBID_ARRAY: MultiblockMachineDefinition = REGISTRATE.multiblock(
-        "taixu_turbid_array",
-        Function { holder: IMachineBlockEntity? -> TaixuTurbidArray(holder!!) })
+    val TAIXU_TURBID_ARRAY: MultiblockMachineDefinition = REGISTRATE.multiblock("taixu_turbid_array",
+        Function { TaixuTurbidArray(it!!) })
         .rotationState(RotationState.Y_AXIS)
         .tooltips(
             Component.translatable("gtceu.machine.taixuturbidarray.tooltip.0"),
@@ -847,13 +781,11 @@ object MultiBlockMachine {
         .pattern { definition: MultiblockMachineDefinition? ->
             MultiBlockStructure.TAIXU_TURBID_ARRAY_STRUCTURE!!
                 .where("T", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where(
-                    "K", Predicates.blocks(getBlock("gtceu:uhv_machine_casing"))
+                .where("K", Predicates.blocks(getBlock("gtceu:uhv_machine_casing"))
                         .or(Predicates.abilities(PartAbility.INPUT_LASER).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                         .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
-                        .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
-                )
+                        .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1)))
                 .where("H", Predicates.blocks(getBlock("gtceu:uhv_machine_casing")))
                 .where("E", Predicates.blocks(getBlock("gtceu:woods_glass_block")))
                 .where("J", Predicates.blocks(getBlock("gtlcore:dimension_injection_casing")))

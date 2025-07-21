@@ -92,7 +92,7 @@ object Distort {
             .save(provider)
         GTLAddRecipeBuilder("biology_process", DISTORT_RECIPES)
             .notConsumable("avaritia:infinity_catalyst")
-            .inputItems("gtceu:stem_cells", 256)
+            .inputItemString("gtceu:stem_cells", 256)
             .InputItems("256x kubejs:tcetieseaweedextract")
             .InputItems("256x gtceu:agar_dust")
             .OutputItems("8192x kubejs:biological_cells")

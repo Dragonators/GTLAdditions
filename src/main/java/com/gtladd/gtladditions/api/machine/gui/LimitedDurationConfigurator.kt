@@ -1,39 +1,28 @@
-package com.gtladd.gtladditions.api.machine.gui;
+package com.gtladd.gtladditions.api.machine.gui
 
-import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfigurator;
-import com.gregtechceu.gtceu.api.gui.widget.IntInputWidget;
+import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfigurator
+import com.gregtechceu.gtceu.api.gui.widget.IntInputWidget
+import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe
+import com.hepdd.gtmthings.GTMThings
+import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture
+import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture
+import com.lowdragmc.lowdraglib.gui.widget.Widget
+import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
+import net.minecraft.network.chat.Component
 
-import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
-import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
-import com.lowdragmc.lowdraglib.gui.widget.Widget;
-import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
-
-import net.minecraft.network.chat.Component;
-
-import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe;
-import com.hepdd.gtmthings.GTMThings;
-
-public class LimitedDurationConfigurator implements IFancyConfigurator {
-
-    private final IGTLAddMultiRecipe machine;
-
-    public LimitedDurationConfigurator(IGTLAddMultiRecipe machine) {
-        this.machine = machine;
+class LimitedDurationConfigurator(private val machine: IGTLAddMultiRecipe) : IFancyConfigurator {
+    override fun getTitle(): Component {
+        return Component.translatable("gtceu.machine.limitduration_configurator")
     }
 
-    @Override
-    public Component getTitle() {
-        return Component.translatable("gtceu.machine.limitduration_configurator");
+    override fun getIcon(): IGuiTexture {
+        return ResourceTexture(GTMThings.id("textures/item/opv_4a_wireless_energy_receive_cover.png"))
     }
 
-    @Override
-    public IGuiTexture getIcon() {
-        return new ResourceTexture(GTMThings.id("textures/item/opv_4a_wireless_energy_receive_cover.png"));
-    }
-
-    @Override
-    public Widget createConfigurator() {
-        return new WidgetGroup(0, 0, 100, 20)
-                .addWidget(new IntInputWidget(machine::getLimitedDuration, machine::setLimitedDuration).setMin(10).setMax(200));
+    override fun createConfigurator(): Widget? {
+        return WidgetGroup(0, 0, 100, 20)
+            .addWidget(IntInputWidget({ machine.limitedDuration }, { duration: Int? ->
+                machine.setLimitedDuration(duration!!)
+            }).setMin(10).setMax(200))
     }
 }

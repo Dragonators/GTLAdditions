@@ -43,7 +43,7 @@ public abstract class AlloyBlastRecipeProducerMixin {
     @Inject(method = "addFreezerRecipes", at = @At(value = "HEAD"), remap = false)
     protected void addFreezerRecipes(@NotNull Material material, @NotNull Fluid molten, int temperature, Consumer<FinishedRecipe> provider, CallbackInfo ci) {
         GTRecipeBuilder freezerBuilder = GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(GTLAdditions.id(material.getName()))
-                .inputFluids(FluidStack.create(molten, 144L)).duration((int) material.getMass() * 3)
+                .inputFluids(FluidStack.create(molten, 144L)).duration((int) material.getMass() * 2)
                 .notConsumable(GTItems.SHAPE_MOLD_INGOT.asStack()).outputItems(TagPrefix.ingot, material);
         freezerBuilder.EUt(120).save(provider);
     }

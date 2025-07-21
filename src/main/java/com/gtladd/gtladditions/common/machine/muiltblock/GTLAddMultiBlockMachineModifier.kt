@@ -22,8 +22,7 @@ object GTLAddMultiBlockMachineModifier {
     val DRACONIC_COLLAPSE_CORE_MODIFIER: Array<RecipeModifier?> = arrayOf(
         RecipeModifier { machine: MetaMachine?, recipe: GTRecipe?, params: OCParams?, result: OCResult? ->
             GTRecipeModifiers.accurateParallel(
-                machine,
-                recipe!!,
+                machine, recipe!!,
                 8.0.pow(((machine as WorkableElectricMultiblockMachine).getTier() - 10).toDouble()).toInt(),
                 false
             ).getFirst()
@@ -43,12 +42,7 @@ object GTLAddMultiBlockMachineModifier {
                                     min(
                                         Int.Companion.MAX_VALUE,
                                         2.0.pow(controller.coilType.coilTemperature.toDouble() / 900.0)
-                                            .toInt()
-                                    )
-                                )
-                            )
-                                .withStyle(ChatFormatting.DARK_PURPLE)
-                        )
+                                            .toInt()))).withStyle(ChatFormatting.DARK_PURPLE))
                             .withStyle(ChatFormatting.GRAY)
                     )
                 }
@@ -61,8 +55,7 @@ object GTLAddMultiBlockMachineModifier {
                 components!!.add(
                     Component.translatable(
                         "gtceu.multiblock.parallel", Component.literal("2147483647")
-                            .withStyle(ChatFormatting.DARK_PURPLE)
-                    )
+                            .withStyle(ChatFormatting.DARK_PURPLE))
                         .withStyle(ChatFormatting.GRAY)
                 )
             }
@@ -75,7 +68,9 @@ object GTLAddMultiBlockMachineModifier {
                     Component
                         .translatable(
                             "gtceu.multiblock.parallel",
-                            Component.translatable(FormattingUtil.formatNumbers(8.0.pow(((controller as WorkableElectricMultiblockMachine).getTier() - 10).toDouble())))
+                            Component.translatable(
+                                FormattingUtil.formatNumbers(
+                                    8.0.pow(((controller as WorkableElectricMultiblockMachine).getTier() - 10).toDouble())))
                                 .withStyle(ChatFormatting.DARK_PURPLE)
                         )
                         .withStyle(ChatFormatting.GRAY)

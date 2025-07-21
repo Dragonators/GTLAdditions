@@ -17,135 +17,41 @@ object BiologicalSimulation {
             Sword("minecraft:netherite_sword", 5.0, 5),
             Sword("avaritia:infinity_sword", 0.0, 20)
         )
-        val itemStacks = arrayOf<ItemStacks?>(
-            ItemStacks("blaze", "nether", "minecraft:blaze_rod", 5.0, 7),
-            ItemStacks(
-                "chicken",
-                "overworld",
-                "minecraft:chicken",
-                75.0,
-                "minecraft:feather",
-                40.0,
-                "minecraft:egg",
-                10.0,
-                2
-            ),
-            ItemStacks("cow", "overworld", "minecraft:beef", 75.0, "minecraft:leather", 25.0, 2),
-            ItemStacks("drowned", "overworld", "minecraft:rotten_flesh", 75.0, "minecraft:copper_ingot", 6.0, 3),
-            ItemStacks("enderman", "end", "minecraft:ender_pearl", 5.0, 6),
-            ItemStacks("ghast", "nether", "minecraft:gunpowder", 60.0, "minecraft:ghast_tear", 6.0, 7),
-            ItemStacks("creeper", "overworld", "minecraft:gunpowder", 80.0, 2),
-            ItemStacks(
-                "zombie",
-                "overworld",
-                "minecraft:rotten_flesh",
-                75.0,
-                "minecraft:iron_ingot",
-                6.0,
-                "minecraft:carrot",
-                15.0,
-                "minecraft:potato",
-                15.0,
-                2
-            ),
-            ItemStacks(
-                "zombie_villager",
-                "overworld",
-                "minecraft:rotten_flesh",
-                75.0,
-                "minecraft:iron_ingot",
-                6.0,
-                "minecraft:carrot",
-                15.0,
-                "minecraft:potato",
-                15.0,
-                2
-            ),
-            ItemStacks(
-                "husk",
-                "overworld",
-                "minecraft:rotten_flesh",
-                75.0,
-                "minecraft:iron_ingot",
-                6.0,
-                "minecraft:carrot",
-                15.0,
-                "minecraft:potato",
-                15.0,
-                2
-            ),
-            ItemStacks(
-                "zombified_piglin",
-                "nether",
-                "minecraft:rotten_flesh",
-                75.0,
-                "minecraft:gold_ingot",
-                6.0,
-                "minecraft:gold_nugget",
-                10.0,
-                3
-            ),
-            ItemStacks("pig", "overworld", "minecraft:porkchop", 80.0, 2),
-            ItemStacks("sheep", "overworld", "minecraft:mutton", 80.0, "minecraft:white_wool", 50.0, 2),
-            ItemStacks("skeleton", "overworld", "minecraft:bone", 75.0, "minecraft:arrow", 65.0, 2),
-            ItemStacks("slime", "overworld", "minecraft:slime_ball", 50.0, 3),
-            ItemStacks("spider", "overworld", "minecraft:string", 70.0, "minecraft:spider_eye", 20.0, 2),
-            ItemStacks("vindicator", "overworld", "minecraft:emerald", 10.0, 3),
-            ItemStacks(
-                "witch",
-                "overworld",
-                "minecraft:stick",
-                50.0,
-                "minecraft:gunpowder",
-                35.0,
-                "minecraft:sugar",
-                35.0,
-                "minecraft:glass_bottle",
-                35.0,
-                "minecraft:redstone",
-                6.0,
-                "minecraft:glowstone_dust",
-                6.0,
-                "minecraft:spider_eye",
-                6.0,
-                3
-            ),
-            ItemStacks(
-                "wither_skeleton",
-                "nether",
-                "minecraft:bone",
-                75.0,
-                "minecraft:coal",
-                65.0,
-                "minecraft:wither_skeleton_skull",
-                5.0,
-                8
-            ),
-            ItemStacks(
-                "rabbit",
-                "overworld",
-                "minecraft:rabbit",
-                70.0,
-                "minecraft:rabbit_hide",
-                10.0,
-                "minecraft:rabbit_foot",
-                5.0,
-                3
-            ),
-            ItemStacks("donkey", "overworld", "minecraft:leather", 50.0, 2),
-            ItemStacks("llama", "overworld", "minecraft:leather", 50.0, 2),
-            ItemStacks("cat", "overworld", "minecraft:string", 50.0, 2),
-            ItemStacks("panda", "overworld", "minecraft:bamboo", 50.0, 3),
-            ItemStacks("polar_bear", "overworld", "minecraft:cod", 50.0, "minecraft:salmon", 50.0, 3)
+        val biologicals = arrayOf<biological?>(
+            biological("blaze", "nether", "minecraft:blaze_rod", 5.0, 7),
+            biological("chicken", "overworld", "minecraft:chicken", 75.0, "minecraft:feather", 40.0, "minecraft:egg", 10.0, 2),
+            biological("cow", "overworld", "minecraft:beef", 75.0, "minecraft:leather", 25.0, 2),
+            biological("drowned", "overworld", "minecraft:rotten_flesh", 75.0, "minecraft:copper_ingot", 6.0, 3),
+            biological("enderman", "end", "minecraft:ender_pearl", 5.0, 6),
+            biological("ghast", "nether", "minecraft:gunpowder", 60.0, "minecraft:ghast_tear", 6.0, 7),
+            biological("creeper", "overworld", "minecraft:gunpowder", 80.0, 2),
+            biological("zombie", "overworld", "minecraft:rotten_flesh", 75.0, "minecraft:iron_ingot", 6.0, "minecraft:carrot", 15.0, "minecraft:potato", 15.0, 2),
+            biological("zombie_villager", "overworld", "minecraft:rotten_flesh", 75.0, "minecraft:iron_ingot", 6.0, "minecraft:carrot", 15.0, "minecraft:potato", 15.0, 2),
+            biological("husk", "overworld", "minecraft:rotten_flesh", 75.0, "minecraft:iron_ingot", 6.0, "minecraft:carrot", 15.0, "minecraft:potato", 15.0, 2),
+            biological("zombified_piglin", "nether", "minecraft:rotten_flesh", 75.0, "minecraft:gold_ingot", 6.0, "minecraft:gold_nugget", 10.0, 3),
+            biological("pig", "overworld", "minecraft:porkchop", 80.0, 2),
+            biological("sheep", "overworld", "minecraft:mutton", 80.0, "minecraft:white_wool", 50.0, 2),
+            biological("skeleton", "overworld", "minecraft:bone", 75.0, "minecraft:arrow", 65.0, 2),
+            biological("slime", "overworld", "minecraft:slime_ball", 50.0, 3),
+            biological("spider", "overworld", "minecraft:string", 70.0, "minecraft:spider_eye", 20.0, 2),
+            biological("vindicator", "overworld", "minecraft:emerald", 10.0, 3),
+            biological("witch", "overworld", "minecraft:stick", 50.0, "minecraft:gunpowder", 35.0, "minecraft:sugar", 35.0, "minecraft:glass_bottle", 35.0, "minecraft:redstone", 6.0, "minecraft:glowstone_dust", 6.0, "minecraft:spider_eye", 6.0, 3),
+            biological("wither_skeleton", "nether", "minecraft:bone", 75.0, "minecraft:coal", 65.0, "minecraft:wither_skeleton_skull", 5.0, 8),
+            biological("rabbit", "overworld", "minecraft:rabbit", 70.0, "minecraft:rabbit_hide", 10.0, "minecraft:rabbit_foot", 5.0, 3),
+            biological("donkey", "overworld", "minecraft:leather", 50.0, 2),
+            biological("llama", "overworld", "minecraft:leather", 50.0, 2),
+            biological("cat", "overworld", "minecraft:string", 50.0, 2),
+            biological("panda", "overworld", "minecraft:bamboo", 50.0, 3),
+            biological("polar_bear", "overworld", "minecraft:cod", 50.0, "minecraft:salmon", 50.0, 3)
         )
-        for (i in itemStacks) {
+        for (i in biologicals) {
             for (s in swords) generateRecipe(i !!, s !!, provider)
             setspawneggreicpes(i !!, provider)
         }
         generateSpecialRecipes(provider)
     }
 
-    private fun generateRecipe(item : ItemStacks, sword : Sword, provider : Consumer<FinishedRecipe?>) {
+    private fun generateRecipe(item : biological, sword : Sword, provider : Consumer<FinishedRecipe?>) {
         val builder = GTLAddRecipeBuilder(
             item.name + (if (sword.damage > 10) "_1" else (if (sword.damage > 0) "_2" else "_3")),
             GTLAddRecipesTypes.BIOLOGICAL_SIMULATION
@@ -158,15 +64,15 @@ object BiologicalSimulation {
         builder.TierEUtVA(item.EUt).duration(400 / sword.factor).save(provider)
     }
 
-    private fun setspawneggreicpes(item : ItemStacks, provider : Consumer<FinishedRecipe?>) {
+    private fun setspawneggreicpes(item : biological, provider : Consumer<FinishedRecipe?>) {
         val builder = GTLAddRecipeBuilder(item.name + "_spawn_egg", GTLRecipeTypes.INCUBATOR_RECIPES)
-            .inputItems("minecraft:bone", 4).inputFluids(GTMaterials.Biomass.getFluid(1000))
+            .inputItemString("minecraft:bone", 4).inputFluids(GTMaterials.Biomass.getFluid(1000))
             .inputFluids(GTMaterials.Milk.getFluid(1000))
         addInputItems(builder, item)
         builder.outputItems("minecraft:" + item.name + "_spawn_egg").TierEUtVA(3).duration(1200).save(provider)
     }
 
-    private fun addOutputItems(builder : GTLAddRecipeBuilder, item : ItemStacks, sword : Sword) {
+    private fun addOutputItems(builder : GTLAddRecipeBuilder, item : biological, sword : Sword) {
         builder.chancedOutputItems(item.O1, sword.factor * 2, item.O1f, 0.0)
         if (item.O2 != null) builder.chancedOutputItems(item.O2 !!, sword.factor * 2, item.O2f, 0.0)
         if (item.O3 != null) builder.chancedOutputItems(item.O3 !!, sword.factor * 2, item.O3f, 0.0)
@@ -176,16 +82,36 @@ object BiologicalSimulation {
         if (item.O7 != null) builder.chancedOutputItems(item.O7 !!, sword.factor * 2, item.O7f, 0.0)
     }
 
-    private fun addInputItems(builder : GTLAddRecipeBuilder, item : ItemStacks) {
+    private fun addInputItems(builder : GTLAddRecipeBuilder, item : biological) {
         if (item.name == "witch") {
-            builder.inputItems("minecraft:redstone", 4).inputItems("minecraft:glowstone_dust", 4)
-                .inputItems("minecraft:sugar", 4).inputItems("minecraft:glass_bottle", 4)
+            builder.inputItemString("minecraft:redstone", 4)
+                .inputItemString("minecraft:glowstone_dust", 4)
+                .inputItemString("minecraft:sugar", 4)
+                .inputItemString("minecraft:glass_bottle", 4)
+            return
+        } else if (item.name == "cat") {
+            builder.inputItemString("minecraft:string", 4)
+                .circuitMeta(1)
+            return
+        } else if (item.name == "zombie") {
+            builder.circuitMeta(1)
+        } else if (item.name == "zombie_villager") {
+            builder.circuitMeta(2)
+        } else if (item.name == "husk") {
+            builder.circuitMeta(3)
+        } else if (item.name == "donkey") {
+            builder.inputItemString("minecraft:leather", 4)
+                .circuitMeta(1)
+            return
+        } else if (item.name == "llama") {
+            builder.inputItemString("minecraft:leather", 4)
+                .circuitMeta(2)
             return
         }
-        if (item.O1 != "minecraft:bone") builder.inputItems(item.O1, 4)
-        if (item.O2 != null) builder.inputItems(item.O2, 4)
-        if (item.O3 != null) builder.inputItems(item.O3, 4)
-        if (item.O4 != null) builder.inputItems(item.O4, 4)
+        if (item.O1 != "minecraft:bone") builder.inputItemString(item.O1, 4)
+        if (item.O2 != null) builder.inputItemString(item.O2!!, 4)
+        if (item.O3 != null) builder.inputItemString(item.O3!!, 4)
+        if (item.O4 != null) builder.inputItemString(item.O4!!, 4)
     }
 
     private fun generateSpecialRecipes(provider : Consumer<FinishedRecipe?>) {
@@ -212,7 +138,7 @@ object BiologicalSimulation {
             .save(provider)
     }
 
-    internal class ItemStacks {
+    internal class biological {
         var name : String
         var data : String?
         var O1 : String
@@ -231,25 +157,7 @@ object BiologicalSimulation {
         var O7f : Double = 0.0
         var EUt : Int
 
-        constructor(
-            name : String,
-            data : String?,
-            o1 : String,
-            o1f : Double,
-            o2 : String?,
-            o2f : Double,
-            o3 : String?,
-            o3f : Double,
-            o4 : String?,
-            o4f : Double,
-            o5 : String?,
-            o5f : Double,
-            o6 : String?,
-            o6f : Double,
-            o7 : String?,
-            o7f : Double,
-            EUt : Int
-        ) {
+        constructor(name : String, data : String?, o1 : String, o1f : Double, o2 : String?, o2f : Double, o3 : String?, o3f : Double, o4 : String?, o4f : Double, o5 : String?, o5f : Double, o6 : String?, o6f : Double, o7 : String?, o7f : Double, EUt : Int) {
             this.name = name
             this.data = data
             O1 = o1
@@ -287,17 +195,7 @@ object BiologicalSimulation {
             this.EUt = EUt
         }
 
-        constructor(
-            name : String,
-            data : String?,
-            o1 : String,
-            o1f : Double,
-            o2 : String?,
-            o2f : Double,
-            o3 : String?,
-            o3f : Double,
-            EUt : Int
-        ) {
+        constructor(name : String, data : String?, o1 : String, o1f : Double, o2 : String?, o2f : Double, o3 : String?, o3f : Double, EUt : Int) {
             this.name = name
             this.data = data
             O1 = o1
@@ -309,19 +207,7 @@ object BiologicalSimulation {
             this.EUt = EUt
         }
 
-        constructor(
-            name : String,
-            data : String?,
-            o1 : String,
-            o1f : Double,
-            o2 : String?,
-            o2f : Double,
-            o3 : String?,
-            o3f : Double,
-            o4 : String?,
-            o4f : Double,
-            EUt : Int
-        ) {
+        constructor(name : String, data : String?, o1 : String, o1f : Double, o2 : String?, o2f : Double, o3 : String?, o3f : Double, o4 : String?, o4f : Double, EUt : Int) {
             this.name = name
             this.data = data
             O1 = o1

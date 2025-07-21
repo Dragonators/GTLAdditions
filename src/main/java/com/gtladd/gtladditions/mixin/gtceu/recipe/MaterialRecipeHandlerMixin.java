@@ -25,7 +25,7 @@ public class MaterialRecipeHandlerMixin {
         if (TagPrefix.ingotHot.doGenerateItem(material)) {
             GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION.recipeBuilder(GTLAdditions.id("cool_hot_" + material.getName() + "_ingot"))
                     .inputItems(TagPrefix.ingotHot, material).outputItems(TagPrefix.ingot, material)
-                    .duration((int) material.getMass() * 3).EUt(120).save(provider);
+                    .duration((int) material.getMass() * 2).EUt(120).save(provider);
         }
     }
 }

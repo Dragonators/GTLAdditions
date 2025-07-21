@@ -38,7 +38,7 @@ public class GCyMRecipesMixin {
         GTLAddRecipesTypes.CHAOTIC_ALCHEMY.recipeBuilder(GTLAdditions.id(output.getName()))
                 .inputItems(TagPrefix.dust, input1, input1Amount).inputItems(TagPrefix.dust, input2, input2Amount).circuitMeta(input1Amount + input2Amount)
                 .outputFluids(output.getFluid(144L * (long) outputAmount))
-                .duration(duration * 3 / 4).EUt(16L).blastFurnaceTemp(FluidHelper.getTemperature(output.getFluid(1L))).save(provider);
+                .duration(duration * 2 / 3).EUt(16L).blastFurnaceTemp(FluidHelper.getTemperature(output.getFluid(1L))).save(provider);
     }
 
     @Inject(method = "registerTrinaryAlloy", at = @At("HEAD"), remap = false)
@@ -48,6 +48,6 @@ public class GCyMRecipesMixin {
                 .inputItems(TagPrefix.dust, input1, input1Amount).inputItems(TagPrefix.dust, input2, input2Amount).inputItems(TagPrefix.dust, input3, input3Amount)
                 .circuitMeta(input1Amount + input2Amount + input3Amount)
                 .outputFluids(output.getFluid(144L * (long) outputAmount))
-                .duration(duration * 3 / 4).EUt(16L).blastFurnaceTemp(FluidHelper.getTemperature(output.getFluid(1L))).save(provider);
+                .duration(duration * 2 / 3).EUt(16L).blastFurnaceTemp(FluidHelper.getTemperature(output.getFluid(1L))).save(provider);
     }
 }

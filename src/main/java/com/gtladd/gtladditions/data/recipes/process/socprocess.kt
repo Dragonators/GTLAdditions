@@ -86,9 +86,9 @@ object socprocess {
             .cleanroom(GTLCleanroomType.LAW_CLEANROOM).addCondition(GravityCondition())
             .save(provider)
         GTLAddRecipeBuilder("spacetime_lens", GTLRecipeTypes.PRECISION_ASSEMBLER_RECIPES)
-            .inputItems("kubejs:grating_lithography_mask")
-            .inputItems("kubejs:topological_manipulator_unit")
-            .inputItems("kubejs:ctc_computational_unit")
+            .inputItemString("kubejs:grating_lithography_mask")
+            .inputItemString("kubejs:topological_manipulator_unit")
+            .inputItemString("kubejs:ctc_computational_unit")
             .inputFluids(QuantumDots.getFluid(1000))
             .inputFluids(CosmicComputingMixture.getFluid(1000))
             .inputFluids(Krypton.getFluid(10000))
@@ -334,7 +334,7 @@ object socprocess {
             provider : Consumer<FinishedRecipe?>
         ) {
             val builder = GTLAddRecipeBuilder(id + "_0", GTRecipeTypes.CIRCUIT_ASSEMBLER_RECIPES)
-                .inputItems(inputs).inputItems(input)
+                .inputItemString(inputs).inputItems(input)
                 .inputItems(wireFine, material1, 8)
                 .inputItems(bolt, material2, 8)
                 .outputItems(getItemStack(output, 4)).EUt(EUt.toLong())
@@ -353,7 +353,7 @@ object socprocess {
 
         private fun generateCircuitRecipes(provider : Consumer<FinishedRecipe?>) {
             GTLAddRecipeBuilder("cosmic_processor", GTRecipeTypes.CIRCUIT_ASSEMBLER_RECIPES)
-                .inputItems("kubejs:cosmic_printed_circuit_board")
+                .inputItemString("kubejs:cosmic_printed_circuit_board")
                 .inputItems(GTLAddItems.SPACETIME_SOC!!)
                 .inputItems(wireFine, HastelloyX78, 8)
                 .inputItems(plate, Crystalmatrix)
@@ -362,7 +362,7 @@ object socprocess {
                 .outputItems(getItemStack("kubejs:cosmic_processor", 4))
                 .duration(150).save(provider)
             GTLAddRecipeBuilder("supracausal_processor", GTRecipeTypes.CIRCUIT_ASSEMBLER_RECIPES)
-                .inputItems("kubejs:supracausal_printed_circuit_board")
+                .inputItemString("kubejs:supracausal_printed_circuit_board")
                 .inputItems(GTLAddItems.PRIMARY_SOC!!)
                 .inputItems(wireGtDouble, Hypogen, 4)
                 .inputItems(plate, DraconiumAwakened)

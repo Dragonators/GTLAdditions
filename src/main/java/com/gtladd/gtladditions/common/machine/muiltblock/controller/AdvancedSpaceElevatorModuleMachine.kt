@@ -19,7 +19,7 @@ import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
 import kotlin.math.pow
 
-class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity, private val SEPMTier: Boolean) :
+class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
     WorkableElectricMultiblockMachine(holder), ParallelMachine, IGTLAddMultiRecipe {
     private var limitedDuration = 20
     private var SpaceElevatorTier = 0

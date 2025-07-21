@@ -2,7 +2,6 @@ package com.gtladd.gtladditions.api.machine.logic;
 
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
 import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe;
-import org.gtlcore.gtlcore.api.recipe.IGTRecipeEUTier;
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic;
 import org.gtlcore.gtlcore.api.recipe.RecipeResult;
 
@@ -16,6 +15,7 @@ import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
+import com.google.common.primitives.Ints;
 import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe;
 import it.unimi.dsi.fastutil.objects.*;
 
@@ -66,7 +66,6 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
     @Nullable
     protected GTRecipe getGTRecipe() {
         if (!machine.hasProxies()) return null;
-        if (this.beforeWorking != null && !this.beforeWorking.test(null, this.machine)) return null;
         Set<GTRecipe> recipes = this.machine.getRecipeType().getLookup().findRecipeCollisions(machine);
         int length = 0;
         if (recipes != null) length = recipes.size();
@@ -88,6 +87,7 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
             } else nullAmount++;
         }
         if (nullAmount == length) return null;
+        if (this.beforeWorking != null && !this.beforeWorking.test(null, this.machine)) return null;
         while (remaining > 0 && !queue.isEmpty()) {
             RecipeData recipeData = queue.dequeue();
             long canGive = remaining / (queue.size() + 1);
@@ -106,7 +106,9 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
         long maxEUt = getMachine().getOverclockVoltage();
         long totalEu = 0;
         for (GTRecipe r : recipeList) {
-            if (parallels[index] > 1) r = r.copy(ContentModifier.multiplier(parallels[index++]), false);
+            if (parallels[index] > 1) r = r.copy(ContentModifier.multiplier(parallels[index]), false);
+            r.parallels = Ints.saturatedCast(parallels[index++]);
+            IParallelLogic.getRecipeOutputChance(machine, r);
             if (handleRecipeInput(machine, r)) {
                 totalEu += RecipeHelper.getInputEUt(r) * r.duration;
                 List<Content> item = r.outputs.get(ItemRecipeCapability.CAP);
@@ -139,6 +141,7 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
         if (recipe == null) return null;
         long parallel = IParallelLogic.getMaxParallel(machine, recipe, (long) this.parallel.getMaxParallel() * MAX_THREADS);
         if (parallel > 1) recipe = recipe.copy(ContentModifier.multiplier(parallel), false);
+        recipe.parallels = Ints.saturatedCast(parallel);
         int minDuration = limited.getLimitedDuration();
         long maxEUt = getMachine().getOverclockVoltage();
         double d = (double) RecipeHelper.getInputEUt(recipe) * recipe.duration / maxEUt;
@@ -165,11 +168,7 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
     }
 
     protected boolean checkRecipe(GTRecipe recipe) {
-        int tier = -1;
-        if (recipe.recipeType instanceof IGTRecipeEUTier euTier)
-            tier = euTier.getRecipeTierMap().getOrDefault(recipe.id, -1);
-        if (tier == -1) tier = RecipeHelper.getRecipeEUtTier(recipe);
-        return tier <= getMachine().getTier() && recipe.checkConditions(machine.getRecipeLogic()).isSuccess();
+        return recipe.data.getInt("euTier") <= getMachine().getTier() && recipe.checkConditions(machine.getRecipeLogic()).isSuccess();
     }
 
     record RecipeData(int index, long remainingWant) {}
