@@ -11,7 +11,7 @@ import com.gtladd.gtladditions.common.items.GTLAddItems;
 import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.gtladd.gtladditions.data.recipes.*;
 import com.gtladd.gtladditions.data.recipes.newmachinerecipe.*;
-import com.gtladd.gtladditions.data.recipes.process.socprocess;
+import com.gtladd.gtladditions.data.recipes.process.SocProcess;
 
 import java.util.function.Consumer;
 
@@ -56,7 +56,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         Mixer.init(provider);
         NewMultiBlockMachineController.init(provider);
         Qft.init(provider);
-        socprocess.init(provider);
+        SocProcess.init(provider);
         Misc.init(provider);
     }
 }

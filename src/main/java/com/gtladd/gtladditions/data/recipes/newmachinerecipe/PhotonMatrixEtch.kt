@@ -9,13 +9,13 @@ import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder
 import com.gtladd.gtladditions.common.items.GTLAddItems
-import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.PHOTON_MATRIX_ETCH
 import com.tterrag.registrate.util.entry.ItemEntry
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.world.item.Item
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
+import org.gtlcore.gtlcore.utils.Registries.*
 import java.util.function.Consumer
 
 object PhotonMatrixEtch {
@@ -67,13 +67,13 @@ object PhotonMatrixEtch {
     }
 
     private fun addRecipe(id : String, input : String, notitem_1 : String, notitem_2 : String, duration : Int, EUt : Int, Fluid : Material, provider : Consumer<FinishedRecipe?>) {
-        GTLAddRecipeBuilder(id, GTLAddRecipesTypes.PHOTON_MATRIX_ETCH)
-            .inputItemString(input)
-            .notConsumable(notitem_2)
-            .notConsumable(notitem_1)
+        PHOTON_MATRIX_ETCH.recipeBuilder(GTLAdditions.id(id))
+            .inputItems(getItemStack(input))
+            .notConsumable(getItemStack(notitem_2))
+            .notConsumable(getItemStack(notitem_1))
             .inputFluids(Fluid.getFluid(50))
-            .outputItems("kubejs:$id")
-            .TierEUtVA(EUt).duration(duration)
+            .outputItems(getItemStack("kubejs:" + "id"))
+            .EUt(GTValues.VA[EUt].toLong()).duration(duration)
             .cleanroom(CleanroomType.CLEANROOM).save(provider)
     }
 

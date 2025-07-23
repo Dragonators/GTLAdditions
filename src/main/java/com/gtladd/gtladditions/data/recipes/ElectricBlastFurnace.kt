@@ -1,9 +1,9 @@
 package com.gtladd.gtladditions.data.recipes
 
 import com.gregtechceu.gtceu.api.GTValues
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix
-import com.gregtechceu.gtceu.common.data.GTMaterials
-import com.gregtechceu.gtceu.common.data.GTRecipeTypes
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
+import com.gregtechceu.gtceu.common.data.GTMaterials.*
+import com.gregtechceu.gtceu.common.data.GTRecipeTypes.BLAST_RECIPES
 import com.gtladd.gtladditions.GTLAdditions
 import net.minecraft.data.recipes.FinishedRecipe
 import java.util.function.Consumer
@@ -11,12 +11,12 @@ import java.util.function.Consumer
 object ElectricBlastFurnace {
     @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
-        GTRecipeTypes.BLAST_RECIPES.recipeBuilder(GTLAdditions.id("magnesium_chloride_dust"))
-            .inputItems(TagPrefix.dust, GTMaterials.Magnesia)
-            .inputItems(TagPrefix.dust, GTMaterials.Carbon)
-            .inputFluids(GTMaterials.Chlorine.getFluid(4000))
-            .outputItems(TagPrefix.dust, GTMaterials.MagnesiumChloride)
-            .outputFluids(GTMaterials.CarbonMonoxide.getFluid(1000))
+        BLAST_RECIPES.recipeBuilder(GTLAdditions.id("magnesium_chloride_dust"))
+            .inputItems(dust, Magnesia)
+            .inputItems(dust, Carbon)
+            .inputFluids(Chlorine.getFluid(4000))
+            .outputItems(dust, MagnesiumChloride)
+            .outputFluids(CarbonMonoxide.getFluid(1000))
             .blastFurnaceTemp(2160).EUt(GTValues.VA[GTValues.HV].toLong())
             .duration(200).save(provider)
     }

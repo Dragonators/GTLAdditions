@@ -45,7 +45,6 @@ object GTLAddMachines {
     val WIRELESS_LASER_OUTPUT_HATCH_16777216A: Array<MachineDefinition?>
     val WIRELESS_LASER_INPUT_HATCH_67108864A: Array<MachineDefinition?>
     val WIRELESS_LASER_OUTPUT_HATCH_67108863A: Array<MachineDefinition?>
-    val WIRELESS_LASER_INPUT_HATCH_268435455A: Array<MachineDefinition?>
 
     @JvmStatic
     fun init() {
@@ -106,12 +105,6 @@ object GTLAddMachines {
             IO.OUT,
             67108863,
             PartAbility.OUTPUT_LASER,
-            WIRELL_ENERGY_HIGH_TIERS
-        )
-        WIRELESS_LASER_INPUT_HATCH_268435455A = WirelessMachines.registerWirelessLaserHatch(
-            IO.IN,
-            268435455,
-            PartAbility.INPUT_LASER,
             WIRELL_ENERGY_HIGH_TIERS
         )
         REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_MACHINE }

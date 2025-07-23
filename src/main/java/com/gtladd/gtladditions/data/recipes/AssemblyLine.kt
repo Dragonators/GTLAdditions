@@ -3,12 +3,12 @@ package com.gtladd.gtladditions.data.recipes
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.data.chemical.material.Material
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
-import com.gregtechceu.gtceu.common.data.GTMachines
+import com.gregtechceu.gtceu.common.data.GTMachines.*
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gtladd.gtladditions.GTLAdditions
 import net.minecraft.data.recipes.FinishedRecipe
-import org.gtlcore.gtlcore.common.data.GTLBlocks
+import org.gtlcore.gtlcore.common.data.GTLBlocks.*
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.*
@@ -30,8 +30,8 @@ object AssemblyLine {
                 .EUt(GTValues.VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtceu:" + tier + "_4194304a_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 64)
-                .inputItems(GTLBlocks.IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
-                .inputItems(GTMachines.POWER_SUBSTATION.asStack(64))
+                .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
+                .inputItems(POWER_SUBSTATION.asStack(64))
                 .inputItems(wireGtQuadruple, wire[i - 5], 16)
                 .inputItems(cableGtQuadruple, cable[i - 5], 16)
                 .circuitMeta(1)
@@ -43,8 +43,8 @@ object AssemblyLine {
                 .EUt(GTValues.VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtceu:" + tier + "_4194304a_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 256)
-                .inputItems(GTLBlocks.IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
-                .inputItems(GTMachines.POWER_SUBSTATION.asStack(256))
+                .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
+                .inputItems(POWER_SUBSTATION.asStack(256))
                 .inputItems(wireGtQuadruple, wire[i - 5], 32)
                 .inputItems(cableGtQuadruple, cable[i - 5], 32)
                 .circuitMeta(2)
@@ -56,8 +56,8 @@ object AssemblyLine {
                 .EUt(GTValues.VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtceu:" + tier + "_4194304a_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 64)
-                .inputItems(GTLBlocks.IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
-                .inputItems(GTMachines.POWER_SUBSTATION.asStack(64))
+                .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
+                .inputItems(POWER_SUBSTATION.asStack(64))
                 .inputItems(wireGtQuadruple, wire[i - 5], 16)
                 .inputItems(cableGtQuadruple, cable[i - 5], 16)
                 .circuitMeta(4)
@@ -69,8 +69,8 @@ object AssemblyLine {
                 .EUt(GTValues.VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtceu:" + tier + "_4194304a_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 256)
-                .inputItems(GTLBlocks.IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
-                .inputItems(GTMachines.POWER_SUBSTATION.asStack(256))
+                .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
+                .inputItems(POWER_SUBSTATION.asStack(256))
                 .inputItems(wireGtQuadruple, wire[i - 5], 32)
                 .inputItems(cableGtQuadruple, cable[i - 5], 32)
                 .circuitMeta(5)
@@ -82,8 +82,8 @@ object AssemblyLine {
                 .EUt(GTValues.VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtmthings:" + tier + "_4194304a_wireless_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 64)
-                .inputItems(GTLBlocks.IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
-                .inputItems(GTMachines.POWER_SUBSTATION.asStack(64))
+                .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
+                .inputItems(POWER_SUBSTATION.asStack(64))
                 .inputItems(wireGtQuadruple, wire[i - 5], 16)
                 .inputItems(cableGtQuadruple, cable[i - 5], 16)
                 .circuitMeta(1)
@@ -95,8 +95,8 @@ object AssemblyLine {
                 .EUt(GTValues.VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtmthings:" + tier + "_4194304a_wireless_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 256)
-                .inputItems(GTLBlocks.IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
-                .inputItems(GTMachines.POWER_SUBSTATION.asStack(256))
+                .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
+                .inputItems(POWER_SUBSTATION.asStack(256))
                 .inputItems(wireGtQuadruple, wire[i - 5], 32)
                 .inputItems(cableGtQuadruple, cable[i - 5], 32)
                 .circuitMeta(2)
@@ -108,8 +108,8 @@ object AssemblyLine {
                 .EUt(GTValues.VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtmthings:" + tier + "_4194304a_wireless_laser_target_hatch"))
                 .inputItems(lens, NetherStar, 64)
-                .inputItems(GTLBlocks.IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
-                .inputItems(GTMachines.POWER_SUBSTATION.asStack(64))
+                .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
+                .inputItems(POWER_SUBSTATION.asStack(64))
                 .inputItems(wireGtQuadruple, wire[i - 5], 16)
                 .inputItems(cableGtQuadruple, cable[i - 5], 16)
                 .circuitMeta(4)
@@ -121,8 +121,8 @@ object AssemblyLine {
                 .EUt(GTValues.VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtmthings:" + tier + "_4194304a_wireless_laser_target_hatch"))
                 .inputItems(lens, NetherStar, 256)
-                .inputItems(GTLBlocks.IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
-                .inputItems(GTMachines.POWER_SUBSTATION.asStack(256))
+                .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
+                .inputItems(POWER_SUBSTATION.asStack(256))
                 .inputItems(wireGtQuadruple, wire[i - 5], 32)
                 .inputItems(cableGtQuadruple, cable[i - 5], 32)
                 .circuitMeta(5)

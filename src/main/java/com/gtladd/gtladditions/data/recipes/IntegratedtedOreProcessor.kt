@@ -4,12 +4,12 @@ import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
 import com.gregtechceu.gtceu.api.data.tag.TagUtil
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
-import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.api.registry.GTLAddRecipeBuilder
+import com.gtladd.gtladditions.GTLAdditions.id
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.world.item.crafting.Ingredient
-import org.gtlcore.gtlcore.common.data.GTLMaterials
-import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
+import org.gtlcore.gtlcore.common.data.GTLMaterials.Jasper
+import org.gtlcore.gtlcore.common.data.GTLMaterials.RawTengam
+import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.INTEGRATED_ORE_PROCESSOR
 import org.gtlcore.gtlcore.config.ConfigHolder
 import java.util.function.Consumer
 
@@ -19,40 +19,42 @@ object IntegratedtedOreProcessor {
 
     @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
-        GTLRecipeTypes.INTEGRATED_ORE_PROCESSOR.recipeBuilder(GTLAdditions.id("jasper_ore_processed"))
+        INTEGRATED_ORE_PROCESSOR.recipeBuilder(id("jasper_ore_processed"))
             .circuitMeta(24)
             .inputItems(SizedIngredient.create(Ingredient.of(TagUtil.createItemTag("ores/jasper"))))
             .inputFluids(DistilledWater.getFluid(2L * orefluid))
-            .outputItems(dust, GTLMaterials.Jasper, 2 * orenumber)
+            .outputItems(dust, Jasper, 2 * orenumber)
             .chancedOutput(dust, Talc, 1400, 850)
             .chancedOutput(dust, Talc, 2 * orenumber, 3300, 0)
             .outputItems(dust, Stone, 2 * orenumber)
             .chancedOutput(dust, Boron, 2 * orenumber, 1400, 850)
-            .chancedOutput(dust, GTLMaterials.RawTengam, 2 * orenumber, 1000, 0)
-            .chancedOutput(dust, GTLMaterials.RawTengam, 2 * orenumber, 500, 0)
+            .chancedOutput(dust, RawTengam, 2 * orenumber, 1000, 0)
+            .chancedOutput(dust, RawTengam, 2 * orenumber, 500, 0)
             .EUt(30).duration(26 + 800 * 2 * orenumber).save(provider)
-        val platinum_group_sludge_dust_list = arrayOf<Array<String?>?>(
-            arrayOf("cooperite", "nickel", "palladium", "mercury"),
-            arrayOf("bornite", "pyrite", "gold", "mercury"),
-            arrayOf("tetrahedrite", "antimony", "cadmium", "sodium_persulfate"),
-            arrayOf("chalcocite", "sulfur")
+        val PlatinmGroupSludgeDustList = arrayOf(
+            arrayOf(Cooperite, Nickel, Palladium, Mercury),
+            arrayOf(Bornite, Pyrite, Gold, Mercury),
+            arrayOf(Tetrahedrite, Antimony, Cadmium, SodiumPersulfate),
+            arrayOf(Chalcocite, Sulfur)
         )
-        for (pure in platinum_group_sludge_dust_list) {
-            GTLAddRecipeBuilder("purified_" + pure !![0] + "_ore_8", GTLRecipeTypes.INTEGRATED_ORE_PROCESSOR)
-                .circuitMeta(8).inputItemsTag("ores/" + pure[0])
+        for (pure in PlatinmGroupSludgeDustList) {
+            INTEGRATED_ORE_PROCESSOR.recipeBuilder(id("purified_" + pure[0].name + "_ore_8"))
+                .circuitMeta(8)
+                .inputItems(TagUtil.createItemTag("ores/" + pure[0].name))
                 .inputFluids(DistilledWater.getFluid(2L * orefluid))
-                .outputItems("gtceu:purified_" + pure[0] + "_ore", 2 * orenumber)
-                .chancedOutputItems("gtceu:" + pure[1] + "_dust", 14.0, 8.5)
-                .chancedOutputItems("gtceu:" + pure[1] + "_dust", 2 * orenumber, 33.0, 0.0)
+                .outputItems(crushedPurified, pure[0], 2 * orenumber)
+                .chancedOutput(dust, pure[1], 1400, 850)
+                .chancedOutput(dust, pure[1], 2 * orenumber, 3300, 0)
                 .outputItems(dust, Stone, 2 * orenumber)
                 .EUt(30).duration(26 + 200 * 2 * orenumber).save(provider)
-            if (pure[0] == "chalcocite") return
-            GTLAddRecipeBuilder("purified_" + pure[0] + "_ore_9", GTLRecipeTypes.INTEGRATED_ORE_PROCESSOR)
-                .circuitMeta(9).inputItemsTag("ores/" + pure[0])
-                .inputFluids("gtceu:" + pure[3], 2 * orefluid)
-                .outputItems("gtceu:purified_" + pure[0] + "_ore", 2 * orenumber)
-                .chancedOutputItems("gtceu:" + pure[1] + "_dust", 14.0, 8.5)
-                .chancedOutputItems("gtceu:" + pure[1] + "_dust", 2 * orenumber, 33.0, 0.0)
+            if (pure[0] == Chalcocite) return
+            INTEGRATED_ORE_PROCESSOR.recipeBuilder(id("purified_" + pure[0].name + "_ore_9"))
+                .circuitMeta(9)
+                .inputItems(TagUtil.createItemTag("ores/" + pure[0].name))
+                .inputFluids(pure[3].getFluid(2L * orefluid))
+                .outputItems(crushedPurified, pure[0], 2 * orenumber)
+                .chancedOutput(dust, pure[1], 1400, 850)
+                .chancedOutput(dust, pure[2], 2 * orenumber, 7000, 580)
                 .outputItems(dust, Stone, 2 * orenumber)
                 .EUt(30).duration(26 + 200 * 2 * orenumber).save(provider)
         }
