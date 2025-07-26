@@ -7,6 +7,7 @@
   "client": [
   ],
   "mixins": [
+    "ae2.ItemPickupStrategyMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",
     "gtceu.recipe.GCyMRecipesMixin",
     "gtceu.recipe.GTRecipeLookupMixin",
