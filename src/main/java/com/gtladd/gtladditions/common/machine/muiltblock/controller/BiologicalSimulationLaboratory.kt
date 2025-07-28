@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
-import com.google.common.primitives.Ints
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
@@ -9,7 +8,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
-import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
+import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe
 import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
@@ -19,9 +18,8 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
-import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
-import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
+import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.*
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine
 import org.gtlcore.gtlcore.utils.Registries.getItem
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
@@ -137,7 +135,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
             lastRecipe = null
             val match = if (this.isNanCertificate) gtRecipe
             else this.oneRecipe
-            if (match != null && RecipeRunnerHelper.matchRecipeOutput(this.machine, match)) {
+            if (match != null && matchRecipeOutput(this.machine, match)) {
                 setupRecipe(match)
             }
         }
@@ -153,12 +151,12 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
                 if (!machine.hasProxies()) return null
                 var recipe = machine.recipeType.lookup.find(machine,
                     Predicate { r: GTRecipe? ->
-                        RecipeRunnerHelper.matchRecipe(machine, r!!) && BEFORE_RECIPE.test(r!!, machine)})
+                        matchRecipe(machine, r!!) && BEFORE_RECIPE.test(r, machine)})
                 if (recipe == null || RecipeHelper.getRecipeEUtTier(recipe) > getMachine()!!.getTier()) return null
-                val p = IParallelLogic.getMaxParallel(machine, recipe, parallel.maxParallel.toLong())
-                if (p > 1) recipe = recipe.copy(ContentModifier.multiplier(p.toDouble()), false)
-                recipe.parallels = Ints.saturatedCast(p)
-                RecipeHelper.setInputEUt(recipe, max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt * p)).toLong())
+                val p = ParallelLogic.applyParallel(machine as MetaMachine, recipe,
+                    parallel.maxParallel, false)
+                recipe = p.first
+                RecipeHelper.setInputEUt(recipe, max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt * p.second)).toLong())
                 recipe.duration = max(1.0, recipe.duration.toDouble() *
                             reDuctionDuration / (1 shl (getMachine() !!.getTier() - RecipeHelper.getRecipeEUtTier(recipe)))).toInt()
                 return recipe
@@ -167,10 +165,10 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) : StorageMachi
         override fun onRecipeFinish() {
             machine.afterWorking()
             if (lastRecipe != null) {
-                RecipeRunnerHelper.handleRecipeOutput(this.machine, lastRecipe!!)
+                handleRecipeOutput(this.machine, lastRecipe!!)
             }
             val match = if (this.isNanCertificate) gtRecipe else this.oneRecipe
-            if (match != null && RecipeRunnerHelper.matchRecipeOutput(this.machine, match)) {
+            if (match != null && matchRecipeOutput(this.machine, match)) {
                 setupRecipe(match)
                 return
             }

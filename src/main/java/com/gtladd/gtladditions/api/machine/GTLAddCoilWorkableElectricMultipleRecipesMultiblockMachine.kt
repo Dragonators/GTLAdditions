@@ -9,7 +9,6 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.chat.Component
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import java.util.function.BiPredicate
@@ -27,7 +26,7 @@ open class GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder: IM
                 val tm = machine as CoilWorkableElectricMultiblockMachine
                 val temp = tm.coilType.coilTemperature + 100L * max(0, tm.getTier() - 2)
                 if (temp < recipe!!.data.getInt("ebf_temp")) {
-                    RecipeResult.of(machine, RecipeResult.fail(Component.translatable("gtceu.recipe.fail.no.enough.temperature")))
+                    RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_TEMPERATURE)
                     return@BiPredicate false
                 }
                 return@BiPredicate true

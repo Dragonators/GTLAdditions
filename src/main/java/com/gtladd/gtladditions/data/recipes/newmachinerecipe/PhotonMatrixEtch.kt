@@ -72,7 +72,7 @@ object PhotonMatrixEtch {
             .notConsumable(getItemStack(notitem_2))
             .notConsumable(getItemStack(notitem_1))
             .inputFluids(Fluid.getFluid(50))
-            .outputItems(getItemStack("kubejs:" + "id"))
+            .outputItems(getItemStack("kubejs:$id"))
             .EUt(GTValues.VA[EUt].toLong()).duration(duration)
             .cleanroom(CleanroomType.CLEANROOM).save(provider)
     }
