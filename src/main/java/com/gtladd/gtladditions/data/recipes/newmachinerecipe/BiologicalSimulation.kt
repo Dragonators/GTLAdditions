@@ -66,6 +66,7 @@ object BiologicalSimulation {
     }
 
     private fun setspawneggreicpes(item : Biological, provider : Consumer<FinishedRecipe?>) {
+        if (item.name == "cow") return
         val builder = INCUBATOR_RECIPES.recipeBuilder(id(item.name + "_spawn_egg"))
             .inputItems(getItemStack("minecraft:bone", 4))
             .inputFluids(Biomass.getFluid(1000))
@@ -86,43 +87,26 @@ object BiologicalSimulation {
     }
 
     private fun addInputItems(builder : GTRecipeBuilder, item : Biological) {
-        when (item.name) {
-            "witch" -> {
-                builder.inputItems(getItemStack("minecraft:redstone", 4))
-                    .inputItems(getItemStack("minecraft:glowstone_dust", 4))
-                    .inputItems(getItemStack("minecraft:sugar", 4))
-                    .inputItems(getItemStack("minecraft:glass_bottle", 4))
-                return
-            }
-            "cat" -> {
-                builder.inputItems(getItemStack("minecraft:string", 4))
-                    .circuitMeta(1)
-                return
-            }
-            "zombie" -> {
-                builder.circuitMeta(1)
-            }
-            "zombie_villager" -> {
-                builder.circuitMeta(2)
-            }
-            "husk" -> {
-                builder.circuitMeta(3)
-            }
-            "donkey" -> {
-                builder.inputItems(getItemStack("minecraft:leather", 4))
-                    .circuitMeta(1)
-                return
-            }
-            "llama" -> {
-                builder.inputItems(getItemStack("minecraft:leather", 4))
-                    .circuitMeta(2)
-                return
-            }
+        if(item.name == "witch") {
+            builder.inputItems(getItemStack("minecraft:redstone", 4))
+                .inputItems(getItemStack("minecraft:glowstone_dust", 4))
+                .inputItems(getItemStack("minecraft:sugar", 4))
+                .inputItems(getItemStack("minecraft:glass_bottle", 4))
+            return
         }
         if (item.O1 != "minecraft:bone") builder.inputItems(getItemStack(item.O1, 4))
         if (item.O2 != null) builder.inputItems(getItemStack(item.O2!!, 4))
         if (item.O3 != null) builder.inputItems(getItemStack(item.O3!!, 4))
         if (item.O4 != null) builder.inputItems(getItemStack(item.O4!!, 4))
+        when (item.name) {
+            "cat" -> builder.circuitMeta(1)
+            "zombie" -> builder.circuitMeta(1)
+            "zombie_villager" -> builder.circuitMeta(2)
+            "husk" -> builder.circuitMeta(3)
+            "donkey" -> builder.circuitMeta(1)
+            "llama" -> builder.circuitMeta(2)
+            "creeper" -> builder.circuitMeta(1)
+        }
     }
 
     private fun generateSpecialRecipes(provider : Consumer<FinishedRecipe?>) {
