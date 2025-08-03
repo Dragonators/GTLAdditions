@@ -80,6 +80,7 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
         ObjectArrayFIFOQueue<RecipeData> queue = new ObjectArrayFIFOQueue<>(length);
         List<GTRecipe> recipeList = new ObjectArrayList<>(length);
         for (var r : recipes) {
+            if (r == null) continue;
             long p = IParallelLogic.getMaxParallel(this.machine, r, parallel * MAX_THREADS);
             if (p <= 0) continue;
             recipeList.add(r);
