@@ -44,5 +44,6 @@
   "gtceu.machine.taixuturbidarray.tooltip.13": "电压等级达到MAX时解锁uu物质输出",
   "gtceu.machine.taixuturbidarray.tooltip.14": "固定耗时：5s",
   "gtceu.machine.taixuturbidarray.tooltip.15": "固定耗能：当前电压耗能*524288安",
-  "gtceu.machine.limitduration_configurator": "Limit Duration"
+  "gtceu.machine.limitduration_configurator": "Limit Duration",
+  "gtceu.machine.super_parallel_hatch.tooltip": "允许同时处理至多2147483647个配方。"
 }
