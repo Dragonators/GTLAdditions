@@ -6,6 +6,9 @@ import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern
 import com.gregtechceu.gtceu.api.pattern.Predicates
+import com.gregtechceu.gtceu.common.data.GTBlocks
+import com.gregtechceu.gtceu.common.data.GTMachines
+import com.gregtechceu.gtceu.common.machine.multiblock.electric.ActiveTransformerMachine
 import com.gregtechceu.gtceu.utils.SupplierMemoizer
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLMaterials
@@ -104,6 +107,17 @@ object MultiBlockModify {
             .build()
     }
 
+    private val activeTransformer = Function { definition: MultiblockMachineDefinition? ->
+        FactoryBlockPattern.start()
+            .aisle("XXX", "XXX", "XXX")
+            .aisle("XXX", "XCX", "XXX")
+            .aisle("XXX", "XSX", "XXX")
+            .where('S', Predicates.controller(Predicates.blocks(definition!!.get())))
+            .where('X', Predicates.blocks(GTBlocks.HIGH_POWER_CASING.get()).or(ActiveTransformerMachine.getHatchPredicates()))
+            .where('C', Predicates.blocks(GTBlocks.SUPERCONDUCTING_COIL.get()))
+            .build()
+    }
+
     @JvmStatic
     fun init() {
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.patternFactory = SupplierMemoizer.memoize {
@@ -111,6 +125,9 @@ object MultiBlockModify {
         }
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.patternFactory = SupplierMemoizer.memoize {
             (createAggregation).apply(AdvancedMultiBlockMachine.CREATE_AGGREGATION)
+        }
+        GTMachines.ACTIVE_TRANSFORMER.patternFactory = SupplierMemoizer.memoize {
+            (activeTransformer).apply(GTMachines.ACTIVE_TRANSFORMER)
         }
     }
 }
