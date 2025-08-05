@@ -11,6 +11,7 @@
     "ae2.ExternalStorageFacadeAccessor",
     "ae2.ExternalStorageFacadeMixin",
     "ae2.ItemPickupStrategyMixin",
+    "extendedAE.InfinityCellMixin",
     "extendedAE.TileExIOPortMixin",
     "gtceu.api.recipe.GTRecipeMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",
