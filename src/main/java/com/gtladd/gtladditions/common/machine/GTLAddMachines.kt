@@ -13,12 +13,15 @@ import com.gregtechceu.gtceu.client.util.TooltipHelper
 import com.gregtechceu.gtceu.common.data.GTCompassSections
 import com.gregtechceu.gtceu.common.data.GTMachines
 import com.gregtechceu.gtceu.utils.FormattingUtil
+import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
+import com.gtladd.gtladditions.api.registry.MachineBuilderExtensions.overlayHullRenderer
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.data.MultiBlockModify
 import com.gtladd.gtladditions.common.machine.hatch.HugeSteamHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.SuperDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.SuperParallelHatchPartMachine
+import com.gtladd.gtladditions.common.machine.hatch.UltimateDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeDualHatchPartMachine
 import com.hepdd.gtmthings.common.registry.GTMTRegistration
@@ -38,7 +41,7 @@ object GTLAddMachines {
     @JvmField
     val HUGE_STEAM_HATCH: MachineDefinition
     val SUPER_INPUT_DUAL_HATCH: MachineDefinition
-
+    val Ultimate_INPUT_DUAL_HATCH: MachineDefinition
     val SUPER_PARALLEL_HATCH: MachineDefinition
     @JvmField
     val HUGE_OUTPUT_DUAL_HATCH: Array<MachineDefinition?>
@@ -126,13 +129,23 @@ object GTLAddMachines {
                 OverlaySteamMachineRenderer(ResourceLocation("gtceu", "block/machine/part/steam_hatch"))
             }.register()
         SUPER_INPUT_DUAL_HATCH = REGISTRATE.machine("super_input_dual_hatch")
-        { SuperDualHatchPartMachine(it!!) }
+        { SuperDualHatchPartMachine(it!!, 18) }
             .rotationState(RotationState.ALL)
             .abilities(*GTMachines.DUAL_INPUT_HATCH_ABILITIES)
             .langValue("Super Input Dual Hatch").overlayTieredHullRenderer("super_input_dual_hatch.import")
             .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 37))
             .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 24,
                     FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 12)))
+            .tooltipBuilder(GTLAdd_TOOLTIP).tier(14).register()
+        Ultimate_INPUT_DUAL_HATCH = REGISTRATE.machine("ultimate_input_dual_hatch")
+        { UltimateDualHatchPartMachine(it!!, 64) }
+            .rotationState(RotationState.ALL)
+            .abilities(*GTMachines.DUAL_INPUT_HATCH_ABILITIES)
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), ResourceLocation(GTLAdditions.MOD_ID, "block/machine/part/ultimate_input_dual_hatch.import"))
+            .langValue("Ultimate Input Dual Hatch")
+            .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 129))
+            .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 64,
+                FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)))
             .tooltipBuilder(GTLAdd_TOOLTIP).tier(14).register()
         SUPER_PARALLEL_HATCH = REGISTRATE.machine("super_parallel_hatch")
         { SuperParallelHatchPartMachine(it!!) }

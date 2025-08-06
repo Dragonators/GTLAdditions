@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.data.recipes
 
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.common.data.GTMaterials
+import com.gregtechceu.gtceu.data.recipe.builder.ShapedRecipeBuilder
 import com.gtladd.gtladditions.GTLAdditions
 import dev.latvian.mods.kubejs.KubeJS
 import net.minecraft.data.recipes.FinishedRecipe
@@ -42,5 +43,13 @@ object Misc {
             .dimension(KubeJS.id("create")).CWUt(Int.Companion.MAX_VALUE - 1)
             .EUt(GTValues.V[14]).duration(600)
             .save(provider)
+        ShapedRecipeBuilder(GTLAdditions.id("ultimate_input_dual_hatch"))
+            .output(getItemStack("gtladditions:ultimate_input_dual_hatch"))
+            .pattern(" S ")
+            .pattern("SDS")
+            .pattern(" S ")
+            .define('S', getItemStack("gtladditions:super_input_dual_hatch"))
+            .define('D', getItemStack("gtlcore:max_storage"))
+            .save(provider);
     }
 }

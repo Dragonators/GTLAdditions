@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.FancyTankConfigurator
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank
+import com.gtladd.gtladditions.common.machine.trait.SuperNotifiableFluidTank
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeBusPartMachine
 import com.hepdd.gtmthings.common.block.machine.trait.CatalystFluidStackHandler
 import com.hepdd.gtmthings.utils.FormatUtil
@@ -25,8 +26,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import org.gtlcore.gtlcore.utils.NumberUtils
 
-open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, vararg args: Any?) :
-    HugeBusPartMachine(holder, 18, IO.IN, 9, *args) {
+open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, vararg args: Any?) :
+    HugeBusPartMachine(holder, tier, IO.IN, 9, *args) {
     @Persisted
     protected val tank: NotifiableFluidTank
 
@@ -37,8 +38,8 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, vararg args: A
     private var hasFluidTransfer = false
     private var hasItemTransfer = false
 
-    protected fun createTank(): NotifiableFluidTank {
-        return object : NotifiableFluidTank(this, 24, Long.Companion.MAX_VALUE shr 12, IO.IN) {
+    protected open fun createTank(): NotifiableFluidTank {
+        return object : SuperNotifiableFluidTank(this, 24, Long.Companion.MAX_VALUE shr 12, IO.IN) {
             override fun canCapOutput(): Boolean {
                 return true
             }
