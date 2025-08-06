@@ -18,7 +18,7 @@ public abstract class ExternalStorageFacadeMixin {
     @Overwrite(remap = false)
     public long insert(AEKey what, long amount, Actionable mode, IActionSource source) {
         final int max = Integer.MAX_VALUE;
-        int times = Ints.saturatedCast(amount / max);
+        int times = Math.min(Ints.saturatedCast(amount / max), 250000);
         int remainder = (int) (amount % max);
         long insertedTotal = 0;
 
