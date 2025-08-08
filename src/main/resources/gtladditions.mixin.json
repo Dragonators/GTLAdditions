@@ -7,6 +7,7 @@
   "client": [
     "meRequester.NumberFieldMixin"
   ],
+  "priority": 900,
   "mixins": [
     "ae2.ExternalStorageFacadeAccessor",
     "ae2.ExternalStorageFacadeMixin",
@@ -14,6 +15,7 @@
     "extendedAE.InfinityCellMixin",
     "extendedAE.TileExIOPortMixin",
     "gtceu.api.recipe.GTRecipeMixin",
+    "gtceu.api.recipe.ParallelLogicMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",
     "gtceu.recipe.GCyMRecipesMixin",
     "gtceu.recipe.GTRecipeLookupMixin",
