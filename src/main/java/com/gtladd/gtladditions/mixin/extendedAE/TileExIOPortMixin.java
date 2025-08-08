@@ -10,6 +10,6 @@ public abstract class TileExIOPortMixin {
 
     @ModifyConstant(method = "tickingRequest", constant = @Constant(longValue = 2048L), remap = false)
     private long replaceItemsToMove(long original) {
-        return Integer.MAX_VALUE;
+        return Integer.MAX_VALUE * 65536L;
     }
 }
