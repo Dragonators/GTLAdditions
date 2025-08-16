@@ -32,6 +32,7 @@ import com.gregtechceu.gtceu.utils.ItemStackHashStrategy;
 import com.gregtechceu.gtceu.utils.ResearchManager;
 
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
+import com.lowdragmc.lowdraglib.gui.texture.TextTexture;
 import com.lowdragmc.lowdraglib.gui.util.ClickData;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
@@ -83,6 +84,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -93,19 +95,30 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             MESuperPatternBufferPartMachine.class, MEBusPartMachine.MANAGED_FIELD_HOLDER);
 
-    protected static final int MAX_PATTERN_COUNT = 27;
+    // ========================================
+    // Page UI Configuration
+    // ========================================
+    protected final int uiWidth;
+    protected final int uiHeight;
+    protected final int patternsPerRow;
+    protected final int rowsPerPage;
+    protected final int maxPages;
+    protected final int maxPatternCount;
+    protected final List<WidgetGroup> pageGroups = new ObjectArrayList<>();
 
-    private final boolean[] hasPatternArray = new boolean[MAX_PATTERN_COUNT];
+    private final boolean[] hasPatternArray;
+    private final long[] lastNotifyTickBySlot;
+    private final ItemStack[] lastSnapshotBySlot;
 
-    private final long[] lastNotifyTickBySlot = new long[MAX_PATTERN_COUNT];
-
-    private final ItemStack[] lastSnapshotBySlot = new ItemStack[MAX_PATTERN_COUNT];
+    @DescSynced
+    @Persisted
+    private int currentPage = 0;
 
     private final InternalInventory internalPatternInventory = new InternalInventory() {
 
         @Override
         public int size() {
-            return MAX_PATTERN_COUNT;
+            return maxPatternCount;
         }
 
         @Override
@@ -124,7 +137,7 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     @Getter
     @Persisted
     @DescSynced
-    private final ItemStackTransfer patternInventory = new ItemStackTransfer(MAX_PATTERN_COUNT);
+    private final ItemStackTransfer patternInventory;
 
     @Getter
     @Persisted
@@ -140,9 +153,9 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
     @Getter
     @Persisted
-    protected final InternalSlot[] internalInventory = new InternalSlot[MAX_PATTERN_COUNT];
+    protected final InternalSlot[] internalInventory;
 
-    private final BiMap<IPatternDetails, InternalSlot> detailsSlotMap = HashBiMap.create(MAX_PATTERN_COUNT);
+    private final BiMap<IPatternDetails, InternalSlot> detailsSlotMap;
 
     private boolean needPatternSync;
 
@@ -162,10 +175,31 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     protected final MESuperPatternBufferRecipeHandlerTrait recipeHandler = new MESuperPatternBufferRecipeHandlerTrait(this);
 
     public MESuperPatternBufferPartMachine(IMachineBlockEntity holder, Object... args) {
+        this(holder, 9, 6, 3, args);
+    }
+
+    public MESuperPatternBufferPartMachine(IMachineBlockEntity holder, int patternsPerRow, int rowsPerPage, int maxPages, Object... args) {
         super(holder, IO.IN, args);
 
+        // Initialize UI configuration
+        this.patternsPerRow = patternsPerRow;
+        this.rowsPerPage = rowsPerPage;
+        this.maxPages = maxPages;
+        this.maxPatternCount = patternsPerRow * rowsPerPage * maxPages;
+        this.uiWidth = patternsPerRow * 18 + 16;
+        this.uiHeight = rowsPerPage * 18 + 28;
+
+        // Initialize arrays with calculated size
+        this.hasPatternArray = new boolean[maxPatternCount];
+        this.lastNotifyTickBySlot = new long[maxPatternCount];
+        this.lastSnapshotBySlot = new ItemStack[maxPatternCount];
+        this.internalInventory = new InternalSlot[maxPatternCount];
+        this.detailsSlotMap = HashBiMap.create(maxPatternCount);
+
+        // Initialize inventories
+        this.patternInventory = new ItemStackTransfer(maxPatternCount);
         this.patternInventory.setFilter(stack -> stack.getItem() instanceof ProcessingPatternItem);
-        Arrays.setAll(internalInventory, i -> new InternalSlot(i));
+        Arrays.setAll(internalInventory, InternalSlot::new);
         getMainNode().addService(ICraftingProvider.class, this);
         Arrays.fill(lastNotifyTickBySlot, Long.MIN_VALUE);
 
@@ -391,17 +425,56 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     }
 
     @Override
-    public Widget createUIWidget() {
-        int rowSize = 9;
-        int colSize = 3;
-        var group = new WidgetGroup(0, 0, 18 * rowSize + 16, 18 * colSize + 16);
+    public @NotNull Widget createUIWidget() {
+        var group = new WidgetGroup(0, 0, uiWidth, uiHeight);
+        pageGroups.clear();
 
-        // Create pattern slots in 9x3 grid
-        int index = 0;
-        for (int y = 0; y < colSize; ++y) {
-            for (int x = 0; x < rowSize; ++x) {
-                int finalI = index;
-                var slot = new AEPatternViewSlotWidget(patternInventory, index++, 8 + x * 18, 14 + y * 18)
+        // ME Network status indicator
+        group.addWidget(new LabelWidget(8, 2,
+                () -> this.isOnline ? "gtceu.gui.me_network.online" : "gtceu.gui.me_network.offline"));
+
+        // Custom name input widget
+        group.addWidget(new AETextInputButtonWidget(uiWidth - 78, 2, 70, 10)
+                .setText(customName)
+                .setOnConfirm(this::setCustomName)
+                .setButtonTooltips(Component.translatable("gui.gtceu.rename.desc")));
+
+        // Add Slots
+        int startY = 16;
+        int patternAreaHeight = rowsPerPage * 18;
+
+        for (int page = 0; page < maxPages; page++) {
+            var pageGroup = new WidgetGroup(0, startY, uiWidth, patternAreaHeight);
+
+            int startSlot = page * (rowsPerPage * patternsPerRow);
+            int endSlot = Math.min(startSlot + (rowsPerPage * patternsPerRow), maxPatternCount);
+
+            for (int i = startSlot; i < endSlot; i++) {
+                int finalI = i;
+                int slotInPage = i - startSlot;
+                int row = slotInPage / patternsPerRow;
+                int col = slotInPage % patternsPerRow;
+
+                int x = 8 + col * 18;
+                int y = row * 18;
+
+                var slot = new AEPatternViewSlotWidget(patternInventory, i, x, y) {
+
+                    @Override
+                    public boolean canPutStack(ItemStack stack) {
+                        // only current page slot allow input items
+                        int slotPage = finalI / (rowsPerPage * patternsPerRow);
+                        return slotPage == currentPage && super.canPutStack(stack);
+                    }
+
+                    @Override
+                    public boolean isEnabled() {
+                        // only current page slot is enabled
+                        int slotPage = finalI / (rowsPerPage * patternsPerRow);
+                        return slotPage == currentPage && super.isEnabled();
+                    }
+                }
+
                         .setOccupiedTexture(GuiTextures.SLOT)
                         .setItemHook(stack -> {
                             if (stack.getItem() instanceof EncodedPatternItem iep) {
@@ -412,21 +485,57 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
                         })
                         .setChangeListener(debounceAndFilter(finalI, () -> this.onPatternChange(finalI)))
                         .setBackground(GuiTextures.SLOT, GuiTextures.PATTERN_OVERLAY);
-                group.addWidget(slot);
+
+                pageGroup.addWidget(slot);
             }
+
+            pageGroup.setVisible(page == this.currentPage);
+            pageGroup.setActive(page == this.currentPage);
+
+            pageGroups.add(pageGroup);
+            group.addWidget(pageGroup);
         }
 
-        // ME Network status indicator
-        group.addWidget(new LabelWidget(8, 2,
-                () -> this.isOnline ? "gtceu.gui.me_network.online" : "gtceu.gui.me_network.offline"));
+        // Page controls
+        int pageControlY = startY + patternAreaHeight + 4;
 
-        // Custom name input widget
-        group.addWidget(new AETextInputButtonWidget(18 * rowSize + 8 - 70, 2, 70, 10)
-                .setText(customName)
-                .setOnConfirm(this::setCustomName)
-                .setButtonTooltips(Component.translatable("gui.gtceu.rename.desc")));
+        // Previous page button
+        group.addWidget(new com.lowdragmc.lowdraglib.gui.widget.ButtonWidget(8, pageControlY, 30, 12,
+                new GuiTextureGroup(GuiTextures.BUTTON, new TextTexture("<<")),
+                clickData -> {
+                    if (currentPage > 0) {
+                        currentPage--;
+                        refreshPageVisibility();
+                    }
+                }));
+
+        // Page indicator (centered)
+        int pageIndicatorWidth = 12; // Estimated width for page text
+        int pageIndicatorX = (uiWidth - pageIndicatorWidth) / 2; // Center the text block
+        group.addWidget(new LabelWidget(pageIndicatorX, pageControlY + 2,
+                () -> (currentPage + 1) + " / " + maxPages));
+
+        // Next page button
+        group.addWidget(new com.lowdragmc.lowdraglib.gui.widget.ButtonWidget(uiWidth - 38, pageControlY, 30, 12,
+                new GuiTextureGroup(GuiTextures.BUTTON, new TextTexture(">>")),
+                clickData -> {
+                    if (currentPage < maxPages - 1) {
+                        currentPage++;
+                        refreshPageVisibility();
+                    }
+                }));
 
         return group;
+    }
+
+    // 刷新页面可见性
+    private void refreshPageVisibility() {
+        for (int i = 0; i < pageGroups.size(); i++) {
+            WidgetGroup pageGroup = pageGroups.get(i);
+            boolean shouldBeVisible = (i == currentPage);
+            pageGroup.setVisible(shouldBeVisible);
+            pageGroup.setActive(shouldBeVisible);
+        }
     }
 
     // ========================================

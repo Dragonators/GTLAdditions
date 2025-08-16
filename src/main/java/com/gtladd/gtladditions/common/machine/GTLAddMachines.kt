@@ -153,7 +153,7 @@ object GTLAddMachines {
                 FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)))
             .tooltipBuilder(GTLAdd_TOOLTIP).tier(14).register()
         ME_SUPER_PATTERN_BUFFER = REGISTRATE.machine("me_super_pattern_buffer")
-        { MESuperPatternBufferPartMachine(it!!) }
+        { MESuperPatternBufferPartMachine(it!!, 9, 6, 3) }
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.IMPORT_ITEMS, PartAbility.IMPORT_FLUIDS)
             .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer"))
