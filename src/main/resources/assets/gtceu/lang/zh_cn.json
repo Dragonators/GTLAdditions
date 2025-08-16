@@ -45,5 +45,7 @@
   "gtceu.machine.taixuturbidarray.tooltip.14": "固定耗时：5s",
   "gtceu.machine.taixuturbidarray.tooltip.15": "固定耗能：当前电压耗能*524288安",
   "gtceu.machine.limitduration_configurator": "配方最短耗时",
-  "gtceu.machine.super_parallel_hatch.tooltip": "允许同时处理至多2147483647个配方。"
+  "gtceu.machine.super_parallel_hatch.tooltip": "允许同时处理至多2147483647个配方。",
+  "gtceu.top.buffer_not_bound": "尚未绑定总成",
+  "gtceu.top.pending_refunds": "待返回列表"
 }

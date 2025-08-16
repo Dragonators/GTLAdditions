@@ -48,13 +48,29 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         fluidInputHandler = new MEFluidInputHandler(ioBuffer);
     }
 
+    @Override
+    public MESuperPatternBufferPartMachine getMachine() {
+        return (MESuperPatternBufferPartMachine) super.getMachine();
+    }
+
+    @Override
+    public ManagedFieldHolder getFieldHolder() {
+        return MANAGED_FIELD_HOLDER;
+    }
+
     public void onChanged() {
         listeners.forEach(Runnable::run);
     }
 
-    @Override
-    public MESuperPatternBufferPartMachine getMachine() {
-        return (MESuperPatternBufferPartMachine) super.getMachine();
+    public List<IMERecipeHandlerTrait<?>> getMERecipeHandlers() {
+        return List.of(itemInputHandler, fluidInputHandler);
+    }
+
+    public Reference2ObjectMap<RecipeCapability<?>, IMERecipeHandlerTrait<?>> getMERecipeHandlerMap() {
+        Reference2ObjectMap<RecipeCapability<?>, IMERecipeHandlerTrait<?>> map = new Reference2ObjectArrayMap<>();
+        map.put(ItemRecipeCapability.CAP, itemInputHandler);
+        map.put(FluidRecipeCapability.CAP, fluidInputHandler);
+        return map;
     }
 
     public boolean handleItemInner(Object2LongMap<AEItemKey> left, boolean simulate, int trySlot) {
@@ -71,13 +87,11 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         } else return false;
     }
 
-    @Override
-    public ManagedFieldHolder getFieldHolder() {
-        return MANAGED_FIELD_HOLDER;
-    }
-
-    public List<IMERecipeHandlerTrait<?>> getMERecipeHandlers() {
-        return List.of(itemInputHandler, fluidInputHandler);
+    private List<Integer> getActiveSlots(MESuperPatternBufferPartMachine.InternalSlot[] slots, RecipeCapability<?> recipeCapability) {
+        return IntStream.range(0, slots.length)
+                .filter(i -> slots[i].isActive(recipeCapability))
+                .boxed()
+                .collect(Collectors.toList());
     }
 
     public class MEItemInputHandler extends NotifiableMERecipeHandlerTrait<Ingredient> {
@@ -138,7 +152,8 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         public Object2LongMap<ItemStack> getCustomSlotsStackMap(List<Integer> list) {
             Object2LongOpenHashMap<ItemStack> map = new Object2LongOpenHashMap<>();
             for (int i : list) {
-                for (var it = Object2LongMaps.fastIterator(getMachine().getInternalInventory()[i].getItemStackInputMap()); it.hasNext();) {
+                var slot = getMachine().getInternalInventory()[i];
+                for (var it = Object2LongMaps.fastIterator(slot.getItemStackInputMap()); it.hasNext();) {
                     var entry = it.next();
                     map.addTo(entry.getKey(), entry.getLongValue());
                 }
@@ -185,6 +200,16 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         }
 
         @Override
+        public RecipeCapability<FluidIngredient> getCapability() {
+            return FluidRecipeCapability.CAP;
+        }
+
+        @Override
+        public FluidIngredient copyContent(Object content) {
+            return super.copyContent(content);
+        }
+
+        @Override
         public List<Integer> getActiveSlots(RecipeCapability<?> recipeCapability) {
             return MESuperPatternBufferRecipeHandlerTrait.this.getActiveSlots(getMachine().getInternalInventory(), recipeCapability);
         }
@@ -206,22 +231,13 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         public Object2LongMap<?> getCustomSlotsStackMap(List<Integer> list) {
             Object2LongOpenHashMap<FluidStack> map = new Object2LongOpenHashMap<>();
             for (int i : list) {
-                for (var it = Object2LongMaps.fastIterator(getMachine().getInternalInventory()[i].getFluidStackInputMap()); it.hasNext();) {
+                var slot = getMachine().getInternalInventory()[i];
+                for (var it = Object2LongMaps.fastIterator(slot.getFluidStackInputMap()); it.hasNext();) {
                     var entry = it.next();
                     map.addTo(entry.getKey(), entry.getLongValue());
                 }
             }
             return map;
-        }
-
-        @Override
-        public RecipeCapability<FluidIngredient> getCapability() {
-            return FluidRecipeCapability.CAP;
-        }
-
-        @Override
-        public FluidIngredient copyContent(Object content) {
-            return super.copyContent(content);
         }
 
         @Override
@@ -237,13 +253,7 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         }
     }
 
-    private List<Integer> getActiveSlots(MESuperPatternBufferPartMachine.InternalSlot[] slots, RecipeCapability<?> recipeCapability) {
-        return IntStream.range(0, slots.length)
-                .filter(i -> slots[i].isActive(recipeCapability))
-                .boxed()
-                .collect(Collectors.toList());
-    }
-
+    // Utility Methods
     public static Pair<Object2LongOpenHashMap<Item>, Object2LongOpenHashMap<Fluid>> mergeInternalSlot(MESuperPatternBufferPartMachine.InternalSlot[] internalSlots) {
         Object2LongOpenHashMap<Item> items = new Object2LongOpenHashMap<>();
         Object2LongOpenHashMap<Fluid> fluids = new Object2LongOpenHashMap<>();
@@ -272,7 +282,6 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
                 }
             }
         }
-
         return result;
     }
 
@@ -287,7 +296,6 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
                 }
             }
         }
-
         return result;
     }
 }

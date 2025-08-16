@@ -17,15 +17,19 @@ import com.gregtechceu.gtceu.api.machine.fancyconfigurator.ButtonConfigurator;
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CircuitFancyConfigurator;
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.FancyInvConfigurator;
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.FancyTankConfigurator;
+import com.gregtechceu.gtceu.api.machine.feature.IInteractedMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
+import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
 import com.gregtechceu.gtceu.integration.ae2.gui.widget.AETextInputButtonWidget;
 import com.gregtechceu.gtceu.integration.ae2.gui.widget.slot.AEPatternViewSlotWidget;
 import com.gregtechceu.gtceu.integration.ae2.machine.MEBusPartMachine;
 import com.gregtechceu.gtceu.utils.FluidStackHashStrategy;
 import com.gregtechceu.gtceu.utils.ItemStackHashStrategy;
+import com.gregtechceu.gtceu.utils.ResearchManager;
 
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
 import com.lowdragmc.lowdraglib.gui.util.ClickData;
@@ -49,7 +53,13 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 import appeng.api.crafting.IPatternDetails;
 import appeng.api.crafting.PatternDetailsHelper;
@@ -58,6 +68,7 @@ import appeng.api.inventories.InternalInventory;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNodeListener;
 import appeng.api.networking.crafting.ICraftingProvider;
+import appeng.api.networking.energy.IEnergyService;
 import appeng.api.stacks.*;
 import appeng.api.storage.MEStorage;
 import appeng.api.storage.StorageHelper;
@@ -68,6 +79,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.primitives.Ints;
 import com.gtladd.gtladditions.common.machine.GTLAddMachines;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -75,13 +87,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements ICraftingProvider, PatternContainer, IMEPatternPartMachine {
+public class MESuperPatternBufferPartMachine extends MEBusPartMachine
+                                             implements ICraftingProvider, PatternContainer, IMEPatternPartMachine, IInteractedMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             MESuperPatternBufferPartMachine.class, MEBusPartMachine.MANAGED_FIELD_HOLDER);
+
     protected static final int MAX_PATTERN_COUNT = 27;
+
+    private final boolean[] hasPatternArray = new boolean[MAX_PATTERN_COUNT];
+
     private final long[] lastNotifyTickBySlot = new long[MAX_PATTERN_COUNT];
+
     private final ItemStack[] lastSnapshotBySlot = new ItemStack[MAX_PATTERN_COUNT];
+
     private final InternalInventory internalPatternInventory = new InternalInventory() {
 
         @Override
@@ -104,8 +123,7 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
 
     @Getter
     @Persisted
-    @DescSynced // Maybe an Expansion Option in the future? a bit redundant for rn. Maybe Packdevs want to add their own
-    // version.
+    @DescSynced
     private final ItemStackTransfer patternInventory = new ItemStackTransfer(MAX_PATTERN_COUNT);
 
     @Getter
@@ -122,24 +140,41 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
 
     @Getter
     @Persisted
-    protected final MESuperPatternBufferPartMachine.InternalSlot[] internalInventory = new MESuperPatternBufferPartMachine.InternalSlot[MAX_PATTERN_COUNT];
+    protected final InternalSlot[] internalInventory = new InternalSlot[MAX_PATTERN_COUNT];
 
-    private final BiMap<IPatternDetails, MESuperPatternBufferPartMachine.InternalSlot> detailsSlotMap = HashBiMap.create(MAX_PATTERN_COUNT);
-
-    @DescSynced
-    @Persisted
-    @Setter
-    private String customName = "";
+    private final BiMap<IPatternDetails, InternalSlot> detailsSlotMap = HashBiMap.create(MAX_PATTERN_COUNT);
 
     private boolean needPatternSync;
 
     @Persisted
     private HashSet<BlockPos> proxies = new HashSet<>();
 
+    @DescSynced
+    @Persisted
+    @Setter
+    private String customName = "";
+
+    @Persisted
+    @Getter
+    private final PendingRefundData pendingRefundData;
+
+    /** Recipe handler trait for ME Pattern Buffer */
     protected final MESuperPatternBufferRecipeHandlerTrait recipeHandler = new MESuperPatternBufferRecipeHandlerTrait(this);
 
-    @Nullable
-    protected TickableSubscription updateSubs;
+    public MESuperPatternBufferPartMachine(IMachineBlockEntity holder, Object... args) {
+        super(holder, IO.IN, args);
+
+        this.patternInventory.setFilter(stack -> stack.getItem() instanceof ProcessingPatternItem);
+        Arrays.setAll(internalInventory, i -> new InternalSlot(i));
+        getMainNode().addService(ICraftingProvider.class, this);
+        Arrays.fill(lastNotifyTickBySlot, Long.MIN_VALUE);
+
+        this.mePatternCircuitInventory = new NotifiableCircuitItemStackHandler(this);
+        this.shareInventory = new NotifiableItemStackHandler(this, 9, IO.IN, IO.NONE);
+        this.shareTank = new NotifiableFluidTank(this, 9, 8 * FluidHelper.getBucket(), IO.IN, IO.NONE);
+
+        this.pendingRefundData = new PendingRefundData();
+    }
 
     @Override
     public boolean isWorkingEnabled() {
@@ -149,16 +184,12 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
     @Override
     public void setWorkingEnabled(boolean ignored) {}
 
-    public MESuperPatternBufferPartMachine(IMachineBlockEntity holder, Object... args) {
-        super(holder, IO.IN, args);
-        this.patternInventory.setFilter(stack -> stack.getItem() instanceof ProcessingPatternItem);
-        Arrays.setAll(internalInventory, i -> new InternalSlot());
-        getMainNode().addService(ICraftingProvider.class, this);
-        this.mePatternCircuitInventory = new NotifiableCircuitItemStackHandler(this);
-        this.shareInventory = new NotifiableItemStackHandler(this, 9, IO.IN, IO.NONE);
-        this.shareTank = new NotifiableFluidTank(this, 9, 8 * FluidHelper.getBucket(), IO.IN, IO.NONE);
-        Arrays.fill(lastNotifyTickBySlot, Long.MIN_VALUE);
-    }
+    // ========================================
+    // LIFECYCLE & NETWORK MANAGEMENT
+    // ========================================
+
+    @Nullable
+    protected TickableSubscription updateSubs;
 
     @Override
     public void onLoad() {
@@ -170,11 +201,12 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
                     var patternDetails = PatternDetailsHelper.decodePattern(pattern, getLevel());
                     if (patternDetails != null) {
                         this.detailsSlotMap.put(patternDetails, this.internalInventory[i]);
+                        hasPatternArray[i] = true;
                     }
                 }
             }));
         }
-        this.getRecipeHandlers().forEach(handler -> handler.addChangedListener(() -> getProxies().forEach(proxy -> {
+        this.getMERecipeHandlerTraits().forEach(handler -> handler.addChangedListener(() -> getProxies().forEach(proxy -> {
             if (handler.getCapability() == ItemRecipeCapability.CAP) {
                 proxy.itemProxyHandler.notifyListeners();
             } else {
@@ -205,6 +237,47 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
         }
     }
 
+    private void onPatternChange(int index) {
+        if (isRemote()) return;
+
+        var internalInv = internalInventory[index];
+        var newPattern = patternInventory.getStackInSlot(index);
+        var newPatternDetails = PatternDetailsHelper.decodePattern(newPattern, getLevel());
+        var oldPatternDetails = detailsSlotMap.inverse().get(internalInv);
+
+        // Update pattern mapping and tracking
+        if (newPatternDetails != null) {
+            detailsSlotMap.forcePut(newPatternDetails, internalInv);
+            hasPatternArray[index] = true;
+        } else {
+            detailsSlotMap.inverse().remove(internalInv);
+            hasPatternArray[index] = false;
+        }
+
+        // Refund old pattern contents if pattern changed
+        if (oldPatternDetails != null && !oldPatternDetails.equals(newPatternDetails) && internalInv != null) {
+            refundSlot(internalInv);
+            pendingRefundData.processPendingRefunds();
+        }
+
+        needPatternSync = true;
+    }
+
+    @Override
+    public void onMachineRemoved() {
+        clearInventory(patternInventory);
+        clearInventory(shareInventory);
+    }
+
+    @Override
+    public ManagedFieldHolder getFieldHolder() {
+        return MANAGED_FIELD_HOLDER;
+    }
+
+    // ========================================
+    // PROXY MANAGEMENT SYSTEM
+    // ========================================
+
     public void addProxy(MESuperPatternBufferProxyPartMachine proxy) {
         proxies.add(proxy.getPos());
     }
@@ -214,60 +287,102 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
     }
 
     public Set<MESuperPatternBufferProxyPartMachine> getProxies() {
-        Set<MESuperPatternBufferProxyPartMachine> proxies1 = new HashSet<>();
+        Set<MESuperPatternBufferProxyPartMachine> activatedProxies = new HashSet<>();
         for (var pos : proxies) {
-            if (MetaMachine.getMachine(getLevel(), pos) instanceof MESuperPatternBufferProxyPartMachine p) {
-                proxies1.add(p);
+            if (MetaMachine.getMachine(Objects.requireNonNull(getLevel()), pos) instanceof MESuperPatternBufferProxyPartMachine proxy) {
+                activatedProxies.add(proxy);
             }
         }
-        return proxies1;
+        return activatedProxies;
     }
+
+    // ========================================
+    // REFUND SYSTEM
+    // ========================================
 
     private void refundAll(ClickData clickData) {
         if (!clickData.isRemote) {
-            Arrays.stream(internalInventory).filter(MESuperPatternBufferPartMachine.InternalSlot::isActive)
-                    .forEach(MESuperPatternBufferPartMachine.InternalSlot::refund);
+            // Move all slot contents to pending refund
+            Arrays.stream(internalInventory)
+                    .filter(InternalSlot::isActive)
+                    .forEach(this::refundSlot);
+
+            // Immediately try to process pending refunds
+            pendingRefundData.processPendingRefunds();
         }
     }
 
-    private void onPatternChange(int index) {
-        if (isRemote()) return;
-
-        // remove old if applicable
-        var internalInv = internalInventory[index];
-        var newPattern = patternInventory.getStackInSlot(index);
-        var newPatternDetails = PatternDetailsHelper.decodePattern(newPattern, getLevel());
-        var oldPatternDetails = detailsSlotMap.inverse().get(internalInv);
-
-        if (newPatternDetails != null) {
-            detailsSlotMap.forcePut(newPatternDetails, internalInv);
-            internalInv.hasPattern = true;
-        } else {
-            detailsSlotMap.inverse().remove(internalInv);
-            internalInv.hasPattern = false;
+    public void refundSlot(InternalSlot slot) {
+        // Move all item contents to pending refund
+        for (var it = slot.itemInventory.object2LongEntrySet().fastIterator(); it.hasNext();) {
+            var entry = it.next();
+            long amount = entry.getLongValue();
+            if (amount > 0) {
+                pendingRefundData.addItem(entry.getKey(), amount);
+                it.remove();
+            }
         }
 
-        if (oldPatternDetails != null && !oldPatternDetails.equals(newPatternDetails)) {
-            internalInv.refund();
+        // Move all fluid contents to pending refund
+        for (var it = slot.fluidInventory.object2LongEntrySet().fastIterator(); it.hasNext();) {
+            var entry = it.next();
+            long amount = entry.getLongValue();
+            if (amount > 0) {
+                pendingRefundData.addFluid(entry.getKey(), amount);
+                it.remove();
+            }
         }
-
-        needPatternSync = true;
     }
 
-    //////////////////////////////////////
-    // ********** GUI ***********//
-    //////////////////////////////////////
+    // ========================================
+    // DATASTICK INTERACTION
+    // ========================================
+
+    @Override
+    public InteractionResult onUse(BlockState state, Level world, BlockPos pos, Player player,
+                                   InteractionHand hand, BlockHitResult hit) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (stack.isEmpty()) return InteractionResult.PASS;
+
+        if (stack.is(GTItems.TOOL_DATA_STICK.asItem())) {
+            if (!world.isClientSide) {
+                // Check if it's research data - if so, pass to avoid conflicts
+                Pair<GTRecipeType, String> researchData = ResearchManager.readResearchId(stack);
+                if (researchData != null) {
+                    return InteractionResult.PASS;
+                }
+
+                // Store this pattern buffer's position in the data stick
+                stack.getOrCreateTag().putIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+            }
+            return InteractionResult.sidedSuccess(world.isClientSide);
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    // ========================================
+    // GUI SYSTEM
+    // ========================================
+
     @Override
     public void attachConfigurators(ConfiguratorPanel configuratorPanel) {
+        // Refund all button
         configuratorPanel.attachConfigurators(new ButtonConfigurator(
                 new GuiTextureGroup(GuiTextures.BUTTON, GuiTextures.REFUND_OVERLAY), this::refundAll)
                 .setTooltips(List.of(Component.translatable("gui.gtceu.refund_all.desc"))));
+
+        // Circuit configurator
         configuratorPanel.attachConfigurators(new CircuitFancyConfigurator(mePatternCircuitInventory.storage));
+
+        // Share inventory configurator
         configuratorPanel.attachConfigurators(new FancyInvConfigurator(
                 shareInventory.storage, Component.translatable("gui.gtceu.share_inventory.title"))
                 .setTooltips(List.of(
                         Component.translatable("gui.gtceu.share_inventory.desc.0"),
                         Component.translatable("gui.gtceu.share_inventory.desc.1"))));
+
+        // Share tank configurator
         configuratorPanel.attachConfigurators(new FancyTankConfigurator(
                 shareTank.getStorages(), Component.translatable("gui.gtceu.share_tank.title"))
                 .setTooltips(List.of(
@@ -280,6 +395,8 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
         int rowSize = 9;
         int colSize = 3;
         var group = new WidgetGroup(0, 0, 18 * rowSize + 16, 18 * colSize + 16);
+
+        // Create pattern slots in 9x3 grid
         int index = 0;
         for (int y = 0; y < colSize; ++y) {
             for (int x = 0; x < rowSize; ++x) {
@@ -298,12 +415,12 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
                 group.addWidget(slot);
             }
         }
-        // ME Network status
-        group.addWidget(new LabelWidget(
-                8,
-                2,
+
+        // ME Network status indicator
+        group.addWidget(new LabelWidget(8, 2,
                 () -> this.isOnline ? "gtceu.gui.me_network.online" : "gtceu.gui.me_network.offline"));
 
+        // Custom name input widget
         group.addWidget(new AETextInputButtonWidget(18 * rowSize + 8 - 70, 2, 70, 10)
                 .setText(customName)
                 .setOnConfirm(this::setCustomName)
@@ -311,6 +428,10 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
 
         return group;
     }
+
+    // ========================================
+    // PERFORMANCE OPTIMIZATION UTILITIES
+    // ========================================
 
     private Runnable debounceAndFilter(int slotIndex, Runnable delegate) {
         return () -> {
@@ -346,6 +467,10 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
         var level = mc.level;
         return level != null ? level.getGameTime() : System.nanoTime();
     }
+
+    // ========================================
+    // AE2 CRAFTING
+    // ========================================
 
     @Override
     public List<IPatternDetails> getAvailablePatterns() {
@@ -383,10 +508,9 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
         return true;
     }
 
-    @Override
-    public ManagedFieldHolder getFieldHolder() {
-        return MANAGED_FIELD_HOLDER;
-    }
+    // ========================================
+    // PATTERN CONTAINER IMPLEMENTATION
+    // ========================================
 
     @Override
     public @Nullable IGrid getGrid() {
@@ -401,11 +525,12 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
     @Override
     public PatternContainerGroup getTerminalGroup() {
         List<IMultiController> controllers = getControllers();
-        // has controller
+
+        // Handle multiblock controller grouping
         if (!controllers.isEmpty()) {
             IMultiController controller = controllers.get(0);
             MultiblockMachineDefinition controllerDefinition = controller.self().getDefinition();
-            // has customName
+
             if (!customName.isEmpty()) {
                 return new PatternContainerGroup(
                         AEItemKey.of(controllerDefinition.asStack()),
@@ -439,59 +564,70 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
         }
     }
 
-    @Override
-    public void onMachineRemoved() {
-        clearInventory(patternInventory);
-        clearInventory(shareInventory);
-    }
+    // ========================================
+    // IMEPatternPartMachine
+    // ========================================
 
     @Override
     public List<IMERecipeHandlerTrait<?>> getMERecipeHandlerTraits() {
         return recipeHandler.getMERecipeHandlers();
     }
 
+    public Reference2ObjectMap<RecipeCapability<?>, IMERecipeHandlerTrait<?>> getMERecipeHandlerMap() {
+        return recipeHandler.getMERecipeHandlerMap();
+    }
+
+    /**
+     * Internal Slot: Pattern-specific inventory management
+     * 
+     * Each slot represents a single pattern's ingredient storage with separate item and fluid inventories.
+     * Provides optimized handling for recipe matching
+     * and ingredient consumption with efficient serialization.
+     * 
+     * Features:
+     * - Separate inventories per pattern
+     * - Efficient recipe matching with early exit conditions
+     */
     public class InternalSlot implements ITagSerializable<CompoundTag>, IContentChangeAware {
 
         @Getter
         @Setter
-        protected Runnable onContentsChanged = () -> {
-            /**/
-        };
-        @Getter
-        @Setter
-        private boolean hasPattern;
+        protected Runnable onContentsChanged = () -> {};
+
         @Getter
         private final Object2LongOpenHashMap<AEItemKey> itemInventory = new Object2LongOpenHashMap<>();
+
         @Getter
         private final Object2LongOpenHashMap<AEFluidKey> fluidInventory = new Object2LongOpenHashMap<>();
 
-        public InternalSlot() {
+        @Getter
+        private final int slotIndex;
+
+        public InternalSlot(int slotIndex) {
+            this.slotIndex = slotIndex;
             itemInventory.defaultReturnValue(0L);
             fluidInventory.defaultReturnValue(0L);
         }
 
         public boolean isActive() {
-            return hasPattern && (!itemInventory.isEmpty() || !fluidInventory.isEmpty());
+            return hasPatternArray[slotIndex] && (!itemInventory.isEmpty() || !fluidInventory.isEmpty());
         }
 
         public boolean isActive(RecipeCapability<?> recipeCapability) {
             if (recipeCapability == ItemRecipeCapability.CAP) {
-                return hasPattern && !itemInventory.isEmpty();
+                return hasPatternArray[slotIndex] && !itemInventory.isEmpty();
             } else {
-                return hasPattern && !fluidInventory.isEmpty();
+                return hasPatternArray[slotIndex] && !fluidInventory.isEmpty();
             }
         }
 
-        private void addItem(AEItemKey key, long amount) {
+        private void add(AEKey what, long amount) {
             if (amount <= 0L) return;
-            itemInventory.addTo(key, amount);
-            MESuperPatternBufferPartMachine.this.recipeHandler.getItemInputHandler().notifyListeners();
-        }
-
-        private void addFluid(AEFluidKey key, long amount) {
-            if (amount <= 0L) return;
-            fluidInventory.addTo(key, amount);
-            MESuperPatternBufferPartMachine.this.recipeHandler.getFluidInputHandler().notifyListeners();
+            if (what instanceof AEItemKey itemKey) {
+                itemInventory.addTo(itemKey, amount);
+            } else if (what instanceof AEFluidKey fluidKey) {
+                fluidInventory.addTo(fluidKey, amount);
+            }
         }
 
         public Object2LongMap<ItemStack> getItemStackInputMap() {
@@ -508,7 +644,7 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
         }
 
         public Object2LongMap<FluidStack> getFluidStackInputMap() {
-            var fluidInputMap = new Object2LongOpenCustomHashMap<FluidStack>(FluidStackHashStrategy.comparingAllButAmount());
+            var fluidInputMap = new Object2LongOpenCustomHashMap<>(FluidStackHashStrategy.comparingAllButAmount());
             for (Object2LongMap.Entry<AEFluidKey> entry : Object2LongMaps.fastIterable(fluidInventory)) {
                 AEFluidKey key = entry.getKey();
                 long amount = entry.getLongValue();
@@ -542,47 +678,10 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
             return limitInput;
         }
 
-        public void refund() {
-            var network = getMainNode().getGrid();
-            if (network != null) {
-                MEStorage networkInv = network.getStorageService().getInventory();
-                var energy = network.getEnergyService();
-                refundEntries(itemInventory, (key, amount) -> StorageHelper.poweredInsert(energy, networkInv, key, amount, actionSource));
-                refundEntries(fluidInventory, (key, amount) -> StorageHelper.poweredInsert(energy, networkInv, key, amount, actionSource));
-                onContentsChanged.run();
-            }
-        }
-
-        private <T> void refundEntries(Object2LongOpenHashMap<T> map, java.util.function.BiFunction<T, Long, Long> inserter) {
-            for (var it = map.object2LongEntrySet().fastIterator(); it.hasNext();) {
-                var entry = it.next();
-                long amount = entry.getLongValue();
-                if (amount <= 0) {
-                    it.remove();
-                    continue;
-                }
-                long inserted = inserter.apply(entry.getKey(), amount);
-                if (inserted > 0) {
-                    long left = amount - inserted;
-                    if (left <= 0) {
-                        it.remove();
-                    } else {
-                        entry.setValue(left);
-                    }
-                }
-            }
-        }
-
         public void pushPattern(IPatternDetails patternDetails, KeyCounter[] inputHolder) {
-            patternDetails.pushInputsToExternalInventory(inputHolder, (what, amount) -> {
-                if (what instanceof AEFluidKey key) {
-                    addFluid(key, amount);
-                }
-
-                if (what instanceof AEItemKey key) {
-                    addItem(key, amount);
-                }
-            });
+            patternDetails.pushInputsToExternalInventory(inputHolder, this::add);
+            recipeHandler.getFluidInputHandler().notifyListeners();
+            recipeHandler.getItemInputHandler().notifyListeners();
             onContentsChanged.run();
         }
 
@@ -597,7 +696,7 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
         private <T> boolean handleInternal(Object2LongMap<T> left, Object2LongOpenHashMap<T> inventory, boolean simulate) {
             if (left.isEmpty()) return true;
 
-            // 首先检查所有key是否都满足条件，避免对left进行不必要的修改
+            // Early exit: Check all requirements before modifying anything
             for (Object2LongMap.Entry<T> entry : Object2LongMaps.fastIterable(left)) {
                 var key = entry.getKey();
                 long needAmount = entry.getLongValue();
@@ -608,7 +707,6 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
                 }
             }
 
-            // 如果不是模拟模式，执行对left以及Inventory实际的消耗操作
             if (!simulate) {
                 for (var it = Object2LongMaps.fastIterator(left); it.hasNext();) {
                     var entry = it.next();
@@ -649,8 +747,6 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
             }
             if (!fluidsTag.isEmpty()) tag.put("fluidInventory", fluidsTag);
 
-            tag.putBoolean("hasPattern", hasPattern);
-
             return tag;
         }
 
@@ -675,8 +771,118 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine implements
                     fluidInventory.put(key, amount);
                 }
             }
+        }
+    }
 
-            hasPattern = tag.getBoolean("hasPattern");
+    public class PendingRefundData implements ITagSerializable<CompoundTag>, IContentChangeAware {
+
+        @Getter
+        @Setter
+        protected Runnable onContentsChanged = () -> {};
+
+        @Getter
+        private final Object2LongOpenHashMap<AEItemKey> pendingRefundItems = new Object2LongOpenHashMap<>();
+
+        @Getter
+        private final Object2LongOpenHashMap<AEFluidKey> pendingRefundFluids = new Object2LongOpenHashMap<>();
+
+        public PendingRefundData() {
+            pendingRefundItems.defaultReturnValue(0L);
+            pendingRefundFluids.defaultReturnValue(0L);
+        }
+
+        public void addItem(AEItemKey key, long amount) {
+            if (amount > 0) {
+                pendingRefundItems.addTo(key, amount);
+            }
+        }
+
+        public void addFluid(AEFluidKey key, long amount) {
+            if (amount > 0) {
+                pendingRefundFluids.addTo(key, amount);
+            }
+        }
+
+        public void processPendingRefunds() {
+            var network = getMainNode().getGrid();
+            if (network != null) {
+                MEStorage networkInv = network.getStorageService().getInventory();
+                var energy = network.getEnergyService();
+
+                // Process pending item and fluid refunds
+                processRefundMap(pendingRefundItems, energy, networkInv);
+                processRefundMap(pendingRefundFluids, energy, networkInv);
+            }
+        }
+
+        private <T extends AEKey> void processRefundMap(Object2LongOpenHashMap<T> refundMap,
+                                                        IEnergyService energy, MEStorage networkInv) {
+            for (var it = refundMap.object2LongEntrySet().fastIterator(); it.hasNext();) {
+                var entry = it.next();
+                long amount = entry.getLongValue();
+                if (amount <= 0) {
+                    it.remove();
+                    continue;
+                }
+
+                long inserted = StorageHelper.poweredInsert(energy, networkInv, entry.getKey(), amount, actionSource);
+                if (inserted > 0) {
+                    long left = amount - inserted;
+                    if (left <= 0) {
+                        it.remove();
+                    } else {
+                        entry.setValue(left);
+                    }
+                }
+            }
+        }
+
+        private <T extends AEKey> void serializeRefundMap(Object2LongOpenHashMap<T> refundMap,
+                                                          String tagName, CompoundTag parentTag) {
+            ListTag listTag = new ListTag();
+            for (var entry : refundMap.object2LongEntrySet()) {
+                var aeKey = entry.getKey();
+                long amount = entry.getLongValue();
+                if (amount > 0) {
+                    var keyTag = aeKey.toTag();
+                    keyTag.putLong("pendingAmount", amount);
+                    listTag.add(keyTag);
+                }
+            }
+            if (!listTag.isEmpty()) {
+                parentTag.put(tagName, listTag);
+            }
+        }
+
+        private <T extends AEKey> void deserializeRefundMap(Object2LongOpenHashMap<T> refundMap,
+                                                            String tagName, CompoundTag parentTag,
+                                                            java.util.function.Function<CompoundTag, T> keyParser) {
+            refundMap.clear();
+            ListTag listTag = parentTag.getList(tagName, Tag.TAG_COMPOUND);
+            for (Tag t : listTag) {
+                if (!(t instanceof CompoundTag keyTag)) continue;
+                var aeKey = keyParser.apply(keyTag);
+                long amount = keyTag.getLong("pendingAmount");
+                if (aeKey != null && amount > 0) {
+                    refundMap.put(aeKey, amount);
+                }
+            }
+        }
+
+        @Override
+        public CompoundTag serializeNBT() {
+            CompoundTag tag = new CompoundTag();
+
+            serializeRefundMap(pendingRefundItems, "pendingRefundItems", tag);
+            serializeRefundMap(pendingRefundFluids, "pendingRefundFluids", tag);
+
+            return tag;
+        }
+
+        @Override
+        public void deserializeNBT(CompoundTag tag) {
+            deserializeRefundMap(pendingRefundItems, "pendingRefundItems", tag, AEItemKey::fromTag);
+            deserializeRefundMap(pendingRefundFluids, "pendingRefundFluids", tag, AEFluidKey::fromTag);
         }
     }
 }
