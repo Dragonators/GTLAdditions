@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -149,16 +148,14 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
 
         @Override
         @SuppressWarnings("unchecked")
-        public boolean meHandleRecipeInner(IO io, GTRecipe recipe, Object2LongMap<?> left, @Nullable String s, boolean simulate, int trySlot) {
-            if (io == IO.IN) {
-                return handleItemInner((Object2LongMap<AEItemKey>) left, simulate, trySlot);
-            } else return false;
+        public boolean meHandleRecipeInner(GTRecipe recipe, Object2LongMap<?> left, boolean simulate, int trySlot) {
+            return handleItemInner((Object2LongMap<AEItemKey>) left, simulate, trySlot);
         }
 
         @Override
-        public void prepareMEHandleContents(IO io, GTRecipe recipe, List<Ingredient> left, @Nullable String slotName, boolean simulate) {
-            getMachine().getMePatternCircuitInventory().handleRecipeInner(io, recipe, left, slotName, simulate);
-            getMachine().getShareInventory().handleRecipeInner(io, recipe, left, slotName, simulate);
+        public void prepareMEHandleContents(GTRecipe recipe, List<Ingredient> left, boolean simulate) {
+            getMachine().getMePatternCircuitInventory().handleRecipeInner(IO.IN, recipe, left, null, simulate);
+            getMachine().getShareInventory().handleRecipeInner(IO.IN, recipe, left, null, simulate);
             setPreparedMEHandleContents(ingredientsToAEKeyMap(left));
         }
     }
@@ -229,15 +226,13 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
 
         @Override
         @SuppressWarnings("unchecked")
-        public boolean meHandleRecipeInner(IO io, GTRecipe recipe, Object2LongMap<?> left, @Nullable String s, boolean simulate, int trySlot) {
-            if (io == IO.IN) {
-                return handleFluidInner((Object2LongMap<AEFluidKey>) left, simulate, trySlot);
-            } else return false;
+        public boolean meHandleRecipeInner(GTRecipe recipe, Object2LongMap<?> left, boolean simulate, int trySlot) {
+            return handleFluidInner((Object2LongMap<AEFluidKey>) left, simulate, trySlot);
         }
 
         @Override
-        public void prepareMEHandleContents(IO io, GTRecipe recipe, List<FluidIngredient> left, @Nullable String slotName, boolean simulate) {
-            getMachine().getShareTank().handleRecipeInner(io, recipe, left, slotName, simulate);
+        public void prepareMEHandleContents(GTRecipe recipe, List<FluidIngredient> left, boolean simulate) {
+            getMachine().getShareTank().handleRecipeInner(IO.IN, recipe, left, null, simulate);
             setPreparedMEHandleContents(fluidIngredientsToAEKeyMap(left));
         }
     }
