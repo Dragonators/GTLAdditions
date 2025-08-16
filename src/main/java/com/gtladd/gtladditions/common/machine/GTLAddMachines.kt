@@ -24,6 +24,7 @@ import com.gtladd.gtladditions.common.machine.hatch.SuperParallelHatchPartMachin
 import com.gtladd.gtladditions.common.machine.hatch.UltimateDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.part.MESuperPatternBufferPartMachine
+import com.gtladd.gtladditions.common.machine.muiltblock.part.MESuperPatternBufferProxyPartMachine
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeDualHatchPartMachine
 import com.hepdd.gtmthings.common.registry.GTMTRegistration
 import com.hepdd.gtmthings.data.CreativeModeTabs
@@ -45,6 +46,7 @@ object GTLAddMachines {
     val Ultimate_INPUT_DUAL_HATCH: MachineDefinition
     @JvmField
     val ME_SUPER_PATTERN_BUFFER: MachineDefinition
+    val ME_SUPER_PATTERN_BUFFER_PROXY: MachineDefinition
     val SUPER_PARALLEL_HATCH: MachineDefinition
     @JvmField
     val HUGE_OUTPUT_DUAL_HATCH: Array<MachineDefinition?>
@@ -163,7 +165,20 @@ object GTLAddMachines {
                 Component.translatable("gtceu.universal.enabled")
             )
             .tooltipBuilder(GTLAdd_TOOLTIP).tier(14)
-            .compassNode("dual_hatch")
+            .register()
+        ME_SUPER_PATTERN_BUFFER_PROXY = REGISTRATE.machine("me_super_pattern_buffer_proxy")
+        { MESuperPatternBufferProxyPartMachine(it!!) }
+            .rotationState(RotationState.ALL)
+            .abilities(PartAbility.IMPORT_ITEMS, PartAbility.IMPORT_FLUIDS)
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer_proxy"))
+            .langValue("Me Super Pattern Buffer Proxy")
+            .tooltips(
+                Component.translatable("block.gtceu.pattern_buffer_proxy.desc.0"),
+                Component.translatable("block.gtceu.pattern_buffer_proxy.desc.1"),
+                Component.translatable("block.gtceu.pattern_buffer_proxy.desc.2"),
+                Component.translatable("gtceu.universal.enabled")
+            )
+            .tooltipBuilder(GTLAdd_TOOLTIP).tier(14)
             .register()
         SUPER_PARALLEL_HATCH = REGISTRATE.machine("super_parallel_hatch")
         { SuperParallelHatchPartMachine(it!!) }
