@@ -9,7 +9,6 @@
   ],
   "priority": 900,
   "mixins": [
-    "ae2.AEKey2LongMapMixin",
     "ae2.ExternalStorageFacadeAccessor",
     "ae2.ExternalStorageFacadeMixin",
     "ae2.ItemPickupStrategyMixin",
