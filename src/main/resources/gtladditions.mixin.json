@@ -12,7 +12,6 @@
     "ae2.AEKey2LongMapMixin",
     "ae2.ExternalStorageFacadeAccessor",
     "ae2.ExternalStorageFacadeMixin",
-    "ae2.IOPortBlockEntityMixin",
     "ae2.ItemPickupStrategyMixin",
     "extendedAE.InfinityCellMixin",
     "extendedAE.TileExIOPortMixin",
