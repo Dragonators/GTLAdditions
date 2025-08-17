@@ -16,8 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluid;
 
-import appeng.api.stacks.AEFluidKey;
-import appeng.api.stacks.AEItemKey;
 import com.gtladd.gtladditions.api.machine.trait.NotifiableMERecipeHandlerTrait;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -74,14 +72,14 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         return map;
     }
 
-    public boolean handleItemInner(Object2LongMap<AEItemKey> left, boolean simulate, int trySlot) {
+    public boolean handleItemInner(Object2LongMap<Ingredient> left, boolean simulate, int trySlot) {
         var internalSlot = getMachine().getInternalInventory()[trySlot];
         if (internalSlot.isActive(ItemRecipeCapability.CAP)) {
             return internalSlot.handleItemInternal(left, simulate);
         } else return false;
     }
 
-    public boolean handleFluidInner(Object2LongMap<AEFluidKey> left, boolean simulate, int trySlot) {
+    public boolean handleFluidInner(Object2LongMap<FluidIngredient> left, boolean simulate, int trySlot) {
         var internalSlot = getMachine().getInternalInventory()[trySlot];
         if (internalSlot.isActive(FluidRecipeCapability.CAP)) {
             return internalSlot.handleFluidInternal(left, simulate);
@@ -99,7 +97,7 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
 
         @Getter
         @Setter
-        private Object2LongMap<AEItemKey> preparedMEHandleContents = new Object2LongOpenHashMap<>();
+        private Object2LongMap<Ingredient> preparedMEHandleContents = new Object2LongOpenHashMap<>();
 
         public MEItemInputHandler(MESuperPatternBufferPartMachine machine) {
             super(machine);
@@ -168,9 +166,8 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public boolean meHandleRecipeInner(GTRecipe recipe, Object2LongMap<?> left, boolean simulate, int trySlot) {
-            return handleItemInner((Object2LongMap<AEItemKey>) left, simulate, trySlot);
+        public boolean meHandleRecipeInner(GTRecipe recipe, Object2LongMap<Ingredient> left, boolean simulate, int trySlot) {
+            return handleItemInner(left, simulate, trySlot);
         }
 
         @Override
@@ -195,7 +192,7 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
 
         @Getter
         @Setter
-        private Object2LongMap<AEFluidKey> preparedMEHandleContents = new Object2LongOpenHashMap<>();
+        private Object2LongMap<FluidIngredient> preparedMEHandleContents = new Object2LongOpenHashMap<>();
 
         public MEFluidInputHandler(MESuperPatternBufferPartMachine machine) {
             super(machine);
@@ -257,9 +254,8 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public boolean meHandleRecipeInner(GTRecipe recipe, Object2LongMap<?> left, boolean simulate, int trySlot) {
-            return handleFluidInner((Object2LongMap<AEFluidKey>) left, simulate, trySlot);
+        public boolean meHandleRecipeInner(GTRecipe recipe, Object2LongMap<FluidIngredient> left, boolean simulate, int trySlot) {
+            return handleFluidInner(left, simulate, trySlot);
         }
 
         @Override
@@ -286,50 +282,38 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         return new ImmutablePair<>(items, fluids);
     }
 
-    private static Object2LongMap<AEItemKey> ingredientsToAEKeyMap(List<Ingredient> ingredients) {
-        var result = new Object2LongOpenHashMap<AEItemKey>();
+    private static Object2LongMap<Ingredient> ingredientsToAEKeyMap(List<Ingredient> ingredients) {
+        var result = new Object2LongOpenHashMap<Ingredient>();
         for (Ingredient ingredient : ingredients) {
-            ItemStack[] matchingStacks = ingredient.getItems();
-            if (matchingStacks.length == 0 || matchingStacks[0].isEmpty()) continue;
-            for (ItemStack stack : matchingStacks) {
-                if (!stack.isEmpty()) {
-                    AEItemKey aeKey = AEItemKey.of(stack);
-                    result.addTo(aeKey, stack.getCount());
-                }
+            var items = ingredient.getItems();
+            if (items.length == 0 || items[0].isEmpty()) {
+                continue;
             }
+            result.addTo(ingredient, items[0].getCount());
         }
         return result;
     }
 
-    private static Object2LongMap<AEItemKey> ingredientsToAEKeyMapExcludingCircuits(List<Ingredient> ingredients) {
-        var result = new Object2LongOpenHashMap<AEItemKey>();
+    private static Object2LongMap<Ingredient> ingredientsToAEKeyMapExcludingCircuits(List<Ingredient> ingredients) {
+        var result = new Object2LongOpenHashMap<Ingredient>();
         for (Ingredient ingredient : ingredients) {
-            ItemStack[] matchingStacks = ingredient.getItems();
-            if (matchingStacks.length == 0 || matchingStacks[0].isEmpty()) continue;
-            for (ItemStack stack : matchingStacks) {
-                if (!stack.isEmpty()) {
-                    // 过滤掉电路
-                    if (stack.getItem() == GTItems.INTEGRATED_CIRCUIT.asItem()) {
-                        continue;
-                    }
-                    AEItemKey aeKey = AEItemKey.of(stack);
-                    result.addTo(aeKey, stack.getCount());
-                }
+            var items = ingredient.getItems();
+            if (items.length == 0 || items[0].isEmpty()) {
+                continue;
             }
+            if (items[0].getItem() == GTItems.INTEGRATED_CIRCUIT.asItem()) {
+                continue;
+            }
+            result.addTo(ingredient, items[0].getCount());
         }
         return result;
     }
 
-    private static Object2LongMap<AEFluidKey> fluidIngredientsToAEKeyMap(List<FluidIngredient> ingredients) {
-        var result = new Object2LongOpenHashMap<AEFluidKey>();
+    private static Object2LongMap<FluidIngredient> fluidIngredientsToAEKeyMap(List<FluidIngredient> ingredients) {
+        var result = new Object2LongOpenHashMap<FluidIngredient>(ingredients.size());
         for (FluidIngredient ingredient : ingredients) {
-            FluidStack[] matchingStacks = ingredient.getStacks();
-            for (FluidStack stack : matchingStacks) {
-                if (!stack.isEmpty()) {
-                    AEFluidKey aeKey = AEFluidKey.of(stack.getFluid());
-                    result.addTo(aeKey, stack.getAmount());
-                }
-            }
+            if (ingredient.isEmpty()) continue;
+            result.addTo(ingredient, ingredient.getAmount());
         }
         return result;
     }

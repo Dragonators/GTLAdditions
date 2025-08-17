@@ -57,7 +57,7 @@ public class MESuperPatternBufferProxyRecipeHandler<T> extends NotifiableMERecip
     }
 
     @Override
-    public boolean meHandleRecipeInner(GTRecipe recipe, Object2LongMap<?> left, boolean simulate, int trySlot) {
+    public boolean meHandleRecipeInner(GTRecipe recipe, Object2LongMap<T> left, boolean simulate, int trySlot) {
         if (handler != null) {
             return handler.meHandleRecipeInner(recipe, left, simulate, trySlot);
         }
@@ -72,10 +72,10 @@ public class MESuperPatternBufferProxyRecipeHandler<T> extends NotifiableMERecip
     }
 
     @Override
-    public Object2LongMap<?> getPreparedMEHandleContents() {
+    public Object2LongMap<T> getPreparedMEHandleContents() {
         if (handler != null) {
             return handler.getPreparedMEHandleContents();
         }
-        return Object2LongMaps.EMPTY_MAP;
+        return Object2LongMaps.emptyMap();
     }
 }
