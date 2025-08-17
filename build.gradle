@@ -151,7 +151,6 @@ dependencies {
 
     modImplementation("curse.maven:glodium-957920:5006780")
     modImplementation("dev:ExtendedAE-1.20-1.1.12-forge")
-    modImplementation("dev:merequester-forge-1.20.1-1.1.5")
 
     modImplementation("org.moddingx:LibX:1.20.1-5.0.1")
     modImplementation("dev:TravelAnchors-1.20.1-5.0.1")
