@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import com.google.common.primitives.Ints;
+import com.gtladd.gtladditions.config.ConfigHolder;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -52,6 +53,8 @@ public abstract class GTRecipeMixin {
 
                         int max = Integer.MAX_VALUE;
                         int times = Ints.saturatedCast(amount / max);
+                        int maxTimes = ConfigHolder.INSTANCE.performance.recipeContentMaxTimes;
+                        times = Math.min(times, maxTimes);
                         int remainder = (int) (amount % max);
                         Ingredient inner = sizedIngredient.getInner();
 

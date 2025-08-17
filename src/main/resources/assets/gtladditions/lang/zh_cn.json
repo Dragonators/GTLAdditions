@@ -23,6 +23,14 @@
   "block.gtladditions.ultimate_input_dual_hatch": "究极输入总成",
   "block.gtladditions.me_super_pattern_buffer": "超级样板总成",
   "block.gtladditions.me_super_pattern_buffer_proxy": "超级样板总成镜像",
+  "config.gtladditions.option.superPatternBuffer": "超级样板总成§c§l(!修改后存档内所有样板总成都会清空)",
+  "config.gtladditions.option.patternsPerRow": "每行样板数量",
+  "config.gtladditions.option.rowsPerPage": "每页行数",
+  "config.gtladditions.option.maxPages": "最大页数",
+  "config.gtladditions.option.performance": "超INT性能配置",
+  "config.gtladditions.option.externalStorageMaxTimes": "样板供应器额外发配次数",
+  "config.gtladditions.option.recipeContentMaxTimes": "GT配方超INT物品额外发配次数",
+  "config.screen.gtladditions": "GTLAdd配置",
   "itemGroup.gtladditions.item": "GTLAdditions物品",
   "itemGroup.gtladditions.machine": "GTLAdditions机器",
   "item.gtladditions.echo_shard_boule": "Echo Shard掺杂的单晶硅",
@@ -53,5 +61,4 @@
   "item.gtladditions.spacetime_lens": "时空织构透镜",
   "material.gtladditions.gallium_oxide": "氧化镓",
   "material.gtladditions.ammonium_gallium_sulfate": "硫酸镓铵"
-
 }

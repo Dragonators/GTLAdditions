@@ -25,6 +25,7 @@ import com.gtladd.gtladditions.common.machine.hatch.UltimateDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.part.MESuperPatternBufferPartMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.part.MESuperPatternBufferProxyPartMachine
+import com.gtladd.gtladditions.config.ConfigHolder
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeDualHatchPartMachine
 import com.hepdd.gtmthings.common.registry.GTMTRegistration
 import com.hepdd.gtmthings.data.CreativeModeTabs
@@ -153,7 +154,7 @@ object GTLAddMachines {
                 FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)))
             .tooltipBuilder(GTLAdd_TOOLTIP).tier(14).register()
         ME_SUPER_PATTERN_BUFFER = REGISTRATE.machine("me_super_pattern_buffer")
-        { MESuperPatternBufferPartMachine(it!!, 9, 6, 3) }
+        { MESuperPatternBufferPartMachine(it!!, ConfigHolder.INSTANCE.superPatternBuffer.patternsPerRow, ConfigHolder.INSTANCE.superPatternBuffer.rowsPerPage, ConfigHolder.INSTANCE.superPatternBuffer.maxPages) }
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.IMPORT_ITEMS, PartAbility.IMPORT_FLUIDS)
             .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer"))

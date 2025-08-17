@@ -5,6 +5,7 @@ import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.AEKey;
 import appeng.me.storage.ExternalStorageFacade;
 import com.google.common.primitives.Ints;
+import com.gtladd.gtladditions.config.ConfigHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -18,7 +19,8 @@ public abstract class ExternalStorageFacadeMixin {
     @Overwrite(remap = false)
     public long insert(AEKey what, long amount, Actionable mode, IActionSource source) {
         final int max = Integer.MAX_VALUE;
-        int times = Math.min(Ints.saturatedCast(amount / max), 250000);
+        int maxTimes = ConfigHolder.INSTANCE.performance.externalStorageMaxTimes;
+        int times = Math.min(Ints.saturatedCast(amount / max), maxTimes);
         int remainder = (int) (amount % max);
         long insertedTotal = 0;
 
