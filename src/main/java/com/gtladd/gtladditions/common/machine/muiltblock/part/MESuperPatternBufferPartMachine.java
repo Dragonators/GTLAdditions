@@ -22,6 +22,7 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
+import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
 import com.gregtechceu.gtceu.integration.ae2.gui.widget.AETextInputButtonWidget;
@@ -56,6 +57,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -287,10 +289,11 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
         }
 
         // Refund old pattern contents if pattern changed
-        if (oldPatternDetails != null && !oldPatternDetails.equals(newPatternDetails) && internalInv != null) {
-            // 样板更换时清理缓存的电路和原始样板
+        // remove old pattern cache
+        if (oldPatternDetails != null && !oldPatternDetails.equals(newPatternDetails)) {
             internalInv.storedCircuit = ItemStack.EMPTY;
             internalInv.originalPattern = ItemStack.EMPTY;
+            internalInv.cacheManager.clearAllCaches();
             refundSlot(internalInv);
             pendingRefundData.processPendingRefunds();
         }
@@ -656,6 +659,10 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
         @Getter
         private ItemStack originalPattern = ItemStack.EMPTY;
 
+        @Persisted
+        @Getter
+        private final SlotCacheManager cacheManager = new SlotCacheManager();
+
         public InternalSlot(int slotIndex) {
             this.slotIndex = slotIndex;
             itemInventory.defaultReturnValue(0L);
@@ -738,24 +745,16 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
             onContentsChanged.run();
         }
 
-        public boolean handleItemInternal(Object2LongMap<AEItemKey> left, boolean simulate) {
-            return handleInternal(left, itemInventory, simulate);
-        }
-
-        public boolean handleFluidInternal(Object2LongMap<AEFluidKey> left, boolean simulate) {
-            return handleInternal(left, fluidInventory, simulate);
-        }
-
-        private <T> boolean handleInternal(Object2LongMap<T> left, Object2LongOpenHashMap<T> inventory, boolean simulate) {
+        public boolean handleItemInternal(Object2LongMap<Ingredient> left, boolean simulate) {
             if (left.isEmpty()) return true;
 
-            // Early exit: Check all requirements before modifying anything
-            for (Object2LongMap.Entry<T> entry : Object2LongMaps.fastIterable(left)) {
-                var key = entry.getKey();
+            for (Object2LongMap.Entry<Ingredient> entry : Object2LongMaps.fastIterable(left)) {
+                var ingredient = entry.getKey();
                 long needAmount = entry.getLongValue();
                 if (needAmount <= 0) continue;
 
-                if (inventory.getLong(key) < needAmount) {
+                AEItemKey bestMatch = cacheManager.getBestItemMatch(ingredient, itemInventory, needAmount);
+                if (bestMatch == null) {
                     return false;
                 }
             }
@@ -763,15 +762,54 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
             if (!simulate) {
                 for (var it = Object2LongMaps.fastIterator(left); it.hasNext();) {
                     var entry = it.next();
-                    var key = entry.getKey();
+                    var ingredient = entry.getKey();
                     long needAmount = entry.getLongValue();
                     if (needAmount <= 0) {
                         it.remove();
                         continue;
                     }
 
-                    inventory.addTo(key, -needAmount);
-                    it.remove();
+                    AEItemKey bestMatch = cacheManager.getBestItemMatch(ingredient, itemInventory, needAmount);
+                    if (bestMatch != null) {
+                        itemInventory.addTo(bestMatch, -needAmount);
+                        it.remove();
+                    }
+                }
+                onContentsChanged.run();
+            }
+
+            return true;
+        }
+
+        public boolean handleFluidInternal(Object2LongMap<FluidIngredient> left, boolean simulate) {
+            if (left.isEmpty()) return true;
+
+            for (Object2LongMap.Entry<FluidIngredient> entry : Object2LongMaps.fastIterable(left)) {
+                var ingredient = entry.getKey();
+                long needAmount = entry.getLongValue();
+                if (needAmount <= 0) continue;
+
+                AEFluidKey bestMatch = cacheManager.getBestFluidMatch(ingredient, fluidInventory, needAmount);
+                if (bestMatch == null) {
+                    return false;
+                }
+            }
+
+            if (!simulate) {
+                for (var it = Object2LongMaps.fastIterator(left); it.hasNext();) {
+                    var entry = it.next();
+                    var ingredient = entry.getKey();
+                    long needAmount = entry.getLongValue();
+                    if (needAmount <= 0) {
+                        it.remove();
+                        continue;
+                    }
+
+                    AEFluidKey bestMatch = cacheManager.getBestFluidMatch(ingredient, fluidInventory, needAmount);
+                    if (bestMatch != null) {
+                        fluidInventory.addTo(bestMatch, -needAmount);
+                        it.remove();
+                    }
                 }
                 onContentsChanged.run();
             }
@@ -813,6 +851,9 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
         @Override
         public void deserializeNBT(CompoundTag tag) {
+            itemInventory.clear();
+            fluidInventory.clear();
+
             ListTag items = tag.getList("inventory", Tag.TAG_COMPOUND);
             for (Tag t : items) {
                 if (!(t instanceof CompoundTag ct)) continue;
