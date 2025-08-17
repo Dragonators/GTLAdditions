@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.capability.recipe.*;
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
+import com.gregtechceu.gtceu.common.data.GTItems;
 
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
@@ -137,11 +138,16 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
         public Int2ObjectMap<List<Object>> getActiveSlotsLimitContentsMap() {
             var map = new Int2ObjectArrayMap<List<Object>>();
             var machine = getMachine();
-            var circuit = machine.getMePatternCircuitInventory().getContents();
             var shared = machine.getShareInventory().getContents();
             for (int slot : getActiveSlots(ItemRecipeCapability.CAP)) {
                 var inputs = machine.getInternalInventory()[slot].getLimitItemStackInput();
-                inputs.addAll(circuit);
+
+                // 通过统一方法获取该槽位的电路（可能来自样板或总成配置）
+                ItemStack circuitForRecipe = machine.getCircuitForRecipe(slot);
+                if (!circuitForRecipe.isEmpty()) {
+                    inputs.add(circuitForRecipe);
+                }
+
                 inputs.addAll(shared);
                 map.put(slot, inputs);
             }
@@ -169,9 +175,19 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
 
         @Override
         public void prepareMEHandleContents(GTRecipe recipe, List<Ingredient> left, boolean simulate) {
+            // 处理总成配置的电路
             getMachine().getMePatternCircuitInventory().handleRecipeInner(IO.IN, recipe, left, null, simulate);
+
+            // 处理共享库存
             getMachine().getShareInventory().handleRecipeInner(IO.IN, recipe, left, null, simulate);
-            setPreparedMEHandleContents(ingredientsToAEKeyMap(left));
+
+            // 从剩余需求中过滤掉电路，避免从AE网络抽取
+            // 处理样板内置电路（如果总成没有配置电路）
+            if (getMachine().getCircuitHandler().shouldUsePatternCircuit()) {
+                setPreparedMEHandleContents(ingredientsToAEKeyMapExcludingCircuits(left));
+            } else {
+                setPreparedMEHandleContents(ingredientsToAEKeyMap(left));
+            }
         }
     }
 
@@ -277,6 +293,25 @@ public class MESuperPatternBufferRecipeHandlerTrait extends MachineTrait {
             if (matchingStacks.length == 0 || matchingStacks[0].isEmpty()) continue;
             for (ItemStack stack : matchingStacks) {
                 if (!stack.isEmpty()) {
+                    AEItemKey aeKey = AEItemKey.of(stack);
+                    result.addTo(aeKey, stack.getCount());
+                }
+            }
+        }
+        return result;
+    }
+
+    private static Object2LongMap<AEItemKey> ingredientsToAEKeyMapExcludingCircuits(List<Ingredient> ingredients) {
+        var result = new Object2LongOpenHashMap<AEItemKey>();
+        for (Ingredient ingredient : ingredients) {
+            ItemStack[] matchingStacks = ingredient.getItems();
+            if (matchingStacks.length == 0 || matchingStacks[0].isEmpty()) continue;
+            for (ItemStack stack : matchingStacks) {
+                if (!stack.isEmpty()) {
+                    // 过滤掉电路
+                    if (stack.getItem() == GTItems.INTEGRATED_CIRCUIT.asItem()) {
+                        continue;
+                    }
                     AEItemKey aeKey = AEItemKey.of(stack);
                     result.addTo(aeKey, stack.getCount());
                 }
