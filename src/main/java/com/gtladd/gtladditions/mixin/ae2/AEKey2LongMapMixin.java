@@ -10,18 +10,13 @@ public abstract class AEKey2LongMapMixin extends Object2LongOpenHashMap<AEKey> {
     @Override
     public long addTo(AEKey key, long incr) {
         long oldValue = getLong(key);
+        long newValue;
 
-        // Fast path: zero increment
-        if (incr == 0) {
-            return oldValue;
-        }
-
-        long newValue = oldValue + incr;
-
-        // Check for overflow using bitwise operations (faster than bounds checking)
-        // Overflow occurs when operands have same sign but result has different sign
-        if (((oldValue ^ newValue) & (incr ^ newValue)) < 0) {
+        if ((incr > 0 && oldValue > Long.MAX_VALUE - incr) ||
+                (incr < 0 && oldValue < Long.MIN_VALUE - incr)) {
             newValue = incr > 0 ? Long.MAX_VALUE : Long.MIN_VALUE;
+        } else {
+            newValue = oldValue + incr;
         }
 
         put(key, newValue);
