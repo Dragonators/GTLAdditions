@@ -105,12 +105,17 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
         @Override
         public ItemStack getStackInSlot(int slotIndex) {
+            // 返回原始样板（如果有的话），否则返回存储的样板
+            var internalSlot = internalInventory[slotIndex];
+            if (!internalSlot.getOriginalPattern().isEmpty()) {
+                return internalSlot.getOriginalPattern();
+            }
             return patternInventory.getStackInSlot(slotIndex);
         }
 
         @Override
         public void setItemDirect(int slotIndex, ItemStack stack) {
-            patternInventory.setStackInSlot(slotIndex, stack);
+            setPattern(slotIndex, stack);
             patternInventory.onContentsChanged(slotIndex);
             onPatternChange(slotIndex);
         }
@@ -156,6 +161,10 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     /** Recipe handler trait for ME Pattern Buffer */
     protected final MESuperPatternBufferRecipeHandlerTrait recipeHandler = new MESuperPatternBufferRecipeHandlerTrait(this);
 
+    /** Pattern circuit handler for managing circuit logic */
+    @Getter
+    protected final PatternCircuitHandler circuitHandler;
+
     @DescSynced
     @Persisted
     private int currentPage = 0;
@@ -196,6 +205,7 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
         this.shareTank = new NotifiableFluidTank(this, 9, 8 * FluidHelper.getBucket(), IO.IN, IO.NONE);
 
         this.pendingRefundData = new PendingRefundData();
+        this.circuitHandler = new PatternCircuitHandler((NotifiableCircuitItemStackHandler) mePatternCircuitInventory);
     }
 
     @Override
@@ -278,6 +288,9 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
         // Refund old pattern contents if pattern changed
         if (oldPatternDetails != null && !oldPatternDetails.equals(newPatternDetails) && internalInv != null) {
+            // 样板更换时清理缓存的电路和原始样板
+            internalInv.storedCircuit = ItemStack.EMPTY;
+            internalInv.originalPattern = ItemStack.EMPTY;
             refundSlot(internalInv);
             pendingRefundData.processPendingRefunds();
         }
@@ -473,6 +486,36 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     }
 
     // ========================================
+    // CIRCUIT HANDLING
+    // ========================================
+
+    private void setPattern(int slot, ItemStack stack) {
+        ItemStack realStack;
+        // 如果放入的是包含电路的样板，需要处理
+        if (!stack.isEmpty() && circuitHandler.shouldUsePatternCircuit()) {
+            var internalSlot = internalInventory[slot];
+            var result = circuitHandler.processPatternWithCircuit(
+                    stack.copy(),
+                    circuit -> internalSlot.storedCircuit = circuit,
+                    pattern -> internalSlot.originalPattern = pattern);
+            realStack = result.processedPattern();
+        } else {
+            realStack = stack.copy();
+        }
+        patternInventory.setStackInSlot(slot, realStack);
+    }
+
+    /**
+     * 获取用于配方的电路
+     * 
+     * @param slotIndex 槽位索引
+     * @return 电路ItemStack，可能为空
+     */
+    public ItemStack getCircuitForRecipe(int slotIndex) {
+        return circuitHandler.getCircuitForRecipe(internalInventory[slotIndex].getStoredCircuit());
+    }
+
+    // ========================================
     // AE2 CRAFTING
     // ========================================
 
@@ -607,6 +650,12 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
         @Getter
         private final int slotIndex;
 
+        @Getter
+        private ItemStack storedCircuit = ItemStack.EMPTY;
+
+        @Getter
+        private ItemStack originalPattern = ItemStack.EMPTY;
+
         public InternalSlot(int slotIndex) {
             this.slotIndex = slotIndex;
             itemInventory.defaultReturnValue(0L);
@@ -619,7 +668,7 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
         public boolean isActive(RecipeCapability<?> recipeCapability) {
             if (recipeCapability == ItemRecipeCapability.CAP) {
-                return hasPatternArray[slotIndex] && !itemInventory.isEmpty();
+                return hasPatternArray[slotIndex] && (!itemInventory.isEmpty() || !storedCircuit.isEmpty());
             } else {
                 return hasPatternArray[slotIndex] && !fluidInventory.isEmpty();
             }
@@ -751,6 +800,14 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
             }
             if (!fluidsTag.isEmpty()) tag.put("fluidInventory", fluidsTag);
 
+            if (!storedCircuit.isEmpty()) {
+                tag.put("storedCircuit", storedCircuit.save(new CompoundTag()));
+            }
+
+            if (!originalPattern.isEmpty()) {
+                tag.put("originalPattern", originalPattern.save(new CompoundTag()));
+            }
+
             return tag;
         }
 
@@ -774,6 +831,18 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
                 if (key != null && amount > 0) {
                     fluidInventory.put(key, amount);
                 }
+            }
+
+            if (tag.contains("storedCircuit")) {
+                this.storedCircuit = ItemStack.of(tag.getCompound("storedCircuit"));
+            } else {
+                this.storedCircuit = ItemStack.EMPTY;
+            }
+
+            if (tag.contains("originalPattern")) {
+                this.originalPattern = ItemStack.of(tag.getCompound("originalPattern"));
+            } else {
+                this.originalPattern = ItemStack.EMPTY;
             }
         }
     }

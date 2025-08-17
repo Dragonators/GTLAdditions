@@ -160,9 +160,10 @@ object GTLAddMachines {
             .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer"))
             .langValue("Me Super Pattern Buffer")
             .tooltips(
-                Component.translatable("block.gtceu.pattern_buffer.desc.0"),
-                Component.translatable("block.gtceu.pattern_buffer.desc.1"),
-                Component.translatable("block.gtceu.pattern_buffer.desc.2"),
+                Component.translatable("block.gtladditions.me_super_pattern_buffer.desc.0"),
+                Component.translatable("block.gtladditions.me_super_pattern_buffer.desc.1"),
+                Component.translatable("block.gtladditions.me_super_pattern_buffer.desc.2"),
+                Component.translatable("block.gtladditions.me_super_pattern_buffer.desc.3"),
                 Component.translatable("gtceu.universal.enabled")
             )
             .tooltipBuilder(GTLAdd_TOOLTIP).tier(14)
@@ -174,9 +175,9 @@ object GTLAddMachines {
             .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer_proxy"))
             .langValue("Me Super Pattern Buffer Proxy")
             .tooltips(
-                Component.translatable("block.gtceu.pattern_buffer_proxy.desc.0"),
-                Component.translatable("block.gtceu.pattern_buffer_proxy.desc.1"),
-                Component.translatable("block.gtceu.pattern_buffer_proxy.desc.2"),
+                Component.translatable("block.gtladditions.me_super_pattern_buffer_proxy.desc.0"),
+                Component.translatable("block.gtladditions.me_super_pattern_buffer_proxy.desc.1"),
+                Component.translatable("block.gtladditions.me_super_pattern_buffer_proxy.desc.2"),
                 Component.translatable("gtceu.universal.enabled")
             )
             .tooltipBuilder(GTLAdd_TOOLTIP).tier(14)
