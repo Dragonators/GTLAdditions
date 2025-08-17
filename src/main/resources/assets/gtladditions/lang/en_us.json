@@ -54,5 +54,13 @@
   "item.gtladditions.primary_soc": "Primary Soc",
   "item.gtladditions.spacetime_lens": "Spacetime Lens",
   "material.gtladditions.gallium_oxide": "Gallium Oxide",
-  "material.gtladditions.ammonium_gallium_sulfate": "Ammonium Gallium Sulfate"
+  "material.gtladditions.ammonium_gallium_sulfate": "Ammonium Gallium Sulfate",
+  "config.gtladditions.option.superPatternBuffer": "Super Pattern Buffer§c§l(!All pattern buffers will be cleared after modification)",
+  "config.gtladditions.option.patternsPerRow": "Patterns Per Row",
+  "config.gtladditions.option.rowsPerPage": "Rows Per Page",
+  "config.gtladditions.option.maxPages": "Max Pages",
+  "config.gtladditions.option.performance": "Performance",
+  "config.gtladditions.option.externalStorageMaxTimes": "AE2 Pattern Push Additional Loop Times",
+  "config.gtladditions.option.recipeContentMaxTimes": "GT Recipe Item Over INT Additional Loop Times",
+  "config.screen.gtladditions": "GTLAdd Config"
 }
