@@ -25,7 +25,6 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
 import com.gregtechceu.gtceu.integration.ae2.gui.widget.AETextInputButtonWidget;
-import com.gregtechceu.gtceu.integration.ae2.gui.widget.slot.AEPatternViewSlotWidget;
 import com.gregtechceu.gtceu.integration.ae2.machine.MEBusPartMachine;
 import com.gregtechceu.gtceu.utils.FluidStackHashStrategy;
 import com.gregtechceu.gtceu.utils.ItemStackHashStrategy;
@@ -72,7 +71,6 @@ import appeng.api.networking.energy.IEnergyService;
 import appeng.api.stacks.*;
 import appeng.api.storage.MEStorage;
 import appeng.api.storage.StorageHelper;
-import appeng.crafting.pattern.EncodedPatternItem;
 import appeng.crafting.pattern.ProcessingPatternItem;
 import appeng.helpers.patternprovider.PatternContainer;
 import com.google.common.collect.BiMap;
@@ -83,6 +81,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -93,19 +92,15 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             MESuperPatternBufferPartMachine.class, MEBusPartMachine.MANAGED_FIELD_HOLDER);
 
-    protected static final int MAX_PATTERN_COUNT = 27;
-
-    private final boolean[] hasPatternArray = new boolean[MAX_PATTERN_COUNT];
-
-    private final long[] lastNotifyTickBySlot = new long[MAX_PATTERN_COUNT];
-
-    private final ItemStack[] lastSnapshotBySlot = new ItemStack[MAX_PATTERN_COUNT];
+    private final boolean[] hasPatternArray;
+    private final long[] lastNotifyTickBySlot;
+    private final ItemStack[] lastSnapshotBySlot;
 
     private final InternalInventory internalPatternInventory = new InternalInventory() {
 
         @Override
         public int size() {
-            return MAX_PATTERN_COUNT;
+            return paginationUIManager.getMaxPatternCount();
         }
 
         @Override
@@ -124,7 +119,7 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     @Getter
     @Persisted
     @DescSynced
-    private final ItemStackTransfer patternInventory = new ItemStackTransfer(MAX_PATTERN_COUNT);
+    private final ItemStackTransfer patternInventory;
 
     @Getter
     @Persisted
@@ -140,9 +135,9 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
     @Getter
     @Persisted
-    protected final InternalSlot[] internalInventory = new InternalSlot[MAX_PATTERN_COUNT];
+    protected final InternalSlot[] internalInventory;
 
-    private final BiMap<IPatternDetails, InternalSlot> detailsSlotMap = HashBiMap.create(MAX_PATTERN_COUNT);
+    private final BiMap<IPatternDetails, InternalSlot> detailsSlotMap;
 
     private boolean needPatternSync;
 
@@ -161,11 +156,38 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     /** Recipe handler trait for ME Pattern Buffer */
     protected final MESuperPatternBufferRecipeHandlerTrait recipeHandler = new MESuperPatternBufferRecipeHandlerTrait(this);
 
+    @DescSynced
+    @Persisted
+    private int currentPage = 0;
+    protected final PaginationUIManager paginationUIManager;
+
     public MESuperPatternBufferPartMachine(IMachineBlockEntity holder, Object... args) {
+        this(holder, 9, 6, 3, args);
+    }
+
+    public MESuperPatternBufferPartMachine(IMachineBlockEntity holder, int patternsPerRow, int rowsPerPage, int maxPages, Object... args) {
         super(holder, IO.IN, args);
 
+        // Initialize pagination UI manager
+        this.paginationUIManager = new PaginationUIManager(
+                patternsPerRow, rowsPerPage, maxPages,
+                () -> currentPage,                          // currentPageSupplier
+                page -> currentPage = page,                 // currentPageSetter
+                slotIndex -> debounceAndFilter(slotIndex, () -> this.onPatternChange(slotIndex)) // changeListenerFactory
+        );
+
+        // Initialize arrays with calculated size
+        int maxPatternCount = paginationUIManager.getMaxPatternCount();
+        this.hasPatternArray = new boolean[maxPatternCount];
+        this.lastNotifyTickBySlot = new long[maxPatternCount];
+        this.lastSnapshotBySlot = new ItemStack[maxPatternCount];
+        this.internalInventory = new InternalSlot[maxPatternCount];
+        this.detailsSlotMap = HashBiMap.create(maxPatternCount);
+
+        // Initialize inventories
+        this.patternInventory = new ItemStackTransfer(maxPatternCount);
         this.patternInventory.setFilter(stack -> stack.getItem() instanceof ProcessingPatternItem);
-        Arrays.setAll(internalInventory, i -> new InternalSlot(i));
+        Arrays.setAll(internalInventory, InternalSlot::new);
         getMainNode().addService(ICraftingProvider.class, this);
         Arrays.fill(lastNotifyTickBySlot, Long.MIN_VALUE);
 
@@ -391,40 +413,22 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     }
 
     @Override
-    public Widget createUIWidget() {
-        int rowSize = 9;
-        int colSize = 3;
-        var group = new WidgetGroup(0, 0, 18 * rowSize + 16, 18 * colSize + 16);
-
-        // Create pattern slots in 9x3 grid
-        int index = 0;
-        for (int y = 0; y < colSize; ++y) {
-            for (int x = 0; x < rowSize; ++x) {
-                int finalI = index;
-                var slot = new AEPatternViewSlotWidget(patternInventory, index++, 8 + x * 18, 14 + y * 18)
-                        .setOccupiedTexture(GuiTextures.SLOT)
-                        .setItemHook(stack -> {
-                            if (stack.getItem() instanceof EncodedPatternItem iep) {
-                                final ItemStack out = iep.getOutput(stack);
-                                return !out.isEmpty() ? out : stack;
-                            }
-                            return stack;
-                        })
-                        .setChangeListener(debounceAndFilter(finalI, () -> this.onPatternChange(finalI)))
-                        .setBackground(GuiTextures.SLOT, GuiTextures.PATTERN_OVERLAY);
-                group.addWidget(slot);
-            }
-        }
+    public @NotNull Widget createUIWidget() {
+        var group = new WidgetGroup(0, 0, paginationUIManager.getUiWidth(), paginationUIManager.getUiHeight());
 
         // ME Network status indicator
         group.addWidget(new LabelWidget(8, 2,
                 () -> this.isOnline ? "gtceu.gui.me_network.online" : "gtceu.gui.me_network.offline"));
 
         // Custom name input widget
-        group.addWidget(new AETextInputButtonWidget(18 * rowSize + 8 - 70, 2, 70, 10)
+        group.addWidget(new AETextInputButtonWidget(paginationUIManager.getUiWidth() - 78, 2, 70, 10)
                 .setText(customName)
                 .setOnConfirm(this::setCustomName)
                 .setButtonTooltips(Component.translatable("gui.gtceu.rename.desc")));
+
+        // Create pagination UI using the manager
+        Widget paginationWidget = paginationUIManager.createPaginationUI(patternInventory);
+        group.addWidget(paginationWidget);
 
         return group;
     }
