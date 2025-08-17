@@ -24,12 +24,15 @@ import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.gtladd.gtladditions.common.material.GTLAddMaterial;
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 import com.gtladd.gtladditions.config.ConfigHolder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Mod(GTLAdditions.MOD_ID)
 public class GTLAdditions {
 
     public static final String MOD_ID = "gtladditions";
     public static final String NAME = "GTLAdditions";
+    public static final Logger LOGGER = LogManager.getLogger(NAME);
 
     public static ResourceLocation id(String name) {
         return new ResourceLocation(GTLAdditions.MOD_ID, name);

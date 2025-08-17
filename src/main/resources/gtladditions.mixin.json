@@ -10,6 +10,7 @@
     "ae2.ExternalStorageFacadeAccessor",
     "ae2.ExternalStorageFacadeMixin",
     "ae2.ItemPickupStrategyMixin",
+    "gtceu.common.item.DataItemBehaviorMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",
     "gtceu.recipe.GCyMRecipesMixin",
     "gtceu.recipe.GTRecipeLookupMixin",
@@ -18,6 +19,7 @@
     "gtlcore.machine.HarmonyMachineMixin",
     "gtlcore.machine.LargeSteamParallelMultiblockMachineMixin",
     "gtlcore.machine.part.AutoConfigurationMaintenanceHatchPartMachineMixin",
+    "gtlcore.machine.part.MEPatternBufferPartMachineMixin",
     "gtlcore.machine.part.WirelessOpticalDataHatchMachineMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMIxin"
   ]

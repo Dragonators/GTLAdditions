@@ -60,6 +60,7 @@ public class OverlayHullMachineRenderer extends MachineRenderer implements IPart
 
     @Override
     @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings({ "removal", "deprecation" })
     public void renderMachine(List<BakedQuad> quads, MachineDefinition definition, @Nullable MetaMachine machine,
                               Direction frontFacing, @Nullable Direction side, RandomSource rand, Direction modelFacing,
                               ModelState modelState) {
@@ -75,6 +76,7 @@ public class OverlayHullMachineRenderer extends MachineRenderer implements IPart
 
     @Override
     @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings({ "removal" })
     public BakedModel getRotatedModel(Direction frontFacing) {
         // noinspection removal
         return blockModels.computeIfAbsent(frontFacing, facing -> getModel().bake(
