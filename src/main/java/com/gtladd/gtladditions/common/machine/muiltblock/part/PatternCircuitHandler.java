@@ -5,13 +5,14 @@ import org.gtlcore.gtlcore.api.machine.trait.NotifiableCircuitItemStackHandler;
 import com.gregtechceu.gtceu.common.data.GTItems;
 
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
+import appeng.api.crafting.IPatternDetails;
 import appeng.api.crafting.PatternDetailsHelper;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.GenericStack;
 import appeng.crafting.pattern.AEProcessingPattern;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -44,29 +45,26 @@ public class PatternCircuitHandler {
 
     /**
      * 处理包含电路的样板：提取电路并返回无电路的样板
-     * 
-     * @param originalPattern    原始样板
-     * @param storedCircuit      存储电路的引用
-     * @param originalPatternRef 存储原始样板的引用
+     *
+     * @param originalPatternStack 原始样板
+     * @param storedCircuit        存储电路的引用
      * @return 处理结果，包含无电路样板和提取的电路
      */
-    public PatternProcessingResult processPatternWithCircuit(ItemStack originalPattern, Consumer<ItemStack> storedCircuit, Consumer<ItemStack> originalPatternRef) {
-        if (PatternDetailsHelper.decodePattern(originalPattern, null) instanceof AEProcessingPattern processingPattern) {
+    public IPatternDetails processPatternWithCircuit(ItemStack originalPatternStack, Consumer<ItemStack> storedCircuit, Level level) {
+        if (PatternDetailsHelper.decodePattern(originalPatternStack, level) instanceof AEProcessingPattern processingPattern) {
             // 提取电路
             ItemStack extractedCircuit = extractCircuitFromPattern(processingPattern);
             if (extractedCircuit.isEmpty()) {
-                return new PatternProcessingResult(originalPattern, ItemStack.EMPTY); // 没有电路，直接返回
+                return processingPattern; // 没有电路，直接返回
             }
 
-            // 存储原始样板和电路
-            originalPatternRef.accept(originalPattern.copy());
+            // 存储电路
             storedCircuit.accept(extractedCircuit);
 
             // 创建无电路的样板
-            ItemStack patternWithoutCircuit = createPatternWithoutCircuit(processingPattern);
-            return new PatternProcessingResult(patternWithoutCircuit, extractedCircuit);
+            return createPatternWithoutCircuit(processingPattern, level);
         } else {
-            return new PatternProcessingResult(originalPattern, ItemStack.EMPTY);
+            return null;
         }
     }
 
@@ -104,11 +102,11 @@ public class PatternCircuitHandler {
 
     /**
      * 创建一个移除了电路的新样板
-     * 
+     *
      * @param pattern 原始处理样板
      * @return 无电路的样板
      */
-    private ItemStack createPatternWithoutCircuit(AEProcessingPattern pattern) {
+    private IPatternDetails createPatternWithoutCircuit(AEProcessingPattern pattern, Level level) {
         var originalInputs = pattern.getSparseInputs();
         var originalOutputs = pattern.getSparseOutputs();
         var filteredInputs = new ObjectArrayList<GenericStack>();
@@ -122,16 +120,6 @@ public class PatternCircuitHandler {
             filteredInputs.add(input);
         }
 
-        return PatternDetailsHelper.encodeProcessingPattern(filteredInputs.toArray(new GenericStack[0]), originalOutputs);
-    }
-
-    /**
-     * 样板处理结果
-     */
-    public record PatternProcessingResult(@Getter ItemStack processedPattern, @Getter ItemStack extractedCircuit) {
-
-        public boolean hasCircuit() {
-            return !extractedCircuit.isEmpty();
-        }
+        return PatternDetailsHelper.decodePattern(PatternDetailsHelper.encodeProcessingPattern(filteredInputs.toArray(new GenericStack[0]), originalOutputs), level);
     }
 }
