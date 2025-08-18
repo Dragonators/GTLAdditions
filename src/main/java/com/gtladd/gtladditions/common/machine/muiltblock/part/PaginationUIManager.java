@@ -58,7 +58,7 @@ public class PaginationUIManager {
         this.rowsPerPage = rowsPerPage;
         this.maxPages = maxPages;
         this.maxPatternCount = patternsPerRow * rowsPerPage * maxPages;
-        this.uiWidth = patternsPerRow * 18 + 16;
+        this.uiWidth = Math.max(patternsPerRow * 18 + 16, 106);
         this.uiHeight = rowsPerPage * 18 + 28;
 
         this.currentPageSupplier = currentPageSupplier;
@@ -101,7 +101,7 @@ public class PaginationUIManager {
                 int row = slotInPage / patternsPerRow;
                 int col = slotInPage % patternsPerRow;
 
-                int x = 8 + col * 18;
+                int x = uiWidth == 106 ? (106 - patternsPerRow * 18) / 2 + col * 18 : 8 + col * 18;
                 int y = row * 18;
 
                 var slot = new AEPatternViewSlotWidget(patternInventory, i, x, y) {
