@@ -63,7 +63,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import appeng.api.crafting.IPatternDetails;
-import appeng.api.crafting.PatternDetailsHelper;
 import appeng.api.implementations.blockentities.PatternContainerGroup;
 import appeng.api.inventories.InternalInventory;
 import appeng.api.networking.IGrid;
@@ -107,17 +106,12 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
         @Override
         public ItemStack getStackInSlot(int slotIndex) {
-            // 返回原始样板（如果有的话），否则返回存储的样板
-            var internalSlot = internalInventory[slotIndex];
-            if (!internalSlot.getOriginalPattern().isEmpty()) {
-                return internalSlot.getOriginalPattern();
-            }
             return patternInventory.getStackInSlot(slotIndex);
         }
 
         @Override
         public void setItemDirect(int slotIndex, ItemStack stack) {
-            setPattern(slotIndex, stack);
+            patternInventory.setStackInSlot(slotIndex, stack);
             patternInventory.onContentsChanged(slotIndex);
             onPatternChange(slotIndex);
         }
@@ -144,7 +138,7 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     @Persisted
     protected final InternalSlot[] internalInventory;
 
-    private final BiMap<IPatternDetails, InternalSlot> detailsSlotMap;
+    private final BiMap<IPatternDetails, Integer> patternSlotMap;
 
     private boolean needPatternSync;
 
@@ -193,7 +187,7 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
         this.lastNotifyTickBySlot = new long[maxPatternCount];
         this.lastSnapshotBySlot = new ItemStack[maxPatternCount];
         this.internalInventory = new InternalSlot[maxPatternCount];
-        this.detailsSlotMap = HashBiMap.create(maxPatternCount);
+        this.patternSlotMap = HashBiMap.create(maxPatternCount);
 
         // Initialize inventories
         this.patternInventory = new ItemStackTransfer(maxPatternCount);
@@ -232,9 +226,9 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
             serverLevel.getServer().tell(new TickTask(1, () -> {
                 for (int i = 0; i < patternInventory.getSlots(); i++) {
                     var pattern = patternInventory.getStackInSlot(i);
-                    var patternDetails = PatternDetailsHelper.decodePattern(pattern, getLevel());
-                    if (patternDetails != null) {
-                        this.detailsSlotMap.put(patternDetails, this.internalInventory[i]);
+                    var realPattern = getRealPattern(i, pattern);
+                    if (realPattern != null) {
+                        this.patternSlotMap.forcePut(realPattern, i);
                         hasPatternArray[i] = true;
                     }
                 }
@@ -276,23 +270,22 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
         var internalInv = internalInventory[index];
         var newPattern = patternInventory.getStackInSlot(index);
-        var newPatternDetails = PatternDetailsHelper.decodePattern(newPattern, getLevel());
-        var oldPatternDetails = detailsSlotMap.inverse().get(internalInv);
+        var newPatternDetailsWithOutCircuit = getRealPattern(index, newPattern);
+        var oldPatternDetails = patternSlotMap.inverse().get(index);
 
         // Update pattern mapping and tracking
-        if (newPatternDetails != null) {
-            detailsSlotMap.forcePut(newPatternDetails, internalInv);
+        if (newPatternDetailsWithOutCircuit != null) {
+            patternSlotMap.forcePut(newPatternDetailsWithOutCircuit, index);
             hasPatternArray[index] = true;
         } else {
-            detailsSlotMap.inverse().remove(internalInv);
+            patternSlotMap.inverse().remove(index);
             hasPatternArray[index] = false;
         }
 
         // Refund old pattern contents if pattern changed
         // remove old pattern cache
-        if (oldPatternDetails != null && !oldPatternDetails.equals(newPatternDetails)) {
+        if (oldPatternDetails != null && !oldPatternDetails.equals(newPatternDetailsWithOutCircuit)) {
             internalInv.storedCircuit = ItemStack.EMPTY;
-            internalInv.originalPattern = ItemStack.EMPTY;
             internalInv.cacheManager.clearAllCaches();
             refundSlot(internalInv);
             pendingRefundData.processPendingRefunds();
@@ -492,20 +485,15 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     // CIRCUIT HANDLING
     // ========================================
 
-    private void setPattern(int slot, ItemStack stack) {
-        ItemStack realStack;
-        // 如果放入的是包含电路的样板，需要处理
-        if (!stack.isEmpty() && circuitHandler.shouldUsePatternCircuit()) {
+    private IPatternDetails getRealPattern(int slot, ItemStack stack) {
+        if (!stack.isEmpty()) {
             var internalSlot = internalInventory[slot];
-            var result = circuitHandler.processPatternWithCircuit(
+            return circuitHandler.processPatternWithCircuit(
                     stack.copy(),
                     circuit -> internalSlot.storedCircuit = circuit,
-                    pattern -> internalSlot.originalPattern = pattern);
-            realStack = result.processedPattern();
-        } else {
-            realStack = stack.copy();
+                    getLevel());
         }
-        patternInventory.setStackInSlot(slot, realStack);
+        return null;
     }
 
     /**
@@ -524,18 +512,18 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
     @Override
     public List<IPatternDetails> getAvailablePatterns() {
-        return detailsSlotMap.keySet().stream().filter(Objects::nonNull).toList();
+        return patternSlotMap.keySet().stream().filter(Objects::nonNull).toList();
     }
 
     @Override
     public boolean pushPattern(IPatternDetails patternDetails, KeyCounter[] inputHolder) {
-        if (!getMainNode().isActive() || !detailsSlotMap.containsKey(patternDetails) || !checkInput(inputHolder)) {
+        if (!getMainNode().isActive() || !patternSlotMap.containsKey(patternDetails) || !checkInput(inputHolder)) {
             return false;
         }
 
-        var slot = detailsSlotMap.get(patternDetails);
-        if (slot != null) {
-            slot.pushPattern(patternDetails, inputHolder);
+        var slotIndex = patternSlotMap.get(patternDetails);
+        if (slotIndex != null && slotIndex >= 0) {
+            internalInventory[slotIndex].pushPattern(patternDetails, inputHolder);
             recipeHandler.onChanged();
             return true;
         }
@@ -655,9 +643,6 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
 
         @Getter
         private ItemStack storedCircuit = ItemStack.EMPTY;
-
-        @Getter
-        private ItemStack originalPattern = ItemStack.EMPTY;
 
         @Persisted
         @Getter
@@ -842,10 +827,6 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
                 tag.put("storedCircuit", storedCircuit.save(new CompoundTag()));
             }
 
-            if (!originalPattern.isEmpty()) {
-                tag.put("originalPattern", originalPattern.save(new CompoundTag()));
-            }
-
             return tag;
         }
 
@@ -878,12 +859,6 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
                 this.storedCircuit = ItemStack.of(tag.getCompound("storedCircuit"));
             } else {
                 this.storedCircuit = ItemStack.EMPTY;
-            }
-
-            if (tag.contains("originalPattern")) {
-                this.originalPattern = ItemStack.of(tag.getCompound("originalPattern"));
-            } else {
-                this.originalPattern = ItemStack.EMPTY;
             }
         }
     }
