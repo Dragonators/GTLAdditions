@@ -51,8 +51,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.TickTask;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -63,6 +61,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import appeng.api.crafting.IPatternDetails;
+import appeng.api.crafting.PatternDetailsHelper;
 import appeng.api.implementations.blockentities.PatternContainerGroup;
 import appeng.api.inventories.InternalInventory;
 import appeng.api.networking.IGrid;
@@ -222,18 +221,6 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
     @Override
     public void onLoad() {
         super.onLoad();
-        if (getLevel() instanceof ServerLevel serverLevel) {
-            serverLevel.getServer().tell(new TickTask(1, () -> {
-                for (int i = 0; i < patternInventory.getSlots(); i++) {
-                    var pattern = patternInventory.getStackInSlot(i);
-                    var realPattern = getRealPattern(i, pattern);
-                    if (realPattern != null) {
-                        this.patternSlotMap.forcePut(realPattern, i);
-                        hasPatternArray[i] = true;
-                    }
-                }
-            }));
-        }
         this.getMERecipeHandlerTraits().forEach(handler -> handler.addChangedListener(() -> getProxies().forEach(proxy -> {
             if (handler.getCapability() == ItemRecipeCapability.CAP) {
                 proxy.itemProxyHandler.notifyListeners();
@@ -972,6 +959,38 @@ public class MESuperPatternBufferPartMachine extends MEBusPartMachine
         public void deserializeNBT(CompoundTag tag) {
             deserializeRefundMap(pendingRefundItems, "pendingRefundItems", tag, AEItemKey::fromTag);
             deserializeRefundMap(pendingRefundFluids, "pendingRefundFluids", tag, AEFluidKey::fromTag);
+        }
+    }
+
+    @Override
+    public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {
+        super.saveCustomPersistedData(tag, forDrop);
+
+        ListTag patternMapTag = new ListTag();
+        for (var entry : patternSlotMap.entrySet()) {
+            CompoundTag entryTag = new CompoundTag();
+            entryTag.put("pattern", entry.getKey().getDefinition().toTag());
+            entryTag.putInt("slot", entry.getValue());
+            patternMapTag.add(entryTag);
+        }
+        tag.put("patternSlotMap", patternMapTag);
+    }
+
+    @Override
+    public void loadCustomPersistedData(@NotNull CompoundTag tag) {
+        super.loadCustomPersistedData(tag);
+
+        if (tag.contains("patternSlotMap")) {
+            patternSlotMap.clear();
+            ListTag patternMapTag = tag.getList("patternSlotMap", Tag.TAG_COMPOUND);
+            for (int i = 0; i < patternMapTag.size(); i++) {
+                CompoundTag entryTag = patternMapTag.getCompound(i);
+                var pattern = PatternDetailsHelper.decodePattern(AEItemKey.fromTag(entryTag.getCompound("pattern")), getLevel());
+                int slot = entryTag.getInt("slot");
+                if (pattern != null) {
+                    patternSlotMap.put(pattern, slot);
+                }
+            }
         }
     }
 }
