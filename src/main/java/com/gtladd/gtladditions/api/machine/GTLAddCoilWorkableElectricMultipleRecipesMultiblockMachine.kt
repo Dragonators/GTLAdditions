@@ -1,14 +1,12 @@
 package com.gtladd.gtladditions.api.machine
 
-import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
+import com.gregtechceu.gtceu.api.block.ICoilType
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
-import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
-import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
+import com.gregtechceu.gtceu.common.block.CoilBlock
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
-import net.minecraft.nbt.CompoundTag
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import java.util.function.BiPredicate
@@ -17,14 +15,14 @@ import kotlin.math.min
 import kotlin.math.pow
 
 open class GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder: IMachineBlockEntity) :
-    CoilWorkableElectricMultiblockMachine(holder), ParallelMachine, IGTLAddMultiRecipe {
-        private var limitedDuration = 20
+    GTLAddWorkableElectricMultipleRecipesMachine(holder) {
+        var coilType: ICoilType? = CoilBlock.CoilType.CUPRONICKEL
 
     companion object {
         private val EBF_CHECK: BiPredicate<GTRecipe?, IRecipeLogicMachine?>? =
             BiPredicate { recipe: GTRecipe?, machine: IRecipeLogicMachine? ->
-                val tm = machine as CoilWorkableElectricMultiblockMachine
-                val temp = tm.coilType.coilTemperature + 100L * max(0, tm.getTier() - 2)
+                val tm = machine as GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine
+                val temp = tm.coilType!!.coilTemperature + 100L * max(0, tm.getTier() - 2)
                 if (temp < recipe!!.data.getInt("ebf_temp")) {
                     RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_TEMPERATURE)
                     return@BiPredicate false
@@ -33,7 +31,7 @@ open class GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder: IM
             }
     }
 
-    public override fun createRecipeLogic(vararg args: Any): RecipeLogic {
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return CoilMachineLogic(this)
     }
 
@@ -41,31 +39,18 @@ open class GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder: IM
         return super.getRecipeLogic() as CoilMachineLogic
     }
 
-    override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {
-        super.saveCustomPersistedData(tag, forDrop)
-        tag.putInt("drLimit", limitedDuration)
-    }
-
-    override fun loadCustomPersistedData(tag: CompoundTag) {
-        super.loadCustomPersistedData(tag)
-        limitedDuration = tag.getInt("drLimit")
-    }
-
     override fun getMaxParallel(): Int {
-        return min(Int.Companion.MAX_VALUE, 2.0.pow(this.coilType.coilTemperature.toDouble() / 900.0).toInt())
+        return min(Int.Companion.MAX_VALUE, 2.0.pow(this.coilType!!.coilTemperature.toDouble() / 900.0).toInt())
     }
 
-    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
-        super.attachConfigurators(configuratorPanel)
-        configuratorPanel.attachConfigurators(LimitedDurationConfigurator(this))
+    override fun onStructureFormed() {
+        super.onStructureFormed()
+        val type = multiblockState.matchContext.get<Any?>("CoilType")
+        if (type is ICoilType) this.coilType = type
     }
 
-    override fun setLimitedDuration(number: Int) {
-        if (number != limitedDuration) limitedDuration = number
-    }
-
-    override fun getLimitedDuration(): Int {
-        return this.limitedDuration
+    fun getCoilTier(): Int {
+        return coilType!!.tier
     }
 
     class CoilMachineLogic(machine: GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine) :

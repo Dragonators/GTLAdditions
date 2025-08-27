@@ -24,7 +24,7 @@ object Distort {
             .inputFluids(NitricAcid.getFluid(120000))
             .inputFluids(Chlorine.getFluid(160000))
             .inputFluids(Acetone.getFluid(160000))
-            .outputItems(dust, RareEarth, 1600)
+            .outputItems(dust, RareEarth, 1440)
             .outputItems(dust, Uranium235, 512)
             .outputItems(dust, Samarium, 480)
             .outputItems(dust, Phosphorus, 384)

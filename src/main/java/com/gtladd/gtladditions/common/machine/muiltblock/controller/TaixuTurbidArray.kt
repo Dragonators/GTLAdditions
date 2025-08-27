@@ -169,7 +169,8 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
     }
 
     companion object {
-        val MANAGED_FIELD_HOLDER: ManagedFieldHolder
+        val MANAGED_FIELD_HOLDER: ManagedFieldHolder =
+            ManagedFieldHolder(TaixuTurbidArray::class.java, WorkableMultiblockMachine.MANAGED_FIELD_HOLDER)
         private val coil: MutableMap<Int?, Int?> = HashMap<Int?, Int?>()
         private val ENDERIUM: ItemStack = Registries.getItemStack("gtceu:enderium_nanoswarm", 64)
         private val DRACONIUM: ItemStack = Registries.getItemStack("gtceu:draconium_nanoswarm", 64)
@@ -204,8 +205,6 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
         }
 
         init {
-            MANAGED_FIELD_HOLDER =
-                ManagedFieldHolder(TaixuTurbidArray::class.java, WorkableMultiblockMachine.MANAGED_FIELD_HOLDER)
             coil.put(1800, 1)
             coil.put(2700, 2)
             coil.put(3600, 3)

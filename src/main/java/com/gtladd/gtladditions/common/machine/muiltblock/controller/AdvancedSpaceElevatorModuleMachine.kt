@@ -1,33 +1,31 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
 import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper
-import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe
-import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
-import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
+import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricMultipleRecipesMachine
+import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
 import kotlin.math.pow
 
 class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
-    WorkableElectricMultiblockMachine(holder), ParallelMachine, IGTLAddMultiRecipe {
-    private var limitedDuration = 20
-    private var SpaceElevatorTier = 0
-    private var ModuleTier = 0
+    GTLAddWorkableElectricMultipleRecipesMachine(holder) {
+        companion object {
+            val MANAGED_FIELD_HOLDER: ManagedFieldHolder =
+                ManagedFieldHolder(AdvancedSpaceElevatorModuleMachine::class.java, WorkableMultiblockMachine.MANAGED_FIELD_HOLDER)
+        }
+    private var spaceElevatorTier = 0
+    private var moduleTier = 0
     private var controller : BlockPos? = null
 
-    public override fun createRecipeLogic(vararg args: Any): RecipeLogic {
-        return GTLAddMultipleRecipesLogic(this)
+    override fun getFieldHolder(): ManagedFieldHolder {
+        return MANAGED_FIELD_HOLDER
     }
 
     private fun getSpaceElevatorTier() {
@@ -35,15 +33,15 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
             val logic = GTCapabilityHelper.getRecipeLogic(level!!, controller, null)
             if (logic != null && logic.getMachine().definition === AdvancedMultiBlockMachine.SPACE_ELEVATOR) {
                 if (logic.isWorking && logic.getProgress() > 80) {
-                    SpaceElevatorTier = (logic.machine as SpaceElevatorMachine).tier - 7
-                    ModuleTier = (logic.machine as SpaceElevatorMachine).casingTier
+                    spaceElevatorTier = (logic.machine as SpaceElevatorMachine).tier - 7
+                    moduleTier = (logic.machine as SpaceElevatorMachine).casingTier
                 } else if (!logic.isWorking) {
-                    SpaceElevatorTier = 0
-                    ModuleTier = 0
+                    spaceElevatorTier = 0
+                    moduleTier = 0
                 }
             } else if (logic == null) {
-                SpaceElevatorTier = 0
-                ModuleTier = 0
+                spaceElevatorTier = 0
+                moduleTier = 0
             }
         } else {
             val level = this.level
@@ -71,11 +69,11 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
                         if (logic != null && logic.getMachine().definition === AdvancedMultiBlockMachine.SPACE_ELEVATOR) {
                             controller = j
                             if (logic.isWorking && logic.getProgress() > 80) {
-                                this.SpaceElevatorTier = (logic.machine as SpaceElevatorMachine).tier - 7
-                                this.ModuleTier = (logic.machine as SpaceElevatorMachine).casingTier
+                                this.spaceElevatorTier = (logic.machine as SpaceElevatorMachine).tier - 7
+                                this.moduleTier = (logic.machine as SpaceElevatorMachine).casingTier
                             } else if (!logic.isWorking) {
-                                this.SpaceElevatorTier = 0
-                                this.ModuleTier = 0
+                                this.spaceElevatorTier = 0
+                                this.moduleTier = 0
                             }
                         }
                     }
@@ -89,24 +87,11 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
         getSpaceElevatorTier()
     }
 
-    override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {
-        super.saveCustomPersistedData(tag, forDrop)
-        tag.putInt("drLimit", limitedDuration)
-    }
-
-    override fun loadCustomPersistedData(tag: CompoundTag) {
-        super.loadCustomPersistedData(tag)
-        limitedDuration = tag.getInt("drLimit")
-    }
-
     override fun onWorking(): Boolean {
         val value = super.onWorking()
         if (this.offsetTimer % 10L == 0L) {
             this.getSpaceElevatorTier()
-            if (this.SpaceElevatorTier < 1) {
-                this.getRecipeLogic().interruptRecipe()
-                return false
-            }
+            if (this.spaceElevatorTier < 1) getRecipeLogic().setProgress(0)
         }
         return value
     }
@@ -120,25 +105,12 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
                         .withStyle(ChatFormatting.DARK_PURPLE))
                     .withStyle(ChatFormatting.GRAY)
             )
-            textList.add(Component.translatable((if (this.SpaceElevatorTier < 1) "未" else "已") + "连接正在运行的太空电梯"))
+            textList.add(Component.translatable((if (this.spaceElevatorTier < 1) "未" else "已") + "连接正在运行的太空电梯"))
         }
     }
 
     override fun getMaxParallel(): Int {
-        return 8.0.pow((this.ModuleTier - 1).toDouble()).toInt()
-    }
-
-    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
-        super.attachConfigurators(configuratorPanel)
-        configuratorPanel.attachConfigurators(LimitedDurationConfigurator(this))
-    }
-
-    override fun setLimitedDuration(number: Int) {
-        if (number != limitedDuration) limitedDuration = number
-    }
-
-    override fun getLimitedDuration(): Int {
-        return this.limitedDuration
+        return 8.0.pow((this.moduleTier - 1).toDouble()).toInt()
     }
 
 }

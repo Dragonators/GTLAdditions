@@ -41,7 +41,7 @@ object GTLAddMultiBlockMachineModifier {
                                 FormattingUtil.formatNumbers(
                                     min(
                                         Int.Companion.MAX_VALUE,
-                                        2.0.pow(controller.coilType.coilTemperature.toDouble() / 900.0)
+                                        2.0.pow(controller.coilType!!.coilTemperature.toDouble() / 900.0)
                                             .toInt()))).withStyle(ChatFormatting.DARK_PURPLE))
                             .withStyle(ChatFormatting.GRAY)
                     )

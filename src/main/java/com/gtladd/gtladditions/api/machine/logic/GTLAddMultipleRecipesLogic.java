@@ -5,11 +5,10 @@ import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe;
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic;
 import org.gtlcore.gtlcore.api.recipe.IRecipeIterator;
 import org.gtlcore.gtlcore.api.recipe.RecipeResult;
+import org.gtlcore.gtlcore.common.machine.trait.MultipleRecipesLogic;
 
 import com.gregtechceu.gtceu.api.capability.recipe.*;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
@@ -28,9 +27,7 @@ import javax.annotation.Nullable;
 
 import static org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.*;
 
-public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockRecipe {
-
-    protected final ParallelMachine parallel;
+public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements ILockRecipe {
 
     private final IGTLAddMultiRecipe limited;
 
@@ -39,21 +36,14 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
     protected BiPredicate<GTRecipe, IRecipeLogicMachine> beforeWorking;
 
     public GTLAddMultipleRecipesLogic(ParallelMachine parallel) {
-        super((IRecipeLogicMachine) parallel);
-        this.parallel = parallel;
+        super(parallel);
         this.limited = (IGTLAddMultiRecipe) parallel;
     }
 
     public GTLAddMultipleRecipesLogic(ParallelMachine parallel, BiPredicate<GTRecipe, IRecipeLogicMachine> beforeWorking) {
-        super((IRecipeLogicMachine) parallel);
-        this.parallel = parallel;
+        super(parallel);
         this.limited = (IGTLAddMultiRecipe) parallel;
         this.beforeWorking = beforeWorking;
-    }
-
-    @Override
-    public WorkableElectricMultiblockMachine getMachine() {
-        return (WorkableElectricMultiblockMachine) super.getMachine();
     }
 
     @Override
@@ -73,7 +63,7 @@ public class GTLAddMultipleRecipesLogic extends RecipeLogic implements ILockReci
         Set<GTRecipe> recipes = this.lookupRecipeIterator();
         int length = recipes.size();
         if (length == 0) return null;
-        long parallel = this.parallel.getMaxParallel();
+        long parallel = this.getParallel().getMaxParallel();
         long[] parallels = new long[length];
         int index = 0;
         long remaining = parallel * MAX_THREADS;
