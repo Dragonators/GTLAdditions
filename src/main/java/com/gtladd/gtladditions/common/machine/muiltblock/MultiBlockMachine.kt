@@ -40,6 +40,7 @@ import net.minecraft.world.level.block.Block
 import org.gtlcore.gtlcore.GTLCore
 import org.gtlcore.gtlcore.api.pattern.GTLPredicates
 import org.gtlcore.gtlcore.client.renderer.machine.EyeOfHarmonyRenderer
+import org.gtlcore.gtlcore.common.block.BlockMap
 import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
 import org.gtlcore.gtlcore.common.data.GTLBlocks.*
 import org.gtlcore.gtlcore.common.data.GTLMachines
@@ -465,7 +466,10 @@ object MultiBlockMachine {
                 .where("H", Predicates.blocks(getBlock("kubejs:hollow_casing")))
                 .where("G", Predicates.blocks(GTLFusionCasingBlock.getCompressedCoilState(10)))
                 .where("O", Predicates.blocks(GTLFusionCasingBlock.getCasingState(10))
-                        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS)))
+                        .or(GTLPredicates.diffAbilities(
+                                listOf<PartAbility?>(PartAbility.EXPORT_ITEMS),
+                                listOf<PartAbility?>(PartAbility.IMPORT_ITEMS, PartAbility.IMPORT_FLUIDS)
+                            )))
                 .where(" ", Predicates.any())
                 .build()
         }
@@ -803,7 +807,7 @@ object MultiBlockMachine {
                 .where("N", Predicates.blocks(FUSION_CASING_MK5.get()))
                 .where("I", Predicates.blocks(SPS_CASING.get()))
                 .where("P", Predicates.blocks(FUSION_GLASS.get()))
-                .where("M", GTLPredicates.tierCasings(scmap, "SCTier"))
+                .where("M", GTLPredicates.tierCasings(BlockMap.scMap, "SCTier"))
                 .where("A", Predicates.blocks(IRIDIUM_CASING.get()))
                 .where("L", Predicates.blocks(getBlock("kubejs:containment_field_generator")))
                 .where("Q", Predicates.blocks(getBlock("kubejs:dimensional_bridge_casing")))
@@ -875,7 +879,7 @@ object MultiBlockMachine {
         .pattern { definition: MultiblockMachineDefinition? ->
             MultiBlockStructure.SKELETON_SHIFT_RIFT_ENGINE!!
                 .where("Q", Predicates.controller(Predicates.blocks(definition!!.get())))
-                .where("P", GTLPredicates.tierCasings(scmap, "SCTier"))
+                .where("P", GTLPredicates.tierCasings(BlockMap.scMap, "SCTier"))
                 .where("E", Predicates.blocks(ChemicalHelper.getBlock(frameGt, BlackSteel)))
                 .where("B", Predicates.blocks(HIGH_POWER_CASING.get()))
                 .where("D", Predicates.blocks(SPS_CASING.get()))

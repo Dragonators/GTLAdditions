@@ -2,7 +2,6 @@ package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.gui.GuiTextures
-import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
@@ -15,7 +14,6 @@ import com.gregtechceu.gtceu.api.recipe.RecipeHelper
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricMultipleRecipesMachine
-import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.lowdragmc.lowdraglib.gui.widget.*
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer
@@ -137,11 +135,6 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
 
     override fun getMaxParallel(): Int {
         return Max_Parallels
-    }
-
-    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
-        super.attachConfigurators(configuratorPanel)
-        configuratorPanel.attachConfigurators(LimitedDurationConfigurator(this))
     }
 
     override fun setLimitedDuration(number: Int) {
