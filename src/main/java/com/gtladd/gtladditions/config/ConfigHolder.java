@@ -52,10 +52,5 @@ public class ConfigHolder {
         @Configurable.Comment("样板供应器额外发配次数")
         @Configurable.Range(min = 1, max = 500000)
         public int externalStorageMaxTimes = 250000;
-
-        @Configurable
-        @Configurable.Comment("GT配方超INT物品额外发配次数")
-        @Configurable.Range(min = 1, max = 1000000)
-        public int recipeContentMaxTimes = 100000;
     }
 }
