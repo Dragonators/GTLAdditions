@@ -3,7 +3,6 @@ package com.gtladd.gtladditions.api.machine.logic;
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
 import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe;
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic;
-import org.gtlcore.gtlcore.api.recipe.IRecipeIterator;
 import org.gtlcore.gtlcore.api.recipe.RecipeResult;
 import org.gtlcore.gtlcore.common.machine.trait.MultipleRecipesLogic;
 
@@ -128,8 +127,13 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements 
                     .find(machine, this::checkRecipe));
             else if (!checkRecipe(this.getLockRecipe())) return Collections.emptySet();
             return Collections.singleton(this.getLockRecipe());
-        } else
-            return IRecipeIterator.findIteratorRecipeCollection(machine.getRecipeType().getLookup().getRecipeIterator(machine, this::checkRecipe));
+        } else {
+            var set = new ObjectOpenHashSet<GTRecipe>();
+            for (var it = machine.getRecipeType().getLookup().getRecipeIterator(machine, this::checkRecipe); it.hasNext();) {
+                set.add(it.next());
+            }
+            return set;
+        }
     }
 
     @Override
