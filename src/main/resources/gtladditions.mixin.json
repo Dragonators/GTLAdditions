@@ -10,7 +10,6 @@
     "ae2.ExternalStorageFacadeAccessor",
     "ae2.ExternalStorageFacadeMixin",
     "ae2.ItemPickupStrategyMixin",
-    "gtceu.api.recipe.GTRecipeMixin",
     "gtceu.recipe.AlloyBlastRecipeProducerMixin",
     "gtceu.recipe.GCyMRecipesMixin",
     "gtceu.recipe.GTRecipeLookupMixin",
