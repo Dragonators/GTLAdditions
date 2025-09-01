@@ -631,7 +631,7 @@ object NewMultiBlockMachineController {
             .inputItems(getItemStack("kubejs:proto_matter", 64))
             .inputItems(EXTREMELY_ULTIMATE_BATTERY, 16)
             .inputItems(TagUtil.createModItemTag("circuits/uxv"), 16)
-            .inputItems(getItemStack("gtceu:me_pattern_buffer", 16))
+            .inputItems(getItemStack("gtceu:me_extend_pattern_buffer", 16))
             .inputItems(getItemStack("gtceu:me_dual_hatch_stock_part_machine", 16))
             .inputItems(EMITTER_UXV, 8)
             .inputItems(getItemStack("kubejs:cosmic_processing_core", 4))
