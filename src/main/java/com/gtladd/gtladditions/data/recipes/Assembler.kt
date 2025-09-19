@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.common.data.GTItems.*
 import com.gregtechceu.gtceu.common.data.GTMachines.*
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
+import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.id
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.hepdd.gtmthings.GTMThings
@@ -88,7 +89,7 @@ object Assembler {
             .inputItems(FIELD_GENERATOR_ZPM, 2)
             .inputItems(plateDense, NaquadahAlloy, 2)
             .inputItems(wireGtQuadruple, EnrichedNaquadahTriniumEuropiumDuranide)
-            .inputItems(createModItemTag("circuits/zpm"), 1)
+            .inputItems(CustomTags.ZPM_CIRCUITS, 1)
             .outputItems(MEGA_BLAST_FURNACE)
             .EUt(480).duration(1200).save(provider)
         ASSEMBLER_RECIPES.recipeBuilder(id("mega_alloy_blast_smelter"))
@@ -97,27 +98,27 @@ object Assembler {
             .inputItems(FIELD_GENERATOR_ZPM, 2)
             .inputItems(plateDense, Darmstadtium, 2)
             .inputItems(wireGtHex, EnrichedNaquadahTriniumEuropiumDuranide)
-            .inputItems(createModItemTag("circuits/zpm"), 1)
+            .inputItems(CustomTags.ZPM_CIRCUITS, 1)
             .outputItems(MultiBlockMachineA.MEGA_ALLOY_BLAST_SMELTER)
             .EUt(480).duration(1200).save(provider)
         ASSEMBLER_RECIPES.recipeBuilder(id("ev_alloy_smelter"))
             .inputItems(HULL[EV])
             .inputItems(wireGtQuadruple, Nichrome, 4)
             .inputItems(cableGtSingle, Aluminium, 2)
-            .inputItems(createModItemTag("circuits/ev"), 1)
+            .inputItems(CustomTags.EV_CIRCUITS, 1)
             .outputItems(ALLOY_SMELTER[EV])
             .EUt(120).duration(1200).save(provider)
         ASSEMBLER_RECIPES.recipeBuilder(id("alloy_blast_smelter"))
             .inputItems(ALLOY_SMELTER[EV])
             .inputItems(plate, TantalumCarbide, 4)
             .inputItems(cableGtSingle, Aluminium, 2)
-            .inputItems(createModItemTag("circuits/ev"), 1)
+            .inputItems(CustomTags.EV_CIRCUITS, 1)
             .outputItems(BLAST_ALLOY_SMELTER)
             .EUt(120).duration(1200).save(provider)
         ASSEMBLER_RECIPES.recipeBuilder(id("vacuum_freezer"))
             .inputItems(CASING_ALUMINIUM_FROSTPROOF)
             .inputItems(ELECTRIC_PUMP_EV, 3)
-            .inputItems(createModItemTag("circuits/ev"), 3)
+            .inputItems(CustomTags.EV_CIRCUITS, 3)
             .inputItems(cableGtSingle, Gold, 2)
             .outputItems(VACUUM_FREEZER)
             .EUt(120).duration(1200).save(provider)
@@ -125,7 +126,7 @@ object Assembler {
             .inputItems(VACUUM_FREEZER)
             .inputItems(FIELD_GENERATOR_ZPM, 2)
             .inputItems(plateDense, RhodiumPlatedPalladium, 2)
-            .inputItems(createModItemTag("circuits/zpm"), 1)
+            .inputItems(CustomTags.ZPM_CIRCUITS, 1)
             .inputItems(wireGtQuadruple, RutheniumTriniumAmericiumNeutronate)
             .outputItems(MEGA_VACUUM_FREEZER)
             .EUt(480).duration(1200).save(provider)
@@ -161,7 +162,7 @@ object Assembler {
             .circuitMeta(8)
             .inputItems(CASING_PALLADIUM_SUBSTATION.asStack())
             .inputItems(LAPOTRON_CRYSTAL, 4)
-            .inputItems(createModItemTag("circuits/luv"), 2)
+            .inputItems(CustomTags.LuV_CIRCUITS, 2)
             .inputItems(POWER_INTEGRATED_CIRCUIT, 2)
             .outputItems(POWER_SUBSTATION.asStack())
             .EUt(480).duration(1200).save(provider)
@@ -170,13 +171,13 @@ object Assembler {
     private fun addWorldAccelerator(provider : Consumer<FinishedRecipe?>) {
         for (i in 1 .. 8) {
             val tierName = VN[i].lowercase(Locale.getDefault())
-            ASSEMBLER_RECIPES.recipeBuilder(id(tierName + "_world_accelerator"))
+            ASSEMBLER_RECIPES.recipeBuilder(id(WORLD_ACCELERATOR[i].name))
                 .circuitMeta(24)
                 .inputItems(getItemStack("gtceu:" + tierName + "_field_generator", 4))
                 .inputItems(getItemStack("gtceu:" + tierName + "_emitter", 2))
                 .inputItems(getItemStack("gtceu:" + tierName + "_sensor", 2))
-                .inputItems(getItemStack("gtceu:" + tierName + "_machine_hull"))
-                .outputItems(getItemStack("gtceu:" + tierName + "_world_accelerator"))
+                .inputItems(HULL[i])
+                .outputItems(WORLD_ACCELERATOR[i])
                 .duration(200).EUt(480).save(provider)
         }
     }

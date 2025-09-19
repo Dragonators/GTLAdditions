@@ -22,12 +22,14 @@ import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gregtechceu.gtceu.utils.GTUtil
+import com.hepdd.gtmthings.data.CreativeMachines
 import com.lowdragmc.lowdraglib.gui.widget.SlotWidget
 import com.lowdragmc.lowdraglib.gui.widget.Widget
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.MethodsReturnNonnullByDefault
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
@@ -68,7 +70,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
 
     protected fun filter(itemStack: ItemStack): Boolean {
         val item = itemStack.item
-        return ENDERIUM.`is`(item) || DRACONIUM.`is`(item) || SPACETIME.`is`(item) || ETERNITY.`is`(item)
+        return ENDERIUM.`is`(item) || DRACONIUM.`is`(item) || SPACETIME.`is`(item) || ETERNITY.`is`(item) || CREATE.`is`(item)
     }
 
     override fun onDrops(drops: MutableList<ItemStack?>) {
@@ -91,8 +93,8 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
         val context = this.multiblockState.matchContext
         val type = context.get<Any?>("CoilType")
         if (type is ICoilType) this.coilType = type
-        val var3 = context.getOrCreate("SpeedPipeValue") { IValueContainer.noop() }.getValue()
-        if (var3 is Int) this.height = var3 - 2
+        val speedPipe = context.getOrCreate("SpeedPipeValue") { IValueContainer.noop() }.getValue()
+        if (speedPipe is Int) this.height = speedPipe - 2
     }
 
     override fun beforeWorking(recipe: GTRecipe?): Boolean {
@@ -126,10 +128,12 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
     }
 
     private fun successRateA(): Int {
+        if (machineStorage.getStackInSlot(0).`is`(CREATE.item)) return 100
         return (100 / (1 + exp(-0.1 * (this.frameA() / 50 + this.frameB() / 100 + this.height / 9.0))) + this.slotAdd).roundToInt()
     }
 
     private fun successRateB(): Int {
+        if (machineStorage.getStackInSlot(0).`is`(CREATE.item)) return 100
         return (100 * (1 - exp(-0.02 * ((this.frameA() + this.frameB()) / 20.0 + cbrt(this.height.toDouble()) * this.energyTier / 7.0))) + this.slotAdd).roundToInt()
     }
 
@@ -142,6 +146,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
     }
 
     fun getMaxParallel(): Int {
+        if (machineStorage.getStackInSlot(0).`is`(CREATE.item)) return 3.shl(16)
         return (4096 * 1.621.pow((this.coilType.coilTemperature.toDouble() / 6400))).toInt()
     }
 
@@ -176,12 +181,13 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
         private val DRACONIUM: ItemStack = Registries.getItemStack("gtceu:draconium_nanoswarm", 64)
         private val SPACETIME: ItemStack = Registries.getItemStack("gtceu:spacetime_nanoswarm", 64)
         private val ETERNITY: ItemStack = Registries.getItemStack("gtceu:eternity_nanoswarm", 64)
+        private val CREATE: ItemStack = CreativeMachines.CREATIVE_ENERGY_INPUT_HATCH.asStack()
 
         fun recipeModifier(machine: MetaMachine, recipe: GTRecipe, params: OCParams, result: OCResult): GTRecipe? {
             if (machine is TaixuTurbidArray) {
                 var recipe1 = recipe.copy()
                 val builder = GTRecipeBuilder(ResourceLocation.tryParse("uu"), GTRecipeTypes.DUMMY_RECIPES)
-                recipe1.outputs.put(FluidRecipeCapability.CAP, ArrayList())
+                recipe1.outputs.put(FluidRecipeCapability.CAP, ObjectArrayList())
                 if (Math.random() * 100 <= machine.successRateA() && machine.energyTier >= GTValues.UXV) {
                     builder.outputFluids(GTLMaterials.UuAmplifier.getFluid(machine.baseOutputFluid1().toLong()))
                 }

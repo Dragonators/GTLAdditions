@@ -2,8 +2,7 @@ package com.gtladd.gtladditions.api.machine.logic;
 
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
 import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe;
-import org.gtlcore.gtlcore.api.recipe.IParallelLogic;
-import org.gtlcore.gtlcore.api.recipe.RecipeResult;
+import org.gtlcore.gtlcore.api.recipe.*;
 import org.gtlcore.gtlcore.common.machine.trait.MultipleRecipesLogic;
 
 import com.gregtechceu.gtceu.api.capability.recipe.*;
@@ -59,15 +58,15 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements 
         if (!machine.hasProxies()) return null;
         long maxEUt = getMachine().getOverclockVoltage();
         if (maxEUt <= 0) return null;
-        Set<GTRecipe> recipes = this.lookupRecipeIterator();
+        var recipes = this.lookupRecipeIterator();
         int length = recipes.size();
         if (length == 0) return null;
         long parallel = this.getParallel().getMaxParallel();
         long[] parallels = new long[length];
         int index = 0;
         long remaining = parallel * MAX_THREADS;
-        ObjectArrayFIFOQueue<RecipeData> queue = new ObjectArrayFIFOQueue<>(length);
-        List<GTRecipe> recipeList = new ObjectArrayList<>(length);
+        var queue = new ObjectArrayFIFOQueue<RecipeData>(length);
+        var recipeList = new ObjectArrayList<GTRecipe>(length);
         for (var r : recipes) {
             if (r == null) continue;
             long p = IParallelLogic.getMaxParallel(this.machine, r, parallel * MAX_THREADS);
@@ -79,7 +78,7 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements 
         }
         if (recipeList.isEmpty()) return null;
         while (remaining > 0 && !queue.isEmpty()) {
-            RecipeData recipeData = queue.dequeue();
+            var recipeData = queue.dequeue();
             long canGive = remaining / (queue.size() + 1);
             if (canGive > 0) {
                 long give = Math.min(recipeData.remainingWant, canGive);
@@ -95,15 +94,15 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements 
         recipe.outputs.put(ItemRecipeCapability.CAP, new ArrayList<>());
         recipe.outputs.put(FluidRecipeCapability.CAP, new ArrayList<>());
         long totalEu = 0;
-        for (GTRecipe r : recipeList) {
+        for (var r : recipeList) {
             if (parallels[index] > 1) r = r.copy(ContentModifier.multiplier(parallels[index]), false);
             r.parallels = Ints.saturatedCast(parallels[index++]);
-            IParallelLogic.getRecipeOutputChance(machine, r);
+            r = IParallelLogic.getRecipeOutputChance(machine, r);
             if (handleRecipeInput(machine, r)) {
                 totalEu += RecipeHelper.getInputEUt(r) * r.duration;
-                List<Content> item = r.outputs.get(ItemRecipeCapability.CAP);
+                var item = r.outputs.get(ItemRecipeCapability.CAP);
                 if (item != null) recipe.outputs.get(ItemRecipeCapability.CAP).addAll(item);
-                List<Content> fluid = r.outputs.get(FluidRecipeCapability.CAP);
+                var fluid = r.outputs.get(FluidRecipeCapability.CAP);
                 if (fluid != null) recipe.outputs.get(FluidRecipeCapability.CAP).addAll(fluid);
             }
             if (totalEu / maxEUt > 20 * 500) break;
@@ -118,6 +117,7 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements 
         recipe.tickInputs.put(EURecipeCapability.CAP, List.of(
                 new Content(eut, 10000, 10000, 0, null, null)));
         recipe.duration = (int) Math.max(d, minDuration);
+        IGTRecipe.of(recipe).setHasTick(true);
         return recipe;
     }
 
@@ -128,11 +128,11 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements 
             else if (!checkRecipe(this.getLockRecipe())) return Collections.emptySet();
             return Collections.singleton(this.getLockRecipe());
         } else {
-            var set = new ObjectOpenHashSet<GTRecipe>();
-            for (var it = machine.getRecipeType().getLookup().getRecipeIterator(machine, this::checkRecipe); it.hasNext();) {
-                set.add(it.next());
-            }
-            return set;
+            var iterator = machine.getRecipeType().getLookup().getRecipeIterator(machine, this::checkRecipe);
+            var recipeSet = new ObjectOpenHashSet<GTRecipe>();
+            while (iterator.hasNext()) recipeSet.add(iterator.next());
+            recipeSet.remove(null);
+            return recipeSet;
         }
     }
 
@@ -154,7 +154,7 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements 
 
     protected boolean checkRecipe(GTRecipe recipe) {
         return matchRecipe(machine, recipe) &&
-                recipe.data.getInt("euTier") <= getMachine().getTier() &&
+                IGTRecipe.of(recipe).getEuTier() <= getMachine().getTier() &&
                 recipe.checkConditions(machine.getRecipeLogic()).isSuccess();
     }
 

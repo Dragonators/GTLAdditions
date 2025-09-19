@@ -15,8 +15,8 @@ object BiologicalSimulation {
     @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         val swords = arrayOf<Sword?>(
-            Sword("minecraft:diamond_sword", 1500, 1),
-            Sword("minecraft:netherite_sword", 500, 5),
+            Sword("minecraft:diamond_sword", 15, 1),
+            Sword("minecraft:netherite_sword", 5, 5),
             Sword("avaritia:infinity_sword", 0, 20)
         )
         val biologicals = arrayOf<Biological?>(

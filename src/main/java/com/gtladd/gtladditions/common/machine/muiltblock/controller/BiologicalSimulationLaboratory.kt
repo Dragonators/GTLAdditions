@@ -25,13 +25,12 @@ import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.*
+import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
 import org.gtlcore.gtlcore.utils.Registries.*
 import java.util.function.BiPredicate
-import kotlin.math.max
 
 class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
     GTLAddWorkableElectricMultipleRecipesMachine(holder) {
-    private var limitedDuration = 20
 
     @Persisted
     val machineStorage: NotifiableItemStackHandler? = createMachineStorage()
@@ -137,14 +136,6 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         return Max_Parallels
     }
 
-    override fun setLimitedDuration(number: Int) {
-        if (number != limitedDuration) limitedDuration = number
-    }
-
-    override fun getLimitedDuration(): Int {
-        return this.limitedDuration
-    }
-
     class BiologicalSimulationLaboratoryLogic(machine: WorkableElectricMultiblockMachine?) :
         GTLAddMultipleRecipesLogic((machine as ParallelMachine?) !!) {
 
@@ -170,17 +161,12 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         val oneRecipe: GTRecipe?
             get() {
                 if (!machine.hasProxies()) return null
-                var recipe = machine.recipeType.lookup.find(machine) { r: GTRecipe? ->
-                    matchRecipe(machine, r!!) && BEFORE_RECIPE.test(r, machine)
-                }
-                if (recipe == null || recipe.data.getInt("euTier") > getMachine()!!.getTier()) return null
-                val p = ParallelLogic.applyParallel(machine as MetaMachine, recipe,
-                    parallel.maxParallel, false)
-                recipe = p.first
-                RecipeHelper.setInputEUt(recipe, max(1.0, (RecipeHelper.getInputEUt(recipe) * reDuctionEUt * p.second)).toLong())
-                recipe.duration = max(1.0, recipe.duration.toDouble() *
-                            reDuctionDuration / (1 shl (getMachine() !!.getTier() - RecipeHelper.getRecipeEUtTier(recipe)))).toInt()
-                return recipe
+                var recipe = machine.recipeType.lookup.find(machine, this::checkRecipe)
+                if (recipe == null) return null
+                recipe = ParallelLogic.applyParallel(machine as MetaMachine, recipe,
+                    parallel.maxParallel, false).first
+                return GTLRecipeModifiers.reduction(this.machine as MetaMachine?, recipe,
+                    reDuctionEUt, reDuctionDuration)
             }
 
         override fun onRecipeFinish() {
