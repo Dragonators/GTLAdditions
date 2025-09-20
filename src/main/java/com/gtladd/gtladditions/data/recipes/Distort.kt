@@ -7,6 +7,7 @@ import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gtladd.gtladditions.GTLAdditions.id
 import net.minecraft.data.recipes.FinishedRecipe
+import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix
 import org.gtlcore.gtlcore.api.machine.multiblock.GTLCleanroomType.LAW_CLEANROOM
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.DISTORT_RECIPES
@@ -17,7 +18,7 @@ object Distort {
     @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         DISTORT_RECIPES.recipeBuilder(id("rare_earth_dust_monazite"))
-            .notConsumable(getItemStack("gtceu:rhenium_nanoswarm"))
+            .notConsumable(GTLTagPrefix.nanoswarm, Rhenium)
             .inputItems(dust, Monazite, 64)
             .inputItems(dust, CeriumRichMixturePowder, 288)
             .inputItems(dust, SamariumRefinedPowder, 360)
@@ -34,7 +35,7 @@ object Distort {
             .EUt(VA[UHV].toLong()).duration(200).blastFurnaceTemp(12000)
             .cleanroom(CLEANROOM).save(provider)
         DISTORT_RECIPES.recipeBuilder(id("composite_1"))
-            .notConsumable(getItemStack("gtceu:cosmicneutronium_nanoswarm"))
+            .notConsumable(GTLTagPrefix.nanoswarm, CosmicNeutronium)
             .inputItems(dust, Carbon, 1440)
             .inputItems(dust, Sulfur, 36)
             .inputItems(dust, Silicon, 36)
@@ -51,7 +52,7 @@ object Distort {
             .EUt(VA[UXV].toLong()).duration(720).blastFurnaceTemp(18000)
             .cleanroom(LAW_CLEANROOM).save(provider)
         DISTORT_RECIPES.recipeBuilder(id("composite_2"))
-            .notConsumable(getItemStack("gtceu:spacetime_nanoswarm"))
+            .notConsumable(GTLTagPrefix.nanoswarm, SpaceTime)
             .inputItems(dust, Carbon, 1440)
             .inputFluids(Hydrogen.getFluid(440000))
             .inputFluids(Oxygen.getFluid(88000))
@@ -64,7 +65,7 @@ object Distort {
             .EUt(VA[OpV].toLong()).duration(960).blastFurnaceTemp(21600)
             .cleanroom(LAW_CLEANROOM).save(provider)
         DISTORT_RECIPES.recipeBuilder(id("composite_3"))
-            .notConsumable(getItemStack("gtceu:transcendentmetal_nanoswarm"))
+            .notConsumable(GTLTagPrefix.nanoswarm, TranscendentMetal)
             .inputItems(dust, Carbon, 5828)
             .inputItems(dust, Iodine, 64)
             .inputItems(dust, Tin, 45)
@@ -101,7 +102,7 @@ object Distort {
             .EUt(VA[OpV].toLong()).duration(1200).blastFurnaceTemp(48000)
             .cleanroom(STERILE_CLEANROOM).save(provider)
         DISTORT_RECIPES.recipeBuilder(id("rhenium_dust"))
-            .notConsumable(getItemStack("gtceu:rhenium_nanoswarm"))
+            .notConsumable(GTLTagPrefix.nanoswarm, Rhenium)
             .inputItems(dust, Molybdenite, 48)
             .inputItems(dust, Iron, 3)
             .outputItems(dust, Rhenium, 48)
@@ -114,7 +115,7 @@ object Distort {
             .EUt(VA[11].toLong()).duration(960).blastFurnaceTemp(14400)
             .cleanroom(STERILE_CLEANROOM).save(provider)
         DISTORT_RECIPES.recipeBuilder(id("bedrock_gas"))
-            .notConsumable(getItemStack("gtceu:uruium_nanoswarm"))
+            .notConsumable(GTLTagPrefix.nanoswarm, Uruium)
             .inputItems(dust, Bedrock, 72)
             .inputItems(dust, Naquadah, 63)
             .outputItems(dust, NaquadahEnriched, 4)
@@ -125,7 +126,7 @@ object Distort {
             .EUt(VA[12].toLong()).duration(1280).blastFurnaceTemp(18000)
             .cleanroom(LAW_CLEANROOM).save(provider)
         DISTORT_RECIPES.recipeBuilder(id("trinium_compound"))
-            .notConsumable(getItemStack("gtceu:starmetal_nanoswarm"))
+            .notConsumable(GTLTagPrefix.nanoswarm, Starmetal)
             .notConsumable(getItemStack("gtceu:fluorocarborane_dust", 50))
             .inputItems(dust, CompoundTriniite, 360)
             .inputItems(dust, SodiumHydroxide, 512)
@@ -146,7 +147,7 @@ object Distort {
             .EUt(VA[12].toLong()).duration(1200).blastFurnaceTemp(18000)
             .cleanroom(LAW_CLEANROOM).save(provider)
         DISTORT_RECIPES.recipeBuilder(id("agar_dust"))
-            .notConsumable(getItemStack("gtceu:neutronium_nanoswarm"))
+            .notConsumable(GTLTagPrefix.nanoswarm, Neutronium)
             .inputItems(dust, Meat, 256)
             .inputItems(getItemStack("minecraft:bone", 256))
             .inputItems(dust, Sulfur, 64)
@@ -157,7 +158,7 @@ object Distort {
             .EUt(VA[9].toLong()).duration(320).blastFurnaceTemp(16000)
             .cleanroom(STERILE_CLEANROOM).save(provider)
         DISTORT_RECIPES.recipeBuilder(id("tcetieseaweedextract"))
-            .notConsumable(getItemStack("gtceu:infuscolium_nanoswarm"))
+            .notConsumable(GTLTagPrefix.nanoswarm, Infuscolium)
             .inputItems(dust, Salt, 450)
             .inputItems(dust, Agar, 450)
             .inputItems(dust, Meat, 450)

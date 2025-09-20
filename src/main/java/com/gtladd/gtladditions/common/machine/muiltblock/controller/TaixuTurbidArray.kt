@@ -2,9 +2,7 @@ package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.block.ICoilType
-import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
-import com.gregtechceu.gtceu.api.capability.recipe.IO
-import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
+import com.gregtechceu.gtceu.api.capability.recipe.*
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
@@ -22,6 +20,7 @@ import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gregtechceu.gtceu.utils.GTUtil
+import com.gtladd.gtladditions.GTLAdditions
 import com.hepdd.gtmthings.data.CreativeMachines
 import com.lowdragmc.lowdraglib.gui.widget.SlotWidget
 import com.lowdragmc.lowdraglib.gui.widget.Widget
@@ -32,7 +31,6 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.MethodsReturnNonnullByDefault
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.pattern.util.IValueContainer
 import org.gtlcore.gtlcore.common.data.GTLMaterials
@@ -79,12 +77,13 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
 
     private fun slotTooltips(): MutableList<Component?> {
         val tooltip: MutableList<Component?> = ArrayList()
-        tooltip.add(Component.literal("最多可以放入64个物品"))
-        tooltip.add(Component.literal("可放入以下物品与提供对应的加成："))
-        tooltip.add(Component.literal("末影纳米蜂群：0.01"))
-        tooltip.add(Component.literal("龙纳米蜂群：0.05"))
-        tooltip.add(Component.literal("时空纳米蜂群：0.1"))
-        tooltip.add(Component.literal("永恒纳米蜂群：0.2"))
+        tooltip.add(Component.translatable("gtceu.machine.taixu.storage.tooltip.0"))
+        tooltip.add(Component.translatable("gtceu.machine.taixu.storage.tooltip.1"))
+        tooltip.add(Component.translatable("gtceu.machine.taixu.storage.tooltip.2"))
+        tooltip.add(Component.translatable("gtceu.machine.taixu.storage.tooltip.3"))
+        tooltip.add(Component.translatable("gtceu.machine.taixu.storage.tooltip.4"))
+        tooltip.add(Component.translatable("gtceu.machine.taixu.storage.tooltip.5"))
+        tooltip.add(Component.translatable("gtceu.machine.taixu.storage.tooltip.6"))
         return tooltip
     }
 
@@ -104,14 +103,14 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
     override fun addDisplayText(textList: MutableList<Component?>) {
         super.addDisplayText(textList)
         if (this.isFormed) {
-            textList.add(Component.literal("高度：" + this.height))
-            textList.add(Component.literal("最大并行数：" + this.getMaxParallel()))
+            textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.0", this.height))
+            textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.1", this.getMaxParallel()))
             if (this.energyTier > GTValues.UIV) {
-                textList.add(Component.literal("UU增幅液成功概率：" + this.successRateA() + "%"))
-                textList.add(Component.literal("UU增幅液基础输出量：" + this.baseOutputFluid1() + "mb"))
+                textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.2", this.successRateA()))
+                textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.3", this.baseOutputFluid1()))
                 if (this.energyTier > GTValues.OpV) {
-                    textList.add(Component.literal("UU物质成功概率：" + this.successRateB() + "%"))
-                    textList.add(Component.literal("UU物质基础输出量：" + this.baseOutputFluid2() + "mb"))
+                    textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.4", this.successRateB()))
+                    textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.5", this.baseOutputFluid2()))
                 }
             }
         }
@@ -146,7 +145,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
     }
 
     fun getMaxParallel(): Int {
-        if (machineStorage.getStackInSlot(0).`is`(CREATE.item)) return 3.shl(16)
+        if (machineStorage.getStackInSlot(0).`is`(CREATE.item)) return 3.toDouble().pow(16).toInt()
         return (4096 * 1.621.pow((this.coilType.coilTemperature.toDouble() / 6400))).toInt()
     }
 
@@ -186,7 +185,9 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
         fun recipeModifier(machine: MetaMachine, recipe: GTRecipe, params: OCParams, result: OCResult): GTRecipe? {
             if (machine is TaixuTurbidArray) {
                 var recipe1 = recipe.copy()
-                val builder = GTRecipeBuilder(ResourceLocation.tryParse("uu"), GTRecipeTypes.DUMMY_RECIPES)
+                var maxParallel = ParallelLogic.getMaxRecipeMultiplier(recipe1, machine, machine.getMaxParallel())
+                if (maxParallel <= 0) return null
+                val builder = GTRecipeBuilder(GTLAdditions.id("uu"), GTRecipeTypes.DUMMY_RECIPES)
                 recipe1.outputs.put(FluidRecipeCapability.CAP, ObjectArrayList())
                 if (Math.random() * 100 <= machine.successRateA() && machine.energyTier >= GTValues.UXV) {
                     builder.outputFluids(GTLMaterials.UuAmplifier.getFluid(machine.baseOutputFluid1().toLong()))
@@ -198,7 +199,6 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
                     recipe1.outputs[FluidRecipeCapability.CAP]!!
                         .addAll(builder.buildRawRecipe().outputs[FluidRecipeCapability.CAP]!!)
                 }
-                var maxParallel = ParallelLogic.getMaxRecipeMultiplier(recipe1, machine, machine.getMaxParallel())
                 val minParallel = ParallelLogic.limitByOutputMerging(recipe1, machine, machine.getMaxParallel()
                 ) { capability: RecipeCapability<*>? -> machine.canVoidRecipeOutputs(capability) }
                 if (minParallel < maxParallel) maxParallel = minParallel

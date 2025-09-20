@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.api.item.MetaMachineItem;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.registry.registrate.MultiblockMachineBuilder;
 
 import net.minecraft.core.BlockPos;
@@ -50,8 +51,20 @@ public class GTLAddMultiBlockMachineBuilder extends MultiblockMachineBuilder {
         return (GTLAddMultiBlockMachineBuilder) super.rotationState(RotationState.NONE).allowExtendedFacing(false).allowFlip(false);
     }
 
-    public GTLAddMultiBlockMachineBuilder tooltipText(String string) {
-        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.literal(string) });
+    public GTLAddMultiBlockMachineBuilder tooltipTextKey(Component key) {
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { key });
+    }
+
+    public GTLAddMultiBlockMachineBuilder tooltipTextMaxParallels(Object parallel) {
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.translatable("gtceu.multiblock.max_parallel", parallel) });
+    }
+
+    public GTLAddMultiBlockMachineBuilder tooltipTextRecipeTypes(GTRecipeType... recipeTypes) {
+        int size = recipeTypes.length;
+        Object[] components = new Component[size];
+        for (int i = 0; i < size; i++)
+            components[i] = Component.translatable(recipeTypes[i].registryName.toLanguageKey());
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.translatable("gtceu.machine.available_recipe_map_" + size + ".tooltip", components) });
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipTextCoilParallel() {
@@ -60,6 +73,10 @@ public class GTLAddMultiBlockMachineBuilder extends MultiblockMachineBuilder {
 
     public GTLAddMultiBlockMachineBuilder tooltipTextLaser() {
         return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.translatable("gtceu.multiblock.laser.tooltip") });
+    }
+
+    public GTLAddMultiBlockMachineBuilder tooltipOnlyTextLaser() {
+        return (GTLAddMultiBlockMachineBuilder) super.tooltips(new Component[] { Component.translatable("gtceu.multiblock.only.laser.tooltip") });
     }
 
     public GTLAddMultiBlockMachineBuilder tooltipTextMultiRecipes() {

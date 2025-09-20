@@ -2,7 +2,6 @@ package com.gtladd.gtladditions.mixin.gtlcore.machine.part;
 
 import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.*;
 import org.gtlcore.gtlcore.utils.Registries;
-import org.gtlcore.gtlcore.utils.TextUtil;
 
 import com.gregtechceu.gtceu.api.capability.ICleanroomReceiver;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
@@ -12,7 +11,6 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredPartMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
-import com.gregtechceu.gtceu.client.util.TooltipHelper;
 
 import com.lowdragmc.lowdraglib.gui.widget.*;
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer;
@@ -23,6 +21,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import dev.architectury.patchedmixin.staticmixin.spongepowered.asm.mixin.Overwrite;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -144,8 +143,7 @@ public class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPar
         gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_bioware_mainframe", 3.0, 0.15));
         gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_cosmic_mainframe", 7.5, 0.1));
         gtladditions$tooltips.add(Component.translatable("gtceu.multiblock.use_suprachronal_mainframe_complex", 25.0, 0.05));
-        gtladditions$tooltips.add(Component.literal(TextUtil.full_color("由GTLAdditions修改"))
-                .withStyle((style) -> style.withColor(TooltipHelper.RAINBOW.getCurrent())));
+        gtladditions$tooltips.add(GTLAddMachines.INSTANCE.getGTLAdd_MODIFY());
         return gtladditions$tooltips;
     }
 

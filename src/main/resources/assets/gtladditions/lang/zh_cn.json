@@ -69,5 +69,7 @@
   "item.gtladditions.primary_soc": "原初soc芯片",
   "item.gtladditions.spacetime_lens": "时空织构透镜",
   "material.gtladditions.gallium_oxide": "氧化镓",
-  "material.gtladditions.ammonium_gallium_sulfate": "硫酸镓铵"
+  "material.gtladditions.ammonium_gallium_sulfate": "硫酸镓铵",
+  "gui.gtladditions.add": "由GTLAdditions添加",
+  "gui.gtladditions.modify": "由GTLAdditions修改"
 }

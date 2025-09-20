@@ -53,7 +53,6 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         Distort.init(provider);
         ElectricBlastFurnace.init(provider);
         IntegratedtedOreProcessor.init(provider);
-        Mixer.init(provider);
         NewMultiBlockMachineController.init(provider);
         Qft.init(provider);
         SocProcess.init(provider);

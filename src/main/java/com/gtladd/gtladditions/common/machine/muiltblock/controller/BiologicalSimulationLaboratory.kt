@@ -12,6 +12,7 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic
+import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
@@ -87,7 +88,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
                         )).withStyle(ChatFormatting.DARK_PURPLE)
                 ).withStyle(ChatFormatting.GRAY)
             )
-            textList.add(Component.translatable((if (Is_MultiRecipe) "已" else "未") + "解锁寰宇支配之剑的配方"))
+            textList.add(Component.translatable("gtceu.machine.biological_simulation_laboratory.gui.tooltip." + if (Is_MultiRecipe) 1 else 0))
             textList.add(
                 Component.translatable(
                     "gtceu.machine.eut_multiplier.tooltip", Component.translatable(
@@ -197,7 +198,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         private val RHENIUM_NANOSWARM: ItemStack = getItemStack("gtceu:rhenium_nanoswarm")
         private val ORICHALCUM_NANOSWARM: ItemStack = getItemStack("gtceu:orichalcum_nanoswarm")
         private val INFUSCOLIUM_NANOSWARM: ItemStack = getItemStack("gtceu:infuscolium_nanoswarm")
-        private val NAN_CERTIFICATE: ItemStack = getItemStack("gtceu:nan_certificate")
+        private val NAN_CERTIFICATE: ItemStack = GTItems.NAN_CERTIFICATE.asStack()
         private val BEFORE_RECIPE: BiPredicate<GTRecipe?, IRecipeLogicMachine?> =
             BiPredicate { recipe: GTRecipe?, machine: IRecipeLogicMachine? ->
                 if (machine !is BiologicalSimulationLaboratory) return@BiPredicate false
@@ -205,7 +206,8 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
                 val input = RecipeHelper.getInputItems(recipe!!)
                 for (stack in input) {
                     if (stack.item == getItem("avaritia:infinity_sword") && !Is_MultiRecipe) {
-                        RecipeResult.of(machine, RecipeResult.fail(Component.literal("该配方需要不再是菜鸟的证明来解锁")))
+                        RecipeResult.of(machine, RecipeResult.fail(
+                            Component.translatable("gtceu.machine.biological_simulation_laboratory.recipe.tooltip.0")))
                         return@BiPredicate false
                     }
                 }

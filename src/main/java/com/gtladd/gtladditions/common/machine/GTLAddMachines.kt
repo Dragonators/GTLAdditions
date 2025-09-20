@@ -66,13 +66,17 @@ object GTLAddMachines {
         MultiBlockModify.init()
     }
 
-    val GTLAdd_TOOLTIP: BiConsumer<ItemStack?, MutableList<Component?>?> =
+    val GTLAdd_ADD: BiConsumer<ItemStack?, MutableList<Component?>?> =
         BiConsumer { stack: ItemStack?, components: MutableList<Component?>? ->
             components!!.add(
-                Component.literal(TextUtil.full_color("由GTLAdditions添加"))
+                Component.literal(TextUtil.full_color(Component.translatable("gui.gtladditions.add").string))
                     .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
             )
         }
+
+    val GTLAdd_MODIFY : Component =
+        Component.literal(TextUtil.full_color(Component.translatable("gui.gtladditions.modify").string))
+            .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
 
     init {
         LASER_INPUT_HATCH_16777216A = GTMachines.registerLaserHatch(IO.IN, 16777216, PartAbility.INPUT_LASER)
@@ -130,7 +134,7 @@ object GTLAddMachines {
                 Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity", Int.Companion.MAX_VALUE),
                 Component.translatable("gtceu.machine.steam.steam_hatch.tooltip")
             )
-            .tooltipBuilder(GTLAdd_TOOLTIP).compassSections(GTCompassSections.STEAM).compassNode("steam_hatch")
+            .tooltipBuilder(GTLAdd_ADD).compassSections(GTCompassSections.STEAM).compassNode("steam_hatch")
             .renderer {
                 OverlaySteamMachineRenderer(ResourceLocation("gtceu", "block/machine/part/steam_hatch"))
             }.register()
@@ -142,7 +146,7 @@ object GTLAddMachines {
             .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 37))
             .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 24,
                     FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 12)))
-            .tooltipBuilder(GTLAdd_TOOLTIP).tier(14).register()
+            .tooltipBuilder(GTLAdd_ADD).tier(14).register()
         Ultimate_INPUT_DUAL_HATCH = REGISTRATE.machine("ultimate_input_dual_hatch")
         { UltimateDualHatchPartMachine(it!!, 64) }
             .rotationState(RotationState.ALL)
@@ -152,7 +156,7 @@ object GTLAddMachines {
             .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 129))
             .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 64,
                 FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)))
-            .tooltipBuilder(GTLAdd_TOOLTIP).tier(14).register()
+            .tooltipBuilder(GTLAdd_ADD).tier(14).register()
         ME_SUPER_PATTERN_BUFFER = REGISTRATE.machine("me_super_pattern_buffer")
         { MESuperPatternBufferPartMachine(it!!, ConfigHolder.INSTANCE.superPatternBuffer.patternsPerRow, ConfigHolder.INSTANCE.superPatternBuffer.rowsPerPage, ConfigHolder.INSTANCE.superPatternBuffer.maxPages) }
             .rotationState(RotationState.ALL)
@@ -166,7 +170,7 @@ object GTLAddMachines {
                 Component.translatable("block.gtladditions.me_super_pattern_buffer.desc.3"),
                 Component.translatable("gtceu.universal.enabled")
             )
-            .tooltipBuilder(GTLAdd_TOOLTIP).tier(14)
+            .tooltipBuilder(GTLAdd_ADD).tier(14)
             .register()
         ME_SUPER_PATTERN_BUFFER_PROXY = REGISTRATE.machine("me_super_pattern_buffer_proxy")
         { MESuperPatternBufferProxyPartMachine(it!!) }
@@ -180,7 +184,7 @@ object GTLAddMachines {
                 Component.translatable("block.gtladditions.me_super_pattern_buffer_proxy.desc.2"),
                 Component.translatable("gtceu.universal.enabled")
             )
-            .tooltipBuilder(GTLAdd_TOOLTIP).tier(14)
+            .tooltipBuilder(GTLAdd_ADD).tier(14)
             .register()
         SUPER_PARALLEL_HATCH = REGISTRATE.machine("super_parallel_hatch")
         { SuperParallelHatchPartMachine(it!!) }
@@ -188,7 +192,7 @@ object GTLAddMachines {
             .abilities(PartAbility.PARALLEL_HATCH)
             .workableCasingRenderer(GTLCore.id("block/create_casing"), GTCEu.id("block/machines/parallel_hatch_mk10"))
             .tooltips(Component.translatable("gtceu.machine.super_parallel_hatch.tooltip"))
-            .tooltipBuilder(GTLAdd_TOOLTIP)
+            .tooltipBuilder(GTLAdd_ADD)
             .compassNode("parallel_hatch")
             .register()
 

@@ -62,6 +62,9 @@
   "item.gtladditions.spacetime_lens": "Spacetime Lens",
   "material.gtladditions.gallium_oxide": "Gallium Oxide",
   "material.gtladditions.ammonium_gallium_sulfate": "Ammonium Gallium Sulfate",
+  "gui.gtladditions.add": "Added by GTLAdditions",
+  "gui.gtladditions.modify": "Modified by GTLAdditions"
+  "material.gtladditions.ammonium_gallium_sulfate": "Ammonium Gallium Sulfate",
   "config.gtladditions.option.superPatternBuffer": "Super Pattern Buffer§c§l(!All pattern buffers will be cleared after modification)",
   "config.gtladditions.option.patternsPerRow": "Patterns Per Row",
   "config.gtladditions.option.rowsPerPage": "Rows Per Page",

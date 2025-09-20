@@ -144,7 +144,7 @@ dependencies {
     modImplementation("earth.terrarium.adastra:ad_astra-forge-${project.minecraft_version}:${ad_astra_version}") { transitive false }
 
     modImplementation("dev:gtmthings-1.3.5.a")
-    modImplementation("dev:gtlcore-1.2.2.3-fix1")
+    modImplementation("dev:gtlcore-1.2.2.3-fix2")
 
     // Adds KFF as dependency and Kotlin libs (use the variant matching your mod loader)
     include(modImplementation("thedarkcolour:kotlinforforge:4.11.0"))
