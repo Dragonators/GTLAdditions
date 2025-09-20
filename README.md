@@ -15,7 +15,7 @@ This mod is developed based on the `GregTech Leisure`. On the basis of this Modp
 
 ## Requirement
 
-- GTLCore  `Version >= 1.2.2.0`
+- GTLCore  `Version >= 1.2.2.3`
 
 ## Install
 
@@ -45,11 +45,13 @@ This mod added many better machines to replace original machines
 | Draconic Collapse Core                    | Aggregation Device                 | Work as `Aggregation Device` and more parallel, can use HugeInputHatch     |
 | Titan Crip Earthbore                      | Tectonic Fault Generater           | Produce `Bedrock dust`                                                     |
 | Biological Simulation Laboratoy           | Biological Simulation              | Produce resources from entities with `world data`,`swords` and `spawn egg` |
-| Dimensionally Transcendent Chemical Plant | Large Chemical Reactor             | work as `Large Chemical Reactor` and use multirecipelogic                  |
+| Dimensionally Transcendent Chemical Plant | Large Chemical Reactor             | Work as `Large Chemical Reactor` and use multirecipelogic                  |
 | Quantum Syphon Martix                     | Voidflux Reaction                  | Produce `Air` series                                                       |
 | Fuxi Bagua Heaven Forging Furnace | Stellar Lgintion *and* Chaotic Alchemy *and* Molecular Deconstruction *and* Ultimate Material Forge | Stellar Lgintioncan can Transmute some kinds of`Gas`or`Liquid` into `Plasma`, Chaotic Alchemy as `Alloy Blast Smelter` but output `Liquid`, Molecular Deconstruction can extraction some `dust` (It couldn't be extracted directly originally) into `Liquid`|
 |Antientropy Condensation Center            | Antientropy Condensation           | Work as `Cooling Tower` but no use `Liquid Helium`                         |
-|Taixu Turbid Array | Chaos Weave | Produce `Scrap Box` `UU Amplifier` *and* `UU Matter` |
+|Taixu Turbid Array                         | Chaos Weave                        | Produce `Scrap Box` `UU Amplifier` *and* `UU Matter`                       | 
+|Inferno Cleft Smelting Vault               | Pyrolyse Oven *and* Cracker        | Work as `Large Pyrolyse Oven` *and* `Large Recycler` and use multirecipelogic |
+|Skeleton Shift Rift Engine                 | Decay Hastener                     | Work as `Decay Hastener` but more efficient                                |
 
 - The input upper limits of `Gaseous Hydrogen` and `Gaseous Helium` for the `Eye of Harmony` have been restricted
 
