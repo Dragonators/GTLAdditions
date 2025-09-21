@@ -13,7 +13,6 @@ import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
-import com.google.common.primitives.Ints;
 import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe;
 import it.unimi.dsi.fastutil.objects.*;
 import org.jetbrains.annotations.NotNull;
@@ -96,7 +95,7 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements 
         long totalEu = 0;
         for (var r : recipeList) {
             if (parallels[index] > 1) r = r.copy(ContentModifier.multiplier(parallels[index]), false);
-            r.parallels = Ints.saturatedCast(parallels[index++]);
+            ((IGTRecipe) r).setRealParallels(parallels[index]);
             r = IParallelLogic.getRecipeOutputChance(machine, r);
             if (handleRecipeInput(machine, r)) {
                 totalEu += RecipeHelper.getInputEUt(r) * r.duration;
