@@ -187,14 +187,14 @@ object MultiBlockMachine {
         .tooltipTextLaser()
         .tooltipTextMultiRecipes()
         .tooltipTextRecipeTypes(CANNER_RECIPES, ARC_FURNACE_RECIPES, LIGHTNING_PROCESSOR_RECIPES,
-            ASSEMBLER_RECIPES, PRECISION_ASSEMBLER_RECIPES, PRECISION_ASSEMBLER_RECIPES)
+            ASSEMBLER_RECIPES, PRECISION_ASSEMBLER_RECIPES, CIRCUIT_ASSEMBLER_RECIPES)
         .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
         .recipeType(CANNER_RECIPES) // 装罐机
         .recipeType(ARC_FURNACE_RECIPES) // 电弧炉
         .recipeType(LIGHTNING_PROCESSOR_RECIPES) // 闪电处理
         .recipeType(ASSEMBLER_RECIPES) // 组装机
         .recipeType(PRECISION_ASSEMBLER_RECIPES) // 精密组装
-        .recipeType(PRECISION_ASSEMBLER_RECIPES) // 电路组装机
+        .recipeType(CIRCUIT_ASSEMBLER_RECIPES) // 电路组装机
         .appearanceBlock(MULTI_FUNCTIONAL_CASING)
         .pattern { definition: MultiblockMachineDefinition? ->
             MultiBlockStructure.EYE_OF_HARMONY_STRUCTURE!!

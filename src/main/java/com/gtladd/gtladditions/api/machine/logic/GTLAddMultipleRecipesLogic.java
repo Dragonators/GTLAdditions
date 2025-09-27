@@ -1,7 +1,6 @@
 package com.gtladd.gtladditions.api.machine.logic;
 
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
-import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe;
 import org.gtlcore.gtlcore.api.recipe.*;
 import org.gtlcore.gtlcore.common.machine.trait.MultipleRecipesLogic;
 
@@ -24,7 +23,7 @@ import javax.annotation.Nullable;
 
 import static org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.*;
 
-public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements ILockRecipe {
+public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
 
     private final IGTLAddMultiRecipe limited;
 
@@ -90,15 +89,16 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic implements 
         index = 0;
         if (this.beforeWorking != null && !this.beforeWorking.test(null, machine)) return null;
         GTRecipe recipe = GTRecipeBuilder.ofRaw().buildRawRecipe();
-        recipe.outputs.put(ItemRecipeCapability.CAP, new ArrayList<>());
-        recipe.outputs.put(FluidRecipeCapability.CAP, new ArrayList<>());
+        recipe.outputs.put(ItemRecipeCapability.CAP, new ObjectArrayList<>());
+        recipe.outputs.put(FluidRecipeCapability.CAP, new ObjectArrayList<>());
+        double euMultiplier = this.getEuMultiplier();
         long totalEu = 0;
         for (var r : recipeList) {
             if (parallels[index] > 1) r = r.copy(ContentModifier.multiplier(parallels[index]), false);
             ((IGTRecipe) r).setRealParallels(parallels[index]);
             r = IParallelLogic.getRecipeOutputChance(machine, r);
             if (handleRecipeInput(machine, r)) {
-                totalEu += RecipeHelper.getInputEUt(r) * r.duration;
+                totalEu += (long) (RecipeHelper.getInputEUt(r) * r.duration * euMultiplier);
                 var item = r.outputs.get(ItemRecipeCapability.CAP);
                 if (item != null) recipe.outputs.get(ItemRecipeCapability.CAP).addAll(item);
                 var fluid = r.outputs.get(FluidRecipeCapability.CAP);

@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
+import com.gregtechceu.gtceu.api.GTCEuAPI
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.block.ICoilType
 import com.gregtechceu.gtceu.api.capability.recipe.*
@@ -28,14 +29,17 @@ import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
+import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.MethodsReturnNonnullByDefault
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
+import net.minecraftforge.common.util.Lazy
 import org.gtlcore.gtlcore.api.pattern.util.IValueContainer
 import org.gtlcore.gtlcore.common.data.GTLMaterials
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.TierCasingMachine
 import org.gtlcore.gtlcore.utils.Registries
+import java.text.DecimalFormat
 import javax.annotation.ParametersAreNonnullByDefault
 import kotlin.math.*
 
@@ -106,10 +110,11 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
             textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.0", this.height))
             textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.1", this.getMaxParallel()))
             if (this.energyTier > GTValues.UIV) {
-                textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.2", this.successRateA()))
+                val df = DecimalFormat(".00'%'")
+                textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.2", df.format(this.successRateA())))
                 textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.3", this.baseOutputFluid1()))
                 if (this.energyTier > GTValues.OpV) {
-                    textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.4", this.successRateB()))
+                    textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.4", df.format(this.successRateB())))
                     textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.5", this.baseOutputFluid2()))
                 }
             }
@@ -122,18 +127,18 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
 
     private fun frameB(): Double {
         return 3.8 * 1.3.pow(
-            coil[this.coilType.coilTemperature]!!.toDouble()
+            (coil.get().indexOf(this.coilType.coilTemperature) + 1).toDouble()
         ) * (this.coilType.coilTemperature / 36000.0).pow(0.7)
     }
 
-    private fun successRateA(): Int {
-        if (machineStorage.getStackInSlot(0).`is`(CREATE.item)) return 100
-        return (100 / (1 + exp(-0.1 * (this.frameA() / 50 + this.frameB() / 100 + this.height / 9.0))) + this.slotAdd).roundToInt()
+    private fun successRateA(): Double {
+        if (machineStorage.getStackInSlot(0).`is`(CREATE.item)) return 100.toDouble()
+        return (100 / (1 + exp(-0.1 * (this.frameA() / 50 + this.frameB() / 100 + this.height / 9.0))) + this.slotAdd)
     }
 
-    private fun successRateB(): Int {
-        if (machineStorage.getStackInSlot(0).`is`(CREATE.item)) return 100
-        return (100 * (1 - exp(-0.02 * ((this.frameA() + this.frameB()) / 20.0 + cbrt(this.height.toDouble()) * this.energyTier / 7.0))) + this.slotAdd).roundToInt()
+    private fun successRateB(): Double {
+        if (machineStorage.getStackInSlot(0).`is`(CREATE.item)) return 100.toDouble()
+        return (100 * (1 - exp(-0.02 * ((this.frameA() + this.frameB()) / 20.0 + cbrt(this.height.toDouble()) * this.energyTier / 7.0))) + this.slotAdd)
     }
 
     private fun baseOutputFluid1(): Int {
@@ -175,7 +180,11 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
     companion object {
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder =
             ManagedFieldHolder(TaixuTurbidArray::class.java, WorkableMultiblockMachine.MANAGED_FIELD_HOLDER)
-        private val coil: MutableMap<Int?, Int?> = HashMap<Int?, Int?>()
+        private val coil: Lazy<IntArrayList> = Lazy.of {
+            IntArrayList(
+                GTCEuAPI.HEATING_COILS.keys.stream().map<Int?> { obj: ICoilType? -> obj!!.coilTemperature }
+                    .sorted().toList())
+        }
         private val ENDERIUM: ItemStack = Registries.getItemStack("gtceu:enderium_nanoswarm", 64)
         private val DRACONIUM: ItemStack = Registries.getItemStack("gtceu:draconium_nanoswarm", 64)
         private val SPACETIME: ItemStack = Registries.getItemStack("gtceu:spacetime_nanoswarm", 64)
@@ -189,10 +198,10 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
                 if (maxParallel <= 0) return null
                 val builder = GTRecipeBuilder(GTLAdditions.id("uu"), GTRecipeTypes.DUMMY_RECIPES)
                 recipe1.outputs.put(FluidRecipeCapability.CAP, ObjectArrayList())
-                if (Math.random() * 100 <= machine.successRateA() && machine.energyTier >= GTValues.UXV) {
+                if (Math.random() * 100 <= machine.successRateA().toInt() && machine.energyTier >= GTValues.UXV) {
                     builder.outputFluids(GTLMaterials.UuAmplifier.getFluid(machine.baseOutputFluid1().toLong()))
                 }
-                if (Math.random() * 100 <= machine.successRateB() && machine.energyTier >= GTValues.MAX) {
+                if (Math.random() * 100 <= machine.successRateB().toInt() && machine.energyTier >= GTValues.MAX) {
                     builder.outputFluids(GTMaterials.UUMatter.getFluid(machine.baseOutputFluid2().toLong()))
                 }
                 if (builder.buildRawRecipe().outputs[FluidRecipeCapability.CAP] != null) {
@@ -208,25 +217,6 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
                 return recipe1
             }
             return null
-        }
-
-        init {
-            coil.put(1800, 1)
-            coil.put(2700, 2)
-            coil.put(3600, 3)
-            coil.put(4500, 4)
-            coil.put(5400, 5)
-            coil.put(7200, 6)
-            coil.put(9001, 7)
-            coil.put(10800, 8)
-            coil.put(12600, 9)
-            coil.put(14400, 10)
-            coil.put(16200, 11)
-            coil.put(18900, 12)
-            coil.put(21600, 13)
-            coil.put(36000, 14)
-            coil.put(62000, 15)
-            coil.put(96000, 16)
         }
     }
 }
