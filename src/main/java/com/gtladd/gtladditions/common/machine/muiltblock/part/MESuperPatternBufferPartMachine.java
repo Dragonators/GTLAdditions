@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.part;
 
 import org.gtlcore.gtlcore.api.gui.MEPatternCatalystUIManager;
+import org.gtlcore.gtlcore.common.machine.multiblock.part.PaginationUIManager;
 import org.gtlcore.gtlcore.common.machine.multiblock.part.ae.MEPatternBufferPartMachine;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;

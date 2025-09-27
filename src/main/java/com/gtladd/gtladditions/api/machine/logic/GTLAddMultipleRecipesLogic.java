@@ -7,7 +7,6 @@ import org.gtlcore.gtlcore.common.machine.trait.MultipleRecipesLogic;
 import com.gregtechceu.gtceu.api.capability.recipe.*;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
-import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
@@ -98,7 +97,7 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
             ((IGTRecipe) r).setRealParallels(parallels[index]);
             r = IParallelLogic.getRecipeOutputChance(machine, r);
             if (handleRecipeInput(machine, r)) {
-                totalEu += (long) (RecipeHelper.getInputEUt(r) * r.duration * euMultiplier);
+                totalEu += (long) (getTotalEuOfRecipe(r) * euMultiplier);
                 var item = r.outputs.get(ItemRecipeCapability.CAP);
                 if (item != null) recipe.outputs.get(ItemRecipeCapability.CAP).addAll(item);
                 var fluid = r.outputs.get(FluidRecipeCapability.CAP);
