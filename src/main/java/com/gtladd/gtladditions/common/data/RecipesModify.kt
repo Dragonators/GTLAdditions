@@ -14,9 +14,9 @@ object RecipesModify {
     fun init() {
         GTLRecipeTypes.DOOR_OF_CREATE_RECIPES.setMaxIOSize(1, 1, 0, 0)
         GTLRecipeTypes.CREATE_AGGREGATION_RECIPES.setMaxIOSize(2, 1, 0, 0)
-        GTRecipeTypes.LASER_ENGRAVER_RECIPES.onRecipeBuild { recipeBuilder: GTRecipeBuilder?, provider: Consumer<FinishedRecipe?>? ->
+        GTRecipeTypes.LASER_ENGRAVER_RECIPES.onRecipeBuild { recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe> ->
             val recipe = GTLAddRecipesTypes.PHOTON_MATRIX_ETCH.copyFrom(recipeBuilder)
-                .duration((recipeBuilder!!.duration * 0.2).toInt()).EUt(recipeBuilder.EUt())
+                .duration((recipeBuilder.duration * 0.2).toInt()).EUt(recipeBuilder.EUt())
             recipe.save(provider)
             val recipe1 = GTLRecipeTypes.DIMENSIONAL_FOCUS_ENGRAVING_ARRAY_RECIPES.copyFrom(recipeBuilder)
                 .duration((recipeBuilder.duration.toDouble() * 0.2).toInt()).EUt(recipeBuilder.EUt() * 4L)

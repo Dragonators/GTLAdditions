@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "gtladditions:block/casings/quantum_glass"
+  }
+}

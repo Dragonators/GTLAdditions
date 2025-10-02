@@ -7,8 +7,10 @@ import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import net.minecraft.data.recipes.FinishedRecipe;
 
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks;
+import com.gtladd.gtladditions.common.data.GTLAddSoundEntries;
 import com.gtladd.gtladditions.common.items.GTLAddItems;
-import com.gtladd.gtladditions.common.machine.GTLAddMachines;
+import com.gtladd.gtladditions.common.material.GTLAddElements;
 import com.gtladd.gtladditions.data.recipes.*;
 import com.gtladd.gtladditions.data.recipes.newmachinerecipe.*;
 import com.gtladd.gtladditions.data.recipes.process.SocProcess;
@@ -28,7 +30,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
     @Override
     public void initializeAddon() {
         GTLAddItems.init();
-        GTLAddMachines.init();
+        GTLAddBlocks.init();
     }
 
     @Override
@@ -57,5 +59,15 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         Qft.init(provider);
         SocProcess.init(provider);
         Misc.init(provider);
+    }
+
+    @Override
+    public void registerSounds() {
+        GTLAddSoundEntries.init();
+    }
+
+    @Override
+    public void registerElements() {
+        GTLAddElements.init();
     }
 }

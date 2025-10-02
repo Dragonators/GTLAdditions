@@ -10,7 +10,7 @@ import org.gtlcore.gtlcore.common.machine.multiblock.electric.HarmonyMachine
 
 class ArcanicAstrograph(holder: IMachineBlockEntity, vararg args: Any?) : HarmonyMachine(holder, *args) {
     companion object {
-        fun recipeModifier(machine: MetaMachine?, recipe: GTRecipe, params: OCParams, result: OCResult): GTRecipe? {
+        fun recipeModifier(machine: MetaMachine, recipe: GTRecipe, params: OCParams, result: OCResult): GTRecipe? {
             val recipe1 = HarmonyMachine.recipeModifier(machine, recipe, params, result)
             if (recipe1 != null) return GTRecipeModifiers.accurateParallel(machine, recipe1, 2048, false).getFirst()
             return null

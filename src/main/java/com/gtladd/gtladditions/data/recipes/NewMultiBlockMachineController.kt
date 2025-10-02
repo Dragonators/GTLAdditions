@@ -7,14 +7,20 @@ import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
 import com.gregtechceu.gtceu.common.data.GTItems.*
-import com.gregtechceu.gtceu.common.data.GTMachines.*
+import com.gregtechceu.gtceu.common.data.GTMachines.PACKER
+import com.gregtechceu.gtceu.common.data.GTMachines.WORLD_ACCELERATOR
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
-import com.gregtechceu.gtceu.common.data.GTRecipeTypes.*
+import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
+import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
+import com.hepdd.gtmthings.data.CreativeMachines.*
 import com.hepdd.gtmthings.data.CustomMachines.HUGE_INPUT_DUAL_HATCH
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix
@@ -680,6 +686,64 @@ object NewMultiBlockMachineController {
                 b !!.researchStack(getItemStack("gtladditions:me_super_pattern_buffer"))
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(640)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("apocalyptic_torsion_quantum_matrix_suprachronal_assembly_line"))
+            .inputItems(QFT, 1024)
+            .inputItems(CREATIVE_LASER_INPUT_HATCH, 64)
+            .inputItems(DOOR_OF_CREATE, 64)
+            .inputItems(CHEMICAL_DISTORT, 1024)
+            .inputItems(getItemStack("kubejs:quantum_anomaly", 1048576))
+            .inputItems(CREATE_COMPUTATION, 256)
+            .inputItems(getItemStack("kubejs:space_probe_mk3", 256))
+            .inputItems(getItemStack("kubejs:quantum_anomaly", 1048576))
+            .inputItems(EMITTER_MAX, 65536)
+            .inputItems(FIELD_GENERATOR_MAX, 65536)
+            .inputItems(FIELD_GENERATOR_MAX, 65536)
+            .inputItems(EMITTER_MAX, 65536)
+            .inputItems(getItemStack("kubejs:eternity_coil_block", 4096))
+            .inputItems(getItemStack("kubejs:chaotic_energy_core", 256))
+            .inputItems(getItemStack("kubejs:chaotic_energy_core", 256))
+            .inputItems(getItemStack("kubejs:eternity_coil_block", 4096))
+            .inputFluids(DimensionallyTranscendentResidue.getFluid(2000000000))
+            .inputFluids(Eternity.getFluid(754974720))
+            .inputFluids(Shirabon.getFluid(754974720))
+            .inputFluids(SpaceTime.getFluid(601989888))
+            .outputItems(MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX)
+            .EUt(VA[MAX].toLong()).duration(1152000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(QFT.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("forge_of_the_antichrist_suprachronal_assembly_line"))
+            .inputItems(GTLAddBlocks.GOD_FORGE_ENERGY_CASING.asStack(32))
+            .inputItems(getItemStack("kubejs:create_ultimate_battery", 64))
+            .inputItems(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE, 64)
+            .inputItems(MultiBlockMachine.TAIXU_TURBID_ARRAY, 64)
+            .inputItems(MultiBlockMachine.ARCANIC_ASTROGRAPH, 64)
+            .inputItems(MultiBlockMachine.ARCANIC_ASTROGRAPH, 64)
+            .inputItems(MultiBlockMachine.ARCANIC_ASTROGRAPH, 64)
+            .inputItems(MultiBlockMachine.ARCANIC_ASTROGRAPH, 64)
+            .inputItems(plateDense, CREON, 4194304)
+            .inputItems(plateDense, Hypogen, 4194304)
+            .inputItems(plateDense, MELLION, 4194304)
+            .inputItems(plateDense, MetastableOganesson, 4194304)
+            .inputItems(wireGtHex,Eternity, 65536)
+            .inputItems(TagUtil.createModItemTag("circuits/max"), 16777216)
+            .inputItems(CREATIVE_LASER_INPUT_HATCH, 256)
+            .inputItems(CREATIVE_ENERGY_INPUT_HATCH, 256)
+            .inputFluids(MagnetohydrodynamicallyConstrainedStarMatter.getFluid(2359296000))
+            .inputFluids(ExcitedDtec.getFluid(65536000000))
+            .inputFluids(TranscendentMetal.getFluid(2359296000))
+            .inputFluids(SpatialFluid.getFluid(144000000000))
+            .outputItems(MultiBlockMachine.FORGE_OF_THE_ANTICHRIST)
+            .EUt(VA[MAX].toLong()).duration(2304000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(GTLAddBlocks.GOD_FORGE_ENERGY_CASING.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
             .save(provider)
     }

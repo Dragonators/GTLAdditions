@@ -22,6 +22,7 @@ import com.gtladd.gtladditions.api.registry.GTLAddRegistration;
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs;
 import com.gtladd.gtladditions.common.machine.GTLAddMachines;
 import com.gtladd.gtladditions.common.material.GTLAddMaterial;
+import com.gtladd.gtladditions.common.material.MaterialAdd;
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 import com.gtladd.gtladditions.config.ConfigHolder;
 import org.apache.logging.log4j.LogManager;
@@ -66,6 +67,7 @@ public class GTLAdditions {
     }
 
     private void addMaterials(MaterialEvent event) {
+        MaterialAdd.init();
         GTLAddMaterial.init();
     }
 

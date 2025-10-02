@@ -18,14 +18,17 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
+import com.gtladd.gtladditions.common.data.GTLAddSoundEntries;
 import com.gtladd.gtladditions.common.data.RecipesModify;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class GTLAddRecipesTypes {
 
+    public static final Set<GTRecipeType> MULTIPLE_TYPE_RECIPES;
     public static final GTRecipeType PHOTON_MATRIX_ETCH;
     public static final GTRecipeType EM_RESONANCE_CONVERSION_FIELD;
     public static final GTRecipeType TECTONIC_FAULT_GENERATOR;
@@ -37,6 +40,9 @@ public class GTLAddRecipesTypes {
     public static final GTRecipeType MOLECULAR_DECONSTRUCTION;
     public static final GTRecipeType UNIVERSE_SANDBOX;
     public static final GTRecipeType CHAOS_WEAVE;
+
+    public static final GTRecipeType FORGE_OF_THE_ANTICHRIST;
+    public static final GTRecipeType QUANTUM_OSCILLATION;
 
     public GTLAddRecipesTypes() {}
 
@@ -121,5 +127,15 @@ public class GTLAddRecipesTypes {
         CHAOS_WEAVE = GTRecipeTypes.register("chaos_weave", GTRecipeTypes.MULTIBLOCK)
                 .setEUIO(IO.IN).setMaxIOSize(1, 1, 0, 0)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
+        FORGE_OF_THE_ANTICHRIST = GTRecipeTypes.register("forge_of_the_antichrist", GTRecipeTypes.DUMMY)
+                .setXEIVisible(false)
+                .setSound(GTLAddSoundEntries.FORGE_OF_THE_ANTICHRIST);
+        QUANTUM_OSCILLATION = GTRecipeTypes.register("quantum_oscillation", GTRecipeTypes.DUMMY)
+                .setXEIVisible(false)
+                .setSound(GTLAddSoundEntries.QUANTUM_OSCILLATION);
+
+        MULTIPLE_TYPE_RECIPES = Set.of(
+                FORGE_OF_THE_ANTICHRIST,
+                QUANTUM_OSCILLATION);
     }
 }

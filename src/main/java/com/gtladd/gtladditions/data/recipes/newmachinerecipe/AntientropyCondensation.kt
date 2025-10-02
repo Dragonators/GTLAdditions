@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys.PLASMA
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.common.material.GTLAddMaterial
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
@@ -21,7 +22,7 @@ object AntientropyCondensation {
             Argon, Helium, Nickel, Iron, Nitrogen, Oxygen, Mithril, Orichalcum, Enderium,
             Adamantium, Infuscolium, Echoite, Vibranium, TaraniumRichLiquidHelium4,
             Legendarium, HeavyQuarkDegenerateMatter, Starmetal,
-            QuantumChromodynamicallyConfinedMatter, AstralTitanium, CelestialTungsten
+            QuantumChromodynamicallyConfinedMatter, AstralTitanium, CelestialTungsten, GTLAddMaterial.CREON
         )
         for (fluid in fluids) {
             ANTIENTROPY_CONDENSATION.recipeBuilder(id(fluid.name + "_fluid_condenser"))

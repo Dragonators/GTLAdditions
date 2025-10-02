@@ -5,8 +5,6 @@ import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
@@ -20,10 +18,8 @@ import com.lowdragmc.lowdraglib.gui.widget.*
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
-import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
@@ -33,7 +29,7 @@ import java.util.function.BiPredicate
 class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
     GTLAddWorkableElectricMultipleRecipesMachine(holder) {
 
-    @Persisted
+    @field:Persisted
     val machineStorage: NotifiableItemStackHandler? = createMachineStorage()
 
     fun createMachineStorage(): NotifiableItemStackHandler {
@@ -80,14 +76,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
     override fun addDisplayText(textList: MutableList<Component?>) {
         super.addDisplayText(textList)
         if (this.isFormed) {
-            if (this.holder.offsetTimer % 20L == 0L) this.setparameter(this)
-            textList.add(
-                Component.translatable(
-                    "gtceu.multiblock.parallel", Component.translatable(FormattingUtil.formatNumbers(
-                            Max_Parallels
-                        )).withStyle(ChatFormatting.DARK_PURPLE)
-                ).withStyle(ChatFormatting.GRAY)
-            )
+            if (this.holder.offsetTimer % 20L == 0L) this.setParameter(this)
             textList.add(Component.translatable("gtceu.machine.biological_simulation_laboratory.gui.tooltip." + if (Is_MultiRecipe) 1 else 0))
             textList.add(
                 Component.translatable(
@@ -115,7 +104,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         return 0
     }
 
-    private fun setparameter(machine: MetaMachine?) {
+    private fun setParameter(machine: MetaMachine?) {
         val tier = getTier(machine)
         when (tier) {
             1 -> setMachine(false, 2048, 0.9, 0.9)
@@ -126,19 +115,19 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         }
     }
 
-    private fun setMachine(isMultiRecipe: Boolean, maxParallel: Int, Reductioneut: Double, Reductionduration: Double) {
+    private fun setMachine(isMultiRecipe: Boolean, maxParallel: Int, reductionEut: Double, reductionDuration: Double) {
         Is_MultiRecipe = isMultiRecipe
         Max_Parallels = maxParallel
-        reDuctionEUt = Reductioneut
-        reDuctionDuration = Reductionduration
+        reDuctionEUt = reductionEut
+        reDuctionDuration = reductionDuration
     }
 
     override fun getMaxParallel(): Int {
         return Max_Parallels
     }
 
-    class BiologicalSimulationLaboratoryLogic(machine: WorkableElectricMultiblockMachine?) :
-        GTLAddMultipleRecipesLogic((machine as ParallelMachine?) !!) {
+    class BiologicalSimulationLaboratoryLogic(machine: BiologicalSimulationLaboratory?) :
+        GTLAddMultipleRecipesLogic(machine, BEFORE_RECIPE) {
 
         override fun getMachine(): BiologicalSimulationLaboratory? {
             return super.getMachine() as BiologicalSimulationLaboratory?
@@ -184,10 +173,6 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
             progress = 0
             duration = 0
         }
-
-        override fun checkRecipe(recipe: GTRecipe): Boolean {
-            return super.checkRecipe(recipe) && BEFORE_RECIPE.test(recipe, machine)
-        }
     }
 
     companion object {
@@ -199,21 +184,23 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         private val ORICHALCUM_NANOSWARM: ItemStack = getItemStack("gtceu:orichalcum_nanoswarm")
         private val INFUSCOLIUM_NANOSWARM: ItemStack = getItemStack("gtceu:infuscolium_nanoswarm")
         private val NAN_CERTIFICATE: ItemStack = GTItems.NAN_CERTIFICATE.asStack()
-        private val BEFORE_RECIPE: BiPredicate<GTRecipe?, IRecipeLogicMachine?> =
-            BiPredicate { recipe: GTRecipe?, machine: IRecipeLogicMachine? ->
-                if (machine !is BiologicalSimulationLaboratory) return@BiPredicate false
-                machine.setparameter(machine)
-                val input = RecipeHelper.getInputItems(recipe!!)
-                for (stack in input) {
-                    if (stack.item == getItem("avaritia:infinity_sword") && !Is_MultiRecipe) {
-                        RecipeResult.of(machine, RecipeResult.fail(
-                            Component.translatable("gtceu.machine.biological_simulation_laboratory.recipe.tooltip.0")))
-                        return@BiPredicate false
+        private val BEFORE_RECIPE: BiPredicate<GTRecipe, IRecipeLogicMachine> =
+            BiPredicate { recipe: GTRecipe, machine: IRecipeLogicMachine ->
+                (machine as BiologicalSimulationLaboratory).let {
+                    it.setParameter(machine)
+                    val input = RecipeHelper.getInputItems(recipe)
+                    for (stack in input) {
+                        if (stack.item == getItem("avaritia:infinity_sword") && !Is_MultiRecipe) {
+                            RecipeResult.of(machine, RecipeResult.fail(
+                                Component.translatable("gtceu.machine.biological_simulation_laboratory.recipe.tooltip.0")))
+                            return@BiPredicate false
+                        }
                     }
+                    return@BiPredicate true
                 }
-                true
+                return@BiPredicate false
             }
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder =
-            ManagedFieldHolder(BiologicalSimulationLaboratory::class.java, WorkableMultiblockMachine.MANAGED_FIELD_HOLDER)
+            ManagedFieldHolder(BiologicalSimulationLaboratory::class.java, GTLAddWorkableElectricMultipleRecipesMachine.MANAGED_FIELD_HOLDER)
     }
 }

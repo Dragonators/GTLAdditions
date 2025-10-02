@@ -1,33 +1,47 @@
 package com.gtladd.gtladditions.data.recipes
 
-import com.gregtechceu.gtceu.api.GTValues
+import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.chemical.material.Material
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
-import com.gregtechceu.gtceu.common.data.GTMachines.*
+import com.gregtechceu.gtceu.api.data.tag.TagUtil
+import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
+import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
+import com.gregtechceu.gtceu.common.data.GTItems.*
+import com.gregtechceu.gtceu.common.data.GTMachines.POWER_SUBSTATION
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
+import com.gtladd.gtladditions.common.items.GTLAddItems
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE
+import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_LASER_INPUT_HATCH
 import net.minecraft.data.recipes.FinishedRecipe
+import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
 import org.gtlcore.gtlcore.common.data.GTLBlocks.*
+import org.gtlcore.gtlcore.common.data.GTLItems.EMITTER_MAX
+import org.gtlcore.gtlcore.common.data.GTLMachines.LAW_CLEANING_GRAVITY_CONFIGURATION_MAINTENANCE_HATCH
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.*
 import java.util.function.Consumer
 
 object AssemblyLine {
-    private val wire = arrayOf<Material?>(SamariumIronArsenicOxide, IndiumTinBariumTitaniumCuprate, UraniumRhodiumDinaquadide, EnrichedNaquadahTriniumEuropiumDuranide, RutheniumTriniumAmericiumNeutronate, Enderite, Echoite, Legendarium, DraconiumAwakened, Infinity)
-    private val cable = arrayOf<Material?>(Graphene, NiobiumTitanium, Trinium, NaquadahAlloy, Mendelevium, Mithril, Adamantine, NaquadriaticTaranium, Starmetal, CosmicNeutronium)
+    private val wire = arrayOf<Material>(SamariumIronArsenicOxide, IndiumTinBariumTitaniumCuprate, UraniumRhodiumDinaquadide, EnrichedNaquadahTriniumEuropiumDuranide, RutheniumTriniumAmericiumNeutronate, Enderite, Echoite, Legendarium, DraconiumAwakened, Infinity)
+    private val cable = arrayOf<Material>(Graphene, NiobiumTitanium, Trinium, NaquadahAlloy, Mendelevium, Mithril, Adamantine, NaquadriaticTaranium, Starmetal, CosmicNeutronium)
 
     @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         addLaserHatchRecipe(provider)
+        addAntichristForgeRecipe(provider)
     }
 
     private fun addLaserHatchRecipe(provider : Consumer<FinishedRecipe?>) {
-        for (i in GTValues.IV .. 14) {
-            val tier = GTValues.VN[i].lowercase(Locale.getDefault())
+        for (i in IV.. 14) {
+            val tier = VN[i].lowercase(Locale.getDefault())
             ASSEMBLY_LINE_RECIPES.recipeBuilder(GTLAdditions.id(tier + "_16777216a_laser_source_hatch"))
-                .EUt(GTValues.VA[i].toLong()).duration(200)
+                .EUt(VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtceu:" + tier + "_4194304a_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 64)
                 .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
@@ -40,7 +54,7 @@ object AssemblyLine {
                 .outputItems(getItemStack("gtceu:" + tier + "_16777216a_laser_source_hatch"))
                 .save(provider)
             ASSEMBLY_LINE_RECIPES.recipeBuilder(GTLAdditions.id(tier + "_67108863a_laser_source_hatch"))
-                .EUt(GTValues.VA[i].toLong()).duration(200)
+                .EUt(VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtceu:" + tier + "_4194304a_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 256)
                 .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
@@ -53,7 +67,7 @@ object AssemblyLine {
                 .outputItems(getItemStack("gtceu:" + tier + "_67108863a_laser_source_hatch"))
                 .save(provider)
             ASSEMBLY_LINE_RECIPES.recipeBuilder(GTLAdditions.id(tier + "_16777216a_laser_target_hatch"))
-                .EUt(GTValues.VA[i].toLong()).duration(200)
+                .EUt(VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtceu:" + tier + "_4194304a_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 64)
                 .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
@@ -66,7 +80,7 @@ object AssemblyLine {
                 .outputItems(getItemStack("gtceu:" + tier + "_16777216a_laser_target_hatch"))
                 .save(provider)
             ASSEMBLY_LINE_RECIPES.recipeBuilder(GTLAdditions.id(tier + "_67108864a_laser_target_hatch"))
-                .EUt(GTValues.VA[i].toLong()).duration(200)
+                .EUt(VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtceu:" + tier + "_4194304a_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 256)
                 .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
@@ -79,7 +93,7 @@ object AssemblyLine {
                 .outputItems(getItemStack("gtceu:" + tier + "_67108864a_laser_target_hatch"))
                 .save(provider)
             ASSEMBLY_LINE_RECIPES.recipeBuilder(GTLAdditions.id(tier + "_16777216a_wireless_laser_source_hatch"))
-                .EUt(GTValues.VA[i].toLong()).duration(200)
+                .EUt(VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtmthings:" + tier + "_4194304a_wireless_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 64)
                 .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
@@ -92,7 +106,7 @@ object AssemblyLine {
                 .outputItems(getItemStack("gtmthings:" + tier + "_16777216a_wireless_laser_source_hatch"))
                 .save(provider)
             ASSEMBLY_LINE_RECIPES.recipeBuilder(GTLAdditions.id(tier + "_67108863a_wireless_laser_source_hatch"))
-                .EUt(GTValues.VA[i].toLong()).duration(200)
+                .EUt(VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtmthings:" + tier + "_4194304a_wireless_laser_source_hatch"))
                 .inputItems(lens, NetherStar, 256)
                 .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
@@ -105,7 +119,7 @@ object AssemblyLine {
                 .outputItems(getItemStack("gtmthings:" + tier + "_67108863a_wireless_laser_source_hatch"))
                 .save(provider)
             ASSEMBLY_LINE_RECIPES.recipeBuilder(GTLAdditions.id(tier + "_16777216a_wireless_laser_target_hatch"))
-                .EUt(GTValues.VA[i].toLong()).duration(200)
+                .EUt(VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtmthings:" + tier + "_4194304a_wireless_laser_target_hatch"))
                 .inputItems(lens, NetherStar, 64)
                 .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(64))
@@ -118,7 +132,7 @@ object AssemblyLine {
                 .outputItems(getItemStack("gtmthings:" + tier + "_16777216a_wireless_laser_target_hatch"))
                 .save(provider)
             ASSEMBLY_LINE_RECIPES.recipeBuilder(GTLAdditions.id(tier + "_67108864a_wireless_laser_target_hatch"))
-                .EUt(GTValues.VA[i].toLong()).duration(200)
+                .EUt(VA[i].toLong()).duration(200)
                 .inputItems(getItemStack("gtmthings:" + tier + "_4194304a_wireless_laser_target_hatch"))
                 .inputItems(lens, NetherStar, 256)
                 .inputItems(IMPROVED_SUPERCONDUCTOR_COIL.asStack(256))
@@ -131,5 +145,227 @@ object AssemblyLine {
                 .outputItems(getItemStack("gtmthings:" + tier + "_67108864a_wireless_laser_target_hatch"))
                 .save(provider)
         }
+    }
+
+    private fun addAntichristForgeRecipe(provider : Consumer<FinishedRecipe?>) {
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("spatially_transcendent_gravitational_lens_assembly_line")
+            .inputItems(GTLAddBlocks.QUANTUM_GLASS.asStack(64))
+            .inputItems(INFINITY_GLASS.asStack(64))
+            .inputItems(getItemStack("kubejs:force_field_glass", 64))
+            .inputItems(getItemStack("kubejs:graviton_transducer", 64))
+            .inputItems(GTLAddItems.SPACETIME_LENS, 48)
+            .inputItems(lens, NetherStar, 48)
+            .inputItems(lens, Amethyst, 48)
+            .inputItems(getItemStack("kubejs:non_linear_optical_lens", 48))
+            .inputItems(plateDense, PROTO_HALKONITE, 64)
+            .inputItems(plateDense, PROTO_HALKONITE, 64)
+            .inputItems(plateDense, PROTO_HALKONITE, 64)
+            .inputItems(plateDense, PROTO_HALKONITE, 64)
+            .inputItems(plateDense, PROTO_HALKONITE, 32)
+            .inputItems(rodLong, CREON, 48)
+            .inputItems(rodLong, MELLION, 48)
+            .inputItems(rodLong, Hypogen, 48)
+            .inputFluids(Rhugnor.getFluid(2304000))
+            .inputFluids(CREON.getFluid(2304000))
+            .inputFluids(BlackTitanium.getFluid(147000000))
+            .outputItems(GTLAddBlocks.SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS.asStack())
+            .EUt(31457280).duration(2000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(GTLAddBlocks.QUANTUM_GLASS.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(8192, 48000000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("suprachronal_magnetic_confinement_casing_assembly_line")
+            .inputItems(frameGt, TranscendentMetal, 64)
+            .inputItems(frameGt, TranscendentMetal, 64)
+            .inputItems(block, MagnetoResonatic, 16)
+            .inputItems(plateDense, AttunedTengam, 32)
+            .inputItems(plate, CREON, 64)
+            .inputItems(plate, CREON, 64)
+            .inputItems(screw, Hypogen, 32)
+            .inputItems(screw, Draconium, 32)
+            .inputItems(plate, CosmicNeutronium, 32)
+            .inputItems(COMPRESSED_FUSION_COIL_MK2, 32)
+            .inputItems(wireGtHex, Legendarium, 64)
+            .inputItems(EMITTER_OpV, 64)
+            .inputItems(getItemStack("kubejs:dyson_deployment_magnet", 8))
+            .inputFluids(SuperMutatedLivingSolder.getFluid(2304000))
+            .inputFluids(Plutonium241.getFluid(FluidStorageKeys.PLASMA, 2304000))
+            .outputItems(GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.asStack())
+            .EUt(VA[UXV].toLong()).duration(2000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(getItemStack("gtceu:transcendentmetal_frame"))
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(8192, 48000000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("god_forge_support_casing_assembly_line")
+            .inputItems(frameGt, MELLION, 64)
+            .inputItems(frameGt, MELLION, 64)
+            .inputItems(frameGt, MELLION, 64)
+            .inputItems(frameGt, MELLION, 64)
+            .inputItems(frameGt, Hypogen, 64)
+            .inputItems(frameGt, Hypogen, 64)
+            .inputItems(frameGt, TranscendentMetal, 64)
+            .inputItems(plate, AstralTitanium, 64)
+            .inputItems(plateDouble, CREON, 48)
+            .inputItems(getItemStack("kubejs:graviton_transducer", 64))
+            .inputItems(FIELD_GENERATOR_OpV, 16)
+            .inputItems(LAW_CLEANING_GRAVITY_CONFIGURATION_MAINTENANCE_HATCH, 8)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(2304000))
+            .inputFluids(Lead.getFluid(18432000))
+            .outputItems(GTLAddBlocks.GOD_FORGE_SUPPORT_CASING.asStack())
+            .EUt(VA[UXV].toLong()).duration(3200)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(8192, 48000000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("god_forge_inner_casing_assembly_line")
+            .inputItems(GTLAddBlocks.GOD_FORGE_SUPPORT_CASING.asStack(8))
+            .inputItems(getItemStack("kubejs:create_ultimate_battery", 4))
+            .inputItems(SPACETIMECONTINUUMRIPPER.asStack(64))
+            .inputItems(FIELD_GENERATOR_OpV, 16)
+            .inputItems(EMITTER_MAX, 24)
+            .inputItems(plateDouble, CREON, 48)
+            .inputItems(gear, CREON, 48)
+            .inputItems(gearSmall, MELLION, 64)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(2304000))
+            .inputFluids(Thorium.getFluid(18432000))
+            .outputItems(GTLAddBlocks.GOD_FORGE_INNER_CASING.asStack())
+            .EUt(VA[UXV].toLong()).duration(3200)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(GTLAddBlocks.GOD_FORGE_SUPPORT_CASING.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(8192, 48000000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("god_forge_energy_casing_assembly_line")
+            .inputItems(GTLAddBlocks.GOD_FORGE_INNER_CASING.asStack(8))
+            .inputItems(getItemStack("kubejs:eternity_coil_block", 4096))
+            .inputItems(getItemStack("kubejs:eternity_coil_block", 4096))
+            .inputItems(wireGtHex,SpaceTime, 1024)
+            .inputItems(getItemStack("gtceu:uv_solar_panel", 64))
+            .inputItems(getItemStack("gtceu:uv_solar_panel", 64))
+            .inputItems(getItemStack("gtceu:uv_solar_panel", 64))
+            .inputItems(getItemStack("gtceu:uv_solar_panel", 64))
+            .inputItems(CREATIVE_LASER_INPUT_HATCH, 8)
+            .inputItems(getItemStack("kubejs:chaotic_energy_core", 512))
+            .inputItems(plateDense, CREON, 48)
+            .inputItems(plateDense, Hypogen, 48)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(2304000000))
+            .inputFluids(Echoite.getFluid(3638400000))
+            .inputFluids(ExcitedDtec.getFluid(1024000000))
+            .outputItems(GTLAddBlocks.GOD_FORGE_ENERGY_CASING.asStack())
+            .EUt(VA[UXV].toLong()).duration(3200)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(GTLAddBlocks.GOD_FORGE_INNER_CASING.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(8192, 48000000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("god_forge_trim_casing_assembly_line")
+            .inputItems(frameGt, Hypogen, 32)
+            .inputItems(plateDense, Infinity, 16)
+            .inputItems(plateDouble, Quantum, 16)
+            .inputItems(frameGt, Infinity, 32)
+            .inputItems(plateDense, BlackDwarfMatter, 32)
+            .inputItems(getItemStack("kubejs:combined_singularity_1", 16))
+            .inputItems(rodLong, DraconiumAwakened, 64)
+            .inputItems(plateDouble, CREON, 64)
+            .inputItems(plateDouble, MELLION, 64)
+            .inputItems(rodLong, Legendarium, 64)
+            .inputItems(getItemStack("kubejs:combined_singularity_3", 16))
+            .inputItems(plateDense, TranscendentMetal, 16)
+            .inputItems(frameGt, TitanPrecisionSteel, 32)
+            .inputItems(plateDouble, PROTO_HALKONITE, 64)
+            .inputItems(plateDense, CosmicNeutronium, 16)
+            .inputItems(frameGt, AbyssalAlloy, 32)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(18432000))
+            .inputFluids(BedrockGas.getFluid(FluidStorageKeys.GAS, 2359296000))
+            .inputFluids(CelestialTungsten.getFluid(294912000))
+            .inputFluids(Neutronium.getFluid(494912000))
+            .outputItems(GTLAddBlocks.GOD_FORGE_TRIM_CASING.asStack())
+            .EUt(VA[UXV].toLong()).duration(4800)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(getItemStack("gtceu:transcendentmetal_block"))
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(8192, 48000000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("remote_graviton_flow_regulator_assembly_line")
+            .inputItems(GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.asStack(4))
+            .inputItems(getItemStack("kubejs:restraint_device", 16))
+            .inputItems(plate, CREON, 64)
+            .inputItems(plate, CREON, 64)
+            .inputItems(gearSmall, MELLION, 64)
+            .inputItems(getItemStack("kubejs:quantum_anomaly", 32))
+            .inputItems(EMITTER_UIV, 32)
+            .inputItems(TagUtil.createModItemTag("circuits/uxv"), 64)
+            .inputItems(TagUtil.createModItemTag("circuits/uxv"), 64)
+            .inputItems(nanoswarm, Infuscolium, 16)
+            .inputFluids(MutatedLivingSolder.getFluid(4608000))
+            .inputFluids(Legendarium.getFluid(4608000))
+            .inputFluids(Infinity.getFluid(4608000))
+            .outputItems(GTLAddBlocks.REMOTE_GRAVITON_FLOW_REGULATOR.asStack())
+            .EUt(VA[UXV].toLong()).duration(1800)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(getItemStack("kubejs:graviton_transducer"))
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(8192, 48000000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("mediary_graviton_flow_regulator_assembly_line")
+            .inputItems(GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.asStack(8))
+            .inputItems(getItemStack("kubejs:spacetime_compression_field_generator", 8))
+            .inputItems(plateDouble, CREON, 64)
+            .inputItems(plateDouble, CREON, 64)
+            .inputItems(gear, MELLION, 64)
+            .inputItems(getItemStack("kubejs:quantum_anomaly", 64))
+            .inputItems(EMITTER_UXV, 32)
+            .inputItems(TagUtil.createModItemTag("circuits/opv"), 64)
+            .inputItems(TagUtil.createModItemTag("circuits/opv"), 64)
+            .inputItems(nanoswarm, Starmetal, 32)
+            .inputItems(nanoswarm, Draconium, 32)
+            .inputFluids(MutatedLivingSolder.getFluid(9216000))
+            .inputFluids(DraconiumAwakened.getFluid(9216000))
+            .inputFluids(SpaceTime.getFluid(9216000))
+            .outputItems(GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR.asStack())
+            .EUt(VA[OpV].toLong()).duration(1800)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(GTLAddBlocks.REMOTE_GRAVITON_FLOW_REGULATOR.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(16384, 96000000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("central_graviton_flow_regulator_assembly_line")
+            .inputItems(GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.asStack(16))
+            .inputItems(getItemStack("kubejs:spacetime_compression_field_generator", 32))
+            .inputItems(plateDense, CREON, 64)
+            .inputItems(plateDense, CREON, 64)
+            .inputItems(gear, MELLION, 64)
+            .inputItems(SPACETIMECONTINUUMRIPPER.asStack(64))
+            .inputItems(getItemStack("kubejs:quantum_anomaly", 64))
+            .inputItems(EMITTER_MAX, 32)
+            .inputItems(TagUtil.createModItemTag("circuits/max"), 64)
+            .inputItems(TagUtil.createModItemTag("circuits/max"), 64)
+            .inputItems(nanoswarm, Eternity, 64)
+            .inputItems(nanoswarm, SpaceTime, 64)
+            .inputItems(nanoswarm, CosmicNeutronium, 64)
+            .inputItems(nanoswarm, TranscendentMetal, 64)
+            .inputFluids(MutatedLivingSolder.getFluid(36864000))
+            .inputFluids(WhiteDwarfMatter.getFluid(36864000))
+            .inputFluids(ExcitedDtsc.getFluid(36864000))
+            .inputFluids(Eternity.getFluid(36864000))
+            .outputItems(GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR.asStack())
+            .EUt(VA[MAX].toLong()).duration(1800)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(32767, 192000000)
+            }
+            .save(provider)
     }
 }

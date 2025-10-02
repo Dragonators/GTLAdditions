@@ -16,9 +16,9 @@ import kotlin.math.min
 import kotlin.math.pow
 
 class SkeletonShiftRiftEngine(holder: IMachineBlockEntity) : CoilWorkableElectricMultiblockMachine(holder) {
-    @Persisted
+    @field:Persisted
     private var casingTier: Int = 0
-    @Persisted
+    @field:Persisted
     private var parallel = 0
 
     override fun onStructureFormed() {
@@ -67,7 +67,7 @@ class SkeletonShiftRiftEngine(holder: IMachineBlockEntity) : CoilWorkableElectri
                 recipe1.duration = max(recipe1.duration / machine.casingTier, 1)
                 return RecipeHelper.applyOverclock(
                     OverclockingLogic.PERFECT_OVERCLOCK,
-                    recipe1, machine.getOverclockVoltage(), params, result
+                    recipe1, machine.overclockVoltage, params, result
                 )
             }
             return null

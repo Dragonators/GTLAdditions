@@ -26,6 +26,7 @@ object StellarLgnition {
         addRecipe(Orichalcum, 56000, provider)
         addRecipe(Infuscolium, 48000, provider)
         addRecipe(Enderium, 81000, provider)
+        addRecipe(Plutonium241, 48000, provider)
     }
 
     private fun addRecipe(material : Material, temperature : Int, provider : Consumer<FinishedRecipe?>) {

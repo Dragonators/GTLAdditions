@@ -9,9 +9,11 @@ import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.QUANTUM_GLASS
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.hepdd.gtmthings.GTMThings
 import net.minecraft.data.recipes.FinishedRecipe
+import org.gtlcore.gtlcore.common.data.GTLBlocks.*
 import org.gtlcore.gtlcore.common.data.GTLMachines
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
@@ -57,6 +59,13 @@ object Assembler {
             .inputItems(POWER_INTEGRATED_CIRCUIT, 2)
             .outputItems(POWER_SUBSTATION.asStack())
             .EUt(480).duration(1200).save(provider)
+        ASSEMBLER_RECIPES.recipeBuilder(id("quantum_glass"))
+            .inputItems(DIMENSIONALLY_TRANSCENDENT_CASING.asStack())
+            .inputItems(RHENIUM_REINFORCED_ENERGY_GLASS.asStack())
+            .inputItems(getItemStack("kubejs:quantum_anomaly"))
+            .inputFluids(Rhugnor.getFluid(1000000))
+            .outputItems(QUANTUM_GLASS.asStack())
+            .EUt(491520).duration(400).save(provider)
     }
 
     private fun addHugeOutput(provider : Consumer<FinishedRecipe?>) {

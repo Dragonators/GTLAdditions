@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "gtladditions:block/casings/suprachronal_magnetic_confinement_casing",
+    "east": "gtladditions:block/casings/graviton_casing_2",
+    "north": "gtladditions:block/casings/graviton_casing_2",
+    "particle": "gtladditions:block/casings/graviton_casing_2",
+    "south": "gtladditions:block/casings/graviton_casing_2",
+    "up": "gtladditions:block/casings/suprachronal_magnetic_confinement_casing",
+    "west": "gtladditions:block/casings/graviton_casing_2"
+  }
+}

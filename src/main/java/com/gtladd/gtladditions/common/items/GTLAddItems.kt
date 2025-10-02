@@ -7,63 +7,63 @@ import net.minecraft.world.item.Item
 
 object GTLAddItems {
     @JvmField
-    var ECHO_SHARD_BOULE: ItemEntry<Item?>?
+    var ECHO_SHARD_BOULE: ItemEntry<Item?>
     @JvmField
-    var ECHO_SHARD_WAFER: ItemEntry<Item?>?
+    var ECHO_SHARD_WAFER: ItemEntry<Item?>
     @JvmField
-    var BIOWARE_ECHO_SHARD_BOULE: ItemEntry<Item?>?
+    var BIOWARE_ECHO_SHARD_BOULE: ItemEntry<Item?>
     @JvmField
-    var OUTSTANDING_SOC_WAFER: ItemEntry<Item?>?
+    var OUTSTANDING_SOC_WAFER: ItemEntry<Item?>
     @JvmField
-    var OUTSTANDING_SOC: ItemEntry<Item?>?
+    var OUTSTANDING_SOC: ItemEntry<Item?>
     @JvmField
-    var HASSIUM_BOULE: ItemEntry<Item?>?
+    var HASSIUM_BOULE: ItemEntry<Item?>
     @JvmField
-    var HASSIUM_WAFER: ItemEntry<Item?>?
+    var HASSIUM_WAFER: ItemEntry<Item?>
     @JvmField
-    var PREPARE_EXTRAORDINARY_SOC_WAFER: ItemEntry<Item?>?
+    var PREPARE_EXTRAORDINARY_SOC_WAFER: ItemEntry<Item?>
     @JvmField
-    var EXTRAORDINARY_SOC_WAFER: ItemEntry<Item?>?
+    var EXTRAORDINARY_SOC_WAFER: ItemEntry<Item?>
     @JvmField
-    var EXTRAORDINARY_SOC: ItemEntry<Item?>?
+    var EXTRAORDINARY_SOC: ItemEntry<Item?>
     @JvmField
-    var STARMETAL_BOULE: ItemEntry<Item?>?
+    var STARMETAL_BOULE: ItemEntry<Item?>
     @JvmField
-    var STARMETAL_WAFER: ItemEntry<Item?>?
+    var STARMETAL_WAFER: ItemEntry<Item?>
     @JvmField
-    var DRAGON_ELEMENT_STARMETAL_WAFER: ItemEntry<Item?>?
+    var DRAGON_ELEMENT_STARMETAL_WAFER: ItemEntry<Item?>
     @JvmField
-    var CHAOS_SOC_WAFER: ItemEntry<Item?>?
+    var CHAOS_SOC_WAFER: ItemEntry<Item?>
     @JvmField
-    var CHAOS_SOC: ItemEntry<Item?>?
+    var CHAOS_SOC: ItemEntry<Item?>
     @JvmField
-    var PERIODICIUM_BOULE: ItemEntry<Item?>?
+    var PERIODICIUM_BOULE: ItemEntry<Item?>
     @JvmField
-    var PERIODICIUM_WAFER: ItemEntry<Item?>?
+    var PERIODICIUM_WAFER: ItemEntry<Item?>
     @JvmField
-    var PREPARE_SPACETIME_SOC_WAFER: ItemEntry<Item?>?
+    var PREPARE_SPACETIME_SOC_WAFER: ItemEntry<Item?>
     @JvmField
-    var SPACETIME_SOC_WAFER: ItemEntry<Item?>?
+    var SPACETIME_SOC_WAFER: ItemEntry<Item?>
     @JvmField
-    var SPACETIME_SOC: ItemEntry<Item?>?
+    var SPACETIME_SOC: ItemEntry<Item?>
     @JvmField
-    var INFINITY_BOULE: ItemEntry<Item?>?
+    var INFINITY_BOULE: ItemEntry<Item?>
     @JvmField
-    var INFINITY_WAFER: ItemEntry<Item?>?
+    var INFINITY_WAFER: ItemEntry<Item?>
     @JvmField
-    var PREPARE_PRIMARY_SOC_WAFER: ItemEntry<Item?>?
+    var PREPARE_PRIMARY_SOC_WAFER: ItemEntry<Item?>
     @JvmField
-    var PRIMARY_SOC_WAFER: ItemEntry<Item?>?
+    var PRIMARY_SOC_WAFER: ItemEntry<Item?>
     @JvmField
-    var PRIMARY_SOC: ItemEntry<Item?>?
+    var PRIMARY_SOC: ItemEntry<Item?>
     @JvmField
-    var SPACETIME_LENS: ItemEntry<Item?>?
+    var SPACETIME_LENS: ItemEntry<Item?>
 
     @JvmStatic
     fun init() {}
 
     private fun register(id: String, name: String): ItemEntry<Item?> {
-        return REGISTRATE.item(id) { properties: Item.Properties? -> Item(properties) }.lang(name).register()
+        return REGISTRATE.item(id) { properties: Item.Properties -> Item(properties) }.lang(name).register()
     }
 
     init {

@@ -13,8 +13,6 @@ import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
-import com.gregtechceu.gtceu.api.recipe.logic.OCParams
-import com.gregtechceu.gtceu.api.recipe.logic.OCResult
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic
 import com.gregtechceu.gtceu.common.block.CoilBlock
 import com.gregtechceu.gtceu.common.data.GTMaterials
@@ -46,7 +44,7 @@ import kotlin.math.*
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(holder, "SCTier"), IMachineModifyDrops {
-    @Persisted
+    @field:Persisted
     val machineStorage: NotifiableItemStackHandler
     private var coilType: ICoilType
     private var height = 0
@@ -191,7 +189,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
         private val ETERNITY: ItemStack = Registries.getItemStack("gtceu:eternity_nanoswarm", 64)
         private val CREATE: ItemStack = CreativeMachines.CREATIVE_ENERGY_INPUT_HATCH.asStack()
 
-        fun recipeModifier(machine: MetaMachine, recipe: GTRecipe, params: OCParams, result: OCResult): GTRecipe? {
+        fun recipeModifier(machine: MetaMachine, recipe: GTRecipe): GTRecipe? {
             if (machine is TaixuTurbidArray) {
                 var recipe1 = recipe.copy()
                 var maxParallel = ParallelLogic.getMaxRecipeMultiplier(recipe1, machine, machine.getMaxParallel())

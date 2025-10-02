@@ -1,0 +1,22 @@
+{
+  "forgeofantichrist": {
+    "sounds": [
+      {
+        "type": "file",
+        "name": "gtladditions:forgeofantichrist",
+        "attenuation_distance": 64
+      }
+    ],
+    "subtitle": "gtladditions.subtitle.forgeofantichrist"
+  },
+  "quantumoscillation": {
+    "sounds": [
+      {
+        "type": "file",
+        "name": "gtladditions:quantumoscillation",
+        "attenuation_distance": 48
+      }
+    ],
+    "subtitle": "gtladditions.subtitle.quantumoscillation"
+  }
+}

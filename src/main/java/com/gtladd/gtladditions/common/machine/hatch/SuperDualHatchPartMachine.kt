@@ -28,11 +28,10 @@ import org.gtlcore.gtlcore.utils.NumberUtils
 
 open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, vararg args: Any?) :
     HugeBusPartMachine(holder, tier, IO.IN, 9, *args) {
-    @Persisted
+    @field:Persisted
     protected val tank: NotifiableFluidTank
 
-    @Getter
-    @Persisted
+    @field:Persisted
     protected val shareTank: CatalystFluidStackHandler
     protected var tankSubs: ISubscription? = null
     private var hasFluidTransfer = false

@@ -31,6 +31,7 @@ import com.hepdd.gtmthings.common.registry.GTMTRegistration
 import com.hepdd.gtmthings.data.CreativeModeTabs
 import com.hepdd.gtmthings.data.CustomMachines
 import com.hepdd.gtmthings.data.WirelessMachines
+import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
@@ -68,15 +69,53 @@ object GTLAddMachines {
 
     val GTLAdd_ADD: BiConsumer<ItemStack?, MutableList<Component?>?> =
         BiConsumer { stack: ItemStack?, components: MutableList<Component?>? ->
-            components!!.add(
-                Component.literal(TextUtil.full_color(Component.translatable("gui.gtladditions.add").string))
-                    .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
+            components!!.add(createRainbowComponent(Component.translatable("gui.gtladditions.add").string))
+        }
+
+    val GTLAdd_MODIFY: Component = createRainbowComponent(Component.translatable("gui.gtladditions.modify").string)
+
+    fun createRainbowComponent(string: String): Component {
+        return Component.literal(TextUtil.full_color(string))
+            .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
+    }
+
+    fun createObfuscatedRainbowComponent(text: String): Component {
+        val component = Component.empty()
+
+        text.forEachIndexed { index, char ->
+            component.append(
+                Component.literal(char.toString())
+                    .withStyle(ChatFormatting.OBFUSCATED)
+                    .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current)}
             )
         }
 
-    val GTLAdd_MODIFY : Component =
-        Component.literal(TextUtil.full_color(Component.translatable("gui.gtladditions.modify").string))
-            .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
+        return component;
+    }
+
+    fun createObfuscatedDeleteComponent(text: String): Component {
+        val rainbowColors = arrayOf(
+            ChatFormatting.RED,
+            ChatFormatting.GOLD,
+            ChatFormatting.YELLOW,
+            ChatFormatting.GREEN,
+            ChatFormatting.AQUA,
+            ChatFormatting.BLUE,
+            ChatFormatting.LIGHT_PURPLE
+        )
+        val component = Component.empty()
+
+        text.forEachIndexed { index, char ->
+            component.append(
+                Component.literal(char.toString())
+                    .withStyle(ChatFormatting.OBFUSCATED)
+                    .withStyle(ChatFormatting.STRIKETHROUGH)
+                    .withStyle(rainbowColors[index % 7])
+            )
+        }
+
+        return component;
+    }
 
     init {
         LASER_INPUT_HATCH_16777216A = GTMachines.registerLaserHatch(IO.IN, 16777216, PartAbility.INPUT_LASER)
@@ -156,21 +195,25 @@ object GTLAddMachines {
             .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 129))
             .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 64,
                 FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)))
-            .tooltipBuilder(GTLAdd_ADD).tier(14).register()
+            .tooltipBuilder(GTLAdd_ADD).register()
         ME_SUPER_PATTERN_BUFFER = REGISTRATE.machine("me_super_pattern_buffer")
         { MESuperPatternBufferPartMachine(it!!, ConfigHolder.INSTANCE.superPatternBuffer.patternsPerRow, ConfigHolder.INSTANCE.superPatternBuffer.rowsPerPage, ConfigHolder.INSTANCE.superPatternBuffer.maxPages) }
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.IMPORT_ITEMS, PartAbility.IMPORT_FLUIDS)
             .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer"))
             .langValue("Me Super Pattern Buffer")
-            .tooltips(
-                Component.translatable("block.gtladditions.me_super_pattern_buffer.desc.0"),
-                Component.translatable("block.gtladditions.me_super_pattern_buffer.desc.1"),
-                Component.translatable("block.gtladditions.me_super_pattern_buffer.desc.2"),
-                Component.translatable("block.gtladditions.me_super_pattern_buffer.desc.3"),
-                Component.translatable("gtceu.universal.enabled")
-            )
-            .tooltipBuilder(GTLAdd_ADD).tier(14)
+            .tooltips(Component.translatable("tooltip.gtlcore.bigger_stronger").withStyle(ChatFormatting.GOLD),
+                Component.translatable("block.gtceu.pattern_buffer.desc.0"),
+                Component.translatable("gtceu.machine.me_pattern_buffer.desc.0"),
+                Component.translatable("gtceu.machine.me_pattern_buffer.desc.1"),
+                Component.translatable("gtceu.machine.me_pattern_buffer.desc.2"),
+                Component.translatable("gtceu.machine.me_pattern_buffer.desc.3"),
+                Component.translatable("gtceu.machine.me_pattern_buffer.desc.4"),
+                Component.translatable("gtceu.machine.me_pattern_buffer.desc.5"),
+                Component.translatable("gtladditions.machine.me_super_pattern_buffer.desc.0"),
+                Component.translatable("block.gtceu.pattern_buffer.desc.2"),
+                Component.translatable("gtceu.universal.enabled"))
+            .tooltipBuilder(GTLAdd_ADD)
             .register()
         ME_SUPER_PATTERN_BUFFER_PROXY = REGISTRATE.machine("me_super_pattern_buffer_proxy")
         { MESuperPatternBufferProxyPartMachine(it!!) }
@@ -178,13 +221,12 @@ object GTLAddMachines {
             .abilities(PartAbility.IMPORT_ITEMS, PartAbility.IMPORT_FLUIDS)
             .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer_proxy"))
             .langValue("Me Super Pattern Buffer Proxy")
-            .tooltips(
-                Component.translatable("block.gtladditions.me_super_pattern_buffer_proxy.desc.0"),
-                Component.translatable("block.gtladditions.me_super_pattern_buffer_proxy.desc.1"),
-                Component.translatable("block.gtladditions.me_super_pattern_buffer_proxy.desc.2"),
-                Component.translatable("gtceu.universal.enabled")
-            )
-            .tooltipBuilder(GTLAdd_ADD).tier(14)
+            .tooltips(Component.translatable("block.gtceu.pattern_buffer_proxy.desc.0"),
+                Component.translatable("block.gtceu.pattern_buffer_proxy.desc.1"),
+                Component.translatable("block.gtceu.pattern_buffer_proxy.desc.2"),
+                Component.translatable("gtceu.machine.me_pattern_buffer_proxy.desc.0"),
+                Component.translatable("gtceu.universal.enabled"))
+            .tooltipBuilder(GTLAdd_ADD)
             .register()
         SUPER_PARALLEL_HATCH = REGISTRATE.machine("super_parallel_hatch")
         { SuperParallelHatchPartMachine(it!!) }
