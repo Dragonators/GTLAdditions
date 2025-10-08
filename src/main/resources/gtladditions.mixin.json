@@ -11,7 +11,6 @@
     "ae2.ExternalStorageFacadeMixin",
     "ae2.ItemPickupStrategyMixin",
     "gtceu.api.machine.IFancyUIMachineMixin",
-    "gtceu.api.recipe.GTRecipeMixin",
     "gtceu.common.item.DataItemBehaviorMixin",
     "gtceu.integration.MachineModeProviderMixin",
     "gtceu.integration.ParallelProviderMixin",

@@ -42,7 +42,7 @@ public abstract class RecipeLogicProviderMixin {
     protected void write(CompoundTag data, RecipeLogic capability, CallbackInfo ci) {
         if (capability instanceof GTLAddMultipleWirelessRecipesLogic) {
             if (capability.getLastRecipe() instanceof IWirelessGTRecipe recipe) {
-                var bigIntInput = recipe.getEuTickInputs();
+                var bigIntInput = recipe.getWirelessEuTickInputs();
                 if (bigIntInput != null && bigIntInput.signum() != 0) {
                     data.putByteArray("wirelessTickInputs", bigIntInput.toByteArray());
                 }

@@ -157,7 +157,9 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
     protected GTRecipe buildFinalRecipe(ParallelData parallelData) {
         long maxEUt = getMachine().getOverclockVoltage();
 
-        GTRecipe recipe = this.buildRawRecipe();
+        GTRecipe recipe = GTRecipeBuilder.ofRaw().buildRawRecipe();
+        recipe.outputs.put(ItemRecipeCapability.CAP, new ObjectArrayList<>());
+        recipe.outputs.put(FluidRecipeCapability.CAP, new ObjectArrayList<>());
 
         double euMultiplier = this.getEuMultiplier();
         long totalEu = 0;
@@ -222,13 +224,6 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
 
     protected long getMaxParallel(GTRecipe recipe, long limit) {
         return IParallelLogic.getMaxParallel(this.machine, recipe, limit);
-    }
-
-    protected @NotNull GTRecipe buildRawRecipe() {
-        GTRecipe recipe = GTRecipeBuilder.ofRaw().buildRawRecipe();
-        recipe.outputs.put(ItemRecipeCapability.CAP, new ObjectArrayList<>());
-        recipe.outputs.put(FluidRecipeCapability.CAP, new ObjectArrayList<>());
-        return recipe;
     }
 
     protected GTRecipe modifyInputAndOutput(GTRecipe recipe) {

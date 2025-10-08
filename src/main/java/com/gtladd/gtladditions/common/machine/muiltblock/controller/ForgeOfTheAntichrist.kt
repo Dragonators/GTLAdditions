@@ -184,7 +184,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         )
 
         const val MAX_EFFICIENCY_SEC = 14400
-        private const val MAX_OUTPUT_RATIO = 30
-        private const val MIN_EU_RATIO = 0.05
+        private const val MAX_OUTPUT_RATIO = 15
+        private const val MIN_EU_RATIO = 0.2
     }
 }

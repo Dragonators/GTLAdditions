@@ -9,16 +9,20 @@ import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
-import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine;
 import com.gtladd.gtladditions.api.recipe.IWirelessGTRecipe;
+import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe;
+import com.gtladd.gtladditions.api.recipe.WirelessGTRecipeBuilder;
 import com.hepdd.gtmthings.api.misc.WirelessEnergyManager;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 
@@ -66,9 +70,8 @@ public class GTLAddMultipleWirelessRecipesLogic extends GTLAddMultipleRecipesLog
         assert uuid != null;
         BigInteger maxTotalEu = WirelessEnergyManager.getUserEU(uuid).divide(MAX_EU_RATIO);
 
-        GTRecipe recipe = GTRecipeBuilder.ofRaw().buildRawRecipe();
-        recipe.outputs.put(ItemRecipeCapability.CAP, new ObjectArrayList<>());
-        recipe.outputs.put(FluidRecipeCapability.CAP, new ObjectArrayList<>());
+        var itemOutputs = new ObjectArrayList<Content>();
+        var fluidOutputs = new ObjectArrayList<Content>();
 
         double euMultiplier = this.getEuMultiplier();
         BigInteger totalEu = BigInteger.ZERO;
@@ -91,26 +94,24 @@ public class GTLAddMultipleWirelessRecipesLogic extends GTLAddMultipleRecipesLog
             r = modifyInputAndOutput(r);
             if (matchRecipeInput(machine, r) && handleRecipeInput(machine, r)) {
                 var item = r.outputs.get(ItemRecipeCapability.CAP);
-                if (item != null) recipe.outputs.get(ItemRecipeCapability.CAP).addAll(item);
+                if (item != null) itemOutputs.addAll(item);
                 var fluid = r.outputs.get(FluidRecipeCapability.CAP);
-                if (fluid != null) recipe.outputs.get(FluidRecipeCapability.CAP).addAll(fluid);
+                if (fluid != null) fluidOutputs.addAll(fluid);
             }
         }
 
-        if (recipe.outputs.get(ItemRecipeCapability.CAP).isEmpty() && recipe.outputs.get(FluidRecipeCapability.CAP).isEmpty()) {
+        if (itemOutputs.isEmpty() && fluidOutputs.isEmpty()) {
             if (totalEu.signum() == 0) RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_EU_IN);
             return null;
         }
 
         int minDuration = limited.getLimitedDuration();
         BigInteger eut = totalEu.divide(BigInteger.valueOf(minDuration)).negate();
-        ((IWirelessGTRecipe) recipe).setEuTickInputs(eut);
-        recipe.duration = minDuration;
-        return recipe;
+        return buildWirelessRecipe(itemOutputs, fluidOutputs, minDuration, eut);
     }
 
     protected boolean handleWirelessTickInput(IWirelessGTRecipe recipe) {
-        final BigInteger euTickInputs = recipe.getEuTickInputs();
+        final BigInteger euTickInputs = recipe.getWirelessEuTickInputs();
         if (euTickInputs == null) return true;
 
         final UUID uuid = getMachine().getUuid();
@@ -122,6 +123,16 @@ public class GTLAddMultipleWirelessRecipesLogic extends GTLAddMultipleRecipesLog
     protected boolean checkRecipe(GTRecipe recipe) {
         return matchRecipe(machine, recipe) && recipe.checkConditions(machine.getRecipeLogic()).isSuccess() &&
                 (recipeCheck == null || recipeCheck.test(recipe, machine));
+    }
+
+    protected @NotNull WirelessGTRecipe buildWirelessRecipe(@NotNull List<Content> item, @NotNull List<Content> fluid, int duration, BigInteger eut) {
+        return WirelessGTRecipeBuilder
+                .ofRaw()
+                .output(ItemRecipeCapability.CAP, item)
+                .output(FluidRecipeCapability.CAP, fluid)
+                .duration(duration)
+                .setWirelessEut(eut)
+                .buildRawRecipe();
     }
 
     @Override

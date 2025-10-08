@@ -1,19 +1,21 @@
 package com.gtladd.gtladditions.api.machine.logic;
 
-import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
-import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
+import com.gregtechceu.gtceu.api.recipe.content.Content;
 
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe;
+import com.gtladd.gtladditions.api.recipe.WirelessGTRecipeBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigInteger;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
@@ -28,11 +30,14 @@ public class GTLAddMultipleTypeWirelessRecipesLogic extends GTLAddMultipleWirele
     }
 
     @Override
-    protected @NotNull GTRecipe buildRawRecipe() {
-        GTRecipe recipe = new GTRecipeBuilder(GTCEu.id("raw"), getMachine().getRecipeType()).buildRawRecipe();
-        recipe.outputs.put(ItemRecipeCapability.CAP, new ObjectArrayList<>());
-        recipe.outputs.put(FluidRecipeCapability.CAP, new ObjectArrayList<>());
-        return recipe;
+    protected @NotNull WirelessGTRecipe buildWirelessRecipe(@NotNull List<Content> item, @NotNull List<Content> fluid, int duration, BigInteger eut) {
+        return WirelessGTRecipeBuilder
+                .ofRaw(getMachine().getRecipeType())
+                .output(ItemRecipeCapability.CAP, item)
+                .output(FluidRecipeCapability.CAP, fluid)
+                .duration(duration)
+                .setWirelessEut(eut)
+                .buildRawRecipe();
     }
 
     @Override

@@ -9,7 +9,6 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
-import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecipesLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
 import com.gtladd.gtladditions.api.recipe.ChanceParallelLogic
@@ -48,7 +47,7 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
     class ApocalypticTorsionQuantumMatrixLogic(parallel: ApocalypticTorsionQuantumMatrix?) :
         GTLAddMultipleTypeWirelessRecipesLogic(parallel) {
         init {
-            this.setReduction(0.1, 1.0)
+            this.setReduction(0.2, 1.0)
         }
 
         override fun getMachine(): ApocalypticTorsionQuantumMatrix {
@@ -70,9 +69,8 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
            checkNotNull(uuid)
            val maxTotalEu = WirelessEnergyManager.getUserEU(uuid).divide(MAX_EU_RATIO)
 
-           val recipe = GTRecipeBuilder.ofRaw().buildRawRecipe()
-           recipe.outputs.put(ItemRecipeCapability.CAP, ObjectArrayList())
-           recipe.outputs.put(FluidRecipeCapability.CAP, ObjectArrayList())
+           val itemOutputs = ObjectArrayList<Content?>()
+           val fluidOutputs = ObjectArrayList<Content?>()
 
            val euMultiplier = this.euMultiplier
            var totalEu = BigInteger.ZERO
@@ -98,21 +96,19 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
                tempRecipe = modifyInputAndOutput(tempRecipe)
                remain -= p
                if (RecipeRunnerHelper.handleRecipeInput(machine, tempRecipe)) {
-                   tempRecipe.outputs[ItemRecipeCapability.CAP]?.let { recipe.outputs[ItemRecipeCapability.CAP]!!.addAll(it) }
-                   tempRecipe.outputs[FluidRecipeCapability.CAP]?.let { recipe.outputs[FluidRecipeCapability.CAP]!!.addAll(it) }
+                   tempRecipe.outputs[ItemRecipeCapability.CAP]?.let { itemOutputs.addAll(it) }
+                   tempRecipe.outputs[FluidRecipeCapability.CAP]?.let { fluidOutputs.addAll(it) }
                }
            }
 
-           if (recipe.outputs[ItemRecipeCapability.CAP]!!.isEmpty() && recipe.outputs[FluidRecipeCapability.CAP]!!.isEmpty()) {
+           if (itemOutputs.isEmpty() && fluidOutputs.isEmpty()) {
                if (totalEu.signum() == 0) RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_EU_IN)
                return null
            }
 
            val minDuration = limited.limitedDuration
            val eut = totalEu.divide(BigInteger.valueOf(minDuration.toLong())).negate()
-           (recipe as IWirelessGTRecipe).setEuTickInputs(eut)
-           recipe.duration = minDuration
-           return recipe
+           return buildWirelessRecipe(itemOutputs, fluidOutputs, minDuration, eut)
         }
 
         override fun modifyInputAndOutput(recipe: GTRecipe): GTRecipe {
