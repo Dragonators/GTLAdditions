@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -113,11 +112,8 @@ public class ChanceParallelLogic {
         var handle = machine.getRecipeHandleMap().get(recipe);
         if (handle instanceof MEPatternRecipeHandlePart mePatternRecipeHandlePart) {
             // ME handler
-            int slot = mePatternRecipeHandlePart.getSlotMap().getOrDefault(recipe, -1);
-            if (slot != -1) {
-                for (var entry : Object2LongMaps.fastIterable(mePatternRecipeHandlePart.getMEContent(ItemRecipeCapability.CAP, List.of(slot)))) {
-                    ingredientStacks.addTo(entry.getKey(), entry.getLongValue());
-                }
+            for (var entry : Object2LongMaps.fastIterable(mePatternRecipeHandlePart.getFirstAvailableMEContentOrEmpty(ItemRecipeCapability.CAP, mePatternRecipeHandlePart.getRecipes2SlotsMap().getValues(recipe)))) {
+                ingredientStacks.addTo(entry.getKey(), entry.getLongValue());
             }
         } else if (handle != null) {
             for (var entry : Object2LongMaps.fastIterable(handle.getContent(ItemRecipeCapability.CAP))) {
@@ -180,11 +176,8 @@ public class ChanceParallelLogic {
         var recipeHandle = machine.getRecipeHandleMap().get(recipe);
         if (recipeHandle instanceof MEPatternRecipeHandlePart mePatternRecipeHandlePart) {
             // ME handler
-            int slot = mePatternRecipeHandlePart.getSlotMap().getOrDefault(recipe, -1);
-            if (slot != -1) {
-                for (var entry : Object2LongMaps.fastIterable(mePatternRecipeHandlePart.getMEContent(FluidRecipeCapability.CAP, List.of(slot)))) {
-                    ingredientStacks.addTo(entry.getKey(), entry.getLongValue());
-                }
+            for (var entry : Object2LongMaps.fastIterable(mePatternRecipeHandlePart.getFirstAvailableMEContentOrEmpty(FluidRecipeCapability.CAP, mePatternRecipeHandlePart.getRecipes2SlotsMap().getValues(recipe)))) {
+                ingredientStacks.addTo(entry.getKey(), entry.getLongValue());
             }
         } else if (recipeHandle != null && machine.isDistinct()) {
             for (var entry : Object2LongMaps.fastIterable(recipeHandle.getContent(FluidRecipeCapability.CAP))) {

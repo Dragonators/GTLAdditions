@@ -75,7 +75,7 @@ open class GTLAddWirelessWorkableElectricMultipleRecipesMachine(holder: IMachine
 
             // Max energy per tick
             textList.add(Component.translatable("gtceu.multiblock.max_energy_per_tick",
-                FormattingUtil.formatNumbers(totalEu),
+                String.format("%.8e", totalEu.toDouble()),
                 Component.literal(NewGTValues.VNF[energyTier]))
                 .withStyle(ChatFormatting.GRAY)
                 .withStyle { it.withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT,

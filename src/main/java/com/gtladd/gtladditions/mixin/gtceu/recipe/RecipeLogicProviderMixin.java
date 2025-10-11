@@ -57,7 +57,6 @@ public abstract class RecipeLogicProviderMixin {
     @Overwrite(remap = false)
     protected void addTooltip(CompoundTag capData, ITooltip tooltip, Player player, BlockAccessor block,
                               BlockEntity blockEntity, IPluginConfig config) {
-        if (!capData.getBoolean("isFormed")) return;
         if (capData.getBoolean("Working")) {
             var recipeInfo = capData.getCompound("Recipe");
             if (!recipeInfo.isEmpty()) {

@@ -109,7 +109,7 @@ public class MESuperPatternBufferPartMachine extends MEPatternBufferPartMachine 
                 .setOnConfirm(this::setCustomName)
                 .setButtonTooltips(Component.translatable("gui.gtceu.rename.desc")));
 
-        final var catalystUIManager = new MEPatternCatalystUIManager(group.getSizeWidth() + 4, catalystItems, catalystFluids);
+        final var catalystUIManager = new MEPatternCatalystUIManager(group.getSizeWidth() + 4, catalystItems, catalystFluids, cacheRecipeCount, this::removeSlotFromGTRecipeCache);
         group.waitToAdded(catalystUIManager);
 
         // Create pagination UI using the manager
