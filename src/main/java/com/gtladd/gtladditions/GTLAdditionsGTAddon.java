@@ -49,6 +49,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         VoidfluxReaction.init(provider);
         StellarLgnition.init(provider);
         ChaosWeave.init(provider);
+        GenesisEngine.init(provider);
         AE2.init(provider);
         Assembler.init(provider);
         AssemblyLine.init(provider);
@@ -56,6 +57,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         ElectricBlastFurnace.init(provider);
         IntegratedtedOreProcessor.init(provider);
         NewMultiBlockMachineController.init(provider);
+        PartMachine.init(provider);
         Qft.init(provider);
         SocProcess.init(provider);
         Misc.init(provider);

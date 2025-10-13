@@ -1,7 +1,7 @@
 package com.gtladd.gtladditions.data.recipes
 
 import com.gregtechceu.gtceu.api.GTValues
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.BLAST_RECIPES
 import com.gtladd.gtladditions.GTLAdditions

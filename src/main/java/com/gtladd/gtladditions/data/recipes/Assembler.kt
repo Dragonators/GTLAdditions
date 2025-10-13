@@ -2,7 +2,8 @@ package com.gtladd.gtladditions.data.recipes
 
 import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
-import com.gregtechceu.gtceu.common.data.GTBlocks.*
+import com.gregtechceu.gtceu.common.data.GTBlocks.CASING_PALLADIUM_SUBSTATION
+import com.gregtechceu.gtceu.common.data.GTBlocks.INDUSTRIAL_TNT
 import com.gregtechceu.gtceu.common.data.GTItems.*
 import com.gregtechceu.gtceu.common.data.GTMachines.*
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
@@ -10,6 +11,7 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.id
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.QUANTUM_GLASS
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_CASING
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.hepdd.gtmthings.GTMThings
 import net.minecraft.data.recipes.FinishedRecipe
@@ -66,6 +68,17 @@ object Assembler {
             .inputFluids(Rhugnor.getFluid(1000000))
             .outputItems(QUANTUM_GLASS.asStack())
             .EUt(491520).duration(400).save(provider)
+        ASSEMBLER_RECIPES.recipeBuilder(id("temporal_anchor_field_casing"))
+            .inputItems(frameGt, TranscendentMetal, 32)
+            .inputItems(frameGt, Eternity, 32)
+            .inputItems(CustomTags.MAX_CIRCUITS, 8)
+            .inputItems(gear, AstralTitanium, 8)
+            .inputItems(SPACETIMEBENDINGCORE.asStack(8))
+            .inputItems(getItemStack("kubejs:spacetime_compression_field_generator", 4))
+            .inputItems(foil, Cosmic, 4)
+            .inputFluids(WhiteDwarfMatter.getFluid(23040))
+            .outputItems(TEMPORAL_ANCHOR_FIELD_CASING.asStack(2))
+            .EUt(VA[MAX].toLong()).duration(400).save(provider)
     }
 
     private fun addHugeOutput(provider : Consumer<FinishedRecipe?>) {

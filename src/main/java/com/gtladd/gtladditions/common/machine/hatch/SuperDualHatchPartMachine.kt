@@ -20,7 +20,6 @@ import com.lowdragmc.lowdraglib.side.item.ItemTransferHelper
 import com.lowdragmc.lowdraglib.syncdata.ISubscription
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
-import lombok.Getter
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style

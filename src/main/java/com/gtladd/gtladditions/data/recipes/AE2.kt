@@ -3,8 +3,8 @@ package com.gtladd.gtladditions.data.recipes
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
 import com.gregtechceu.gtceu.api.data.tag.TagUtil.createItemTag
-import com.gregtechceu.gtceu.common.data.GTMaterials.*
-import com.gregtechceu.gtceu.common.data.GTRecipeTypes.*
+import com.gregtechceu.gtceu.common.data.GTMaterials.CertusQuartz
+import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ALLOY_SMELTER_RECIPES
 import com.gtladd.gtladditions.GTLAdditions
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.MATTER_FABRICATOR_RECIPES

@@ -15,6 +15,7 @@
   "gtceu.chaotic_alchemy": "Chaotic Alchemy",
   "gtceu.em_resonance_conversion_field": "EM-Resonance Conversion Field",
   "gtceu.forge_of_the_antichrist": "Stellar Incineration",
+  "gtceu.genesis_engine": "Genesis Engine",
   "gtceu.machine.biological_simulation_laboratory.gui.tooltip.0": "The recipe for the Sword of The Cosmos has not been unlocked",
   "gtceu.machine.biological_simulation_laboratory.gui.tooltip.1": "The recipe for the Sword of The Cosmos has been unlocked",
   "gtceu.machine.biological_simulation_laboratory.recipe.tooltip.0": "This recipe requires Nan Certificate to unlock",
@@ -80,9 +81,10 @@
   "gtceu.multiblock.use_different_mainframe": "Different bonuses require different circuit hosts to unlock",
   "gtceu.multiblock.use_suprachronal_mainframe_complex": "Suprachronal Mainframe Complex: %d, %d",
   "gtceu.photon_matrix_etch": "Photon Matrix Etch",
+  "gtceu.quantum_oscillation": "Quantum Oscillation",
+  "gtceu.star_core_stripper": "Star Core Stripper",
   "gtceu.stellar_lgnition": "Stellar Lgnition",
   "gtceu.tectonic_fault_generator": "Tectonic Fault Generator",
   "gtceu.tooltip.super_proxy_bind": "§fBinding to a Super Pattern Buffer at %s %s %s",
-  "gtceu.voidflux_reaction": "Voidflux Reaction",
-  "gtceu.quantum_oscillation": "Quantum Oscillation"
+  "gtceu.voidflux_reaction": "Voidflux Reaction"
 }

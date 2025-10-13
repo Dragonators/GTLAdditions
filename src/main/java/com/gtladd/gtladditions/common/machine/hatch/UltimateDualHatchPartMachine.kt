@@ -4,9 +4,6 @@ import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank
 import com.gtladd.gtladditions.common.machine.trait.SuperNotifiableFluidTank
-import kotlin.Any
-import kotlin.Boolean
-import kotlin.Int
 
 class UltimateDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, vararg args: Any?) :
     SuperDualHatchPartMachine(holder, tier, *args){

@@ -1,8 +1,9 @@
 package com.gtladd.gtladditions.data.recipes
 
 import com.gregtechceu.gtceu.api.GTValues.*
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
-import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType.*
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
+import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType.CLEANROOM
+import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType.STERILE_CLEANROOM
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gtladd.gtladditions.GTLAdditions.id
@@ -11,7 +12,7 @@ import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix
 import org.gtlcore.gtlcore.api.machine.multiblock.GTLCleanroomType.LAW_CLEANROOM
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.DISTORT_RECIPES
-import org.gtlcore.gtlcore.utils.Registries.*
+import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object Distort {

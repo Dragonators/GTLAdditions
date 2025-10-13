@@ -4,7 +4,6 @@ import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
 import com.gregtechceu.gtceu.api.data.tag.TagUtil
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
-import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
 import com.gregtechceu.gtceu.common.data.GTItems.*
 import com.gregtechceu.gtceu.common.data.GTMachines.PACKER
@@ -16,23 +15,25 @@ import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.id
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.items.GTLAddItems
+import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
-import com.hepdd.gtmthings.data.CreativeMachines.*
+import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_ENERGY_INPUT_HATCH
+import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_LASER_INPUT_HATCH
 import com.hepdd.gtmthings.data.CustomMachines.HUGE_INPUT_DUAL_HATCH
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLItems.*
-import org.gtlcore.gtlcore.common.data.GTLMachines
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine.ADVANCED_VACUUM_DRYING_FURNACE
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.*
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.SLAUGHTERHOUSE
 import org.gtlcore.gtlcore.common.data.machines.GCyMMachines.*
+import org.gtlcore.gtlcore.common.data.machines.GeneratorMachine.*
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA.*
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
@@ -591,103 +592,6 @@ object NewMultiBlockMachineController {
             .inputFluids(Tritanium.getFluid(2304))
             .outputItems(MultiBlockMachine.ARCANE_CACHE_VAULT)
             .EUt(VA[8].toLong()).duration(600).save(provider)
-        ASSEMBLER_RECIPES.recipeBuilder(id("huge_steam_hatch"))
-            .inputItems(GTLMachines.LARGE_STEAM_HATCH, 4)
-            .inputItems(CustomTags.IV_CIRCUITS, 4)
-            .inputItems(ELECTRIC_PUMP_EV, 4)
-            .inputItems(ELECTRIC_PUMP_HV, 4)
-            .inputItems(ELECTRIC_PUMP_MV, 4)
-            .inputItems(FIELD_GENERATOR_EV, 4)
-            .inputItems(gear, HSSG, 4)
-            .inputItems(getItemStack("ad_astra:desh_plate", 4))
-            .inputFluids(SolderingAlloy.getFluid(1296))
-            .outputItems(GTLAddMachines.HUGE_STEAM_HATCH)
-            .EUt(VA[EV].toLong()).duration(1200)
-            .cleanroom(CleanroomType.CLEANROOM).save(provider)
-        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("super_parallel_hatch"))
-            .inputItems(getItemStack("gtceu:iv_parallel_hatch", 64))
-            .inputItems(getItemStack("gtceu:luv_parallel_hatch", 64))
-            .inputItems(getItemStack("gtceu:zpm_parallel_hatch", 64))
-            .inputItems(getItemStack("gtceu:uv_parallel_hatch", 64))
-            .inputItems(getItemStack("gtceu:uhv_parallel_hatch", 64))
-            .inputItems(getItemStack("gtceu:uev_parallel_hatch", 64))
-            .inputItems(getItemStack("gtceu:uiv_parallel_hatch", 64))
-            .inputItems(getItemStack("gtceu:uxv_parallel_hatch", 64))
-            .inputItems(getItemStack("gtceu:opv_parallel_hatch", 64))
-            .inputItems(getItemStack("gtceu:max_parallel_hatch", 64))
-            .inputItems(getItemStack("avaritia:endest_pearl", 64))
-            .inputItems(getItemStack("kubejs:chaotic_energy_core", 16))
-            .inputItems(getItemStack("kubejs:create_ultimate_battery", 16))
-            .inputItems(TagUtil.createModItemTag("circuits/max"), 16)
-            .inputItems(getItemStack("gtceu:create_computation", 4))
-            .inputItems(getItemStack("minecraft:repeating_command_block", 4))
-            .inputFluids(SpaceTime.getFluid(6553600))
-            .inputFluids(TranscendentMetal.getFluid(6553600))
-            .inputFluids(WhiteDwarfMatter.getFluid(65536000))
-            .inputFluids(BlackDwarfMatter.getFluid(65536000))
-            .outputItems(GTLAddMachines.SUPER_PARALLEL_HATCH)
-            .EUt(VA[UIV].toLong()).duration(5120)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(getItemStack("gtceu:max_parallel_hatch"))
-                    .dataStack(TOOL_DATA_MODULE.asStack())
-                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
-            }
-            .save(provider)
-        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("me_super_pattern_buffer"))
-            .inputItems(getItemStack("gtlcore:spacetimebendingcore", 64))
-            .inputItems(getItemStack("kubejs:proto_matter", 64))
-            .inputItems(EXTREMELY_ULTIMATE_BATTERY, 16)
-            .inputItems(TagUtil.createModItemTag("circuits/uxv"), 16)
-            .inputItems(getItemStack("gtceu:me_extend_pattern_buffer", 16))
-            .inputItems(getItemStack("gtceu:me_dual_hatch_stock_part_machine", 16))
-            .inputItems(EMITTER_UXV, 8)
-            .inputItems(getItemStack("kubejs:cosmic_processing_core", 4))
-            .inputItems(getItemStack("kubejs:photocoated_hassium_wafer", 64))
-            .inputItems(getItemStack("kubejs:photocoated_hassium_wafer", 64))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputFluids(UUMatter.getFluid(32000))
-            .inputFluids(LiquidStarlight.getFluid(32000))
-            .inputFluids(SuperheavyHAlloy.getFluid(16000))
-            .inputFluids(SuperheavyLAlloy.getFluid(16000))
-            .outputItems(GTLAddMachines.ME_SUPER_PATTERN_BUFFER)
-            .EUt(VA[UIV].toLong()).duration(5120)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(getItemStack("gtceu:me_pattern_buffer_proxy"))
-                    .dataStack(TOOL_DATA_MODULE.asStack())
-                    .EUt(VA[UXV]).CWUt(640)
-            }
-            .save(provider)
-        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("me_super_pattern_buffer_proxy"))
-            .inputItems(getItemStack("gtlcore:spacetimecontinuumripper", 16))
-            .inputItems(SENSOR_UXV, 16)
-            .inputItems(ROBOT_ARM_UXV, 16)
-            .inputItems(CONVEYOR_MODULE_UXV, 16)
-            .inputItems(getItemStack("gtceu:me_dual_hatch_stock_part_machine", 4))
-            .inputItems(TagUtil.createModItemTag("circuits/uxv"), 4)
-            .inputItems(getItemStack("kubejs:entangled_singularity", 64))
-            .inputItems(getItemStack("ae2:quantum_ring", 64))
-            .inputItems(getItemStack("ae2:quantum_link", 32))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputItems(getItemStack("gtceu:fine_legendarium_wire", 64))
-            .inputFluids(UUMatter.getFluid(32000))
-            .inputFluids(LiquidStarlight.getFluid(32000))
-            .inputFluids(SuperheavyHAlloy.getFluid(16000))
-            .inputFluids(SuperheavyLAlloy.getFluid(16000))
-            .outputItems(GTLAddMachines.ME_SUPER_PATTERN_BUFFER_PROXY)
-            .EUt(VA[UIV].toLong()).duration(5120)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(getItemStack("gtladditions:me_super_pattern_buffer"))
-                    .dataStack(TOOL_DATA_MODULE.asStack())
-                    .EUt(VA[UXV]).CWUt(640)
-            }
-            .save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("apocalyptic_torsion_quantum_matrix_suprachronal_assembly_line"))
             .inputItems(QFT, 1024)
             .inputItems(CREATIVE_LASER_INPUT_HATCH, 64)
@@ -742,6 +646,33 @@ object NewMultiBlockMachineController {
             .EUt(VA[MAX].toLong()).duration(2304000)
             .stationResearch { b : StationRecipeBuilder? ->
                 b !!.researchStack(GTLAddBlocks.GOD_FORGE_ENERGY_CASING.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("heart_of_the_universe_assembly_line"))
+            .inputItems(ANNIHILATE_GENERATOR, 128)
+            .inputItems(DYSON_SPHERE, 256)
+            .inputItems(ADVANCED_HYPER_REACTOR, 256)
+            .inputItems(ANNIHILATE_GENERATOR, 128)
+            .inputItems(MEGA_ULTIMATE_BATTERY, 1024)
+            .inputItems(INSANELY_ULTIMATE_BATTERY, 1024)
+            .inputItems(EXTREMELY_ULTIMATE_BATTERY, 1024)
+            .inputItems(TRANSCENDENT_ULTIMATE_BATTERY, 1024)
+            .inputItems(BLACK_HOLE_SEED, 64)
+            .inputItems(BLACK_HOLE_SEED, 64)
+            .inputItems(BLACK_HOLE_SEED, 64)
+            .inputItems(getItemStack("avaritia:singularity", 16))
+            .inputItems(CREATE_COMPUTATION, 16)
+            .inputItems(getItemStack("kubejs:create_ultimate_battery", 16))
+            .inputFluids(Chaos.getFluid(331776000))
+            .inputFluids(UUMatter.getFluid(921600000000))
+            .inputFluids(Hypogen.getFluid(754974720))
+            .inputFluids(TranscendentMetal.getFluid(460800000))
+            .outputItems(MultiBlockMachine.HEART_OF_THE_UNIVERSE)
+            .EUt(VA[MAX].toLong()).duration(2304000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(ANNIHILATE_GENERATOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }

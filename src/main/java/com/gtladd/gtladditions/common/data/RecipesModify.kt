@@ -1,11 +1,13 @@
 package com.gtladd.gtladditions.common.data
 
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLMaterials
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
+import org.gtlcore.gtlcore.config.ConfigHolder
 import java.util.function.Consumer
 import kotlin.math.log10
 
@@ -15,6 +17,7 @@ object RecipesModify {
         GTLRecipeTypes.DOOR_OF_CREATE_RECIPES.setMaxIOSize(1, 1, 0, 0)
         GTLRecipeTypes.CREATE_AGGREGATION_RECIPES.setMaxIOSize(2, 1, 0, 0)
         GTRecipeTypes.LASER_ENGRAVER_RECIPES.onRecipeBuild { recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe> ->
+            if (recipeBuilder.output.containsKey(FluidRecipeCapability.CAP)) return@onRecipeBuild
             val recipe = GTLAddRecipesTypes.PHOTON_MATRIX_ETCH.copyFrom(recipeBuilder)
                 .duration((recipeBuilder.duration * 0.2).toInt()).EUt(recipeBuilder.EUt())
             recipe.save(provider)
@@ -28,5 +31,7 @@ object RecipesModify {
             }
             recipe1.save(provider)
         }
+
+        if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.initSkyBlock()
     }
 }

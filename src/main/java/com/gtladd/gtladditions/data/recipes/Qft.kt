@@ -1,13 +1,14 @@
 package com.gtladd.gtladditions.data.recipes
 
-import com.gregtechceu.gtceu.api.GTValues.*
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
+import com.gregtechceu.gtceu.api.GTValues.MAX
+import com.gregtechceu.gtceu.api.GTValues.VA
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gtladd.gtladditions.GTLAdditions.id
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.QFT_RECIPES
-import org.gtlcore.gtlcore.utils.Registries.*
+import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object Qft {
@@ -69,8 +70,8 @@ object Qft {
             .inputItems(getItemStack("ae2:sky_dust", 256))
             .inputItems(dust, NetherStar, 4)
             .inputFluids(MutatedLivingSolder.getFluid(100000))
-            .inputFluids(Biomass.getFluid(1000000))
-            .inputFluids(SterileGrowthMedium.getFluid(1000000))
+            .inputFluids(Biomass.getFluid(100000))
+            .inputFluids(SterileGrowthMedium.getFluid(100000))
             .outputFluids(SuperMutatedLivingSolder.getFluid(100000))
             .EUt(VA[MAX] * 3072L).duration(7200).save(provider)
     }

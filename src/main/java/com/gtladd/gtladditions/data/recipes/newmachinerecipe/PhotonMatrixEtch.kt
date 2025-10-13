@@ -15,7 +15,7 @@ import com.tterrag.registrate.util.entry.ItemEntry
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.world.item.Item
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
-import org.gtlcore.gtlcore.utils.Registries.*
+import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object PhotonMatrixEtch {
@@ -64,6 +64,22 @@ object PhotonMatrixEtch {
             "gtceu:cyan_glass_lens",
             960, 9, EuvPhotoresist, provider
         )
+        PHOTON_MATRIX_ETCH.recipeBuilder(GTLAdditions.id("fullerene_dust"))
+            .inputItems(getItemStack("gtceu:unfolded_fullerene_dust"))
+            .inputFluids(EuvPhotoresist.getFluid(5))
+            .notConsumable(TagPrefix.lens, MarkerMaterials.Color.Red)
+            .outputItems(TagPrefix.dust, Fullerene)
+            .duration(100)
+            .EUt(7864320)
+            .save(provider)
+        PHOTON_MATRIX_ETCH.recipeBuilder(GTLAdditions.id("lanthanum_embedded_fullerene_dust"))
+            .inputItems(getItemStack("gtceu:lanthanum_fullerene_mix_dust", 2))
+            .inputFluids(EuvPhotoresist.getFluid(5))
+            .notConsumable(TagPrefix.lens, MarkerMaterials.Color.Blue)
+            .outputItems(getItemStack("gtceu:lanthanum_embedded_fullerene_dust", 2))
+            .duration(80)
+            .EUt(7864320)
+            .save(provider)
     }
 
     private fun addRecipe(id : String, input : String, notitem_1 : String, notitem_2 : String, duration : Int, EUt : Int, Fluid : Material, provider : Consumer<FinishedRecipe?>) {
@@ -81,84 +97,84 @@ object PhotonMatrixEtch {
         fun init(provider : Consumer<FinishedRecipe?>) {
             addRecipe(
                 "engrave_ilc_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Red,
                 GTItems.INTEGRATED_LOGIC_CIRCUIT_WAFER,
                 256, 6, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_ram_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Green,
                 GTItems.RANDOM_ACCESS_MEMORY_WAFER,
                 256, 6, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_cpu_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.LightBlue,
                 GTItems.CENTRAL_PROCESSING_UNIT_WAFER,
                 256, 6, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_ulpic_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Blue,
                 GTItems.ULTRA_LOW_POWER_INTEGRATED_CIRCUIT_WAFER,
                 256, 6, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_lpic_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Orange,
                 GTItems.LOW_POWER_INTEGRATED_CIRCUIT_WAFER,
                 256, 6, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_ssoc_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Cyan,
                 GTItems.SIMPLE_SYSTEM_ON_CHIP_WAFER,
                 256, 6, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_nand_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Gray,
                 GTItems.NAND_MEMORY_CHIP_WAFER,
                 128, 13, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_nor_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Pink,
                 GTItems.NOR_MEMORY_CHIP_WAFER,
                 128, 13, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_pic_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Brown,
                 GTItems.POWER_INTEGRATED_CIRCUIT_WAFER,
                 128, 13, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_soc_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Yellow,
                 GTItems.SYSTEM_ON_CHIP_WAFER,
                 128, 13, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_asoc_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Purple,
                 GTItems.ADVANCED_SYSTEM_ON_CHIP_WAFER,
                 32, 50, GTValues.VA[GTValues.UHV], provider
             )
             addRecipe(
                 "engrave_hasoc_periodicium",
-                GTLAddItems.PERIODICIUM_WAFER !!,
+                GTLAddItems.PERIODICIUM_WAFER,
                 MarkerMaterials.Color.Black,
                 GTItems.HIGHLY_ADVANCED_SOC_WAFER,
                 16, 80, GTValues.VA[GTValues.UHV], provider

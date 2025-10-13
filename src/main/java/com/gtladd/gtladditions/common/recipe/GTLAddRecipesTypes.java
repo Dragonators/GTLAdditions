@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import static com.lowdragmc.lowdraglib.gui.texture.ProgressTexture.FillDirection.LEFT_TO_RIGHT;
+
 public class GTLAddRecipesTypes {
 
     public static final Set<GTRecipeType> MULTIPLE_TYPE_RECIPES;
@@ -40,6 +42,8 @@ public class GTLAddRecipesTypes {
     public static final GTRecipeType MOLECULAR_DECONSTRUCTION;
     public static final GTRecipeType UNIVERSE_SANDBOX;
     public static final GTRecipeType CHAOS_WEAVE;
+    public static final GTRecipeType GENESIS_ENGINE;
+    public static final GTRecipeType STAR_CORE_STRIPPER;
 
     public static final GTRecipeType FORGE_OF_THE_ANTICHRIST;
     public static final GTRecipeType QUANTUM_OSCILLATION;
@@ -127,6 +131,13 @@ public class GTLAddRecipesTypes {
         CHAOS_WEAVE = GTRecipeTypes.register("chaos_weave", GTRecipeTypes.MULTIBLOCK)
                 .setEUIO(IO.IN).setMaxIOSize(1, 1, 0, 0)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC);
+        GENESIS_ENGINE = GTRecipeTypes.register("genesis_engine", GTRecipeTypes.MULTIBLOCK)
+                .setEUIO(IO.OUT).setMaxIOSize(2, 1, 0, 0)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, LEFT_TO_RIGHT).setSound(GTLAddSoundEntries.GENESIS_ENGINE);
+        STAR_CORE_STRIPPER = GTRecipeTypes.register("star_core_stripper", GTRecipeTypes.MULTIBLOCK)
+                .setEUIO(IO.IN).setMaxIOSize(3, 12, 1, 1)
+                .setMaxTooltips(1)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_MACERATE, LEFT_TO_RIGHT).setSound(GTSoundEntries.MINER);
         FORGE_OF_THE_ANTICHRIST = GTRecipeTypes.register("forge_of_the_antichrist", GTRecipeTypes.DUMMY)
                 .setXEIVisible(false)
                 .setSound(GTLAddSoundEntries.FORGE_OF_THE_ANTICHRIST);

@@ -1,21 +1,35 @@
 package com.gtladd.gtladditions.common.data
 
+import com.google.common.primitives.Ints
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern
 import com.gregtechceu.gtceu.api.pattern.Predicates
+import com.gregtechceu.gtceu.api.recipe.GTRecipe
+import com.gregtechceu.gtceu.api.recipe.OverclockingLogic
+import com.gregtechceu.gtceu.api.recipe.logic.OCParams
+import com.gregtechceu.gtceu.api.recipe.logic.OCResult
+import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifierList
 import com.gregtechceu.gtceu.common.data.GTBlocks
 import com.gregtechceu.gtceu.common.data.GTMachines
+import com.gregtechceu.gtceu.common.data.GTRecipeModifiers
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.ActiveTransformerMachine
 import com.gregtechceu.gtceu.utils.SupplierMemoizer
+import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
+import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.CreateAggregation
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.DoorOfCreate
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLMaterials
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
 import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Function
 
+@Suppress("DuplicatedCode")
 object MultiBlockModify {
     private val doorofPattern = Function { definition: MultiblockMachineDefinition? ->
         FactoryBlockPattern.start()
@@ -55,6 +69,7 @@ object MultiBlockModify {
                     .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                     .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                     .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(1))
+                    .or(Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1))
             )
             .where("c", Predicates.blocks(Registries.getBlock("kubejs:dimension_creation_casing")))
             .where(" ", Predicates.any())
@@ -96,6 +111,7 @@ object MultiBlockModify {
                     .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1))
                     .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(1))
                     .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1))
+                    .or(Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1))
             )
             .where("b", Predicates.blocks(Registries.getBlock("kubejs:dimensional_bridge_casing")))
             .where("c", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.frameGt, GTLMaterials.Infinity)))
@@ -118,6 +134,17 @@ object MultiBlockModify {
             .build()
     }
 
+    private val recipeModifierList = RecipeModifierList(
+        { machine: MetaMachine?, recipe: GTRecipe?, params: OCParams?, result: OCResult? ->
+            GTRecipeModifiers.accurateParallel(
+                machine,
+                recipe!!,
+                Ints.saturatedCast(1L + (machine as IThreadModifierMachine).additionalThread),
+                false
+            ).getFirst()
+        }, GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false))
+    )
+
     @JvmStatic
     fun init() {
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.patternFactory = SupplierMemoizer.memoize {
@@ -128,6 +155,15 @@ object MultiBlockModify {
         }
         GTMachines.ACTIVE_TRANSFORMER.patternFactory = SupplierMemoizer.memoize {
             (activeTransformer).apply(GTMachines.ACTIVE_TRANSFORMER)
+        }
+
+        AdvancedMultiBlockMachine.CREATE_AGGREGATION.recipeModifier = recipeModifierList
+        AdvancedMultiBlockMachine.DOOR_OF_CREATE.recipeModifier = recipeModifierList
+        AdvancedMultiBlockMachine.CREATE_AGGREGATION.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            CreateAggregation(blockEntity)
+        }
+        AdvancedMultiBlockMachine.DOOR_OF_CREATE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            DoorOfCreate(blockEntity)
         }
     }
 }

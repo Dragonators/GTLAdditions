@@ -3,8 +3,8 @@ package com.gtladd.gtladditions.common.machine.muiltblock.controller
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
-import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricParallelHatchMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
+import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricParallelHatchMultipleRecipesMachine
 import org.gtlcore.gtlcore.utils.MachineIO
 import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Predicate

@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.data.recipes
 
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.crushedPurified
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
 import com.gregtechceu.gtceu.api.data.tag.TagUtil
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient
 import com.gregtechceu.gtceu.common.data.GTMaterials.*

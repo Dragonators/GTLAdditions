@@ -1,63 +1,46 @@
 package com.gtladd.gtladditions.common.items
 
+import com.gregtechceu.gtceu.api.item.ComponentItem
+import com.gregtechceu.gtceu.common.data.GTItems
+import com.gregtechceu.gtceu.common.item.TooltipBehavior
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
+import com.gtladd.gtladditions.common.items.behavior.AstralArrayBehavior
 import com.tterrag.registrate.util.entry.ItemEntry
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
 
 object GTLAddItems {
+    val ECHO_SHARD_BOULE: ItemEntry<Item?>
+    val ECHO_SHARD_WAFER: ItemEntry<Item?>
+    val BIOWARE_ECHO_SHARD_BOULE: ItemEntry<Item?>
+    val OUTSTANDING_SOC_WAFER: ItemEntry<Item?>
+    val OUTSTANDING_SOC: ItemEntry<Item?>
+    val HASSIUM_BOULE: ItemEntry<Item?>
+    val HASSIUM_WAFER: ItemEntry<Item?>
+    val PREPARE_EXTRAORDINARY_SOC_WAFER: ItemEntry<Item?>
+    val EXTRAORDINARY_SOC_WAFER: ItemEntry<Item?>
+    val EXTRAORDINARY_SOC: ItemEntry<Item?>
+    val STARMETAL_BOULE: ItemEntry<Item?>
+    val STARMETAL_WAFER: ItemEntry<Item?>
+    val DRAGON_ELEMENT_STARMETAL_WAFER: ItemEntry<Item?>
+    val CHAOS_SOC_WAFER: ItemEntry<Item?>
+    val CHAOS_SOC: ItemEntry<Item?>
+    val PERIODICIUM_BOULE: ItemEntry<Item?>
+    val PERIODICIUM_WAFER: ItemEntry<Item?>
+    val PREPARE_SPACETIME_SOC_WAFER: ItemEntry<Item?>
+    val SPACETIME_SOC_WAFER: ItemEntry<Item?>
+    val SPACETIME_SOC: ItemEntry<Item?>
+    val INFINITY_BOULE: ItemEntry<Item?>
+    val INFINITY_WAFER: ItemEntry<Item?>
+    val PREPARE_PRIMARY_SOC_WAFER: ItemEntry<Item?>
+    val PRIMARY_SOC_WAFER: ItemEntry<Item?>
+    val PRIMARY_SOC: ItemEntry<Item?>
+    val SPACETIME_LENS: ItemEntry<Item?>
+    val STRANGE_ANNIHILATION_FUEL_ROD: ItemEntry<ComponentItem>
+    val BLACK_HOLE_SEED: ItemEntry<ComponentItem>
     @JvmField
-    var ECHO_SHARD_BOULE: ItemEntry<Item?>
-    @JvmField
-    var ECHO_SHARD_WAFER: ItemEntry<Item?>
-    @JvmField
-    var BIOWARE_ECHO_SHARD_BOULE: ItemEntry<Item?>
-    @JvmField
-    var OUTSTANDING_SOC_WAFER: ItemEntry<Item?>
-    @JvmField
-    var OUTSTANDING_SOC: ItemEntry<Item?>
-    @JvmField
-    var HASSIUM_BOULE: ItemEntry<Item?>
-    @JvmField
-    var HASSIUM_WAFER: ItemEntry<Item?>
-    @JvmField
-    var PREPARE_EXTRAORDINARY_SOC_WAFER: ItemEntry<Item?>
-    @JvmField
-    var EXTRAORDINARY_SOC_WAFER: ItemEntry<Item?>
-    @JvmField
-    var EXTRAORDINARY_SOC: ItemEntry<Item?>
-    @JvmField
-    var STARMETAL_BOULE: ItemEntry<Item?>
-    @JvmField
-    var STARMETAL_WAFER: ItemEntry<Item?>
-    @JvmField
-    var DRAGON_ELEMENT_STARMETAL_WAFER: ItemEntry<Item?>
-    @JvmField
-    var CHAOS_SOC_WAFER: ItemEntry<Item?>
-    @JvmField
-    var CHAOS_SOC: ItemEntry<Item?>
-    @JvmField
-    var PERIODICIUM_BOULE: ItemEntry<Item?>
-    @JvmField
-    var PERIODICIUM_WAFER: ItemEntry<Item?>
-    @JvmField
-    var PREPARE_SPACETIME_SOC_WAFER: ItemEntry<Item?>
-    @JvmField
-    var SPACETIME_SOC_WAFER: ItemEntry<Item?>
-    @JvmField
-    var SPACETIME_SOC: ItemEntry<Item?>
-    @JvmField
-    var INFINITY_BOULE: ItemEntry<Item?>
-    @JvmField
-    var INFINITY_WAFER: ItemEntry<Item?>
-    @JvmField
-    var PREPARE_PRIMARY_SOC_WAFER: ItemEntry<Item?>
-    @JvmField
-    var PRIMARY_SOC_WAFER: ItemEntry<Item?>
-    @JvmField
-    var PRIMARY_SOC: ItemEntry<Item?>
-    @JvmField
-    var SPACETIME_LENS: ItemEntry<Item?>
+    val ASTRAL_ARRAY: ItemEntry<ComponentItem>
 
     @JvmStatic
     fun init() {}
@@ -94,5 +77,38 @@ object GTLAddItems {
         PREPARE_PRIMARY_SOC_WAFER = register("prepare_primary_soc_wafer", "Prepare Primary Soc Wafer")
         PRIMARY_SOC_WAFER = register("primary_soc_wafer", "Primary Soc Wafer")
         PRIMARY_SOC = register("primary_soc", "Primary Soc")
+        STRANGE_ANNIHILATION_FUEL_ROD = REGISTRATE.item("strange_annihilation_fuel_rod") { properties: Item.Properties -> ComponentItem.create(properties) }
+            .onRegister(
+                GTItems.attach(
+                    TooltipBehavior
+                    { lines: MutableList<Component> ->
+                        lines.add(Component.translatable("gtladditions.item.strange_annihilation_fuel_rod.tooltips.0"))
+                    })
+            )
+            .lang("Strange Annihilation Fuel Rod")
+            .register()
+        BLACK_HOLE_SEED = REGISTRATE.item("black_hole_seed") { properties: Item.Properties -> ComponentItem.create(properties) }
+            .onRegister(
+                GTItems.attach(
+                    TooltipBehavior
+                    { lines: MutableList<Component> ->
+                        lines.add(Component.translatable("gtladditions.item.black_hole_seed.tooltips.0"))
+                    })
+            )
+            .lang("Black Hole Seed")
+            .register()
+        ASTRAL_ARRAY = REGISTRATE.item("astral_array") { properties: Item.Properties -> ComponentItem.create(properties) }
+            .onRegister(
+                GTItems.attach(
+                    TooltipBehavior
+                    { lines: MutableList<Component> ->
+                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.0"))
+                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.1"))
+                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.2"))
+                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.3"))
+                    }, AstralArrayBehavior.INSTANCE)
+            )
+            .lang("Astral Array")
+            .register()
     }
 }

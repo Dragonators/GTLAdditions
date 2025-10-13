@@ -7,19 +7,20 @@ import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty
 import com.gregtechceu.gtceu.api.fluids.FluidState
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
-import com.gregtechceu.gtceu.common.data.GTMaterials.*
-import org.gtlcore.gtlcore.common.data.GTLMaterials.*
+import com.gregtechceu.gtceu.common.data.GTMaterials.Gallium
+import com.gregtechceu.gtceu.common.data.GTMaterials.Oxygen
 import com.gtladd.gtladditions.GTLAdditions
+import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 
 object GTLAddMaterial {
-    @JvmField
+    @JvmStatic
     val GALLIUM_OXIDE: Material = (Material.Builder(GTLAdditions.id("gallium_oxide"))).dust().color(15720677)
         .components(Gallium, 2, Oxygen, 3).iconSet(MaterialIconSet.DULL).buildAndRegister()
-    @JvmField
+    @JvmStatic
     val AMMONIUM_GALIUM_SULFATE: Material =
         (Material.Builder(GTLAdditions.id("ammonium_gallium_sulfate"))).dust().color(0xFFF6E9)
             .iconSet(MaterialIconSet.DULL).buildAndRegister().setFormula("Ga(NH₄)(SO₄)₂")
-    @JvmField
+    @JvmStatic
     val CREON: Material =
         (Material.Builder(GTLAdditions.id("creon")))
             .ingot()
@@ -31,7 +32,7 @@ object GTLAddMaterial {
             .color(0x460046)
             .iconSet(MaterialIconSet.METALLIC)
             .buildAndRegister()
-    @JvmField
+    @JvmStatic
     val MELLION: Material =
         (Material.Builder(GTLAdditions.id("mellion")))
             .ingot()
@@ -41,7 +42,7 @@ object GTLAddMaterial {
             .color(0x3c0505)
             .iconSet(MaterialIconSet.SHINY)
             .buildAndRegister().setFormula("Tn₁₁Or₈Rb₁₁?₇?₁₃?₁₃")
-    @JvmField
+    @JvmStatic
     val PROTO_HALKONITE_BASE: Material =
         (Material.Builder(GTLAdditions.id("proto_halkonite_base")))
             .fluid(FluidStorageKeys.MOLTEN, FluidState.LIQUID)
@@ -50,10 +51,11 @@ object GTLAddMaterial {
             .components(TranscendentMetal, 2, Tairitsu, 2, Tartarite, 2, TitanPrecisionSteel, 1, Eternity, 1)
             .iconSet(MaterialIconSet.METALLIC)
             .buildAndRegister().setFormula("(TsЖ)₂(W₈Nq*₇(SiO₂)₄C₄V₃SpPu)₂Tt₂((CW)₇Ti₃)₃⊕☄⚛If*")
-    @JvmField
+    @JvmStatic
     val PROTO_HALKONITE: Material =
         (Material.Builder(GTLAdditions.id("proto_halkonite")))
             .ingot()
+            .fluid(FluidStorageKeys.LIQUID, FluidState.LIQUID)
             .blastTemp(48000, BlastProperty.GasTier.HIGHEST, GTValues.VA[GTValues.OpV], 680)
             .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE)
             .color(0x01943c)

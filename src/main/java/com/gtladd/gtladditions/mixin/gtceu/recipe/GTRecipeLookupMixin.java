@@ -13,7 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 @Mixin(GTRecipeLookup.class)
 public abstract class GTRecipeLookupMixin {

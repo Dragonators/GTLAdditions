@@ -20,13 +20,12 @@ open class GTLAddWirelessCoilWorkableElectricMultipleRecipesMultiblockMachine(
     }
 
     override fun getMaxParallel(): Int {
-        return min(Int.Companion.MAX_VALUE, 2.0.pow(this.coilType.coilTemperature.toDouble() / 900.0).toInt())
+        return min(Int.MAX_VALUE, 2.0.pow(this.coilType.coilTemperature / 900.0).toInt())
     }
 
     override fun onStructureFormed() {
         super.onStructureFormed()
-        val type = multiblockState.matchContext.get<Any?>("CoilType")
-        if (type is ICoilType) this.coilType = type
+        (this.multiblockState.matchContext.get<Any?>("CoilType") as? ICoilType)?.let { coilType = it }
     }
 
     fun getCoilTier(): Int {

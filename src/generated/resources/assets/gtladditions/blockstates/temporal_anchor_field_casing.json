@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "gtladditions:block/temporal_anchor_field_casing"
+    }
+  }
+}

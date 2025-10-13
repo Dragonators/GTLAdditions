@@ -15,8 +15,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleWirelessRecipesLogic;
 import com.gtladd.gtladditions.api.recipe.IWirelessGTRecipe;
+import com.gtladd.gtladditions.utils.CommonUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,8 +31,6 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 
 import static net.minecraft.ChatFormatting.*;
-import static net.minecraft.ChatFormatting.GREEN;
-import static net.minecraft.ChatFormatting.RED;
 import static org.gtlcore.gtlcore.utils.TextUtil.GTL_CORE$VC;
 
 @Mixin(value = RecipeLogicProvider.class, priority = 1500)
@@ -40,12 +38,10 @@ public abstract class RecipeLogicProviderMixin {
 
     @Inject(method = "write(Lnet/minecraft/nbt/CompoundTag;Lcom/gregtechceu/gtceu/api/machine/trait/RecipeLogic;)V", at = @At("HEAD"), remap = false)
     protected void write(CompoundTag data, RecipeLogic capability, CallbackInfo ci) {
-        if (capability instanceof GTLAddMultipleWirelessRecipesLogic) {
-            if (capability.getLastRecipe() instanceof IWirelessGTRecipe recipe) {
-                var bigIntInput = recipe.getWirelessEuTickInputs();
-                if (bigIntInput != null && bigIntInput.signum() != 0) {
-                    data.putByteArray("wirelessTickInputs", bigIntInput.toByteArray());
-                }
+        if (capability.getLastRecipe() instanceof IWirelessGTRecipe recipe) {
+            var bigIntInput = recipe.getWirelessEuTickInputs();
+            if (bigIntInput != null && bigIntInput.signum() != 0) {
+                data.putByteArray("wirelessTickInputs", bigIntInput.toByteArray());
             }
         }
     }
@@ -79,19 +75,17 @@ public abstract class RecipeLogicProviderMixin {
                                                     .withStyle(style -> style.withColor(GTL_CORE$VC[tier])))
                                             .append(Component.literal(")").withStyle(GREEN))));
 
-                    if (eut > 0) {
-                        if (isInput) {
-                            tooltip.add(Component.translatable("gtceu.top.energy_consumption").append(" ").append(text));
-                        } else {
-                            tooltip.add(Component.translatable("gtceu.top.energy_production").append(" ").append(text));
-                        }
+                    if (isInput) {
+                        tooltip.add(Component.translatable("gtceu.top.energy_consumption").append(" ").append(text));
+                    } else {
+                        tooltip.add(Component.translatable("gtceu.top.energy_production").append(" ").append(text));
                     }
                 } else if (capData.contains("wirelessTickInputs", Tag.TAG_BYTE_ARRAY)) {
                     BigInteger wirelessEut = new BigInteger(capData.getByteArray("wirelessTickInputs"));
                     BigInteger abs = wirelessEut.abs();
                     long longEu = NumberUtils.getLongValue(abs);
                     var tier = longEu == Long.MAX_VALUE ? GTValues.MAX_TRUE : NumberUtils.getFakeVoltageTier(longEu);
-                    Component text = Component.literal(NumberUtils.formatDouble(abs.doubleValue())).withStyle(RED)
+                    Component text = Component.literal(CommonUtils.formatDouble(abs.doubleValue())).withStyle(RED)
                             .append(Component.literal(" EU/t").withStyle(RESET)
                                     .append(Component.literal(" (").withStyle(GREEN)
                                             .append(Component

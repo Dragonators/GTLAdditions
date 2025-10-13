@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.mixin.gtlcore.machine.part;
 
-import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.*;
+import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.AutoConfigurationMaintenanceHatchPartMachine;
+import org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.IAutoConfigurationMaintenanceHatch;
 import org.gtlcore.gtlcore.utils.Registries;
 
 import com.gregtechceu.gtceu.api.capability.ICleanroomReceiver;
@@ -28,7 +29,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static org.gtlcore.gtlcore.common.machine.multiblock.part.maintenance.ICleaningRoom.DUMMY_CLEANROOM;

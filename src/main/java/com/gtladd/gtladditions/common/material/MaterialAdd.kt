@@ -1,6 +1,7 @@
 ﻿package com.gtladd.gtladditions.common.material
 
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.FluidProperty
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.IngotProperty
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.WireProperties
@@ -25,6 +26,7 @@ object MaterialAdd {
         GTLMaterials.CosmicNeutronium.addFlags(MaterialFlags.GENERATE_DENSE)
         GTLMaterials.AbyssalAlloy.addFlags(MaterialFlags.GENERATE_FRAME)
 
+        GTLMaterials.Cosmic.setProperty(PropertyKey.FLUID, FluidProperty(FluidStorageKeys.LIQUID, FluidBuilder()))
         GTLMaterials.Eternity.setProperty(PropertyKey.WIRE,
             WireProperties(Int.MAX_VALUE, 4194304, 0, true)
         )

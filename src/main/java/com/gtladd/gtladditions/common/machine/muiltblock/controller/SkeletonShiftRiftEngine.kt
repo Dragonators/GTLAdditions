@@ -1,12 +1,18 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
-import com.gregtechceu.gtceu.api.machine.*
-import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
-import com.gregtechceu.gtceu.api.recipe.*
-import com.gregtechceu.gtceu.api.recipe.logic.*
+import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gregtechceu.gtceu.api.recipe.GTRecipe
+import com.gregtechceu.gtceu.api.recipe.OverclockingLogic
+import com.gregtechceu.gtceu.api.recipe.RecipeHelper
+import com.gregtechceu.gtceu.api.recipe.logic.OCParams
+import com.gregtechceu.gtceu.api.recipe.logic.OCResult
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic
 import com.gregtechceu.gtceu.utils.FormattingUtil
+import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic
+import com.gtladd.gtladditions.api.machine.mutable.MutableCoilElectricMultiblockMachine
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.ChatFormatting
@@ -15,22 +21,34 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-class SkeletonShiftRiftEngine(holder: IMachineBlockEntity) : CoilWorkableElectricMultiblockMachine(holder) {
+class SkeletonShiftRiftEngine(holder: IMachineBlockEntity) : MutableCoilElectricMultiblockMachine(holder) {
     @field:Persisted
     private var casingTier: Int = 0
     @field:Persisted
     private var parallel = 0
 
+    override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
+        return object : MutableRecipesLogic<SkeletonShiftRiftEngine>(this){
+            override fun getEuMultiplier(): Double {
+                return super.getEuMultiplier() * 1 / max(getMachine().casingTier, 1)
+            }
+        }
+    }
+
     override fun onStructureFormed() {
         super.onStructureFormed()
         this.casingTier = multiblockState.matchContext.get("SCTier")
-        parallel = getParallel()
+        parallel = maxParallel
     }
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
         this.casingTier = 0
         parallel = 0
+    }
+
+    override fun getMaxParallel(): Int {
+        return min(Int.MAX_VALUE, 2.0.pow(this.coilType.coilTemperature / 1200.0).toInt())
     }
 
     override fun addDisplayText(textList: MutableList<Component?>) {
@@ -45,13 +63,6 @@ class SkeletonShiftRiftEngine(holder: IMachineBlockEntity) : CoilWorkableElectri
                 .withStyle(ChatFormatting.GRAY)
         )
         textList.add(Component.translatable("gtceu.casings.tier", this.casingTier))
-    }
-
-    private fun getParallel(): Int {
-        return min(
-            Int.Companion.MAX_VALUE.toDouble(),
-            2.0.pow(this.coilType.coilTemperature.toDouble() / 1200)
-        ).toInt()
     }
 
     override fun getFieldHolder(): ManagedFieldHolder {

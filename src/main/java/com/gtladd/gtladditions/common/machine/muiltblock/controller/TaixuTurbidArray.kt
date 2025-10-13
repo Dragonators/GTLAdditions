@@ -3,7 +3,9 @@ package com.gtladd.gtladditions.common.machine.muiltblock.controller
 import com.gregtechceu.gtceu.api.GTCEuAPI
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.block.ICoilType
-import com.gregtechceu.gtceu.api.capability.recipe.*
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
+import com.gregtechceu.gtceu.api.capability.recipe.IO
+import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine

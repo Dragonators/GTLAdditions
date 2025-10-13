@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.GlassBlock
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
+import org.gtlcore.gtlcore.GTLCore
 import java.util.function.Supplier
 
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "DEPRECATION")
@@ -38,6 +39,7 @@ object GTLAddBlocks {
     val REMOTE_GRAVITON_FLOW_REGULATOR: BlockEntry<Block>
     val MEDIARY_GRAVITON_FLOW_REGULATOR: BlockEntry<Block>
     val CENTRAL_GRAVITON_FLOW_REGULATOR: BlockEntry<Block>
+    val TEMPORAL_ANCHOR_FIELD_CASING: BlockEntry<Block>
 
     @JvmStatic
     fun init() {}
@@ -83,6 +85,10 @@ object GTLAddBlocks {
         CENTRAL_GRAVITON_FLOW_REGULATOR = createGravitonCasingBlock(
             "central_graviton_flow_regulator",
             GTLAdditions.id("block/casings/graviton_casing_0")
+        )
+        TEMPORAL_ANCHOR_FIELD_CASING = createCasingBlock(
+            "temporal_anchor_field_casing",
+            GTLCore.id("block/casings/sps_casing")
         )
         GTLAddRegistration.REGISTRATE.creativeModeTab(GTLAddCreativeModeTabs.GTLADD_MACHINE)
     }

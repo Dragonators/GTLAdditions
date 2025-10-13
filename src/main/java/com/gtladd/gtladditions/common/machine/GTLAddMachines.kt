@@ -14,17 +14,17 @@ import com.gregtechceu.gtceu.common.data.GTCompassSections
 import com.gregtechceu.gtceu.common.data.GTMachines
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 import com.gtladd.gtladditions.api.registry.MachineBuilderExtensions.overlayHullRenderer
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.data.MultiBlockModify
+import com.gtladd.gtladditions.common.data.MutableMultiBlockModify
 import com.gtladd.gtladditions.common.machine.hatch.HugeSteamHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.SuperDualHatchPartMachine
-import com.gtladd.gtladditions.common.machine.hatch.SuperParallelHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.UltimateDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.part.MESuperPatternBufferPartMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.part.MESuperPatternBufferProxyPartMachine
+import com.gtladd.gtladditions.common.machine.muiltblock.part.*
 import com.gtladd.gtladditions.config.ConfigHolder
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeDualHatchPartMachine
 import com.hepdd.gtmthings.common.registry.GTMTRegistration
@@ -46,11 +46,12 @@ object GTLAddMachines {
     val HUGE_STEAM_HATCH: MachineDefinition
     val SUPER_INPUT_DUAL_HATCH: MachineDefinition
     val Ultimate_INPUT_DUAL_HATCH: MachineDefinition
-    @JvmField
     val ME_SUPER_PATTERN_BUFFER: MachineDefinition
     val ME_SUPER_PATTERN_BUFFER_PROXY: MachineDefinition
     val SUPER_PARALLEL_HATCH: MachineDefinition
-    @JvmField
+    val Wireless_Energy_Network_OUTPUT_Terminal: MachineDefinition
+    val Wireless_Energy_Network_INPUT_Terminal: MachineDefinition
+    val THREAD_MODIFIER_HATCH: MachineDefinition
     val HUGE_OUTPUT_DUAL_HATCH: Array<MachineDefinition?>
     val LASER_INPUT_HATCH_16777216A: Array<MachineDefinition?>
     val LASER_OUTPUT_HATCH_16777216A: Array<MachineDefinition?>
@@ -65,6 +66,7 @@ object GTLAddMachines {
     fun init() {
         MultiBlockMachine.init()
         MultiBlockModify.init()
+        MutableMultiBlockModify.init()
     }
 
     val GTLAdd_ADD: BiConsumer<ItemStack?, MutableList<Component?>?> =
@@ -233,10 +235,47 @@ object GTLAddMachines {
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.PARALLEL_HATCH)
             .workableCasingRenderer(GTLCore.id("block/create_casing"), GTCEu.id("block/machines/parallel_hatch_mk10"))
-            .tooltips(Component.translatable("gtceu.machine.super_parallel_hatch.tooltip"))
+            .tooltips(Component.translatable("gtceu.universal.enabled"),
+                Component.translatable("gtceu.machine.super_parallel_hatch.tooltip"))
             .tooltipBuilder(GTLAdd_ADD)
             .compassNode("parallel_hatch")
             .register()
-
+        Wireless_Energy_Network_OUTPUT_Terminal = REGISTRATE.machine("wireless_energy_network_output_terminal")
+        { WirelessEnergyNetworkTerminalPartMachine(it!!, IO.OUT) }
+            .rotationState(RotationState.ALL)
+            .abilities(PartAbility.OUTPUT_LASER, PartAbility.OUTPUT_ENERGY)
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTLAdditions.id("block/machine/part/wireless_energy_network_terminal"))
+            .langValue("Wireless Energy Network Output Terminal")
+            .tooltips(Component.translatable("gtceu.universal.disabled"),
+                Component.translatable("gtladditions.machine.wireless_energy_network_terminal.tooltips.0"),
+                Component.translatable("gtladditions.machine.wireless_energy_network_output_terminal.tooltips.0"),
+                Component.translatable("gtladditions.machine.wireless_energy_network_output_terminal.tooltips.1"))
+            .tooltipBuilder(GTLAdd_ADD)
+            .register()
+        Wireless_Energy_Network_INPUT_Terminal = REGISTRATE.machine("wireless_energy_network_input_terminal")
+        { WirelessEnergyNetworkTerminalPartMachine(it!!, IO.IN) }
+            .rotationState(RotationState.ALL)
+            .abilities(PartAbility.INPUT_LASER, PartAbility.INPUT_ENERGY)
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTLAdditions.id("block/machine/part/wireless_energy_network_terminal"))
+            .langValue("Wireless Energy Network Input Terminal")
+            .tooltips(Component.translatable("gtceu.universal.disabled"),
+                Component.translatable("gtladditions.machine.wireless_energy_network_terminal.tooltips.0"),
+                Component.translatable("gtladditions.machine.wireless_energy_network_input_terminal.tooltips.0"),
+                Component.translatable("gtladditions.machine.wireless_energy_network_input_terminal.tooltips.1"))
+            .tooltipBuilder(GTLAdd_ADD)
+            .register()
+        THREAD_MODIFIER_HATCH = REGISTRATE.machine("thread_modifier_hatch")
+        { ThreadPartMachine(it!!) }
+            .rotationState(RotationState.ALL)
+            .abilities(GTLAddPartAbility.THREAD_MODIFIER)
+            .overlayHullRenderer(GTLCore.id("block/create_casing"), GTLAdditions.id("block/machine/part/thread_modifier_hatch"))
+            .langValue("Thread Modifier Hatch")
+            .tooltips(Component.translatable("gtceu.universal.disabled"),
+                Component.translatable("gtladditions.machine.thread_modifier_hatch.tooltips.0"),
+                Component.translatable("gtladditions.machine.thread_modifier_hatch.tooltips.1"),
+                Component.translatable("gtladditions.machine.thread_modifier_hatch.tooltips.2"),
+                Component.translatable("gtladditions.machine.thread_modifier_hatch.tooltips.3"))
+            .tooltipBuilder(GTLAdd_ADD)
+            .register()
     }
 }

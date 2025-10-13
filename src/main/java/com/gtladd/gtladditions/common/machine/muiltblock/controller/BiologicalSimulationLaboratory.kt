@@ -12,18 +12,22 @@ import com.gregtechceu.gtceu.api.recipe.RecipeHelper
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.api.machine.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
-import com.lowdragmc.lowdraglib.gui.widget.*
+import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
+import com.lowdragmc.lowdraglib.gui.widget.SlotWidget
+import com.lowdragmc.lowdraglib.gui.widget.Widget
+import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
-import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.*
+import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.handleRecipeOutput
+import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.matchRecipeOutput
 import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
-import org.gtlcore.gtlcore.utils.Registries.*
+import org.gtlcore.gtlcore.utils.Registries.getItem
+import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.BiPredicate
 
 class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
@@ -135,6 +139,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
 
         override fun findAndHandleRecipe() {
             lastRecipe = null
+            recipeStatus = null
             val match = if (this.isNanCertificate) gtRecipe
             else this.oneRecipe
             if (match != null && matchRecipeOutput(this.machine, match)) {

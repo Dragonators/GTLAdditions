@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.api.machine.logic;
 
-import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine;
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe;
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic;
 import org.gtlcore.gtlcore.api.recipe.RecipeResult;
@@ -11,51 +10,56 @@ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
-import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipe;
+import com.google.common.primitives.Ints;
+import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipeMachine;
+import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine;
+import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler;
+import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe;
+import com.gtladd.gtladditions.api.recipe.WirelessGTRecipeBuilder;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import javax.annotation.Nullable;
-
 import static org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.*;
 
 public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
 
-    protected final IGTLAddMultiRecipe limited;
+    private static final long MAX_THREADS = 128;
+    protected final IGTLAddMultiRecipeMachine limited;
+    protected final BiPredicate<GTRecipe, IRecipeLogicMachine> recipeCheck;
+    protected final Predicate<IRecipeLogicMachine> beforeWorking;
 
-    protected static final int MAX_THREADS = 128;
-
-    protected BiPredicate<GTRecipe, IRecipeLogicMachine> recipeCheck;
-    protected Predicate<IRecipeLogicMachine> beforeWorking;
-
-    public GTLAddMultipleRecipesLogic(ParallelMachine parallel) {
+    public GTLAddMultipleRecipesLogic(GTLAddWorkableElectricMultipleRecipesMachine parallel) {
         this(parallel, null, null);
     }
 
-    public GTLAddMultipleRecipesLogic(ParallelMachine parallel, BiPredicate<GTRecipe, IRecipeLogicMachine> recipeCheck) {
+    public GTLAddMultipleRecipesLogic(GTLAddWorkableElectricMultipleRecipesMachine parallel, BiPredicate<GTRecipe, IRecipeLogicMachine> recipeCheck) {
         this(parallel, recipeCheck, null);
     }
 
-    public GTLAddMultipleRecipesLogic(ParallelMachine parallel, Predicate<IRecipeLogicMachine> beforeWorking) {
+    public GTLAddMultipleRecipesLogic(GTLAddWorkableElectricMultipleRecipesMachine parallel, Predicate<IRecipeLogicMachine> beforeWorking) {
         this(parallel, null, beforeWorking);
     }
 
-    public GTLAddMultipleRecipesLogic(ParallelMachine parallel, BiPredicate<GTRecipe, IRecipeLogicMachine> recipeCheck, Predicate<IRecipeLogicMachine> beforeWorking) {
+    public GTLAddMultipleRecipesLogic(GTLAddWorkableElectricMultipleRecipesMachine parallel, BiPredicate<GTRecipe, IRecipeLogicMachine> recipeCheck, Predicate<IRecipeLogicMachine> beforeWorking) {
         super(parallel);
-        this.limited = (IGTLAddMultiRecipe) parallel;
+        this.limited = parallel;
         this.recipeCheck = recipeCheck;
         this.beforeWorking = beforeWorking;
     }
@@ -63,6 +67,7 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
     @Override
     public void findAndHandleRecipe() {
         lastRecipe = null;
+        setRecipeStatus(null);
         var match = getGTRecipe();
         if (match != null && matchRecipeOutput(machine, match)) {
             setupRecipe(match);
@@ -85,18 +90,24 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
         duration = 0;
     }
 
+    @Override
+    public GTLAddWorkableElectricMultipleRecipesMachine getMachine() {
+        return (GTLAddWorkableElectricMultipleRecipesMachine) super.getMachine();
+    }
+
     public int getMultipleThreads() {
-        return MAX_THREADS;
+        return Ints.saturatedCast(MAX_THREADS + getMachine().getAdditionalThread());
     }
 
     @Nullable
     protected GTRecipe getGTRecipe() {
         if (!checkBeforeWorking()) return null;
 
-        var parallelData = calculateParallels();
+        final var parallelData = calculateParallels();
         if (parallelData == null) return null;
 
-        return buildFinalRecipe(parallelData);
+        final var wirelessTrait = getMachine().getWirelessNetworkEnergyHandler();
+        return (wirelessTrait != null && wirelessTrait.isOnline()) ? buildFinalWirelessRecipe(parallelData, wirelessTrait) : buildFinalNormalRecipe(parallelData);
     }
 
     @Nullable
@@ -154,44 +165,92 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
     }
 
     @Nullable
-    protected GTRecipe buildFinalRecipe(ParallelData parallelData) {
+    protected GTRecipe buildFinalNormalRecipe(ParallelData parallelData) {
         long maxEUt = getMachine().getOverclockVoltage();
 
+        final var itemOutputs = new ObjectArrayList<Content>();
+        final var fluidOutputs = new ObjectArrayList<Content>();
         GTRecipe recipe = GTRecipeBuilder.ofRaw().buildRawRecipe();
-        recipe.outputs.put(ItemRecipeCapability.CAP, new ObjectArrayList<>());
-        recipe.outputs.put(FluidRecipeCapability.CAP, new ObjectArrayList<>());
+        recipe.outputs.put(ItemRecipeCapability.CAP, itemOutputs);
+        recipe.outputs.put(FluidRecipeCapability.CAP, fluidOutputs);
 
         double euMultiplier = this.getEuMultiplier();
-        long totalEu = 0;
+        double totalEu = 0;
         int index = 0;
 
         for (var r : parallelData.recipeList) {
             if (parallelData.parallels[index] > 1) r = r.copy(ContentModifier.multiplier(parallelData.parallels[index]), false);
-            ((IGTRecipe) r).setRealParallels(parallelData.parallels[index++]);
+            IGTRecipe.of(r).setRealParallels(parallelData.parallels[index++]);
             r = modifyInputAndOutput(r);
             if (matchRecipeInput(machine, r) && handleRecipeInput(machine, r)) {
-                totalEu += (long) (getTotalEuOfRecipe(r) * euMultiplier);
+                totalEu += getTotalEuOfRecipe(r) * euMultiplier;
                 var item = r.outputs.get(ItemRecipeCapability.CAP);
-                if (item != null) recipe.outputs.get(ItemRecipeCapability.CAP).addAll(item);
+                if (item != null) itemOutputs.addAll(item);
                 var fluid = r.outputs.get(FluidRecipeCapability.CAP);
-                if (fluid != null) recipe.outputs.get(FluidRecipeCapability.CAP).addAll(fluid);
+                if (fluid != null) fluidOutputs.addAll(fluid);
             }
             if (totalEu / maxEUt > 20 * 500) break;
         }
 
-        if (recipe.outputs.get(ItemRecipeCapability.CAP).isEmpty() && recipe.outputs.get(FluidRecipeCapability.CAP).isEmpty()) {
-            if (totalEu / maxEUt > 20 * 500) RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_EU_IN);
+        if (itemOutputs.isEmpty() && fluidOutputs.isEmpty()) {
+            if (getRecipeStatus() == null || getRecipeStatus().isSuccess()) RecipeResult.of(this.machine, RecipeResult.FAIL_FIND);
             return null;
         }
 
         int minDuration = limited.getLimitedDuration();
-        double d = (double) totalEu / maxEUt;
+        double d = totalEu / maxEUt;
         long eut = d > minDuration ? maxEUt : (long) (maxEUt * d / minDuration);
         recipe.tickInputs.put(EURecipeCapability.CAP, List.of(
                 new Content(eut, 10000, 10000, 0, null, null)));
         recipe.duration = (int) Math.max(d, minDuration);
         IGTRecipe.of(recipe).setHasTick(true);
         return recipe;
+    }
+
+    @Nullable
+    protected WirelessGTRecipe buildFinalWirelessRecipe(ParallelData parallelData, @NotNull IWirelessNetworkEnergyHandler wirelessTrait) {
+        final BigInteger maxTotalEu = wirelessTrait.getMaxAvailableEnergy();
+        final double euMultiplier = this.getEuMultiplier();
+        final var itemOutputs = new ObjectArrayList<Content>();
+        final var fluidOutputs = new ObjectArrayList<Content>();
+
+        BigInteger totalEu = BigInteger.ZERO;
+        int index = 0;
+
+        for (var r : parallelData.recipeList()) {
+            BigInteger parallelEUt = BigInteger.valueOf(RecipeHelper.getInputEUt(r));
+
+            final long p = parallelData.parallels()[index++];
+            if (p > 1) {
+                r = r.copy(ContentModifier.multiplier(p), false);
+                parallelEUt = parallelEUt.multiply(BigInteger.valueOf(p));
+            }
+            IGTRecipe.of(r).setRealParallels(p);
+
+            var tempTotalEu = totalEu.add(BigDecimal.valueOf(r.duration * euMultiplier).multiply(new BigDecimal(parallelEUt)).toBigInteger());
+            if (tempTotalEu.compareTo(maxTotalEu) > 0) {
+                if (totalEu.signum() == 0) RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_EU_IN);
+                break;
+            }
+
+            r = modifyInputAndOutput(r);
+            if (matchRecipeInput(machine, r) && handleRecipeInput(machine, r)) {
+                totalEu = tempTotalEu;
+                var item = r.outputs.get(ItemRecipeCapability.CAP);
+                if (item != null) itemOutputs.addAll(item);
+                var fluid = r.outputs.get(FluidRecipeCapability.CAP);
+                if (fluid != null) fluidOutputs.addAll(fluid);
+            }
+        }
+
+        if (itemOutputs.isEmpty() && fluidOutputs.isEmpty()) {
+            if (getRecipeStatus() == null || getRecipeStatus().isSuccess()) RecipeResult.of(this.machine, RecipeResult.FAIL_FIND);
+            return null;
+        }
+
+        int minDuration = limited.getLimitedDuration();
+        BigInteger eut = totalEu.divide(BigInteger.valueOf(minDuration)).negate();
+        return buildWirelessRecipe(itemOutputs, fluidOutputs, minDuration, eut);
     }
 
     protected @NotNull Set<GTRecipe> lookupRecipeIterator() {
@@ -228,6 +287,16 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
 
     protected GTRecipe modifyInputAndOutput(GTRecipe recipe) {
         return IParallelLogic.getRecipeOutputChance(machine, recipe);
+    }
+
+    protected @NotNull WirelessGTRecipe buildWirelessRecipe(@NotNull List<Content> item, @NotNull List<Content> fluid, int duration, BigInteger eut) {
+        return WirelessGTRecipeBuilder
+                .ofRaw()
+                .output(ItemRecipeCapability.CAP, item)
+                .output(FluidRecipeCapability.CAP, fluid)
+                .duration(duration)
+                .setWirelessEut(eut)
+                .buildRawRecipe();
     }
 
     public record RecipeData(int index, long remainingWant) {}

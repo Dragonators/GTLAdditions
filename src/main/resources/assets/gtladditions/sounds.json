@@ -18,5 +18,15 @@
       }
     ],
     "subtitle": "gtladditions.subtitle.quantumoscillation"
+  },
+  "genesisengine": {
+    "sounds": [
+      {
+        "type": "file",
+        "name": "gtladditions:genesisengine",
+        "attenuation_distance": 48
+      }
+    ],
+    "subtitle": "gtladditions.subtitle.genesisengine"
   }
 }
