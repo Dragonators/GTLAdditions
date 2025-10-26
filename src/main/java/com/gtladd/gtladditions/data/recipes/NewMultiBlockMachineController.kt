@@ -14,6 +14,7 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.id
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
+import com.gtladd.gtladditions.common.data.SkyTearsAndGregHeart
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
@@ -35,6 +36,7 @@ import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.SLAUGH
 import org.gtlcore.gtlcore.common.data.machines.GCyMMachines.*
 import org.gtlcore.gtlcore.common.data.machines.GeneratorMachine.*
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA.*
+import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
@@ -677,5 +679,6 @@ object NewMultiBlockMachineController {
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
             .save(provider)
+        if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.init(provider)
     }
 }
