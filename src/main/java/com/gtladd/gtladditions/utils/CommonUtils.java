@@ -2,6 +2,8 @@ package com.gtladd.gtladditions.utils;
 
 import org.gtlcore.gtlcore.client.ClientUtil;
 
+import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -11,14 +13,60 @@ import net.minecraft.util.FastColor;
 import net.minecraft.util.RandomSource;
 import net.minecraftforge.client.model.data.ModelData;
 
+import com.gtladd.gtladditions.api.machine.data.ParallelData;
+import com.gtladd.gtladditions.api.machine.data.RecipeData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.text.DecimalFormat;
 
 public class CommonUtils {
+
+    // ===================================================
+    // Recipe Calculation
+    // ===================================================
+
+    public static @Nullable ParallelData getParallelData(int length, long remaining, long[] parallels, ObjectArrayFIFOQueue<RecipeData> queue, ObjectArrayList<GTRecipe> recipeList) {
+        if (recipeList.isEmpty()) return null;
+
+        var remainingWants = new long[length];
+        var activeIndices = new IntArrayList(queue.size());
+        while (!queue.isEmpty()) {
+            var data = queue.dequeue();
+            remainingWants[data.index()] = data.remainingWant();
+            activeIndices.add(data.index());
+        }
+
+        while (remaining > 0 && !activeIndices.isEmpty()) {
+            long perRecipe = remaining / activeIndices.size();
+            if (perRecipe == 0) break;
+
+            long distributed = 0;
+            for (var it = activeIndices.iterator(); it.hasNext();) {
+                int idx = it.nextInt();
+                long give = Math.min(remainingWants[idx], perRecipe);
+                parallels[idx] += give;
+                distributed += give;
+                remainingWants[idx] -= give;
+                if (remainingWants[idx] == 0) {
+                    it.remove();
+                }
+            }
+            remaining -= distributed;
+        }
+
+        return new ParallelData(recipeList, parallels);
+    }
+
+    // ===================================================
+    // Format
+    // ===================================================
 
     private static final String[] EXTENDED_UNITS = new String[] {
             "",    // 10^0

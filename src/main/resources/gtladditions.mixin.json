@@ -14,6 +14,7 @@
     "gtceu.api.machine.IFancyUIMachineMixin",
     "gtceu.api.machine.MultiblockDisplayTextMixin",
     "gtceu.api.misc.EnergyContainerListAccessor",
+    "gtceu.api.recipe.GTRecipeLookupMixin",
     "gtceu.common.item.DataItemBehaviorMixin",
     "gtceu.integration.ElectricContainerBlockProviderMixin",
     "gtceu.integration.MachineModeProviderMixin",

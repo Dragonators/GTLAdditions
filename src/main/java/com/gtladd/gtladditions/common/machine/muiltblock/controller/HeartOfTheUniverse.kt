@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
+import com.gtladd.gtladditions.api.machine.data.ParallelData
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler

@@ -106,6 +106,7 @@ object GTLAddItems {
                         lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.1"))
                         lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.2"))
                         lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.3"))
+                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.4"))
                     }, AstralArrayBehavior.INSTANCE)
             )
             .lang("Astral Array")

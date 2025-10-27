@@ -172,7 +172,7 @@ public class MutableRecipesLogic<T extends WorkableElectricMultiblockMachine & I
             match = IParallelLogic.getRecipeOutputChance(machine, match);
             if (RecipeRunnerHelper.handleRecipeInput(machine, match)) {
                 remain -= pair.secondLong();
-                totalEu += (long) (getRecipeEut(match) * match.duration * euMultiplier);
+                totalEu += getRecipeEut(match) * match.duration * euMultiplier;
                 var item = match.outputs.get(ItemRecipeCapability.CAP);
                 if (item != null) itemOutputs.addAll(item);
                 var fluid = match.outputs.get(FluidRecipeCapability.CAP);

@@ -1,7 +1,6 @@
 ﻿package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
 import com.google.common.base.Predicate
-import com.google.common.primitives.Ints
 import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability
@@ -15,6 +14,7 @@ import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.IAstralArrayInteractionMachine
+import com.gtladd.gtladditions.api.machine.data.ParallelData
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
@@ -132,7 +132,7 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
             override fun getGTRecipe(): GTRecipe? {
                 if (!checkBeforeWorking()) return null
                 val wirelessTrait = getMachine().wirelessNetworkEnergyHandler
-                return if (wirelessTrait != null && wirelessTrait.isOnline()) buildFinalWirelessRecipe(
+                return if (wirelessTrait != null) buildFinalWirelessRecipe(
                     null,
                     wirelessTrait
                 ) else buildFinalNormalRecipe(null)
@@ -191,6 +191,8 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
                 parallelData: ParallelData?,
                 wirelessTrait: IWirelessNetworkEnergyHandler
             ): WirelessGTRecipe? {
+                if (!wirelessTrait.isOnline()) return null
+
                 val recipes: Set<GTRecipe?> = this.lookupRecipeIterator()
                 val length = recipes.size
                 if (length == 0) return null

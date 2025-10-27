@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
+import com.gtladd.gtladditions.api.machine.data.ParallelData
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecipesLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
 import com.gtladd.gtladditions.api.recipe.ChanceParallelLogic

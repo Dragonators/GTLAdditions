@@ -12,6 +12,7 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes
 import com.gregtechceu.gtceu.utils.SupplierMemoizer
 import com.gtladd.gtladditions.api.machine.EBFChecks
 import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic
+import com.gtladd.gtladditions.api.machine.mutable.AddMutableElectricParallelHatchMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableCoilElectricParallelHatchMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricParallelHatchMultiblockMachine
 import com.gtladd.gtladditions.common.data.multiblockMachine.*
@@ -152,8 +153,6 @@ object MutableMultiBlockModify {
         enableThreadModifier(arrayOf(*mutableDefinitions, *multipleDefinitions), arrayOf(*mutablePATTERNS, *multiplePATTERNS))
 
         setParallelHatchMutable(
-            MultiBlockMachineA.FISHING_GROUND,
-            MultiBlockMachineA.LARGE_GREENHOUSE,
             AdditionalMultiBlockMachine.HUGE_INCUBATOR,
             MultiBlockMachineA.ADVANCED_SPS_CRAFTING,
             MultiBlockMachineB.WOOD_DISTILLATION,
@@ -218,6 +217,14 @@ object MutableMultiBlockModify {
 
 
     fun setOtherMutable() {
+        MultiBlockMachineA.FISHING_GROUND.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            AddMutableElectricParallelHatchMultiblockMachine(blockEntity)
+        }
+
+        MultiBlockMachineA.LARGE_GREENHOUSE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            AddMutableElectricParallelHatchMultiblockMachine(blockEntity)
+        }
+
         MultiBlockMachineA.LARGE_RECYCLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
                 override fun getMaxParallel(): Int {
