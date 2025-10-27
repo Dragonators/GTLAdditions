@@ -8,6 +8,7 @@ import org.gtlcore.gtlcore.api.recipe.RecipeResult;
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper;
 import org.gtlcore.gtlcore.common.machine.trait.MultipleRecipesLogic;
 
+import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
@@ -17,6 +18,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
+import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import net.minecraft.nbt.CompoundTag;
 
@@ -30,20 +32,20 @@ import com.gtladd.gtladditions.api.recipe.WirelessGTRecipeBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.BiPredicate;
+
+import static org.gtlcore.gtlcore.api.recipe.IParallelLogic.getMaxParallel;
+import static org.gtlcore.gtlcore.api.recipe.IParallelLogic.getRecipeOutputChance;
+import static org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.handleRecipeInput;
 
 @Mixin(MultipleRecipesLogic.class)
 public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements IWirelessRecipeLogic, IRecipeStatus {
@@ -64,6 +66,11 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
     }
 
     @Shadow(remap = false)
+    protected double getTotalEuOfRecipe(GTRecipe recipe) {
+        throw new AssertionError();
+    }
+
+    @Shadow(remap = false)
     protected double getEuMultiplier() {
         throw new AssertionError();
     }
@@ -78,19 +85,57 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
         throw new AssertionError();
     }
 
-    @ModifyVariable(
-                    method = "getRecipe()Lcom/gregtechceu/gtceu/api/recipe/GTRecipe;",
-                    at = @At("STORE"),
-                    ordinal = 2,
-                    remap = false)
-    private long modifyRemain(long remain) {
-        return remain + (long) gTLAdditions$machine.getAdditionalThread() * gTLAdditions$machine.getMaxParallel();
-    }
+    /**
+     * @author Dragons
+     * @reason Wireless and thread modify
+     */
+    @Overwrite(remap = false)
+    private GTRecipe getRecipe() {
+        if (!machine.hasProxies()) return null;
 
-    @Inject(method = "getRecipe", at = @At("HEAD"), remap = false, cancellable = true)
-    private void getRecipe(CallbackInfoReturnable<GTRecipe> cir) {
         final var wirelessTrait = gTLAdditions$machine.getWirelessNetworkEnergyHandler();
-        if (wirelessTrait != null) cir.setReturnValue(gTLAdditions$getWirelessRecipe(wirelessTrait));
+        if (wirelessTrait != null) return gTLAdditions$getWirelessRecipe(wirelessTrait);
+
+        long maxEUt = getMachine().getOverclockVoltage();
+        if (maxEUt <= 0) return null;
+        var iterator = lookupRecipeIterator();
+        GTRecipe output = GTRecipeBuilder.ofRaw().buildRawRecipe();
+        output.outputs.put(ItemRecipeCapability.CAP, new ObjectArrayList<>());
+        output.outputs.put(FluidRecipeCapability.CAP, new ObjectArrayList<>());
+        double totalEu = 0;
+        long remain = (long) this.gTLAdditions$machine.getMaxParallel() * (MAX_THREADS + gTLAdditions$machine.getAdditionalThread());
+        double euMultiplier = getEuMultiplier();
+
+        while (remain > 0 && iterator.hasNext()) {
+            var match = iterator.next();
+            if (match == null) continue;
+            var p = getMaxParallel(machine, match, remain);
+            if (p <= 0) continue;
+            else if (p > 1) match = match.copy(ContentModifier.multiplier(p), false);
+            ((IGTRecipe) match).setRealParallels(p);
+            match = getRecipeOutputChance(machine, match);
+            if (handleRecipeInput(machine, match)) {
+                remain -= p;
+                totalEu += getTotalEuOfRecipe(match) * euMultiplier;
+                var item = match.outputs.get(ItemRecipeCapability.CAP);
+                if (item != null) output.outputs.get(ItemRecipeCapability.CAP).addAll(item);
+                var fluid = match.outputs.get(FluidRecipeCapability.CAP);
+                if (fluid != null) output.outputs.get(FluidRecipeCapability.CAP).addAll(fluid);
+            }
+            if (totalEu / maxEUt > 20 * 500) break;
+        }
+        if (output.outputs.get(ItemRecipeCapability.CAP).isEmpty() &&
+                output.outputs.get(FluidRecipeCapability.CAP).isEmpty()) {
+            if (getRecipeStatus() == null || getRecipeStatus().isSuccess()) RecipeResult.of(this.machine, RecipeResult.FAIL_FIND);
+            return null;
+        }
+        var d = totalEu / maxEUt;
+        long eut = d > 20 ? maxEUt : (long) (maxEUt * d / 20);
+        output.tickInputs.put(EURecipeCapability.CAP,
+                List.of(new Content(eut, 10000, 10000, 0, null, null)));
+        output.duration = (int) Math.max(d, 20);
+        IGTRecipe.of(output).setHasTick(true);
+        return output;
     }
 
     @Unique
