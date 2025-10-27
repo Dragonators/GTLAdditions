@@ -254,7 +254,7 @@ object MutableMultiBlockModify {
         }
 
         AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
-            MutableSuprachronalAssemblyLineMachine(blockEntity, false)
+            MutableSuprachronalAssemblyLineMachine(blockEntity)
         }
 
         MultiBlockMachineA.NANO_CORE.setMachineSupplier { blockEntity: IMachineBlockEntity ->

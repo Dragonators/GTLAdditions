@@ -184,7 +184,7 @@ object Misc {
             .save(provider)
         PLASMA_CONDENSER_RECIPES.recipeBuilder(id("creon_condenser"))
             .inputFluids(CREON.getFluid(FluidStorageKeys.PLASMA, 1000))
-            .inputFluids(GTMaterials.Helium.getFluid(100000))
+            .inputFluids(GTMaterials.Helium.getFluid(FluidStorageKeys.LIQUID, 100000))
             .outputFluids(CREON.getFluid(1000))
             .outputFluids(GTMaterials.Helium.getFluid(FluidStorageKeys.GAS, 100000))
             .circuitMeta(1)

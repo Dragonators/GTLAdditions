@@ -1041,10 +1041,10 @@ object MultiBlockMachine {
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.multiple_recipe_types_machine.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.1"))
-            .tooltipTextRecipeTypes(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES, STELLAR_FORGE_RECIPES, CHAOTIC_ALCHEMY)
+            .tooltipTextRecipeTypes(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES, STELLAR_FORGE_RECIPES, CHAOTIC_ALCHEMY, ULTIMATE_MATERIAL_FORGE_RECIPES)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(GTLAddBlocks.GOD_FORGE_INNER_CASING)
-            .recipeTypes(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES, STELLAR_FORGE_RECIPES, CHAOTIC_ALCHEMY)
+            .recipeTypes(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES, STELLAR_FORGE_RECIPES, CHAOTIC_ALCHEMY, ULTIMATE_MATERIAL_FORGE_RECIPES)
             .pattern { definition: MultiblockMachineDefinition? ->
                 MultiBlockStructureC.FORGE_OF_THE_ANTICHRIST!!
                     .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))

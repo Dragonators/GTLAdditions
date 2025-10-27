@@ -13,8 +13,8 @@ import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SuprachronalAssemblyLineMachine
 import java.util.function.BiPredicate
 
-class MutableSuprachronalAssemblyLineMachine(holder: IMachineBlockEntity, isModule: Boolean, vararg args: Any?) :
-    SuprachronalAssemblyLineMachine(holder, isModule, *args), IWirelessThreadModifierParallelMachine {
+class MutableSuprachronalAssemblyLineMachine(holder: IMachineBlockEntity, vararg args: Any?) :
+    SuprachronalAssemblyLineMachine(holder, *args), IWirelessThreadModifierParallelMachine {
     private var threadPartMachine: IThreadModifierPart? = null
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {

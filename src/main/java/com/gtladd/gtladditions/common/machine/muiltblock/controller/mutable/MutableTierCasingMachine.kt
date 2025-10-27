@@ -7,7 +7,6 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gtladd.gtladditions.api.machine.IWirelessThreadModifierParallelMachine
 import com.gtladd.gtladditions.api.machine.feature.IThreadModifierPart
 import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic
-import com.gtladd.gtladditions.mixin.gtlcore.machine.TierCasingMachineAccessor
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.TierCasingMachine
@@ -54,7 +53,7 @@ open class MutableTierCasingMachine(holder: IMachineBlockEntity, tierType: Strin
         @JvmStatic
         protected val TIER_CHECK: BiPredicate<GTRecipe, IRecipeLogicMachine> =
             BiPredicate { recipe: GTRecipe, recipeLogicMachine: IRecipeLogicMachine ->
-                if (recipeLogicMachine is TierCasingMachineAccessor) {
+                if (recipeLogicMachine is TierCasingMachine) {
                     if (recipe.data.contains(recipeLogicMachine.tierType) &&
                         recipe.data.getInt(recipeLogicMachine.tierType) > recipeLogicMachine.tier
                     ) {

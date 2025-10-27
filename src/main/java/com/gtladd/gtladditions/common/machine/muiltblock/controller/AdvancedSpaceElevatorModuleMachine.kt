@@ -14,13 +14,15 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
-import org.gtlcore.gtlcore.api.machine.multiblock.ISpaceElevatorModule
+import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
+import org.gtlcore.gtlcore.utils.MachineUtil
 import kotlin.math.pow
 
 class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
-    GTLAddWorkableElectricMultipleRecipesMachine(holder), ISpaceElevatorModule, IMachineLife {
+    GTLAddWorkableElectricMultipleRecipesMachine(holder),
+    IModularMachineModule<SpaceElevatorMachine, AdvancedSpaceElevatorModuleMachine>, IMachineLife {
     companion object {
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder =
             ManagedFieldHolder(
@@ -34,8 +36,28 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
     private var moduleTier = 0
 
     @field:Persisted
-    private var controllerPos: BlockPos? = null
-    private var controller: SpaceElevatorMachine? = null
+    private var hostPosition: BlockPos? = null
+    private var host: SpaceElevatorMachine? = null
+
+    override fun getHost(): SpaceElevatorMachine? {
+        return host
+    }
+
+    override fun setHost(host: SpaceElevatorMachine?) {
+        this.host = host
+    }
+
+    override fun getHostType(): Class<SpaceElevatorMachine> {
+        return SpaceElevatorMachine::class.java
+    }
+
+    override fun getHostPosition(): BlockPos? {
+        return hostPosition
+    }
+
+    override fun setHostPosition(pos: BlockPos?) {
+        this.hostPosition = pos
+    }
 
     override fun getFieldHolder(): ManagedFieldHolder {
         return MANAGED_FIELD_HOLDER
@@ -73,30 +95,12 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
     // Elevator connection
     // ========================================
 
-    override fun removeFromElevator(elevator: SpaceElevatorMachine?) {
-        this.controllerPos = null
-        this.controller = null
-        elevator?.removeModule(this)
+    override fun onConnected(host: SpaceElevatorMachine) {
+        if (host.recipeLogic.progress > 80) update() else scheduleUpdate()
     }
 
-    override fun connectToElevator(elevator: SpaceElevatorMachine) {
-        this.controller = elevator
-        this.controllerPos = elevator.pos
-        elevator.addModule(this)
-        if (elevator.recipeLogic.progress > 80) update() else scheduleUpdate()
-    }
-
-    private fun getAndSetControllerOnStructureFormed(): Boolean {
+    override fun getHostScanPositions(): Array<out BlockPos?>? {
         (level as? ServerLevel)?.let { serverLevel ->
-            this.controllerPos?.let { controllerPos ->
-                (serverLevel.getBlockEntity(controllerPos) as? IMachineBlockEntity)?.metaMachine?.let { machine ->
-                    if (machine is SpaceElevatorMachine && machine.isFormed) {
-                        connectToElevator(machine)
-                        return true
-                    }
-                }
-            }
-
             val pos = getPos()
             val coordinates: Array<BlockPos> = arrayOf(
                 pos.offset(8, -2, 3),
@@ -111,28 +115,20 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
 
             for (i in coordinates) {
                 if (serverLevel.getBlockState(i).block === GTLBlocks.POWER_CORE.get()) {
-                    val coordinatess: Array<BlockPos> = arrayOf(
+                    return arrayOf(
                         i.offset(3, 2, 0),
                         i.offset(-3, 2, 0),
                         i.offset(0, 2, 3),
                         i.offset(0, 2, -3)
                     )
-                    for (j in coordinatess) {
-                        (serverLevel.getBlockEntity(j) as? IMachineBlockEntity)?.metaMachine?.let { machine ->
-                            if (machine is SpaceElevatorMachine && machine.isFormed) {
-                                connectToElevator(machine)
-                                return true
-                            }
-                        }
-                    }
                 }
             }
         }
-        return false
+        return MachineUtil.EMPTY_POS_ARRAY
     }
 
     private fun getSpaceElevatorTier() {
-        controller?.let { controller ->
+        host?.let { controller ->
             val logic = controller.getRecipeLogic()
             if (logic.isWorking && logic.progress > 80) {
                 spaceElevatorTier = controller.tier - 7
@@ -150,26 +146,28 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return GTLAddMultipleRecipesLogic(
             this,
-            Predicate { machine -> (machine as AdvancedSpaceElevatorModuleMachine).controller != null })
+            Predicate { machine -> (machine as AdvancedSpaceElevatorModuleMachine).host != null })
     }
 
     override fun onStructureFormed() {
         super.onStructureFormed()
-        if (!getAndSetControllerOnStructureFormed()) removeFromElevator(this.controller)
+        if (!findAndConnectToHost()) {
+            removeFromHost(this.host)
+        }
     }
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
-        removeFromElevator(this.controller)
+        removeFromHost(this.host)
     }
 
     override fun onPartUnload() {
         super.onPartUnload()
-        removeFromElevator(this.controller)
+        removeFromHost(this.host)
     }
 
     override fun onMachineRemoved() {
-        removeFromElevator(this.controller)
+        removeFromHost(this.host)
     }
 
     override fun onWorking(): Boolean {
