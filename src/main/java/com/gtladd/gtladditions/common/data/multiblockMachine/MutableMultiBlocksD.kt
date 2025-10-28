@@ -121,7 +121,7 @@ object MutableMultiBlocksD {
             .where("C", Predicates.blocks(GTLBlocks.ADVANCED_FUSION_COIL.get()))
             .where("D", Predicates.blocks(GTLBlocks.HYPER_MECHANICAL_CASING.get()))
             .where("E", Predicates.blocks(GTBlocks.CASING_HSSE_STURDY.get()))
-            .where("F", Predicates.blocks(Registries.getBlock("kubejs:annihilate_core")))
+            .where("F", Predicates.blocks(GTLBlocks.HYPER_CORE.get()))
             .where("G", Predicates.blocks(Registries.getBlock("kubejs:neutronium_gearbox")))
             .where("H", Predicates.blocks(Registries.getBlock("kubejs:neutronium_pipe_casing")))
             .where("I", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.frameGt, GTMaterials.HastelloyX)))

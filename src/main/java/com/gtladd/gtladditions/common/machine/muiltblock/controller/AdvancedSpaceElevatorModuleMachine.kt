@@ -27,7 +27,7 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder =
             ManagedFieldHolder(
                 AdvancedSpaceElevatorModuleMachine::class.java,
-                WorkableMultiblockMachine.MANAGED_FIELD_HOLDER
+                GTLAddWorkableElectricMultipleRecipesMachine.MANAGED_FIELD_HOLDER
             )
     }
 
