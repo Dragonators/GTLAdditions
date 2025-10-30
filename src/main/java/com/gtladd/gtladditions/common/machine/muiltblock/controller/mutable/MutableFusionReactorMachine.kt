@@ -44,13 +44,11 @@ class MutableFusionReactorMachine(holder: IMachineBlockEntity, tier: Int) : Fusi
         return (this as IRecipeCapabilityMachine).parallelHatch?.currentParallel ?: 1
     }
 
-    override fun getAdditionalThread(): Int {
-        return if (threadPartMachine != null) threadPartMachine!!.getThreadCount() else 0
-    }
-
     override fun setThreadPartMachine(threadModifierPart: IThreadModifierPart) {
         this.threadPartMachine = threadModifierPart
     }
+
+    override fun getThreadPartMachine(): IThreadModifierPart? = this.threadPartMachine
 
     companion object {
         private val START_CHECK = BiPredicate { recipe: GTRecipe, recipeLogicMachine: IRecipeLogicMachine ->

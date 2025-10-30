@@ -15,6 +15,7 @@ import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecip
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
 import com.gtladd.gtladditions.api.recipe.ChanceParallelLogic
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
+import com.gtladd.gtladditions.utils.CommonUtils
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
@@ -76,14 +77,14 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
                 for (match in recipes) {
                     if (match == null) continue
                     if (remain <= 0) break
-                    var modifiedMatch = modifyInputAndOutput(match)
+                    var modifiedMatch = modifyChance(match)
                     val p = getMaxParallel(modifiedMatch, remain)
                     if (p <= 0) continue
 
                     var parallelEUt = BigInteger.valueOf(RecipeHelper.getInputEUt(match))
                     modifiedMatch = if (p > 1) run {
                         parallelEUt = parallelEUt.multiply(BigInteger.valueOf(p))
-                        modifiedMatch.copy(ContentModifier.multiplier(p.toDouble()), false)
+                        CommonUtils.copyFixRecipe(modifiedMatch, ContentModifier.multiplier(p.toDouble()), INPUT_CHANCE_RATIO)
                     } else modifiedMatch
                     IGTRecipe.of(modifiedMatch).realParallels = p
 
@@ -112,10 +113,6 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
                 val minDuration = limited.limitedDuration
                 val eut = totalEu.divide(BigInteger.valueOf(minDuration.toLong())).negate()
                 return buildWirelessRecipe(itemOutputs, fluidOutputs, minDuration, eut)
-            }
-
-            override fun modifyInputAndOutput(recipe: GTRecipe): GTRecipe {
-                return modifyChance(recipe)
             }
 
             override fun getMaxParallel(recipe: GTRecipe, limit: Long): Long {

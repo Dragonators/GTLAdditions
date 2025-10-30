@@ -1,5 +1,7 @@
 package com.gtladd.gtladditions.common.recipe;
 
+import org.gtlcore.gtlcore.common.data.GTLSoundEntries;
+
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
@@ -44,6 +46,7 @@ public class GTLAddRecipesTypes {
     public static final GTRecipeType CHAOS_WEAVE;
     public static final GTRecipeType GENESIS_ENGINE;
     public static final GTRecipeType STAR_CORE_STRIPPER;
+    public static final GTRecipeType MATTER_EXOTIC;
 
     public static final GTRecipeType FORGE_OF_THE_ANTICHRIST;
     public static final GTRecipeType QUANTUM_OSCILLATION;
@@ -138,6 +141,10 @@ public class GTLAddRecipesTypes {
                 .setEUIO(IO.IN).setMaxIOSize(3, 12, 1, 1)
                 .setMaxTooltips(1)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_MACERATE, LEFT_TO_RIGHT).setSound(GTSoundEntries.MINER);
+        MATTER_EXOTIC = GTRecipeTypes.register("matter_exotic", GTRecipeTypes.MULTIBLOCK)
+                .setEUIO(IO.IN).setMaxIOSize(2, 1, 4, 1)
+                .setMaxTooltips(1)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, LEFT_TO_RIGHT).setSound(GTLSoundEntries.FUSIONLOOP);
         FORGE_OF_THE_ANTICHRIST = GTRecipeTypes.register("forge_of_the_antichrist", GTRecipeTypes.DUMMY)
                 .setXEIVisible(false)
                 .setSound(GTLAddSoundEntries.FORGE_OF_THE_ANTICHRIST);

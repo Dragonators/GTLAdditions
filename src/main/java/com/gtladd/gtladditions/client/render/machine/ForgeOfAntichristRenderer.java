@@ -45,47 +45,43 @@ public class ForgeOfAntichristRenderer extends PartWorkableCasingMachineRenderer
                 case EAST -> x = -121.5;
             }
 
-            poseStack.pushPose();
-            poseStack.translate(x, y, z);
+            int argb32 = machine.getRGBFromTime();
+            float baseRadius = 0.175F * machine.getRadiusMultiplier();
+            float middleRadius = baseRadius * 1.06F;
+            float outerRadius = middleRadius * 1.02F;
 
-            float baseRadius = 0.12F * machine.getRadiusMultiplier();
-            float middleRadius = 0.16F * machine.getRadiusMultiplier();
-            float outerRadius = 0.2F * machine.getRadiusMultiplier();
+            CommonUtils.drawBeaconToStar(poseStack, buffer, x, y, z, argb32, tick, blockEntity, outerRadius);
 
             long seed = blockEntity.getBlockPos().asLong();
-
-            renderMultiLayerStar(tick, poseStack, buffer, baseRadius, middleRadius, outerRadius, seed, machine.getRGBFromTime());
-
+            poseStack.pushPose();
+            poseStack.translate(x, y, z);
+            renderMultiLayerStar(tick, poseStack, buffer, baseRadius, middleRadius, outerRadius, seed, argb32);
             poseStack.popPose();
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     private static void renderMultiLayerStar(float tick, PoseStack poseStack, MultiBufferSource buffer,
                                              float baseRadius, float middleRadius, float outerRadius,
                                              long randomSeed, int argb32) {
         RandomSource random = RandomSource.create(randomSeed);
 
-        var rotation0 = CommonUtils.createRandomRotation(random, 0.5F, 2.0F);
-        var rotation1 = CommonUtils.createRandomRotation(random, 0.3F, 1.5F);
-        var rotation2 = CommonUtils.createRandomRotation(random, 0.4F, 1.4F);
+        var rotation0 = CommonUtils.createRandomRotation(random, 2.0F, 3.0F);
+        var rotation1 = CommonUtils.createRandomRotation(random, 0.9F, 1.5F);
+        var rotation2 = CommonUtils.createRandomRotation(random, 0.9F, 1.5F);
 
         CommonUtils.renderStarLayer(
-                poseStack, buffer, STAR_LAYER_2, outerRadius,
-                rotation2.axis(), rotation2.getAngle(tick),
-                argb32, RenderType.translucent());
-
-        CommonUtils.renderStarLayer(
-                poseStack, buffer, STAR_LAYER_1, middleRadius,
-                rotation1.axis(), rotation1.getAngle(tick),
+                poseStack, buffer, STAR_LAYER_2, middleRadius,
+                rotation2.axis(), rotation1.getAngle(tick),
                 argb32, RenderType.translucent());
 
         CommonUtils.renderStarLayer(
                 poseStack, buffer, STAR_LAYER_0, baseRadius,
-                rotation0.axis(), rotation0.getAngle(tick),
-                argb32, RenderType.translucent());
+                rotation1.axis(), rotation0.getAngle(tick),
+                argb32, RenderType.solid());
 
         CommonUtils.renderHaloLayer(
-                poseStack, buffer, outerRadius * 1.02F,
+                poseStack, buffer, outerRadius,
                 rotation0.axis(), rotation0.getAngle(tick),
                 HALO_TEX, STAR_LAYER_2);
     }

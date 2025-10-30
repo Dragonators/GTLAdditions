@@ -155,7 +155,7 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
         for (var r : parallelData.recipeList()) {
             if (parallelData.parallels()[index] > 1) r = r.copy(ContentModifier.multiplier(parallelData.parallels()[index]), false);
             IGTRecipe.of(r).setRealParallels(parallelData.parallels()[index++]);
-            r = modifyInputAndOutput(r);
+            r = IParallelLogic.getRecipeOutputChance(machine, r);
             if (matchRecipeInput(machine, r) && handleRecipeInput(machine, r)) {
                 totalEu += getTotalEuOfRecipe(r) * euMultiplier;
                 var item = r.outputs.get(ItemRecipeCapability.CAP);
@@ -209,7 +209,7 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
                 break;
             }
 
-            r = modifyInputAndOutput(r);
+            r = IParallelLogic.getRecipeOutputChance(machine, r);
             if (matchRecipeInput(machine, r) && handleRecipeInput(machine, r)) {
                 totalEu = tempTotalEu;
                 var item = r.outputs.get(ItemRecipeCapability.CAP);
@@ -259,10 +259,6 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
 
     protected long getMaxParallel(GTRecipe recipe, long limit) {
         return IParallelLogic.getMaxParallel(this.machine, recipe, limit);
-    }
-
-    protected GTRecipe modifyInputAndOutput(GTRecipe recipe) {
-        return IParallelLogic.getRecipeOutputChance(machine, recipe);
     }
 
     protected @NotNull WirelessGTRecipe buildWirelessRecipe(@NotNull List<Content> item, @NotNull List<Content> fluid, int duration, BigInteger eut) {

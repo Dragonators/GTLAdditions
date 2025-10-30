@@ -19,11 +19,9 @@ class DoorOfCreate(holder: IMachineBlockEntity) : WorkableElectricMultiblockMach
         threadPartMachine = null
     }
 
-    override fun getAdditionalThread(): Int {
-        return if (threadPartMachine != null) threadPartMachine!!.getThreadCount() else 0
-    }
-
     override fun setThreadPartMachine(threadModifierPart: IThreadModifierPart) {
         this.threadPartMachine = threadModifierPart
     }
+
+    override fun getThreadPartMachine(): IThreadModifierPart? = this.threadPartMachine
 }

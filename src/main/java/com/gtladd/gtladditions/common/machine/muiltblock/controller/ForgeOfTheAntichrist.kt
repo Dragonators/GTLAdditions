@@ -15,17 +15,24 @@ import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectr
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
+import com.gtladd.gtladditions.utils.AntichristPosHelper
 import com.gtladd.gtladditions.utils.StarGradient
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
+import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
+import net.minecraft.ChatFormatting
+import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.Item
+import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
+import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.utils.Registries.getItem
 import kotlin.math.exp
@@ -38,12 +45,15 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         holder,
         GTLAddRecipesTypes.FORGE_OF_THE_ANTICHRIST,
         *args
-    ) {
+    ), IModularMachineHost<ForgeOfTheAntichrist> {
+    private val modules: MutableSet<IModularMachineModule<ForgeOfTheAntichrist, *>> =
+        ReferenceOpenHashSet<IModularMachineModule<ForgeOfTheAntichrist, *>>()
+
     @field:Persisted
     @field:DescSynced
     var runningSecs: Long = 0
         private set
-
+    private var mam = 0
     private var runningSecSubs: TickableSubscription? = null
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
@@ -54,6 +64,11 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         return super.getRecipeLogic() as ForgeOfTheAntichristLogic
     }
 
+    override fun addDisplayText(textList: MutableList<Component?>) {
+        super.addDisplayText(textList)
+        if (isFormed) textList.add(Component.translatable("tooltip.gtlcore.installed_module_count", getMAM()))
+    }
+
     override fun addParallelDisplay(textList: MutableList<Component?>) {
         textList.add(
             Component.translatable(
@@ -61,13 +76,44 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                 GTLAddMachines.createRainbowComponent(
                     Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
                 )
-            )
+            ).withStyle(ChatFormatting.GRAY)
         )
+        textList.add(
+            Component.translatable(
+                "gtladditions.multiblock.threads",
+                GTLAddMachines.createRainbowComponent(
+                    Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
+                )
+            ).withStyle(ChatFormatting.GRAY)
+        )
+    }
+
+    // ========================================
+    // HelioFusionExoticizer connection
+    // ========================================
+
+    override fun getModuleSet(): Set<IModularMachineModule<ForgeOfTheAntichrist, *>> = modules
+    override fun getModuleScanPositions(): Array<out BlockPos> = AntichristPosHelper.calculateModulePositions(pos, frontFacing)
+
+    override fun onStructureInvalid() {
+        super.onStructureInvalid()
+        safeClearModules()
+    }
+
+    override fun onMachineRemoved() {
+        safeClearModules()
+    }
+
+    override fun onStructureFormed() {
+        super.onStructureFormed()
+        safeClearModules()
+        scanAndConnectModules()
     }
 
     // ========================================
     // Running Time
     // ========================================
+
     override fun onLoad() {
         super.onLoad()
         (level as? ServerLevel)?.server?.tell(TickTask(0, ::updateRunningSecSubscription))
@@ -117,7 +163,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
             )
         )
 
-    private val recipeOutputMultiply: Double
+    val recipeOutputMultiply: Double
         // 1 -> MAX_MULTIPLIER
         get() {
             val addition: Double = (MAX_OUTPUT_RATIO - 1) * (min(
@@ -127,142 +173,147 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
             return 1 + addition
         }
 
-    override fun getFieldHolder(): ManagedFieldHolder {
-        return MANAGED_FIELD_HOLDER
+    private fun getMAM(): Int = mam.also {
+        if (offsetTimer % 20 == 0L) mam = formedModuleCount
     }
 
-    class ForgeOfTheAntichristLogic(parallel: ForgeOfTheAntichrist) :
-        GTLAddMultipleTypeWirelessRecipesLogic(parallel) {
-        init {
-            this.setReduction(0.1, 1.0)
-        }
+    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
-        override fun getMachine(): ForgeOfTheAntichrist {
-            return super.getMachine() as ForgeOfTheAntichrist
-        }
-
-        // 1 -> 1 / MAX_MULTIPLIER
-        override fun getEuMultiplier(): Double {
-            val reduction: Double = 1 - (1 - MIN_EU_RATIO) * (min(
-                getMachine().runningSecs,
-                MAX_EFFICIENCY_SEC.toLong()
-            ).toDouble() / MAX_EFFICIENCY_SEC).pow(2.5)
-            return super.getEuMultiplier() * reduction
-        }
-
-        override fun calculateParallels(): ParallelData? {
-            val recipes = lookupRecipeIterator()
-            if (recipes.isEmpty()) return null
-
-            val recipeList = ObjectArrayList<GTRecipe>(recipes.size)
-            val parallelsList = ObjectArrayList<Long>()
-            val modifier = ContentModifier.multiplier(getMachine().recipeOutputMultiply)
-
-            for (recipe in recipes) {
-                recipe ?: continue
-                val modified = copyAndModifyRecipe(recipe, modifier)
-                val parallel = getMaxParallel(modified, Long.MAX_VALUE)
-                if (parallel > 0) {
-                    recipeList.add(modified)
-                    parallelsList.add(parallel)
-                }
+    companion object {
+        class ForgeOfTheAntichristLogic(parallel: ForgeOfTheAntichrist) :
+            GTLAddMultipleTypeWirelessRecipesLogic(parallel) {
+            init {
+                this.setReduction(0.2, 1.0)
             }
 
-            return if (recipeList.isEmpty()) null
-            else ParallelData(recipeList, parallelsList.toLongArray())
-        }
+            override fun getMachine(): ForgeOfTheAntichrist {
+                return super.getMachine() as ForgeOfTheAntichrist
+            }
 
-        private fun copyAndModifyRecipe(recipe: GTRecipe, modifier: ContentModifier): GTRecipe {
-            val copy = GTRecipe(
-                recipe.recipeType,
-                recipe.id,
-                modifyInputContents(recipe.inputs, modifier),
-                modifyOutputContents(recipe.outputs, modifier),
-                recipe.tickInputs,
-                recipe.tickOutputs,
-                recipe.inputChanceLogics,
-                recipe.outputChanceLogics,
-                recipe.tickInputChanceLogics,
-                recipe.tickOutputChanceLogics,
-                recipe.conditions,
-                recipe.ingredientActions,
-                recipe.data,
-                recipe.duration,
-                recipe.isFuel
-            )
-            IGTRecipe.of(copy).realParallels = IGTRecipe.of(recipe).realParallels
-            copy.ocTier = recipe.ocTier
-            return copy
-        }
+            override fun getEuMultiplier(): Double {
+                return super.getEuMultiplier() * getEuReduction(getMachine())
+            }
 
-        private fun modifyOutputContents(
-            before: Map<RecipeCapability<*>, MutableList<Content>>,
-            modifier: ContentModifier
-        ): Map<RecipeCapability<*>, MutableList<Content>> {
-            val after = Reference2ReferenceOpenHashMap<RecipeCapability<*>, MutableList<Content>>()
-            for (entry in before) {
-                val cap = entry.key
-                val contentList = entry.value
-                val copyList = ObjectArrayList<Content>(contentList.size)
+            override fun calculateParallels(): ParallelData? {
+                val recipes = lookupRecipeIterator()
+                if (recipes.isEmpty()) return null
 
-                if (cap == ItemRecipeCapability.CAP) {
-                    for (content in contentList) {
-                        if (content.content is SizedIngredient && (content.content as SizedIngredient).items[0].item in cycleItems) {
-                            copyList.add(content)
-                        } else {
-                            copyList.add(content.copy(ItemRecipeCapability.CAP, modifier))
-                        }
-                    }
-                } else {
-                    for (content in contentList) {
-                        copyList.add(content.copy(cap, modifier))
+                val recipeList = ObjectArrayList<GTRecipe>(recipes.size)
+                val parallelsList = LongArrayList(recipes.size)
+                val modifier = ContentModifier.multiplier(getMachine().recipeOutputMultiply)
+
+                for (recipe in recipes) {
+                    recipe ?: continue
+                    val modified = copyAndModifyRecipe(recipe, modifier)
+                    val parallel = getMaxParallel(modified, Long.MAX_VALUE)
+                    if (parallel > 0) {
+                        recipeList.add(modified)
+                        parallelsList.add(parallel)
                     }
                 }
-                after[cap] = copyList
+
+                return if (recipeList.isEmpty()) null
+                else ParallelData(recipeList, parallelsList.toLongArray())
             }
-            return after
-        }
 
-        private fun modifyInputContents(
-            before: Map<RecipeCapability<*>, MutableList<Content>>,
-            modifier: ContentModifier
-        ): Map<RecipeCapability<*>, MutableList<Content>> {
-            if (!before.containsKey(ItemRecipeCapability.CAP)) return before
+            private fun copyAndModifyRecipe(recipe: GTRecipe, modifier: ContentModifier): GTRecipe {
+                val copy = GTRecipe(
+                    recipe.recipeType,
+                    recipe.id,
+                    modifyInputContents(recipe.inputs, modifier),
+                    modifyOutputContents(recipe.outputs, modifier),
+                    recipe.tickInputs,
+                    recipe.tickOutputs,
+                    recipe.inputChanceLogics,
+                    recipe.outputChanceLogics,
+                    recipe.tickInputChanceLogics,
+                    recipe.tickOutputChanceLogics,
+                    recipe.conditions,
+                    recipe.ingredientActions,
+                    recipe.data,
+                    recipe.duration,
+                    recipe.isFuel
+                )
+                IGTRecipe.of(copy).realParallels = IGTRecipe.of(recipe).realParallels
+                copy.ocTier = recipe.ocTier
+                return copy
+            }
 
-            val after = Reference2ReferenceOpenHashMap<RecipeCapability<*>, MutableList<Content>>()
-            for (entry in before) {
-                val cap = entry.key
-                val contentList = entry.value
-
-                if (cap == ItemRecipeCapability.CAP) {
+            private fun modifyOutputContents(
+                before: Map<RecipeCapability<*>, List<Content>>,
+                modifier: ContentModifier
+            ): Map<RecipeCapability<*>, List<Content>> {
+                val after = Reference2ReferenceOpenHashMap<RecipeCapability<*>, List<Content>>()
+                for (entry in before) {
+                    val cap = entry.key
+                    val contentList = entry.value
                     val copyList = ObjectArrayList<Content>(contentList.size)
-                    for (content in contentList) {
-                        if (content.content is SizedIngredient && (content.content as SizedIngredient).items[0].item in cycleItems) {
-                            copyList.add(content.copy(ItemRecipeCapability.CAP, modifier))
-                        } else {
-                            copyList.add(content)
+
+                    if (cap == ItemRecipeCapability.CAP) {
+                        for (content in contentList) {
+                            if (content.content is SizedIngredient && (content.content as SizedIngredient).items[0].item in cycleItems) {
+                                copyList.add(content)
+                            } else {
+                                copyList.add(content.copy(ItemRecipeCapability.CAP, modifier))
+                            }
+                        }
+                    } else {
+                        for (content in contentList) {
+                            copyList.add(content.copy(cap, modifier))
                         }
                     }
                     after[cap] = copyList
-                } else {
-                    after[cap] = contentList
                 }
+                return after
             }
-            return after
-        }
 
-        companion object {
-            val cycleItems = ObjectOpenHashSet<Item>(
-                arrayOf(
-                    getItem("kubejs:extremely_durable_plasma_cell"),
-                    getItem("kubejs:time_dilation_containment_unit"),
-                    getItem("kubejs:plasma_containment_cell")
+            private fun modifyInputContents(
+                before: Map<RecipeCapability<*>, List<Content>>,
+                modifier: ContentModifier
+            ): Map<RecipeCapability<*>, List<Content>> {
+                if (!before.containsKey(ItemRecipeCapability.CAP)) return before
+
+                val after = Reference2ReferenceOpenHashMap<RecipeCapability<*>, List<Content>>()
+                for (entry in before) {
+                    val cap = entry.key
+                    val contentList = entry.value
+
+                    if (cap == ItemRecipeCapability.CAP) {
+                        val copyList = ObjectArrayList<Content>(contentList.size)
+                        for (content in contentList) {
+                            if (content.content is SizedIngredient && (content.content as SizedIngredient).items[0].item in cycleItems) {
+                                copyList.add(content.copy(ItemRecipeCapability.CAP, modifier))
+                            } else {
+                                copyList.add(content)
+                            }
+                        }
+                        after[cap] = copyList
+                    } else {
+                        after[cap] = contentList
+                    }
+                }
+                return after
+            }
+
+            companion object {
+                val cycleItems = ObjectOpenHashSet<Item>(
+                    arrayOf(
+                        getItem("kubejs:extremely_durable_plasma_cell"),
+                        getItem("kubejs:time_dilation_containment_unit"),
+                        getItem("kubejs:plasma_containment_cell")
+                    )
                 )
-            )
+            }
         }
-    }
 
-    companion object {
+        // 1 -> 1 / MAX_MULTIPLIER
+        fun getEuReduction(machine: ForgeOfTheAntichrist): Double {
+            return 1 - (1 - MIN_EU_RATIO) * (min(
+                machine.runningSecs,
+                MAX_EFFICIENCY_SEC.toLong()
+            ).toDouble() / MAX_EFFICIENCY_SEC).pow(2.5)
+        }
+
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
             ForgeOfTheAntichrist::class.java,
             GTLAddWirelessWorkableElectricMultipleRecipesMachine.MANAGED_FIELD_HOLDER

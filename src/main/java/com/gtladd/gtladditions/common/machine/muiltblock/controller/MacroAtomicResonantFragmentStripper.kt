@@ -13,6 +13,7 @@ import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectric
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
+import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -120,7 +121,7 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
                 if (recipes.isEmpty()) return null
 
                 val recipeList = ObjectArrayList<GTRecipe>(recipes.size)
-                val parallelsList = ObjectArrayList<Long>()
+                val parallelsList = LongArrayList(recipes.size)
                 val eachParallel = this.parallel.maxParallel.toLong()
 
                 for (recipe in recipes) {

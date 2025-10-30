@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.data.recipes
 
+import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
 import com.gregtechceu.gtceu.api.data.tag.TagUtil
@@ -14,6 +15,7 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.id
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
 import com.gtladd.gtladditions.common.data.SkyTearsAndGregHeart
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
@@ -21,6 +23,7 @@ import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
 import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_ENERGY_INPUT_HATCH
 import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_LASER_INPUT_HATCH
 import com.hepdd.gtmthings.data.CustomMachines.HUGE_INPUT_DUAL_HATCH
@@ -675,6 +678,33 @@ object NewMultiBlockMachineController {
             .EUt(VA[MAX].toLong()).duration(2304000)
             .stationResearch { b : StationRecipeBuilder? ->
                 b !!.researchStack(ANNIHILATE_GENERATOR.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("heliofusion_exoticizer"))
+            .inputItems(GTLAddBlocks.GOD_FORGE_TRIM_CASING, 64)
+            .inputItems(DIMENSIONALLY_TRANSCENDENT_MIXER, 64)
+            .inputItems(COMPRESSED_FUSION_REACTOR[UEV], 64)
+            .inputItems(STAR_ULTIMATE_MATERIAL_FORGE_FACTORY, 64)
+            .inputItems(getItemStack("kubejs:create_ultimate_battery", 4))
+            .inputItems(wireGtHex,Eternity, 64)
+            .inputItems(wireGtHex,Infinity, 64)
+            .inputItems(wireGtHex,SpaceTime, 64)
+            .inputItems(PHONON_CONDUIT, 8)
+            .inputItems(GTLAddBlocks.GOD_FORGE_ENERGY_CASING, 1)
+            .inputItems(plateDouble,Cosmic, 40)
+            .inputItems(plateDense,CREON, 64)
+            .inputItems(plateDense,MELLION, 64)
+            .inputItems(getItemStack("kubejs:hyperdimensional_drone", 16))
+            .inputFluids(UUMatter.getFluid(147456000))
+            .inputFluids(ExcitedDtec.getFluid(2048000000))
+            .inputFluids(PHONON_MEDIUM.getFluid(640000000))
+            .inputFluids(TranscendentMetal.getFluid(147456000))
+            .outputItems(MultiBlockMachine.HELIOFUSION_EXOTICIZER)
+            .EUt(VA[MAX].toLong()).duration(2304000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(DIMENSIONALLY_TRANSCENDENT_MIXER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }

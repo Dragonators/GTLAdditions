@@ -12,7 +12,10 @@ import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.id
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.QUANTUM_GLASS
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_CASING
+import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
+import com.gtladd.gtladditions.common.items.GTLAddItems.THERMAL_SUPERCONDUCTOR
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
 import com.hepdd.gtmthings.GTMThings
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLBlocks.*
@@ -79,6 +82,23 @@ object Assembler {
             .inputFluids(WhiteDwarfMatter.getFluid(23040))
             .outputItems(TEMPORAL_ANCHOR_FIELD_CASING.asStack(2))
             .EUt(VA[MAX].toLong()).duration(400).save(provider)
+        ASSEMBLER_RECIPES.recipeBuilder(id("thermal_superconductor"))
+            .inputItems(pipeHugeFluid, TranscendentMetal, 4)
+            .inputItems(foil, Echoite, 64)
+            .inputItems(plateDouble, Quantum, 32)
+            .inputItems(ELECTRIC_PUMP_UXV, 8)
+            .inputFluids(PHONON_MEDIUM.getFluid(100000))
+            .outputItems(THERMAL_SUPERCONDUCTOR.asStack())
+            .EUt(VA[UXV].toLong()).duration(800).save(provider)
+        ASSEMBLER_RECIPES.recipeBuilder(id("relativistic_heat_capacitor"))
+            .inputItems(THERMAL_SUPERCONDUCTOR, 4)
+            .inputItems(plateDouble, Eternity, 24)
+            .inputItems(plateDense, CosmicNeutronium, 32)
+            .inputItems(rotor, TranscendentMetal, 15)
+            .inputItems(FIELD_GENERATOR_OpV, 7)
+            .inputFluids(PHONON_MEDIUM.getFluid(500000))
+            .outputItems(RELATIVISTIC_HEAT_CAPACITOR.asStack())
+            .EUt(VA[OpV].toLong()).duration(2000).save(provider)
     }
 
     private fun addHugeOutput(provider : Consumer<FinishedRecipe?>) {

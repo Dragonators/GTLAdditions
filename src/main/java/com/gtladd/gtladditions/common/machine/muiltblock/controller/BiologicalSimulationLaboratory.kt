@@ -3,7 +3,6 @@ package com.gtladd.gtladditions.common.machine.muiltblock.controller
 import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
-import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
@@ -36,10 +35,18 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
     @field:Persisted
     val machineStorage: NotifiableItemStackHandler? = createMachineStorage()
 
+    private var reductionEUt = 1.0
+    private var reductionDuration = 1.0
+    private var maxParallels = 64
+    private var isMultiRecipe = false
+
     fun createMachineStorage(): NotifiableItemStackHandler {
         val handler = NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH) { slots ->
             object : ItemStackTransfer(1) {
                 override fun getSlotLimit(slot: Int): Int = 1
+                override fun onContentsChanged() {
+                    recalculateParameters()
+                }
             }
         }
         handler.setFilter { itemStack: ItemStack? -> this.filter(itemStack!!) }
@@ -54,8 +61,9 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         return super.getRecipeLogic() as BiologicalSimulationLaboratoryLogic
     }
 
-    override fun getFieldHolder(): ManagedFieldHolder {
-        return MANAGED_FIELD_HOLDER
+    override fun onStructureFormed() {
+        super.onStructureFormed()
+        recalculateParameters()
     }
 
     fun filter(itemStack: ItemStack): Boolean {
@@ -64,6 +72,8 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
             item
         )
     }
+
+    fun isMultiRecipeEnabled(): Boolean = isMultiRecipe
 
     override fun createUIWidget(): Widget {
         val widget = super.createUIWidget()
@@ -80,61 +90,49 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
     override fun addDisplayText(textList: MutableList<Component?>) {
         super.addDisplayText(textList)
         if (this.isFormed) {
-            if (this.holder.offsetTimer % 20L == 0L) this.setParameter(this)
-            textList.add(Component.translatable("gtceu.machine.biological_simulation_laboratory.gui.tooltip." + if (Is_MultiRecipe) 1 else 0))
+            textList.add(Component.translatable("gtceu.machine.biological_simulation_laboratory.gui.tooltip." + if (isMultiRecipe) 1 else 0))
             textList.add(
                 Component.translatable(
                     "gtceu.machine.eut_multiplier.tooltip", Component.translatable(
-                        FormattingUtil.formatNumbers(reDuctionEUt))
+                        FormattingUtil.formatNumbers(reductionEUt))
                 )
             )
             textList.add(
                 Component.translatable(
                     "gtceu.machine.duration_multiplier.tooltip", Component.translatable(
-                        FormattingUtil.formatNumbers(reDuctionDuration))
+                        FormattingUtil.formatNumbers(reductionDuration))
                 )
             )
         }
     }
 
-    private fun getTier(machine: MetaMachine?): Int {
-        if (machine is BiologicalSimulationLaboratory) {
-            val item = machine.machineStorage!!.storage.getStackInSlot(0).item
-            if (RHENIUM_NANOSWARM.`is`(item)) return 1
-            else if (ORICHALCUM_NANOSWARM.`is`(item)) return 2
-            else if (INFUSCOLIUM_NANOSWARM.`is`(item)) return 3
-            else if (NAN_CERTIFICATE.`is`(item)) return 4
-        }
-        return 0
-    }
-
-    private fun setParameter(machine: MetaMachine?) {
-        val tier = getTier(machine)
-        when (tier) {
-            1 -> setMachine(false, 2048, 0.9, 0.9)
-            2 -> setMachine(false, 16384, 0.8, 0.6)
-            3 -> setMachine(false, 262144, 0.6, 0.4)
-            4 -> setMachine(true, 4194304, 0.25, 0.1)
-            else -> setMachine(false, 64, 1.0, 1.0)
+    private fun recalculateParameters() {
+        val item = machineStorage!!.storage.getStackInSlot(0).item
+        when {
+            RHENIUM_NANOSWARM.`is`(item) -> setMachineParameters(false, 2048, 0.9, 0.9)
+            ORICHALCUM_NANOSWARM.`is`(item) -> setMachineParameters(false, 16384, 0.8, 0.6)
+            INFUSCOLIUM_NANOSWARM.`is`(item) -> setMachineParameters(false, 262144, 0.6, 0.4)
+            NAN_CERTIFICATE.`is`(item) -> setMachineParameters(true, 4194304, 0.25, 0.1)
+            else -> setMachineParameters(false, 64, 1.0, 1.0)
         }
     }
 
-    private fun setMachine(isMultiRecipe: Boolean, maxParallel: Int, reductionEut: Double, reductionDuration: Double) {
-        Is_MultiRecipe = isMultiRecipe
-        Max_Parallels = maxParallel
-        reDuctionEUt = reductionEut
-        reDuctionDuration = reductionDuration
+    private fun setMachineParameters(isMultiRecipe: Boolean, maxParallel: Int, reductionEut: Double, reductionDuration: Double) {
+        this@BiologicalSimulationLaboratory.isMultiRecipe = isMultiRecipe
+        maxParallels = maxParallel
+        reductionEUt = reductionEut
+        this@BiologicalSimulationLaboratory.reductionDuration = reductionDuration
     }
 
-    override fun getMaxParallel(): Int {
-        return Max_Parallels
-    }
+    override fun getMaxParallel(): Int = maxParallels
 
-    class BiologicalSimulationLaboratoryLogic(machine: BiologicalSimulationLaboratory?) :
+    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
+
+    class BiologicalSimulationLaboratoryLogic(machine: BiologicalSimulationLaboratory) :
         GTLAddMultipleRecipesLogic(machine, BEFORE_RECIPE) {
 
-        override fun getMachine(): BiologicalSimulationLaboratory? {
-            return super.getMachine() as BiologicalSimulationLaboratory?
+        override fun getMachine(): BiologicalSimulationLaboratory {
+            return super.getMachine() as BiologicalSimulationLaboratory
         }
 
         override fun findAndHandleRecipe() {
@@ -149,26 +147,25 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
 
         val isNanCertificate: Boolean
             get() {
-                val item = getMachine()!!.machineStorage!!.storage.getStackInSlot(0)
+                val item = getMachine().machineStorage!!.storage.getStackInSlot(0)
                 return item.item == getItem("gtceu:nan_certificate")
             }
 
         val oneRecipe: GTRecipe?
             get() {
                 if (!machine.hasProxies()) return null
+                val lab = getMachine()
                 var recipe = machine.recipeType.lookup.find(machine, this::checkRecipe)
                 if (recipe == null) return null
-                recipe = ParallelLogic.applyParallel(machine as MetaMachine, recipe,
+                recipe = ParallelLogic.applyParallel(lab, recipe,
                     parallel.maxParallel, false).first
-                return GTLRecipeModifiers.reduction(this.machine as MetaMachine?, recipe,
-                    reDuctionEUt, reDuctionDuration)
+                return GTLRecipeModifiers.reduction(lab, recipe,
+                    lab.reductionEUt, lab.reductionDuration)
             }
 
         override fun onRecipeFinish() {
             machine.afterWorking()
-            if (lastRecipe != null) {
-                handleRecipeOutput(this.machine, lastRecipe!!)
-            }
+            lastRecipe?.let { handleRecipeOutput(this.machine, it) }
             val match = if (this.isNanCertificate) gtRecipe else this.oneRecipe
             if (match != null && matchRecipeOutput(this.machine, match)) {
                 setupRecipe(match)
@@ -181,30 +178,25 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
     }
 
     companion object {
-        private var reDuctionEUt = 1.0
-        private var reDuctionDuration = 1.0
-        private var Max_Parallels = 64
-        private var Is_MultiRecipe = false
         private val RHENIUM_NANOSWARM: ItemStack = getItemStack("gtceu:rhenium_nanoswarm")
         private val ORICHALCUM_NANOSWARM: ItemStack = getItemStack("gtceu:orichalcum_nanoswarm")
         private val INFUSCOLIUM_NANOSWARM: ItemStack = getItemStack("gtceu:infuscolium_nanoswarm")
         private val NAN_CERTIFICATE: ItemStack = GTItems.NAN_CERTIFICATE.asStack()
+
         private val BEFORE_RECIPE: BiPredicate<GTRecipe, IRecipeLogicMachine> =
             BiPredicate { recipe: GTRecipe, machine: IRecipeLogicMachine ->
-                (machine as BiologicalSimulationLaboratory).let {
-                    it.setParameter(machine)
-                    val input = RecipeHelper.getInputItems(recipe)
-                    for (stack in input) {
-                        if (stack.item == getItem("avaritia:infinity_sword") && !Is_MultiRecipe) {
-                            RecipeResult.of(machine, RecipeResult.fail(
-                                Component.translatable("gtceu.machine.biological_simulation_laboratory.recipe.tooltip.0")))
-                            return@BiPredicate false
-                        }
+                val lab = machine as? BiologicalSimulationLaboratory ?: return@BiPredicate false
+                val input = RecipeHelper.getInputItems(recipe)
+                for (stack in input) {
+                    if (stack.item == getItem("avaritia:infinity_sword") && !lab.isMultiRecipeEnabled()) {
+                        RecipeResult.of(machine, RecipeResult.fail(
+                            Component.translatable("gtceu.machine.biological_simulation_laboratory.recipe.tooltip.0")))
+                        return@BiPredicate false
                     }
-                    return@BiPredicate true
                 }
-                return@BiPredicate false
+                true
             }
+
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder =
             ManagedFieldHolder(BiologicalSimulationLaboratory::class.java, GTLAddWorkableElectricMultipleRecipesMachine.MANAGED_FIELD_HOLDER)
     }

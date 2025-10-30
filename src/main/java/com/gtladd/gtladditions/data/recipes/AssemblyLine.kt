@@ -13,14 +13,19 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.items.GTLAddItems
+import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
+import com.gtladd.gtladditions.common.items.GTLAddItems.THERMAL_SUPERCONDUCTOR
+import com.gtladd.gtladditions.common.machine.GTLAddMachines.Ultimate_INPUT_DUAL_HATCH
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE
 import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_LASER_INPUT_HATCH
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
 import org.gtlcore.gtlcore.common.data.GTLBlocks.*
 import org.gtlcore.gtlcore.common.data.GTLItems.EMITTER_MAX
+import org.gtlcore.gtlcore.common.data.GTLItems.FIELD_GENERATOR_MAX
 import org.gtlcore.gtlcore.common.data.GTLMachines.LAW_CLEANING_GRAVITY_CONFIGURATION_MAINTENANCE_HATCH
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
@@ -365,6 +370,31 @@ object AssemblyLine {
                 b !!.researchStack(GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(32767, 192000000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("phonon_conduit")
+            .inputItems(frameGt, TranscendentMetal, 64)
+            .inputItems(frameGt, Eternity, 64)
+            .inputItems(frameGt, Infinity, 64)
+            .inputItems(frameGt, MagnetohydrodynamicallyConstrainedStarMatter, 64)
+            .inputItems(rodLong, CREON, 48)
+            .inputItems(rodLong, CREON, 48)
+            .inputItems(Ultimate_INPUT_DUAL_HATCH, 4)
+            .inputItems(getItemStack("kubejs:hypercube", 64))
+            .inputItems(RELATIVISTIC_HEAT_CAPACITOR, 32)
+            .inputItems(THERMAL_SUPERCONDUCTOR, 48)
+            .inputItems(FIELD_GENERATOR_MAX, 32)
+            .inputItems(bolt, TranscendentMetal, 48)
+            .inputItems(bolt, TranscendentMetal, 48)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(92160000))
+            .inputFluids(PHONON_MEDIUM.getFluid(1000000))
+            .inputFluids(PROTO_HALKONITE.getFluid(2304000))
+            .outputItems(GTLAddBlocks.PHONON_CONDUIT.asStack())
+            .EUt(VA[MAX].toLong()).duration(4000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(RELATIVISTIC_HEAT_CAPACITOR.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(8192, 48000000)
             }
             .save(provider)
     }

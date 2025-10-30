@@ -243,8 +243,9 @@ public class ChanceParallelLogic {
         for (var it = Object2LongMaps.fastIterator(stacks); it.hasNext();) {
             var input = it.next();
             if (ingredient.test(input.getKey())) {
+                long value = input.getLongValue();
                 it.remove();
-                return input.getLongValue();
+                return value;
             }
         }
         return 0;

@@ -37,6 +37,9 @@ object GTLAddItems {
     val PRIMARY_SOC_WAFER: ItemEntry<Item?>
     val PRIMARY_SOC: ItemEntry<Item?>
     val SPACETIME_LENS: ItemEntry<Item?>
+    val PHONONIC_SEED_CRYSTAL: ItemEntry<Item?>
+    val THERMAL_SUPERCONDUCTOR: ItemEntry<Item?>
+    val RELATIVISTIC_HEAT_CAPACITOR: ItemEntry<Item?>
     val STRANGE_ANNIHILATION_FUEL_ROD: ItemEntry<ComponentItem>
     val BLACK_HOLE_SEED: ItemEntry<ComponentItem>
     @JvmField
@@ -77,6 +80,9 @@ object GTLAddItems {
         PREPARE_PRIMARY_SOC_WAFER = register("prepare_primary_soc_wafer", "Prepare Primary Soc Wafer")
         PRIMARY_SOC_WAFER = register("primary_soc_wafer", "Primary Soc Wafer")
         PRIMARY_SOC = register("primary_soc", "Primary Soc")
+        PHONONIC_SEED_CRYSTAL = register("phononic_seed_crystal", "Phononic Seed Crystal")
+        THERMAL_SUPERCONDUCTOR = register("thermal_superconductor", "Thermal Superconductor")
+        RELATIVISTIC_HEAT_CAPACITOR = register("relativistic_heat_capacitor", "Relativistic Heat Capacitor")
         STRANGE_ANNIHILATION_FUEL_ROD = REGISTRATE.item("strange_annihilation_fuel_rod") { properties: Item.Properties -> ComponentItem.create(properties) }
             .onRegister(
                 GTItems.attach(

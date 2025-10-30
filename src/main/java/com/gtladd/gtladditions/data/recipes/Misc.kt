@@ -10,22 +10,28 @@ import com.gregtechceu.gtceu.common.data.GCyMRecipeTypes.ALLOY_BLAST_RECIPES
 import com.gregtechceu.gtceu.common.data.GTItems.TOOL_DATA_MODULE
 import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gregtechceu.gtceu.common.data.GTMaterials.Plutonium241
+import com.gregtechceu.gtceu.common.data.GTMaterials.Praseodymium
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.*
 import com.gregtechceu.gtceu.data.recipe.builder.ShapedRecipeBuilder
 import com.gtladd.gtladditions.GTLAdditions.id
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
+import com.gtladd.gtladditions.common.items.GTLAddItems.PHONONIC_SEED_CRYSTAL
 import com.gtladd.gtladditions.common.items.GTLAddItems.STRANGE_ANNIHILATION_FUEL_ROD
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_CRYSTAL_SOLUTION
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE_BASE
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.CHAOTIC_ALCHEMY
 import dev.latvian.mods.kubejs.KubeJS
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
+import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
 import org.gtlcore.gtlcore.common.data.GTLBlocks.CREATE_CASING
 import org.gtlcore.gtlcore.common.data.GTLBlocks.DIMENSION_CONNECTION_CASING
 import org.gtlcore.gtlcore.common.data.GTLItems.EMITTER_MAX
@@ -229,6 +235,44 @@ object Misc {
             .outputItems(ingotHot, PROTO_HALKONITE)
             .EUt(31457280)
             .duration(320)
+            .save(provider)
+        AUTOCLAVE_RECIPES.recipeBuilder(id("phononic_seed_crystal_1"))
+            .inputItems(nanoswarm, TranscendentMetal, 4)
+            .inputItems(dust, MELLION, 32)
+            .inputFluids(GradePurifiedWater16.getFluid(32000000))
+            .outputItems(PHONONIC_SEED_CRYSTAL, 8)
+            .EUt(125829120)
+            .duration(600)
+            .save(provider)
+        AUTOCLAVE_RECIPES.recipeBuilder(id("phononic_seed_crystal_2"))
+            .inputItems(ingot, Magmatter)
+            .inputFluids(PHONON_CRYSTAL_SOLUTION.getFluid(250))
+            .outputItems(PHONONIC_SEED_CRYSTAL, 45)
+            .EUt(503316480)
+            .duration(100)
+            .save(provider)
+        BLAST_RECIPES.recipeBuilder(id("phonon_crystal_solution"))
+            .inputItems(PHONONIC_SEED_CRYSTAL, 2)
+            .inputItems(dust, Eternity, 8)
+            .inputItems(dust, Shirabon, 8)
+            .inputItems(PHONONIC_SEED_CRYSTAL, 2)
+            .inputFluids(MELLION.getFluid(73728))
+            .outputFluids(PHONON_CRYSTAL_SOLUTION.getFluid(3000))
+            .EUt(125829120)
+            .duration(8000)
+            .blastFurnaceTemp(50000)
+            .save(provider)
+        CHAOTIC_ALCHEMY.recipeBuilder(id("phonon_medium"))
+            .inputItems(dust, MagnetoResonatic, 15)
+            .inputItems(dust, MetastableOganesson, 47)
+            .inputItems(dust, Praseodymium, 35)
+            .inputItems(dust, Echoite, 60)
+            .inputFluids(PHONON_CRYSTAL_SOLUTION.getFluid(4000))
+            .circuitMeta(5)
+            .outputFluids(PHONON_MEDIUM.getFluid(1000))
+            .EUt(125829120)
+            .duration(4800)
+            .blastFurnaceTemp(50000)
             .save(provider)
     }
 }

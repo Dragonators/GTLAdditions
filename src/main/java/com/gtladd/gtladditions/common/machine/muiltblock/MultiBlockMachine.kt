@@ -34,13 +34,24 @@ import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer
 import com.gtladd.gtladditions.client.render.machine.HeartOfTheUniverseRenderer
 import com.gtladd.gtladditions.client.render.machine.PartWorkableCasingMachineRenderer
-import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_ENERGY_CASING
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_INNER_CASING
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_SUPPORT_CASING
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_TRIM_CASING
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.QUANTUM_GLASS
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.REMOTE_GRAVITON_FLOW_REGULATOR
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_CASING
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.Wireless_Energy_Network_OUTPUT_Terminal
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.*
 import com.gtladd.gtladditions.common.machine.muiltblock.structure.*
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.*
 import com.hepdd.gtmthings.data.CustomMachines
 import net.minecraft.ChatFormatting
@@ -87,6 +98,7 @@ object MultiBlockMachine {
     val SKELETON_SHIFT_RIFT_ENGINE: MultiblockMachineDefinition
     val APOCALYPTIC_TORSION_QUANTUM_MATRIX: MultiblockMachineDefinition
     val FORGE_OF_THE_ANTICHRIST: MultiblockMachineDefinition
+    val HELIOFUSION_EXOTICIZER: MultiblockMachineDefinition
     val HEART_OF_THE_UNIVERSE: MultiblockMachineDefinition
     val MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER: MultiblockMachineDefinition?
 
@@ -1000,7 +1012,7 @@ object MultiBlockMachine {
                     .where("B", Predicates.blocks(MANIPULATOR.get()))
                     .where("C", Predicates.blocks(getBlock("kubejs:dimensional_bridge_casing")))
                     .where("D", Predicates.blocks(DIMENSIONALLY_TRANSCENDENT_CASING.get()))
-                    .where("E", Predicates.blocks(GTLAddBlocks.QUANTUM_GLASS.get()))
+                    .where("E", Predicates.blocks(QUANTUM_GLASS.get()))
                     .where("F", Predicates.blocks(MANIPULATOR.get())
                         .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
                         .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
@@ -1043,28 +1055,28 @@ object MultiBlockMachine {
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.1"))
             .tooltipTextRecipeTypes(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES, STELLAR_FORGE_RECIPES, CHAOTIC_ALCHEMY, ULTIMATE_MATERIAL_FORGE_RECIPES)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
-            .appearanceBlock(GTLAddBlocks.GOD_FORGE_INNER_CASING)
+            .appearanceBlock(GOD_FORGE_INNER_CASING)
             .recipeTypes(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES, STELLAR_FORGE_RECIPES, CHAOTIC_ALCHEMY, ULTIMATE_MATERIAL_FORGE_RECIPES)
             .pattern { definition: MultiblockMachineDefinition? ->
                 MultiBlockStructureC.FORGE_OF_THE_ANTICHRIST!!
                     .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
-                    .where("A", Predicates.blocks(GTLAddBlocks.GOD_FORGE_SUPPORT_CASING.get())
+                    .where("A", Predicates.blocks(GOD_FORGE_SUPPORT_CASING.get())
                         .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
                         .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
                         .or(Predicates.abilities(PartAbility.EXPORT_ITEMS))
                         .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS)))
-                    .where("B", Predicates.blocks(GTLAddBlocks.GOD_FORGE_TRIM_CASING.get()))
-                    .where("C", Predicates.blocks(GTLAddBlocks.GOD_FORGE_INNER_CASING.get()))
-                    .where("D", Predicates.blocks(GTLAddBlocks.GOD_FORGE_SUPPORT_CASING.get()))
-                    .where("E", Predicates.blocks(GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.get()))
-                    .where("F", Predicates.blocks(GTLAddBlocks.GOD_FORGE_ENERGY_CASING.get()))
-                    .where("G", Predicates.blocks(GTLAddBlocks.REMOTE_GRAVITON_FLOW_REGULATOR.get()))
-                    .where("H", Predicates.blocks(GTLAddBlocks.SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS.get()))
-                    .where("I", Predicates.blocks(GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR.get()))
-                    .where("J", Predicates.blocks(GTLAddBlocks.GOD_FORGE_TRIM_CASING.get()))
-                    .where("K", Predicates.blocks(GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR.get()))
+                    .where("B", Predicates.blocks(GOD_FORGE_TRIM_CASING.get()))
+                    .where("C", Predicates.blocks(GOD_FORGE_INNER_CASING.get()))
+                    .where("D", Predicates.blocks(GOD_FORGE_SUPPORT_CASING.get()))
+                    .where("E", Predicates.blocks(SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.get()))
+                    .where("F", Predicates.blocks(GOD_FORGE_ENERGY_CASING.get()))
+                    .where("G", Predicates.blocks(REMOTE_GRAVITON_FLOW_REGULATOR.get()))
+                    .where("H", Predicates.blocks(SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS.get()))
+                    .where("I", Predicates.blocks(CENTRAL_GRAVITON_FLOW_REGULATOR.get()))
+                    .where("J", Predicates.blocks(GOD_FORGE_TRIM_CASING.get())
+                        .or(Predicates.blocks(HELIOFUSION_EXOTICIZER.get())))
+                    .where("K", Predicates.blocks(MEDIARY_GRAVITON_FLOW_REGULATOR.get()))
                     .build()
-
             }
             .additionalDisplay { controller: IMultiController, components: MutableList<Component?> ->
                 if (controller.isFormed) {
@@ -1093,12 +1105,45 @@ object MultiBlockMachine {
                 ForgeOfAntichristRenderer(
                     GTLAdditions.id("block/casings/god_forge_inner_casing"),
                     GTLAdditions.id("block/multiblock/forge_of_antichrist"),
-                    GTLAddBlocks.GOD_FORGE_SUPPORT_CASING,
+                    GOD_FORGE_SUPPORT_CASING,
                     GTLAdditions.id("block/casings/god_forge_support_casing")
                 )
             }
-            .partAppearance { controller, part, side -> GTLAddBlocks.GOD_FORGE_SUPPORT_CASING.get().defaultBlockState() }
+            .partAppearance { controller, part, side -> GOD_FORGE_SUPPORT_CASING.get().defaultBlockState() }
             .hasTESR(true)
+            .register()
+
+        HELIOFUSION_EXOTICIZER = REGISTRATE.multiblock("heliofusion_exoticizer",
+            Function { HelioFusionExoticizer(it!!) })
+            .allRotation()
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofusion_exoticizer.tooltip.0"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofusion_exoticizer.tooltip.1"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofusion_exoticizer.tooltip.2"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofusion_exoticizer.tooltip.3"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofusion_exoticizer.tooltip.4"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofusion_exoticizer.tooltip.5"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.eut_multiplier.tooltip", 0.5))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.0"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.1"))
+            .tooltipTextRecipeTypes(MATTER_EXOTIC)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeTypes(MATTER_EXOTIC)
+            .appearanceBlock(GOD_FORGE_TRIM_CASING)
+            .pattern { definition ->
+                MultiBlockStructureD.HELIOFUSION_EXOTICIZER!!
+                    .where("~", Predicates.controller(Predicates.blocks(definition.get())))
+                    .where("B", Predicates.blocks(GOD_FORGE_TRIM_CASING.get())
+                        .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
+                        .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
+                        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS))
+                        .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS)))
+                    .where("F", Predicates.blocks(PHONON_CONDUIT.get()))
+                    .where("G", Predicates.blocks(GOD_FORGE_ENERGY_CASING.get()))
+                    .where("D", Predicates.blocks(SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.get()))
+                    .where("E", Predicates.blocks(GOD_FORGE_SUPPORT_CASING.get()))
+                    .build()
+            }
+            .workableCasingRenderer(GTLAdditions.id("block/casings/god_forge_trim_casing"), GTLAdditions.id("block/multiblock/heliofusion_exoticizer"))
             .register()
 
         HEART_OF_THE_UNIVERSE = REGISTRATE.multiblock("heart_of_the_universe",

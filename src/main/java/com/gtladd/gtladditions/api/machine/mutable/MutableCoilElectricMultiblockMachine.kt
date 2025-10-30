@@ -43,7 +43,5 @@ open class MutableCoilElectricMultiblockMachine(holder: IMachineBlockEntity) :
         this.threadPartMachine = threadModifierPart
     }
 
-    override fun getAdditionalThread(): Int {
-        return threadPartMachine?.threadCount ?: 0
-    }
+    override fun getThreadPartMachine(): IThreadModifierPart? = this.threadPartMachine
 }

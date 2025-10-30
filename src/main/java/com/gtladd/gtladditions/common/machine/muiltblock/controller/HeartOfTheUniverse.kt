@@ -21,6 +21,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
+import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 import org.gtlcore.gtlcore.integration.gtmt.NewGTValues
@@ -64,7 +65,7 @@ class HeartOfTheUniverse(holder: IMachineBlockEntity, vararg args: Any?) :
                     }
                     IGTRecipe.of(r).realParallels = p
 
-                    r = modifyInputAndOutput(r)
+                    r = IParallelLogic.getRecipeOutputChance(machine, r)
                     if (RecipeRunnerHelper.handleRecipeInput(machine, r)) {
                         totalEu = totalEu.add(parallelTotalEu)
                         r.outputs[ItemRecipeCapability.CAP]?.let { itemOutputs.addAll(it) }

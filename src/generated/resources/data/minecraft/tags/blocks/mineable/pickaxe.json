@@ -1,5 +1,7 @@
 {
   "values": [
+    "gtladditions:quantum_glass",
+    "gtladditions:spatially_transcendent_gravitational_lens",
     "gtladditions:god_forge_energy_casing",
     "gtladditions:god_forge_inner_casing",
     "gtladditions:god_forge_support_casing",
@@ -9,7 +11,6 @@
     "gtladditions:mediary_graviton_flow_regulator",
     "gtladditions:central_graviton_flow_regulator",
     "gtladditions:temporal_anchor_field_casing",
-    "gtladditions:quantum_glass",
-    "gtladditions:spatially_transcendent_gravitational_lens"
+    "gtladditions:phonon_conduit"
   ]
 }

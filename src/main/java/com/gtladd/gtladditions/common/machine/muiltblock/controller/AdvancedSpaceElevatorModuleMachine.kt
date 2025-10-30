@@ -1,10 +1,8 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
-import com.google.common.base.Predicate
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
@@ -145,8 +143,8 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return GTLAddMultipleRecipesLogic(
-            this,
-            Predicate { machine -> (machine as AdvancedSpaceElevatorModuleMachine).host != null })
+            this
+        ) { machine -> (machine as AdvancedSpaceElevatorModuleMachine).host != null }
     }
 
     override fun onStructureFormed() {
