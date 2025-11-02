@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.utils.FormattingUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
+import com.gtladd.gtladditions.utils.CommonUtils;
 import com.hepdd.gtmthings.api.misc.WirelessEnergyManager;
 import com.hepdd.gtmthings.utils.TeamUtil;
 import dev.architectury.patchedmixin.staticmixin.spongepowered.asm.mixin.Overwrite;
@@ -64,7 +65,7 @@ public abstract class HarmonyMachineMixin extends NoEnergyMultiblockMachine {
                 textList.add(Component.translatable("gtmthings.machine.wireless_energy_monitor.tooltip.0",
                         TeamUtil.GetName(getLevel(), userid)));
                 textList.add(Component.translatable("gtmthings.machine.wireless_energy_monitor.tooltip.1",
-                        Component.literal(String.format("%.8e", totalEu.doubleValue())).withStyle(ChatFormatting.RED)));
+                        Component.literal(CommonUtils.formatBigIntegerFixed(totalEu)).withStyle(ChatFormatting.RED)));
             }
             textList.add(Component.translatable("tooltip.gtlcore.startup_energy_cost", FormattingUtil.formatNumbers(getStartupEnergy())));
             textList.add(Component.translatable("tooltip.gtlcore.hydrogen_storage", FormattingUtil.formatNumbers(hydrogen)));

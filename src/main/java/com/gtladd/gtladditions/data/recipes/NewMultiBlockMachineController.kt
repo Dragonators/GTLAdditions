@@ -1,9 +1,7 @@
 package com.gtladd.gtladditions.data.recipes
 
-import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
-import com.gregtechceu.gtceu.api.data.tag.TagUtil
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
 import com.gregtechceu.gtceu.common.data.GTItems.*
@@ -19,11 +17,15 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
 import com.gtladd.gtladditions.common.data.SkyTearsAndGregHeart
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
+import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.TAIXU_TURBID_ARRAY
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE
 import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_ENERGY_INPUT_HATCH
 import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_LASER_INPUT_HATCH
 import com.hepdd.gtmthings.data.CustomMachines.HUGE_INPUT_DUAL_HATCH
@@ -640,7 +642,7 @@ object NewMultiBlockMachineController {
             .inputItems(plateDense, MELLION, 4194304)
             .inputItems(plateDense, MetastableOganesson, 4194304)
             .inputItems(wireGtHex,Eternity, 65536)
-            .inputItems(TagUtil.createModItemTag("circuits/max"), 16777216)
+            .inputItems(CustomTags.MAX_CIRCUITS, 16777216)
             .inputItems(CREATIVE_LASER_INPUT_HATCH, 256)
             .inputItems(CREATIVE_ENERGY_INPUT_HATCH, 256)
             .inputFluids(MagnetohydrodynamicallyConstrainedStarMatter.getFluid(2359296000))
@@ -705,6 +707,83 @@ object NewMultiBlockMachineController {
             .EUt(VA[MAX].toLong()).duration(2304000)
             .stationResearch { b : StationRecipeBuilder? ->
                 b !!.researchStack(DIMENSIONALLY_TRANSCENDENT_MIXER.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("helioflare_power_forge"))
+            .inputItems(GTLAddBlocks.GOD_FORGE_TRIM_CASING, 16)
+            .inputItems(SUPER_BLAST_SMELTER, 256)
+            .inputItems(SUPER_BLAST_SMELTER, 256)
+            .inputItems(ADVANCED_MULTI_SMELTER, 1024)
+            .inputItems(MEGA_ULTIMATE_BATTERY, 64)
+            .inputItems(wireGtHex,Echoite, 64)
+            .inputItems(ROBOT_ARM_OpV, 64)
+            .inputItems(CONVEYOR_MODULE_OpV, 64)
+            .inputItems(plateDense,PROTO_HALKONITE, 16)
+            .inputItems(plateDense,CREON, 8)
+            .inputItems(plateDense,MELLION, 8)
+            .inputItems(CustomTags.UXV_CIRCUITS, 64)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(147456000))
+            .inputFluids(ExcitedDtec.getFluid(2048000000))
+            .inputFluids(PHONON_MEDIUM.getFluid(32000000))
+            .inputFluids(TranscendentMetal.getFluid(147456000))
+            .outputItems(MultiBlockMachine.HELIOFLARE_POWER_FORGE)
+            .EUt(VA[MAX].toLong()).duration(2304000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(SUPER_BLAST_SMELTER.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("heliofluix_melting_core"))
+            .inputItems(GTLAddBlocks.GOD_FORGE_TRIM_CASING, 32)
+            .inputItems(FUXI_BAGUA_HEAVEN_FORGING_FURNACE, 4)
+            .inputItems(TAIXU_TURBID_ARRAY, 4)
+            .inputItems(MEGA_ULTIMATE_BATTERY, 64)
+            .inputItems(wireGtHex,Legendarium, 64)
+            .inputItems(ROBOT_ARM_MAX, 64)
+            .inputItems(CONVEYOR_MODULE_MAX, 64)
+            .inputItems(ELECTRIC_PUMP_MAX, 64)
+            .inputItems(RELATIVISTIC_HEAT_CAPACITOR, 32)
+            .inputItems(plateDense,Hypogen, 32)
+            .inputItems(plateDense,CREON, 16)
+            .inputItems(plateDense,MELLION, 16)
+            .inputItems(CustomTags.MAX_CIRCUITS, 64)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(147456000))
+            .inputFluids(ExcitedDtec.getFluid(2048000000))
+            .inputFluids(PHONON_MEDIUM.getFluid(64000000))
+            .inputFluids(TranscendentMetal.getFluid(147456000))
+            .outputItems(MultiBlockMachine.HELIOFLUIX_MELTING_CORE)
+            .EUt(VA[MAX].toLong()).duration(2304000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(FUXI_BAGUA_HEAVEN_FORGING_FURNACE.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("heliothermal_plasma_fabricator"))
+            .inputItems(GTLAddBlocks.GOD_FORGE_TRIM_CASING, 16)
+            .inputItems(FUSION_REACTOR[UEV], 256)
+            .inputItems(SUPER_PARTICLE_COLLIDER, 256)
+            .inputItems(MEGA_ULTIMATE_BATTERY, 64)
+            .inputItems(wireGtHex,Echoite, 64)
+            .inputItems(ROBOT_ARM_OpV, 64)
+            .inputItems(CONVEYOR_MODULE_OpV, 64)
+            .inputItems(ELECTRIC_PUMP_OpV, 64)
+            .inputItems(RELATIVISTIC_HEAT_CAPACITOR, 16)
+            .inputItems(plateDense,Infinity, 32)
+            .inputItems(plateDense,CREON, 16)
+            .inputItems(plateDense,MELLION, 16)
+            .inputItems(CustomTags.OpV_CIRCUITS, 64)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(147456000))
+            .inputFluids(ExcitedDtec.getFluid(2048000000))
+            .inputFluids(PHONON_MEDIUM.getFluid(32000000))
+            .inputFluids(TranscendentMetal.getFluid(147456000))
+            .outputItems(MultiBlockMachine.HELIOTHERMAL_PLASMA_FABRICATOR)
+            .EUt(VA[MAX].toLong()).duration(2304000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(SUPER_PARTICLE_COLLIDER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }

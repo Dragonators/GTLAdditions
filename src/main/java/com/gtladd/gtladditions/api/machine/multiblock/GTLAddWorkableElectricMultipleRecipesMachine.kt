@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipeMachine
 import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
+import com.gtladd.gtladditions.utils.CommonUtils
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.ChatFormatting
@@ -114,7 +115,7 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
             textList.add(
                 Component.translatable(
                     "gtceu.multiblock.max_energy_per_tick",
-                    String.format("%.8e", totalEu.toDouble()),
+                    CommonUtils.formatBigIntegerFixed(totalEu),
                     Component.literal(NewGTValues.VNF[energyTier])
                 )
                     .withStyle(ChatFormatting.GRAY)

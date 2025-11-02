@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient
+import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.data.ParallelData
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecipesLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
@@ -56,17 +57,41 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     private var mam = 0
     private var runningSecSubs: TickableSubscription? = null
 
-    override fun createRecipeLogic(vararg args: Any): RecipeLogic {
-        return ForgeOfTheAntichristLogic(this)
-    }
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic = ForgeOfTheAntichristLogic(this)
 
-    override fun getRecipeLogic(): ForgeOfTheAntichristLogic {
-        return super.getRecipeLogic() as ForgeOfTheAntichristLogic
-    }
+    override fun getRecipeLogic(): ForgeOfTheAntichristLogic = super.getRecipeLogic() as ForgeOfTheAntichristLogic
 
     override fun addDisplayText(textList: MutableList<Component?>) {
         super.addDisplayText(textList)
-        if (isFormed) textList.add(Component.translatable("tooltip.gtlcore.installed_module_count", getMAM()))
+        if (!isFormed) return
+
+        textList.add(
+            Component.translatable(
+                "gtladditions.multiblock.forge_of_the_antichrist.running_sec",
+                GTLAddMachines.createRainbowComponent(FormattingUtil.DECIMAL_FORMAT_2F.format(runningSecs / 3600.0))
+            )
+        )
+
+        textList.add(
+            if (runningSecs >= MAX_EFFICIENCY_SEC) {
+                GTLAddMachines.createRainbowComponent(
+                    Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.achieve_max_efficiency").string
+                )
+            } else {
+                Component.translatable(
+                    "gtladditions.multiblock.forge_of_the_antichrist.output_multiplier",
+                    GTLAddMachines.createRainbowComponent(FormattingUtil.DECIMAL_FORMAT_2F.format(recipeOutputMultiply))
+                )
+            }
+        )
+
+        textList.add(
+            Component.translatable(
+                "gtceu.multiblock.blast_furnace.max_temperature",
+                GTLAddMachines.createObfuscatedRainbowComponent(Long.MAX_VALUE.toString())
+            )
+        )
+        textList.add(Component.translatable("tooltip.gtlcore.installed_module_count", getMAM()))
     }
 
     override fun addParallelDisplay(textList: MutableList<Component?>) {

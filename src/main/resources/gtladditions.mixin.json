@@ -38,6 +38,8 @@
     "gtlcore.machine.part.MEPatternBufferPartMachineMixin",
     "gtlcore.machine.part.WirelessOpticalDataHatchMachineMixin",
     "gtlcore.machine.trait.MultipleRecipesLogicMixin",
-    "gtmtings.WirelessOpticalComputationHatchMachineMIxin"
+    "gtmtings.WirelessEnergyManagerMixin",
+    "gtmtings.WirelessEnergyMonitorMixin",
+    "gtmtings.WirelessOpticalComputationHatchMachineMixin"
   ]
 }

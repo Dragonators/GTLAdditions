@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
+import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -36,6 +37,8 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
@@ -142,6 +145,11 @@ public class CommonUtils {
 
     private static final DecimalFormat DECIMAL2_FORMAT = new DecimalFormat("0.00");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
+    private static final DecimalFormat SCIENTIFIC_FORMAT = new DecimalFormat("0.########E0");
+    private static final DecimalFormat SCIENTIFIC_FIXED_FORMAT = new DecimalFormat("0.00000000E0");
+    private static final DecimalFormat SCIENTIFIC2_FORMAT = new DecimalFormat("0.##E0");
+    private static final BigDecimal LONG_DECIMAL = BigDecimal.valueOf(Long.MAX_VALUE);
+    private static final BigInteger LONG_INTEGER = BigInteger.valueOf(Long.MAX_VALUE);
     private static final double LOG_1000 = Math.log10(1000.0); // 3.0
 
     public static String format2Double(double number) {
@@ -162,6 +170,26 @@ public class CommonUtils {
         double scaledValue = number / Math.pow(1000.0, unitIndex);
 
         return DECIMAL_FORMAT.format(scaledValue) + EXTENDED_UNITS[unitIndex];
+    }
+
+    public static String formatSignBigInteger(BigInteger value) {
+        BigInteger absValue = value.abs();
+        String sign = value.signum() >= 0 ? "+" : "-";
+
+        return absValue.compareTo(LONG_INTEGER) <= 0 ? sign + FormattingUtil.formatNumbers(absValue.longValue()) : sign + SCIENTIFIC_FORMAT.format(value).toLowerCase().replace("e", "e+");
+    }
+
+    public static String formatBigIntegerFixed(BigInteger value) {
+        BigInteger absValue = value.abs();
+        return absValue.compareTo(LONG_INTEGER) <= 0 ? FormattingUtil.formatNumbers(absValue.longValue()) : SCIENTIFIC_FIXED_FORMAT.format(value).toLowerCase().replace("e", "e+");
+    }
+
+    public static String formatFixedBigDecimal(BigDecimal value) {
+        return value.compareTo(LONG_DECIMAL) <= 0 ? FormattingUtil.formatNumbers(value) : SCIENTIFIC_FIXED_FORMAT.format(value).toLowerCase().replace("e", "e+");
+    }
+
+    public static String format2BigDecimal(BigDecimal value) {
+        return value.compareTo(LONG_DECIMAL) <= 0 ? FormattingUtil.formatNumbers(value) : SCIENTIFIC2_FORMAT.format(value).toLowerCase().replace("e", "e+");
     }
 
     // ===================================================

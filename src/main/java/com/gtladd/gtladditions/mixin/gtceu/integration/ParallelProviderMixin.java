@@ -18,8 +18,8 @@ import com.gtladd.gtladditions.api.machine.IThreadModifierMachine;
 import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic;
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.HelioFusionExoticizer;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.MacroAtomicResonantFragmentStripper;
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.ForgeOfTheAntichristModuleBase;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import snownee.jade.api.BlockAccessor;
@@ -66,7 +66,7 @@ public abstract class ParallelProviderMixin {
                 compoundTag.putInt("parallel", parallelHatch.getCurrentParallel());
             } else if (blockEntity.getMetaMachine() instanceof WorkableMultiblockMachine workableElectricMultiblockMachine && workableElectricMultiblockMachine.isFormed()) {
                 if (workableElectricMultiblockMachine instanceof GTLAddWorkableElectricMultipleRecipesMachine addMachine) {
-                    if (!(workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist) && !(workableElectricMultiblockMachine instanceof HelioFusionExoticizer)) {
+                    if (!(workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist) && !(workableElectricMultiblockMachine instanceof ForgeOfTheAntichristModuleBase)) {
                         compoundTag.putInt("parallel", addMachine.getMaxParallel());
                         if (!(workableElectricMultiblockMachine instanceof MacroAtomicResonantFragmentStripper))
                             compoundTag.putInt("threads", addMachine.getRecipeLogic().getMultipleThreads());

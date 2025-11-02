@@ -16,6 +16,7 @@ import net.minecraft.network.chat.HoverEvent;
 import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic;
 import com.gtladd.gtladditions.common.machine.trait.NetworkEnergyContainer;
 import com.gtladd.gtladditions.mixin.gtceu.api.misc.EnergyContainerListAccessor;
+import com.gtladd.gtladditions.utils.CommonUtils;
 import com.hepdd.gtmthings.api.misc.WirelessEnergyManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -53,7 +54,7 @@ public abstract class MultiblockDisplayTextMixin {
                         // Max energy per tick with hover
                         textList.add(Component.translatable(
                                 "gtceu.multiblock.max_energy_per_tick",
-                                String.format("%.8e", totalEu.doubleValue()),
+                                CommonUtils.formatBigIntegerFixed(totalEu),
                                 Component.literal(NewGTValues.VNF[energyTier]))
                                 .withStyle(ChatFormatting.GRAY)
                                 .withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,

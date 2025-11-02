@@ -7,8 +7,6 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.utils.ResearchManager;
 
-import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -20,18 +18,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import com.mojang.datafixers.util.Pair;
-import org.jetbrains.annotations.NotNull;
 
 public class MESuperPatternBufferProxyPartMachine extends MEPatternBufferProxyPartMachine {
-
-    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
-            MESuperPatternBufferProxyPartMachine.class, MEPatternBufferProxyPartMachine.MANAGED_FIELD_HOLDER);
-
-    @Override
-    @NotNull
-    public ManagedFieldHolder getFieldHolder() {
-        return MANAGED_FIELD_HOLDER;
-    }
 
     public MESuperPatternBufferProxyPartMachine(IMachineBlockEntity holder) {
         super(holder);

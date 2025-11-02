@@ -14,7 +14,6 @@ import com.gregtechceu.gtceu.utils.ResearchManager;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
-import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.Tag;
@@ -31,15 +30,6 @@ import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 public class MESuperPatternBufferPartMachine extends MEPatternBufferPartMachine {
-
-    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
-            MESuperPatternBufferPartMachine.class, MEPatternBufferPartMachine.MANAGED_FIELD_HOLDER);
-
-    @Override
-    @NotNull
-    public ManagedFieldHolder getFieldHolder() {
-        return MANAGED_FIELD_HOLDER;
-    }
 
     protected final PaginationUIManager paginationUIManager;
 

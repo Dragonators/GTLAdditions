@@ -116,7 +116,7 @@ object MultiBlockStructureD {
         .aisle(*AnnihilateGeneratorA.A_108)
         .aisle(*AnnihilateGeneratorA.A_109)
 
-    val HELIOFUSION_EXOTICIZER: FactoryBlockPattern? = FactoryBlockPattern.start()
+    val FORGE_OF_THE_ANTICHRIST_MODULE: FactoryBlockPattern? = FactoryBlockPattern.start()
         .aisle("       ", "       ", "       ", "   G   ", "       ", "       ", "       ")
         .aisle("       ", "       ", "       ", "   E   ", "       ", "       ", "       ")
         .aisle("       ", "       ", "       ", "   E   ", "       ", "       ", "       ")
