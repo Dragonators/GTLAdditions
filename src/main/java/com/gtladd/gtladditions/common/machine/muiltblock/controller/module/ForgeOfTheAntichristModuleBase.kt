@@ -24,7 +24,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
-import kotlin.collections.iterator
+import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 
 open class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, vararg args: Any?) :
     GTLAddWirelessWorkableElectricMultipleRecipesMachine(
@@ -197,6 +197,10 @@ open class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, vararg ar
 
                 return if (recipeList.isEmpty()) null
                 else ParallelData(recipeList, parallelsList.toLongArray())
+            }
+
+            override fun checkRecipe(recipe: GTRecipe): Boolean {
+                return RecipeRunnerHelper.matchRecipe(machine, recipe)
             }
 
             open fun enableModify(recipe: GTRecipe): Boolean {

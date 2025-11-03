@@ -22,6 +22,7 @@ import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import net.minecraft.nbt.CompoundTag;
 
+import com.google.common.primitives.Ints;
 import com.gtladd.gtladditions.api.machine.IWirelessElectricMultiblockMachine;
 import com.gtladd.gtladditions.api.machine.IWirelessThreadModifierParallelMachine;
 import com.gtladd.gtladditions.api.machine.logic.IWirelessRecipeLogic;
@@ -103,7 +104,7 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
         output.outputs.put(ItemRecipeCapability.CAP, new ObjectArrayList<>());
         output.outputs.put(FluidRecipeCapability.CAP, new ObjectArrayList<>());
         double totalEu = 0;
-        long remain = (long) this.gTLAdditions$machine.getMaxParallel() * (MAX_THREADS + gTLAdditions$machine.getAdditionalThread());
+        long remain = (long) this.gTLAdditions$machine.getMaxParallel() * Ints.saturatedCast(MAX_THREADS + (long) gTLAdditions$machine.getAdditionalThread());
         double euMultiplier = getEuMultiplier();
 
         while (remain > 0 && iterator.hasNext()) {
