@@ -29,8 +29,8 @@ public abstract class WorkableElectricMultipleRecipesMachineMixin extends Workab
     }
 
     @Unique
-    public int gTLAdditions$getAdditionalThread() {
-        return gTLAdditions$threadPartMachine != null ? gTLAdditions$threadPartMachine.getThreadCount() : 0;
+    public @Nullable IThreadModifierPart gTLAdditions$getThreadPartMachine() {
+        return gTLAdditions$threadPartMachine;
     }
 
     @Override

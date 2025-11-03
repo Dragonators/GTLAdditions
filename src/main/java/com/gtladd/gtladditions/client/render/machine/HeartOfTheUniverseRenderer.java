@@ -15,7 +15,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import com.gtladd.gtladditions.GTLAdditions;
-import com.gtladd.gtladditions.utils.CommonUtils;
+import com.gtladd.gtladditions.utils.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import java.util.function.Consumer;
@@ -58,14 +58,14 @@ public class HeartOfTheUniverseRenderer extends WorkableCasingMachineRenderer {
     }
 
     private static void renderStar(float tick, PoseStack poseStack, MultiBufferSource buffer, long randomSeed) {
-        var rotation = CommonUtils.createRandomRotation(RandomSource.create(randomSeed), 0.5F, 2.0F);
+        var rotation = RenderUtils.createRandomRotation(RandomSource.create(randomSeed), 0.5F, 2.0F);
 
-        CommonUtils.renderStarLayer(poseStack, buffer, SPACE_MODEL, 0.45F,
+        RenderUtils.renderStarLayer(poseStack, buffer, SPACE_MODEL, 0.45F,
                 rotation.axis(), rotation.getAngle(tick),
                 FastColor.ARGB32.color(255, 255, 255, 255),
                 RenderType.solid());
 
-        CommonUtils.renderHaloLayer(poseStack, buffer, 0.45F * 1.02F,
+        RenderUtils.renderHaloLayer(poseStack, buffer, 0.45F * 1.02F,
                 rotation.axis(), rotation.getAngle(tick),
                 HALO_TEX, SPACE_MODEL);
     }

@@ -40,8 +40,6 @@ public class GTLAdditionsGTAddon implements IGTAddon {
 
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
-        AntientropyCondensation.init(provider);
-        ChaoticAlchemy.init(provider);
         PhotonMatrixEtch.init(provider);
         EMResonanceConversionField.init(provider);
         TitansCripEarthbore.init(provider);

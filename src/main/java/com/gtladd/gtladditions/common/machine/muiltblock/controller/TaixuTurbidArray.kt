@@ -8,7 +8,7 @@ import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
-import com.gregtechceu.gtceu.api.machine.feature.IMachineModifyDrops
+import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
@@ -45,7 +45,7 @@ import kotlin.math.*
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(holder, "SCTier"), IMachineModifyDrops {
+open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(holder, "SCTier"), IMachineLife {
 
     @field:Persisted
     val machineStorage: NotifiableItemStackHandler
@@ -67,6 +67,161 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
     init {
         this.machineStorage = createMachineStorage()
     }
+
+    private fun filter(itemStack: ItemStack): Boolean {
+        return VALID_ITEMS.contains(itemStack.item)
+    }
+
+    // ==================== Life Cycle ====================
+    private fun createMachineStorage(): NotifiableItemStackHandler {
+        val handler = NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH) { _ ->
+            object : ItemStackTransfer(1) {
+                override fun onContentsChanged() {
+                    recalculateItemCache()
+                }
+            }
+        }
+        handler.setFilter { itemStack -> filter(itemStack) }
+        return handler
+    }
+
+    override fun beforeWorking(recipe: GTRecipe?): Boolean = true
+
+    override fun onMachineRemoved() = clearInventory(machineStorage.storage)
+
+    override fun onStructureFormed() {
+        super.onStructureFormed()
+        val context = this.multiblockState.matchContext
+
+        val type = context.get<Any?>("CoilType")
+        if (type is ICoilType) {
+            this.coilType = type
+        }
+
+        val speedPipe = context.getOrCreate("SpeedPipeValue") { IValueContainer.noop() }.getValue()
+        if (speedPipe is Int) {
+            this.height = speedPipe - 2
+        }
+
+        recalculateAll()
+    }
+
+    // ==================== GUI ====================
+    override fun createUIWidget(): Widget {
+        val widget = super.createUIWidget()
+        if (widget is WidgetGroup) {
+            val size = widget.size
+            widget.addWidget(
+                SlotWidget(machineStorage.storage, 0, size.width - 30, size.height - 30, true, true)
+                    .setBackground(GuiTextures.SLOT)
+                    .setHoverTooltips(slotTooltips())
+            )
+        }
+        return widget
+    }
+
+    private fun slotTooltips(): MutableList<Component> {
+        return mutableListOf(
+            Component.translatable("gtceu.machine.taixu.storage.tooltip.0"),
+            Component.translatable("gtceu.machine.taixu.storage.tooltip.1"),
+            Component.translatable("gtceu.machine.taixu.storage.tooltip.2"),
+            Component.translatable("gtceu.machine.taixu.storage.tooltip.3"),
+            Component.translatable("gtceu.machine.taixu.storage.tooltip.4"),
+            Component.translatable("gtceu.machine.taixu.storage.tooltip.5"),
+            Component.translatable("gtceu.machine.taixu.storage.tooltip.6")
+        )
+    }
+
+    override fun addDisplayText(textList: MutableList<Component?>) {
+        super.addDisplayText(textList)
+        if (isFormed) {
+            textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.0", height))
+            textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.1", maxParallel))
+
+            if (tier > GTValues.UIV) {
+                val df = DecimalFormat(".00'%'")
+                textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.2", df.format(successRateA)))
+                textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.3", uuAmplifierAmount))
+
+                if (tier > GTValues.OpV) {
+                    textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.4", df.format(
+                        successRateB
+                    )))
+                    textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.5", uuMatterAmount))
+                }
+            }
+        }
+    }
+
+    // ==================== Calculation Methods ====================
+
+    private fun recalculateAll() {
+        frameA = calculateFrameA()
+        frameB = calculateFrameB()
+        uuAmplifierAmount = calculateBaseOutputFluid1()
+        uuMatterAmount = calculateBaseOutputFluid2()
+        recalculateItemCache()
+    }
+
+    private fun recalculateItemCache() {
+        val itemStack = machineStorage.storage.getStackInSlot(0)
+        val item = itemStack.item
+        val isAstralArray = ASTRAL_ARRAY_ITEM.`is`(item)
+
+        val slotBonus = when {
+            ENDERIUM_ITEM.`is`(item) -> ENDERIUM_BONUS * itemStack.count
+            DRACONIUM_ITEM.`is`(item) -> DRACONIUM_BONUS * itemStack.count
+            SPACETIME_ITEM.`is`(item) -> SPACETIME_BONUS * itemStack.count
+            ETERNITY_ITEM.`is`(item) -> ETERNITY_BONUS * itemStack.count
+            else -> 0.0
+        }
+
+        maxParallel = if (isAstralArray) {
+            ASTRAL_BASE_PARALLEL * itemStack.count.toDouble().pow(5.0/3.0).toInt()
+        } else {
+            (PARALLEL_BASE * PARALLEL_POWER_BASE.pow(coilType.coilTemperature / PARALLEL_TEMP_DIVISOR)).toLong()
+        }
+
+        successRateA = if (isAstralArray) {
+            MAX_SUCCESS_RATE
+        } else {
+            MAX_SUCCESS_RATE / (1 + exp(-SUCCESS_A_FACTOR *
+                    (frameA / SUCCESS_A_DIVISOR_A + frameB / SUCCESS_A_DIVISOR_B +
+                            height / SUCCESS_A_HEIGHT_DIVISOR))) + slotBonus
+        }
+
+        successRateB = if (isAstralArray) {
+            MAX_SUCCESS_RATE
+        } else {
+            MAX_SUCCESS_RATE * (1 - exp(-SUCCESS_B_FACTOR *
+                    ((frameA + frameB) / SUCCESS_B_DIVISOR +
+                            cbrt(height.toDouble()) * tier / SUCCESS_B_HEIGHT_FACTOR))) + slotBonus
+        }
+    }
+
+    private fun calculateFrameA(): Double {
+        return FRAME_A_BASE * (FRAME_A_TIER_POWER.pow(casingTier.toDouble()) - 1) *
+               sqrt((GTValues.ALL_TIERS[tier] + 1).toDouble())
+    }
+
+    private fun calculateFrameB(): Double {
+        val coilIndex = coil.get().indexOf(coilType.coilTemperature) + 1
+        return FRAME_B_BASE * FRAME_B_POWER_BASE.pow(coilIndex.toDouble()) *
+               (coilType.coilTemperature / FRAME_B_TEMP_DIVISOR).pow(FRAME_B_TEMP_POWER)
+    }
+
+    private fun calculateBaseOutputFluid1(): Long {
+        return (OUTPUT_1_BASE * (1 - exp(-OUTPUT_1_FACTOR *
+               (frameA * height / OUTPUT_1_HEIGHT_DIVISOR +
+                frameB * ln((tier + 2).toDouble()))))).toLong()
+    }
+
+    private fun calculateBaseOutputFluid2(): Long {
+        return (OUTPUT_2_BASE * tanh(sqrt(frameA * frameB) *
+               (height + tier) * OUTPUT_2_FACTOR / OUTPUT_2_DIVISOR)).toLong()
+    }
+
+    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     companion object {
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder =
@@ -183,161 +338,4 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) : TierCasingMachine(hol
             return modifiedRecipe
         }
     }
-
-    // ==================== Initialization ====================
-    private fun createMachineStorage(): NotifiableItemStackHandler {
-        val handler = NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH) { _ ->
-            object : ItemStackTransfer(1) {
-                override fun onContentsChanged() {
-                    recalculateItemCache()
-                }
-            }
-        }
-        handler.setFilter { itemStack -> filter(itemStack) }
-        return handler
-    }
-
-    override fun onStructureFormed() {
-        super.onStructureFormed()
-        val context = this.multiblockState.matchContext
-
-        val type = context.get<Any?>("CoilType")
-        if (type is ICoilType) {
-            this.coilType = type
-        }
-
-        val speedPipe = context.getOrCreate("SpeedPipeValue") { IValueContainer.noop() }.getValue()
-        if (speedPipe is Int) {
-            this.height = speedPipe - 2
-        }
-
-        recalculateAll()
-    }
-
-    private fun recalculateAll() {
-        frameA = calculateFrameA()
-        frameB = calculateFrameB()
-        uuAmplifierAmount = calculateBaseOutputFluid1()
-        uuMatterAmount = calculateBaseOutputFluid2()
-        recalculateItemCache()
-    }
-
-    private fun recalculateItemCache() {
-        val itemStack = machineStorage.storage.getStackInSlot(0)
-        val item = itemStack.item
-        val isAstralArray = ASTRAL_ARRAY_ITEM.`is`(item)
-
-        val slotBonus = when {
-            ENDERIUM_ITEM.`is`(item) -> ENDERIUM_BONUS * itemStack.count
-            DRACONIUM_ITEM.`is`(item) -> DRACONIUM_BONUS * itemStack.count
-            SPACETIME_ITEM.`is`(item) -> SPACETIME_BONUS * itemStack.count
-            ETERNITY_ITEM.`is`(item) -> ETERNITY_BONUS * itemStack.count
-            else -> 0.0
-        }
-
-        maxParallel = if (isAstralArray) {
-            ASTRAL_BASE_PARALLEL * itemStack.count.toDouble().pow(5.0/3.0).toInt()
-        } else {
-            (PARALLEL_BASE * PARALLEL_POWER_BASE.pow(coilType.coilTemperature / PARALLEL_TEMP_DIVISOR)).toLong()
-        }
-
-        successRateA = if (isAstralArray) {
-            MAX_SUCCESS_RATE
-        } else {
-            MAX_SUCCESS_RATE / (1 + exp(-SUCCESS_A_FACTOR *
-                (frameA / SUCCESS_A_DIVISOR_A + frameB / SUCCESS_A_DIVISOR_B +
-                height / SUCCESS_A_HEIGHT_DIVISOR))) + slotBonus
-        }
-
-        successRateB = if (isAstralArray) {
-            MAX_SUCCESS_RATE
-        } else {
-            MAX_SUCCESS_RATE * (1 - exp(-SUCCESS_B_FACTOR *
-                ((frameA + frameB) / SUCCESS_B_DIVISOR +
-                cbrt(height.toDouble()) * tier / SUCCESS_B_HEIGHT_FACTOR))) + slotBonus
-        }
-    }
-
-    // ==================== GUI ====================
-    override fun createUIWidget(): Widget {
-        val widget = super.createUIWidget()
-        if (widget is WidgetGroup) {
-            val size = widget.size
-            widget.addWidget(
-                SlotWidget(machineStorage.storage, 0, size.width - 30, size.height - 30, true, true)
-                    .setBackground(GuiTextures.SLOT)
-                    .setHoverTooltips(slotTooltips())
-            )
-        }
-        return widget
-    }
-
-    private fun slotTooltips(): MutableList<Component> {
-        return mutableListOf(
-            Component.translatable("gtceu.machine.taixu.storage.tooltip.0"),
-            Component.translatable("gtceu.machine.taixu.storage.tooltip.1"),
-            Component.translatable("gtceu.machine.taixu.storage.tooltip.2"),
-            Component.translatable("gtceu.machine.taixu.storage.tooltip.3"),
-            Component.translatable("gtceu.machine.taixu.storage.tooltip.4"),
-            Component.translatable("gtceu.machine.taixu.storage.tooltip.5"),
-            Component.translatable("gtceu.machine.taixu.storage.tooltip.6")
-        )
-    }
-
-    override fun addDisplayText(textList: MutableList<Component?>) {
-        super.addDisplayText(textList)
-        if (isFormed) {
-            textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.0", height))
-            textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.1", maxParallel))
-
-            if (tier > GTValues.UIV) {
-                val df = DecimalFormat(".00'%'")
-                textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.2", df.format(successRateA)))
-                textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.3", uuAmplifierAmount))
-
-                if (tier > GTValues.OpV) {
-                    textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.4", df.format(
-                        successRateB
-                    )))
-                    textList.add(Component.translatable("gtceu.machine.taixu.gui.tooltip.5", uuMatterAmount))
-                }
-            }
-        }
-    }
-
-    // ==================== Logic ====================
-    override fun beforeWorking(recipe: GTRecipe?): Boolean = true
-
-    override fun onDrops(drops: MutableList<ItemStack?>) {
-        clearInventory(machineStorage.storage)
-    }
-
-    private fun filter(itemStack: ItemStack): Boolean {
-        return VALID_ITEMS.contains(itemStack.item)
-    }
-
-    // ==================== Calculation Methods ====================
-    private fun calculateFrameA(): Double {
-        return FRAME_A_BASE * (FRAME_A_TIER_POWER.pow(casingTier.toDouble()) - 1) *
-               sqrt((GTValues.ALL_TIERS[tier] + 1).toDouble())
-    }
-
-    private fun calculateFrameB(): Double {
-        val coilIndex = coil.get().indexOf(coilType.coilTemperature) + 1
-        return FRAME_B_BASE * FRAME_B_POWER_BASE.pow(coilIndex.toDouble()) *
-               (coilType.coilTemperature / FRAME_B_TEMP_DIVISOR).pow(FRAME_B_TEMP_POWER)
-    }
-
-    private fun calculateBaseOutputFluid1(): Long {
-        return (OUTPUT_1_BASE * (1 - exp(-OUTPUT_1_FACTOR *
-               (frameA * height / OUTPUT_1_HEIGHT_DIVISOR +
-                frameB * ln((tier + 2).toDouble()))))).toLong()
-    }
-
-    private fun calculateBaseOutputFluid2(): Long {
-        return (OUTPUT_2_BASE * tanh(sqrt(frameA * frameB) *
-               (height + tier) * OUTPUT_2_FACTOR / OUTPUT_2_DIVISOR)).toLong()
-    }
-
-    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 }

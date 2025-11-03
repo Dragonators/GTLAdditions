@@ -5,11 +5,8 @@ import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 
 object GTLAddSoundEntries {
-    @JvmField
     var FORGE_OF_THE_ANTICHRIST: SoundEntry
-    @JvmField
     var QUANTUM_OSCILLATION: SoundEntry
-    @JvmField
     var GENESIS_ENGINE: SoundEntry
 
     @JvmStatic

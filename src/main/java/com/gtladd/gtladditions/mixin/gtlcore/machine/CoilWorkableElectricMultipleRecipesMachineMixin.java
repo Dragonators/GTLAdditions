@@ -32,8 +32,8 @@ public abstract class CoilWorkableElectricMultipleRecipesMachineMixin extends Co
     }
 
     @Unique
-    public int gTLAdditions$getAdditionalThread() {
-        return gTLAdditions$threadPartMachine != null ? gTLAdditions$threadPartMachine.getThreadCount() : 0;
+    public @Nullable IThreadModifierPart gTLAdditions$getThreadPartMachine() {
+        return gTLAdditions$threadPartMachine;
     }
 
     @Override

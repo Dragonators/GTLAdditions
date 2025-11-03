@@ -1,37 +1,28 @@
 package com.gtladd.gtladditions.api.machine;
 
-import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
+import com.gregtechceu.gtceu.api.machine.feature.IMachineModifyDrops;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 
 import com.gtladd.gtladditions.common.items.GTLAddItems;
 
-public interface IAstralArrayInteractionMachine extends IMachineLife {
+import java.util.List;
+
+public interface IAstralArrayInteractionMachine extends IMachineModifyDrops {
 
     int increaseAstralArrayCount(int amount);
 
     int getAstralArrayCount();
 
     @Override
-    default void onMachineRemoved() {
-        IMachineLife.super.onMachineRemoved();
+    default void onDrops(List<ItemStack> list) {
         var count = getAstralArrayCount();
-        var level = getLevel();
-        var pos = getPos();
         if (count > 0) {
             for (int i = 0; i < count; i += 64) {
                 int stackSize = Math.min(64, count - i);
                 ItemStack stack = new ItemStack(GTLAddItems.ASTRAL_ARRAY.asItem(), stackSize);
-                ItemEntity itemEntity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-                level.addFreshEntity(itemEntity);
+                list.add(stack);
             }
         }
     }
-
-    Level getLevel();
-
-    BlockPos getPos();
 }

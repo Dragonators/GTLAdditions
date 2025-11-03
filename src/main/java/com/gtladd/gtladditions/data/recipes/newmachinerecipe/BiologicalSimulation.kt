@@ -15,13 +15,13 @@ import java.util.function.Consumer
 
 object BiologicalSimulation {
     @JvmStatic
-    fun init(provider : Consumer<FinishedRecipe?>) {
-        val swords = arrayOf<Sword?>(
+    fun init(provider: Consumer<FinishedRecipe?>) {
+        val swords = listOf(
             Sword("minecraft:diamond_sword", 15, 1),
             Sword("minecraft:netherite_sword", 5, 5),
             Sword("avaritia:infinity_sword", 0, 20)
         )
-        val biologicals = arrayOf<Biological?>(
+        val biologicals = listOf(
             Biological("blaze", "nether", "minecraft:blaze_rod", 500, 7),
             Biological("chicken", "overworld", "minecraft:chicken", 7500, "minecraft:feather", 4000, "minecraft:egg", 1000, 2),
             Biological("cow", "overworld", "minecraft:beef", 7500, "minecraft:leather", 2500, 2),
@@ -48,14 +48,16 @@ object BiologicalSimulation {
             Biological("panda", "overworld", "minecraft:bamboo", 5000, 3),
             Biological("polar_bear", "overworld", "minecraft:cod", 5000, "minecraft:salmon", 5000, 3)
         )
-        for (i in biologicals) {
-            for (s in swords) generateRecipe(i !!, s !!, provider)
-            setspawneggreicpes(i !!, provider)
+        for (biological in biologicals) {
+            for (sword in swords) {
+                generateRecipe(biological, sword, provider)
+            }
+            setSpawnEggRecipes(biological, provider)
         }
         generateSpecialRecipes(provider)
     }
 
-    private fun generateRecipe(item : Biological, sword : Sword, provider : Consumer<FinishedRecipe?>) {
+    private fun generateRecipe(item: Biological, sword: Sword, provider: Consumer<FinishedRecipe?>) {
         val builder = GTLAddRecipesTypes.BIOLOGICAL_SIMULATION.recipeBuilder(
             id(item.name + (if (sword.damage > 10) "_1" else (if (sword.damage > 0) "_2" else "_3")))
         ).notConsumable(getItemStack("minecraft:" + item.name + "_spawn_egg"))
@@ -64,10 +66,10 @@ object BiologicalSimulation {
         else builder.chancedInput(getItemStack(sword.name), sword.damage, 0)
         builder.inputFluids(Biomass.getFluid((1000 / sword.factor).toLong()))
         addOutputItems(builder, item, sword)
-        builder.EUt(VA[item.EUt].toLong()).duration(400 / sword.factor).save(provider)
+        builder.EUt(VA[item.eut].toLong()).duration(400 / sword.factor).save(provider)
     }
 
-    private fun setspawneggreicpes(item : Biological, provider : Consumer<FinishedRecipe?>) {
+    private fun setSpawnEggRecipes(item: Biological, provider: Consumer<FinishedRecipe?>) {
         if (item.name == "cow") return
         val builder = INCUBATOR_RECIPES.recipeBuilder(id(item.name + "_spawn_egg"))
             .inputItems(getItemStack("minecraft:bone", 4))
@@ -78,40 +80,52 @@ object BiologicalSimulation {
             .EUt(VA[3].toLong()).duration(1200).save(provider)
     }
 
-    private fun addOutputItems(builder : GTRecipeBuilder, i : Biological, sword : Sword) {
-        builder.chancedOutput(getItemStack(i.O1, sword.factor * 2), i.O1f, 0)
-        if (i.O2 != null) builder.chancedOutput(getItemStack(i.O2, sword.factor * 2), i.O2f, 0)
-        if (i.O3 != null) builder.chancedOutput(getItemStack(i.O3, sword.factor * 2), i.O3f, 0)
-        if (i.O4 != null) builder.chancedOutput(getItemStack(i.O4, sword.factor * 2), i.O4f, 0)
-        if (i.O5 != null) builder.chancedOutput(getItemStack(i.O5, sword.factor * 2), i.O5f, 0)
-        if (i.O6 != null) builder.chancedOutput(getItemStack(i.O6, sword.factor * 2), i.O6f, 0)
-        if (i.O7 != null) builder.chancedOutput(getItemStack(i.O7, sword.factor * 2), i.O7f, 0)
+    private fun addOutputItems(builder: GTRecipeBuilder, item: Biological, sword: Sword) {
+        val outputs = listOf(
+            Triple(item.o1, item.o1f, true),
+            Triple(item.o2, item.o2f, item.o2 != null),
+            Triple(item.o3, item.o3f, item.o3 != null),
+            Triple(item.o4, item.o4f, item.o4 != null),
+            Triple(item.o5, item.o5f, item.o5 != null),
+            Triple(item.o6, item.o6f, item.o6 != null),
+            Triple(item.o7, item.o7f, item.o7 != null)
+        )
+
+        for ((outputItem, chance, shouldAdd) in outputs) {
+            if (shouldAdd && outputItem != null) {
+                builder.chancedOutput(getItemStack(outputItem, sword.factor * 2), chance, 0)
+            }
+        }
     }
 
-    private fun addInputItems(builder : GTRecipeBuilder, item : Biological) {
-        if(item.name == "witch") {
+    private fun addInputItems(builder: GTRecipeBuilder, item: Biological) {
+        if (item.name == "witch") {
             builder.inputItems(getItemStack("minecraft:redstone", 4))
                 .inputItems(getItemStack("minecraft:glowstone_dust", 4))
                 .inputItems(getItemStack("minecraft:sugar", 4))
                 .inputItems(getItemStack("minecraft:glass_bottle", 4))
             return
         }
-        if (item.O1 != "minecraft:bone") builder.inputItems(getItemStack(item.O1, 4))
-        if (item.O2 != null) builder.inputItems(getItemStack(item.O2!!, 4))
-        if (item.O3 != null) builder.inputItems(getItemStack(item.O3!!, 4))
-        if (item.O4 != null) builder.inputItems(getItemStack(item.O4!!, 4))
+
+        val inputs = listOfNotNull(
+            item.o1.takeIf { it != "minecraft:bone" },
+            item.o2,
+            item.o3,
+            item.o4
+        )
+
+        for (input in inputs) {
+            builder.inputItems(getItemStack(input, 4))
+        }
+
         when (item.name) {
-            "cat" -> builder.circuitMeta(1)
-            "zombie" -> builder.circuitMeta(1)
-            "zombie_villager" -> builder.circuitMeta(2)
+            "cat", "zombie", "donkey", "creeper" -> builder.circuitMeta(1)
+            "zombie_villager", "llama" -> builder.circuitMeta(2)
             "husk" -> builder.circuitMeta(3)
-            "donkey" -> builder.circuitMeta(1)
-            "llama" -> builder.circuitMeta(2)
-            "creeper" -> builder.circuitMeta(1)
         }
     }
 
-    private fun generateSpecialRecipes(provider : Consumer<FinishedRecipe?>) {
+    private fun generateSpecialRecipes(provider: Consumer<FinishedRecipe?>) {
         GTLAddRecipesTypes.BIOLOGICAL_SIMULATION.recipeBuilder(id("nether_star"))
             .notConsumable(getItemStack("gtceu:nether_star_block"))
             .notConsumable(getItemStack("kubejs:nether_data", 64))
@@ -135,89 +149,41 @@ object BiologicalSimulation {
             .save(provider)
     }
 
-    internal class Biological {
-        var name : String
-        var data : String?
-        var O1 : String
-        var O1f : Int
-        var O2 : String? = null
-        var O2f : Int = 0
-        var O3 : String? = null
-        var O3f : Int = 0
-        var O4 : String? = null
-        var O4f : Int = 0
-        var O5 : String? = null
-        var O5f : Int = 0
-        var O6 : String? = null
-        var O6f : Int = 0
-        var O7 : String? = null
-        var O7f : Int = 0
-        var EUt : Int
+    internal data class Biological(
+        val name: String,
+        val data: String?,
+        val o1: String,
+        val o1f: Int,
+        val o2: String?,
+        val o2f: Int,
+        val o3: String?,
+        val o3f: Int,
+        val o4: String?,
+        val o4f: Int,
+        val o5: String?,
+        val o5f: Int,
+        val o6: String?,
+        val o6f: Int,
+        val o7: String?,
+        val o7f: Int,
+        val eut: Int
+    ) {
+        constructor(name: String, data: String?, o1: String, o1f: Int, eut: Int) :
+            this(name, data, o1, o1f, null, 0, null, 0, null, 0, null, 0, null, 0, null, 0, eut)
 
-        constructor(name : String, data : String?, o1 : String, o1f : Int, o2 : String?, o2f : Int, o3 : String?, o3f : Int, o4 : String?, o4f : Int, o5 : String?, o5f : Int, o6 : String?, o6f : Int, o7 : String?, o7f : Int, EUt : Int) {
-            this.name = name
-            this.data = data
-            O1 = o1
-            O1f = o1f
-            O2 = o2
-            O2f = o2f
-            O3 = o3
-            O3f = o3f
-            O4 = o4
-            O4f = o4f
-            O5 = o5
-            O5f = o5f
-            O6 = o6
-            O6f = o6f
-            O7 = o7
-            O7f = o7f
-            this.EUt = EUt
-        }
+        constructor(name: String, data: String?, o1: String, o1f: Int, o2: String?, o2f: Int, eut: Int) :
+            this(name, data, o1, o1f, o2, o2f, null, 0, null, 0, null, 0, null, 0, null, 0, eut)
 
-        constructor(name : String, data : String?, o1 : String, o1f : Int, EUt : Int) {
-            this.name = name
-            this.data = data
-            O1 = o1
-            O1f = o1f
-            this.EUt = EUt
-        }
+        constructor(name: String, data: String?, o1: String, o1f: Int, o2: String?, o2f: Int, o3: String?, o3f: Int, eut: Int) :
+            this(name, data, o1, o1f, o2, o2f, o3, o3f, null, 0, null, 0, null, 0, null, 0, eut)
 
-        constructor(name : String, data : String?, o1 : String, o1f : Int, o2 : String?, o2f : Int, EUt : Int) {
-            this.name = name
-            this.data = data
-            O1 = o1
-            O1f = o1f
-            O2 = o2
-            O2f = o2f
-            this.EUt = EUt
-        }
-
-        constructor(name : String, data : String?, o1 : String, o1f : Int, o2 : String?, o2f : Int, o3 : String?, o3f : Int, EUt : Int) {
-            this.name = name
-            this.data = data
-            O1 = o1
-            O1f = o1f
-            O2 = o2
-            O2f = o2f
-            O3 = o3
-            O3f = o3f
-            this.EUt = EUt
-        }
-
-        constructor(name : String, data : String?, o1 : String, o1f : Int, o2 : String?, o2f : Int, o3 : String?, o3f : Int, o4 : String?, o4f : Int, EUt : Int) {
-            this.name = name
-            this.data = data
-            O1 = o1
-            O1f = o1f
-            O2 = o2
-            O2f = o2f
-            O3 = o3
-            O3f = o3f
-            O4 = o4
-            O4f = o4f
-            this.EUt = EUt
-        }
+        constructor(name: String, data: String?, o1: String, o1f: Int, o2: String?, o2f: Int, o3: String?, o3f: Int, o4: String?, o4f: Int, eut: Int) :
+            this(name, data, o1, o1f, o2, o2f, o3, o3f, o4, o4f, null, 0, null, 0, null, 0, eut)
     }
 
-    internal class Sword(var name : String, var damage : Int, var factor : Int)
+    internal data class Sword(
+        val name: String,
+        val damage: Int,
+        val factor: Int
+    )
 }

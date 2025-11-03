@@ -39,16 +39,16 @@ import java.util.List;
 import java.util.Objects;
 
 @Mixin(LargeSteamParallelMultiblockMachine.class)
-public class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblockMachine {
+public abstract class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblockMachine {
 
     public LargeSteamParallelMultiblockMachineMixin(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
     }
 
     @Unique
-    private boolean gtladditions$isLarge;
+    private boolean gtlAdditions$isLarge;
     @Unique
-    private boolean gtladditions$isHuge;
+    private boolean gtlAdditions$isHuge;
     @Shadow(remap = false)
     private boolean isOC;
     @Shadow(remap = false)
@@ -64,8 +64,8 @@ public class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblock
     @Overwrite(remap = false)
     public static GTRecipe recipeModifier(MetaMachine machine, @NotNull GTRecipe recipe, double reductionDuration) {
         if (machine instanceof LargeSteamParallelMultiblockMachineMixin machine1) {
-            boolean isHuge = machine1.gtladditions$isHuge;
-            boolean isLarge = machine1.gtladditions$isLarge;
+            boolean isHuge = machine1.gtlAdditions$isHuge;
+            boolean isLarge = machine1.gtlAdditions$isLarge;
             if (RecipeHelper.getInputEUt(recipe) > (long) (isHuge ? 512 : (isLarge ? 128 : 32))) return null;
             GTRecipe result = GTRecipeModifiers.accurateParallel(machine, recipe, machine1.max_parallels, false).getFirst();
             recipe = result == recipe ? result.copy() : result;
@@ -90,16 +90,16 @@ public class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblock
                 IRecipeHandler<?> handler = itr.next();
                 if (handler instanceof NotifiableFluidTank tank) {
                     if (tank.getFluidInTank(0).isFluidEqual(GTMaterials.Steam.getFluid(1L))) {
-                        gtladditions$isLarge = tank.getMachine().getDefinition() == GTLMachines.LARGE_STEAM_HATCH;
-                        gtladditions$isHuge = tank.getMachine().getDefinition() == GTLAddMachines.HUGE_STEAM_HATCH;
-                        this.isOC = gtladditions$isLarge || gtladditions$isHuge;
+                        gtlAdditions$isLarge = tank.getMachine().getDefinition() == GTLMachines.LARGE_STEAM_HATCH;
+                        gtlAdditions$isHuge = tank.getMachine().getDefinition() == GTLAddMachines.HUGE_STEAM_HATCH;
+                        this.isOC = gtlAdditions$isLarge || gtlAdditions$isHuge;
                         Object2IntMap<RecipeCapability<?>> recipeOutputLimits = new Object2IntOpenHashMap<>();
-                        recipeOutputLimits.put(ItemRecipeCapability.CAP, gtladditions$isHuge ? 3 : 1);
+                        recipeOutputLimits.put(ItemRecipeCapability.CAP, gtlAdditions$isHuge ? 3 : 1);
                         MultiBlockMachineA.LARGE_STEAM_MACERATOR.setRecipeOutputLimits(recipeOutputLimits);
                         itr.remove();
                         if (!this.capabilitiesProxy.contains(IO.IN, EURecipeCapability.CAP)) this.capabilitiesProxy.put(IO.IN, EURecipeCapability.CAP, new ArrayList<>());
                         (Objects.requireNonNull(this.capabilitiesProxy.get(IO.IN, EURecipeCapability.CAP)))
-                                .add(new SteamEnergyRecipeHandler(tank, 0.5 * (gtladditions$isHuge ? 250.0 : (gtladditions$isLarge ? Math.pow(3.0, amountOC) : 1.0))));
+                                .add(new SteamEnergyRecipeHandler(tank, 0.5 * (gtlAdditions$isHuge ? 250.0 : (gtlAdditions$isLarge ? Math.pow(3.0, amountOC) : 1.0))));
                         return;
                     }
                 }
@@ -110,8 +110,8 @@ public class LargeSteamParallelMultiblockMachineMixin extends WorkableMultiblock
     @Inject(method = "addDisplayText", at = @At(value = "INVOKE", target = "Lcom/gregtechceu/gtceu/api/machine/trait/RecipeLogic;isWaiting()Z", shift = At.Shift.BEFORE), remap = false, cancellable = true)
     public void addDisplayText(List<Component> textList, CallbackInfo ci) {
         if (this.recipeLogic.isWaiting()) textList.add(Component.translatable("gtceu.multiblock.steam.low_steam").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
-        if (gtladditions$isHuge) textList.add(Component.translatable("gtceu.multiblock.steam_duration_modify"));
-        else if (gtladditions$isLarge) {
+        if (gtlAdditions$isHuge) textList.add(Component.translatable("gtceu.multiblock.steam_duration_modify"));
+        else if (gtlAdditions$isLarge) {
             textList.add(Component.translatable("gtceu.multiblock.oc_amount", amountOC)
                     .withStyle(Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("gtceu.multiblock.steam_parallel_machine.oc")))));
             textList.add(Component.translatable("gtceu.multiblock.steam_parallel_machine.modification_oc")

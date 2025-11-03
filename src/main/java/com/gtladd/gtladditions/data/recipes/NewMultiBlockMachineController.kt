@@ -788,6 +788,6 @@ object NewMultiBlockMachineController {
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
             .save(provider)
-        if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.init(provider)
+        if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.buildController(provider)
     }
 }

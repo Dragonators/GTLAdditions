@@ -14,9 +14,9 @@ import net.minecraft.network.chat.Component;
 import com.gtladd.gtladditions.utils.CommonUtils;
 import com.hepdd.gtmthings.api.misc.WirelessEnergyManager;
 import com.hepdd.gtmthings.utils.TeamUtil;
-import dev.architectury.patchedmixin.staticmixin.spongepowered.asm.mixin.Overwrite;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.List;
@@ -43,6 +43,10 @@ public abstract class HarmonyMachineMixin extends NoEnergyMultiblockMachine {
         super(holder, args);
     }
 
+    /**
+     * @author .
+     * @reason .
+     */
     @Overwrite(remap = false)
     protected void StartupUpdate() {
         if (this.getOffsetTimer() % 20L == 0L) {

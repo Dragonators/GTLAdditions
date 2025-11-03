@@ -3,6 +3,7 @@ package com.gtladd.gtladditions.common.machine.muiltblock.controller
 import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
@@ -30,10 +31,10 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.BiPredicate
 
 class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
-    GTLAddWorkableElectricMultipleRecipesMachine(holder) {
+    GTLAddWorkableElectricMultipleRecipesMachine(holder), IMachineLife {
 
     @field:Persisted
-    val machineStorage: NotifiableItemStackHandler? = createMachineStorage()
+    val machineStorage: NotifiableItemStackHandler = createMachineStorage()
 
     private var reductionEUt = 1.0
     private var reductionDuration = 1.0
@@ -80,7 +81,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         if (widget is WidgetGroup) {
             val size = widget.size
             widget.addWidget(
-                SlotWidget(machineStorage!!.storage, 0, size.width - 30, size.height - 30, true, true)
+                SlotWidget(machineStorage.storage, 0, size.width - 30, size.height - 30, true, true)
                     .setBackground(GuiTextures.SLOT)
             )
         }
@@ -107,7 +108,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
     }
 
     private fun recalculateParameters() {
-        val item = machineStorage!!.storage.getStackInSlot(0).item
+        val item = machineStorage.storage.getStackInSlot(0).item
         when {
             RHENIUM_NANOSWARM.`is`(item) -> setMachineParameters(false, 2048, 0.9, 0.9)
             ORICHALCUM_NANOSWARM.`is`(item) -> setMachineParameters(false, 16384, 0.8, 0.6)
@@ -123,6 +124,8 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         reductionEUt = reductionEut
         this@BiologicalSimulationLaboratory.reductionDuration = reductionDuration
     }
+
+    override fun onMachineRemoved() = clearInventory(machineStorage)
 
     override fun getMaxParallel(): Int = maxParallels
 
@@ -147,7 +150,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
 
         val isNanCertificate: Boolean
             get() {
-                val item = getMachine().machineStorage!!.storage.getStackInSlot(0)
+                val item = getMachine().machineStorage.storage.getStackInSlot(0)
                 return item.item == getItem("gtceu:nan_certificate")
             }
 

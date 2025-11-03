@@ -16,7 +16,7 @@ public interface IFancyUIMachineMixin extends IMachineFeature {
 
     /**
      * @author Dragons
-     * @reason 跨配方种类机器不显示MachineMode Configurator
+     * @reason 跨配方种类机器禁止显示MachineMode Configurator
      */
     @Overwrite(remap = false)
     default void attachSideTabs(TabsWidget sideTabs) {

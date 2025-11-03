@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist;
-import com.gtladd.gtladditions.utils.CommonUtils;
+import com.gtladd.gtladditions.utils.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.tterrag.registrate.util.entry.BlockEntry;
 
@@ -47,10 +47,10 @@ public class ForgeOfAntichristRenderer extends PartWorkableCasingMachineRenderer
 
             int argb32 = machine.getRGBFromTime();
             float baseRadius = 0.175F * machine.getRadiusMultiplier();
-            float middleRadius = baseRadius * 1.06F;
+            float middleRadius = baseRadius * 1.035F;
             float outerRadius = middleRadius * 1.02F;
 
-            CommonUtils.drawBeaconToStar(poseStack, buffer, x, y, z, argb32, tick, blockEntity, outerRadius);
+            RenderUtils.drawBeaconToStar(poseStack, buffer, x, y, z, argb32, tick, blockEntity, outerRadius);
 
             long seed = blockEntity.getBlockPos().asLong();
             poseStack.pushPose();
@@ -66,21 +66,21 @@ public class ForgeOfAntichristRenderer extends PartWorkableCasingMachineRenderer
                                              long randomSeed, int argb32) {
         RandomSource random = RandomSource.create(randomSeed);
 
-        var rotation0 = CommonUtils.createRandomRotation(random, 2.0F, 3.0F);
-        var rotation1 = CommonUtils.createRandomRotation(random, 0.9F, 1.5F);
-        var rotation2 = CommonUtils.createRandomRotation(random, 0.9F, 1.5F);
+        var rotation0 = RenderUtils.createRandomRotation(random, 2.0F, 3.0F);
+        var rotation1 = RenderUtils.createRandomRotation(random, 0.9F, 1.5F);
+        var rotation2 = RenderUtils.createRandomRotation(random, 0.9F, 1.5F);
 
-        CommonUtils.renderStarLayer(
+        RenderUtils.renderStarLayer(
                 poseStack, buffer, STAR_LAYER_2, middleRadius,
                 rotation2.axis(), rotation1.getAngle(tick),
                 argb32, RenderType.translucent());
 
-        CommonUtils.renderStarLayer(
+        RenderUtils.renderStarLayer(
                 poseStack, buffer, STAR_LAYER_0, baseRadius,
                 rotation1.axis(), rotation0.getAngle(tick),
                 argb32, RenderType.solid());
 
-        CommonUtils.renderHaloLayer(
+        RenderUtils.renderHaloLayer(
                 poseStack, buffer, outerRadius,
                 rotation0.axis(), rotation0.getAngle(tick),
                 HALO_TEX, STAR_LAYER_2);

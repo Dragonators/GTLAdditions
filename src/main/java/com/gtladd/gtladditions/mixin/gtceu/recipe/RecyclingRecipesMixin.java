@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Mixin(RecyclingRecipes.class)
-public class RecyclingRecipesMixin {
+public abstract class RecyclingRecipesMixin {
 
     @Inject(method = "registerExtractorRecycling",
             at = @At(value = "INVOKE", target = "Lcom/gregtechceu/gtceu/api/data/chemical/ChemicalHelper;getUnificationEntry(Lnet/minecraft/world/level/ItemLike;)Lcom/gregtechceu/gtceu/api/data/chemical/material/stack/UnificationEntry;", shift = At.Shift.AFTER),

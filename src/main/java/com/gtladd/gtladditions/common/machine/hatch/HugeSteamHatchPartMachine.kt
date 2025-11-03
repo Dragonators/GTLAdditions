@@ -22,7 +22,7 @@ class HugeSteamHatchPartMachine(holder: IMachineBlockEntity) :
     FluidHatchPartMachine(holder, 0, IO.IN, 0, 1) {
     override fun createTank(initialCapacity: Long, slots: Int, vararg args: Any?): NotifiableFluidTank {
         return NotifiableFluidTank(this, slots, Int.Companion.MAX_VALUE.toLong(), io)
-            .setFilter { fluidStack : FluidStack? -> fluidStack !!.fluid.`is`(GTMaterials.Steam.fluidTag) }
+            .setFilter { fluidStack : FluidStack? -> fluidStack !!.fluid.isSame(GTMaterials.Steam.fluid) }
     }
 
     override fun createUI(entityPlayer: Player): ModularUI {

@@ -39,7 +39,7 @@ public abstract class MultiblockStateMixin {
 
     /**
      * @author Dragons
-     * @reason Fix HelioFusionExoticizer <-> ForgeOfTheAntichrist
+     * @reason Fix ForgeOfTheAntichrist Module <-> ForgeOfTheAntichrist
      */
     @Overwrite(remap = false)
     public void onBlockStateChanged(BlockPos pos, BlockState state) {

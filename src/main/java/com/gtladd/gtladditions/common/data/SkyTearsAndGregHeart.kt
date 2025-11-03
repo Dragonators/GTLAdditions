@@ -79,7 +79,7 @@ object SkyTearsAndGregHeart {
 
     private val itemModifier = ContentModifier.multiplier(min(4.0 / max(ConfigHolder.INSTANCE.durationMultiplier, 1.0), 33554431.0))
 
-    fun initSkyBlock() {
+    fun init() {
         GTLRecipeTypes.FRAGMENT_WORLD_COLLECTION.onRecipeBuild { recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe> ->
             recipeBuilder.input[ItemRecipeCapability.CAP]?.let {
                 for (content in it) {
@@ -92,7 +92,7 @@ object SkyTearsAndGregHeart {
                 }
             }
 
-            val newBuilder = GTLAddRecipesTypes.STAR_CORE_STRIPPER.copyFrom(recipeBuilder).EUt(GTValues.VA[GTValues.UHV].toLong())
+            val newBuilder = GTLAddRecipesTypes.STAR_CORE_STRIPPER.copyFrom(recipeBuilder).EUt(VA[GTValues.UHV].toLong())
 
             for (entry in newBuilder.output) {
                 val cap = entry.key
@@ -133,7 +133,7 @@ object SkyTearsAndGregHeart {
     }
 
     fun genTargetDrillRecipe(recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe>) {
-        val newBuilder = GTLAddRecipesTypes.STAR_CORE_STRIPPER.copyFrom(recipeBuilder).EUt(GTValues.VA[GTValues.UHV].toLong())
+        val newBuilder = GTLAddRecipesTypes.STAR_CORE_STRIPPER.copyFrom(recipeBuilder).EUt(VA[GTValues.UHV].toLong())
         newBuilder.input[ItemRecipeCapability.CAP]!!.removeIf {
             ItemRecipeCapability.CAP.of(it.content).items[0].`is`(
                 targetDrill.item
@@ -155,7 +155,7 @@ object SkyTearsAndGregHeart {
         newBuilder.save(provider)
     }
 
-    fun init(provider : Consumer<FinishedRecipe?>){
+    fun buildController(provider : Consumer<FinishedRecipe?>){
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("macro_atomic_resonant_fragment_stripper"))
             .inputItems(LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE, 768)
             .inputItems(CustomTags.OpV_CIRCUITS, 64)

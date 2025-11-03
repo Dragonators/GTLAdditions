@@ -92,7 +92,7 @@ object GTLAddMachines {
             )
         }
 
-        return component;
+        return component
     }
 
     fun createObfuscatedDeleteComponent(text: String): Component {
@@ -116,7 +116,7 @@ object GTLAddMachines {
             )
         }
 
-        return component;
+        return component
     }
 
     init {
