@@ -255,7 +255,6 @@ object Misc {
             .inputItems(PHONONIC_SEED_CRYSTAL, 2)
             .inputItems(dust, Eternity, 8)
             .inputItems(dust, Shirabon, 8)
-            .inputItems(PHONONIC_SEED_CRYSTAL, 2)
             .inputFluids(MELLION.getFluid(73728))
             .outputFluids(PHONON_CRYSTAL_SOLUTION.getFluid(3000))
             .EUt(125829120)

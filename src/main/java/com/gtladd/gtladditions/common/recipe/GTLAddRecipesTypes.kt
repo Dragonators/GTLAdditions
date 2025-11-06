@@ -40,6 +40,7 @@ object GTLAddRecipesTypes {
     val MOLECULAR_DECONSTRUCTION: GTRecipeType
     val UNIVERSE_SANDBOX: GTRecipeType
     val CHAOS_WEAVE: GTRecipeType
+    @JvmField
     val GENESIS_ENGINE: GTRecipeType
     val STAR_CORE_STRIPPER: GTRecipeType
     val MATTER_EXOTIC: GTRecipeType
