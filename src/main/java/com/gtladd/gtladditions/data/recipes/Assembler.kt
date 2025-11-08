@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.QUANTUM_GLASS
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_CASING
 import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
@@ -99,6 +100,17 @@ object Assembler {
             .inputFluids(PHONON_MEDIUM.getFluid(500000))
             .outputItems(RELATIVISTIC_HEAT_CAPACITOR.asStack())
             .EUt(VA[OpV].toLong()).duration(2000).save(provider)
+        ASSEMBLER_RECIPES.recipeBuilder(id("extreme_density_casing"))
+            .inputItems(getItemStack("minecraft:bedrock", 64))
+            .inputItems(plateDense, Darmstadtium, 64)
+            .inputItems(plateDense, Obsidian, 64)
+            .inputItems(plateDense, TungstenSteel, 64)
+            .inputItems(plateDense, RhodiumPlatedPalladium, 64)
+            .inputItems(plateDense, NaquadriaticTaranium, 4)
+            .circuitMeta(16)
+            .inputFluids(Cinobite.getFluid(1600))
+            .outputItems(GTLAddBlocks.EXTREME_DENSITY_CASING)
+            .EUt(VA[UHV].toLong()).duration(100).save(provider)
     }
 
     private fun addHugeOutput(provider : Consumer<FinishedRecipe?>) {

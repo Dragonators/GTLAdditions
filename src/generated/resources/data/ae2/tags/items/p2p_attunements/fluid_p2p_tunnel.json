@@ -4,6 +4,8 @@
     "gtladditions:creon_plasma_bucket",
     "gtladditions:mellion_bucket",
     "gtladditions:molten_proto_halkonite_base_bucket",
-    "gtladditions:proto_halkonite_bucket"
+    "gtladditions:proto_halkonite_bucket",
+    "gtladditions:phonon_medium_bucket",
+    "gtladditions:phonon_crystal_solution_bucket"
   ]
 }

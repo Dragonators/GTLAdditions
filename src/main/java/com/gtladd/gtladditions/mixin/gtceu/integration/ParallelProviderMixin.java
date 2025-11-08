@@ -20,12 +20,14 @@ import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMult
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.MacroAtomicResonantFragmentStripper;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.ForgeOfTheAntichristModuleBase;
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.SubspaceCorridorHubIndustrialArrayModuleBase;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Mixin(ParallelProvider.class)
@@ -66,10 +68,14 @@ public abstract class ParallelProviderMixin {
                 compoundTag.putInt("parallel", parallelHatch.getCurrentParallel());
             } else if (blockEntity.getMetaMachine() instanceof WorkableMultiblockMachine workableElectricMultiblockMachine && workableElectricMultiblockMachine.isFormed()) {
                 if (workableElectricMultiblockMachine instanceof GTLAddWorkableElectricMultipleRecipesMachine addMachine) {
-                    if (!(workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist) && !(workableElectricMultiblockMachine instanceof ForgeOfTheAntichristModuleBase)) {
-                        compoundTag.putInt("parallel", addMachine.getMaxParallel());
-                        if (!(workableElectricMultiblockMachine instanceof MacroAtomicResonantFragmentStripper))
-                            compoundTag.putInt("threads", addMachine.getRecipeLogic().getMultipleThreads());
+                    if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist) return;
+                    if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichristModuleBase) return;
+                    if (workableElectricMultiblockMachine instanceof SubspaceCorridorHubIndustrialArrayModuleBase subspaceModuleBase) {
+                        if (subspaceModuleBase.isConnectedToHost() && Objects.requireNonNull(subspaceModuleBase.getHost()).unlockParadoxical()) return;
+                    }
+                    compoundTag.putInt("parallel", addMachine.getMaxParallel());
+                    if (!(workableElectricMultiblockMachine instanceof MacroAtomicResonantFragmentStripper)) {
+                        compoundTag.putInt("threads", addMachine.getRecipeLogic().getMultipleThreads());
                     }
                 } else {
                     var logic = workableElectricMultiblockMachine.getRecipeLogic();

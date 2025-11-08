@@ -4,7 +4,7 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
-import com.gtladd.gtladditions.api.machine.data.ParallelData
+import com.gtladd.gtladditions.common.record.ParallelData
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component

@@ -1,5 +1,8 @@
 ﻿package com.gtladd.gtladditions.utils
 
+import com.gregtechceu.gtceu.client.renderer.GTRenderTypes
+import com.gtladd.gtladditions.common.record.CircularMotionParams
+import com.gtladd.gtladditions.common.record.RotationParams
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import dev.ftb.mods.ftbchunks.client.FTBChunksRenderTypes
@@ -22,8 +25,10 @@ import org.joml.Quaternionf
 import org.joml.Vector3f
 import kotlin.math.*
 
+@Suppress("DuplicatedCode", "unused", "SameParameterValue")
 @OnlyIn(Dist.CLIENT)
 object RenderUtils {
+
     /**
      * Generates random rotation parameters with uniformly distributed axis and speed
      *
@@ -197,6 +202,63 @@ object RenderUtils {
     }
 
     /**
+     * Draws a beacon beam from a base position upward to the sky (Y + 360)
+     * with fade effect at the top, always facing the camera
+     *
+     * @param poseStack   Pose stack for transformations
+     * @param buffer      Multi-buffer source for rendering
+     * @param baseX       X coordinate of the beam starting point (relative to current poseStack origin)
+     * @param baseY       Y coordinate of the beam starting point (relative to current poseStack origin)
+     * @param baseZ       Z coordinate of the beam starting point (relative to current poseStack origin)
+     * @param argb32      ARGB32 color value for the beacon
+     * @param tick        Current tick count with partial ticks for animation
+     * @param blockEntity Block entity reference for coordinate system calculations
+     * @param beaconWidth Beam width multiplier base value
+     */
+    @JvmStatic
+    fun drawBeaconToSky(
+        poseStack: PoseStack, buffer: MultiBufferSource,
+        baseX: Double, baseY: Double, baseZ: Double,
+        argb32: Int, tick: Float, blockEntity: BlockEntity, beaconWidth: Float
+    ) {
+        val vertexConsumer = buffer.getBuffer(FTBChunksRenderTypes.WAYPOINTS_DEPTH)
+
+        // Extract RGB from ARGB
+        val r = (argb32 shr 16) and 0xFF
+        val g = (argb32 shr 8) and 0xFF
+        val b = argb32 and 0xFF
+
+        val cameraWorldPos = Minecraft.getInstance().gameRenderer.mainCamera.position
+        val blockWorldPos = Vec3.atLowerCornerOf(blockEntity.blockPos)
+        val playerPos = cameraWorldPos.subtract(blockWorldPos)
+
+        val fadeRatio = 0.1f
+        val expandRatio = 0.3f
+        val endWidthMultiplier = beaconWidth * 3
+
+        val baseAlpha = 150
+        val pulse = (sin(tick * 0.05) * 0.2 + 0.8).toFloat()
+        var alpha = (baseAlpha * pulse).toInt()
+        alpha = max(0, min(255, alpha))
+
+        val from = Vec3(baseX, baseY + 460.0, baseZ)
+        val to = Vec3(baseX, baseY, baseZ)
+
+        drawBeaconBetweenPoints(
+            poseStack,
+            from,
+            to,
+            playerPos,
+            vertexConsumer,
+            r, g, b, alpha,
+            beaconWidth,
+            fadeRatio,
+            expandRatio,
+            endWidthMultiplier
+        )
+    }
+
+    /**
      * Renders a beacon beam between two arbitrary 3D points, facing the camera.
      * The beam consists of a solid section and a fading section for smooth visual effect.
      *
@@ -226,58 +288,103 @@ object RenderUtils {
         expandRatio: Float,
         endWidthMultiplier: Float
     ) {
-        val beamDirection = to.subtract(from)
-        val beamLength = beamDirection.length()
+        val beamDirX = to.x - from.x
+        val beamDirY = to.y - from.y
+        val beamDirZ = to.z - from.z
+        val beamLength = sqrt(beamDirX * beamDirX + beamDirY * beamDirY + beamDirZ * beamDirZ)
         if (beamLength < 0.01) return
 
-        val normalizedBeamDir = beamDirection.normalize()
+        val invLength = 1.0 / beamLength
+        val normDirX = beamDirX * invLength
+        val normDirY = beamDirY * invLength
+        val normDirZ = beamDirZ * invLength
 
-        val fromToPlayer = playerPos.subtract(from)
+        val toPlayerX = playerPos.x - from.x
+        val toPlayerY = playerPos.y - from.y
+        val toPlayerZ = playerPos.z - from.z
 
-        var projectionLength = fromToPlayer.dot(normalizedBeamDir)
-
+        var projectionLength = toPlayerX * normDirX + toPlayerY * normDirY + toPlayerZ * normDirZ
         projectionLength = max(0.0, min(beamLength, projectionLength))
 
-        val perpFootPoint = from.add(normalizedBeamDir.scale(projectionLength))
+        val perpFootX = from.x + normDirX * projectionLength
+        val perpFootY = from.y + normDirY * projectionLength
+        val perpFootZ = from.z + normDirZ * projectionLength
 
-        val perpToPlayer = playerPos.subtract(perpFootPoint)
-        val perpLength = perpToPlayer.length()
+        val perpX = playerPos.x - perpFootX
+        val perpY = playerPos.y - perpFootY
+        val perpZ = playerPos.z - perpFootZ
+        val perpLength = sqrt(perpX * perpX + perpY * perpY + perpZ * perpZ)
 
-        val billboardNormal: Vec3?
+        val billboardNormX: Double
+        val billboardNormY: Double
+        val billboardNormZ: Double
+
         if (perpLength < 0.001) {
-            val arbitrary = if (abs(normalizedBeamDir.y) > 0.9) Vec3(1.0, 0.0, 0.0) else Vec3(0.0, 1.0, 0.0)
-            billboardNormal = normalizedBeamDir.cross(arbitrary).normalize()
+            val arbX = if (abs(normDirY) > 0.9) 1.0 else 0.0
+            val arbY = if (abs(normDirY) > 0.9) 0.0 else 1.0
+            val arbZ = 0.0
+
+            val crossX = normDirY * arbZ - normDirZ * arbY
+            val crossY = normDirZ * arbX - normDirX * arbZ
+            val crossZ = normDirX * arbY - normDirY * arbX
+            val crossLen = sqrt(crossX * crossX + crossY * crossY + crossZ * crossZ)
+
+            billboardNormX = crossX / crossLen
+            billboardNormY = crossY / crossLen
+            billboardNormZ = crossZ / crossLen
         } else {
-            billboardNormal = perpToPlayer.normalize()
+            val invPerpLen = 1.0 / perpLength
+            billboardNormX = perpX * invPerpLen
+            billboardNormY = perpY * invPerpLen
+            billboardNormZ = perpZ * invPerpLen
         }
 
-        val widthDirection = normalizedBeamDir.cross(billboardNormal).normalize()
+        val widthDirX = normDirY * billboardNormZ - normDirZ * billboardNormY
+        val widthDirY = normDirZ * billboardNormX - normDirX * billboardNormZ
+        val widthDirZ = normDirX * billboardNormY - normDirY * billboardNormX
+        val widthDirLen = sqrt(widthDirX * widthDirX + widthDirY * widthDirY + widthDirZ * widthDirZ)
+
+        val widthDirNormX = widthDirX / widthDirLen
+        val widthDirNormY = widthDirY / widthDirLen
+        val widthDirNormZ = widthDirZ / widthDirLen
 
         val fadeStartDist = beamLength * (1.0 - fadeRatio)
         val expandStartDist = beamLength * (1.0 - expandRatio)
+        val baseWidthHalf = width * 0.5f
+        val endWidthHalf = width * endWidthMultiplier * 0.5f
 
         val pose = poseStack.last()
         val matrix = pose.pose()
 
-        val baseWidthHalf = width * 0.5f
-        val endWidthHalf = width * endWidthMultiplier * 0.5f
+        val segments = when {
+            beamLength < 10.0 -> 8
+            beamLength < 50.0 -> 16
+            beamLength < 200.0 -> 24
+            else -> 32
+        }
 
-        val segments = 32
+        val invSegments = 1.0 / segments
+
         for (i in 0..<segments) {
-            val segStart = i * beamLength / segments
-            val segEnd = (i + 1) * beamLength / segments
+            val segStart = i * beamLength * invSegments
+            val segEnd = (i + 1) * beamLength * invSegments
 
-            val segStartPos = from.add(normalizedBeamDir.scale(segStart))
-            val segEndPos = from.add(normalizedBeamDir.scale(segEnd))
+            val segStartX = from.x + normDirX * segStart
+            val segStartY = from.y + normDirY * segStart
+            val segStartZ = from.z + normDirZ * segStart
+
+            val segEndX = from.x + normDirX * segEnd
+            val segEndY = from.y + normDirY * segEnd
+            val segEndZ = from.z + normDirZ * segEnd
 
             val segStartWidth = calculateSegmentWidth(
                 segStart, expandStartDist, beamLength,
                 baseWidthHalf, endWidthHalf, expandRatio
-            )
+            ).toDouble()
             val segEndWidth = calculateSegmentWidth(
                 segEnd, expandStartDist, beamLength,
                 baseWidthHalf, endWidthHalf, expandRatio
-            )
+            ).toDouble()
 
             val segStartAlpha = calculateSegmentAlpha(
                 segStart, fadeStartDist, beamLength,
@@ -291,16 +398,41 @@ object RenderUtils {
             val v1 = (segStart / beamLength).toFloat()
             val v2 = (segEnd / beamLength).toFloat()
 
-            val p1 = segStartPos.subtract(widthDirection.scale(segStartWidth.toDouble()))
-            val p2 = segStartPos.add(widthDirection.scale(segStartWidth.toDouble()))
-            val p3 = segEndPos.add(widthDirection.scale(segEndWidth.toDouble()))
-            val p4 = segEndPos.subtract(widthDirection.scale(segEndWidth.toDouble()))
+            val p1x = segStartX - widthDirNormX * segStartWidth
+            val p1y = segStartY - widthDirNormY * segStartWidth
+            val p1z = segStartZ - widthDirNormZ * segStartWidth
 
-            renderQuadSimple(
-                buffer, matrix, p1, p2, p3, p4,
-                r, g, b, segStartAlpha, segEndAlpha,
-                0.0f, v1, 1.0f, v2
-            )
+            val p2x = segStartX + widthDirNormX * segStartWidth
+            val p2y = segStartY + widthDirNormY * segStartWidth
+            val p2z = segStartZ + widthDirNormZ * segStartWidth
+
+            val p3x = segEndX + widthDirNormX * segEndWidth
+            val p3y = segEndY + widthDirNormY * segEndWidth
+            val p3z = segEndZ + widthDirNormZ * segEndWidth
+
+            val p4x = segEndX - widthDirNormX * segEndWidth
+            val p4y = segEndY - widthDirNormY * segEndWidth
+            val p4z = segEndZ - widthDirNormZ * segEndWidth
+
+            buffer.vertex(matrix, p1x.toFloat(), p1y.toFloat(), p1z.toFloat())
+                .color(r, g, b, segStartAlpha)
+                .uv(0.0f, v1)
+                .endVertex()
+
+            buffer.vertex(matrix, p2x.toFloat(), p2y.toFloat(), p2z.toFloat())
+                .color(r, g, b, segStartAlpha)
+                .uv(1.0f, v1)
+                .endVertex()
+
+            buffer.vertex(matrix, p3x.toFloat(), p3y.toFloat(), p3z.toFloat())
+                .color(r, g, b, segEndAlpha)
+                .uv(1.0f, v2)
+                .endVertex()
+
+            buffer.vertex(matrix, p4x.toFloat(), p4y.toFloat(), p4z.toFloat())
+                .color(r, g, b, segEndAlpha)
+                .uv(0.0f, v2)
+                .endVertex()
         }
     }
 
@@ -335,7 +467,6 @@ object RenderUtils {
         return (maxAlpha * (1.0 - progress)).toInt()
     }
 
-    @Suppress("DuplicatedCode", "SameParameterValue")
     private fun renderQuadSimple(
         buffer: VertexConsumer, matrix: Matrix4f,
         p1: Vec3, p2: Vec3, p3: Vec3, p4: Vec3,
@@ -363,10 +494,208 @@ object RenderUtils {
             .endVertex()
     }
 
-    @JvmRecord
-    data class RotationParams(val axis: Vector3f, val speed: Float, val offset: Float) {
-        fun getAngle(tick: Float): Float {
-            return (offset + tick * speed) % 360f
+    /**
+     * Renders a model performing circular motion around a center point in a tilted plane
+     *
+     * @param poseStack     Pose stack for transformations
+     * @param buffer        Multi-buffer source for rendering
+     * @param modelLocation Resource location of the model to render
+     * @param motionParams  Parameters defining the circular motion
+     * @param tick          Current tick with partial ticks for animation
+     * @param size          Scale size of the model
+     * @param argb32        ARGB32 color value for tinting
+     * @param type          Render type to use
+     * @param faceMotion    If true, rotate the model to face the direction of motion
+     * @param additionalRotation Optional additional rotation to apply after positioning
+     * @param centered      If true, center the model at the orbit position (offsets by -0.5 in all axes after scaling)
+     */
+    @JvmStatic
+    fun renderCircularMotionModel(
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        modelLocation: ResourceLocation?,
+        motionParams: CircularMotionParams,
+        tick: Float,
+        size: Float = 1.0f,
+        argb32: Int = 0xFFFFFFFF.toInt(),
+        type: RenderType,
+        faceMotion: Boolean = true,
+        additionalRotation: Quaternionf? = null,
+        centered: Boolean = false
+    ) {
+        val vertexConsumer = buffer.getBuffer(type)
+        val bakedModel = ClientUtil.getBakedModel(modelLocation)
+        renderCircularMotionModelDirect(
+            poseStack, vertexConsumer, bakedModel, motionParams, tick,
+            size, argb32, type, faceMotion, additionalRotation, centered
+        )
+    }
+
+    /**
+     * Renders a model performing circular motion using a pre-obtained VertexConsumer and BakedModel
+     * Use this for batch rendering multiple models with the same RenderType
+     *
+     * @param poseStack     Pose stack for transformations
+     * @param vertexConsumer Pre-obtained vertex consumer (for batch rendering)
+     * @param bakedModel    Pre-obtained baked model (for batch rendering)
+     * @param motionParams  Parameters defining the circular motion
+     * @param tick          Current tick with partial ticks for animation
+     * @param size          Scale size of the model
+     * @param argb32        ARGB32 color value for tinting
+     * @param type          Render type to use
+     * @param faceMotion    If true, rotate the model to face the direction of motion
+     * @param additionalRotation Optional additional rotation to apply after positioning
+     * @param centered      If true, center the model at the orbit position (offsets by -0.5 in all axes after scaling)
+     */
+    @JvmStatic
+    fun renderCircularMotionModelDirect(
+        poseStack: PoseStack,
+        vertexConsumer: VertexConsumer,
+        bakedModel: net.minecraft.client.resources.model.BakedModel,
+        motionParams: CircularMotionParams,
+        tick: Float,
+        size: Float = 1.0f,
+        argb32: Int = 0xFFFFFFFF.toInt(),
+        type: RenderType,
+        faceMotion: Boolean = true,
+        additionalRotation: Quaternionf? = null,
+        centered: Boolean = false
+    ) {
+        val position = motionParams.getPosition(tick)
+
+        poseStack.pushPose()
+        poseStack.translate(position.x, position.y, position.z)
+
+        if (faceMotion) {
+            val facingAngle = motionParams.getFacingAngle(tick)
+            poseStack.mulPose(Quaternionf().fromAxisAngleDeg(0f, 1f, 0f, facingAngle + 90f))
+        }
+
+        if (additionalRotation != null) {
+            poseStack.mulPose(additionalRotation)
+        }
+
+        poseStack.scale(size, size, size)
+
+        if (centered) {
+            poseStack.translate(-0.5, -0.5, -0.5)
+        }
+
+        ClientUtil.modelRenderer().renderModel(
+            poseStack.last(),
+            vertexConsumer,  // Use pre-obtained consumer
+            null,
+            bakedModel,  // Use pre-obtained model
+            FastColor.ARGB32.red(argb32) / 255f,
+            FastColor.ARGB32.green(argb32) / 255f,
+            FastColor.ARGB32.blue(argb32) / 255f,
+            LightTexture.FULL_BRIGHT,
+            OverlayTexture.NO_OVERLAY,
+            ModelData.EMPTY,
+            type
+        )
+
+        poseStack.popPose()
+    }
+
+    /**
+     * Renders an orbit ring directly using a pre-obtained VertexConsumer
+     * Use this for batch rendering multiple rings with the same RenderType
+     *
+     * @param poseStack Pose stack for transformations
+     * @param buffer Multi-buffer source for rendering
+     * @param motionParams Circular motion parameters defining the orbit
+     * @param segments Number of segments (default 128 for full quality, reduce for LOD)
+     */
+    @JvmStatic
+    fun renderOrbitRing(
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        motionParams: CircularMotionParams,
+        segments: Int = 128
+    ) {
+        poseStack.pushPose()
+
+        val center = motionParams.centerPos
+        poseStack.translate(center.x, center.y, center.z)
+
+        val tiltAngleRad = Math.toRadians(motionParams.tiltAngle.toDouble()).toFloat()
+        val tiltDir = motionParams.tiltDirection
+        poseStack.mulPose(Quaternionf().fromAxisAngleRad(tiltDir.x, tiltDir.y, tiltDir.z, tiltAngleRad))
+
+        val vertexConsumer = buffer.getBuffer(GTRenderTypes.getLightRing())
+        val matrix = poseStack.last().pose()
+
+        val radius = motionParams.radius
+        val lineWidth = 1.2f
+
+        for (i in 0..<segments) {
+            val angle1 = (2 * Math.PI * i / segments).toFloat()
+            val angle2 = (2 * Math.PI * (i + 1) / segments).toFloat()
+
+            val cos1 = MathCache.fastCos(angle1)
+            val sin1 = MathCache.fastSin(angle1)
+            val cos2 = MathCache.fastCos(angle2)
+            val sin2 = MathCache.fastSin(angle2)
+
+            val x1 = radius * cos1
+            val z1 = radius * sin1
+            val x2 = radius * cos2
+            val z2 = radius * sin2
+
+            val perpX1 = -sin1 * lineWidth
+            val perpZ1 = cos1 * lineWidth
+            val perpX2 = -sin2 * lineWidth
+            val perpZ2 = cos2 * lineWidth
+
+            vertexConsumer.vertex(matrix, x1 - perpX1, 0f, z1 - perpZ1)
+                .color(255, 255, 255, 200)
+                .uv(0f, 0f)
+                .endVertex()
+
+            vertexConsumer.vertex(matrix, x1 + perpX1, 0f, z1 + perpZ1)
+                .color(255, 255, 255, 200)
+                .uv(1f, 0f)
+                .endVertex()
+
+            vertexConsumer.vertex(matrix, x2 + perpX2, 0f, z2 + perpZ2)
+                .color(255, 255, 255, 200)
+                .uv(1f, 1f)
+                .endVertex()
+
+            vertexConsumer.vertex(matrix, x2 - perpX2, 0f, z2 - perpZ2)
+                .color(255, 255, 255, 200)
+                .uv(0f, 1f)
+                .endVertex()
+        }
+
+        poseStack.popPose()
+    }
+
+    private object MathCache {
+        private const val TABLE_SIZE = 4096
+        private const val TABLE_SIZE_MASK = TABLE_SIZE - 1
+        private const val ANGLE_TO_INDEX = TABLE_SIZE / (2.0 * Math.PI)
+
+        private val sinTable = FloatArray(TABLE_SIZE)
+        private val cosTable = FloatArray(TABLE_SIZE)
+
+        init {
+            for (i in 0 until TABLE_SIZE) {
+                val angle = i * 2.0 * Math.PI / TABLE_SIZE
+                sinTable[i] = sin(angle).toFloat()
+                cosTable[i] = cos(angle).toFloat()
+            }
+        }
+
+        fun fastSin(radians: Float): Float {
+            val index = (radians * ANGLE_TO_INDEX).toInt() and TABLE_SIZE_MASK
+            return sinTable[index]
+        }
+
+        fun fastCos(radians: Float): Float {
+            val index = (radians * ANGLE_TO_INDEX).toInt() and TABLE_SIZE_MASK
+            return cosTable[index]
         }
     }
 }

@@ -20,8 +20,6 @@ import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
 import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.TAIXU_TURBID_ARRAY
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
@@ -48,7 +46,7 @@ import java.util.function.Consumer
 object NewMultiBlockMachineController {
     @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
-        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("super_factory_mk1"))
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("nexus_satellite_factory_mk1"))
             .inputItems(MEGA_PRESSER, 16)
             .inputItems(MEGA_WIREMILL, 16)
             .inputItems(HOLY_SEPARATOR, 16)
@@ -64,7 +62,7 @@ object NewMultiBlockMachineController {
             .inputFluids(SuperMutatedLivingSolder.getFluid(16000))
             .inputFluids(UUMatter.getFluid(16000))
             .inputFluids(RAREEARTH.getFluid(16000))
-            .outputItems(MultiBlockMachine.SUPER_FACTORY_MKI)
+            .outputItems(MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKI)
             .EUt(VA[UXV].toLong()).duration(1200)
             .stationResearch { b : StationRecipeBuilder? ->
                 b !!.researchStack(PROCESSING_PLANT.asStack())
@@ -72,7 +70,7 @@ object NewMultiBlockMachineController {
                     .EUt(VA[UXV]).CWUt(1024)
             }
             .save(provider)
-        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("super_factory_mk2"))
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("nexus_satellite_factory_mk2"))
             .inputItems(LARGE_CHEMICAL_BATH, 64)
             .inputItems(LARGE_SIFTING_FUNNEL, 64)
             .inputItems(LARGE_CENTRIFUGE, 64)
@@ -88,7 +86,7 @@ object NewMultiBlockMachineController {
             .inputFluids(SuperMutatedLivingSolder.getFluid(16000))
             .inputFluids(UUMatter.getFluid(16000))
             .inputFluids(SuperheavyLAlloy.getFluid(16000))
-            .outputItems(MultiBlockMachine.SUPER_FACTORY_MKII)
+            .outputItems(MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII)
             .EUt(VA[UXV].toLong()).duration(1200)
             .stationResearch { b : StationRecipeBuilder? ->
                 b !!.researchStack(SEPARATED_PLANT.asStack())
@@ -96,7 +94,7 @@ object NewMultiBlockMachineController {
                     .EUt(VA[UXV]).CWUt(1024)
             }
             .save(provider)
-        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("super_factory_mk3"))
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("nexus_satellite_factory_mk3"))
             .inputItems(CRYSTALLINE_INFINITY, 16)
             .inputItems(MEGA_EXTRACTOR, 16)
             .inputItems(MEGA_DISTILLERY, 16)
@@ -112,7 +110,7 @@ object NewMultiBlockMachineController {
             .inputFluids(SuperMutatedLivingSolder.getFluid(16000))
             .inputFluids(UUMatter.getFluid(16000))
             .inputFluids(SuperheavyHAlloy.getFluid(16000))
-            .outputItems(MultiBlockMachine.SUPER_FACTORY_MKIII)
+            .outputItems(MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII)
             .EUt(VA[UXV].toLong()).duration(1200)
             .stationResearch { b : StationRecipeBuilder? ->
                 b !!.researchStack(MIXED_PLANT.asStack())
@@ -120,7 +118,7 @@ object NewMultiBlockMachineController {
                     .EUt(VA[UXV]).CWUt(1024)
             }
             .save(provider)
-        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("super_factory_mk4"))
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("nexus_satellite_factory_mk4"))
             .inputItems(MEGA_CANNER, 16)
             .inputItems(SUPERCONDUCTING_ELECTROMAGNETISM, 16)
             .inputItems(MAGE_ASSEMBLER, 16)
@@ -136,7 +134,7 @@ object NewMultiBlockMachineController {
             .inputFluids(SuperMutatedLivingSolder.getFluid(16000))
             .inputFluids(UUMatter.getFluid(16000))
             .inputFluids(Transition.getFluid(16000))
-            .outputItems(MultiBlockMachine.SUPER_FACTORY_MKIV)
+            .outputItems(MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV)
             .EUt(VA[UXV].toLong()).duration(1200)
             .stationResearch { b : StationRecipeBuilder? ->
                 b !!.researchStack(ASSEMBLE_PLANT.asStack())
@@ -738,8 +736,8 @@ object NewMultiBlockMachineController {
             .save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("heliofluix_melting_core"))
             .inputItems(GTLAddBlocks.GOD_FORGE_TRIM_CASING, 32)
-            .inputItems(FUXI_BAGUA_HEAVEN_FORGING_FURNACE, 4)
-            .inputItems(TAIXU_TURBID_ARRAY, 4)
+            .inputItems(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE, 4)
+            .inputItems(MultiBlockMachine.TAIXU_TURBID_ARRAY, 4)
             .inputItems(MEGA_ULTIMATE_BATTERY, 64)
             .inputItems(wireGtHex,Legendarium, 64)
             .inputItems(ROBOT_ARM_MAX, 64)
@@ -757,7 +755,7 @@ object NewMultiBlockMachineController {
             .outputItems(MultiBlockMachine.HELIOFLUIX_MELTING_CORE)
             .EUt(VA[MAX].toLong()).duration(2304000)
             .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(FUXI_BAGUA_HEAVEN_FORGING_FURNACE.asStack())
+                b !!.researchStack(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
@@ -786,6 +784,30 @@ object NewMultiBlockMachineController {
                 b !!.researchStack(SUPER_PARTICLE_COLLIDER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("subspace_corridor_hub_industrial_array"))
+            .inputItems(SPACE_PROBE_SURFACE_RECEPTION, 16)
+            .inputItems(getItemStack("kubejs:space_drone_mk1", 64))
+            .inputItems(getItemStack("kubejs:space_drone_mk2", 64))
+            .inputItems(getItemStack("kubejs:space_drone_mk3", 64))
+            .inputItems(getItemStack("kubejs:space_drone_mk4", 64))
+            .inputItems(getItemStack("kubejs:space_drone_mk5", 64))
+            .inputItems(getItemStack("kubejs:space_probe_mk1", 64))
+            .inputItems(CustomTags.UXV_CIRCUITS, 32)
+            .inputItems(EXTREMELY_ULTIMATE_BATTERY, 64)
+            .inputItems(plateDense, AttunedTengam, 16)
+            .inputItems(plateDouble, Taranium, 16)
+            .inputItems(getItemStack("kubejs:unstable_star", 16))
+            .inputFluids(SuperMutatedLivingSolder.getFluid(1600000))
+            .inputFluids(UUMatter.getFluid(1600000))
+            .inputFluids(HeavyLeptonMixture.getFluid(1600000))
+            .outputItems(MultiBlockMachine.SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY)
+            .EUt(VA[UXV].toLong()).duration(2400)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(SUPRACHRONAL_ASSEMBLY_LINE.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UXV]).CWUt(1024, 2048000)
             }
             .save(provider)
         if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.buildController(provider)

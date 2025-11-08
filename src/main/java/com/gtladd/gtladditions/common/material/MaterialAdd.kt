@@ -28,6 +28,8 @@ object MaterialAdd {
         GTLMaterials.CosmicNeutronium.addFlags(MaterialFlags.GENERATE_DENSE)
         GTLMaterials.AbyssalAlloy.addFlags(MaterialFlags.GENERATE_FRAME)
         GTLMaterials.Periodicium.addFlags(MaterialFlags.GENERATE_ROD)
+        GTLMaterials.Echoite.addFlags(MaterialFlags.GENERATE_GEAR)
+        GTLMaterials.NaquadriaticTaranium.addFlags(MaterialFlags.GENERATE_DENSE)
 
         GTLMaterials.Cosmic.setProperty(PropertyKey.FLUID, FluidProperty(FluidStorageKeys.LIQUID, FluidBuilder()))
         GTLMaterials.Eternity.setProperty(

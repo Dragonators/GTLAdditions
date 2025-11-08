@@ -28,6 +28,10 @@ import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.FUXI_
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.INFERNO_CLEFT_SMELTING_VAULT
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.LUCID_ETCHDREAMER
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEBULA_REAPER
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKI
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.QUANTUM_SYPHON_MATRIX
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.SUPER_FACTORY_MKI
@@ -134,6 +138,10 @@ object MutableMultiBlockModify {
             SUPER_FACTORY_MKII,
             SUPER_FACTORY_MKIII,
             SUPER_FACTORY_MKIV,
+            NEXUS_SATELLITE_FACTORY_MKI,
+            NEXUS_SATELLITE_FACTORY_MKII,
+            NEXUS_SATELLITE_FACTORY_MKIII,
+            NEXUS_SATELLITE_FACTORY_MKIV,
             LUCID_ETCHDREAMER,
             ATOMIC_TRANSMUTATIOON_CORE,
             ASTRAL_CONVERGENCE_NEXUS,

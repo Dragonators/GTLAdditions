@@ -49,6 +49,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         ChaosWeave.init(provider);
         GenesisEngine.init(provider);
         HeliofusionExoticizer.init(provider);
+        InterStellar.init(provider);
         AE2.init(provider);
         Assembler.init(provider);
         AssemblyLine.init(provider);

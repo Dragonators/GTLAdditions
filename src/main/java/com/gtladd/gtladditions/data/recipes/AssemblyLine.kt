@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.common.data.GTItems.*
 import com.gregtechceu.gtceu.common.data.GTMachines.POWER_SUBSTATION
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
+import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.items.GTLAddItems
@@ -40,6 +41,7 @@ object AssemblyLine {
     fun init(provider : Consumer<FinishedRecipe?>) {
         addLaserHatchRecipe(provider)
         addAntichristForgeRecipe(provider)
+        addOtherRecipe(provider)
     }
 
     private fun addLaserHatchRecipe(provider : Consumer<FinishedRecipe?>) {
@@ -308,8 +310,8 @@ object AssemblyLine {
             .inputItems(gearSmall, MELLION, 64)
             .inputItems(getItemStack("kubejs:quantum_anomaly", 32))
             .inputItems(EMITTER_UIV, 32)
-            .inputItems(TagUtil.createModItemTag("circuits/uxv"), 64)
-            .inputItems(TagUtil.createModItemTag("circuits/uxv"), 64)
+            .inputItems(CustomTags.UXV_CIRCUITS, 64)
+            .inputItems(CustomTags.UXV_CIRCUITS, 64)
             .inputItems(nanoswarm, Infuscolium, 16)
             .inputFluids(MutatedLivingSolder.getFluid(4608000))
             .inputFluids(Legendarium.getFluid(4608000))
@@ -330,8 +332,8 @@ object AssemblyLine {
             .inputItems(gear, MELLION, 64)
             .inputItems(getItemStack("kubejs:quantum_anomaly", 64))
             .inputItems(EMITTER_UXV, 32)
-            .inputItems(TagUtil.createModItemTag("circuits/opv"), 64)
-            .inputItems(TagUtil.createModItemTag("circuits/opv"), 64)
+            .inputItems(CustomTags.OpV_CIRCUITS, 64)
+            .inputItems(CustomTags.OpV_CIRCUITS, 64)
             .inputItems(nanoswarm, Starmetal, 32)
             .inputItems(nanoswarm, Draconium, 32)
             .inputFluids(MutatedLivingSolder.getFluid(9216000))
@@ -354,8 +356,8 @@ object AssemblyLine {
             .inputItems(SPACETIMECONTINUUMRIPPER.asStack(64))
             .inputItems(getItemStack("kubejs:quantum_anomaly", 64))
             .inputItems(EMITTER_MAX, 32)
-            .inputItems(TagUtil.createModItemTag("circuits/max"), 64)
-            .inputItems(TagUtil.createModItemTag("circuits/max"), 64)
+            .inputItems(CustomTags.MAX_CIRCUITS, 64)
+            .inputItems(CustomTags.MAX_CIRCUITS, 64)
             .inputItems(nanoswarm, Eternity, 64)
             .inputItems(nanoswarm, SpaceTime, 64)
             .inputItems(nanoswarm, CosmicNeutronium, 64)
@@ -395,6 +397,28 @@ object AssemblyLine {
                 b !!.researchStack(RELATIVISTIC_HEAT_CAPACITOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(8192, 48000000)
+            }
+            .save(provider)
+    }
+
+    private fun addOtherRecipe(provider : Consumer<FinishedRecipe?>) {
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("gravity_stabilization_casing")
+            .inputItems(MANIPULATOR.asStack(4))
+            .inputItems(EMITTER_UIV, 4)
+            .inputItems(GRAVITATION_ENGINE, 16)
+            .inputItems(plateDouble, Echoite, 4)
+            .inputItems(gear, Echoite)
+            .inputItems(getItemStack("kubejs:unstable_star", 4))
+            .inputItems(CustomTags.UIV_CIRCUITS)
+            .inputItems(wireGtHex, Echoite, 16)
+            .inputFluids(Neutronium.getFluid(9216))
+            .inputFluids(BedrockGas.getFluid(FluidStorageKeys.GAS, 2304))
+            .outputItems(GTLAddBlocks.GRAVITY_STABILIZATION_CASING, 4)
+            .EUt(VA[UIV].toLong()).duration(1200)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(GRAVI_STAR.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UXV]).CWUt(1024, 2048000)
             }
             .save(provider)
     }

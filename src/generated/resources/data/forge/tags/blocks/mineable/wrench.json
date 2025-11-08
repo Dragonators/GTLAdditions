@@ -11,6 +11,8 @@
     "gtladditions:mediary_graviton_flow_regulator",
     "gtladditions:central_graviton_flow_regulator",
     "gtladditions:temporal_anchor_field_casing",
-    "gtladditions:phonon_conduit"
+    "gtladditions:phonon_conduit",
+    "gtladditions:extreme_density_casing",
+    "gtladditions:gravity_stabilization_casing"
   ]
 }

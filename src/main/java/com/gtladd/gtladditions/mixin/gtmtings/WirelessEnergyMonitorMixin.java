@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 
-import com.gtladd.gtladditions.api.machine.data.MachineEnergyData;
+import com.gtladd.gtladditions.common.record.MachineEnergyData;
 import com.gtladd.gtladditions.utils.CommonUtils;
 import com.hepdd.gtmthings.common.block.machine.electric.WirelessEnergyMonitor;
 import com.hepdd.gtmthings.utils.TeamUtil;
@@ -112,10 +112,10 @@ public abstract class WirelessEnergyMonitorMixin extends MetaMachine {
                 .append(ComponentPanelWidget.withButton(all ? Component.translatable("gtmthings.machine.wireless_energy_monitor.tooltip.all") : Component.translatable("gtmthings.machine.wireless_energy_monitor.tooltip.team"), "all")));
 
         for (var entry : gTLAdditions$getSortedBigEntries()) {
-            UUID uuid = entry.userId();
+            UUID uuid = entry.userId;
             if (all || TeamUtil.getTeamUUID(uuid) == TeamUtil.getTeamUUID(this.userid)) {
-                MetaMachine machine = entry.machine();
-                BigInteger eut = entry.euPerTick();
+                MetaMachine machine = entry.machine;
+                BigInteger eut = entry.euPerTick;
                 long absLongEut = NumberUtils.getLongValue(eut.abs());
                 int energyTier = absLongEut == Long.MAX_VALUE ? GTValues.MAX_TRUE : NumberUtils.getFakeVoltageTier(absLongEut);
                 String pos = machine.getPos().toShortString();

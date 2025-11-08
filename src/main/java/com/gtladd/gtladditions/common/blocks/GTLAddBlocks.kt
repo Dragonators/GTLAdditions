@@ -41,6 +41,8 @@ object GTLAddBlocks {
     val CENTRAL_GRAVITON_FLOW_REGULATOR: BlockEntry<Block>
     val TEMPORAL_ANCHOR_FIELD_CASING: BlockEntry<Block>
     val PHONON_CONDUIT: BlockEntry<Block>
+    val EXTREME_DENSITY_CASING: BlockEntry<Block>
+    val GRAVITY_STABILIZATION_CASING: BlockEntry<Block>
 
     @JvmStatic
     fun init() {}
@@ -94,6 +96,14 @@ object GTLAddBlocks {
         PHONON_CONDUIT = createCasingBlock(
             "phonon_conduit",
             GTLCore.id("block/casings/phonon_conduit")
+        )
+        EXTREME_DENSITY_CASING = createCasingBlock(
+            "extreme_density_casing",
+            GTLCore.id("block/casings/extreme_density_casing")
+        )
+        GRAVITY_STABILIZATION_CASING = createCasingBlock(
+            "gravity_stabilization_casing",
+            GTLCore.id("block/casings/gravity_stabilization_casing")
         )
         GTLAddRegistration.REGISTRATE.creativeModeTab(GTLAddCreativeModeTabs.GTLADD_MACHINE)
     }

@@ -15,8 +15,8 @@ import appeng.api.crafting.PatternDetailsHelper;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.GenericStack;
 import appeng.crafting.pattern.AEProcessingPattern;
-import com.gtladd.gtladditions.api.machine.data.ParallelData;
-import com.gtladd.gtladditions.api.machine.data.RecipeData;
+import com.gtladd.gtladditions.common.record.ParallelData;
+import com.gtladd.gtladditions.common.record.RecipeData;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -43,8 +43,8 @@ public class CommonUtils {
         var activeIndices = new IntArrayList(queue.size());
         while (!queue.isEmpty()) {
             var data = queue.dequeue();
-            remainingWants[data.index()] = data.remainingWant();
-            activeIndices.add(data.index());
+            remainingWants[data.index] = data.remainingWant;
+            activeIndices.add(data.index);
         }
 
         while (remaining > 0 && !activeIndices.isEmpty()) {

@@ -45,6 +45,6 @@ object ThreadMultiplierStrategy {
     @JvmStatic
     fun getAdditionalMultiplier(definition: MultiblockMachineDefinition?): Int {
         val result = (1 / ConfigHolder.INSTANCE.durationMultiplier) * BLOCK_MULTIPLIER_MAP.getOrDefault(definition, 2)
-        return if (result >= Int.MAX_VALUE) Int.MAX_VALUE else result.roundToInt()
+        return result.roundToInt()
     }
 }

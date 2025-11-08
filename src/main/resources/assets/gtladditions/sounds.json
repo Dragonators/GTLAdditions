@@ -28,5 +28,15 @@
       }
     ],
     "subtitle": "gtladditions.subtitle.genesisengine"
+  },
+  "interstellar": {
+    "sounds": [
+      {
+        "type": "file",
+        "name": "gtladditions:interstellar",
+        "attenuation_distance": 96
+      }
+    ],
+    "subtitle": "gtladditions.subtitle.interstellar"
   }
 }

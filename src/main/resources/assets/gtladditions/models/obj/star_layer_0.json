@@ -3,7 +3,7 @@
   "loader": "forge:obj",
   "model": "gtladditions:models/obj/star.obj",
   "textures": {
-    "texture0": "gtladditions:block/obj/StarLayer0",
-    "particle":"gtladditions:block/obj/StarLayer0"
+    "texture0": "gtladditions:block/obj/starlayer0",
+    "particle":"gtladditions:block/obj/starlayer0"
   }
 }

@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.common.item.TooltipBehavior
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.items.behavior.AstralArrayBehavior
+import com.gtladd.gtladditions.common.items.behavior.ModuleConnectionBehavior
 import com.tterrag.registrate.util.entry.ItemEntry
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
@@ -40,6 +41,7 @@ object GTLAddItems {
     val PHONONIC_SEED_CRYSTAL: ItemEntry<Item?>
     val THERMAL_SUPERCONDUCTOR: ItemEntry<Item?>
     val RELATIVISTIC_HEAT_CAPACITOR: ItemEntry<Item?>
+    val DEBUG_MODULE_CONNECTOR: ItemEntry<ComponentItem>
     val STRANGE_ANNIHILATION_FUEL_ROD: ItemEntry<ComponentItem>
     val BLACK_HOLE_SEED: ItemEntry<ComponentItem>
     @JvmField
@@ -83,6 +85,19 @@ object GTLAddItems {
         PHONONIC_SEED_CRYSTAL = register("phononic_seed_crystal", "Phononic Seed Crystal")
         THERMAL_SUPERCONDUCTOR = register("thermal_superconductor", "Thermal Superconductor")
         RELATIVISTIC_HEAT_CAPACITOR = register("relativistic_heat_capacitor", "Relativistic Heat Capacitor")
+        DEBUG_MODULE_CONNECTOR = REGISTRATE.item("debug_module_connector") { properties: Item.Properties -> ComponentItem.create(properties) }
+            .onRegister(
+                GTItems.attach(
+                    TooltipBehavior
+                    { lines: MutableList<Component> ->
+                        lines.add(Component.translatable("gtladditions.item.debug_module_connector.tooltips.0"))
+                        lines.add(Component.translatable("gtladditions.item.debug_module_connector.tooltips.1"))
+                        lines.add(Component.translatable("gtladditions.item.debug_module_connector.tooltips.2"))
+                    }, ModuleConnectionBehavior
+                )
+            )
+            .lang("Debug Module Connector")
+            .register()
         STRANGE_ANNIHILATION_FUEL_ROD = REGISTRATE.item("strange_annihilation_fuel_rod") { properties: Item.Properties -> ComponentItem.create(properties) }
             .onRegister(
                 GTItems.attach(

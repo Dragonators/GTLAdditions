@@ -16,11 +16,11 @@ import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import com.gtladd.gtladditions.api.machine.IWirelessThreadModifierParallelMachine;
-import com.gtladd.gtladditions.api.machine.data.ParallelData;
-import com.gtladd.gtladditions.api.machine.data.RecipeData;
 import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler;
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe;
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipeBuilder;
+import com.gtladd.gtladditions.common.record.ParallelData;
+import com.gtladd.gtladditions.common.record.RecipeData;
 import com.gtladd.gtladditions.utils.CommonUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -95,9 +95,9 @@ public class AddMutableRecipesLogic<T extends WorkableElectricMultiblockMachine 
         double totalEu = 0;
         int index = 0;
 
-        for (var r : parallelData.recipeList()) {
-            if (parallelData.parallels()[index] > 1) r = r.copy(ContentModifier.multiplier(parallelData.parallels()[index]), false);
-            IGTRecipe.of(r).setRealParallels(parallelData.parallels()[index++]);
+        for (var r : parallelData.recipeList) {
+            if (parallelData.parallels[index] > 1) r = r.copy(ContentModifier.multiplier(parallelData.parallels[index]), false);
+            IGTRecipe.of(r).setRealParallels(parallelData.parallels[index++]);
             r = IParallelLogic.getRecipeOutputChance(machine, r);
             if (matchRecipeInput(machine, r) && handleRecipeInput(machine, r)) {
                 totalEu += getRecipeEut(r) * r.duration * euMultiplier;
@@ -132,10 +132,10 @@ public class AddMutableRecipesLogic<T extends WorkableElectricMultiblockMachine 
         BigInteger totalEu = BigInteger.ZERO;
         int index = 0;
 
-        for (var r : parallelData.recipeList()) {
+        for (var r : parallelData.recipeList) {
             BigInteger parallelEUt = BigInteger.valueOf(RecipeHelper.getInputEUt(r));
 
-            final long p = parallelData.parallels()[index++];
+            final long p = parallelData.parallels[index++];
             if (p > 1) {
                 r = r.copy(ContentModifier.multiplier(p), false);
                 parallelEUt = parallelEUt.multiply(BigInteger.valueOf(p));

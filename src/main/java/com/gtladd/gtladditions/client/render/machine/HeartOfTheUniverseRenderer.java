@@ -2,7 +2,6 @@ package com.gtladd.gtladditions.client.render.machine;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer;
 
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,6 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import com.gtladd.gtladditions.GTLAdditions;
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.HeartOfTheUniverse;
 import com.gtladd.gtladditions.utils.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -34,7 +34,7 @@ public class HeartOfTheUniverseRenderer extends WorkableCasingMachineRenderer {
     public void render(BlockEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource buffer,
                        int combinedLight, int combinedOverlay) {
         if (blockEntity instanceof IMachineBlockEntity machineBlockEntity &&
-                machineBlockEntity.getMetaMachine() instanceof WorkableElectricMultiblockMachine machine && machine.isActive()) {
+                machineBlockEntity.getMetaMachine() instanceof HeartOfTheUniverse machine && machine.isActive()) {
 
             float tick = machine.getOffsetTimer() + partialTicks;
 
@@ -48,26 +48,27 @@ public class HeartOfTheUniverseRenderer extends WorkableCasingMachineRenderer {
 
             long seed = blockEntity.getBlockPos().asLong();
 
-            poseStack.pushPose();
-            poseStack.translate(x, y, z);
-
-            renderStar(tick, poseStack, buffer, seed);
-
-            poseStack.popPose();
+            renderStar(tick, poseStack, buffer, seed, x, y, z);
         }
     }
 
-    private static void renderStar(float tick, PoseStack poseStack, MultiBufferSource buffer, long randomSeed) {
+    private static void renderStar(float tick, PoseStack poseStack, MultiBufferSource buffer, long randomSeed,
+                                   double x, double y, double z) {
+        poseStack.pushPose();
+        poseStack.translate(x, y, z);
+
         var rotation = RenderUtils.createRandomRotation(RandomSource.create(randomSeed), 0.5F, 2.0F);
 
         RenderUtils.renderStarLayer(poseStack, buffer, SPACE_MODEL, 0.45F,
-                rotation.axis(), rotation.getAngle(tick),
+                rotation.axis, rotation.getAngle(tick),
                 FastColor.ARGB32.color(255, 255, 255, 255),
                 RenderType.solid());
 
         RenderUtils.renderHaloLayer(poseStack, buffer, 0.45F * 1.02F,
-                rotation.axis(), rotation.getAngle(tick),
+                rotation.axis, rotation.getAngle(tick),
                 HALO_TEX, SPACE_MODEL);
+
+        poseStack.popPose();
     }
 
     @Override
