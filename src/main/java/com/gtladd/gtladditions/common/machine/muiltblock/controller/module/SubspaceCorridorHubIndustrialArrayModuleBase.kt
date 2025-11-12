@@ -100,6 +100,8 @@ class SubspaceCorridorHubIndustrialArrayModuleBase(holder: IMachineBlockEntity) 
         removeFromHost(this.host)
     }
 
+    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
+
     companion object {
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
             SubspaceCorridorHubIndustrialArrayModuleBase::class.java,

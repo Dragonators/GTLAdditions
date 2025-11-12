@@ -4,8 +4,6 @@
   "package": "com.gtladd.gtladditions.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "gtladditions.refmap.json",
-  "client": [
-  ],
   "mixins": [
     "ae2.ExternalStorageFacadeAccessor",
     "ae2.ExternalStorageFacadeMixin",
@@ -39,5 +37,8 @@
     "gtmtings.WirelessEnergyManagerMixin",
     "gtmtings.WirelessEnergyMonitorMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMixin"
+  ],
+  "client": [
+    "gtlcore.gui.PatternPreviewWidgetMixin"
   ]
 }

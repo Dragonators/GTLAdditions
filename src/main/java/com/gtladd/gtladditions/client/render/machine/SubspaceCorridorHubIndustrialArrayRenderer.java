@@ -111,12 +111,12 @@ public class SubspaceCorridorHubIndustrialArrayRenderer extends WorkableCasingMa
             double x, z;
             switch (facing) {
                 case NORTH -> {
-                    x = 0.5 - offset[0];
-                    z = 0.5 + offset[2];
+                    x = 0.5 - offset[2];
+                    z = 0.5 - offset[0];
                 }
                 case SOUTH -> {
-                    x = 0.5 + offset[0];
-                    z = 0.5 - offset[2];
+                    x = 0.5 + offset[2];
+                    z = 0.5 + offset[0];
                 }
                 case WEST -> {
                     x = 0.5 - offset[0];
