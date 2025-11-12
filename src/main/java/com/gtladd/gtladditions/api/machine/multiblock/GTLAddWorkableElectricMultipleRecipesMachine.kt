@@ -107,6 +107,7 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
 
     protected open fun addEnergyDisplay(textList: MutableList<Component?>) {
         wirelessNetworkEnergyHandler?.let { networkEnergyHandler ->
+            if (!networkEnergyHandler.isOnline) return@let
             val totalEu = networkEnergyHandler.maxAvailableEnergy
             val longEu = NumberUtils.getLongValue(totalEu)
             val energyTier = if (longEu == Long.MAX_VALUE) GTValues.MAX_TRUE else NumberUtils.getFakeVoltageTier(longEu)

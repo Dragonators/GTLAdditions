@@ -12,7 +12,6 @@
     "gtceu.api.capability.CWURecipeCapabilityMixin",
     "gtceu.api.capability.FluidRecipeCapabilityMixin",
     "gtceu.api.machine.IFancyUIMachineMixin",
-    "gtceu.api.machine.MultiblockDisplayTextMixin",
     "gtceu.api.misc.EnergyContainerListAccessor",
     "gtceu.api.recipe.GTRecipeLookupMixin",
     "gtceu.api.recipe.MultiblockStateMixin",
