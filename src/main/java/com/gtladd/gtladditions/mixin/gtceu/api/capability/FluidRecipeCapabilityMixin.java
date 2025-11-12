@@ -1,0 +1,79 @@
+package com.gtladd.gtladditions.mixin.gtceu.api.capability;
+
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
+import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
+import com.gregtechceu.gtceu.api.recipe.content.Content;
+import com.gregtechceu.gtceu.api.recipe.content.IContentSerializer;
+import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
+import com.gregtechceu.gtceu.client.TooltipsHandler;
+import com.gregtechceu.gtceu.integration.GTRecipeWidget;
+
+import com.lowdragmc.lowdraglib.gui.widget.TankWidget;
+import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+import com.llamalad7.mixinextras.sugar.Local;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
+import java.util.function.BiConsumer;
+
+@Mixin(value = FluidRecipeCapability.class, priority = 2000)
+public class FluidRecipeCapabilityMixin extends RecipeCapability<FluidIngredient> {
+
+    protected FluidRecipeCapabilityMixin(String name, int color, boolean doRenderSlot, int sortIndex, IContentSerializer<FluidIngredient> serializer) {
+        super(name, color, doRenderSlot, sortIndex, serializer);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Inject(method = "applyWidgetInfo",
+            at = @At(value = "INVOKE",
+                     target = "Lcom/lowdragmc/lowdraglib/gui/widget/TankWidget;setXEIChance(F)Lcom/lowdragmc/lowdraglib/gui/widget/TankWidget;",
+                     shift = At.Shift.AFTER),
+            remap = false,
+            require = 0)
+    private void hideAmountInXEI(CallbackInfo ci,
+                                 @Local(name = "tank") TankWidget tank,
+                                 @Local(name = "isXEI") boolean isXEI) {
+        if (isXEI) {
+            tank.setShowAmount(false);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @ModifyArg(method = "applyWidgetInfo",
+               at = @At(value = "INVOKE",
+                        target = "Lcom/lowdragmc/lowdraglib/gui/widget/TankWidget;setOnAddedTooltips(Ljava/util/function/BiConsumer;)Lcom/lowdragmc/lowdraglib/gui/widget/TankWidget;"),
+               remap = false)
+    public BiConsumer<TankWidget, List<Component>> applyWidgetInfo(BiConsumer<TankWidget, List<Component>> onAddedTooltips,
+                                                                   @Local(name = "content") Content content,
+                                                                   @Local(name = "recipe") GTRecipe recipe,
+                                                                   @Local(name = "index") int index,
+                                                                   @Local(name = "io") IO io,
+                                                                   @Local(name = "isXEI") boolean isXEI) {
+        return (w, tooltips) -> {
+            var ingredient = FluidRecipeCapability.CAP.of(content.content);
+            if (!isXEI && ingredient.getStacks().length > 0) {
+                FluidStack stack = ingredient.getStacks()[0];
+                TooltipsHandler.appendFluidTooltips(stack.getFluid(),
+                        stack.getAmount(), tooltips::add, TooltipFlag.NORMAL);
+            }
+
+            GTRecipeWidget.setConsumedChance(content, ChanceLogic.OR, tooltips);
+            if (isTickSlot(index, io, recipe)) {
+                tooltips.add(Component.translatable("gtceu.gui.content.per_tick"));
+            }
+        };
+    }
+}

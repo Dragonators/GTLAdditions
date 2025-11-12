@@ -112,6 +112,7 @@ dependencies {
 
     modCompileOnly("mezz.jei:jei-$project.minecraft_version-forge-api:$project.jei_version") { transitive = false }
     modCompileOnly("mezz.jei:jei-$project.minecraft_version-common-api:$project.jei_version") { transitive = false }
+    modCompileOnly("mezz.jei:jei-$project.minecraft_version-forge:$project.jei_version") { transitive = false }
 
     modCompileOnly("curse.maven:emi-580555:6420945") { transitive = false }
 
