@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 @Mixin(value = FluidRecipeCapability.class, priority = 2000)
-public class FluidRecipeCapabilityMixin extends RecipeCapability<FluidIngredient> {
+public abstract class FluidRecipeCapabilityMixin extends RecipeCapability<FluidIngredient> {
 
     protected FluidRecipeCapabilityMixin(String name, int color, boolean doRenderSlot, int sortIndex, IContentSerializer<FluidIngredient> serializer) {
         super(name, color, doRenderSlot, sortIndex, serializer);

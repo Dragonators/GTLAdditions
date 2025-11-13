@@ -28,6 +28,7 @@
     "gtceu.recipe.RecyclingRecipesMixin",
     "gtceu.xei.FluidEmiStackMixin",
     "gtceu.xei.FluidHelperMixin",
+    "gtceu.xei.FluidTankRendererMixin",
     "gtceu.xei.FluidUnitMixin",
     "gtlcore.machine.CoilWorkableElectricMultipleRecipesMachineMixin",
     "gtlcore.machine.HarmonyMachineMixin",

@@ -22,7 +22,7 @@ public abstract class FluidIngredientConverterMixin {
     public @Nullable FluidStack getIngredientFromStack(GenericStack stack) {
         AEKey var3 = stack.what();
         if (var3 instanceof AEFluidKey fluidKey) {
-            return new LongFluidStack(fluidKey.getFluid(), stack.amount(), fluidKey.getTag());
+            return new LongFluidStack(fluidKey.getFluid(), Math.max(1, stack.amount()), fluidKey.getTag());
         } else {
             return null;
         }
