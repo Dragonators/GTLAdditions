@@ -22,9 +22,9 @@ import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler;
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe;
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipeBuilder;
 import com.gtladd.gtladditions.common.record.ParallelData;
-import com.gtladd.gtladditions.common.record.RecipeData;
 import com.gtladd.gtladditions.utils.CommonUtils;
-import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
@@ -122,20 +122,29 @@ public class GTLAddMultipleRecipesLogic extends MultipleRecipesLogic {
         long remaining = totalParallel;
         long[] parallels = new long[length];
         int index = 0;
-        var queue = new ObjectArrayFIFOQueue<RecipeData>(length);
         var recipeList = new ObjectArrayList<GTRecipe>(length);
+        var remainingWants = new LongArrayList(length);
+        var remainingIndices = new IntArrayList(length);
 
         for (var r : recipes) {
             if (r == null) continue;
             long p = getMaxParallel(r, totalParallel);
             if (p <= 0) continue;
             recipeList.add(r);
-            parallels[index] = Math.min(p, totalParallel / length);
-            if (p > parallels[index]) queue.enqueue(new RecipeData(index, p - parallels[index]));
-            remaining -= parallels[index++];
+            long allocated = Math.min(p, totalParallel / length);
+            parallels[index] = allocated;
+            long want = p - allocated;
+            if (want > 0) {
+                remainingWants.add(want);
+                remainingIndices.add(index);
+            }
+            remaining -= allocated;
+            index++;
         }
 
-        return CommonUtils.getParallelData(length, remaining, parallels, queue, recipeList);
+        if (recipeList.isEmpty()) return null;
+
+        return CommonUtils.getParallelData(remaining, parallels, remainingWants, remainingIndices, recipeList);
     }
 
     @Nullable

@@ -19,6 +19,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import com.gtladd.gtladditions.utils.CommonUtils;
 import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -64,10 +65,14 @@ public abstract class FluidRecipeCapabilityMixin extends RecipeCapability<FluidI
                                                                    @Local(name = "isXEI") boolean isXEI) {
         return (w, tooltips) -> {
             var ingredient = FluidRecipeCapability.CAP.of(content.content);
-            if (!isXEI && ingredient.getStacks().length > 0) {
+            if (ingredient.getStacks().length > 0) {
                 FluidStack stack = ingredient.getStacks()[0];
-                TooltipsHandler.appendFluidTooltips(stack.getFluid(),
-                        stack.getAmount(), tooltips::add, TooltipFlag.NORMAL);
+                if (!isXEI) {
+                    TooltipsHandler.appendFluidTooltips(stack.getFluid(),
+                            stack.getAmount(), tooltips::add, TooltipFlag.NORMAL);
+                } else {
+                    CommonUtils.appendIngotConversionTooltip(stack, tooltips, stack.getAmount());
+                }
             }
 
             GTRecipeWidget.setConsumedChance(content, ChanceLogic.OR, tooltips);
