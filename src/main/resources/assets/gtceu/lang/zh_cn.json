@@ -82,6 +82,7 @@
   "gtceu.multiblock.use_cosmic_mainframe": "寰宇处理器主机: %d, %d",
   "gtceu.multiblock.use_different_mainframe": "不同的加成需要使用不同的电路主机解锁",
   "gtceu.multiblock.use_suprachronal_mainframe_complex": "创造主机: %d, %d",
+  "gtceu.nightmare_crafting": "梦魇合成",
   "gtceu.photon_matrix_etch": "光子晶阵蚀刻",
   "gtceu.quantum_oscillation": "量子曲折",
   "gtceu.star_core_stripper": "星核剥离",

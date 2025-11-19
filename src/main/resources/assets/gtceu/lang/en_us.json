@@ -82,6 +82,7 @@
   "gtceu.multiblock.use_cosmic_mainframe": "Cosmic Mainframe: %d, %d",
   "gtceu.multiblock.use_different_mainframe": "Different bonuses require different circuit hosts to unlock",
   "gtceu.multiblock.use_suprachronal_mainframe_complex": "Suprachronal Mainframe Complex: %d, %d",
+  "gtceu.nightmare_crafting": "nightmare Crafting",
   "gtceu.photon_matrix_etch": "Photon Matrix Etch",
   "gtceu.quantum_oscillation": "Quantum Oscillation",
   "gtceu.star_core_stripper": "Star Core Stripper",

@@ -23,8 +23,10 @@ import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
 import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.CreateAggregation
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.DoorOfCreate
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MolecularAssemblerMultiblockMachine
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLMaterials
+import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
 import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Function
@@ -164,6 +166,9 @@ object MultiBlockModify {
         }
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             DoorOfCreate(blockEntity)
+        }
+        AdditionalMultiBlockMachine.MOLECULAR_ASSEMBLER_MATRIX.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            MolecularAssemblerMultiblockMachine(blockEntity)
         }
     }
 }

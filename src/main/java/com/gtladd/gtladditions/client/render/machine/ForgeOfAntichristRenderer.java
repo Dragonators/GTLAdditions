@@ -25,7 +25,7 @@ public class ForgeOfAntichristRenderer extends PartWorkableCasingMachineRenderer
 
     private static final ResourceLocation STAR_LAYER_0 = GTLAdditions.id("obj/star_layer_0");
     private static final ResourceLocation STAR_LAYER_2 = GTLAdditions.id("obj/star_layer_2");
-    private static final ResourceLocation HALO_TEX = GTLAdditions.id("textures/block/obj/halo_tex.png");
+    private static final ResourceLocation HALO_TEX = GTLAdditions.id("textures/block/obj/halo_tex2.png");
 
     @OnlyIn(Dist.CLIENT)
     private static final ConcurrentHashMap<Long, RenderCache> CACHE_MAP = new ConcurrentHashMap<>();
@@ -52,7 +52,7 @@ public class ForgeOfAntichristRenderer extends PartWorkableCasingMachineRenderer
 
             int argb32 = machine.getRGBFromTime();
             float baseRadius = 0.175F * machine.getRadiusMultiplier();
-            float middleRadius = baseRadius * 1.035F;
+            float middleRadius = baseRadius + Math.min(0.0055F, baseRadius * 0.02F);
             float outerRadius = middleRadius * 1.02F;
 
             RenderUtils.drawBeaconToStar(poseStack, buffer, x, y, z, argb32, tick, blockEntity, outerRadius);

@@ -5,28 +5,20 @@ import appeng.api.stacks.AEItemKey
 import appeng.api.stacks.GenericStack
 import appeng.crafting.pattern.AEProcessingPattern
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
-import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gregtechceu.gtceu.utils.GTUtil
 import com.gtladd.gtladditions.common.record.ParallelData
-import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import it.unimi.dsi.fastutil.ints.IntList
 import it.unimi.dsi.fastutil.longs.LongList
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap
-import net.minecraft.ChatFormatting
-import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.DecimalFormat
@@ -283,28 +275,6 @@ object CommonUtils {
             FormattingUtil.formatNumbers(value)
         else
             SCIENTIFIC2_FORMAT.format(value).lowercase().replace("e", "e+")
-
-    @OnlyIn(Dist.CLIENT)
-    @JvmStatic
-    fun appendIngotConversionTooltip(fluidStack: FluidStack, tooltips: MutableList<Component?>, amount: Long) {
-        ChemicalHelper.getMaterial(fluidStack.fluid)?.let { material ->
-            if (!material.hasProperty(PropertyKey.INGOT)) return
-            if (!GTUtil.isShiftDown()) return
-            if (amount < 144L) return
-
-            val ingots = amount / 144L
-            val remainder = amount % 144L
-            var fluidAmount = String.format(" %,d mB = %,d * %d mB", amount, ingots, 144)
-            if (remainder != 0L) {
-                fluidAmount = fluidAmount + String.format(" + %d mB", remainder)
-            }
-
-            tooltips.add(
-                Component.translatable("gtceu.gui.fluid_amount").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(fluidAmount))
-            )
-        }
-    }
 
     // ===================================================
     // Pattern Helper

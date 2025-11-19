@@ -10,7 +10,6 @@
     "ae2.FluidIngredientConverterMixin",
     "ae2.ItemPickupStrategyMixin",
     "gtceu.api.capability.CWURecipeCapabilityMixin",
-    "gtceu.api.capability.FluidRecipeCapabilityMixin",
     "gtceu.api.machine.IFancyUIMachineMixin",
     "gtceu.api.misc.EnergyContainerListAccessor",
     "gtceu.api.recipe.GTRecipeLookupMixin",
@@ -38,10 +37,12 @@
     "gtlcore.machine.part.AutoConfigurationMaintenanceHatchPartMachineMixin",
     "gtlcore.machine.part.MEPatternBufferPartMachineMixin",
     "gtlcore.machine.part.WirelessOpticalDataHatchMachineMixin",
+    "gtlcore.machine.trait.MECraftHandlerMixin",
     "gtlcore.machine.trait.MultipleRecipesLogicMixin",
     "gtmtings.WirelessEnergyManagerMixin",
     "gtmtings.WirelessEnergyMonitorMixin",
-    "gtmtings.WirelessOpticalComputationHatchMachineMixin"
+    "gtmtings.WirelessOpticalComputationHatchMachineMixin",
+    "ldlib.FluidStackMixin"
   ],
   "client": [
     "gtlcore.gui.PatternPreviewWidgetMixin"

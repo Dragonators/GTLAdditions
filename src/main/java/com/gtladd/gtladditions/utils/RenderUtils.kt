@@ -112,7 +112,7 @@ object RenderUtils {
     fun renderHaloLayer(
         poseStack: PoseStack, buffer: MultiBufferSource, size: Float,
         rotationAxis: Vector3f, angle: Float,
-        haloTexture: ResourceLocation, modelLocation: ResourceLocation?
+        haloTexture: ResourceLocation, modelLocation: ResourceLocation
     ) {
         poseStack.pushPose()
         poseStack.scale(size, size, size)

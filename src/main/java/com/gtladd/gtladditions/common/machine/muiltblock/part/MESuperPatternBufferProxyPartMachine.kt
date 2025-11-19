@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.part
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.utils.ResearchManager
 import net.minecraft.core.BlockPos
@@ -48,5 +49,13 @@ class MESuperPatternBufferProxyPartMachine(holder: IMachineBlockEntity) : MEPatt
         }
 
         return InteractionResult.PASS
+    }
+
+    override fun setBuffer(pos: BlockPos?) {
+        if (pos != null && level != null) {
+            val machine = getMachine(level!!, pos)
+            if (machine !is MESuperPatternBufferPartMachine) return
+        }
+        super.setBuffer(pos)
     }
 }

@@ -9,6 +9,7 @@ import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineB
 import org.gtlcore.gtlcore.config.ConfigHolder
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 object ThreadMultiplierStrategy {
@@ -44,7 +45,7 @@ object ThreadMultiplierStrategy {
 
     @JvmStatic
     fun getAdditionalMultiplier(definition: MultiblockMachineDefinition?): Int {
-        val result = (1 / ConfigHolder.INSTANCE.durationMultiplier) * BLOCK_MULTIPLIER_MAP.getOrDefault(definition, 2)
+        val result = min((1 / ConfigHolder.INSTANCE.durationMultiplier), 4096.0) * BLOCK_MULTIPLIER_MAP.getOrDefault(definition, 2)
         return result.roundToInt()
     }
 }

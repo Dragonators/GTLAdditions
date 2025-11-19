@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern
+import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo
 import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic
@@ -50,6 +51,7 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.SUPRACHRONAL_MAGNETIC_
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_CASING
 import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
+import com.gtladd.gtladditions.common.machine.GTLAddMachines.WIRELESS_LASER_INPUT_HATCH_67108864A
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.Wireless_Energy_Network_OUTPUT_Terminal
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.*
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.HelioFusionExoticizer
@@ -67,13 +69,16 @@ import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.GENESIS_ENGINE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.INTER_STELLAR
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.MATTER_EXOTIC
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.MOLECULAR_DECONSTRUCTION
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.NIGHTMARE_CRAFTING
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.PHOTON_MATRIX_ETCH
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.STAR_CORE_STRIPPER
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.STELLAR_LGNITION
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.TECTONIC_FAULT_GENERATOR
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.VOIDFLUX_REACTION
 import com.hepdd.gtmthings.data.CustomMachines
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.ChatFormatting
+import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.world.level.block.Block
@@ -84,11 +89,14 @@ import org.gtlcore.gtlcore.common.block.BlockMap
 import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
 import org.gtlcore.gtlcore.common.data.GTLBlocks.*
 import org.gtlcore.gtlcore.common.data.GTLMachines
+import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.ME_EXTENDED_EXPORT_BUFFER
+import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.STOCKING_IMPORT_BUS_ME
 import org.gtlcore.gtlcore.common.data.GTLMaterials.Mithril
 import org.gtlcore.gtlcore.common.data.GTLMaterials.QuantumChromodynamicallyConfinedMatter
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getBlock
+import org.gtlcore.gtlcore.utils.StructureSlicer
 import java.util.function.Function
 import kotlin.math.pow
 
@@ -128,6 +136,7 @@ object MultiBlockMachine {
     val HELIOTHERMAL_PLASMA_FABRICATOR: MultiblockMachineDefinition
     val HEART_OF_THE_UNIVERSE: MultiblockMachineDefinition
     val SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY: MultiblockMachineDefinition
+    val DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY: MultiblockMachineDefinition
     val MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER: MultiblockMachineDefinition?
 
     init {
@@ -1037,26 +1046,23 @@ object MultiBlockMachine {
 
         TAIXU_TURBID_ARRAY = REGISTRATE.multiblock("taixu_turbid_array",
             Function { TaixuTurbidArray(it!!) })
-            .rotationState(RotationState.Y_AXIS)
-            .tooltips(
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.0"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.1"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.12"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.2"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.3"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.13"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.4"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.5"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.6"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.8"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.9"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.14"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.15"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.7"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.11"),
-                Component.translatable("gtceu.machine.taixuturbidarray.tooltip.10")
-            )
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.0"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.1"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.12"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.2"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.3"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.13"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.4"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.5"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.6"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.8"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.9"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.14"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.7"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.11"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.10"))
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .rotationState(RotationState.Y_AXIS)
             .recipeType(CHAOS_WEAVE)
             .recipeModifier { machine: MetaMachine?, recipe: GTRecipe?, params: OCParams?, result: OCResult? ->
                 TaixuTurbidArray.recipeModifier(machine!!, recipe!!)
@@ -1089,6 +1095,58 @@ object MultiBlockMachine {
                     .where("D", Predicates.blocks(ChemicalHelper.getBlock(frameGt, Mithril)))
                     .where("O", Predicates.heatingCoils())
                     .build()
+            }
+            .shapeInfos { definition ->
+                val results = ObjectArrayList<MultiblockShapeInfo>()
+                val shapeInfo = MultiblockShapeInfo.builder()
+                    .where('~', definition, Direction.DOWN)
+                    .where('J', getBlock("gtlcore:dimension_injection_casing"))
+                    .where('N', getBlock("kubejs:eternity_coil_block"))
+                    .where('G', getBlock("kubejs:hollow_casing"))
+                    .where('O', getBlock("gtceu:fusion_glass"))
+                    .where('B', getBlock("gtlcore:dimensionally_transcendent_casing"))
+                    .where('R', STOCKING_IMPORT_BUS_ME, Direction.DOWN)
+                    .where('I', getBlock("gtlcore:sps_casing"))
+                    .where('K', getBlock("kubejs:containment_field_generator"))
+                    .where('L', getBlock("gtlcore:ultimate_stellar_containment_casing"))
+                    .where('M', getBlock("gtlcore:fusion_casing_mk5"))
+                    .where('S', ME_EXTENDED_EXPORT_BUFFER, Direction.DOWN)
+                    .where('C', getBlock("gtceu:atomic_casing"))
+                    .where('H', getBlock("gtceu:uhv_machine_casing"))
+                    .where('P', WIRELESS_LASER_INPUT_HATCH_67108864A[13], Direction.DOWN)
+                    .where('D', getBlock("gtceu:mithril_frame"))
+                    .where('U', getBlock("kubejs:speeding_pipe"))
+                    .where('V', getBlock("kubejs:dimensional_bridge_casing"))
+                    .where('A', getBlock("gtlcore:iridium_casing"))
+                    .where('F', getBlock("gtceu:naquadah_alloy_frame"))
+                    .where('T', getBlock("kubejs:force_field_glass"))
+                    .where('E', getBlock("gtceu:woods_glass_block"))
+
+                val arrays = arrayOf(
+                    arrayOf("             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "      A      ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             "),
+                    arrayOf("             ", "     AAA     ", "      A      ", "      A      ", "      A      ", "     AAA     ", "      A      ", "      A      ", "      A      ", "      A      ", "     BBB     ", "      A      ", "      A      ", "      A      ", "      A      ", "     AAA     ", "      A      ", "      A      ", "      A      ", "     AAA     ", "             "),
+                    arrayOf("     A A     ", "    CCCCC    ", "     BBB     ", "     BDB     ", "     B B     ", "   BBEEEBB   ", "    A   A    ", "             ", "             ", "     AAA     ", "     FGF     ", "     AAA     ", "             ", "             ", "    A   A    ", "   BBEEEBB   ", "     B B     ", "     BDB     ", "     BBB     ", "    CCCCC    ", "     A A     "),
+                    arrayOf("    HAHAH    ", "   CCCCCCC   ", "    HIJIH    ", "      D      ", "             ", "  B       B  ", "   AEEEEEA   ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "   AEEEEEA   ", "  B       B  ", "             ", "      D      ", "    HIJIH    ", "   CCCCCCC   ", "    HAHAH    "),
+                    arrayOf("   HAKHKAH   ", "  CCCCCCCCC  ", "   HAIJIAH   ", "    AAAAA    ", "     LLL     ", "  B  LLL  B  ", "  AE LLL EA  ", "    AEEEA    ", "    M   M    ", "    M   M    ", "    M   M    ", "    M   M    ", "    M   M    ", "    AEEEA    ", "  AE LLL EA  ", "  B  LLL  B  ", "     LLL     ", "    AAAAA    ", "   HAIJIAH   ", "  CCCCCCCCC  ", "   HAKHKAH   "),
+                    arrayOf("  AAKHHHKAA  ", " ACCCCCCCCCA ", "  BIIIJIIIB  ", "  B ANNNA B  ", "  B LLLLL B  ", " AE L   L EA ", "   ELLLLLE   ", "    E O E    ", "     ADA     ", "  A       A  ", " BF   O   FB ", "  A       A  ", "     ADA     ", "    E O E    ", "   ELLLLLE   ", " AE L   L EA ", "  B LLLLL B  ", "  B ANNNA B  ", "  BIIIJIIIB  ", " ACCCCCCCCCA ", "  AAKHHHKAA  "),
+                    arrayOf("   PPH~HRS   ", " ACCCCCCCCCA ", " ABJJJJJJJBA ", " ADDANKNADDA ", " A  LLTLL  A ", " AE L T L EA ", " A ELLTLLE A ", " A  EOKOE  A ", " A   DUD   A ", " AA   V   AA ", "ABG  OUO  GBA", " AA   V   AA ", " A   DUD   A ", " A  EOKOE  A ", " A ELLTLLE A ", " AE L T L EA ", " A  LLTLL  A ", " ADDANKNADDA ", " ABJJJJJJJBA ", " ACCCCCCCCCA ", "   HHHVHHH   "),
+                    arrayOf("  AAKHHHKAA  ", " ACCCCCCCCCA ", "  BIIIJIIIB  ", "  B ANNNA B  ", "  B LLLLL B  ", " AE L   L EA ", "   ELLLLLE   ", "    E O E    ", "     ADA     ", "  A       A  ", " BF   O   FB ", "  A       A  ", "     ADA     ", "    E O E    ", "   ELLLLLE   ", " AE L   L EA ", "  B LLLLL B  ", "  B ANNNA B  ", "  BIIIJIIIB  ", " ACCCCCCCCCA ", "  AAKHHHKAA  "),
+                    arrayOf("   HAKHKAH   ", "  CCCCCCCCC  ", "   HAIJIAH   ", "    AAAAA    ", "     LLL     ", "  B  LLL  B  ", "  AE LLL EA  ", "    AEEEA    ", "    M   M    ", "    M   M    ", "    M   M    ", "    M   M    ", "    M   M    ", "    AEEEA    ", "  AE LLL EA  ", "  B  LLL  B  ", "     LLL     ", "    AAAAA    ", "   HAIJIAH   ", "  CCCCCCCCC  ", "   HAKHKAH   "),
+                    arrayOf("    HAHAH    ", "   CCCCCCC   ", "    HIJIH    ", "      D      ", "             ", "  B       B  ", "   AEEEEEA   ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "   AEEEEEA   ", "  B       B  ", "             ", "      D      ", "    HIJIH    ", "   CCCCCCC   ", "    HAHAH    "),
+                    arrayOf("     A A     ", "    CCCCC    ", "     BBB     ", "     BDB     ", "     B B     ", "   BBEEEBB   ", "    A   A    ", "             ", "             ", "     AAA     ", "     FGF     ", "     AAA     ", "             ", "             ", "    A   A    ", "   BBEEEBB   ", "     B B     ", "     BDB     ", "     BBB     ", "    CCCCC    ", "     A A     "),
+                    arrayOf("             ", "     AAA     ", "      A      ", "      A      ", "      A      ", "     AAA     ", "      A      ", "      A      ", "      A      ", "      A      ", "     BBB     ", "      A      ", "      A      ", "      A      ", "      A      ", "     AAA     ", "      A      ", "      A      ", "      A      ", "     AAA     ", "             "),
+                    arrayOf("             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "      A      ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ")
+                )
+
+                StructureSlicer.sliceAndInsert(arrays, 10, 12, 11, 1, 16).forEach { it ->
+                    var copy = shapeInfo.shallowCopy()
+                    it.forEach { strings ->
+                        copy = copy.aisle(*strings)
+                    }
+                    val result = copy.build()
+                    results.add(result)
+                }
+                results
             }
             .workableCasingRenderer(
                 GTCEu.id("block/casings/voltage/uhv/side"),
@@ -1542,6 +1600,49 @@ object MultiBlockMachine {
             }
             .renderer { SubspaceCorridorHubIndustrialArrayRenderer() }
             .hasTESR(true)
+            .register()
+
+        DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY = REGISTRATE.multiblock("dimension_focus_infinity_crafting_array",
+            Function { DimensionFocusInfinityCraftingArray(it!!) })
+            .nonYAxisRotation()
+            .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
+            .tooltipTextLaser()
+            .tooltipTextMultiRecipes()
+            .tooltipTextRecipeTypes(NIGHTMARE_CRAFTING)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(NIGHTMARE_CRAFTING)
+            .appearanceBlock(TEMPORAL_ANCHOR_FIELD_CASING)
+            .pattern { definition: MultiblockMachineDefinition? ->
+                MultiBlockStructureD.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY!!
+                    .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
+                    .where("N", Predicates.blocks(getBlock("gtceu:assembly_line_grating")))
+                    .where("O", Predicates.blocks(getBlock("gtceu:assembly_line_casing")))
+                    .where("I", Predicates.blocks(getBlock("gtceu:trinium_frame")))
+                    .where("L", Predicates.blocks(getBlock("gtlcore:graviton_field_constraint_casing")))
+                    .where("B", Predicates.blocks(getBlock("gtlcore:iridium_casing")))
+                    .where("F", Predicates.blocks(getBlock("gtceu:high_power_casing")))
+                    .where("H", Predicates.blocks(getBlock("gtceu:superconducting_coil")))
+                    .where("E", Predicates.blocks(getBlock("gtlcore:advanced_assembly_line_unit")))
+                    .where("D", Predicates.blocks(getBlock("gtladditions:temporal_anchor_field_casing")))
+                    .where("S", Predicates.blocks(getBlock("gtladditions:temporal_anchor_field_casing"))
+                        .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
+                        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS)))
+                    .where("J", Predicates.blocks(getBlock("gtlcore:molecular_casing")))
+                    .where("Q", Predicates.blocks(getBlock("gtlcore:hyper_mechanical_casing")))
+                    .where("P", Predicates.blocks(getBlock("gtceu:naquadah_alloy_frame")))
+                    .where("C", Predicates.blocks(getBlock("gtceu:fusion_glass")))
+                    .where("K", Predicates.blocks(getBlock("kubejs:containment_field_generator")))
+                    .where("M", Predicates.blocks(getBlock("kubejs:annihilate_core")))
+                    .where("A", Predicates.blocks(getBlock("gtlcore:dimensionally_transcendent_casing")))
+                    .where("G", Predicates.blocks(getBlock("gtceu:advanced_computer_casing")))
+                    .where("R", Predicates.blocks(getBlock("gtlcore:rhenium_reinforced_energy_glass")))
+                    .build()
+            }
+            .workableCasingRenderer(
+                GTLCore.id("block/casings/sps_casing"),
+                GTCEu.id("block/multiblock/research_station")
+            )
             .register()
 
         MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER = if (ConfigHolder.INSTANCE.enableSkyBlokeMode)

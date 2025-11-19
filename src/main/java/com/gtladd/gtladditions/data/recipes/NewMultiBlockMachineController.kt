@@ -19,6 +19,7 @@ import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
 import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
+import com.gtladd.gtladditions.common.machine.GTLAddMachines.SUPER_PARALLEL_HATCH
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
@@ -34,6 +35,7 @@ import org.gtlcore.gtlcore.common.data.GTLItems.*
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine.ADVANCED_VACUUM_DRYING_FURNACE
+import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine.MOLECULAR_ASSEMBLER_MATRIX
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.*
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.SLAUGHTERHOUSE
 import org.gtlcore.gtlcore.common.data.machines.GCyMMachines.*
@@ -808,6 +810,31 @@ object NewMultiBlockMachineController {
                 b !!.researchStack(SUPRACHRONAL_ASSEMBLY_LINE.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024, 2048000)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("dimension_focus_infinity_crafting_array"))
+            .inputItems(MOLECULAR_ASSEMBLER_MATRIX, 64)
+            .inputItems(MOLECULAR_ASSEMBLER_MATRIX, 64)
+            .inputItems(MOLECULAR_ASSEMBLER_MATRIX, 64)
+            .inputItems(MOLECULAR_ASSEMBLER_MATRIX, 64)
+            .inputItems(SUPRACHRONAL_ASSEMBLY_LINE, 64)
+            .inputItems(frameGt, QuantumChromodynamicallyConfinedMatter, 48)
+            .inputItems(plateDouble, TranscendentMetal, 32)
+            .inputItems(plateDouble, Infinity, 32)
+            .inputItems(plateDouble, PROTO_HALKONITE, 32)
+            .inputItems(SUPER_PARALLEL_HATCH)
+            .inputItems(CREATE_COMPUTATION, 4)
+            .inputItems(CustomTags.MAX_CIRCUITS, 48)
+            .inputItems(getItemStack("kubejs:nuclear_star", 64))
+            .inputFluids(Magmatter.getFluid(57600))
+            .inputFluids(Cosmic.getFluid(200000))
+            .inputFluids(WhiteDwarfMatter.getFluid(1600000))
+            .outputItems(MultiBlockMachine.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY)
+            .EUt(VA[MAX].toLong()).duration(4000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(MOLECULAR_ASSEMBLER_MATRIX.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
             .save(provider)
         if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.buildController(provider)

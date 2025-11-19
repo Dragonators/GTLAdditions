@@ -19,6 +19,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import kotlin.math.max
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
     GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder), IAstralArrayInteractionMachine {
@@ -27,18 +28,21 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
     private var astralArrayCount: Int = 0
 
     @field:Persisted
-    private var parallelMultiplier: Int = 1
+    private var parallelAmount: Int = 1
 
     override fun getFieldHolder(): ManagedFieldHolder {
         return MANAGED_FIELD_HOLDER
     }
 
-    override fun getMaxParallel(): Int {
-        return (1536 + max(this.coilType.coilTemperature - 21600, 0) / 1200 * 300) * parallelMultiplier
-    }
+    override fun getMaxParallel(): Int = parallelAmount
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return MacroAtomicResonantFragmentStripperLogic(this)
+    }
+
+    override fun onStructureFormed() {
+        super.onStructureFormed()
+        parallelAmount = calculateParallelAmount(astralArrayCount, this.coilType.coilTemperature)
     }
 
     override fun addDisplayText(textList: MutableList<Component?>) {
@@ -74,7 +78,7 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
         val actualIncrease = minOf(amount, MAX_ASTRAL_ARRAY_COUNT - astralArrayCount)
         if (actualIncrease > 0) {
             astralArrayCount += actualIncrease
-            parallelMultiplier = calculateParallelMultiplier(astralArrayCount)
+            parallelAmount = calculateParallelAmount(astralArrayCount, this.coilType.coilTemperature)
         }
         return actualIncrease
     }
@@ -84,7 +88,7 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
     }
 
     companion object{
-        const val MAX_ASTRAL_ARRAY_COUNT = 66
+        const val MAX_ASTRAL_ARRAY_COUNT = 192
 
         val FRAGMENT_STRIPPER = Predicate { machine: IRecipeLogicMachine? ->
             return@Predicate if (machine is MacroAtomicResonantFragmentStripper) machine.coilType.coilTemperature >= 21600 else false
@@ -97,13 +101,14 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
             )
 
         /**
-         * Formula: parallelMultiplier = 2^(6 + 10*((astralArrayCount - 1)/63)^2)
+         * Formula: parallelMultiplier = 2^(6 + 10*((astralArrayCount - 1)/184)^2)
          */
-        fun calculateParallelMultiplier(count: Int): Int {
+        fun calculateParallelAmount(count: Int, temprature: Int): Int {
             if (count == 0) return 1
-            val normalized = (count - 1) / 63.0
+            val normalized = (count - 1) / 184.0
             val exponent = 6 + 10 * normalized * normalized
-            return 2.0.pow(exponent).toInt()
+            val base = (1536 + max(temprature - 21600, 0) / 1200 * 300)
+            return (base * 2.0.pow(exponent)).roundToInt()
         }
 
         class MacroAtomicResonantFragmentStripperLogic(parallel: MacroAtomicResonantFragmentStripper?) :

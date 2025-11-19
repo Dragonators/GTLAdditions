@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 public class HeartOfTheUniverseRenderer extends WorkableCasingMachineRenderer {
 
     private static final ResourceLocation SPACE_MODEL = GTLAdditions.id("obj/heart_of_universe");
-    private static final ResourceLocation HALO_TEX = GTLAdditions.id("textures/block/obj/halo_tex.png");
+    private static final ResourceLocation HALO_TEX = GTLAdditions.id("textures/block/obj/halo_tex1.png");
 
     public HeartOfTheUniverseRenderer() {
         super(GTCEu.id("block/casings/hpca/high_power_casing"), GTCEu.id("block/multiblock/cosmos_simulation"));
@@ -59,14 +59,14 @@ public class HeartOfTheUniverseRenderer extends WorkableCasingMachineRenderer {
 
         var rotation = RenderUtils.createRandomRotation(RandomSource.create(randomSeed), 0.5F, 2.0F);
 
+        RenderUtils.renderHaloLayer(poseStack, buffer, 0.45F * 1.02F,
+                rotation.axis, rotation.getAngle(tick),
+                HALO_TEX, SPACE_MODEL);
+
         RenderUtils.renderStarLayer(poseStack, buffer, SPACE_MODEL, 0.45F,
                 rotation.axis, rotation.getAngle(tick),
                 FastColor.ARGB32.color(255, 255, 255, 255),
                 RenderType.solid());
-
-        RenderUtils.renderHaloLayer(poseStack, buffer, 0.45F * 1.02F,
-                rotation.axis, rotation.getAngle(tick),
-                HALO_TEX, SPACE_MODEL);
 
         poseStack.popPose();
     }

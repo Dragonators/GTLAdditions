@@ -47,6 +47,7 @@ public class GTLAdditionsGTAddon implements IGTAddon {
         VoidfluxReaction.init(provider);
         StellarLgnition.init(provider);
         ChaosWeave.init(provider);
+        NightmareCrafting.init(provider);
         GenesisEngine.init(provider);
         HeliofusionExoticizer.init(provider);
         InterStellar.init(provider);

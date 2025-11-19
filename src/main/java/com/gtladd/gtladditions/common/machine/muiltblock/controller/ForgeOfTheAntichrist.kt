@@ -15,6 +15,10 @@ import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecip
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOFLARE_POWER_FORGE
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOFLUIX_MELTING_CORE
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOFUSION_EXOTICIZER
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOTHERMAL_PLASMA_FABRICATOR
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.utils.AntichristPosHelper
 import com.gtladd.gtladditions.utils.StarGradient
@@ -28,6 +32,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
@@ -36,6 +41,7 @@ import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.utils.Registries.getItem
+import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
 import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
@@ -47,7 +53,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         GTLAddRecipesTypes.FORGE_OF_THE_ANTICHRIST,
         *args
     ), IModularMachineHost<ForgeOfTheAntichrist> {
-    private val modules: MutableSet<IModularMachineModule<ForgeOfTheAntichrist, *>> =
+    private val modules: Set<IModularMachineModule<ForgeOfTheAntichrist, *>> =
         ReferenceOpenHashSet<IModularMachineModule<ForgeOfTheAntichrist, *>>()
 
     @field:Persisted
@@ -119,6 +125,43 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
     override fun getModuleSet(): Set<IModularMachineModule<ForgeOfTheAntichrist, *>> = modules
     override fun getModuleScanPositions(): Array<out BlockPos> = AntichristPosHelper.calculateModulePositions(pos, frontFacing)
+
+    override fun getModulesForRendering(): List<ModuleRenderInfo> {
+        return listOf(
+            ModuleRenderInfo(
+                BlockPos(-13, 14, 0),
+                Direction.EAST,
+                Direction.UP,
+                Direction.UP,
+                Direction.NORTH,
+                HELIOTHERMAL_PLASMA_FABRICATOR
+            ),
+            ModuleRenderInfo(
+                BlockPos(-13, 0, -14),
+                Direction.EAST,
+                Direction.UP,
+                Direction.NORTH,
+                Direction.NORTH,
+                HELIOFLARE_POWER_FORGE
+            ),
+            ModuleRenderInfo(
+                BlockPos(-13, -14, 0),
+                Direction.EAST,
+                Direction.UP,
+                Direction.DOWN,
+                Direction.NORTH,
+                HELIOFUSION_EXOTICIZER
+            ),
+            ModuleRenderInfo(
+                BlockPos(-13, 0, 14),
+                Direction.EAST,
+                Direction.UP,
+                Direction.SOUTH,
+                Direction.NORTH,
+                HELIOFLUIX_MELTING_CORE
+            )
+        )
+    }
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()

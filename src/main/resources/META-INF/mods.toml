@@ -26,6 +26,6 @@ description = "添加了一些新机器和简化配方，结构与材质由疏�
 [[dependencies.${mod_id}]]
 modId = "gtlcore"
 mandatory = true
-versionRange = "[1.2.2.5,)"
+versionRange = "[1.2.2.6,)"
 ordering = "AFTER"
 side = "BOTH"

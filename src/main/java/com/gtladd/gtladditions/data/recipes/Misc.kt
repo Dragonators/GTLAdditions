@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuild
 import com.gregtechceu.gtceu.common.data.GCyMRecipeTypes.ALLOY_BLAST_RECIPES
 import com.gregtechceu.gtceu.common.data.GTItems.TOOL_DATA_MODULE
 import com.gregtechceu.gtceu.common.data.GTMaterials
+import com.gregtechceu.gtceu.common.data.GTMaterials.Neutronium
 import com.gregtechceu.gtceu.common.data.GTMaterials.Plutonium241
 import com.gregtechceu.gtceu.common.data.GTMaterials.Praseodymium
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.*
@@ -163,6 +164,13 @@ object Misc {
             }, 64)
             .EUt(VA[MAX].toLong())
             .duration(1200)
+            .save(provider)
+        NEUTRON_COMPRESSOR_RECIPES.recipeBuilder(id("neutronium_credit"))
+            .inputItems(block, CosmicNeutronium, 64)
+            .inputItems(block, Neutronium, 64)
+            .outputItems(getItemStack("gtceu:neutronium_credit", 64))
+            .EUt(VA[MAX].toLong())
+            .duration(600)
             .save(provider)
         initAdditionMaterial(provider)
     }
