@@ -10,7 +10,8 @@ import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV
-import com.gtladd.gtladditions.utils.IndustrialArrayPosHelper
+import com.gtladd.gtladditions.utils.LightHunterSpaceStationPosHelper
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
@@ -22,13 +23,14 @@ import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
 
-class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, vararg args: Any?) :
-    WorkableElectricMultiblockMachine(holder, *args), IModularMachineHost<SubspaceCorridorHubIndustrialArray>,
+class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
+    WorkableElectricMultiblockMachine(holder, *args), IModularMachineHost<LightHunterSpaceStation>,
     IAstralArrayInteractionMachine, IMachineLife {
-    private val modules: MutableSet<IModularMachineModule<SubspaceCorridorHubIndustrialArray, *>> =
-        ReferenceOpenHashSet<IModularMachineModule<SubspaceCorridorHubIndustrialArray, *>>()
+    private val modules: MutableSet<IModularMachineModule<LightHunterSpaceStation, *>> =
+        ReferenceOpenHashSet<IModularMachineModule<LightHunterSpaceStation, *>>()
 
     @field:Persisted
+    @field:DescSynced
     private var astralArrayCount: Int = 0
     private var mam = 0
 
@@ -56,7 +58,7 @@ class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, vararg arg
                 Component.translatable("tooltip.gtladditions.industrial_array_max").string
             ) else Component.translatable(
                 "tooltip.gtladditions.astral_array_count",
-                Component.literal("$astralArrayCount / 512").withStyle(ChatFormatting.GOLD)
+                Component.literal("$astralArrayCount / 64").withStyle(ChatFormatting.GOLD)
             )
         )
         textList.add(Component.translatable("tooltip.gtlcore.installed_module_count", getMAM()))
@@ -66,107 +68,171 @@ class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, vararg arg
     // Module connection
     // ========================================
 
-    override fun getModuleSet(): Set<IModularMachineModule<SubspaceCorridorHubIndustrialArray, *>> = modules
+    override fun getModuleSet(): Set<IModularMachineModule<LightHunterSpaceStation, *>> = modules
 
-    override fun getModuleScanPositions(): Array<out BlockPos?>? = IndustrialArrayPosHelper.calculateModulePositions(pos, frontFacing)
+    override fun getModuleScanPositions(): Array<out BlockPos> = LightHunterSpaceStationPosHelper.calculateModulePositions(pos, frontFacing)
 
-    override fun getModulesForRendering(): List<ModuleRenderInfo?> {
+    override fun getModulesForRendering(): List<ModuleRenderInfo> {
         return listOf(
             ModuleRenderInfo(
-                BlockPos(-1, -100, -29),
+                BlockPos(-41, 0, -9),
                 Direction.EAST,
                 Direction.UP,
-                Direction.EAST,
+                Direction.SOUTH,
                 Direction.UP,
                 NEXUS_SATELLITE_FACTORY_MKI
             ),
             ModuleRenderInfo(
-                BlockPos(-2, -100, -31),
+                BlockPos(-49, 0, -9),
                 Direction.EAST,
                 Direction.UP,
+                Direction.SOUTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKI
+            ),
+            ModuleRenderInfo(
+                BlockPos(-57, 0, -9),
                 Direction.EAST,
+                Direction.UP,
+                Direction.SOUTH,
                 Direction.UP,
                 NEXUS_SATELLITE_FACTORY_MKII
             ),
             ModuleRenderInfo(
-                BlockPos(-4, -100, -37),
+                BlockPos(-65, 0, -9),
                 Direction.EAST,
                 Direction.UP,
-                Direction.EAST,
+                Direction.SOUTH,
                 Direction.UP,
-                NEXUS_SATELLITE_FACTORY_MKIII
+                NEXUS_SATELLITE_FACTORY_MKI
             ),
             ModuleRenderInfo(
-                BlockPos(-12, -100, -41),
+                BlockPos(-73, 0, -9),
                 Direction.EAST,
                 Direction.UP,
-                Direction.WEST,
+                Direction.SOUTH,
                 Direction.UP,
                 NEXUS_SATELLITE_FACTORY_MKIV
             ),
             ModuleRenderInfo(
-                BlockPos(-10, -100, -37),
+                BlockPos(-81, 0, -9),
                 Direction.EAST,
                 Direction.UP,
-                Direction.WEST,
-                Direction.UP,
-                NEXUS_SATELLITE_FACTORY_MKIII
-            ),
-            ModuleRenderInfo(
-                BlockPos(-9, -100, -33),
-                Direction.EAST,
-                Direction.UP,
-                Direction.WEST,
-                Direction.UP,
-                NEXUS_SATELLITE_FACTORY_MKI
-            ),
-            ModuleRenderInfo(
-                BlockPos(-8, -100, 31),
-                Direction.EAST,
-                Direction.UP,
-                Direction.WEST,
+                Direction.SOUTH,
                 Direction.UP,
                 NEXUS_SATELLITE_FACTORY_MKII
             ),
             ModuleRenderInfo(
-                BlockPos(-10, -100, 37),
+                BlockPos(-89, 0, -9),
                 Direction.EAST,
                 Direction.UP,
-                Direction.WEST,
+                Direction.SOUTH,
                 Direction.UP,
-                NEXUS_SATELLITE_FACTORY_MKIII
+                NEXUS_SATELLITE_FACTORY_MKI
             ),
             ModuleRenderInfo(
-                BlockPos(-12, -100, 41),
+                BlockPos(-97, 0, -9),
                 Direction.EAST,
                 Direction.UP,
-                Direction.WEST,
+                Direction.SOUTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKI
+            ),
+            ModuleRenderInfo(
+                BlockPos(-105, 0, -9),
+                Direction.EAST,
+                Direction.UP,
+                Direction.SOUTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKII
+            ),
+            ModuleRenderInfo(
+                BlockPos(-113, 0, -9),
+                Direction.EAST,
+                Direction.UP,
+                Direction.SOUTH,
                 Direction.UP,
                 NEXUS_SATELLITE_FACTORY_MKIV
             ),
             ModuleRenderInfo(
-                BlockPos(-7, -100, 43),
+                BlockPos(-113, 0, 9),
                 Direction.EAST,
                 Direction.UP,
-                Direction.EAST,
+                Direction.NORTH,
                 Direction.UP,
-                NEXUS_SATELLITE_FACTORY_MKIII
+                NEXUS_SATELLITE_FACTORY_MKII
             ),
             ModuleRenderInfo(
-                BlockPos(-4, -100, 37),
+                BlockPos(-105, 0, 9),
                 Direction.EAST,
                 Direction.UP,
+                Direction.NORTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKIV
+            ),
+            ModuleRenderInfo(
+                BlockPos(-97, 0, 9),
                 Direction.EAST,
+                Direction.UP,
+                Direction.NORTH,
                 Direction.UP,
                 NEXUS_SATELLITE_FACTORY_MKI
             ),
             ModuleRenderInfo(
-                BlockPos(-1, -100, 29),
+                BlockPos(-89, 0, 9),
                 Direction.EAST,
                 Direction.UP,
+                Direction.NORTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKIV
+            ),
+            ModuleRenderInfo(
+                BlockPos(-81, 0, 9),
                 Direction.EAST,
+                Direction.UP,
+                Direction.NORTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKIII
+            ),
+            ModuleRenderInfo(
+                BlockPos(-73, 0, 9),
+                Direction.EAST,
+                Direction.UP,
+                Direction.NORTH,
                 Direction.UP,
                 NEXUS_SATELLITE_FACTORY_MKII
+            ),
+            ModuleRenderInfo(
+                BlockPos(-65, 0, 9),
+                Direction.EAST,
+                Direction.UP,
+                Direction.NORTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKIV
+            ),
+            ModuleRenderInfo(
+                BlockPos(-57, 0, 9),
+                Direction.EAST,
+                Direction.UP,
+                Direction.NORTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKIII
+            ),
+            ModuleRenderInfo(
+                BlockPos(-49, 0, 9),
+                Direction.EAST,
+                Direction.UP,
+                Direction.NORTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKI
+            ),
+            ModuleRenderInfo(
+                BlockPos(-41, 0, 9),
+                Direction.EAST,
+                Direction.UP,
+                Direction.NORTH,
+                Direction.UP,
+                NEXUS_SATELLITE_FACTORY_MKIII
             )
         )
     }
@@ -189,9 +255,9 @@ class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, vararg arg
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     companion object {
-        private const val MAX_ASTRAL_ARRAY_COUNT = 512
+        private const val MAX_ASTRAL_ARRAY_COUNT = 64
         private val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
-            SubspaceCorridorHubIndustrialArray::class.java,
+            LightHunterSpaceStation::class.java,
             WorkableMultiblockMachine.MANAGED_FIELD_HOLDER
         )
     }

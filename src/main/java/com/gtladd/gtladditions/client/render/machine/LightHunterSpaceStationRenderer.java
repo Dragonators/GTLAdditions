@@ -1,19 +1,13 @@
 package com.gtladd.gtladditions.client.render.machine;
 
-import org.gtlcore.gtlcore.GTLCore;
 import org.gtlcore.gtlcore.client.ClientUtil;
-import org.gtlcore.gtlcore.client.renderer.RenderBufferHelper;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.client.renderer.GTRenderTypes;
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer;
 
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
@@ -22,10 +16,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.ModelData;
 
 import com.gtladd.gtladditions.GTLAdditions;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.SubspaceCorridorHubIndustrialArray;
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.LightHunterSpaceStation;
 import com.gtladd.gtladditions.common.record.CircularMotionParams;
 import com.gtladd.gtladditions.common.record.RotationParams;
 import com.gtladd.gtladditions.utils.RenderUtils;
@@ -40,10 +33,17 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class SubspaceCorridorHubIndustrialArrayRenderer extends WorkableCasingMachineRenderer {
+public class LightHunterSpaceStationRenderer extends WorkableCasingMachineRenderer {
 
+    private static final double BEAM_OFFSET_X = -174.0;
+    private static final double STAR_OFFSET_X = -206.0;
+    private static final float MIN_RADIUS = 22.0f;
+    private static final float MAX_RADIUS = 53.0f;
+    private static final float MIN_TILT_ANGLE = 70f;
+    private static final float MAX_TILT_ANGLE = 90f;
     private static final ResourceLocation STAR_LAYER = GTLAdditions.id("obj/star_layer_1");
-    private static final ResourceLocation CLIMBER_MODEL = GTLCore.id("obj/climber");
+    private static final ResourceLocation SPACE_MODEL = GTLAdditions.id("obj/heart_of_universe");
+    private static final ResourceLocation HALO_TEX = GTLAdditions.id("textures/block/obj/halo_tex1.png");
     private static final List<ResourceLocation> ORBIT_OBJECTS = List.of(
             GTLAdditions.id("obj/planets/the_nether"),
             GTLAdditions.id("obj/planets/overworld"),
@@ -58,19 +58,11 @@ public class SubspaceCorridorHubIndustrialArrayRenderer extends WorkableCasingMa
             GTLAdditions.id("obj/planets/pluto"),
             GTLAdditions.id("obj/planets/titan"),
             GTLAdditions.id("obj/planets/venus"));
-    private static final int[][] BEAM_CYLINDER_OFFSETS = new int[][] {
-            { -24, -109, -30 },
-            { -120, -109, -83 },
-            { -171, -109, -53 },
-            { -171, -109, 53 },
-            { -121, -109, 83 },
-            { -24, -109, 31 }
-    };
 
     @OnlyIn(Dist.CLIENT)
     private static final ConcurrentHashMap<Long, RenderCache> CACHE_MAP = new ConcurrentHashMap<>();
 
-    public SubspaceCorridorHubIndustrialArrayRenderer() {
+    public LightHunterSpaceStationRenderer() {
         super(GTCEu.id("block/casings/hpca/high_power_casing"), GTCEu.id("block/multiblock/data_bank"));
     }
 
@@ -79,96 +71,37 @@ public class SubspaceCorridorHubIndustrialArrayRenderer extends WorkableCasingMa
     public void render(BlockEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource buffer,
                        int combinedLight, int combinedOverlay) {
         if (blockEntity instanceof IMachineBlockEntity machineBlockEntity &&
-                machineBlockEntity.getMetaMachine() instanceof SubspaceCorridorHubIndustrialArray machine && machine.isActive()) {
-            float tick = machine.getOffsetTimer() + partialTicks;
-            long seed = blockEntity.getBlockPos().asLong();
+                machineBlockEntity.getMetaMachine() instanceof LightHunterSpaceStation machine && machine.isActive()) {
+            final float tick = machine.getOffsetTimer() + partialTicks;
+            final long seed = blockEntity.getBlockPos().asLong();
+            final Direction facing = machine.getFrontFacing();
+            final Vec3 beamEnd = RenderUtils.getRotatedRenderPosition(Direction.EAST, facing, BEAM_OFFSET_X, 0.5, 0.0);
+            final Vec3 starPos = RenderUtils.getRotatedRenderPosition(Direction.EAST, facing, STAR_OFFSET_X, 0.5, 0.0);
 
-            double x = 0.5, y = -94.5, z = 0.5;
-            switch (machine.getFrontFacing()) {
-                case NORTH -> z = 105.5;
-                case SOUTH -> z = -104.5;
-                case WEST -> x = 105.5;
-                case EAST -> x = -104.5;
-            }
-
-            RenderCache cache = getOrCreateCache(seed, machine.getFrontFacing(), new Vec3(x, y, z));
-
-            renderBeamCylinders(poseStack, buffer, machine.getFrontFacing(), tick);
-
-            RenderUtils.drawBeaconToSky(poseStack, buffer, x, y - 36, z, FastColor.ARGB32.color(255, 255, 255, 255), tick, blockEntity, 2.9f);
-
-            renderStar(tick, poseStack, buffer, cache, x, y, z);
-
-            renderOrbit(poseStack, buffer, cache, tick);
+            renderBeam(poseStack, buffer, blockEntity, new Vec3(0.5, 0.5, 0.5), beamEnd, tick);
+            if (machine.unlockParadoxical()) renderBlackHole(poseStack, buffer, facing, starPos, tick, seed);
+            else renderStar(poseStack, buffer, facing, starPos, tick, seed);
+            renderOrbit(poseStack, buffer, facing, starPos, tick, seed);
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void renderBeamCylinders(PoseStack poseStack, MultiBufferSource buffer, Direction facing, float tick) {
-        for (int[] offset : BEAM_CYLINDER_OFFSETS) {
-            poseStack.pushPose();
-
-            double x, z;
-            switch (facing) {
-                case NORTH -> {
-                    x = 0.5 - offset[2];
-                    z = 0.5 - offset[0];
-                }
-                case SOUTH -> {
-                    x = 0.5 + offset[2];
-                    z = 0.5 + offset[0];
-                }
-                case WEST -> {
-                    x = 0.5 - offset[0];
-                    z = 0.5 - offset[2];
-                }
-                default -> {
-                    x = 0.5 + offset[0];
-                    z = 0.5 + offset[2];
-                }
-            }
-            double y = 0.5 + offset[1];
-
-            RenderBufferHelper.renderCylinder(
-                    poseStack,
-                    buffer.getBuffer(GTRenderTypes.getLightRing()),
-                    (float) x, (float) y, (float) z,
-                    0.3F,
-                    400,
-                    20,
-                    255, 255, 255, 255);
-
-            long positionSeed = new BlockPos(offset[0], offset[1], offset[2]).asLong();
-            RandomSource random = RandomSource.create(positionSeed);
-
-            float tickOffset = random.nextFloat() * 320.0f;
-            float offsetTick = tick + tickOffset;
-
-            double climberY = y + 180 + (140 * Math.sin(offsetTick / 160));
-            poseStack.translate(x, climberY, z);
-
-            renderClimber(poseStack, buffer);
-            poseStack.popPose();
-        }
+    private static void renderBeam(PoseStack poseStack, MultiBufferSource buffer, BlockEntity entity, Vec3 from, Vec3 to, float tick) {
+        RenderUtils.drawBeacon(poseStack, buffer, from, to,
+                FastColor.ARGB32.color(140, 130, 168, 192), tick, entity,
+                1.7f, 0.0f, 0.0f, 1.0f);
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void renderClimber(PoseStack poseStack, MultiBufferSource buffer) {
-        poseStack.pushPose();
-        poseStack.scale(4F, 4F, 4F);
-        ClientUtil.modelRenderer().renderModel(poseStack.last(), buffer.getBuffer(RenderType.solid()), null, ClientUtil.getBakedModel(CLIMBER_MODEL), 1.0F, 1.0F, 1.0F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, RenderType.solid());
-        poseStack.popPose();
-    }
+    private static void renderStar(PoseStack poseStack, MultiBufferSource buffer, Direction facing, Vec3 starPos, float tick, long seed) {
+        RenderCache cache = getOrCreateCache(seed, facing, starPos);
 
-    @OnlyIn(Dist.CLIENT)
-    private static void renderStar(float tick, PoseStack poseStack, MultiBufferSource buffer, RenderCache cache,
-                                   double x, double y, double z) {
         poseStack.pushPose();
-        poseStack.translate(x, y, z);
+        poseStack.translate(starPos.x, starPos.y, starPos.z);
 
         var rotation = cache.starRotation;
 
-        RenderUtils.renderStarLayer(poseStack, buffer, STAR_LAYER, 0.23F,
+        RenderUtils.renderStarLayer(poseStack, buffer, STAR_LAYER, 0.20F,
                 rotation.axis, rotation.getAngle(tick),
                 FastColor.ARGB32.color(255, 255, 255, 255),
                 RenderType.solid());
@@ -177,7 +110,30 @@ public class SubspaceCorridorHubIndustrialArrayRenderer extends WorkableCasingMa
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void renderOrbit(PoseStack poseStack, MultiBufferSource buffer, RenderCache cache, float tick) {
+    private static void renderBlackHole(PoseStack poseStack, MultiBufferSource buffer, Direction facing, Vec3 starPos, float tick, long seed) {
+        RenderCache cache = getOrCreateCache(seed, facing, starPos);
+
+        poseStack.pushPose();
+        poseStack.translate(starPos.x, starPos.y, starPos.z);
+
+        var rotation = cache.starRotation;
+
+        RenderUtils.renderHaloLayer(poseStack, buffer, 0.20F * 1.02F,
+                rotation.axis, rotation.getAngle(tick),
+                HALO_TEX, SPACE_MODEL);
+
+        RenderUtils.renderStarLayer(poseStack, buffer, SPACE_MODEL, 0.20F,
+                rotation.axis, rotation.getAngle(tick),
+                FastColor.ARGB32.color(255, 255, 255, 255),
+                RenderType.solid());
+
+        poseStack.popPose();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void renderOrbit(PoseStack poseStack, MultiBufferSource buffer, Direction facing, Vec3 starPos, float tick, long seed) {
+        RenderCache cache = getOrCreateCache(seed, facing, starPos);
+
         for (int i = 0; i < ORBIT_OBJECTS.size(); i++) {
             var motionParams = cache.orbitParams.get(i);
             RenderUtils.renderOrbitRing(poseStack, buffer, motionParams, 128);
@@ -259,7 +215,7 @@ public class SubspaceCorridorHubIndustrialArrayRenderer extends WorkableCasingMa
     public void onAdditionalModel(Consumer<ResourceLocation> registry) {
         super.onAdditionalModel(registry);
         registry.accept(STAR_LAYER);
-        registry.accept(CLIMBER_MODEL);
+        registry.accept(SPACE_MODEL);
         ORBIT_OBJECTS.forEach(registry);
     }
 
@@ -296,7 +252,7 @@ public class SubspaceCorridorHubIndustrialArrayRenderer extends WorkableCasingMa
             for (int i = 0; i < ORBIT_OBJECTS.size(); i++) {
                 planetRotations.add(RenderUtils.createRandomRotation(
                         RandomSource.create(seed + i * 2000L), 0.1F, 0.5F));
-                orbitParams.add(getCircularMotionParams(seed, i, centerPos, 27.0f, 55.0f, 0f, 30f));
+                orbitParams.add(getCircularMotionParams(seed, i, centerPos, MIN_RADIUS, MAX_RADIUS, MIN_TILT_ANGLE, MAX_TILT_ANGLE));
                 planetSizes.add(getPlanetSize(seed, i, 1.3f, 2.7f));
             }
 

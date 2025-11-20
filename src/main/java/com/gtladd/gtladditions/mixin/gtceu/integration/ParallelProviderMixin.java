@@ -20,7 +20,7 @@ import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMult
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.MacroAtomicResonantFragmentStripper;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.ForgeOfTheAntichristModuleBase;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.SubspaceCorridorHubIndustrialArrayModuleBase;
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.LightHunterSpaceStationModuleBase;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import snownee.jade.api.BlockAccessor;
@@ -70,8 +70,8 @@ public abstract class ParallelProviderMixin {
                 if (workableElectricMultiblockMachine instanceof GTLAddWorkableElectricMultipleRecipesMachine addMachine) {
                     if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist) return;
                     if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichristModuleBase) return;
-                    if (workableElectricMultiblockMachine instanceof SubspaceCorridorHubIndustrialArrayModuleBase subspaceModuleBase) {
-                        if (subspaceModuleBase.isConnectedToHost() && Objects.requireNonNull(subspaceModuleBase.getHost()).unlockParadoxical()) return;
+                    if (workableElectricMultiblockMachine instanceof LightHunterSpaceStationModuleBase lightHunterSpaceStationModuleBase) {
+                        if (lightHunterSpaceStationModuleBase.isConnectedToHost() && Objects.requireNonNull(lightHunterSpaceStationModuleBase.getHost()).unlockParadoxical()) return;
                     }
                     compoundTag.putInt("parallel", addMachine.getMaxParallel());
                     if (!(workableElectricMultiblockMachine instanceof MacroAtomicResonantFragmentStripper)) {

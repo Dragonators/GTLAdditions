@@ -6,12 +6,12 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
-import com.gtladd.gtladditions.common.record.ParallelData
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.SubspaceCorridorHubIndustrialArray
-import com.gtladd.gtladditions.utils.IndustrialArrayPosHelper
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.LightHunterSpaceStation
+import com.gtladd.gtladditions.common.record.ParallelData
+import com.gtladd.gtladditions.utils.LightHunterSpaceStationPosHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongArrayList
@@ -21,23 +21,23 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 
-class SubspaceCorridorHubIndustrialArrayModuleBase(holder: IMachineBlockEntity) :
+class LightHunterSpaceStationModuleBase(holder: IMachineBlockEntity) :
     GTLAddWorkableElectricMultipleRecipesMachine(holder),
-    IModularMachineModule<SubspaceCorridorHubIndustrialArray, SubspaceCorridorHubIndustrialArrayModuleBase>,
+    IModularMachineModule<LightHunterSpaceStation, LightHunterSpaceStationModuleBase>,
     IMachineLife {
     @field:Persisted
     private var hostPosition: BlockPos? = null
-    private var host: SubspaceCorridorHubIndustrialArray? = null
+    private var host: LightHunterSpaceStation? = null
 
     override fun getHostPosition(): BlockPos? = hostPosition
     override fun setHostPosition(pos: BlockPos?) { hostPosition = pos }
-    override fun getHost(): SubspaceCorridorHubIndustrialArray? = host
-    override fun setHost(host: SubspaceCorridorHubIndustrialArray?) { this.host = host }
-    override fun getHostType(): Class<SubspaceCorridorHubIndustrialArray> = SubspaceCorridorHubIndustrialArray::class.java
-    override fun getHostScanPositions(): Array<BlockPos> = IndustrialArrayPosHelper.calculatePossibleHostPositions(pos)
+    override fun getHost(): LightHunterSpaceStation? = host
+    override fun setHost(host: LightHunterSpaceStation?) { this.host = host }
+    override fun getHostType(): Class<LightHunterSpaceStation> = LightHunterSpaceStation::class.java
+    override fun getHostScanPositions(): Array<BlockPos> = LightHunterSpaceStationPosHelper.calculatePossibleHostPositions(pos)
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
-        return SubspaceCorridorHubIndustrialArrayModuleBaseLogic(this)
+        return LightHunterSpaceStationModuleBaseLogic(this)
     }
 
     override fun addDisplayText(textList: MutableList<Component?>) {
@@ -72,10 +72,10 @@ class SubspaceCorridorHubIndustrialArrayModuleBase(holder: IMachineBlockEntity) 
     }
 
     // ===============================================
-    // SubspaceCorridorHubIndustrialArray connection
+    // LightHunterSpaceStation connection
     // ===============================================
 
-    override fun onConnected(host: SubspaceCorridorHubIndustrialArray) {
+    override fun onConnected(host: LightHunterSpaceStation) {
         recipeLogic.updateTickSubscription()
     }
 
@@ -104,19 +104,19 @@ class SubspaceCorridorHubIndustrialArrayModuleBase(holder: IMachineBlockEntity) 
 
     companion object {
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
-            SubspaceCorridorHubIndustrialArrayModuleBase::class.java,
+            LightHunterSpaceStationModuleBase::class.java,
             GTLAddWorkableElectricMultipleRecipesMachine.Companion.MANAGED_FIELD_HOLDER
         )
 
         val BEFORE_WORKING = Predicate { machine: IRecipeLogicMachine ->
-            (machine as SubspaceCorridorHubIndustrialArrayModuleBase).host?.let { it -> return@let it.isActive } ?: false
+            (machine as LightHunterSpaceStationModuleBase).host?.let { it -> return@let it.isActive } ?: false
         }
 
-        open class SubspaceCorridorHubIndustrialArrayModuleBaseLogic(
-            parallel: SubspaceCorridorHubIndustrialArrayModuleBase
+        open class LightHunterSpaceStationModuleBaseLogic(
+            parallel: LightHunterSpaceStationModuleBase
         ) : GTLAddMultipleRecipesLogic(parallel, BEFORE_WORKING){
 
-            override fun getMachine(): SubspaceCorridorHubIndustrialArrayModuleBase = machine as SubspaceCorridorHubIndustrialArrayModuleBase
+            override fun getMachine(): LightHunterSpaceStationModuleBase = machine as LightHunterSpaceStationModuleBase
 
             override fun calculateParallels(): ParallelData? {
                 if (!getMachine().host!!.unlockParadoxical()) {

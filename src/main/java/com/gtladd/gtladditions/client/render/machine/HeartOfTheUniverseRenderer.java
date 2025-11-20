@@ -6,10 +6,12 @@ import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRender
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -36,22 +38,15 @@ public class HeartOfTheUniverseRenderer extends WorkableCasingMachineRenderer {
         if (blockEntity instanceof IMachineBlockEntity machineBlockEntity &&
                 machineBlockEntity.getMetaMachine() instanceof HeartOfTheUniverse machine && machine.isActive()) {
 
-            float tick = machine.getOffsetTimer() + partialTicks;
+            final float tick = machine.getOffsetTimer() + partialTicks;
+            final Vec3 starPos = RenderUtils.getRotatedRenderPosition(Direction.SOUTH, machine.getFrontFacing(), 0.0, 36.0, -39.0);
+            final long seed = blockEntity.getBlockPos().asLong();
 
-            double x = 0.5, y = 36.5, z = 0.5;
-            switch (machine.getFrontFacing()) {
-                case NORTH -> z = 39.5;
-                case SOUTH -> z = -38.5;
-                case WEST -> x = 39.5;
-                case EAST -> x = -38.5;
-            }
-
-            long seed = blockEntity.getBlockPos().asLong();
-
-            renderStar(tick, poseStack, buffer, seed, x, y, z);
+            renderStar(tick, poseStack, buffer, seed, starPos.x, starPos.y, starPos.z);
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     private static void renderStar(float tick, PoseStack poseStack, MultiBufferSource buffer, long randomSeed,
                                    double x, double y, double z) {
         poseStack.pushPose();
@@ -92,6 +87,6 @@ public class HeartOfTheUniverseRenderer extends WorkableCasingMachineRenderer {
     @Override
     @OnlyIn(Dist.CLIENT)
     public int getViewDistance() {
-        return 512;
+        return 384;
     }
 }

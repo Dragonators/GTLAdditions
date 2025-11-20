@@ -788,7 +788,7 @@ object NewMultiBlockMachineController {
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
             .save(provider)
-        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("subspace_corridor_hub_industrial_array"))
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("light_hunter_space_station"))
             .inputItems(SPACE_PROBE_SURFACE_RECEPTION, 16)
             .inputItems(getItemStack("kubejs:space_drone_mk1", 64))
             .inputItems(getItemStack("kubejs:space_drone_mk2", 64))
@@ -804,7 +804,7 @@ object NewMultiBlockMachineController {
             .inputFluids(SuperMutatedLivingSolder.getFluid(1600000))
             .inputFluids(UUMatter.getFluid(1600000))
             .inputFluids(HeavyLeptonMixture.getFluid(1600000))
-            .outputItems(MultiBlockMachine.SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY)
+            .outputItems(MultiBlockMachine.LIGHT_HUNTER_SPACE_STATION)
             .EUt(VA[UXV].toLong()).duration(2400)
             .stationResearch { b : StationRecipeBuilder? ->
                 b !!.researchStack(SUPRACHRONAL_ASSEMBLY_LINE.asStack())

@@ -4,10 +4,12 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -40,26 +42,21 @@ public class ForgeOfAntichristRenderer extends PartWorkableCasingMachineRenderer
                        MultiBufferSource buffer, int combinedLight, int combinedOverlay) {
         if (blockEntity instanceof IMachineBlockEntity machineBlockEntity && machineBlockEntity.getMetaMachine() instanceof ForgeOfTheAntichrist machine && machine.isActive()) {
 
-            float tick = machine.getOffsetTimer() + partialTicks;
+            final float tick = machine.getOffsetTimer() + partialTicks;
+            final long seed = blockEntity.getBlockPos().asLong();
+            final Vec3 starPos = RenderUtils.getRotatedRenderPosition(Direction.EAST, machine.getFrontFacing(), -121.5, 0.0, 0.0);
+            final double x = starPos.x;
+            final double y = starPos.y;
+            final double z = starPos.z;
 
-            double x = 0.5, y = 0.5, z = 0.5;
-            switch (machine.getFrontFacing()) {
-                case NORTH -> z = 122.5;
-                case SOUTH -> z = -121.5;
-                case WEST -> x = 122.5;
-                case EAST -> x = -121.5;
-            }
-
-            int argb32 = machine.getRGBFromTime();
-            float baseRadius = 0.175F * machine.getRadiusMultiplier();
-            float middleRadius = baseRadius + Math.min(0.0055F, baseRadius * 0.02F);
-            float outerRadius = middleRadius * 1.02F;
+            final int argb32 = machine.getRGBFromTime();
+            final float baseRadius = 0.175F * machine.getRadiusMultiplier();
+            final float middleRadius = baseRadius + Math.min(0.0055F, baseRadius * 0.02F);
+            final float outerRadius = middleRadius * 1.02F;
 
             RenderUtils.drawBeaconToStar(poseStack, buffer, x, y, z, argb32, tick, blockEntity, outerRadius);
 
-            long seed = blockEntity.getBlockPos().asLong();
-            RenderCache cache = getOrCreateCache(seed);
-            renderMultiLayerStar(tick, poseStack, buffer, baseRadius, middleRadius, outerRadius, cache, argb32, x, y, z);
+            renderMultiLayerStar(tick, poseStack, buffer, baseRadius, middleRadius, outerRadius, getOrCreateCache(seed), argb32, x, y, z);
         }
     }
 
@@ -87,7 +84,9 @@ public class ForgeOfAntichristRenderer extends PartWorkableCasingMachineRenderer
         RenderUtils.renderHaloLayer(
                 poseStack, buffer, outerRadius,
                 rotation0.axis, rotation0.getAngle(tick),
-                HALO_TEX, STAR_LAYER_2);
+                HALO_TEX, STAR_LAYER_2,
+                1.0F,
+                true);
 
         poseStack.popPose();
     }
@@ -119,7 +118,7 @@ public class ForgeOfAntichristRenderer extends PartWorkableCasingMachineRenderer
     @Override
     @OnlyIn(Dist.CLIENT)
     public int getViewDistance() {
-        return 256;
+        return 384;
     }
 
     @OnlyIn(Dist.CLIENT)
