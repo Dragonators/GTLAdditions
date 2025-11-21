@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection
 import com.gregtechceu.gtceu.common.data.GTBlocks
 import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
+import net.minecraft.world.level.block.Block
 import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.utils.Registries
@@ -168,13 +169,14 @@ object MutableMultiBlocksC {
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('B', Predicates.blocks(GTBlocks.FUSION_GLASS.get()))
             .where('C', casing)
-            .where('P', casing.or(Predicates.abilities(PartAbility.PARALLEL_HATCH))
+            .where('P', casing.or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setPreviewCount(1))
                 .or(Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1)))
             .where('I', casing.or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(16))
                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(16)))
             .where('F', Predicates.blocks(GTLFusionCasingBlock.getFrameState(GTValues.UEV)))
             .where('H', Predicates.blocks(GTLFusionCasingBlock.getCompressedCoilState(GTValues.UEV)))
-            .where('E', casing.or(Predicates.abilities(PartAbility.INPUT_ENERGY)).or(Predicates.abilities(PartAbility.INPUT_LASER).setPreviewCount(16)))
+            .where('E', casing.or(Predicates.blocks(*PartAbility.INPUT_ENERGY.getBlockRange(GTValues.UEV, 14).toTypedArray()))
+                .or(Predicates.blocks(*PartAbility.INPUT_LASER.getBlockRange(GTValues.UEV, 14).toTypedArray()).setPreviewCount(16)))
             .where('#', Predicates.air())
             .where(' ', Predicates.any())
             .build()

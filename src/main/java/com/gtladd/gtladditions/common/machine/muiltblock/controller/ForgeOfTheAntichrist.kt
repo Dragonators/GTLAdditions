@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
+import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient
@@ -26,6 +27,7 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongArrayList
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
@@ -34,13 +36,17 @@ import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.crafting.Ingredient
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
+import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
 import org.gtlcore.gtlcore.utils.Registries.getItem
+import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
 import kotlin.math.exp
 import kotlin.math.max
@@ -288,7 +294,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                 val copy = GTRecipe(
                     recipe.recipeType,
                     recipe.id,
-                    modifyInputContents(recipe.inputs, modifier),
+                    modifyInputContents(recipe.inputs, modifier, recipe.id),
                     modifyOutputContents(recipe.outputs, modifier),
                     recipe.tickInputs,
                     recipe.tickOutputs,
@@ -337,7 +343,8 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
             private fun modifyInputContents(
                 before: Map<RecipeCapability<*>, List<Content>>,
-                modifier: ContentModifier
+                modifier: ContentModifier,
+                id: ResourceLocation
             ): Map<RecipeCapability<*>, List<Content>> {
                 if (!before.containsKey(ItemRecipeCapability.CAP)) return before
 
@@ -355,6 +362,11 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                                 copyList.add(content)
                             }
                         }
+
+                        fullCell.get(id)?.let { it ->
+                            copyList.add(it.copy(ItemRecipeCapability.CAP, ContentModifier.multiplier(modifier.multiplier - 1)))
+                        }
+
                         after[cap] = copyList
                     } else {
                         after[cap] = contentList
@@ -364,13 +376,42 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
             }
 
             companion object {
-                val cycleItems = ObjectOpenHashSet<Item>(
-                    arrayOf(
-                        getItem("kubejs:extremely_durable_plasma_cell"),
-                        getItem("kubejs:time_dilation_containment_unit"),
-                        getItem("kubejs:plasma_containment_cell")
+                private val cycleItems by lazy {
+                    ObjectOpenHashSet<Item>(
+                        arrayOf(
+                            getItem("kubejs:extremely_durable_plasma_cell"),
+                            getItem("kubejs:time_dilation_containment_unit"),
+                            getItem("kubejs:plasma_containment_cell")
+                        )
                     )
-                )
+                }
+
+                private val fullCell by lazy {
+                    Object2ObjectOpenHashMap<ResourceLocation, Content>(
+                        arrayOf(
+                            ResourceLocation("kubejs", "stellar_forge/contained_exotic_matter"),
+                            ResourceLocation("kubejs", "stellar_forge/extremely_durable_plasma_cell")
+                        ),
+                        arrayOf(
+                            Content(
+                                LongIngredient.create(Ingredient.of(getItemStack("kubejs:time_dilation_containment_unit"))),
+                                ChanceLogic.getMaxChancedValue(),
+                                ChanceLogic.getMaxChancedValue(),
+                                0,
+                                null,
+                                null
+                            ),
+                            Content(
+                                LongIngredient.create(Ingredient.of(getItemStack("kubejs:extremely_durable_plasma_cell"))),
+                                ChanceLogic.getMaxChancedValue(),
+                                ChanceLogic.getMaxChancedValue(),
+                                0,
+                                null,
+                                null
+                            )
+                        )
+                    )
+                }
             }
         }
 

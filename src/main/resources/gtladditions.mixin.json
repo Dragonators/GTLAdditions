@@ -42,9 +42,7 @@
     "gtmtings.WirelessEnergyManagerMixin",
     "gtmtings.WirelessEnergyMonitorMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMixin",
-    "ldlib.FluidStackMixin"
-  ],
-  "client": [
-    "gtlcore.gui.PatternPreviewWidgetMixin"
+    "ldlib.FluidHelperImplMixin",
+    "ldlib.FluidStackMixin",
   ]
 }

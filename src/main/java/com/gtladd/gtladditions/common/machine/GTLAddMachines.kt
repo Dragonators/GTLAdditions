@@ -244,6 +244,7 @@ object GTLAddMachines {
         { WirelessEnergyNetworkTerminalPartMachine(it!!, IO.OUT) }
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.OUTPUT_LASER, PartAbility.OUTPUT_ENERGY)
+            .tier(GTValues.MAX)
             .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTLAdditions.id("block/machine/part/wireless_energy_network_terminal"))
             .langValue("Wireless Energy Network Output Terminal")
             .tooltips(Component.translatable("gtceu.universal.disabled"),
@@ -256,6 +257,7 @@ object GTLAddMachines {
         { WirelessEnergyNetworkTerminalPartMachine(it!!, IO.IN) }
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.INPUT_LASER, PartAbility.INPUT_ENERGY)
+            .tier(GTValues.MAX)
             .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTLAdditions.id("block/machine/part/wireless_energy_network_terminal"))
             .langValue("Wireless Energy Network Input Terminal")
             .tooltips(Component.translatable("gtceu.universal.disabled"),
