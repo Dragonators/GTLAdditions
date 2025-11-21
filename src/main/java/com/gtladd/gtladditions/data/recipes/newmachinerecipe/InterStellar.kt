@@ -7,7 +7,6 @@ import net.minecraft.data.recipes.FinishedRecipe
 import java.util.function.Consumer
 
 object InterStellar {
-    @JvmStatic
     fun init(provider: Consumer<FinishedRecipe?>) {
         GTLAddRecipesTypes.INTER_STELLAR.recipeBuilder(GTLAdditions.id("inter_stellar"))
             .circuitMeta(1)

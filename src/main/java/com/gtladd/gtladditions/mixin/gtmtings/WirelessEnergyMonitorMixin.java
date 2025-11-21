@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 
-import com.gtladd.gtladditions.common.record.MachineEnergyData;
+import com.gtladd.gtladditions.common.data.MachineEnergyData;
 import com.gtladd.gtladditions.utils.CommonUtils;
 import com.hepdd.gtmthings.common.block.machine.electric.WirelessEnergyMonitor;
 import com.hepdd.gtmthings.utils.TeamUtil;

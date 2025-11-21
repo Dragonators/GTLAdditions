@@ -29,7 +29,7 @@ class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, vararg arg
         ReferenceOpenHashSet<IModularMachineModule<SubspaceCorridorHubIndustrialArray, *>>()
 
     @field:Persisted
-    private var astralArrayCount: Int = 0
+    override var astralArrayCount: Int = 0
     private var mam = 0
 
     private fun getMAM(): Int = mam.also {
@@ -45,8 +45,6 @@ class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, vararg arg
         }
         return actualIncrease
     }
-
-    override fun getAstralArrayCount(): Int = astralArrayCount
 
     override fun addDisplayText(textList: MutableList<Component?>) {
         super.addDisplayText(textList)

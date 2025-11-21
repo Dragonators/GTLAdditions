@@ -15,11 +15,11 @@ import com.gregtechceu.gtceu.common.data.GTMachines
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
-import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
+import com.gtladd.gtladditions.api.registry.GTLAddRegistration.Companion.REGISTRATE
 import com.gtladd.gtladditions.api.registry.MachineBuilderExtensions.overlayHullRenderer
-import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
-import com.gtladd.gtladditions.common.data.MultiBlockModify
-import com.gtladd.gtladditions.common.data.MutableMultiBlockModify
+import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
+import com.gtladd.gtladditions.common.modify.MultiBlockModify
+import com.gtladd.gtladditions.common.modify.MutableMultiBlockModify
 import com.gtladd.gtladditions.common.machine.hatch.HugeSteamHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.SuperDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.UltimateDualHatchPartMachine
@@ -62,7 +62,6 @@ object GTLAddMachines {
     val WIRELESS_LASER_INPUT_HATCH_67108864A: Array<MachineDefinition?>
     val WIRELESS_LASER_OUTPUT_HATCH_67108863A: Array<MachineDefinition?>
 
-    @JvmStatic
     fun init() {
         MultiBlockMachine.init()
         MultiBlockModify.init()

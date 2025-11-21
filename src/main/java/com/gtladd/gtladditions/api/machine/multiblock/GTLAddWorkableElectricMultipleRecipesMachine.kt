@@ -42,8 +42,8 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
         return super.getRecipeLogic() as GTLAddMultipleRecipesLogic
     }
 
-    override fun setLimitedDuration(number: Int) {
-        if (number != limitedDuration) limitedDuration = number
+    override fun setLimitedDuration(duration: Int) {
+        if (duration != limitedDuration) limitedDuration = duration
     }
 
     override fun getLimitedDuration(): Int {
@@ -106,7 +106,7 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
     }
 
     protected open fun addEnergyDisplay(textList: MutableList<Component?>) {
-        wirelessNetworkEnergyHandler?.let { networkEnergyHandler ->
+        getWirelessNetworkEnergyHandler()?.let { networkEnergyHandler ->
             if (!networkEnergyHandler.isOnline) return@let
             val totalEu = networkEnergyHandler.maxAvailableEnergy
             val longEu = NumberUtils.getLongValue(totalEu)
@@ -211,11 +211,11 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
                 ).withStyle(ChatFormatting.GRAY)
             )
         }
-        if(getRecipeLogic().multipleThreads > 1) {
+        if(getRecipeLogic().getMultipleThreads() > 1) {
             textList.add(
                 Component.translatable(
                     "gtladditions.multiblock.threads",
-                    Component.literal(FormattingUtil.formatNumbers(getRecipeLogic().multipleThreads)).withStyle(ChatFormatting.GOLD)
+                    Component.literal(FormattingUtil.formatNumbers(getRecipeLogic().getMultipleThreads())).withStyle(ChatFormatting.GOLD)
                 ).withStyle(ChatFormatting.GRAY)
             )
         }

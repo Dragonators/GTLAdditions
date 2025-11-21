@@ -6,9 +6,9 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
-import com.gtladd.gtladditions.common.record.ParallelData
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
+import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.SubspaceCorridorHubIndustrialArray
 import com.gtladd.gtladditions.utils.IndustrialArrayPosHelper
@@ -130,7 +130,6 @@ class SubspaceCorridorHubIndustrialArrayModuleBase(holder: IMachineBlockEntity) 
                 val parallelsList = LongArrayList(recipes.size)
 
                 for (recipe in recipes) {
-                    recipe ?: continue
                     val parallel = getMaxParallel(recipe, Long.MAX_VALUE)
                     if (parallel > 0) {
                         recipeList.add(recipe)

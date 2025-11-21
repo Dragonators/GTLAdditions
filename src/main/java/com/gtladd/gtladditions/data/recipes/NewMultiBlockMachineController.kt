@@ -11,10 +11,10 @@ import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
-import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
-import com.gtladd.gtladditions.common.data.SkyTearsAndGregHeart
+import com.gtladd.gtladditions.common.modify.SkyTearsAndGregHeart
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
 import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
@@ -46,7 +46,6 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object NewMultiBlockMachineController {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("nexus_satellite_factory_mk1"))
             .inputItems(MEGA_PRESSER, 16)

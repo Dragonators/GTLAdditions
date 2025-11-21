@@ -8,7 +8,10 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gtladd.gtladditions.api.machine.IWirelessThreadModifierParallelMachine;
 import com.gtladd.gtladditions.api.machine.feature.IThreadModifierPart;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
 @Implements(@Interface(
                        iface = IWirelessThreadModifierParallelMachine.class,

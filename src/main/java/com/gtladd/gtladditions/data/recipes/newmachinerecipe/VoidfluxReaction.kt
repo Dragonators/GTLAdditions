@@ -3,7 +3,7 @@ package com.gtladd.gtladditions.data.recipes.newmachinerecipe
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
-import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
@@ -14,7 +14,6 @@ import java.util.stream.IntStream
 import kotlin.math.pow
 
 object VoidfluxReaction {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         for (dimension in arrayOf("overworld", "nether", "end")) {
             for (tier in GTValues.UEV ..< GTValues.OpV) {

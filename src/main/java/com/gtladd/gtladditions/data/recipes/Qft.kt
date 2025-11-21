@@ -4,7 +4,7 @@ import com.gregtechceu.gtceu.api.GTValues.MAX
 import com.gregtechceu.gtceu.api.GTValues.VA
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
-import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.QFT_RECIPES
@@ -12,7 +12,6 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object Qft {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         QFT_RECIPES.recipeBuilder(id("resonating_gem"))
             .notConsumable(getItemStack("kubejs:eternity_catalyst"))

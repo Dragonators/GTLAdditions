@@ -16,13 +16,17 @@ import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
 import dev.emi.emi.screen.tooltip.EmiTextTooltipWrapper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 @Mixin(value = FluidEmiStack.class)
 @Pseudo
 public abstract class FluidEmiStackMixin extends EmiStack {
@@ -39,6 +43,7 @@ public abstract class FluidEmiStackMixin extends EmiStack {
         throw new AssertionError();
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Inject(method = "getTooltip", at = @At("HEAD"), remap = false, cancellable = true)
     private void addFluidTooltip(CallbackInfoReturnable<List<ClientTooltipComponent>> cir) {
         List<ClientTooltipComponent> list = new ObjectArrayList<>();

@@ -17,7 +17,7 @@ open class MutableTierCasingMachine(holder: IMachineBlockEntity, tierType: Strin
     private var threadPartMachine: IThreadModifierPart? = null
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
-        return MutableRecipesLogic<MutableTierCasingMachine?>(this, TIER_CHECK)
+        return MutableRecipesLogic<MutableTierCasingMachine>(this, TIER_CHECK)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -48,8 +48,7 @@ open class MutableTierCasingMachine(holder: IMachineBlockEntity, tierType: Strin
     override fun getThreadPartMachine(): IThreadModifierPart? = this.threadPartMachine
 
     companion object {
-        @JvmStatic
-        protected val TIER_CHECK: BiPredicate<GTRecipe, IRecipeLogicMachine> =
+        val TIER_CHECK: BiPredicate<GTRecipe, IRecipeLogicMachine> =
             BiPredicate { recipe: GTRecipe, recipeLogicMachine: IRecipeLogicMachine ->
                 if (recipeLogicMachine is TierCasingMachine) {
                     if (recipe.data.contains(recipeLogicMachine.tierType) &&

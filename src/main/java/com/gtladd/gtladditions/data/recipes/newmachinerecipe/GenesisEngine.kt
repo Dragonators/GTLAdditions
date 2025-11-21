@@ -9,7 +9,6 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object GenesisEngine {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         GTLAddRecipesTypes.GENESIS_ENGINE.recipeBuilder(GTLAdditions.id("carbon_disulfide"))
             .inputItems(GTLAddItems.STRANGE_ANNIHILATION_FUEL_ROD)

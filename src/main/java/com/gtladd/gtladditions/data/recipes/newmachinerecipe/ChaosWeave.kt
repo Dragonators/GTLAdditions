@@ -10,7 +10,6 @@ import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Consumer
 
 object ChaosWeave {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         GTLAddRecipesTypes.CHAOS_WEAVE.recipeBuilder(GTLAdditions.id("chaos_weave"))
             .inputItems(TagPrefix.dust, GTMaterials.Stone, 64)

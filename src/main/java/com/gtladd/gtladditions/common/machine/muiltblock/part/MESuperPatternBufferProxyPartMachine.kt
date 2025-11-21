@@ -1,7 +1,6 @@
 package com.gtladd.gtladditions.common.machine.muiltblock.part
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
-import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.utils.ResearchManager
 import net.minecraft.core.BlockPos

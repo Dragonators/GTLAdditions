@@ -9,7 +9,6 @@ import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import java.util.function.BiPredicate
 import kotlin.math.max
 
-@Suppress("DuplicatedCode")
 object EBFChecks {
 
     val EBF_CHECK: BiPredicate<GTRecipe, IRecipeLogicMachine> =

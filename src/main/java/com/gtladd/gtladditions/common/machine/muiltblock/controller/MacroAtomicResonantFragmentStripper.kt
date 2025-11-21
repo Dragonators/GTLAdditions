@@ -7,10 +7,10 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.IAstralArrayInteractionMachine
-import com.gtladd.gtladditions.common.record.ParallelData
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
+import com.gtladd.gtladditions.common.data.ParallelData
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongArrayList
@@ -25,7 +25,7 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
     GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder), IAstralArrayInteractionMachine {
 
     @field:Persisted
-    private var astralArrayCount: Int = 0
+    override var astralArrayCount: Int = 0
 
     @field:Persisted
     private var parallelAmount: Int = 1
@@ -83,14 +83,10 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
         return actualIncrease
     }
 
-    override fun getAstralArrayCount(): Int {
-        return astralArrayCount
-    }
-
     companion object{
         const val MAX_ASTRAL_ARRAY_COUNT = 192
 
-        val FRAGMENT_STRIPPER = Predicate { machine: IRecipeLogicMachine? ->
+        val FRAGMENT_STRIPPER = Predicate { machine: IRecipeLogicMachine ->
             return@Predicate if (machine is MacroAtomicResonantFragmentStripper) machine.coilType.coilTemperature >= 21600 else false
         }
 
@@ -111,7 +107,7 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
             return (base * 2.0.pow(exponent)).roundToInt()
         }
 
-        class MacroAtomicResonantFragmentStripperLogic(parallel: MacroAtomicResonantFragmentStripper?) :
+        class MacroAtomicResonantFragmentStripperLogic(parallel: MacroAtomicResonantFragmentStripper) :
             GTLAddMultipleRecipesLogic(parallel, FRAGMENT_STRIPPER){
             init {
                 this.setReduction(4.0, 1.0)
@@ -130,7 +126,6 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
                 val eachParallel = this.parallel.maxParallel.toLong()
 
                 for (recipe in recipes) {
-                    recipe ?: continue
                     val parallel = getMaxParallel(recipe, eachParallel)
                     if (parallel > 0) {
                         recipeList.add(recipe)

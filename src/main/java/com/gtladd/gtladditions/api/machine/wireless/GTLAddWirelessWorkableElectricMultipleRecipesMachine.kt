@@ -13,11 +13,9 @@ import com.hepdd.gtmthings.api.misc.WirelessEnergyManager
 import com.hepdd.gtmthings.utils.TeamUtil
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
-import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.HoverEvent
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.LivingEntity
@@ -26,7 +24,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
-import org.gtlcore.gtlcore.integration.gtmt.NewGTValues
 import org.gtlcore.gtlcore.utils.NumberUtils
 import java.math.BigInteger
 import java.util.*
@@ -154,7 +151,7 @@ open class GTLAddWirelessWorkableElectricMultipleRecipesMachine(holder: IMachine
             )
         }
 
-        override fun consumeEnergy(energy: BigInteger?): Boolean {
+        override fun consumeEnergy(energy: BigInteger): Boolean {
             return uuid != null && WirelessEnergyManager.addEUToGlobalEnergyMap(
                 uuid,
                 energy,
@@ -162,13 +159,11 @@ open class GTLAddWirelessWorkableElectricMultipleRecipesMachine(holder: IMachine
             )
         }
 
-        override fun getMaxAvailableEnergy(): BigInteger? {
-            return if (uuid != null) WirelessEnergyManager.getUserEU(uuid) else BigInteger.ZERO
-        }
+        override val maxAvailableEnergy: BigInteger
+            get() = if (uuid != null) WirelessEnergyManager.getUserEU(uuid) else BigInteger.ZERO
 
-        override fun isOnline(): Boolean {
-            return uuid != null && WirelessEnergyManager.getUserEU(uuid).signum() > 0
-        }
+        override val isOnline: Boolean
+            get() = uuid != null && WirelessEnergyManager.getUserEU(uuid).signum() > 0
 
         override fun getFieldHolder(): ManagedFieldHolder {
             return SELF_WIRELESS_NETWORK_PROXY_FIELD_HOLDER

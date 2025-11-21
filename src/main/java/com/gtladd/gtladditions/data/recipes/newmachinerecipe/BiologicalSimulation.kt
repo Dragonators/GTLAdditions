@@ -5,7 +5,7 @@ import com.gregtechceu.gtceu.api.GTValues.VA
 import com.gregtechceu.gtceu.common.data.GTMaterials.Biomass
 import com.gregtechceu.gtceu.common.data.GTMaterials.Milk
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
-import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLMaterials.BiohmediumSterilized
@@ -14,7 +14,6 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object BiologicalSimulation {
-    @JvmStatic
     fun init(provider: Consumer<FinishedRecipe?>) {
         val swords = listOf(
             Sword("minecraft:diamond_sword", 15, 1),

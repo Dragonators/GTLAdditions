@@ -4,7 +4,7 @@ import com.gregtechceu.gtceu.api.item.tool.GTToolType
 import com.gregtechceu.gtceu.common.data.GTModels
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration
-import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
+import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.tterrag.registrate.providers.DataGenContext
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider
 import com.tterrag.registrate.util.entry.BlockEntry
@@ -44,7 +44,6 @@ object GTLAddBlocks {
     val EXTREME_DENSITY_CASING: BlockEntry<Block>
     val GRAVITY_STABILIZATION_CASING: BlockEntry<Block>
 
-    @JvmStatic
     fun init() {}
 
     init {
@@ -132,6 +131,7 @@ object GTLAddBlocks {
         )
     }
 
+    @Suppress("removal")
     fun createGravitonCasingBlock(name: String, sideTexture: ResourceLocation?): BlockEntry<Block> {
         val topBottomTexture = GTLAdditions.id("block/casings/suprachronal_magnetic_confinement_casing")
         return GTLAddRegistration.REGISTRATE.block(name) { properties: BlockBehaviour.Properties? -> Block(properties) }
@@ -154,6 +154,7 @@ object GTLAddBlocks {
             .register()
     }
 
+    @Suppress("removal")
     fun createCasingBlock(
         name: String,
         blockSupplier: NonNullFunction<BlockBehaviour.Properties?, Block?>,

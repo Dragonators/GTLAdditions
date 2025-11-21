@@ -8,13 +8,10 @@ import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
 import com.gregtechceu.gtceu.common.data.GCyMRecipeTypes.ALLOY_BLAST_RECIPES
 import com.gregtechceu.gtceu.common.data.GTItems.TOOL_DATA_MODULE
-import com.gregtechceu.gtceu.common.data.GTMaterials
-import com.gregtechceu.gtceu.common.data.GTMaterials.Neutronium
-import com.gregtechceu.gtceu.common.data.GTMaterials.Plutonium241
-import com.gregtechceu.gtceu.common.data.GTMaterials.Praseodymium
+import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.*
 import com.gregtechceu.gtceu.data.recipe.builder.ShapedRecipeBuilder
-import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
 import com.gtladd.gtladditions.common.items.GTLAddItems.PHONONIC_SEED_CRYSTAL
@@ -46,10 +43,9 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object Misc {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         DECAY_HASTENER_RECIPES.recipeBuilder(id("tiranium50"))
-            .inputFluids(GTMaterials.Titanium.getFluid(144))
+            .inputFluids(Titanium.getFluid(144))
             .outputFluids(Titanium50.getFluid(144))
             .EUt(VA[14].toLong()).duration(10).save(provider)
         DOOR_OF_CREATE_RECIPES.recipeBuilder(id("command_block"))
@@ -177,8 +173,8 @@ object Misc {
 
     fun initAdditionMaterial(provider : Consumer<FinishedRecipe?>) {
         FUSION_RECIPES.recipeBuilder(id("plutonium241_plasma"))
-            .inputFluids(GTMaterials.Lutetium.getFluid(16))
-            .inputFluids(GTMaterials.Vanadium.getFluid(16))
+            .inputFluids(Lutetium.getFluid(16))
+            .inputFluids(Vanadium.getFluid(16))
             .outputFluids(Plutonium241.getFluid(FluidStorageKeys.PLASMA, 16))
             .EUt(VA[GTValues.UHV].toLong())
             .duration(64)
@@ -186,10 +182,10 @@ object Misc {
             .save(provider)
         STELLAR_FORGE_RECIPES.recipeBuilder(id("creon_plasma"))
             .inputItems(getItemStack("kubejs:quantum_chromodynamic_charge", 4))
-            .inputFluids(GTMaterials.Fermium.getFluid(5760))
-            .inputFluids(GTMaterials.Thorium.getFluid(5760))
+            .inputFluids(Fermium.getFluid(5760))
+            .inputFluids(Thorium.getFluid(5760))
             .inputFluids(CelestialTungsten.getFluid(2304))
-            .inputFluids(GTMaterials.Calcium.getFluid(5760))
+            .inputFluids(Calcium.getFluid(5760))
             .inputFluids(DimensionallyTranscendentResidue.getFluid(2736))
             .outputFluids(CREON.getFluid(FluidStorageKeys.PLASMA, 1000))
             .EUt(1258291200)
@@ -198,16 +194,16 @@ object Misc {
             .save(provider)
         PLASMA_CONDENSER_RECIPES.recipeBuilder(id("creon_condenser"))
             .inputFluids(CREON.getFluid(FluidStorageKeys.PLASMA, 1000))
-            .inputFluids(GTMaterials.Helium.getFluid(FluidStorageKeys.LIQUID, 100000))
+            .inputFluids(Helium.getFluid(FluidStorageKeys.LIQUID, 100000))
             .outputFluids(CREON.getFluid(1000))
-            .outputFluids(GTMaterials.Helium.getFluid(FluidStorageKeys.GAS, 100000))
+            .outputFluids(Helium.getFluid(FluidStorageKeys.GAS, 100000))
             .circuitMeta(1)
             .EUt(7864320)
             .duration(1200)
             .save(provider)
         DIMENSIONALLY_TRANSCENDENT_MIXER_RECIPES.recipeBuilder(id("mellion_dust"))
-            .inputItems(dust, GTMaterials.Tritanium, 11)
-            .inputItems(dust, GTMaterials.Rubidium, 11)
+            .inputItems(dust, Tritanium, 11)
+            .inputItems(dust, Rubidium, 11)
             .inputItems(dust, Highurabilityompoundteel, 7)
             .inputItems(dust, Tartarite, 13)
             .inputItems(dust, Jasper, 8)
@@ -219,7 +215,7 @@ object Misc {
             .save(provider)
         BLAST_RECIPES.recipeBuilder(id("hot_mellion_ingot"))
             .inputItems(dust, MELLION)
-            .inputFluids(GTMaterials.Oganesson.getFluid(1000))
+            .inputFluids(Oganesson.getFluid(1000))
             .outputItems(ingotHot, MELLION)
             .blastFurnaceTemp(14000)
             .EUt(503316480)

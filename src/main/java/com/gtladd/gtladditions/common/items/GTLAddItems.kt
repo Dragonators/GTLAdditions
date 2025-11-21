@@ -3,8 +3,8 @@ package com.gtladd.gtladditions.common.items
 import com.gregtechceu.gtceu.api.item.ComponentItem
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.item.TooltipBehavior
-import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
-import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
+import com.gtladd.gtladditions.api.registry.GTLAddRegistration.Companion.REGISTRATE
+import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.items.behavior.AstralArrayBehavior
 import com.gtladd.gtladditions.common.items.behavior.ModuleConnectionBehavior
 import com.tterrag.registrate.util.entry.ItemEntry
@@ -44,10 +44,8 @@ object GTLAddItems {
     val DEBUG_MODULE_CONNECTOR: ItemEntry<ComponentItem>
     val STRANGE_ANNIHILATION_FUEL_ROD: ItemEntry<ComponentItem>
     val BLACK_HOLE_SEED: ItemEntry<ComponentItem>
-    @JvmField
     val ASTRAL_ARRAY: ItemEntry<ComponentItem>
 
-    @JvmStatic
     fun init() {}
 
     private fun register(id: String, name: String): ItemEntry<Item?> {

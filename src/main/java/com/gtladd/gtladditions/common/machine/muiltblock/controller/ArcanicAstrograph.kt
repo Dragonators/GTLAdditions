@@ -21,7 +21,7 @@ class ArcanicAstrograph(holder: IMachineBlockEntity, vararg args: Any?) : Harmon
     IAstralArrayInteractionMachine {
 
     @field:Persisted
-    private var astralArrayCount: Int = 0
+    override var astralArrayCount: Int = 0
 
     @field:Persisted
     private var parallelAmount: Int = 2048
@@ -52,10 +52,6 @@ class ArcanicAstrograph(holder: IMachineBlockEntity, vararg args: Any?) : Harmon
         astralArrayCount += amount
         parallelAmount = calculateParallelAmount(astralArrayCount)
         return amount
-    }
-
-    override fun getAstralArrayCount(): Int {
-        return astralArrayCount
     }
 
     companion object {

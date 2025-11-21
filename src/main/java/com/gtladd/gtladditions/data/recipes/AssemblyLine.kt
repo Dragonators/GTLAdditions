@@ -3,7 +3,6 @@ package com.gtladd.gtladditions.data.recipes
 import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.chemical.material.Material
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
-import com.gregtechceu.gtceu.api.data.tag.TagUtil
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
 import com.gregtechceu.gtceu.common.data.GTItems.*
@@ -37,7 +36,6 @@ object AssemblyLine {
     private val wire = arrayOf<Material>(SamariumIronArsenicOxide, IndiumTinBariumTitaniumCuprate, UraniumRhodiumDinaquadide, EnrichedNaquadahTriniumEuropiumDuranide, RutheniumTriniumAmericiumNeutronate, Enderite, Echoite, Legendarium, DraconiumAwakened, Infinity)
     private val cable = arrayOf<Material>(Graphene, NiobiumTitanium, Trinium, NaquadahAlloy, Mendelevium, Mithril, Adamantine, NaquadriaticTaranium, Starmetal, CosmicNeutronium)
 
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         addLaserHatchRecipe(provider)
         addAntichristForgeRecipe(provider)

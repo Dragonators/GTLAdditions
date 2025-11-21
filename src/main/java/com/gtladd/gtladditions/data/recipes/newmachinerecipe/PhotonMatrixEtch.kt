@@ -19,7 +19,6 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object PhotonMatrixEtch {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         Engraving.init(provider)
         addRecipe(
@@ -82,14 +81,14 @@ object PhotonMatrixEtch {
             .save(provider)
     }
 
-    private fun addRecipe(id : String, input : String, notitem_1 : String, notitem_2 : String, duration : Int, EUt : Int, Fluid : Material, provider : Consumer<FinishedRecipe?>) {
+    private fun addRecipe(id : String, input : String, notItem1 : String, notItem2 : String, duration : Int, eut : Int, fluid : Material, provider : Consumer<FinishedRecipe?>) {
         PHOTON_MATRIX_ETCH.recipeBuilder(GTLAdditions.id(id))
             .inputItems(getItemStack(input))
-            .notConsumable(getItemStack(notitem_2))
-            .notConsumable(getItemStack(notitem_1))
-            .inputFluids(Fluid.getFluid(50))
+            .notConsumable(getItemStack(notItem2))
+            .notConsumable(getItemStack(notItem1))
+            .inputFluids(fluid.getFluid(50))
             .outputItems(getItemStack("kubejs:$id"))
-            .EUt(GTValues.VA[EUt].toLong()).duration(duration)
+            .EUt(GTValues.VA[eut].toLong()).duration(duration)
             .cleanroom(CleanroomType.CLEANROOM).save(provider)
     }
 
@@ -182,19 +181,19 @@ object PhotonMatrixEtch {
         }
 
         fun addRecipe(
-            id : String?,
+            id : String,
             input : ItemEntry<Item?>,
             color : MarkerMaterial,
             output : ItemEntry<Item?>,
             count : Int,
             duration : Int,
-            EUt : Int,
+            euT : Int,
             provider : Consumer<FinishedRecipe?>
         ) {
             GTRecipeTypes.LASER_ENGRAVER_RECIPES.recipeBuilder(GTLAdditions.id(id)).inputItems(input)
                 .notConsumable(TagPrefix.lens, color)
                 .outputItems(output, count)
-                .duration(duration).EUt(EUt.toLong())
+                .duration(duration).EUt(euT.toLong())
                 .cleanroom(CleanroomType.CLEANROOM).save(provider)
         }
     }

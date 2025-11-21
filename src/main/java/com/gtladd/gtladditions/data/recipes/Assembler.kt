@@ -9,7 +9,7 @@ import com.gregtechceu.gtceu.common.data.GTMachines.*
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
-import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.QUANTUM_GLASS
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_CASING
@@ -28,7 +28,6 @@ import java.util.function.Consumer
 
 object Assembler {
 
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         addHugeOutput(provider)
         ASSEMBLER_RECIPES.recipeBuilder(id("naquadria_charge_more"))

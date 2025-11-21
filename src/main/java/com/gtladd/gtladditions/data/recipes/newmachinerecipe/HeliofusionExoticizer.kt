@@ -1,9 +1,7 @@
 package com.gtladd.gtladditions.data.recipes.newmachinerecipe
 
 import com.gregtechceu.gtceu.api.GTValues
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix.block
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix.rod
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import net.minecraft.data.recipes.FinishedRecipe
@@ -13,7 +11,6 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object HeliofusionExoticizer {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         GTLAddRecipesTypes.MATTER_EXOTIC.recipeBuilder(GTLAdditions.id("high_energy_quark_gluon_matter_exotic"))
             .inputFluids(GTLMaterials.HeavyQuarkDegenerateMatter.getFluid(5760))

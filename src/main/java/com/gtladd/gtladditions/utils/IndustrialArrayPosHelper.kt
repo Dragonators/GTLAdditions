@@ -182,6 +182,7 @@ object IndustrialArrayPosHelper {
         return result.toTypedArray()
     }
 
+    @Suppress("SameParameterValue")
     private fun rotateOffsets(offsets: Array<IntArray>, rotation: Int): Array<IntArray> {
         return Array(offsets.size) { i ->
             val (x, y, z) = offsets[i]

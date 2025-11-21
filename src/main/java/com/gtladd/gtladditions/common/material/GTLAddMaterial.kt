@@ -79,7 +79,6 @@ object GTLAddMaterial {
             .iconSet(MaterialIconSet.DULL)
             .buildAndRegister().setFormula("〄")
 
-    @JvmStatic
     fun init() {
     }
 }

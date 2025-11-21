@@ -1,8 +1,9 @@
 ﻿package com.gtladd.gtladditions.utils
 
 import com.gregtechceu.gtceu.client.renderer.GTRenderTypes
-import com.gtladd.gtladditions.common.record.CircularMotionParams
-import com.gtladd.gtladditions.common.record.RotationParams
+import com.gtladd.gtladditions.client.GTLAddRenderTypes
+import com.gtladd.gtladditions.common.data.CircularMotionParams
+import com.gtladd.gtladditions.common.data.RotationParams
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import dev.ftb.mods.ftbchunks.client.FTBChunksRenderTypes
@@ -11,6 +12,7 @@ import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.FastColor
 import net.minecraft.util.RandomSource
@@ -30,6 +32,70 @@ import kotlin.math.*
 object RenderUtils {
 
     /**
+     * Calculates a rotated render position with full control over base and target facing.
+     * Transforms an offset from one facing orientation to another.
+     * @param baseFacing The facing direction when the offset was recorded/defined
+     * @param targetFacing The current facing direction of the machine
+     * @param offsetX The X offset in the base facing coordinate system
+     * @param offsetY The Y offset (not affected by rotation)
+     * @param offsetZ The Z offset in the base facing coordinate system
+     * @return Rotated Vec3 position relative to block center (0.5, 0.5, 0.5)
+     */
+    fun getRotatedRenderPosition(
+        baseFacing: Direction,
+        targetFacing: Direction,
+        offsetX: Double,
+        offsetY: Double,
+        offsetZ: Double
+    ): Vec3 {
+        require(baseFacing.axis == Direction.Axis.Y || targetFacing.axis != Direction.Axis.Y) {
+            "Facing must be horizontal (NORTH, SOUTH, EAST, WEST)"
+        }
+
+        val y = 0.5 + offsetY
+
+        if (baseFacing == targetFacing) {
+            return Vec3(0.5 + offsetX, y, 0.5 + offsetZ)
+        }
+
+        val baseIndex = getHorizontalIndex(baseFacing)
+        val targetIndex = getHorizontalIndex(targetFacing)
+        val rotationSteps = (targetIndex - baseIndex + 4) % 4
+
+        return when (rotationSteps) {
+            0 -> {
+                Vec3(0.5 + offsetX, y, 0.5 + offsetZ)
+            }
+            1 -> {
+                val x = 0.5 - offsetZ
+                val z = 0.5 + offsetX
+                Vec3(x, y, z)
+            }
+            2 -> {
+                val x = 0.5 - offsetX
+                val z = 0.5 - offsetZ
+                Vec3(x, y, z)
+            }
+            3 -> {
+                val x = 0.5 + offsetZ
+                val z = 0.5 - offsetX
+                Vec3(x, y, z)
+            }
+            else -> Vec3(0.5 + offsetX, y, 0.5 + offsetZ)
+        }
+    }
+
+    private fun getHorizontalIndex(facing: Direction): Int {
+        return when (facing) {
+            Direction.EAST -> 0
+            Direction.SOUTH -> 1
+            Direction.WEST -> 2
+            Direction.NORTH -> 3
+            else -> 0
+        }
+    }
+
+    /**
      * Generates random rotation parameters with uniformly distributed axis and speed
      *
      * @param random   Random source for generating rotation parameters
@@ -37,7 +103,6 @@ object RenderUtils {
      * @param maxSpeed Maximum rotation speed in degrees per tick
      * @return Rotation parameters containing axis, speed, and offset
      */
-    @JvmStatic
     fun createRandomRotation(random: RandomSource, minSpeed: Float, maxSpeed: Float): RotationParams {
         val theta = random.nextFloat() * 2.0f * Math.PI.toFloat()
         val phi = acos((2.0f * random.nextFloat() - 1.0f).toDouble()).toFloat()
@@ -67,7 +132,6 @@ object RenderUtils {
      * @param argb32        ARGB32 color value for tinting
      * @param type          Render type to use
      */
-    @JvmStatic
     fun renderStarLayer(
         poseStack: PoseStack, buffer: MultiBufferSource,
         modelLocation: ResourceLocation?, size: Float,
@@ -108,11 +172,33 @@ object RenderUtils {
      * @param haloTexture   Texture resource location for the halo glow effect
      * @param modelLocation Resource location of the model to render
      */
-    @JvmStatic
     fun renderHaloLayer(
         poseStack: PoseStack, buffer: MultiBufferSource, size: Float,
         rotationAxis: Vector3f, angle: Float,
         haloTexture: ResourceLocation, modelLocation: ResourceLocation
+    ) {
+        renderHaloLayer(poseStack, buffer, size, rotationAxis, angle, haloTexture, modelLocation, 1.0f, false)
+    }
+
+    /**
+     * Renders a halo layer with glow effect and brightness control
+     *
+     * @param poseStack     Pose stack for transformations
+     * @param buffer        Multi-buffer source for rendering
+     * @param size          Scale size of the halo layer
+     * @param rotationAxis  Rotation axis vector
+     * @param angle         Rotation angle in degrees
+     * @param haloTexture   Texture resource location for the halo glow effect
+     * @param modelLocation Resource location of the model to render
+     * @param alpha         Alpha/brightness multiplier (0.0 - 1.0), controls glow intensity
+     * @param useCustomRenderType If true, uses custom non-additive blending to prevent over-brightness
+     */
+    fun renderHaloLayer(
+        poseStack: PoseStack, buffer: MultiBufferSource, size: Float,
+        rotationAxis: Vector3f, angle: Float,
+        haloTexture: ResourceLocation, modelLocation: ResourceLocation,
+        alpha: Float = 1.0f,
+        useCustomRenderType: Boolean = false
     ) {
         poseStack.pushPose()
         poseStack.scale(size, size, size)
@@ -122,18 +208,26 @@ object RenderUtils {
             )
         )
 
-        val consumer = buffer.getBuffer(RenderType.eyes(haloTexture))
+        val renderType = if (useCustomRenderType) {
+            GTLAddRenderTypes.createFullBrightGlowLayer(haloTexture)
+        } else {
+            RenderType.eyes(haloTexture)
+        }
+
+        val consumer = buffer.getBuffer(renderType)
+
+        val finalAlpha = alpha.coerceIn(0.0f, 1.0f)
 
         ClientUtil.modelRenderer().renderModel(
             poseStack.last(),
             consumer,
             null,
             ClientUtil.getBakedModel(modelLocation),
-            1.0f, 1.0f, 1.0f,
+            finalAlpha, finalAlpha, finalAlpha,
             LightTexture.FULL_BRIGHT,
             OverlayTexture.NO_OVERLAY,
             ModelData.EMPTY,
-            RenderType.eyes(haloTexture)
+            renderType
         )
         poseStack.popPose()
     }
@@ -152,7 +246,6 @@ object RenderUtils {
      * @param blockEntity Block entity to get the machine position from
      * @param outerRadius Outer radius of the star, used to calculate beam width multiplier
      */
-    @JvmStatic
     fun drawBeaconToStar(
         poseStack: PoseStack, buffer: MultiBufferSource,
         starX: Double, starY: Double, starZ: Double,
@@ -215,11 +308,61 @@ object RenderUtils {
      * @param blockEntity Block entity reference for coordinate system calculations
      * @param beaconWidth Beam width multiplier base value
      */
-    @JvmStatic
     fun drawBeaconToSky(
         poseStack: PoseStack, buffer: MultiBufferSource,
         baseX: Double, baseY: Double, baseZ: Double,
         argb32: Int, tick: Float, blockEntity: BlockEntity, beaconWidth: Float
+    ) {
+        val from = Vec3(baseX, baseY + 460.0, baseZ)
+        val to = Vec3(baseX, baseY, baseZ)
+        drawBeaconToSky(poseStack, buffer, from, to, argb32, tick, blockEntity, beaconWidth)
+    }
+
+    /**
+     * Draws a beacon beam between two arbitrary points
+     * with fade effect, always facing the camera
+     *
+     * @param poseStack   Pose stack for transformations
+     * @param buffer      Multi-buffer source for rendering
+     * @param from        Starting point of the beam (relative to current poseStack origin)
+     * @param to          Ending point of the beam (relative to current poseStack origin)
+     * @param argb32      ARGB32 color value for the beacon
+     * @param tick        Current tick count with partial ticks for animation
+     * @param blockEntity Block entity reference for coordinate system calculations
+     * @param beaconWidth Beam width multiplier base value
+     */
+    fun drawBeaconToSky(
+        poseStack: PoseStack, buffer: MultiBufferSource,
+        from: Vec3, to: Vec3,
+        argb32: Int, tick: Float, blockEntity: BlockEntity, beaconWidth: Float
+    ) {
+        drawBeacon(
+            poseStack, buffer, from, to, argb32, tick, blockEntity,
+            beaconWidth, 0.1f, 0.3f, beaconWidth * 3
+        )
+    }
+
+    /**
+     * Draws a beacon beam between two arbitrary points with full control over appearance
+     * with fade effect and optional expansion, always facing the camera
+     *
+     * @param poseStack          Pose stack for transformations
+     * @param buffer             Multi-buffer source for rendering
+     * @param from               Starting point of the beam (relative to current poseStack origin)
+     * @param to                 Ending point of the beam (relative to current poseStack origin)
+     * @param argb32             ARGB32 color value for the beacon
+     * @param tick               Current tick count with partial ticks for animation
+     * @param blockEntity        Block entity reference for coordinate system calculations
+     * @param beaconWidth        Beam width base value
+     * @param fadeRatio          Ratio of beam length that fades out (0.0-1.0, 0 = no fade)
+     * @param expandRatio        Ratio of beam length where expansion starts (0.0-1.0, 0 = no expand)
+     * @param endWidthMultiplier Width multiplier at the end point (1.0 = straight beam, no expansion)
+     */
+    fun drawBeacon(
+        poseStack: PoseStack, buffer: MultiBufferSource,
+        from: Vec3, to: Vec3,
+        argb32: Int, tick: Float, blockEntity: BlockEntity,
+        beaconWidth: Float, fadeRatio: Float, expandRatio: Float, endWidthMultiplier: Float
     ) {
         val vertexConsumer = buffer.getBuffer(FTBChunksRenderTypes.WAYPOINTS_DEPTH)
 
@@ -232,17 +375,10 @@ object RenderUtils {
         val blockWorldPos = Vec3.atLowerCornerOf(blockEntity.blockPos)
         val playerPos = cameraWorldPos.subtract(blockWorldPos)
 
-        val fadeRatio = 0.1f
-        val expandRatio = 0.3f
-        val endWidthMultiplier = beaconWidth * 3
-
         val baseAlpha = 150
         val pulse = (sin(tick * 0.05) * 0.2 + 0.8).toFloat()
         var alpha = (baseAlpha * pulse).toInt()
         alpha = max(0, min(255, alpha))
-
-        val from = Vec3(baseX, baseY + 460.0, baseZ)
-        val to = Vec3(baseX, baseY, baseZ)
 
         drawBeaconBetweenPoints(
             poseStack,
@@ -509,7 +645,6 @@ object RenderUtils {
      * @param additionalRotation Optional additional rotation to apply after positioning
      * @param centered      If true, center the model at the orbit position (offsets by -0.5 in all axes after scaling)
      */
-    @JvmStatic
     fun renderCircularMotionModel(
         poseStack: PoseStack,
         buffer: MultiBufferSource,
@@ -547,7 +682,6 @@ object RenderUtils {
      * @param additionalRotation Optional additional rotation to apply after positioning
      * @param centered      If true, center the model at the orbit position (offsets by -0.5 in all axes after scaling)
      */
-    @JvmStatic
     fun renderCircularMotionModelDirect(
         poseStack: PoseStack,
         vertexConsumer: VertexConsumer,
@@ -607,7 +741,6 @@ object RenderUtils {
      * @param motionParams Circular motion parameters defining the orbit
      * @param segments Number of segments (default 128 for full quality, reduce for LOD)
      */
-    @JvmStatic
     fun renderOrbitRing(
         poseStack: PoseStack,
         buffer: MultiBufferSource,

@@ -43,7 +43,6 @@ object ThreadMultiplierStrategy {
         BLOCK_MULTIPLIER_MAP.put(MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE, 2)
     }
 
-    @JvmStatic
     fun getAdditionalMultiplier(definition: MultiblockMachineDefinition?): Int {
         val result = min((1 / ConfigHolder.INSTANCE.durationMultiplier), 4096.0) * BLOCK_MULTIPLIER_MAP.getOrDefault(definition, 2)
         return result.roundToInt()

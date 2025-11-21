@@ -29,9 +29,8 @@ class SkeletonShiftRiftEngine(holder: IMachineBlockEntity) : MutableCoilElectric
 
     override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
         return object : MutableRecipesLogic<SkeletonShiftRiftEngine>(this){
-            override fun getEuMultiplier(): Double {
-                return super.getEuMultiplier() * 1 / max(getMachine().casingTier, 1)
-            }
+            override val euMultiplier: Double
+                get() = super.euMultiplier * 1 / max(getMachine().casingTier, 1)
         }
     }
 

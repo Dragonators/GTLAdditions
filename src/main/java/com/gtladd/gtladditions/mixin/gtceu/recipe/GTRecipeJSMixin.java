@@ -27,6 +27,7 @@ public abstract class GTRecipeJSMixin {
         throw new AssertionError();
     }
 
+    @SuppressWarnings("deprecation")
     @Inject(method = "chancedInput", at = @At("HEAD"), remap = false, cancellable = true)
     private void chancedInput(InputItem stack, int chance, int tierChanceBoost, CallbackInfoReturnable<GTRecipeSchema.GTRecipeJS> cir) {
         if (stack.count == 1) {
