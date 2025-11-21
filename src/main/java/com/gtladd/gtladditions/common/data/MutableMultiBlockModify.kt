@@ -23,6 +23,7 @@ import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ASTRA
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ATOMIC_TRANSMUTATIOON_CORE
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.BIOLOGICAL_SIMULATION_LABORATORY
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.DRACONIC_COLLAPSE_CORE
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.INFERNO_CLEFT_SMELTING_VAULT
@@ -156,7 +157,8 @@ object MutableMultiBlockModify {
             ANTIENTROPY_CONDENSATION_CENTER,
             INFERNO_CLEFT_SMELTING_VAULT,
             SKELETON_SHIFT_RIFT_ENGINE,
-            APOCALYPTIC_TORSION_QUANTUM_MATRIX)
+            APOCALYPTIC_TORSION_QUANTUM_MATRIX,
+            DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY)
 
         enableThreadModifier(arrayOf(*mutableDefinitions, *multipleDefinitions), arrayOf(*mutablePATTERNS, *multiplePATTERNS))
 

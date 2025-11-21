@@ -1605,7 +1605,7 @@ object MultiBlockMachine {
         DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY = REGISTRATE.multiblock("dimension_focus_infinity_crafting_array",
             Function { DimensionFocusInfinityCraftingArray(it!!) })
             .nonYAxisRotation()
-            .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
+            .tooltipTextMaxParallels(4096.toString())
             .tooltipTextLaser()
             .tooltipTextMultiRecipes()
             .tooltipTextRecipeTypes(NIGHTMARE_CRAFTING)
@@ -1627,7 +1627,8 @@ object MultiBlockMachine {
                     .where("S", Predicates.blocks(getBlock("gtladditions:temporal_anchor_field_casing"))
                         .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
                         .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
-                        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS)))
+                        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS))
+                        .or(Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1)))
                     .where("J", Predicates.blocks(getBlock("gtlcore:molecular_casing")))
                     .where("Q", Predicates.blocks(getBlock("gtlcore:hyper_mechanical_casing")))
                     .where("P", Predicates.blocks(getBlock("gtceu:naquadah_alloy_frame")))

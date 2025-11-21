@@ -26,7 +26,7 @@ object NightmareCrafting {
             .inputItems(Registries.getItemStack("kubejs:fishbig_rleg", 1))
             .outputItems(Registries.getItemStack("expatternprovider:fishbig"))
             .duration(288000)
-            .EUt(GTValues.VEX[17])
+            .EUt(GTValues.VEX[22])
             .save(provider)
         NIGHTMARE_CRAFTING.recipeBuilder(GTLAdditions.id("ultimate_stew"))
             .inputItems(Registries.getItemStack("minecraft:apple"))

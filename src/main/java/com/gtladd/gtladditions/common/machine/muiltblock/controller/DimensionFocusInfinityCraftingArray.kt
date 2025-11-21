@@ -18,6 +18,7 @@ class DimensionFocusInfinityCraftingArray (holder: IMachineBlockEntity) :
     private var hostPosition: BlockPos? = null
     private var host: MolecularAssemblerMultiblockMachine? = null
 
+    override fun getMaxParallel(): Int = 4096
     override fun getHost(): MolecularAssemblerMultiblockMachine? = host
     override fun getHostType(): Class<MolecularAssemblerMultiblockMachine> = MolecularAssemblerMultiblockMachine::class.java
     override fun getHostPosition(): BlockPos? = hostPosition
