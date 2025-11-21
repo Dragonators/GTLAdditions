@@ -45,7 +45,6 @@ object MaterialAdd {
         )
     }
 
-    @JvmStatic
     fun init() {
     }
 }

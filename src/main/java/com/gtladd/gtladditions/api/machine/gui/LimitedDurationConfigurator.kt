@@ -21,7 +21,7 @@ class LimitedDurationConfigurator(private val machine: IGTLAddMultiRecipeMachine
 
     override fun createConfigurator(): Widget? {
         return WidgetGroup(0, 0, 100, 20)
-            .addWidget(IntInputWidget({ machine.limitedDuration }, { duration: Int? ->
+            .addWidget(IntInputWidget({ machine.getLimitedDuration() }, { duration: Int? ->
                 machine.setLimitedDuration(duration!!)
             }).setMin(10).setMax(200))
     }

@@ -32,7 +32,7 @@ import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectric
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricParallelHatchMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricMultiblockMachine
-import com.gtladd.gtladditions.api.registry.GTLAddRegistration.REGISTRATE
+import com.gtladd.gtladditions.api.registry.GTLAddRegistration.Companion.REGISTRATE
 import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer
 import com.gtladd.gtladditions.client.render.machine.HeartOfTheUniverseRenderer
 import com.gtladd.gtladditions.client.render.machine.LightHunterSpaceStationRenderer
@@ -49,7 +49,7 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.REMOTE_GRAVITON_FLOW_R
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_CASING
-import com.gtladd.gtladditions.common.data.GTLAddCreativeModeTabs
+import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.WIRELESS_LASER_INPUT_HATCH_67108864A
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.Wireless_Energy_Network_OUTPUT_Terminal
@@ -96,7 +96,6 @@ import org.gtlcore.gtlcore.utils.StructureSlicer
 import java.util.function.Function
 import kotlin.math.pow
 
-@Suppress("DuplicatedCode")
 object MultiBlockMachine {
 
     val SUPER_FACTORY_MKI: MultiblockMachineDefinition
@@ -126,7 +125,6 @@ object MultiBlockMachine {
     val APOCALYPTIC_TORSION_QUANTUM_MATRIX: MultiblockMachineDefinition
     val FORGE_OF_THE_ANTICHRIST: MultiblockMachineDefinition
     val HELIOFUSION_EXOTICIZER: MultiblockMachineDefinition
-    @JvmField
     val HELIOFLARE_POWER_FORGE: MultiblockMachineDefinition
     val HELIOFLUIX_MELTING_CORE: MultiblockMachineDefinition
     val HELIOTHERMAL_PLASMA_FABRICATOR: MultiblockMachineDefinition
@@ -138,7 +136,7 @@ object MultiBlockMachine {
     init {
         REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_MACHINE }
         NEXUS_SATELLITE_FACTORY_MKI = REGISTRATE.multiblock("nexus_satellite_factory_mk1",
-            Function { LightHunterSpaceStationModuleBase(it!!) })
+            Function { LightHunterSpaceStationModuleBase(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.nexus_satellite_factory.tooltip.0"))
             .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
@@ -193,7 +191,7 @@ object MultiBlockMachine {
             .register()
 
         NEXUS_SATELLITE_FACTORY_MKII = REGISTRATE.multiblock("nexus_satellite_factory_mk2",
-            Function { LightHunterSpaceStationModuleBase(it!!) })
+            Function { LightHunterSpaceStationModuleBase(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.nexus_satellite_factory.tooltip.0"))
             .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
@@ -247,7 +245,7 @@ object MultiBlockMachine {
             .register()
 
         NEXUS_SATELLITE_FACTORY_MKIII = REGISTRATE.multiblock("nexus_satellite_factory_mk3",
-            Function { LightHunterSpaceStationModuleBase(it!!) })
+            Function { LightHunterSpaceStationModuleBase(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.nexus_satellite_factory.tooltip.0"))
             .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
@@ -302,7 +300,7 @@ object MultiBlockMachine {
             .register()
 
         NEXUS_SATELLITE_FACTORY_MKIV = REGISTRATE.multiblock("nexus_satellite_factory_mk4",
-            Function { LightHunterSpaceStationModuleBase(it!!) })
+            Function { LightHunterSpaceStationModuleBase(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.nexus_satellite_factory.tooltip.0"))
             .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
@@ -353,7 +351,7 @@ object MultiBlockMachine {
             .register()
 
         SUPER_FACTORY_MKI = REGISTRATE.multiblock("super_factory_mk1",
-            Function { GTLAddWorkableElectricMultipleRecipesMachine(it!!) })
+            Function { GTLAddWorkableElectricMultipleRecipesMachine(it) })
             .allRotation()
             .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
             .tooltipTextLaser()
@@ -395,7 +393,7 @@ object MultiBlockMachine {
             .register()
 
         SUPER_FACTORY_MKII = REGISTRATE.multiblock("super_factory_mk2",
-            Function { GTLAddWorkableElectricMultipleRecipesMachine(it!!) })
+            Function { GTLAddWorkableElectricMultipleRecipesMachine(it) })
             .allRotation()
             .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
             .tooltipTextLaser()
@@ -436,7 +434,7 @@ object MultiBlockMachine {
             .register()
 
         SUPER_FACTORY_MKIII = REGISTRATE.multiblock("super_factory_mk3",
-            Function { GTLAddWorkableElectricMultipleRecipesMachine(it!!) })
+            Function { GTLAddWorkableElectricMultipleRecipesMachine(it) })
             .allRotation()
             .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
             .tooltipTextLaser()
@@ -478,7 +476,7 @@ object MultiBlockMachine {
             .register()
 
         SUPER_FACTORY_MKIV = REGISTRATE.multiblock("super_factory_mk4",
-            Function { GTLAddWorkableElectricMultipleRecipesMachine(it!!) })
+            Function { GTLAddWorkableElectricMultipleRecipesMachine(it) })
             .allRotation()
             .tooltipTextMaxParallels(Int.MAX_VALUE.toString())
             .tooltipTextLaser()
@@ -516,13 +514,13 @@ object MultiBlockMachine {
             .register()
 
         LUCID_ETCHDREAMER = REGISTRATE.multiblock("lucid_etchdreamer",
-            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it!!)})
+            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it)})
             .nonYAxisRotation()
             .tooltipTextCoilParallel()
             .tooltipTextLaser()
             .tooltipTextMultiRecipes()
             .tooltipTextRecipeTypes(PHOTON_MATRIX_ETCH)
-            .coilparalleldisplay()
+            .coilParallelDisplay()
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(PHOTON_MATRIX_ETCH)
             .appearanceBlock(IRIDIUM_CASING)
@@ -552,13 +550,13 @@ object MultiBlockMachine {
             .register()
 
         ATOMIC_TRANSMUTATIOON_CORE = REGISTRATE.multiblock("atomic_transmutation_core",
-            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it!!) })
+            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it) })
             .noneRotation()
             .tooltipTextCoilParallel()
             .tooltipTextLaser()
             .tooltipTextMultiRecipes()
             .tooltipTextRecipeTypes(EM_RESONANCE_CONVERSION_FIELD)
-            .coilparalleldisplay()
+            .coilParallelDisplay()
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(EM_RESONANCE_CONVERSION_FIELD)
             .appearanceBlock(ALUMINIUM_BRONZE_CASING)
@@ -592,7 +590,7 @@ object MultiBlockMachine {
             .register()
 
         ASTRAL_CONVERGENCE_NEXUS = REGISTRATE.multiblock("astral_convergence_nexus",
-            Function { AdvancedSpaceElevatorModuleMachine(it!!) })
+            Function { AdvancedSpaceElevatorModuleMachine(it) })
             .nonYAxisRotation()
             .tooltipTextMaxParallels(Component.translatable("gtceu.multiblock.max_parallel.space_elevator_module"))
             .tooltipTextLaser()
@@ -622,7 +620,7 @@ object MultiBlockMachine {
             .register()
 
         NEBULA_REAPER = REGISTRATE.multiblock("nebula_reaper",
-            Function { AdvancedSpaceElevatorModuleMachine(it!!) })
+            Function { AdvancedSpaceElevatorModuleMachine(it) })
             .nonYAxisRotation()
             .tooltipTextMaxParallels(Component.translatable("gtceu.multiblock.max_parallel.space_elevator_module"))
             .tooltipTextLaser()
@@ -653,7 +651,7 @@ object MultiBlockMachine {
             .register()
 
         ARCANIC_ASTROGRAPH = REGISTRATE.multiblock("arcanic_astrograph",
-            Function { ArcanicAstrograph(it!!) })
+            Function { ArcanicAstrograph(it) })
             .nonYAxisRotation()
             .recipeType(COSMOS_SIMULATION_RECIPES)
             .recipeModifier { machine: MetaMachine, recipe: GTRecipe?, params: OCParams?, result: OCResult? ->
@@ -694,13 +692,13 @@ object MultiBlockMachine {
             .register()
 
         ARCANE_CACHE_VAULT = REGISTRATE.multiblock("arcane_cache_vault",
-            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it!!)})
+            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it)})
             .allRotation()
             .tooltipTextCoilParallel()
             .tooltipTextLaser()
             .tooltipTextMultiRecipes()
             .tooltipTextRecipeTypes(PACKER_RECIPES)
-            .coilparalleldisplay()
+            .coilParallelDisplay()
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(PACKER_RECIPES)
             .appearanceBlock(PIKYONIUM_MACHINE_CASING)
@@ -730,7 +728,7 @@ object MultiBlockMachine {
         DRACONIC_COLLAPSE_CORE = REGISTRATE.multiblock(
             "draconic_collapse_core",
             Function {
-                object : MutableElectricMultiblockMachine(it!!) {
+                object : MutableElectricMultiblockMachine(it) {
                     override fun getMaxParallel(): Int {
                         return 8.0.pow(tier - 10).toInt()
                     }
@@ -805,7 +803,7 @@ object MultiBlockMachine {
         TITAN_CRIP_EARTHBORE = REGISTRATE.multiblock(
             "titan_crip_earthbore",
             Function {
-                object : MutableElectricMultiblockMachine(it!!) {
+                object : MutableElectricMultiblockMachine(it) {
                     override fun getMaxParallel(): Int {
                         return 2.0.pow(tier - 6).toInt()
                     }
@@ -862,7 +860,7 @@ object MultiBlockMachine {
             .register()
 
         BIOLOGICAL_SIMULATION_LABORATORY = REGISTRATE.multiblock("biological_simulation_laboratory",
-            Function { BiologicalSimulationLaboratory(it!!) })
+            Function { BiologicalSimulationLaboratory(it) })
             .allRotation()
             .tooltipTextKey(Component.translatable("gtceu.multiblock.biological_simulation_laboratory.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtceu.multiblock.biological_simulation_laboratory.tooltip.1"))
@@ -901,7 +899,7 @@ object MultiBlockMachine {
             .register()
 
         DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT = REGISTRATE.multiblock("dimensionally_transcendent_chemical_plant",
-            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it!!) })
+            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtceu.multiblock.dimensionally_transcendent_chemical_plant"))
             .tooltipTextCoilParallel()
@@ -937,7 +935,7 @@ object MultiBlockMachine {
             .register()
 
         QUANTUM_SYPHON_MATRIX = REGISTRATE.multiblock("quantum_syphon_matrix",
-            Function { GTLAddWorkableElectricParallelHatchMultipleRecipesMachine(it!!)})
+            Function { GTLAddWorkableElectricParallelHatchMultipleRecipesMachine(it)})
             .noneRotation()
             .tooltipTextParallelHatch()
             .tooltipTextLaser()
@@ -975,7 +973,7 @@ object MultiBlockMachine {
             .register()
 
         FUXI_BAGUA_HEAVEN_FORGING_FURNACE = REGISTRATE.multiblock("fuxi_bagua_heaven_forging_furnace",
-            Function { GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine(it!!) })
+            Function { GTLAddCoilWorkableElectricParallelHatchMultipleRecipesMachine(it) })
             .nonYAxisRotation()
             .tooltipTextParallelHatch()
             .tooltipOnlyTextLaser()
@@ -1036,7 +1034,7 @@ object MultiBlockMachine {
             .register()
 
         ANTIENTROPY_CONDENSATION_CENTER = REGISTRATE.multiblock("antientropy_condensation_center",
-            Function { AntientropyCondensationCenter(it!!) })
+            Function { AntientropyCondensationCenter(it) })
             .allRotation()
             .tooltipTextKey(Component.translatable("gtceu.multiblock.antientropy_condensation_center.0"))
             .tooltipTextKey(Component.translatable("gtceu.multiblock.antientropy_condensation_center.1"))
@@ -1089,7 +1087,7 @@ object MultiBlockMachine {
             .register()
 
         TAIXU_TURBID_ARRAY = REGISTRATE.multiblock("taixu_turbid_array",
-            Function { TaixuTurbidArray(it!!) })
+            Function { TaixuTurbidArray(it) })
             .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.1"))
             .tooltipTextKey(Component.translatable("gtceu.machine.taixuturbidarray.tooltip.12"))
@@ -1199,7 +1197,7 @@ object MultiBlockMachine {
             .register()
 
         INFERNO_CLEFT_SMELTING_VAULT = REGISTRATE.multiblock("inferno_cleft_smelting_vault",
-            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it!!) })
+            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it) })
             .nonYAxisRotation()
             .tooltipTextCoilParallel()
             .tooltipTextLaser()
@@ -1239,7 +1237,7 @@ object MultiBlockMachine {
             .register()
 
         SKELETON_SHIFT_RIFT_ENGINE = REGISTRATE.multiblock("skeleton_shift_rift_engine",
-            Function {  SkeletonShiftRiftEngine(it!!) })
+            Function {  SkeletonShiftRiftEngine(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtceu.multiblock.skeleton_shift_rift_engine.0"))
             .tooltipTextKey(Component.translatable("gtceu.multiblock.skeleton_shift_rift_engine.1"))
@@ -1286,7 +1284,7 @@ object MultiBlockMachine {
             .register()
 
         APOCALYPTIC_TORSION_QUANTUM_MATRIX = REGISTRATE.multiblock("apocalyptic_torsion_quantum_matrix",
-            Function { ApocalypticTorsionQuantumMatrix(it!!) })
+            Function { ApocalypticTorsionQuantumMatrix(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.1"))
@@ -1333,7 +1331,7 @@ object MultiBlockMachine {
             .register()
 
         FORGE_OF_THE_ANTICHRIST = REGISTRATE.multiblock("forge_of_the_antichrist",
-            Function { ForgeOfTheAntichrist(it!!) })
+            Function { ForgeOfTheAntichrist(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.1"))
@@ -1391,7 +1389,7 @@ object MultiBlockMachine {
             .register()
 
         HELIOFUSION_EXOTICIZER = REGISTRATE.multiblock("heliofusion_exoticizer",
-            Function { HelioFusionExoticizer(it!!) })
+            Function { HelioFusionExoticizer(it) })
             .allRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofusion_exoticizer.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofusion_exoticizer.tooltip.1"))
@@ -1424,7 +1422,7 @@ object MultiBlockMachine {
             .register()
 
         HELIOFLARE_POWER_FORGE = REGISTRATE.multiblock("helioflare_power_forge",
-            Function { HelioflarePowerForge(it!!) })
+            Function { HelioflarePowerForge(it) })
             .allRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.helioflare_power_forge.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.helioflare_power_forge.tooltip.1"))
@@ -1462,7 +1460,7 @@ object MultiBlockMachine {
             .register()
 
         HELIOFLUIX_MELTING_CORE = REGISTRATE.multiblock("heliofluix_melting_core",
-            Function { HeliofluixMeltingCore(it!!) })
+            Function { HeliofluixMeltingCore(it) })
             .allRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofluix_melting_core.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliofluix_melting_core.tooltip.1"))
@@ -1500,7 +1498,7 @@ object MultiBlockMachine {
             .register()
 
         HELIOTHERMAL_PLASMA_FABRICATOR = REGISTRATE.multiblock("heliothermal_plasma_fabricator",
-            Function { HeliothermalPlasmaFabricator(it!!) })
+            Function { HeliothermalPlasmaFabricator(it) })
             .allRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliothermal_plasma_fabricator.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.heliothermal_plasma_fabricator.tooltip.1"))
@@ -1540,7 +1538,7 @@ object MultiBlockMachine {
             .register()
 
         HEART_OF_THE_UNIVERSE = REGISTRATE.multiblock("heart_of_the_universe",
-            Function { HeartOfTheUniverse(it!!) })
+            Function { HeartOfTheUniverse(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.heart_of_the_universe.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.heart_of_the_universe.tooltip.1"))
@@ -1580,7 +1578,7 @@ object MultiBlockMachine {
             .register()
 
         DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY = REGISTRATE.multiblock("dimension_focus_infinity_crafting_array",
-            Function { DimensionFocusInfinityCraftingArray(it!!) })
+            Function { DimensionFocusInfinityCraftingArray(it) })
             .nonYAxisRotation()
             .tooltipTextMaxParallels(4096.toString())
             .tooltipTextLaser()
@@ -1624,7 +1622,7 @@ object MultiBlockMachine {
             .register()
 
         LIGHT_HUNTER_SPACE_STATION = REGISTRATE.multiblock("light_hunter_space_station",
-            Function { LightHunterSpaceStation(it!!) })
+            Function { LightHunterSpaceStation(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.light_hunter_space_station.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.light_hunter_space_station.tooltip.1"))
@@ -1688,7 +1686,7 @@ object MultiBlockMachine {
         MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER = if (ConfigHolder.INSTANCE.enableSkyBlokeMode)
             REGISTRATE.multiblock(
                 "macro_atomic_resonant_fragment_stripper",
-                Function { MacroAtomicResonantFragmentStripper(it!!) })
+                Function { MacroAtomicResonantFragmentStripper(it) })
                 .nonYAxisRotation()
                 .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.0"))
                 .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.1"))
@@ -1744,6 +1742,5 @@ object MultiBlockMachine {
         REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_ITEMS }
     }
 
-    @JvmStatic
     fun init() {}
 }

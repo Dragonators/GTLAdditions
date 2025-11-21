@@ -11,7 +11,6 @@ import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import java.util.function.Consumer
 
 object StellarLgnition {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         addRecipe(Argon, 36000, provider)
         addRecipe(Helium, 36000, provider)

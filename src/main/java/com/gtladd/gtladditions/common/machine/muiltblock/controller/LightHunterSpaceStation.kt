@@ -31,7 +31,7 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
 
     @field:Persisted
     @field:DescSynced
-    private var astralArrayCount: Int = 0
+    override var astralArrayCount: Int = 0
     private var mam = 0
 
     private fun getMAM(): Int = mam.also {
@@ -47,8 +47,6 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
         }
         return actualIncrease
     }
-
-    override fun getAstralArrayCount(): Int = astralArrayCount
 
     override fun addDisplayText(textList: MutableList<Component?>) {
         super.addDisplayText(textList)

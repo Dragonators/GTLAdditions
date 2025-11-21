@@ -19,6 +19,7 @@ import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic;
 import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler;
 import com.gtladd.gtladditions.utils.CommonUtils;
 import com.llamalad7.mixinextras.sugar.Local;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -52,7 +53,7 @@ public abstract class WorkableElectricMultiblockMachineMixin {
     }
 
     @Unique
-    public void gTLAdditions$setWirelessNetworkEnergyHandler(IWirelessNetworkEnergyHandler trait) {
+    public void gTLAdditions$setWirelessNetworkEnergyHandler(@NotNull IWirelessNetworkEnergyHandler trait) {
         this.gTLAdditions$wirelessNetworkEnergyHandler = trait;
     }
 

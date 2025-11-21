@@ -6,7 +6,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType.CLEANROOM
 import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType.STERILE_CLEANROOM
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
-import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix
 import org.gtlcore.gtlcore.api.machine.multiblock.GTLCleanroomType.LAW_CLEANROOM
@@ -16,7 +16,6 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object Distort {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>) {
         DISTORT_RECIPES.recipeBuilder(id("rare_earth_dust_monazite"))
             .notConsumable(GTLTagPrefix.nanoswarm, Rhenium)

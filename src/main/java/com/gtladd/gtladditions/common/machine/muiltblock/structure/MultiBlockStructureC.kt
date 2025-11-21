@@ -3,7 +3,6 @@
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection
 
-@Suppress("DuplicatedCode")
 object MultiBlockStructureC {
     val FORGE_OF_THE_ANTICHRIST: FactoryBlockPattern? =
         FactoryBlockPattern.start(

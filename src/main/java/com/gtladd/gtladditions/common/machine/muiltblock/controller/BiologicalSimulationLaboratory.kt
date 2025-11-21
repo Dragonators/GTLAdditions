@@ -141,7 +141,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         override fun findAndHandleRecipe() {
             lastRecipe = null
             recipeStatus = null
-            val match = if (this.isNanCertificate) gtRecipe
+            val match = if (this.isNanCertificate) getGTRecipe()
             else this.oneRecipe
             if (match != null && matchRecipeOutput(this.machine, match)) {
                 setupRecipe(match)
@@ -169,7 +169,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
         override fun onRecipeFinish() {
             machine.afterWorking()
             lastRecipe?.let { handleRecipeOutput(this.machine, it) }
-            val match = if (this.isNanCertificate) gtRecipe else this.oneRecipe
+            val match = if (this.isNanCertificate) getGTRecipe() else this.oneRecipe
             if (match != null && matchRecipeOutput(this.machine, match)) {
                 setupRecipe(match)
                 return

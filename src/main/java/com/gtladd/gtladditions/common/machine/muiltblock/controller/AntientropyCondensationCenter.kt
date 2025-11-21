@@ -17,7 +17,7 @@ class AntientropyCondensationCenter(holder: IMachineBlockEntity, vararg args: An
     }
 
     companion object {
-        private val BEFORE_RECIPE = Predicate { machine: IRecipeLogicMachine? ->
+        private val BEFORE_RECIPE = Predicate { machine: IRecipeLogicMachine ->
             if (machine is AntientropyCondensationCenter) return@Predicate MachineIO.inputItem(
                 machine,
                 Registries.getItemStack("kubejs:dust_cryotheum", 1 shl (14 - machine.getTier()))

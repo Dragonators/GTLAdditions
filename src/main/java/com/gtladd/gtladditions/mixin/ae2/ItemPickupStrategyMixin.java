@@ -36,6 +36,7 @@ public abstract class ItemPickupStrategyMixin {
      * @author Dragons
      * @reason ae2破坏面板支持连锁/循环命令方块
      */
+    @SuppressWarnings("deprecation")
     @Overwrite(remap = false)
     private boolean canHandleBlock(ServerLevel level, BlockPos pos, BlockState state) {
         if (state.isAir()) {

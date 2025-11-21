@@ -25,6 +25,7 @@ public abstract class FluidStackMixin {
      * @author Dragons
      * @reason Fuck LDLib
      */
+    @SuppressWarnings("deprecation")
     @Overwrite(remap = false)
     public static FluidStack readFromBuf(FriendlyByteBuf buf) {
         Fluid fluid = BuiltInRegistries.FLUID.get(new ResourceLocation(buf.readUtf()));

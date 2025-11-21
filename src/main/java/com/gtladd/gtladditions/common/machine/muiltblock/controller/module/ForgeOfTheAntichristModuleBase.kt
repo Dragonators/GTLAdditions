@@ -8,11 +8,11 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.common.record.ParallelData
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleWirelessRecipesLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
+import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.AntichristPosHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -128,8 +128,7 @@ open class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, vararg ar
             (machine as ForgeOfTheAntichristModuleBase).host?.let { it -> return@let it.isActive } ?: false
         }
 
-        @JvmStatic
-        protected fun copyAndModifyRecipe(recipe: GTRecipe, modifier: ContentModifier): GTRecipe {
+        fun copyAndModifyRecipe(recipe: GTRecipe, modifier: ContentModifier): GTRecipe {
             val copy = GTRecipe(
                 recipe.recipeType,
                 recipe.id,
@@ -186,7 +185,6 @@ open class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, vararg ar
                 val modifier = ContentModifier.multiplier(getMachine().host!!.recipeOutputMultiply)
 
                 for (recipe in recipes) {
-                    recipe ?: continue
                     val modified = if (enableModify(recipe)) copyAndModifyRecipe(recipe, modifier) else recipe
                     val parallel = getMaxParallel(modified, Long.MAX_VALUE)
                     if (parallel > 0) {

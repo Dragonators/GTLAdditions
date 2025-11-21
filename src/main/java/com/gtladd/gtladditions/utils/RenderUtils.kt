@@ -2,8 +2,8 @@
 
 import com.gregtechceu.gtceu.client.renderer.GTRenderTypes
 import com.gtladd.gtladditions.client.GTLAddRenderTypes
-import com.gtladd.gtladditions.common.record.CircularMotionParams
-import com.gtladd.gtladditions.common.record.RotationParams
+import com.gtladd.gtladditions.common.data.CircularMotionParams
+import com.gtladd.gtladditions.common.data.RotationParams
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import dev.ftb.mods.ftbchunks.client.FTBChunksRenderTypes
@@ -41,7 +41,6 @@ object RenderUtils {
      * @param offsetZ The Z offset in the base facing coordinate system
      * @return Rotated Vec3 position relative to block center (0.5, 0.5, 0.5)
      */
-    @JvmStatic
     fun getRotatedRenderPosition(
         baseFacing: Direction,
         targetFacing: Direction,
@@ -104,7 +103,6 @@ object RenderUtils {
      * @param maxSpeed Maximum rotation speed in degrees per tick
      * @return Rotation parameters containing axis, speed, and offset
      */
-    @JvmStatic
     fun createRandomRotation(random: RandomSource, minSpeed: Float, maxSpeed: Float): RotationParams {
         val theta = random.nextFloat() * 2.0f * Math.PI.toFloat()
         val phi = acos((2.0f * random.nextFloat() - 1.0f).toDouble()).toFloat()
@@ -134,7 +132,6 @@ object RenderUtils {
      * @param argb32        ARGB32 color value for tinting
      * @param type          Render type to use
      */
-    @JvmStatic
     fun renderStarLayer(
         poseStack: PoseStack, buffer: MultiBufferSource,
         modelLocation: ResourceLocation?, size: Float,
@@ -175,7 +172,6 @@ object RenderUtils {
      * @param haloTexture   Texture resource location for the halo glow effect
      * @param modelLocation Resource location of the model to render
      */
-    @JvmStatic
     fun renderHaloLayer(
         poseStack: PoseStack, buffer: MultiBufferSource, size: Float,
         rotationAxis: Vector3f, angle: Float,
@@ -197,7 +193,6 @@ object RenderUtils {
      * @param alpha         Alpha/brightness multiplier (0.0 - 1.0), controls glow intensity
      * @param useCustomRenderType If true, uses custom non-additive blending to prevent over-brightness
      */
-    @JvmStatic
     fun renderHaloLayer(
         poseStack: PoseStack, buffer: MultiBufferSource, size: Float,
         rotationAxis: Vector3f, angle: Float,
@@ -251,7 +246,6 @@ object RenderUtils {
      * @param blockEntity Block entity to get the machine position from
      * @param outerRadius Outer radius of the star, used to calculate beam width multiplier
      */
-    @JvmStatic
     fun drawBeaconToStar(
         poseStack: PoseStack, buffer: MultiBufferSource,
         starX: Double, starY: Double, starZ: Double,
@@ -314,7 +308,6 @@ object RenderUtils {
      * @param blockEntity Block entity reference for coordinate system calculations
      * @param beaconWidth Beam width multiplier base value
      */
-    @JvmStatic
     fun drawBeaconToSky(
         poseStack: PoseStack, buffer: MultiBufferSource,
         baseX: Double, baseY: Double, baseZ: Double,
@@ -338,7 +331,6 @@ object RenderUtils {
      * @param blockEntity Block entity reference for coordinate system calculations
      * @param beaconWidth Beam width multiplier base value
      */
-    @JvmStatic
     fun drawBeaconToSky(
         poseStack: PoseStack, buffer: MultiBufferSource,
         from: Vec3, to: Vec3,
@@ -366,7 +358,6 @@ object RenderUtils {
      * @param expandRatio        Ratio of beam length where expansion starts (0.0-1.0, 0 = no expand)
      * @param endWidthMultiplier Width multiplier at the end point (1.0 = straight beam, no expansion)
      */
-    @JvmStatic
     fun drawBeacon(
         poseStack: PoseStack, buffer: MultiBufferSource,
         from: Vec3, to: Vec3,
@@ -654,7 +645,6 @@ object RenderUtils {
      * @param additionalRotation Optional additional rotation to apply after positioning
      * @param centered      If true, center the model at the orbit position (offsets by -0.5 in all axes after scaling)
      */
-    @JvmStatic
     fun renderCircularMotionModel(
         poseStack: PoseStack,
         buffer: MultiBufferSource,
@@ -692,7 +682,6 @@ object RenderUtils {
      * @param additionalRotation Optional additional rotation to apply after positioning
      * @param centered      If true, center the model at the orbit position (offsets by -0.5 in all axes after scaling)
      */
-    @JvmStatic
     fun renderCircularMotionModelDirect(
         poseStack: PoseStack,
         vertexConsumer: VertexConsumer,
@@ -752,7 +741,6 @@ object RenderUtils {
      * @param motionParams Circular motion parameters defining the orbit
      * @param segments Number of segments (default 128 for full quality, reduce for LOD)
      */
-    @JvmStatic
     fun renderOrbitRing(
         poseStack: PoseStack,
         buffer: MultiBufferSource,

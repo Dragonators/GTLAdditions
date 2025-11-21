@@ -53,13 +53,12 @@ open class WirelessEnergyNetworkTerminalPartMachine(holder: IMachineBlockEntity,
             return uuid != null && WirelessEnergyManager.addEUToGlobalEnergyMap(uuid, energy, machine)
         }
 
-        override fun getMaxAvailableEnergy(): BigInteger? {
-            return if (uuid != null) WirelessEnergyManager.getUserEU(uuid) else BigInteger.ZERO
-        }
+        override val maxAvailableEnergy: BigInteger
+            get() =if (uuid != null) WirelessEnergyManager.getUserEU(uuid) else BigInteger.ZERO
 
-        override fun isOnline(): Boolean {
-            return uuid != null && (io == IO.OUT || WirelessEnergyManager.getUserEU(uuid).signum() > 0)
-        }
+
+        override val isOnline: Boolean
+            get() = uuid != null && (io == IO.OUT || WirelessEnergyManager.getUserEU(uuid).signum() > 0)
 
         override fun getFieldHolder(): ManagedFieldHolder {
             return WIRELESS_NETWORK_ENERGY_HANDLER_FIELD_HOLDER

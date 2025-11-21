@@ -40,6 +40,7 @@ class MutableFusionReactorMachine(holder: IMachineBlockEntity, tier: Int) : Fusi
         getRecipeLogic().setUseMultipleRecipes(false)
     }
 
+    @Suppress("CAST_NEVER_SUCCEEDS")
     override fun getMaxParallel(): Int {
         return (this as IRecipeCapabilityMachine).parallelHatch?.currentParallel ?: 1
     }

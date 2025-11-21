@@ -10,7 +10,7 @@ import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.LightHunterSpaceStation
-import com.gtladd.gtladditions.common.record.ParallelData
+import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.LightHunterSpaceStationPosHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -130,7 +130,6 @@ class LightHunterSpaceStationModuleBase(holder: IMachineBlockEntity) :
                 val parallelsList = LongArrayList(recipes.size)
 
                 for (recipe in recipes) {
-                    recipe ?: continue
                     val parallel = getMaxParallel(recipe, Long.MAX_VALUE)
                     if (parallel > 0) {
                         recipeList.add(recipe)

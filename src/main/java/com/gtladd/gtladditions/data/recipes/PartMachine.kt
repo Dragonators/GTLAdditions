@@ -10,7 +10,7 @@ import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
-import com.gtladd.gtladditions.GTLAdditions.id
+import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import net.minecraft.data.recipes.FinishedRecipe
@@ -26,7 +26,6 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object PartMachine {
-    @JvmStatic
     fun init(provider : Consumer<FinishedRecipe?>){
         ASSEMBLER_RECIPES.recipeBuilder(id("huge_steam_hatch"))
             .inputItems(GTLMachines.LARGE_STEAM_HATCH, 4)

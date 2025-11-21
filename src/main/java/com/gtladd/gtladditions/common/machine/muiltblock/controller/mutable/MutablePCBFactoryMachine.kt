@@ -30,15 +30,15 @@ class MutablePCBFactoryMachine(holder: IMachineBlockEntity) : PCBFactoryMachine(
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return object : MutableRecipesLogic<MutablePCBFactoryMachine>(this) {
-            override fun getEuMultiplier(): Double {
-                return super.getEuMultiplier() * getMachine()!!.nanoSwarmMultiplier
-            }
+
+            override val euMultiplier: Double
+                get() = super.euMultiplier * getMachine().nanoSwarmMultiplier
 
             override fun calculateParallel(
-                machine: IRecipeLogicMachine?,
+                machine: IRecipeLogicMachine,
                 match: GTRecipe,
                 remain: Long
-            ): LongLongPair? {
+            ): LongLongPair {
                 return if (RecipeHelper.getInputEUt(match) <= GTValues.V[GTValues.LuV]) {
                     LongLongPair.of(IParallelLogic.getMaxParallel(machine, match, Long.Companion.MAX_VALUE), 0)
                 } else super.calculateParallel(machine, match, remain)
@@ -63,6 +63,7 @@ class MutablePCBFactoryMachine(holder: IMachineBlockEntity) : PCBFactoryMachine(
         getRecipeLogic().setUseMultipleRecipes(false)
     }
 
+    @Suppress("CAST_NEVER_SUCCEEDS")
     override fun getMaxParallel(): Int {
         return (this as IRecipeCapabilityMachine).parallelHatch?.currentParallel ?: 1
     }

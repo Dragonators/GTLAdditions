@@ -10,8 +10,8 @@ import com.gregtechceu.gtceu.common.block.CoilBlock
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
 import com.gregtechceu.gtceu.common.data.GTSoundEntries
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.common.data.GTLAddSoundEntries
-import com.gtladd.gtladditions.common.data.RecipesModify
+import com.gtladd.gtladditions.common.modify.GTLAddSoundEntries
+import com.gtladd.gtladditions.common.modify.RecipesModify
 import com.lowdragmc.lowdraglib.gui.texture.ProgressTexture.FillDirection
 import com.lowdragmc.lowdraglib.gui.widget.SlotWidget
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
@@ -50,7 +50,6 @@ object GTLAddRecipesTypes {
     val FORGE_OF_THE_ANTICHRIST: GTRecipeType
     val QUANTUM_OSCILLATION: GTRecipeType
 
-    @JvmStatic
     fun init() {
         RecipesModify.init()
     }
@@ -183,7 +182,7 @@ object GTLAddRecipesTypes {
             .setEUIO(IO.IN).setMaxIOSize(16, 1, 0, 0)
             .setMaxTooltips(1)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-            .setSound(GTSoundEntries.SCIENCE);
+            .setSound(GTSoundEntries.SCIENCE)
         FORGE_OF_THE_ANTICHRIST = GTRecipeTypes.register("forge_of_the_antichrist", GTRecipeTypes.DUMMY)
             .setXEIVisible(false)
             .setSound(GTLAddSoundEntries.FORGE_OF_THE_ANTICHRIST)

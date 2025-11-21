@@ -107,6 +107,7 @@ public abstract class LargeSteamParallelMultiblockMachineMixin extends WorkableM
         }
     }
 
+    @SuppressWarnings("DiscouragedShift")
     @Inject(method = "addDisplayText", at = @At(value = "INVOKE", target = "Lcom/gregtechceu/gtceu/api/machine/trait/RecipeLogic;isWaiting()Z", shift = At.Shift.BEFORE), remap = false, cancellable = true)
     public void addDisplayText(List<Component> textList, CallbackInfo ci) {
         if (this.recipeLogic.isWaiting()) textList.add(Component.translatable("gtceu.multiblock.steam.low_steam").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));

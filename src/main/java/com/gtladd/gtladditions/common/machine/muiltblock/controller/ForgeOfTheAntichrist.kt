@@ -11,7 +11,6 @@ import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.common.record.ParallelData
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecipesLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
@@ -21,17 +20,14 @@ import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIO
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOFUSION_EXOTICIZER
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOTHERMAL_PLASMA_FABRICATOR
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
+import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.AntichristPosHelper
 import com.gtladd.gtladditions.utils.StarGradient
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongArrayList
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import it.unimi.dsi.fastutil.objects.ObjectArrayList
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
+import it.unimi.dsi.fastutil.objects.*
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -226,7 +222,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     val radiusMultiplier: Float
         get() = (1 + 1.7 * (1.0 - exp(-runningSecs.toDouble() / MAX_EFFICIENCY_SEC))).toFloat()
 
-    val rGBFromTime: Int
+    val rgbFromTime: Int
         get() = StarGradient.getRGBFromTime(
             max(
                 0.0,
@@ -277,7 +273,6 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                 val modifier = ContentModifier.multiplier(getMachine().recipeOutputMultiply)
 
                 for (recipe in recipes) {
-                    recipe ?: continue
                     val modified = copyAndModifyRecipe(recipe, modifier)
                     val parallel = getMaxParallel(modified, Long.MAX_VALUE)
                     if (parallel > 0) {

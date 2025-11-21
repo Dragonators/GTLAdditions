@@ -8,7 +8,7 @@ import com.gtladd.gtladditions.common.machine.trait.SuperNotifiableFluidTank
 class UltimateDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, vararg args: Any?) :
     SuperDualHatchPartMachine(holder, tier, *args){
     override fun createTank(): NotifiableFluidTank {
-        return object : SuperNotifiableFluidTank(this, 64, kotlin.Long.Companion.MAX_VALUE, IO.IN) {
+        return object : SuperNotifiableFluidTank(this@UltimateDualHatchPartMachine, 64, Long.MAX_VALUE, IO.IN) {
             override fun canCapOutput(): Boolean {
                 return true
             }
