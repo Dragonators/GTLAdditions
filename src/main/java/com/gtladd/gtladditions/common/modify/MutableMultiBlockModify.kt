@@ -14,6 +14,7 @@ import com.gtladd.gtladditions.api.machine.EBFChecks
 import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic
 import com.gtladd.gtladditions.api.machine.mutable.AddMutableElectricParallelHatchMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableCoilElectricParallelHatchMultiblockMachine
+import com.gtladd.gtladditions.api.machine.mutable.MutableElectricMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricParallelHatchMultiblockMachine
 import com.gtladd.gtladditions.common.modify.multiblockMachine.*
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ANTIENTROPY_CONDENSATION_CENTER
@@ -57,6 +58,8 @@ import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineB
 import java.util.function.BiConsumer
 import java.util.function.Function
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
 object MutableMultiBlockModify {
 
@@ -182,7 +185,14 @@ object MutableMultiBlockModify {
                         .withStyle(
                             ChatFormatting.GOLD
                         )
-                )
+
+                ), when (definition) {
+                    MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE ->
+                        Component.translatable("gtladditions.multiblock.thread.component_assembly_line.tooltip.0")
+                    MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT ->
+                        Component.translatable("gtladditions.multiblock.thread.atomic_energy_excitation_plant.tooltip.0")
+                    else -> null
+                }
             )
         }
         for (definition in arrayOf(*multipleDefinitions, *addDefinitions)) {
@@ -216,11 +226,14 @@ object MutableMultiBlockModify {
         }
     }
 
-    fun addTooltips(definition: MultiblockMachineDefinition, vararg newTooltips: Component) {
+    fun addTooltips(definition: MultiblockMachineDefinition, vararg newTooltips: Component?) {
         val oldBuilder = definition.tooltipBuilder
         definition.tooltipBuilder = BiConsumer { stack: ItemStack?, components: MutableList<Component> ->
             oldBuilder?.accept(stack, components)
-            components.addAll(if (components.isNotEmpty()) components.size - 1 else 0, newTooltips.toList())
+            components.addAll(
+                if (components.isNotEmpty()) components.size - 1 else 0,
+                newTooltips.filterNotNull().toList()
+            )
         }
     }
 
@@ -235,9 +248,9 @@ object MutableMultiBlockModify {
         }
 
         MultiBlockMachineA.LARGE_RECYCLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
-            object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
+            object : MutableElectricMultiblockMachine(blockEntity) {
                 override fun getMaxParallel(): Int {
-                    return Int.MAX_VALUE
+                    return 4.0.pow(tier - 4).roundToInt()
                 }
             }
         }

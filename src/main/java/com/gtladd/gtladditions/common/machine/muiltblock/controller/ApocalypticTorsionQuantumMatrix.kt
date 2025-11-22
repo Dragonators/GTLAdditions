@@ -136,7 +136,7 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
             }
 
             companion object {
-                private const val MAX_THREADS: Long = 1536
+                private const val MAX_THREADS: Long = 1024
                 private const val INPUT_CHANCE_RATIO = 10
 
                 private fun modifyContents(before: Map<RecipeCapability<*>, MutableList<Content>>, isInput: Boolean): Reference2ReferenceOpenHashMap<RecipeCapability<*>, MutableList<Content>> {

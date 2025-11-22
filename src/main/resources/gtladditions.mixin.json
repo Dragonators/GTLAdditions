@@ -11,7 +11,6 @@
     "ae2.ItemPickupStrategyMixin",
     "gtceu.api.capability.CWURecipeCapabilityMixin",
     "gtceu.api.machine.IFancyUIMachineMixin",
-    "gtceu.api.misc.EnergyContainerListAccessor",
     "gtceu.api.recipe.GTRecipeLookupMixin",
     "gtceu.api.recipe.MultiblockStateMixin",
     "gtceu.common.item.DataItemBehaviorMixin",

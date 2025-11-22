@@ -50,6 +50,8 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.SPATIALLY_TRANSCENDENT
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_CASING
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
+import com.gtladd.gtladditions.common.machine.GTLAddMachines.ME_SUPER_PATTERN_BUFFER
+import com.gtladd.gtladditions.common.machine.GTLAddMachines.ME_SUPER_PATTERN_BUFFER_PROXY
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.WIRELESS_LASER_INPUT_HATCH_67108864A
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.Wireless_Energy_Network_OUTPUT_Terminal
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.*
@@ -712,7 +714,9 @@ object MultiBlockMachine {
                         .or(Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1)))
                     .where("L", Predicates.blocks(GTLFusionCasingBlock.getCasingState(10))
                         .or(Predicates.blocks(GTMachines.ITEM_IMPORT_BUS[0].get()))
-                        .or(Predicates.blocks(CustomMachines.HUGE_ITEM_IMPORT_BUS[0].get())))
+                        .or(Predicates.blocks(CustomMachines.HUGE_ITEM_IMPORT_BUS[0].get()))
+                        .or(Predicates.blocks(ME_SUPER_PATTERN_BUFFER.get()))
+                        .or(Predicates.blocks(ME_SUPER_PATTERN_BUFFER_PROXY.get())))
                     .where("I", Predicates.blocks(MOLECULAR_CASING.get()))
                     .where("K", Predicates.blocks(getBlock("kubejs:annihilate_core")))
                     .where("J", Predicates.blocks(getBlock("kubejs:aggregatione_core")))
