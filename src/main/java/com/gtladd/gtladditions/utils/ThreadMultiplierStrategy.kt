@@ -24,7 +24,7 @@ object ThreadMultiplierStrategy {
         BLOCK_MULTIPLIER_MAP.put(AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE, 1)
         BLOCK_MULTIPLIER_MAP.put(MultiBlockMachineA.NANO_CORE, 1)
         BLOCK_MULTIPLIER_MAP.put(AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV], 2)
-        BLOCK_MULTIPLIER_MAP.put(MultiBlockMachineA.LARGE_RECYCLER, 256)
+        BLOCK_MULTIPLIER_MAP.put(MultiBlockMachineA.LARGE_RECYCLER, 2048)
         BLOCK_MULTIPLIER_MAP.put(MultiBlockMachineA.ADVANCED_SPS_CRAFTING, 1)
         BLOCK_MULTIPLIER_MAP.put(MultiBlockMachineA.PETROCHEMICAL_PLANT, 32)
         BLOCK_MULTIPLIER_MAP.put(MultiBlockMachineB.WOOD_DISTILLATION, 128)
