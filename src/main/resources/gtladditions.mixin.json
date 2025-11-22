@@ -21,6 +21,7 @@
     "gtceu.recipe.ContentMixin",
     "gtceu.recipe.GTRecipeBuilderMixin",
     "gtceu.recipe.GTRecipeJSMixin",
+    "gtceu.recipe.GTRecipePayloadMixin",
     "gtceu.recipe.GTRecipeWidgetMixin",
     "gtceu.recipe.MaterialRecipeHandlerMixin",
     "gtceu.recipe.RecipeLogicProviderMixin",
@@ -43,6 +44,6 @@
     "gtmtings.WirelessEnergyMonitorMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMixin",
     "ldlib.FluidHelperImplMixin",
-    "ldlib.FluidStackMixin",
+    "ldlib.FluidStackMixin"
   ]
 }

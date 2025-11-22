@@ -13,7 +13,29 @@ import java.math.BigInteger
 open class WirelessGTRecipe : GTRecipe, IWirelessGTRecipe {
 
     @JvmField
-    protected val wirelessEuTickInputs: BigInteger?
+    val wirelessEuTickInputs: BigInteger?
+
+    constructor(
+        gtRecipe: GTRecipe,
+        wirelessEuTickInputs: BigInteger?
+    ) : this(
+        gtRecipe.recipeType,
+        gtRecipe.id,
+        gtRecipe.inputs,
+        gtRecipe.outputs,
+        gtRecipe.tickInputs,
+        gtRecipe.tickOutputs,
+        gtRecipe.inputChanceLogics,
+        gtRecipe.outputChanceLogics,
+        gtRecipe.tickInputChanceLogics,
+        gtRecipe.tickOutputChanceLogics,
+        gtRecipe.conditions,
+        gtRecipe.ingredientActions,
+        gtRecipe.data,
+        gtRecipe.duration,
+        gtRecipe.isFuel,
+        wirelessEuTickInputs
+    )
 
     constructor(
         recipeType: GTRecipeType,
