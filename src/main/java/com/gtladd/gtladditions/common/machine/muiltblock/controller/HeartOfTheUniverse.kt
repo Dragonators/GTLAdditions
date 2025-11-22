@@ -107,7 +107,7 @@ class HeartOfTheUniverse(holder: IMachineBlockEntity, vararg args: Any?) :
                     return null
                 }
 
-                return RecipeCalculationHelper.buildWirelessRecipe(itemOutputs, fluidOutputs, 20, totalEu)
+                return RecipeCalculationHelper.buildWirelessRecipe(itemOutputs, fluidOutputs, 20, totalEu.negate())
             }
 
             override fun checkRecipe(recipe: GTRecipe): Boolean {
