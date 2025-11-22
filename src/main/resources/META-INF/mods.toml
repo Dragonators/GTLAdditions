@@ -29,3 +29,10 @@ mandatory = true
 versionRange = "[1.2.2.6,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "sgjourney"
+mandatory = true
+versionRange = "[0.6.44,)"
+ordering = "AFTER"
+side = "BOTH"

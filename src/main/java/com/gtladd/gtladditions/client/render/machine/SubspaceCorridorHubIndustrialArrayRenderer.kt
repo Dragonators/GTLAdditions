@@ -7,6 +7,7 @@ import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRender
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.SubspaceCorridorHubIndustrialArray
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
@@ -52,12 +53,12 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
         combinedOverlay: Int
     ) {
         if (blockEntity is IMachineBlockEntity) {
-            val metaMachine = blockEntity.metaMachine
-            if (metaMachine is SubspaceCorridorHubIndustrialArray && metaMachine.isActive) {
-                val tick = metaMachine.offsetTimer + partialTicks
+            val machine = blockEntity.metaMachine as? SubspaceCorridorHubIndustrialArray ?: return
+            if (machine.recipeLogic.isWorking) {
+                val tick = RenderUtils.getSmoothTick(machine, partialTicks)
                 val seed = blockEntity.blockPos.asLong()
 
-                val (x, y, z) = when (metaMachine.frontFacing) {
+                val (x, y, z) = when (machine.frontFacing) {
                     Direction.NORTH -> Triple(0.5, -94.5, 105.5)
                     Direction.SOUTH -> Triple(0.5, -94.5, -104.5)
                     Direction.WEST -> Triple(105.5, -94.5, 0.5)
@@ -65,9 +66,9 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
                     else -> Triple(0.5, -94.5, 0.5)
                 }
 
-                val cache = getOrCreateCache(seed, metaMachine.frontFacing, Vec3(x, y, z))
+                val cache = getOrCreateCache(seed, machine.frontFacing, Vec3(x, y, z))
 
-                renderBeamCylinders(poseStack, buffer, metaMachine.frontFacing, tick)
+                renderBeamCylinders(poseStack, buffer, machine.frontFacing, tick)
 
                 RenderUtils.drawBeaconToSky(
                     poseStack, buffer, x, y - 36, z,
@@ -82,6 +83,7 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     override fun onAdditionalModel(registry: Consumer<ResourceLocation>) {
         super.onAdditionalModel(registry)
         registry.accept(STAR_LAYER)
@@ -120,6 +122,7 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     companion object {
         private val STAR_LAYER: ResourceLocation = GTLAdditions.id("obj/star_layer_1")
         private val CLIMBER_MODEL: ResourceLocation = GTLCore.id("obj/climber")
@@ -147,10 +150,8 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
             intArrayOf(-24, -109, 31)
         )
 
-        @OnlyIn(Dist.CLIENT)
         private val CACHE_MAP: ConcurrentHashMap<Long, RenderCache> = ConcurrentHashMap()
 
-        @OnlyIn(Dist.CLIENT)
         private fun renderBeamCylinders(
             poseStack: PoseStack,
             buffer: MultiBufferSource,
@@ -192,7 +193,6 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
             }
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun renderClimber(poseStack: PoseStack, buffer: MultiBufferSource) {
             poseStack.pushPose()
             poseStack.scale(4f, 4f, 4f)
@@ -210,7 +210,6 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
             poseStack.popPose()
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun renderStar(
             tick: Float,
             poseStack: PoseStack,
@@ -235,7 +234,6 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
             poseStack.popPose()
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun renderOrbit(
             poseStack: PoseStack,
             buffer: MultiBufferSource,
@@ -277,13 +275,11 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
             }
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun getPlanetSize(seed: Long, index: Int, minSize: Float, maxSize: Float): Float {
             val sizeRandom = Random(seed + index * 500L)
             return minSize + sizeRandom.nextFloat() * (maxSize - minSize)
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun getCircularMotionParams(
             seed: Long,
             i: Int,
@@ -316,12 +312,10 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
             )
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun createCacheKey(seed: Long, facing: Direction): Long {
             return (seed and 0x1FFFFFFFFFFFFFFFL) or (facing.ordinal.toLong() shl 61)
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun getOrCreateCache(seed: Long, facing: Direction, centerPos: Vec3): RenderCache {
             val key = createCacheKey(seed, facing)
             return CACHE_MAP.computeIfAbsent(key) { RenderCache(seed, centerPos) }

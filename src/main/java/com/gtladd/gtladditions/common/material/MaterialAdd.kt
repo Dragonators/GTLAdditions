@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.fluids.FluidBuilder
 import com.gregtechceu.gtceu.api.fluids.FluidState
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.common.data.GTMaterials
+import org.gtlcore.gtlcore.api.data.chemical.material.info.GTLMaterialFlags
 import org.gtlcore.gtlcore.common.data.GTLMaterials
 
 object MaterialAdd {
@@ -20,7 +21,7 @@ object MaterialAdd {
             MaterialFlags.GENERATE_LONG_ROD
         )
         GTLMaterials.MetastableOganesson.addFlags(MaterialFlags.GENERATE_DENSE)
-        GTLMaterials.Infinity.addFlags(MaterialFlags.GENERATE_DENSE)
+        GTLMaterials.Infinity.addFlags(MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_LONG_ROD)
         GTLMaterials.BlackDwarfMatter.addFlags(MaterialFlags.GENERATE_DENSE)
         GTLMaterials.DraconiumAwakened.addFlags(MaterialFlags.GENERATE_LONG_ROD)
         GTLMaterials.Legendarium.addFlags(MaterialFlags.GENERATE_LONG_ROD)
@@ -28,8 +29,16 @@ object MaterialAdd {
         GTLMaterials.CosmicNeutronium.addFlags(MaterialFlags.GENERATE_DENSE)
         GTLMaterials.AbyssalAlloy.addFlags(MaterialFlags.GENERATE_FRAME)
         GTLMaterials.Periodicium.addFlags(MaterialFlags.GENERATE_ROD)
-        GTLMaterials.Echoite.addFlags(MaterialFlags.GENERATE_GEAR)
+        GTLMaterials.Echoite.addFlags(MaterialFlags.GENERATE_GEAR, MaterialFlags.GENERATE_LONG_ROD)
         GTLMaterials.NaquadriaticTaranium.addFlags(MaterialFlags.GENERATE_DENSE)
+        GTLMaterials.Cosmic.addFlags(MaterialFlags.GENERATE_DENSE, GTLMaterialFlags.GENERATE_NANOSWARM)
+        GTLMaterials.Eternity.addFlags(MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.Shirabon.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.Chaos.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.MagnetohydrodynamicallyConstrainedStarMatter.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.WhiteDwarfMatter.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.BlackDwarfMatter.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.SpaceTime.addFlags(MaterialFlags.GENERATE_LONG_ROD)
 
         GTLMaterials.Cosmic.setProperty(PropertyKey.FLUID, FluidProperty(FluidStorageKeys.LIQUID, FluidBuilder()))
         GTLMaterials.Eternity.setProperty(

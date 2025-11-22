@@ -5,13 +5,15 @@ import com.gregtechceu.gtceu.api.addon.IGTAddon
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
-import com.gtladd.gtladditions.common.modify.GTLAddSoundEntries
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.material.GTLAddElements
+import com.gtladd.gtladditions.common.modify.GTLAddSoundEntries
+import com.gtladd.gtladditions.common.modify.RemoveRecipe
 import com.gtladd.gtladditions.data.recipes.*
 import com.gtladd.gtladditions.data.recipes.newmachinerecipe.*
 import com.gtladd.gtladditions.data.recipes.process.SocProcess
 import net.minecraft.data.recipes.FinishedRecipe
+import net.minecraft.resources.ResourceLocation
 import java.util.function.Consumer
 
 @Suppress("unused")
@@ -53,6 +55,7 @@ class GTLAdditionsGTAddon : IGTAddon {
         Qft.init(provider)
         SocProcess.init(provider)
         Misc.init(provider)
+        StarGate.init(provider)
     }
 
     override fun registerSounds() {
@@ -61,5 +64,9 @@ class GTLAdditionsGTAddon : IGTAddon {
 
     override fun registerElements() {
         GTLAddElements.init()
+    }
+
+    override fun removeRecipes(consumer: Consumer<ResourceLocation>) {
+        RemoveRecipe.init(consumer)
     }
 }

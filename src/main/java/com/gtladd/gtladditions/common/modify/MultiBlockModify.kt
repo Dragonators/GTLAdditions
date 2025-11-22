@@ -6,7 +6,10 @@ import com.gregtechceu.gtceu.api.data.tag.TagPrefix
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
+import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern
 import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
@@ -24,12 +27,19 @@ import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.CreateAggregation
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.DoorOfCreate
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MolecularAssemblerMultiblockMachine
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.phys.AABB
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLMaterials
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
+import org.gtlcore.gtlcore.utils.MachineIO
 import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Function
+import java.util.function.Predicate
 
 @Suppress("DuplicatedCode")
 object MultiBlockModify {
@@ -147,25 +157,100 @@ object MultiBlockModify {
         }, GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false))
     )
 
+    private val doorOfCreateOnWorking = Predicate { machine: IRecipeLogicMachine ->
+        if (machine.recipeLogic.progress == 5 && machine is WorkableElectricMultiblockMachine) {
+            machine.self().level?.let { level ->
+                val pos = machine.self().pos.offset(0, -13, 0)
+                level.server!!.`kjs$runCommandSilent`("particle minecraft:dragon_breath ${pos.x} ${pos.y} ${pos.z} 4 4 4 0.01 1000 force")
+                val entities = level.getEntitiesOfClass(
+                    Entity::class.java,
+                    AABB(
+                        pos.x - 10.0,
+                        pos.y - 10.0,
+                        pos.z - 10.0,
+                        pos.x + 10.0,
+                        pos.y + 10.0,
+                        pos.z + 10.0
+                    )
+                )
+                for (entity in entities) {
+                    if (entity is Player) {
+                        if (entity.armorSlots.toString() == "[1 magnetohydrodynamicallyconstrainedstarmatter_boots, 1 magnetohydrodynamicallyconstrainedstarmatter_leggings, 1 magnetohydrodynamicallyconstrainedstarmatter_chestplate, 1 magnetohydrodynamicallyconstrainedstarmatter_helmet]") {
+                            entity.server?.`kjs$runCommandSilent`("execute in kubejs:create as ${entity.name.string} run tp 0 1 0")
+                        } else {
+                            entity.`kjs$setStatusMessage`(net.minecraft.network.chat.Component.translatable("message.gtlcore.equipment_incompatible_dimension"))
+                        }
+                    }
+                    if (entity is ItemEntity) {
+                        when {
+                            entity.item.`kjs$getId`() == "gtceu:magnetohydrodynamicallyconstrainedstarmatter_block"
+                                -> {
+                                entity.server?.`kjs$runCommandSilent`("summon minecraft:item ${entity.x} ${entity.y} ${entity.z} {PickupDelay:10,Motion:[0.0,0.2,0.0],Item:{id:\"minecraft:command_block\",Count:${entity.item.count}b}}")
+                                entity.kill()
+                            }
+
+                            entity.item.`kjs$getId`() == "gtceu:magmatter_ingot" && entity.item.count >= 64
+                                -> {
+                                entity.server?.`kjs$runCommandSilent`("summon minecraft:item ${entity.x} ${entity.y} ${entity.z} {PickupDelay:10,Motion:[0.0,0.2,0.0],Item:{id:\"gtceu:magmatter_block\",Count:${entity.item.count / 64}b}}")
+                                entity.kill()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        true
+    }
+
+    private val createAggregationOnWorking = Predicate { machine: IRecipeLogicMachine ->
+        if (machine.recipeLogic.getProgress() == 19) {
+            machine.self().level?.let { level ->
+                val pos = machine.self().pos.offset(0, -16, 0)
+                val block = level.getBlockState(pos).block.`kjs$getId`()
+                if (MachineIO.inputItem(
+                        machine as WorkableMultiblockMachine,
+                        Registries.getItemStack("kubejs:chain_command_block_core")
+                    ) && block == "kubejs:command_block_broken"
+                ) {
+                    level.setBlockAndUpdate(pos, Blocks.CHAIN_COMMAND_BLOCK.defaultBlockState())
+                }
+                if (MachineIO.inputItem(
+                        machine,
+                        Registries.getItemStack("kubejs:repeating_command_block_core")
+                    ) && block == "kubejs:chain_command_block_broken"
+                ) {
+                    level.setBlockAndUpdate(pos, Blocks.REPEATING_COMMAND_BLOCK.defaultBlockState())
+                }
+            }
+        }
+        true
+    }
+
     fun init() {
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.patternFactory = SupplierMemoizer.memoize {
             (doorofPattern).apply(AdvancedMultiBlockMachine.DOOR_OF_CREATE)
         }
+        AdvancedMultiBlockMachine.DOOR_OF_CREATE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            DoorOfCreate(blockEntity)
+        }
+        AdvancedMultiBlockMachine.DOOR_OF_CREATE.onWorking = doorOfCreateOnWorking
+        AdvancedMultiBlockMachine.DOOR_OF_CREATE.recipeModifier = recipeModifierList
+
+
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.patternFactory = SupplierMemoizer.memoize {
             (createAggregation).apply(AdvancedMultiBlockMachine.CREATE_AGGREGATION)
         }
+        AdvancedMultiBlockMachine.CREATE_AGGREGATION.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            CreateAggregation(blockEntity)
+        }
+        AdvancedMultiBlockMachine.CREATE_AGGREGATION.onWorking = createAggregationOnWorking
+        AdvancedMultiBlockMachine.CREATE_AGGREGATION.recipeModifier = recipeModifierList
+
+
         GTMachines.ACTIVE_TRANSFORMER.patternFactory = SupplierMemoizer.memoize {
             (activeTransformer).apply(GTMachines.ACTIVE_TRANSFORMER)
         }
 
-        AdvancedMultiBlockMachine.CREATE_AGGREGATION.recipeModifier = recipeModifierList
-        AdvancedMultiBlockMachine.DOOR_OF_CREATE.recipeModifier = recipeModifierList
-        AdvancedMultiBlockMachine.CREATE_AGGREGATION.setMachineSupplier { blockEntity: IMachineBlockEntity ->
-            CreateAggregation(blockEntity)
-        }
-        AdvancedMultiBlockMachine.DOOR_OF_CREATE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
-            DoorOfCreate(blockEntity)
-        }
         AdditionalMultiBlockMachine.MOLECULAR_ASSEMBLER_MATRIX.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             MolecularAssemblerMultiblockMachine(blockEntity)
         }

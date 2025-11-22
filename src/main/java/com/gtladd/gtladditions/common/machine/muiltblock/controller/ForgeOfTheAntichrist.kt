@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.common.machine.muiltblock.controller
+﻿package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
@@ -14,20 +14,21 @@ import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecipesLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
-import com.gtladd.gtladditions.common.machine.GTLAddMachines
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOFLARE_POWER_FORGE
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOFLUIX_MELTING_CORE
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOFUSION_EXOTICIZER
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOTHERMAL_PLASMA_FABRICATOR
-import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.common.data.ParallelData
-import com.gtladd.gtladditions.utils.AntichristPosHelper
+import com.gtladd.gtladditions.common.machine.GTLAddMachines
+import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
+import com.gtladd.gtladditions.common.machine.trait.StarRitualTrait
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.utils.StarGradient
+import com.gtladd.gtladditions.utils.antichrist.AntichristPosHelper
+import com.gtladd.gtladditions.utils.antichrist.ServerMachineManager
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongArrayList
-import it.unimi.dsi.fastutil.objects.*
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -41,8 +42,7 @@ import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
-import org.gtlcore.gtlcore.utils.Registries.getItem
-import org.gtlcore.gtlcore.utils.Registries.getItemStack
+import org.gtlcore.gtlcore.utils.Registries
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
 import kotlin.math.exp
 import kotlin.math.max
@@ -62,12 +62,20 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     @field:DescSynced
     var runningSecs: Long = 0
         private set
-    private var mam = 0
     private var runningSecSubs: TickableSubscription? = null
+    private var mam = 0
+
+    @field:Persisted
+    @field:DescSynced
+    val starRitual: StarRitualTrait = StarRitualTrait(this)
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = ForgeOfTheAntichristLogic(this)
 
     override fun getRecipeLogic(): ForgeOfTheAntichristLogic = super.getRecipeLogic() as ForgeOfTheAntichristLogic
+
+    // ========================================
+    // GUI
+    // ========================================
 
     override fun addDisplayText(textList: MutableList<Component?>) {
         super.addDisplayText(textList)
@@ -136,7 +144,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                 Direction.UP,
                 Direction.UP,
                 Direction.NORTH,
-                HELIOTHERMAL_PLASMA_FABRICATOR
+                MultiBlockMachine.HELIOTHERMAL_PLASMA_FABRICATOR
             ),
             ModuleRenderInfo(
                 BlockPos(-13, 0, -14),
@@ -144,7 +152,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                 Direction.UP,
                 Direction.NORTH,
                 Direction.NORTH,
-                HELIOFLARE_POWER_FORGE
+                MultiBlockMachine.HELIOFLARE_POWER_FORGE
             ),
             ModuleRenderInfo(
                 BlockPos(-13, -14, 0),
@@ -152,7 +160,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                 Direction.UP,
                 Direction.DOWN,
                 Direction.NORTH,
-                HELIOFUSION_EXOTICIZER
+                MultiBlockMachine.HELIOFUSION_EXOTICIZER
             ),
             ModuleRenderInfo(
                 BlockPos(-13, 0, 14),
@@ -160,7 +168,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                 Direction.UP,
                 Direction.SOUTH,
                 Direction.NORTH,
-                HELIOFLUIX_MELTING_CORE
+                MultiBlockMachine.HELIOFLUIX_MELTING_CORE
             )
         )
     }
@@ -168,20 +176,23 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     override fun onStructureInvalid() {
         super.onStructureInvalid()
         safeClearModules()
+        unregisterFromServerManager()
     }
 
     override fun onMachineRemoved() {
         safeClearModules()
+        unregisterFromServerManager()
     }
 
     override fun onStructureFormed() {
         super.onStructureFormed()
         safeClearModules()
         scanAndConnectModules()
+        registerToServerManager()
     }
 
     // ========================================
-    // Running Time
+    // Life Cycle
     // ========================================
 
     override fun onLoad() {
@@ -189,11 +200,17 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         (level as? ServerLevel)?.server?.tell(TickTask(0, ::updateRunningSecSubscription))
     }
 
+    override fun onUnload() {
+        super.onUnload()
+        if (!isRemote) unregisterFromServerManager()
+    }
+
     override fun onWorking(): Boolean {
         if (this.runningSecs == 0L) {
             this.runningSecs = 1
             this.updateRunningSecSubscription()
         }
+        starRitual.handleStarRitualLogic()
         return super.onWorking()
     }
 
@@ -219,6 +236,22 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     // Utils
     // ========================================
 
+    private fun registerToServerManager() {
+        (level as? ServerLevel)?.let { serverLevel ->
+            ServerMachineManager.registerMachine(serverLevel, pos, frontFacing)
+        }
+    }
+
+    private fun unregisterFromServerManager() {
+        (level as? ServerLevel)?.let { serverLevel ->
+            ServerMachineManager.unregisterMachine(serverLevel, pos)
+        }
+    }
+
+    private fun getMAM(): Int = mam.also {
+        if (offsetTimer % 20 == 0L) mam = formedModuleCount
+    }
+
     val radiusMultiplier: Float
         get() = (1 + 1.7 * (1.0 - exp(-runningSecs.toDouble() / MAX_EFFICIENCY_SEC))).toFloat()
 
@@ -243,13 +276,26 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
             return 1 + addition
         }
 
-    private fun getMAM(): Int = mam.also {
-        if (offsetTimer % 20 == 0L) mam = formedModuleCount
-    }
-
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     companion object {
+        // 1 -> 1 / MAX_MULTIPLIER
+        fun getEuReduction(machine: ForgeOfTheAntichrist): Double {
+            return 1 - (1 - MIN_EU_RATIO) * (min(
+                machine.runningSecs,
+                MAX_EFFICIENCY_SEC.toLong()
+            ).toDouble() / MAX_EFFICIENCY_SEC).pow(2.5)
+        }
+
+        val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
+            ForgeOfTheAntichrist::class.java,
+            GTLAddWirelessWorkableElectricMultipleRecipesMachine.Companion.MANAGED_FIELD_HOLDER
+        )
+
+        const val MAX_EFFICIENCY_SEC = 14400
+        private const val MAX_OUTPUT_RATIO = 15
+        private const val MIN_EU_RATIO = 0.2
+
         class ForgeOfTheAntichristLogic(parallel: ForgeOfTheAntichrist) :
             GTLAddMultipleTypeWirelessRecipesLogic(parallel) {
             init {
@@ -358,8 +404,13 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                             }
                         }
 
-                        fullCell.get(id)?.let { it ->
-                            copyList.add(it.copy(ItemRecipeCapability.CAP, ContentModifier.multiplier(modifier.multiplier - 1)))
+                        fullCell[id]?.let { it ->
+                            copyList.add(
+                                it.copy(
+                                    ItemRecipeCapability.CAP,
+                                    ContentModifier.multiplier(modifier.multiplier - 1)
+                                )
+                            )
                         }
 
                         after[cap] = copyList
@@ -372,59 +423,34 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
             companion object {
                 private val cycleItems by lazy {
-                    ObjectOpenHashSet<Item>(
-                        arrayOf(
-                            getItem("kubejs:extremely_durable_plasma_cell"),
-                            getItem("kubejs:time_dilation_containment_unit"),
-                            getItem("kubejs:plasma_containment_cell")
-                        )
+                    setOf<Item>(
+                        Registries.getItem("kubejs:extremely_durable_plasma_cell"),
+                        Registries.getItem("kubejs:time_dilation_containment_unit"),
+                        Registries.getItem("kubejs:plasma_containment_cell")
                     )
                 }
 
                 private val fullCell by lazy {
-                    Object2ObjectOpenHashMap<ResourceLocation, Content>(
-                        arrayOf(
-                            ResourceLocation("kubejs", "stellar_forge/contained_exotic_matter"),
-                            ResourceLocation("kubejs", "stellar_forge/extremely_durable_plasma_cell")
+                    mapOf<ResourceLocation, Content>(
+                        ResourceLocation("kubejs", "stellar_forge/contained_exotic_matter") to Content(
+                            LongIngredient.create(Ingredient.of(Registries.getItemStack("kubejs:time_dilation_containment_unit"))),
+                            ChanceLogic.getMaxChancedValue(),
+                            ChanceLogic.getMaxChancedValue(),
+                            0,
+                            null,
+                            null
                         ),
-                        arrayOf(
-                            Content(
-                                LongIngredient.create(Ingredient.of(getItemStack("kubejs:time_dilation_containment_unit"))),
-                                ChanceLogic.getMaxChancedValue(),
-                                ChanceLogic.getMaxChancedValue(),
-                                0,
-                                null,
-                                null
-                            ),
-                            Content(
-                                LongIngredient.create(Ingredient.of(getItemStack("kubejs:extremely_durable_plasma_cell"))),
-                                ChanceLogic.getMaxChancedValue(),
-                                ChanceLogic.getMaxChancedValue(),
-                                0,
-                                null,
-                                null
-                            )
+                        ResourceLocation("kubejs", "stellar_forge/extremely_durable_plasma_cell") to Content(
+                            LongIngredient.create(Ingredient.of(Registries.getItemStack("kubejs:extremely_durable_plasma_cell"))),
+                            ChanceLogic.getMaxChancedValue(),
+                            ChanceLogic.getMaxChancedValue(),
+                            0,
+                            null,
+                            null
                         )
                     )
                 }
             }
         }
-
-        // 1 -> 1 / MAX_MULTIPLIER
-        fun getEuReduction(machine: ForgeOfTheAntichrist): Double {
-            return 1 - (1 - MIN_EU_RATIO) * (min(
-                machine.runningSecs,
-                MAX_EFFICIENCY_SEC.toLong()
-            ).toDouble() / MAX_EFFICIENCY_SEC).pow(2.5)
-        }
-
-        val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
-            ForgeOfTheAntichrist::class.java,
-            GTLAddWirelessWorkableElectricMultipleRecipesMachine.MANAGED_FIELD_HOLDER
-        )
-
-        const val MAX_EFFICIENCY_SEC = 14400
-        private const val MAX_OUTPUT_RATIO = 15
-        private const val MIN_EU_RATIO = 0.2
     }
 }

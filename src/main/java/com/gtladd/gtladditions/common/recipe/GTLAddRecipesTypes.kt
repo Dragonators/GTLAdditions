@@ -179,7 +179,7 @@ object GTLAddRecipesTypes {
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
             .setSound(GTLAddSoundEntries.INTER_STELLAR)
         NIGHTMARE_CRAFTING = GTRecipeTypes.register("nightmare_crafting", GTRecipeTypes.MULTIBLOCK)
-            .setEUIO(IO.IN).setMaxIOSize(16, 1, 0, 0)
+            .setEUIO(IO.IN).setMaxIOSize(16, 1, 1, 0)
             .setMaxTooltips(1)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.SCIENCE)

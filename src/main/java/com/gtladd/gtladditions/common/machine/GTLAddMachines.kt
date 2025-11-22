@@ -17,14 +17,14 @@ import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.Companion.REGISTRATE
 import com.gtladd.gtladditions.api.registry.MachineBuilderExtensions.overlayHullRenderer
-import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
-import com.gtladd.gtladditions.common.modify.MultiBlockModify
-import com.gtladd.gtladditions.common.modify.MutableMultiBlockModify
 import com.gtladd.gtladditions.common.machine.hatch.HugeSteamHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.SuperDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.UltimateDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.part.*
+import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
+import com.gtladd.gtladditions.common.modify.MultiBlockModify
+import com.gtladd.gtladditions.common.modify.MutableMultiBlockModify
 import com.gtladd.gtladditions.config.ConfigHolder
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeDualHatchPartMachine
 import com.hepdd.gtmthings.common.registry.GTMTRegistration

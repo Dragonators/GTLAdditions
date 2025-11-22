@@ -7,9 +7,15 @@ import appeng.crafting.pattern.AEProcessingPattern
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour
 import com.gregtechceu.gtceu.utils.FormattingUtil
+import committee.nova.mods.avaritia.init.registry.ModItems
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
+import net.povstalec.sgjourney.StargateJourney
+import net.povstalec.sgjourney.common.init.BlockInit
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.DecimalFormat
@@ -142,6 +148,95 @@ object CommonUtils {
                 PatternDetailsHelper.encodeProcessingPattern(filteredInputs.toTypedArray(), originalOutputs)
             }
             else -> PatternDetailsHelper.encodeProcessingPattern(filteredInputs.toTypedArray(), originalOutputs)
+        }
+    }
+
+    // ===================================================
+    // StarGate Journey
+    // ===================================================
+
+    const val VALID_TAG = "gtladditions:stargate_transfer"
+
+    private val FORBIDDEN_DIMENSIONS by lazy {
+        mapOf(
+            ResourceLocation(StargateJourney.MODID, "lantea") to ItemStack(BlockInit.UNIVERSE_STARGATE.get().asItem()),
+            ResourceLocation(StargateJourney.MODID, "abydos") to ItemStack(ModItems.neutron_ring.get()),
+            ResourceLocation(StargateJourney.MODID, "chulak") to ItemStack(ModItems.infinity_umbrella.get()),
+            ResourceLocation(StargateJourney.MODID, "cavum_tenebrae") to ItemStack(ModItems.infinity_ring.get())
+        )
+    }
+
+    @JvmStatic
+    fun selectDisplayItem(dimensionLocation: ResourceLocation): ItemStack? = FORBIDDEN_DIMENSIONS[dimensionLocation]
+
+    @JvmStatic
+    fun isTargetDimension(dimensionLocation: ResourceLocation): Boolean = FORBIDDEN_DIMENSIONS.containsKey(dimensionLocation)
+
+    // ===================================================
+    // Pos Offset
+    // ===================================================
+
+    /**
+     * Calculates a rotated render position with full control over base and target facing.
+     * Transforms an offset from one facing orientation to another.
+     * @param baseFacing The facing direction when the offset was recorded/defined
+     * @param targetFacing The current facing direction of the machine
+     * @param offsetX The X offset in the base facing coordinate system
+     * @param offsetY The Y offset (not affected by rotation)
+     * @param offsetZ The Z offset in the base facing coordinate system
+     * @return Rotated Vec3 position relative to block center (0.5, 0.5, 0.5)
+     */
+    fun getRotatedRenderPosition(
+        baseFacing: Direction,
+        targetFacing: Direction,
+        offsetX: Double,
+        offsetY: Double,
+        offsetZ: Double
+    ): Vec3 {
+        require(baseFacing.axis == Direction.Axis.Y || targetFacing.axis != Direction.Axis.Y) {
+            "Facing must be horizontal (NORTH, SOUTH, EAST, WEST)"
+        }
+
+        val y = 0.5 + offsetY
+
+        if (baseFacing == targetFacing) {
+            return Vec3(0.5 + offsetX, y, 0.5 + offsetZ)
+        }
+
+        val baseIndex = getHorizontalIndex(baseFacing)
+        val targetIndex = getHorizontalIndex(targetFacing)
+        val rotationSteps = (targetIndex - baseIndex + 4) % 4
+
+        return when (rotationSteps) {
+            0 -> {
+                Vec3(0.5 + offsetX, y, 0.5 + offsetZ)
+            }
+            1 -> {
+                val x = 0.5 - offsetZ
+                val z = 0.5 + offsetX
+                Vec3(x, y, z)
+            }
+            2 -> {
+                val x = 0.5 - offsetX
+                val z = 0.5 - offsetZ
+                Vec3(x, y, z)
+            }
+            3 -> {
+                val x = 0.5 + offsetZ
+                val z = 0.5 - offsetX
+                Vec3(x, y, z)
+            }
+            else -> Vec3(0.5 + offsetX, y, 0.5 + offsetZ)
+        }
+    }
+
+    private fun getHorizontalIndex(facing: Direction): Int {
+        return when (facing) {
+            Direction.EAST -> 0
+            Direction.SOUTH -> 1
+            Direction.WEST -> 2
+            Direction.NORTH -> 3
+            else -> 0
         }
     }
 }
