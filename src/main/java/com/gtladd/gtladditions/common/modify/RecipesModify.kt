@@ -27,6 +27,7 @@ object RecipesModify {
     fun init() {
         DOOR_OF_CREATE_RECIPES.setMaxIOSize(1, 1, 0, 0)
         CREATE_AGGREGATION_RECIPES.setMaxIOSize(2, 1, 0, 0)
+        DIMENSIONALLY_TRANSCENDENT_MIXER_RECIPES.setMaxIOSize(9, 1, 16, 1)
 
         initPhotonMatrixEtch()
         initAntientropyCondensation()

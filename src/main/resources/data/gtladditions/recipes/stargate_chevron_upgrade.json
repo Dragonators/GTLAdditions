@@ -1,0 +1,39 @@
+{
+  "type": "avaritia:shaped_extreme_craft",
+  "category": "misc",
+  "pattern": [
+    "         ",
+    "BCBDBCB  ",
+    " BECEB   ",
+    "  FDF    ",
+    "  BCBDBCB",
+    "   BECEB ",
+    "    GDG  ",
+    "     B   ",
+    "         "
+  ],
+  "key": {
+    "B": {
+      "item": "gtladditions:stargate_frame_part"
+    },
+    "C": {
+      "item": "gtlcore:max_electric_piston"
+    },
+    "D": {
+      "item": "gtlcore:max_field_generator"
+    },
+    "E": {
+      "item": "sgjourney:universe_stargate_chevron"
+    },
+    "F": {
+      "item": "gtlcore:max_sensor"
+    },
+    "G": {
+      "item": "gtlcore:max_emitter"
+    }
+  },
+  "result": {
+    "item": "gtladditions:stargate_chevron_upgrade"
+  },
+  "show_notification": true
+}

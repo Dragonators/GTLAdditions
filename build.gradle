@@ -177,6 +177,8 @@ dependencies {
 
     modRuntimeOnly("dev:jecharacters:1.20.1-forge-4.5.11-dev-shadow")
 
+    modImplementation("curse.maven:stargate-journey-689083:7173638"){ transitive = false }
+
     forgeRuntimeLibrary(runtimeOnly("icyllis.modernui:ModernUI-Core:3.10.1")) // Modern UI core framework
     forgeRuntimeLibrary(runtimeOnly("icyllis.modernui:ModernUI-Markdown:3.10.1")) { transitive = false }
     // Modern UI core extensions

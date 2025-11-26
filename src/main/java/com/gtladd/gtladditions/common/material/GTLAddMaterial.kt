@@ -61,7 +61,7 @@ object GTLAddMaterial {
             .ingot()
             .fluid(FluidStorageKeys.LIQUID, FluidState.LIQUID)
             .blastTemp(48000, BlastProperty.GasTier.HIGHEST, GTValues.VA[GTValues.OpV], 680)
-            .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE)
+            .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_LONG_ROD)
             .color(0x01943c)
             .iconSet(MaterialIconSet.METALLIC)
             .buildAndRegister().setFormula("(TsЖ)₂(W₈Nq*₇(SiO₂)₄C₄V₃SpPu)₂Tt₂((CW)₇Ti₃)₃⊕☄⚛If*")
@@ -78,6 +78,13 @@ object GTLAddMaterial {
             .color(0xffffff)
             .iconSet(MaterialIconSet.DULL)
             .buildAndRegister().setFormula("〄")
+
+    val STAR_GATE_CRYSTAL_SLURRY: Material =
+        Material.Builder(GTLAdditions.id("star_gate_crystal_slurry"))
+            .fluid(FluidStorageKeys.LIQUID, FluidBuilder().state(FluidState.LIQUID).temperature(295).customStill())
+            .color(0xffffff)
+            .iconSet(MaterialIconSet.DULL)
+            .buildAndRegister().setFormula("✟✵✟")
 
     fun init() {
     }

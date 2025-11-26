@@ -1,0 +1,39 @@
+{
+  "type": "avaritia:shaped_extreme_craft",
+  "category": "misc",
+  "pattern": [
+    "AAABCBBDD",
+    "AAABBBDEE",
+    "AAABBDE  ",
+    "FFFBBDE  ",
+    "FFFBCDE  ",
+    "FFFBBDE  ",
+    "AAABBDE  ",
+    "AAABBBDEE",
+    "AAABCBBDD"
+  ],
+  "key": {
+    "A": {
+      "item": "gtladditions:heliofusion_exoticizer"
+    },
+    "B": {
+      "item": "gtladditions:stargate_frame_part"
+    },
+    "C": {
+      "item": "sgjourney:universe_stargate_chevron"
+    },
+    "D": {
+      "item": "gtladditions:stargate_shielding_foil"
+    },
+    "E": {
+      "item": "sgjourney:reaction_chamber"
+    },
+    "F": {
+      "item": "gtladditions:forge_of_the_antichrist"
+    }
+  },
+  "result": {
+    "item": "sgjourney:classic_stargate_ring_block"
+  },
+  "show_notification": true
+}

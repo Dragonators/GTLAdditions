@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.utils
+﻿package com.gtladd.gtladditions.utils.antichrist
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -38,7 +38,8 @@ object AntichristPosHelper {
         val result = mutableListOf<BlockPos>()
 
         val moduleNormal = moduleFacing.normal
-        val offsetToCenter = BlockPos(-moduleNormal.x * SIDE_OFFSET, -moduleNormal.y * SIDE_OFFSET, -moduleNormal.z * SIDE_OFFSET)
+        val offsetToCenter =
+            BlockPos(-moduleNormal.x * SIDE_OFFSET, -moduleNormal.y * SIDE_OFFSET, -moduleNormal.z * SIDE_OFFSET)
 
         for (hostFacing in arrayOf(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)) {
             val backward = hostFacing.opposite.normal

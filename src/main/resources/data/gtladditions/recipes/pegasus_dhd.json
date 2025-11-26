@@ -1,0 +1,48 @@
+{
+  "type": "avaritia:shaped_extreme_craft",
+  "category": "misc",
+  "pattern": [
+    "  AAAAA  ",
+    " ABCCCBA ",
+    "ABDEEEDBA",
+    "ABDEEEDBA",
+    " AFGGGFA ",
+    "  AFFFA  ",
+    "  AHIHA  ",
+    "  AHIHA  ",
+    " AHIIIHA "
+  ],
+  "key": {
+    "C": {
+      "item": "gtladditions:stargate_frame_part"
+    },
+    "D": {
+      "item": "gtladditions:stargate_chevron_upgrade"
+    },
+    "E": {
+      "item": "expatternprovider:fishbig"
+    },
+    "B": {
+      "item": "gtladditions:stargate_frame_part"
+    },
+    "F": {
+      "item": "gtladditions:stargate_frame_part"
+    },
+    "G": {
+      "item": "sgjourney:crystal_base"
+    },
+    "A": {
+      "item": "gtceu:chaos_block"
+    },
+    "I": {
+      "item": "sgjourney:reaction_chamber"
+    },
+    "H": {
+      "item": "gtladditions:stargate_shielding_foil"
+    }
+  },
+  "result": {
+    "item": "sgjourney:pegasus_dhd"
+  },
+  "show_notification": true
+}

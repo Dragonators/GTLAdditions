@@ -3,7 +3,6 @@
   "minVersion": "0.8",
   "package": "com.gtladd.gtladditions.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "gtladditions.refmap.json",
   "mixins": [
     "ae2.ExternalStorageFacadeAccessor",
     "ae2.ExternalStorageFacadeMixin",
@@ -29,6 +28,8 @@
     "gtceu.xei.FluidHelperMixin",
     "gtceu.xei.FluidTankRendererMixin",
     "gtceu.xei.FluidUnitMixin",
+    "gtceu.xei.ItemEmiStackMixin",
+    "gtlcore.data.recipe.GenerateDisassemblyMixin",
     "gtlcore.machine.CoilWorkableElectricMultipleRecipesMachineMixin",
     "gtlcore.machine.HarmonyMachineMixin",
     "gtlcore.machine.LargeSteamParallelMultiblockMachineMixin",
@@ -43,6 +44,32 @@
     "gtmtings.WirelessEnergyMonitorMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMixin",
     "ldlib.FluidHelperImplMixin",
-    "ldlib.FluidStackMixin"
+    "ldlib.FluidStackMixin",
+    "mc.RecipeManagerMixin",
+    "stargatejourney.BiomeModifiersMixin",
+    "stargatejourney.FluidInitMixin",
+    "stargatejourney.ForgeEventsMixin",
+    "stargatejourney.HeavyNaquadahLiquidizerEntityMixin",
+    "stargatejourney.RecipeTypeInitMixin",
+    "stargatejourney.TabInitMixin",
+    "stargatejourney.ToolMaterialInitMixin",
+    "stargatejourney.VillagerInitMixin",
+    "stargatejourney.WormholeMixin",
+    "stargatejourney.dhd.AbstractDHDEntityMixin",
+    "stargatejourney.dhd.ClassicDHDBlockMixin",
+    "stargatejourney.dhd.MilkyWayDHDBlockMixin",
+    "stargatejourney.dhd.PegasusDHDBlockMixin",
+    "stargatejourney.stargate.AbstractStargateEntityMixin",
+    "stargatejourney.stargate.ClassicStargateBaseBlockMixin",
+    "stargatejourney.stargate.StargateConnectionMixin",
+    "stargatejourney.stargate.StargateNetworkMixin",
+    "stargatejourney.stargate.StargateStructureMixin"
+  ],
+  "client": [
+    "stargatejourney.InterfaceScreenMixin",
+    "gtlcore.client.renderer.machine.AnnihilateGeneratorRendererMixin",
+    "gtlcore.client.renderer.machine.EyeOfHarmonyRendererMixin",
+    "gtlcore.client.renderer.machine.SpaceElevatorRendererMixin",
+    "minecraft.client.ClientLevelChunkCacheMixin"
   ]
 }

@@ -4,9 +4,10 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.LightHunterSpaceStation
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.LightHunterSpaceStation
+import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
@@ -46,12 +47,12 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
     ) {
         if (blockEntity is IMachineBlockEntity) {
             val machine = blockEntity.metaMachine as? LightHunterSpaceStation ?: return
-            if (machine.isActive) {
-                val tick = machine.offsetTimer + partialTicks
+            if (machine.recipeLogic.isWorking) {
+                val tick = RenderUtils.getSmoothTick(machine, partialTicks)
                 val seed = blockEntity.blockPos.asLong()
                 val facing = machine.frontFacing
-                val beamEnd = RenderUtils.getRotatedRenderPosition(Direction.EAST, facing, BEAM_OFFSET_X, 0.5, 0.0)
-                val starPos = RenderUtils.getRotatedRenderPosition(Direction.EAST, facing, STAR_OFFSET_X, 0.5, 0.0)
+                val beamEnd = getRotatedRenderPosition(BASE_DIRECTION, facing, BEAM_OFFSET_X, 0.0, 0.0)
+                val starPos = getRotatedRenderPosition(BASE_DIRECTION, facing, STAR_OFFSET_X, 0.0, 0.0)
 
                 renderBeam(poseStack, buffer, blockEntity, Vec3(0.5, 0.5, 0.5), beamEnd, tick)
                 if (machine.unlockParadoxical()) {
@@ -64,6 +65,7 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     override fun onAdditionalModel(registry: Consumer<ResourceLocation>) {
         super.onAdditionalModel(registry)
         registry.accept(STAR_LAYER)
@@ -97,6 +99,7 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     companion object {
         private const val BEAM_OFFSET_X = -174.0
         private const val STAR_OFFSET_X = -206.0
@@ -104,6 +107,7 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
         private const val MAX_RADIUS = 53.0f
         private const val MIN_TILT_ANGLE = 70f
         private const val MAX_TILT_ANGLE = 90f
+        private val BASE_DIRECTION = Direction.EAST
 
         private val STAR_LAYER = GTLAdditions.id("obj/star_layer_1")
         private val SPACE_MODEL = GTLAdditions.id("obj/heart_of_universe")
@@ -124,10 +128,8 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
             GTLAdditions.id("obj/planets/venus")
         )
 
-        @OnlyIn(Dist.CLIENT)
         private val CACHE_MAP = ConcurrentHashMap<Long, RenderCache>()
 
-        @OnlyIn(Dist.CLIENT)
         private fun renderBeam(
             poseStack: PoseStack,
             buffer: MultiBufferSource,
@@ -143,7 +145,6 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
             )
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun renderStar(
             poseStack: PoseStack,
             buffer: MultiBufferSource,
@@ -169,7 +170,6 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
             poseStack.popPose()
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun renderBlackHole(
             poseStack: PoseStack,
             buffer: MultiBufferSource,
@@ -201,7 +201,6 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
             poseStack.popPose()
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun renderOrbit(
             poseStack: PoseStack,
             buffer: MultiBufferSource,
@@ -248,14 +247,12 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
         }
 
         @Suppress("SameParameterValue")
-        @OnlyIn(Dist.CLIENT)
         private fun getPlanetSize(seed: Long, index: Int, minSize: Float, maxSize: Float): Float {
             val sizeRandom = Random(seed + index * 500L)
             return minSize + sizeRandom.nextFloat() * (maxSize - minSize)
         }
 
         @Suppress("SameParameterValue")
-        @OnlyIn(Dist.CLIENT)
         private fun getCircularMotionParams(
             seed: Long,
             i: Int,
@@ -277,11 +274,9 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
             return CircularMotionParams(centerPos, radius, speed, angleOffset, tiltAngle, tiltDirection)
         }
 
-        @OnlyIn(Dist.CLIENT)
         private fun createCacheKey(seed: Long, facing: Direction): Long =
             (seed and 0x1FFFFFFFFFFFFFFFL) or (facing.ordinal.toLong() shl 61)
 
-        @OnlyIn(Dist.CLIENT)
         private fun getOrCreateCache(seed: Long, facing: Direction, centerPos: Vec3): RenderCache {
             val key = createCacheKey(seed, facing)
             return CACHE_MAP.computeIfAbsent(key) { RenderCache(seed, centerPos) }

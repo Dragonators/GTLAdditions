@@ -1,8 +1,6 @@
 package com.gtladd.gtladditions.data.recipes
 
-import com.gregtechceu.gtceu.api.GTValues
-import com.gregtechceu.gtceu.api.GTValues.MAX
-import com.gregtechceu.gtceu.api.GTValues.VA
+import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
@@ -14,8 +12,13 @@ import com.gregtechceu.gtceu.data.recipe.builder.ShapedRecipeBuilder
 import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
+import com.gtladd.gtladditions.common.items.GTLAddItems.INFINITY_WAFER
 import com.gtladd.gtladditions.common.items.GTLAddItems.PHONONIC_SEED_CRYSTAL
+import com.gtladd.gtladditions.common.items.GTLAddItems.PRIMARY_SOC_WAFER
+import com.gtladd.gtladditions.common.items.GTLAddItems.SPACETIME_LENS
+import com.gtladd.gtladditions.common.items.GTLAddItems.SPACETIME_SOC_WAFER
 import com.gtladd.gtladditions.common.items.GTLAddItems.STRANGE_ANNIHILATION_FUEL_ROD
+import com.gtladd.gtladditions.common.items.GTLAddItems.SUPER_DENSE_MAGMATTER_PLATE
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
@@ -52,25 +55,25 @@ object Misc {
             .inputItems(block, MagnetohydrodynamicallyConstrainedStarMatter)
             .outputItems(Blocks.COMMAND_BLOCK.asItem())
             .dimension(ResourceLocation("overworld"))
-            .EUt(GTValues.V[14]).duration(5).save(provider)
+            .EUt(V[14]).duration(5).save(provider)
         DOOR_OF_CREATE_RECIPES.recipeBuilder(id("magmatter_block"))
             .inputItems(ingot, Magmatter, 64)
             .outputItems(block, Magmatter)
             .dimension(ResourceLocation("overworld"))
-            .EUt(GTValues.V[14]).duration(5).save(provider)
+            .EUt(V[14]).duration(5).save(provider)
         CREATE_AGGREGATION_RECIPES.recipeBuilder(id("chain_command_block"))
             .inputItems(getItemStack("kubejs:chain_command_block_core"))
             .inputItems(getItemStack("kubejs:command_block_broken"))
             .outputItems(Blocks.CHAIN_COMMAND_BLOCK.asItem())
             .dimension(KubeJS.id("create")).CWUt(Int.Companion.MAX_VALUE / 2)
-            .EUt(GTValues.V[14]).duration(20)
+            .EUt(V[14]).duration(20)
             .save(provider)
         CREATE_AGGREGATION_RECIPES.recipeBuilder(id("repeating_command_block"))
             .inputItems(getItemStack("kubejs:repeating_command_block_core"))
             .inputItems(getItemStack("kubejs:chain_command_block_broken"))
             .outputItems(Blocks.REPEATING_COMMAND_BLOCK.asItem())
             .dimension(KubeJS.id("create")).CWUt(Int.Companion.MAX_VALUE / 2)
-            .EUt(GTValues.V[14]).duration(20)
+            .EUt(V[14]).duration(20)
             .save(provider)
         MAGIC_MANUFACTURER_RECIPES.recipeBuilder(id("mana_max"))
             .notConsumable(FIELD_GENERATOR_MAX.asStack(64))
@@ -85,6 +88,16 @@ object Misc {
             .pattern(" S ")
             .define('S', getItemStack("gtladditions:super_input_dual_hatch"))
             .define('D', getItemStack("gtlcore:max_storage"))
+            .save(provider)
+        GREENHOUSE_RECIPES.recipeBuilder(id("oak_sapling"))
+            .notConsumable(getItemStack("minecraft:oak_sapling"))
+            .circuitMeta(1)
+            .inputFluids(Water.getFluid(1000))
+            .outputItems(getItemStack("minecraft:oak_log", 64))
+            .outputItems(getItemStack("minecraft:oak_sapling", 6))
+            .outputItems(getItemStack("minecraft:apple", 8))
+            .EUt(30)
+            .duration(600)
             .save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("astral_array"))
             .inputItems(EYE_OF_HARMONY, 64)
@@ -128,8 +141,8 @@ object Misc {
             .save(provider)
         ASSEMBLER_MODULE_RECIPES.recipeBuilder(id("black_hole_seed"))
             .inputItems(EMITTER_MAX, 16)
-            .inputItems(COMPRESSED_FUSION_REACTOR[GTValues.UEV], 16)
-            .inputItems(COMPRESSED_FUSION_REACTOR[GTValues.UEV], 16)
+            .inputItems(COMPRESSED_FUSION_REACTOR[UEV], 16)
+            .inputItems(COMPRESSED_FUSION_REACTOR[UEV], 16)
             .inputItems(EMITTER_MAX, 16)
             .inputItems(plateDouble, PROTO_HALKONITE, 8)
             .inputItems(getItemStack("kubejs:hypercube", 64))
@@ -140,8 +153,8 @@ object Misc {
             .inputItems(getItemStack("kubejs:hypercube", 64))
             .inputItems(plateDouble, PROTO_HALKONITE, 8)
             .inputItems(EMITTER_MAX, 16)
-            .inputItems(COMPRESSED_FUSION_REACTOR[GTValues.UEV], 16)
-            .inputItems(COMPRESSED_FUSION_REACTOR[GTValues.UEV], 16)
+            .inputItems(COMPRESSED_FUSION_REACTOR[UEV], 16)
+            .inputItems(COMPRESSED_FUSION_REACTOR[UEV], 16)
             .inputItems(EMITTER_MAX, 16)
             .inputFluids(CREON.getFluid(92160))
             .inputFluids(WhiteDwarfMatter.getFluid(92160))
@@ -168,6 +181,53 @@ object Misc {
             .EUt(VA[MAX].toLong())
             .duration(600)
             .save(provider)
+        FORMING_PRESS_RECIPES.recipeBuilder(id("super_dense_magmatter_plate"))
+            .inputItems(block, Magmatter, 1024)
+            .inputItems(dust, Eternity, 64)
+            .inputItems(dust, Infinity, 64)
+            .inputItems(dust, SpaceTime, 64)
+            .inputItems(dust, PROTO_HALKONITE, 64)
+            .inputItems(dust, Cosmic, 64)
+            .outputItems(SUPER_DENSE_MAGMATTER_PLATE)
+            .EUt(VEX[18])
+            .duration(409600)
+            .save(provider)
+        NANO_FORGE_RECIPES.recipeBuilder(id("cosmic_nanoswarm"))
+            .notConsumable(SPACETIME_LENS)
+            .inputItems(block, Cosmic, 64)
+            .inputItems(INFINITY_WAFER, 64)
+            .inputItems(SPACETIME_SOC_WAFER, 32)
+            .inputItems(PRIMARY_SOC_WAFER, 32)
+            .inputItems(getItemStack("kubejs:cosmic_singularity", 16))
+            .inputFluids(Cosmic.getFluid(144000))
+            .inputFluids(SpaceTime.getFluid(576000))
+            .inputFluids(PrimordialMatter.getFluid(64000000))
+            .outputItems(nanoswarm, Cosmic)
+            .EUt(VA[MAX].toLong())
+            .duration(320000)
+            .addData("nano_forge_tier", 3)
+            .save(provider)
+        SPS_CRAFTING_RECIPES.recipeBuilder(id("long_magnetohydrodynamicallyconstrainedstarmatter_rod"))
+            .inputItems(rodLong, Eternity)
+            .inputItems(getItemStack("kubejs:solar_light_splitter", 16))
+            .inputFluids(Mana.getFluid(10000))
+            .inputFluids(MagnetohydrodynamicallyConstrainedStarMatter.getFluid(144))
+            .inputFluids(DimensionallyTranscendentResidue.getFluid(1000))
+            .outputItems(rodLong, MagnetohydrodynamicallyConstrainedStarMatter)
+            .EUt(4 * VA[MAX].toLong())
+            .duration(200)
+            .save(provider)
+        QFT_RECIPES.recipeBuilder(id("long_spacetime_rod"))
+            .notConsumable(nanoswarm, SpaceTime, 4)
+            .notConsumable(nanoswarm, TranscendentMetal, 4)
+            .inputItems(rodLong, Infinity)
+            .inputFluids(SpaceTime.getFluid(200))
+            .inputFluids(Rhugnor.getFluid(400))
+            .outputItems(rodLong, SpaceTime)
+            .EUt(16 * VA[MAX].toLong())
+            .duration(1600)
+            .save(provider)
+
         initAdditionMaterial(provider)
     }
 
@@ -176,7 +236,7 @@ object Misc {
             .inputFluids(Lutetium.getFluid(16))
             .inputFluids(Vanadium.getFluid(16))
             .outputFluids(Plutonium241.getFluid(FluidStorageKeys.PLASMA, 16))
-            .EUt(VA[GTValues.UHV].toLong())
+            .EUt(VA[UHV].toLong())
             .duration(64)
             .fusionStartEU(720000000)
             .save(provider)

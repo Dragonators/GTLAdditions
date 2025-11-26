@@ -10,10 +10,10 @@ import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleWirelessRecipesLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
+import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
-import com.gtladd.gtladditions.common.data.ParallelData
-import com.gtladd.gtladditions.utils.AntichristPosHelper
+import com.gtladd.gtladditions.utils.antichrist.AntichristPosHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongArrayList

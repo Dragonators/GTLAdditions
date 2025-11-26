@@ -1,0 +1,39 @@
+{
+  "type": "avaritia:shaped_extreme_craft",
+  "category": "misc",
+  "pattern": [
+    "    A    ",
+    "   ABA   ",
+    "  ABCBA  ",
+    " ABDEDBA ",
+    "ABCEFECBA",
+    " ABDEDBA ",
+    "  ABCBA  ",
+    "   ABA   ",
+    "    A    "
+  ],
+  "key": {
+    "A": {
+      "item": "gtladditions:heliofusion_exoticizer"
+    },
+    "B": {
+      "item": "gtladditions:apocalyptic_torsion_quantum_matrix"
+    },
+    "C": {
+      "item": "gtlcore:ultimate_tea"
+    },
+    "D": {
+      "item": "gtladditions:god_forge_energy_casing"
+    },
+    "E": {
+      "item": "gtladditions:stargate_chevron_upgrade"
+    },
+    "F": {
+      "item": "sgjourney:classic_stargate_ring_block"
+    }
+  },
+  "result": {
+    "item": "sgjourney:classic_stargate_chevron_block"
+  },
+  "show_notification": true
+}

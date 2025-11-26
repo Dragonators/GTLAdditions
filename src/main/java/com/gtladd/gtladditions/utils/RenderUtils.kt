@@ -1,9 +1,11 @@
 ﻿package com.gtladd.gtladditions.utils
 
+import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.client.renderer.GTRenderTypes
 import com.gtladd.gtladditions.client.GTLAddRenderTypes
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
+import com.gtladd.gtladditions.config.ConfigHolder
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import dev.ftb.mods.ftbchunks.client.FTBChunksRenderTypes
@@ -12,7 +14,6 @@ import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.FastColor
 import net.minecraft.util.RandomSource
@@ -30,70 +31,6 @@ import kotlin.math.*
 @Suppress("DuplicatedCode", "unused", "SameParameterValue")
 @OnlyIn(Dist.CLIENT)
 object RenderUtils {
-
-    /**
-     * Calculates a rotated render position with full control over base and target facing.
-     * Transforms an offset from one facing orientation to another.
-     * @param baseFacing The facing direction when the offset was recorded/defined
-     * @param targetFacing The current facing direction of the machine
-     * @param offsetX The X offset in the base facing coordinate system
-     * @param offsetY The Y offset (not affected by rotation)
-     * @param offsetZ The Z offset in the base facing coordinate system
-     * @return Rotated Vec3 position relative to block center (0.5, 0.5, 0.5)
-     */
-    fun getRotatedRenderPosition(
-        baseFacing: Direction,
-        targetFacing: Direction,
-        offsetX: Double,
-        offsetY: Double,
-        offsetZ: Double
-    ): Vec3 {
-        require(baseFacing.axis == Direction.Axis.Y || targetFacing.axis != Direction.Axis.Y) {
-            "Facing must be horizontal (NORTH, SOUTH, EAST, WEST)"
-        }
-
-        val y = 0.5 + offsetY
-
-        if (baseFacing == targetFacing) {
-            return Vec3(0.5 + offsetX, y, 0.5 + offsetZ)
-        }
-
-        val baseIndex = getHorizontalIndex(baseFacing)
-        val targetIndex = getHorizontalIndex(targetFacing)
-        val rotationSteps = (targetIndex - baseIndex + 4) % 4
-
-        return when (rotationSteps) {
-            0 -> {
-                Vec3(0.5 + offsetX, y, 0.5 + offsetZ)
-            }
-            1 -> {
-                val x = 0.5 - offsetZ
-                val z = 0.5 + offsetX
-                Vec3(x, y, z)
-            }
-            2 -> {
-                val x = 0.5 - offsetX
-                val z = 0.5 - offsetZ
-                Vec3(x, y, z)
-            }
-            3 -> {
-                val x = 0.5 + offsetZ
-                val z = 0.5 - offsetX
-                Vec3(x, y, z)
-            }
-            else -> Vec3(0.5 + offsetX, y, 0.5 + offsetZ)
-        }
-    }
-
-    private fun getHorizontalIndex(facing: Direction): Int {
-        return when (facing) {
-            Direction.EAST -> 0
-            Direction.SOUTH -> 1
-            Direction.WEST -> 2
-            Direction.NORTH -> 3
-            else -> 0
-        }
-    }
 
     /**
      * Generates random rotation parameters with uniformly distributed axis and speed
@@ -803,6 +740,97 @@ object RenderUtils {
         }
 
         poseStack.popPose()
+    }
+
+    /**
+     * Gets the smooth tick value - Convenience method
+     * @param machine The block entity for getting game time (used in performance mode)
+     * @param partialTick The partial tick value from renderer (used in performance mode)
+     * @return Smooth tick value (Float) or game tick value based on config
+     */
+    fun getSmoothTick(machine: MetaMachine, partialTick: Float): Float {
+        return if (ConfigHolder.INSTANCE.performance.enableSmoothAnimations) {
+            GlobalRenderClock.getSmoothTick()
+        } else {
+            machine.offsetTimer + partialTick
+        }
+    }
+
+    /**
+     * Global render clock - Provides smooth, pause-aware tick counting
+     *
+     * Which replaces the traditional `machine.offsetTimer + partialTicks` approach:
+     * - Uses system time for completely smooth tick counting (calculated independently per frame)
+     * - Automatically detects and handles game pause (tick doesn't increase when paused)
+     * - Zero-overhead sharing (all renderers share the same clock)
+     *
+     */
+    object GlobalRenderClock {
+        @Volatile
+        private var startTimeNanos: Long = System.nanoTime()
+
+        @Volatile
+        private var totalPausedNanos: Long = 0L
+
+        @Volatile
+        private var pauseStartNanos: Long = 0L
+
+        @Volatile
+        private var wasPaused: Boolean = false
+
+        private fun getElapsedNanos(): Long {
+            val minecraft = Minecraft.getInstance()
+            val isPaused = minecraft.isPaused
+
+            when {
+                isPaused && !wasPaused -> {
+                    pauseStartNanos = System.nanoTime()
+                    wasPaused = true
+                }
+                !isPaused && wasPaused -> {
+                    totalPausedNanos += (System.nanoTime() - pauseStartNanos)
+                    wasPaused = false
+                }
+            }
+
+            val currentNanos = if (isPaused) pauseStartNanos else System.nanoTime()
+            return currentNanos - startTimeNanos - totalPausedNanos
+        }
+
+        fun getSmoothTick(): Float {
+            // 1 tick = 50ms = 50,000,000 ns
+            return (getElapsedNanos() / 50_000_000.0).toFloat()
+        }
+
+        fun getElapsedMillis(): Long {
+            // 1ms = 1,000,000 ns
+            return getElapsedNanos() / 1_000_000L
+        }
+
+        fun reset() {
+            startTimeNanos = System.nanoTime()
+            totalPausedNanos = 0L
+            pauseStartNanos = 0L
+            wasPaused = false
+        }
+    }
+
+    class SmoothAnimationTimer {
+        private var startTick: Float = GlobalRenderClock.getSmoothTick()
+
+        fun reset() {
+            startTick = GlobalRenderClock.getSmoothTick()
+        }
+
+        /**
+         * @param durationMillis Animation duration (milliseconds)
+         * @return Current progress, range 0.0 to 1.0
+         */
+        fun getProgress(durationMillis: Long): Float {
+            val durationTicks = durationMillis / 50.0f  // 1 tick = 50ms
+            val elapsedTicks = GlobalRenderClock.getSmoothTick() - startTick
+            return (elapsedTicks / durationTicks).coerceIn(0f, 1f)
+        }
     }
 
     private object MathCache {

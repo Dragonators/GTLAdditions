@@ -6,12 +6,13 @@ import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialRegistryEv
 import com.gregtechceu.gtceu.api.machine.MachineDefinition
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration
-import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.material.GTLAddMaterial
 import com.gtladd.gtladditions.common.material.MaterialAdd
+import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.config.ConfigHolder
+import com.gtladd.gtladditions.network.GTLAddNetworking
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -25,6 +26,7 @@ class GTLAdditions {
     init {
         GTLAddCreativeModeTabs.init()
         ConfigHolder.init()
+        GTLAddNetworking.init()
 
         val modEventBus = FMLJavaModLoadingContext.get().modEventBus
         MinecraftForge.EVENT_BUS.register(this)

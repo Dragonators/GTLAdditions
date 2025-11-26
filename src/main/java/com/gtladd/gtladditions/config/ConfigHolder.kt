@@ -14,7 +14,7 @@ class ConfigHolder {
     var superPatternBuffer = SuperPatternBufferConfig()
 
     @Configurable
-    @Configurable.Comment("超INT性能配置")
+    @Configurable.Comment("性能配置")
     @JvmField
     var performance = PerformanceConfig()
 
@@ -35,6 +35,11 @@ class ConfigHolder {
             @Configurable.Range(min = 1, max = 500000)
             @JvmField
             var externalStorageMaxTimes = 250000
+
+            @Configurable
+            @Configurable.Comment("可能会极小地影响性能")
+            @JvmField
+            var enableSmoothAnimations = true
         }
 
         class SuperPatternBufferConfig {

@@ -16,7 +16,6 @@ import com.gtladd.gtladditions.api.machine.mutable.AddMutableElectricParallelHat
 import com.gtladd.gtladditions.api.machine.mutable.MutableCoilElectricParallelHatchMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricParallelHatchMultiblockMachine
-import com.gtladd.gtladditions.common.modify.multiblockMachine.*
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ANTIENTROPY_CONDENSATION_CENTER
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ARCANE_CACHE_VAULT
@@ -36,15 +35,12 @@ import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.QUANTUM_SYPHON_MATRIX
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.SUPER_FACTORY_MKI
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.SUPER_FACTORY_MKII
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.SUPER_FACTORY_MKIII
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.SUPER_FACTORY_MKIV
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.TITAN_CRIP_EARTHBORE
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MutableFusionReactorMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MutablePCBFactoryMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MutableSuprachronalAssemblyLineMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MutableTierCasingMachine
+import com.gtladd.gtladditions.common.modify.multiblockMachine.*
 import com.gtladd.gtladditions.utils.ThreadMultiplierStrategy
 import it.unimi.dsi.fastutil.longs.LongLongPair
 import net.minecraft.ChatFormatting
@@ -137,10 +133,6 @@ object MutableMultiBlockModify {
             CoilMultiRecipeMultiBlocks.SUPER_BLAST_SMELTER)
 
         val addDefinitions = arrayOf(
-            SUPER_FACTORY_MKI,
-            SUPER_FACTORY_MKII,
-            SUPER_FACTORY_MKIII,
-            SUPER_FACTORY_MKIV,
             NEXUS_SATELLITE_FACTORY_MKI,
             NEXUS_SATELLITE_FACTORY_MKII,
             NEXUS_SATELLITE_FACTORY_MKIII,

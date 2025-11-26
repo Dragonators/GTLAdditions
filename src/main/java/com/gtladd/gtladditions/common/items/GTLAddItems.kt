@@ -4,9 +4,9 @@ import com.gregtechceu.gtceu.api.item.ComponentItem
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.item.TooltipBehavior
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.Companion.REGISTRATE
-import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.items.behavior.AstralArrayBehavior
 import com.gtladd.gtladditions.common.items.behavior.ModuleConnectionBehavior
+import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.tterrag.registrate.util.entry.ItemEntry
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
@@ -41,6 +41,10 @@ object GTLAddItems {
     val PHONONIC_SEED_CRYSTAL: ItemEntry<Item?>
     val THERMAL_SUPERCONDUCTOR: ItemEntry<Item?>
     val RELATIVISTIC_HEAT_CAPACITOR: ItemEntry<Item?>
+    val SUPER_DENSE_MAGMATTER_PLATE: ItemEntry<Item?>
+    val STARGATE_SHIELDING_FOIL: ItemEntry<Item?>
+    val STARGATE_FRAME_PART: ItemEntry<Item?>
+    val STARGATE_CHEVRON_UPGRADE: ItemEntry<Item?>
     val DEBUG_MODULE_CONNECTOR: ItemEntry<ComponentItem>
     val STRANGE_ANNIHILATION_FUEL_ROD: ItemEntry<ComponentItem>
     val BLACK_HOLE_SEED: ItemEntry<ComponentItem>
@@ -83,6 +87,10 @@ object GTLAddItems {
         PHONONIC_SEED_CRYSTAL = register("phononic_seed_crystal", "Phononic Seed Crystal")
         THERMAL_SUPERCONDUCTOR = register("thermal_superconductor", "Thermal Superconductor")
         RELATIVISTIC_HEAT_CAPACITOR = register("relativistic_heat_capacitor", "Relativistic Heat Capacitor")
+        SUPER_DENSE_MAGMATTER_PLATE = register("super_dense_magmatter_plate", "Super Dense Magmatter Plate")
+        STARGATE_SHIELDING_FOIL = register("stargate_shielding_foil", "Stargate Shielding Foil")
+        STARGATE_FRAME_PART = register("stargate_frame_part", "Stargate Frame Part")
+        STARGATE_CHEVRON_UPGRADE = register("stargate_chevron_upgrade", "Stargate Chevron Upgrade")
         DEBUG_MODULE_CONNECTOR = REGISTRATE.item("debug_module_connector") { properties: Item.Properties -> ComponentItem.create(properties) }
             .onRegister(
                 GTItems.attach(
