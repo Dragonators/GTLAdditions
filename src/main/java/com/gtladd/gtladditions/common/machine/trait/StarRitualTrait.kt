@@ -3,11 +3,11 @@ package com.gtladd.gtladditions.common.machine.trait
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
 import com.gregtechceu.gtceu.common.data.GTMachines
+import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper
 import com.gtladd.gtladditions.client.RenderMode
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist.Companion.MAX_EFFICIENCY_SEC
 import com.gtladd.gtladditions.utils.CommonUtils
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationState
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener
@@ -219,6 +219,12 @@ class StarRitualTrait(
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
+    @Suppress("unused")
+    @OnlyIn(Dist.CLIENT)
+    fun onCollapseStateChanged(newValue: Boolean, oldValue: Boolean) {
+        ClientAnimationHelper.onCollapseStateChanged(getMachine(), newValue, oldValue)
+    }
+
     companion object {
         const val COLLAPSE_DURATION_TICKS = 140
         const val RECOVER_DURATION_TICKS = 100
@@ -236,22 +242,4 @@ class StarRitualTrait(
 
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(StarRitualTrait::class.java)
     }
-
-    @OnlyIn(Dist.CLIENT)
-    private val clientAnimationState: ClientAnimationState = ClientAnimationState()
-
-    @Suppress("unused")
-    @OnlyIn(Dist.CLIENT)
-    fun onCollapseStateChanged(newValue: Boolean, oldValue: Boolean) {
-        clientAnimationState.onStateChanged(newValue, oldValue)
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    fun getClientRenderColor(): Int = clientAnimationState.getRenderColor(getMachine().rgbFromTime)
-
-    @OnlyIn(Dist.CLIENT)
-    fun getClientRenderColor(baseColor: Int): Int = clientAnimationState.getRenderColor(baseColor)
-
-    @OnlyIn(Dist.CLIENT)
-    fun getClientRenderRadius(): Float = clientAnimationState.getRenderRadius(getMachine().radiusMultiplier)
 }

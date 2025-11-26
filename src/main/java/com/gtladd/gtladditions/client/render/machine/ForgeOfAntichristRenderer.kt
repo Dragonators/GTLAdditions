@@ -2,6 +2,8 @@ package com.gtladd.gtladditions.client.render.machine
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderColor
+import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderRadius
 import com.gtladd.gtladditions.client.RenderMode
 import com.gtladd.gtladditions.common.data.RotationParams
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
@@ -133,14 +135,14 @@ class ForgeOfAntichristRenderer(
 
                 RenderMode.COLLAPSING -> {
                     val rainbowColor = getRainbowColor(tick)
-                    val darkenedRainbow = machine.starRitual.getClientRenderColor(rainbowColor)
-                    val clientRadius = machine.starRitual.getClientRenderRadius()
+                    val darkenedRainbow = getClientRenderColor(machine, rainbowColor)
+                    val clientRadius = getClientRenderRadius(machine, machine.radiusMultiplier)
                     Pair(darkenedRainbow, clientRadius)
                 }
 
                 RenderMode.RECOVERING -> {
-                    val clientColor = machine.starRitual.getClientRenderColor()
-                    val clientRadius = machine.starRitual.getClientRenderRadius()
+                    val clientColor = getClientRenderColor(machine, machine.rgbFromTime)
+                    val clientRadius = getClientRenderRadius(machine, machine.radiusMultiplier)
                     Pair(clientColor, clientRadius)
                 }
             }
