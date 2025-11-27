@@ -55,10 +55,12 @@
     "stargatejourney.ToolMaterialInitMixin",
     "stargatejourney.VillagerInitMixin",
     "stargatejourney.WormholeMixin",
+    "stargatejourney.dhd.AbstractDHDBlockMixin",
     "stargatejourney.dhd.AbstractDHDEntityMixin",
     "stargatejourney.dhd.ClassicDHDBlockMixin",
     "stargatejourney.dhd.MilkyWayDHDBlockMixin",
     "stargatejourney.dhd.PegasusDHDBlockMixin",
+    "stargatejourney.stargate.AbstractStargateBaseBlockMixin",
     "stargatejourney.stargate.AbstractStargateEntityMixin",
     "stargatejourney.stargate.ClassicStargateBaseBlockMixin",
     "stargatejourney.stargate.StargateConnectionMixin",
@@ -66,10 +68,7 @@
     "stargatejourney.stargate.StargateStructureMixin"
   ],
   "client": [
-    "stargatejourney.InterfaceScreenMixin",
-    "gtlcore.client.renderer.machine.AnnihilateGeneratorRendererMixin",
-    "gtlcore.client.renderer.machine.EyeOfHarmonyRendererMixin",
-    "gtlcore.client.renderer.machine.SpaceElevatorRendererMixin",
-    "minecraft.client.ClientLevelChunkCacheMixin"
+    "minecraft.client.ClientLevelChunkCacheMixin",
+    "stargatejourney.InterfaceScreenMixin"
   ]
 }

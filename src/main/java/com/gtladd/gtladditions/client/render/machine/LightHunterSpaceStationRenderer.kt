@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.client.ClientUtil
+import org.gtlcore.gtlcore.utils.RenderUtil
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import java.util.*
@@ -48,7 +49,7 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
         if (blockEntity is IMachineBlockEntity) {
             val machine = blockEntity.metaMachine as? LightHunterSpaceStation ?: return
             if (machine.recipeLogic.isWorking) {
-                val tick = RenderUtils.getSmoothTick(machine, partialTicks)
+                val tick = RenderUtil.getSmoothTick(machine, partialTicks)
                 val seed = blockEntity.blockPos.asLong()
                 val facing = machine.frontFacing
                 val beamEnd = getRotatedRenderPosition(BASE_DIRECTION, facing, BEAM_OFFSET_X, 0.0, 0.0)

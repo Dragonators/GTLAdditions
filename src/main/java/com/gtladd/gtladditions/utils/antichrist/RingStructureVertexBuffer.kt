@@ -54,7 +54,6 @@ object RingStructureVertexBuffer {
         val bufferBuilder = Tesselator.getInstance().builder
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK)
 
-        Minecraft.getInstance()
         val poseStack = PoseStack()
         val random = RandomSource.create()
 
@@ -91,7 +90,6 @@ object RingStructureVertexBuffer {
                         13
                     )
 
-
                     renderBlockModelFaces(
                         model, blockState, visibleFaces,
                         light, poseStack, bufferBuilder, random
@@ -122,7 +120,6 @@ object RingStructureVertexBuffer {
         val modelData = ModelData.EMPTY
         val renderType: RenderType? = null
         val overlay = OverlayTexture.NO_OVERLAY
-
 
         random.setSeed(42L)
         for (quad in model.getQuads(blockState, null, random, modelData, renderType)) {

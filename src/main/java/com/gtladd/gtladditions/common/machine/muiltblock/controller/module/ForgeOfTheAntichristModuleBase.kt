@@ -11,8 +11,8 @@ import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleWirelessRecipesLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.data.ParallelData
-import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
+import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.gtladd.gtladditions.utils.antichrist.AntichristPosHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -78,13 +78,13 @@ open class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, vararg ar
         if (isConnectedToHost) {
             textList.add(
                 if (host!!.runningSecs >= ForgeOfTheAntichrist.MAX_EFFICIENCY_SEC) {
-                    GTLAddMachines.createRainbowComponent(
+                    createRainbowComponent(
                         Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.achieve_max_efficiency").string
                     )
                 } else {
                     Component.translatable(
                         "gtladditions.multiblock.forge_of_the_antichrist.output_multiplier",
-                        GTLAddMachines.createRainbowComponent(FormattingUtil.DECIMAL_FORMAT_2F.format(host!!.recipeOutputMultiply))
+                        createRainbowComponent(FormattingUtil.DECIMAL_FORMAT_2F.format(host!!.recipeOutputMultiply))
                     )
                 }
             )
@@ -101,7 +101,7 @@ open class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, vararg ar
         textList.add(
             Component.translatable(
                 "gtceu.multiblock.parallel",
-                GTLAddMachines.createRainbowComponent(
+                createRainbowComponent(
                     Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
                 )
             ).withStyle(ChatFormatting.GRAY)
@@ -109,7 +109,7 @@ open class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, vararg ar
         textList.add(
             Component.translatable(
                 "gtladditions.multiblock.threads",
-                GTLAddMachines.createRainbowComponent(
+                createRainbowComponent(
                     Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
                 )
             ).withStyle(ChatFormatting.GRAY)

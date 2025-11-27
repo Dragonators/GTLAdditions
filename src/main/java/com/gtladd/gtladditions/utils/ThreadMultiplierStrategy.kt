@@ -33,8 +33,8 @@ object ThreadMultiplierStrategy {
         MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT to 1,
         MultiBlockMachineA.SUPER_PARTICLE_COLLIDER to 4,
         MultiBlockMachineA.MATTER_FABRICATOR to 3,
-        AdvancedMultiBlockMachine.CREATE_AGGREGATION to 1,
-        AdvancedMultiBlockMachine.DOOR_OF_CREATE to 1,
+        AdvancedMultiBlockMachine.CREATE_AGGREGATION to 16,
+        AdvancedMultiBlockMachine.DOOR_OF_CREATE to 16,
         MultiBlockMachine.DRACONIC_COLLAPSE_CORE to 2,
         MultiBlockMachine.TITAN_CRIP_EARTHBORE to 2,
         MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE to 2

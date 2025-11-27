@@ -1,14 +1,17 @@
 package com.gtladd.gtladditions.mixin.gtceu.recipe;
 
+import org.gtlcore.gtlcore.api.machine.ISteamMachine;
 import org.gtlcore.gtlcore.integration.gtmt.NewGTValues;
 import org.gtlcore.gtlcore.utils.NumberUtils;
 
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.integration.jade.provider.RecipeLogicProvider;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 import com.gregtechceu.gtceu.utils.GTUtil;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -59,26 +62,32 @@ public abstract class RecipeLogicProviderMixin {
                 var eut = recipeInfo.getLong("EUt");
 
                 if (eut != 0) {
-                    var isInput = recipeInfo.getBoolean("isInput");
                     long absEUt = Math.abs(eut);
 
-                    // Default behavior, if this TE is not a steam machine (or somehow not instanceof
-                    // IGregTechTileEntity...)
-                    var tier = GTUtil.getTierByVoltage(absEUt);
-                    Component text = Component.literal(NumberUtils.formatLong(absEUt)).withStyle(RED)
-                            .append(Component.literal(" EU/t").withStyle(RESET)
-                                    .append(Component.literal(" (").withStyle(GREEN)
-                                            .append(Component
-                                                    .translatable("gtceu.top.electricity",
-                                                            FormattingUtil.formatNumber2Places(absEUt / ((float) GTValues.V[tier])),
-                                                            GTValues.VNF[tier])
-                                                    .withStyle(style -> style.withColor(GTL_CORE$VC[tier])))
-                                            .append(Component.literal(")").withStyle(GREEN))));
-
-                    if (isInput) {
-                        tooltip.add(Component.translatable("gtceu.top.energy_consumption").append(" ").append(text));
+                    if (blockEntity instanceof MetaMachineBlockEntity mbe &&
+                            mbe.getMetaMachine() instanceof ISteamMachine steamMachine) {
+                        long stream = (long) Math.ceil(absEUt * steamMachine.getConversionRate());
+                        Component text = Component.literal(FormattingUtil.formatNumbers(stream) + " mB/t")
+                                .withStyle(ChatFormatting.GREEN);
+                        tooltip.add(Component.translatable("gtceu.jade.steam_consumption").append(" ").append(text));
                     } else {
-                        tooltip.add(Component.translatable("gtceu.top.energy_production").append(" ").append(text));
+                        boolean isInput = recipeInfo.getBoolean("isInput");
+                        var tier = GTUtil.getTierByVoltage(absEUt);
+                        Component text = Component.literal(NumberUtils.formatLong(absEUt)).withStyle(RED)
+                                .append(Component.literal(" EU/t").withStyle(RESET)
+                                        .append(Component.literal(" (").withStyle(GREEN)
+                                                .append(Component
+                                                        .translatable("gtceu.top.electricity",
+                                                                FormattingUtil.formatNumber2Places(absEUt / ((float) GTValues.V[tier])),
+                                                                GTValues.VNF[tier])
+                                                        .withStyle(style -> style.withColor(GTL_CORE$VC[tier])))
+                                                .append(Component.literal(")").withStyle(GREEN))));
+
+                        if (isInput) {
+                            tooltip.add(Component.translatable("gtceu.top.energy_consumption").append(" ").append(text));
+                        } else {
+                            tooltip.add(Component.translatable("gtceu.top.energy_production").append(" ").append(text));
+                        }
                     }
                 } else if (capData.contains("wirelessTickInputs", Tag.TAG_BYTE_ARRAY)) {
                     BigInteger wirelessEut = new BigInteger(capData.getByteArray("wirelessTickInputs"));

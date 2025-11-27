@@ -15,10 +15,11 @@ import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecip
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
 import com.gtladd.gtladditions.common.data.ParallelData
-import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.machine.trait.StarRitualTrait
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
+import com.gtladd.gtladditions.utils.CommonUtils.createObfuscatedRainbowComponent
+import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.gtladd.gtladditions.utils.StarGradient
 import com.gtladd.gtladditions.utils.antichrist.AntichristPosHelper
 import com.gtladd.gtladditions.utils.antichrist.ServerMachineManager
@@ -84,19 +85,19 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         textList.add(
             Component.translatable(
                 "gtladditions.multiblock.forge_of_the_antichrist.running_sec",
-                GTLAddMachines.createRainbowComponent(FormattingUtil.DECIMAL_FORMAT_2F.format(runningSecs / 3600.0))
+                createRainbowComponent(FormattingUtil.DECIMAL_FORMAT_2F.format(runningSecs / 3600.0))
             )
         )
 
         textList.add(
             if (runningSecs >= MAX_EFFICIENCY_SEC) {
-                GTLAddMachines.createRainbowComponent(
+                createRainbowComponent(
                     Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.achieve_max_efficiency").string
                 )
             } else {
                 Component.translatable(
                     "gtladditions.multiblock.forge_of_the_antichrist.output_multiplier",
-                    GTLAddMachines.createRainbowComponent(FormattingUtil.DECIMAL_FORMAT_2F.format(recipeOutputMultiply))
+                    createRainbowComponent(FormattingUtil.DECIMAL_FORMAT_2F.format(recipeOutputMultiply))
                 )
             }
         )
@@ -104,7 +105,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         textList.add(
             Component.translatable(
                 "gtceu.multiblock.blast_furnace.max_temperature",
-                GTLAddMachines.createObfuscatedRainbowComponent(Long.MAX_VALUE.toString())
+                createObfuscatedRainbowComponent(Long.MAX_VALUE.toString())
             )
         )
         textList.add(Component.translatable("tooltip.gtlcore.installed_module_count", getMAM()))
@@ -114,7 +115,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         textList.add(
             Component.translatable(
                 "gtceu.multiblock.parallel",
-                GTLAddMachines.createRainbowComponent(
+                createRainbowComponent(
                     Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
                 )
             ).withStyle(ChatFormatting.GRAY)
@@ -122,7 +123,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         textList.add(
             Component.translatable(
                 "gtladditions.multiblock.threads",
-                GTLAddMachines.createRainbowComponent(
+                createRainbowComponent(
                     Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
                 )
             ).withStyle(ChatFormatting.GRAY)

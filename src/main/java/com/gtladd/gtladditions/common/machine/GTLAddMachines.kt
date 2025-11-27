@@ -9,7 +9,6 @@ import com.gregtechceu.gtceu.api.machine.MachineDefinition
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder
 import com.gregtechceu.gtceu.client.renderer.machine.OverlaySteamMachineRenderer
-import com.gregtechceu.gtceu.client.util.TooltipHelper
 import com.gregtechceu.gtceu.common.data.GTCompassSections
 import com.gregtechceu.gtceu.common.data.GTMachines
 import com.gregtechceu.gtceu.utils.FormattingUtil
@@ -26,6 +25,7 @@ import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.modify.MultiBlockModify
 import com.gtladd.gtladditions.common.modify.MutableMultiBlockModify
 import com.gtladd.gtladditions.config.ConfigHolder
+import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeDualHatchPartMachine
 import com.hepdd.gtmthings.common.registry.GTMTRegistration
 import com.hepdd.gtmthings.data.CreativeModeTabs
@@ -33,11 +33,9 @@ import com.hepdd.gtmthings.data.CustomMachines
 import com.hepdd.gtmthings.data.WirelessMachines
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.GTLCore
-import org.gtlcore.gtlcore.utils.TextUtil
 import java.util.function.BiConsumer
 
 object GTLAddMachines {
@@ -74,49 +72,6 @@ object GTLAddMachines {
         }
 
     val GTLAdd_MODIFY: Component = createRainbowComponent(Component.translatable("gui.gtladditions.modify").string)
-
-    fun createRainbowComponent(string: String): Component {
-        return Component.literal(TextUtil.full_color(string))
-            .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
-    }
-
-    fun createObfuscatedRainbowComponent(text: String): Component {
-        val component = Component.empty()
-
-        text.forEachIndexed { index, char ->
-            component.append(
-                Component.literal(char.toString())
-                    .withStyle(ChatFormatting.OBFUSCATED)
-                    .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current)}
-            )
-        }
-
-        return component
-    }
-
-    fun createObfuscatedDeleteComponent(text: String): Component {
-        val rainbowColors = arrayOf(
-            ChatFormatting.RED,
-            ChatFormatting.GOLD,
-            ChatFormatting.YELLOW,
-            ChatFormatting.GREEN,
-            ChatFormatting.AQUA,
-            ChatFormatting.BLUE,
-            ChatFormatting.LIGHT_PURPLE
-        )
-        val component = Component.empty()
-
-        text.forEachIndexed { index, char ->
-            component.append(
-                Component.literal(char.toString())
-                    .withStyle(ChatFormatting.OBFUSCATED)
-                    .withStyle(ChatFormatting.STRIKETHROUGH)
-                    .withStyle(rainbowColors[index % 7])
-            )
-        }
-
-        return component
-    }
 
     init {
         LASER_INPUT_HATCH_16777216A = GTMachines.registerLaserHatch(IO.IN, 16777216, PartAbility.INPUT_LASER)

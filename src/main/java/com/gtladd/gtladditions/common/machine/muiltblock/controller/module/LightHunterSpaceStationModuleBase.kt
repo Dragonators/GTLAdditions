@@ -9,8 +9,8 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.data.ParallelData
-import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.LightHunterSpaceStation
+import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.gtladd.gtladditions.utils.LightHunterSpaceStationPosHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -55,7 +55,7 @@ class LightHunterSpaceStationModuleBase(holder: IMachineBlockEntity) :
             textList.add(
                 Component.translatable(
                     "gtceu.multiblock.parallel",
-                    GTLAddMachines.createRainbowComponent(
+                    createRainbowComponent(
                         Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
                     )
                 ).withStyle(ChatFormatting.GRAY)
@@ -63,7 +63,7 @@ class LightHunterSpaceStationModuleBase(holder: IMachineBlockEntity) :
             textList.add(
                 Component.translatable(
                     "gtladditions.multiblock.threads",
-                    GTLAddMachines.createRainbowComponent(
+                    createRainbowComponent(
                         Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
                     )
                 ).withStyle(ChatFormatting.GRAY)
