@@ -238,7 +238,7 @@
   "tooltip.gtladditions.stargate_structure.5": "■□□□□□■",
   "tooltip.gtladditions.stargate_structure.6": "◆■□□□■◆",
   "tooltip.gtladditions.stargate_structure.7": "□■◆★◆■□",
-  "tooltip.gtladditions.stargate_structure.8": "§b■§r: §6星门环块",
-  "tooltip.gtladditions.stargate_structure.9": "§b◆§r: §6星门导标块",
-  "tooltip.gtladditions.stargate_structure.10": "§b★§r: §6星门基座块"
+  "tooltip.gtladditions.stargate_structure.8": "§b■§r: 14x§6星门环块",
+  "tooltip.gtladditions.stargate_structure.9": "§b◆§r: 9x§6星门导标块",
+  "tooltip.gtladditions.stargate_structure.10": "§b★§r: 1x§6星门基座块"
 }
