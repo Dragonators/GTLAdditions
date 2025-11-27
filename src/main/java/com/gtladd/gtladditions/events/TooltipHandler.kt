@@ -1,7 +1,8 @@
 ﻿package com.gtladd.gtladditions.events
 
+import com.gregtechceu.gtceu.common.data.GTMachines
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.common.machine.GTLAddMachines
+import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponent
 import committee.nova.mods.avaritia.init.registry.ModItems
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -18,7 +19,6 @@ object TooltipHandler {
     @JvmStatic
     fun onItemTooltip(event: ItemTooltipEvent) {
         val stack = event.itemStack
-        stack.item
 
         when {
             stack.`is`(ModItems.neutron_ring.get()) -> {
@@ -33,28 +33,9 @@ object TooltipHandler {
                 event.toolTip[0] = Component.translatable("item.avaritia.infinity_umbrella_re")
             }
 
-            stack.`is`(BlockInit.PEGASUS_DHD.get().asItem()) -> {
-                if (event.toolTip.size > 1) {
-                    event.toolTip.subList(1, event.toolTip.size).clear()
-                }
-                event.toolTip.add(
-                    Component.translatable("tooltip.sgjourney.dhd.description")
-                        .withStyle(ChatFormatting.DARK_GRAY)
-                )
-                event.toolTip.add(
-                    Component.translatable("tooltip.sgjourney.dhd.dialing_menu")
-                        .withStyle(ChatFormatting.GRAY)
-                        .withStyle(ChatFormatting.ITALIC)
-                )
-                event.toolTip.add(
-                    Component.translatable("tooltip.gtladditions.dhd")
-                        .withStyle(ChatFormatting.GRAY)
-                        .withStyle(ChatFormatting.ITALIC)
-                )
-            }
-
             stack.`is`(BlockInit.CLASSIC_STARGATE_RING_BLOCK.get().asItem()) -> {
                 event.toolTip.add(
+                    event.toolTip.size - 1,
                     Component.translatable("tooltip.gtladditions.classic_stargate_ring_block")
                         .withStyle(ChatFormatting.BLUE)
                 )
@@ -62,15 +43,25 @@ object TooltipHandler {
 
             stack.`is`(BlockInit.CLASSIC_STARGATE_CHEVRON_BLOCK.get().asItem()) -> {
                 event.toolTip.add(
+                    event.toolTip.size - 1,
                     Component.translatable("tooltip.gtladditions.classic_stargate_chevron_block")
                         .withStyle(ChatFormatting.GOLD)
                 )
             }
 
-            stack.`is`(BlockInit.CLASSIC_STARGATE_BASE_BLOCK.get().asItem()) -> {
-                event.toolTip.add(
-                    GTLAddMachines.createRainbowComponent(
-                        Component.translatable("tooltip.gtladditions.classic_stargate_base_block").string
+            stack.`is`(GTMachines.CREATIVE_ITEM.item) -> {
+                event.toolTip.addAll(
+                    event.toolTip.size - 1,
+                    listOf(
+                        createLanguageRainbowComponent(
+                            Component.translatable("tooltip.gtladditions.create_chest.0")
+                        ),
+                        createLanguageRainbowComponent(
+                            Component.translatable("tooltip.gtladditions.create_chest.1")
+                        ),
+                        createLanguageRainbowComponent(
+                            Component.translatable("tooltip.gtladditions.create_chest.2")
+                        )
                     )
                 )
             }

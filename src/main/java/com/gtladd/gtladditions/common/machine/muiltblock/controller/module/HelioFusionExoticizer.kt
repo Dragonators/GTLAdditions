@@ -5,7 +5,7 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gtladd.gtladditions.common.data.ParallelData
-import com.gtladd.gtladditions.common.machine.GTLAddMachines
+import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 
@@ -23,7 +23,7 @@ class HelioFusionExoticizer(holder: IMachineBlockEntity, vararg args: Any?) :
         textList.add(
             Component.translatable(
                 "gtceu.multiblock.parallel",
-                GTLAddMachines.createRainbowComponent(
+                createRainbowComponent(
                     Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
                 )
             ).withStyle(ChatFormatting.GRAY)

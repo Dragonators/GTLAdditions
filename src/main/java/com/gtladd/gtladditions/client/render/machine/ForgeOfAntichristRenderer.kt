@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.gtlcore.gtlcore.utils.RenderUtil
 import org.joml.Quaternionf
 import java.awt.Color
 import java.util.concurrent.ConcurrentHashMap
@@ -58,7 +59,7 @@ class ForgeOfAntichristRenderer(
             }
 
             if (machine.recipeLogic.isWorking) {
-                val tick = RenderUtils.getSmoothTick(machine, partialTicks)
+                val tick = RenderUtil.getSmoothTick(machine, partialTicks)
                 val seed = blockEntity.blockPos.asLong()
                 val starPos = getRotatedRenderPosition(BASE_DIRECTION, machine.frontFacing, -122.0, 0.0, 0.0)
                 val renderMode = machine.starRitual.renderMode
@@ -67,7 +68,6 @@ class ForgeOfAntichristRenderer(
                 val baseRadius = 0.175f * radiusMultiplier
                 val middleRadius = baseRadius + minOf(0.0055f, baseRadius * 0.02f)
                 val outerRadius = middleRadius * 1.02f
-
 
                 renderBeaconToStar(poseStack, buffer, starPos, argb32, tick, blockEntity, outerRadius, renderMode)
 
@@ -218,7 +218,7 @@ class ForgeOfAntichristRenderer(
             partialTicks: Float,
             isWorking: Boolean
         ) {
-            val tick = if (isWorking) RenderUtils.getSmoothTick(machine, partialTicks) else 0f
+            val tick = if (isWorking) RenderUtil.getSmoothTick(machine, partialTicks) else 0f
             val ringPos = getRotatedRenderPosition(Direction.EAST, machine.frontFacing, -122.0, 0.0, 0.0)
 
             RenderSystem.enableBlend()

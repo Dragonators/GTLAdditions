@@ -5,8 +5,8 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY
+import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
@@ -123,7 +123,7 @@ class MolecularAssemblerMultiblockMachine(holder: IMachineBlockEntity) :
                 textList.add(
                     Component.translatable(
                         "gtceu.multiblock.parallel",
-                        GTLAddMachines.createRainbowComponent(
+                        createRainbowComponent(
                             Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").string
                         )
                     ).withStyle(ChatFormatting.GRAY)

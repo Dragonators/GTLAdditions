@@ -5,11 +5,11 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gtladd.gtladditions.api.machine.IAstralArrayInteractionMachine
-import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKI
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV
+import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.gtladd.gtladditions.utils.IndustrialArrayPosHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -50,7 +50,7 @@ class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, vararg arg
         super.addDisplayText(textList)
         if (!isFormed) return
         textList.add(
-            if (unlockParadoxical()) GTLAddMachines.createRainbowComponent(
+            if (unlockParadoxical()) createRainbowComponent(
                 Component.translatable("tooltip.gtladditions.industrial_array_max").string
             ) else Component.translatable(
                 "tooltip.gtladditions.astral_array_count",

@@ -17,6 +17,7 @@ import net.minecraft.util.RandomSource
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.gtlcore.gtlcore.utils.RenderUtil
 import java.util.function.Consumer
 import kotlin.math.sin
 
@@ -37,7 +38,7 @@ class HeartOfTheUniverseRenderer : WorkableCasingMachineRenderer(
         if (blockEntity is IMachineBlockEntity) {
             val machine = blockEntity.metaMachine as? HeartOfTheUniverse ?: return
             if (machine.recipeLogic.isWorking) {
-                val tick = RenderUtils.getSmoothTick(machine, partialTicks)
+                val tick = RenderUtil.getSmoothTick(machine, partialTicks)
                 val starPos = getRotatedRenderPosition(Direction.SOUTH, machine.frontFacing, 0.0, 36.0, -39.0)
                 val seed = blockEntity.blockPos.asLong()
 

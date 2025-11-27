@@ -8,7 +8,7 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.material.GTLAddElements
 import com.gtladd.gtladditions.common.modify.GTLAddSoundEntries
-import com.gtladd.gtladditions.common.modify.RemoveRecipe
+import com.gtladd.gtladditions.common.modify.SkyTearsAndGregHeart
 import com.gtladd.gtladditions.data.recipes.*
 import com.gtladd.gtladditions.data.recipes.newmachinerecipe.*
 import com.gtladd.gtladditions.data.recipes.process.SocProcess
@@ -56,6 +56,7 @@ class GTLAdditionsGTAddon : IGTAddon {
         SocProcess.init(provider)
         Misc.init(provider)
         StarGate.init(provider)
+        SkyTearsAndGregHeart.init(provider)
     }
 
     override fun registerSounds() {
@@ -64,9 +65,5 @@ class GTLAdditionsGTAddon : IGTAddon {
 
     override fun registerElements() {
         GTLAddElements.init()
-    }
-
-    override fun removeRecipes(consumer: Consumer<ResourceLocation>) {
-        RemoveRecipe.init(consumer)
     }
 }

@@ -23,6 +23,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.data.ModelData
 import org.gtlcore.gtlcore.client.ClientUtil
+import org.gtlcore.gtlcore.client.GlobalRenderClock
 import org.joml.Matrix4f
 import org.joml.Quaternionf
 import org.joml.Vector3f
@@ -740,79 +741,6 @@ object RenderUtils {
         }
 
         poseStack.popPose()
-    }
-
-    /**
-     * Gets the smooth tick value - Convenience method
-     * @param machine The block entity for getting game time (used in performance mode)
-     * @param partialTick The partial tick value from renderer (used in performance mode)
-     * @return Smooth tick value (Float) or game tick value based on config
-     */
-    fun getSmoothTick(machine: MetaMachine, partialTick: Float): Float {
-        return if (ConfigHolder.INSTANCE.performance.enableSmoothAnimations) {
-            GlobalRenderClock.getSmoothTick()
-        } else {
-            machine.offsetTimer + partialTick
-        }
-    }
-
-    /**
-     * Global render clock - Provides smooth, pause-aware tick counting
-     *
-     * Which replaces the traditional `machine.offsetTimer + partialTicks` approach:
-     * - Uses system time for completely smooth tick counting (calculated independently per frame)
-     * - Automatically detects and handles game pause (tick doesn't increase when paused)
-     * - Zero-overhead sharing (all renderers share the same clock)
-     *
-     */
-    object GlobalRenderClock {
-        @Volatile
-        private var startTimeNanos: Long = System.nanoTime()
-
-        @Volatile
-        private var totalPausedNanos: Long = 0L
-
-        @Volatile
-        private var pauseStartNanos: Long = 0L
-
-        @Volatile
-        private var wasPaused: Boolean = false
-
-        private fun getElapsedNanos(): Long {
-            val minecraft = Minecraft.getInstance()
-            val isPaused = minecraft.isPaused
-
-            when {
-                isPaused && !wasPaused -> {
-                    pauseStartNanos = System.nanoTime()
-                    wasPaused = true
-                }
-                !isPaused && wasPaused -> {
-                    totalPausedNanos += (System.nanoTime() - pauseStartNanos)
-                    wasPaused = false
-                }
-            }
-
-            val currentNanos = if (isPaused) pauseStartNanos else System.nanoTime()
-            return currentNanos - startTimeNanos - totalPausedNanos
-        }
-
-        fun getSmoothTick(): Float {
-            // 1 tick = 50ms = 50,000,000 ns
-            return (getElapsedNanos() / 50_000_000.0).toFloat()
-        }
-
-        fun getElapsedMillis(): Long {
-            // 1ms = 1,000,000 ns
-            return getElapsedNanos() / 1_000_000L
-        }
-
-        fun reset() {
-            startTimeNanos = System.nanoTime()
-            totalPausedNanos = 0L
-            pauseStartNanos = 0L
-            wasPaused = false
-        }
     }
 
     class SmoothAnimationTimer {

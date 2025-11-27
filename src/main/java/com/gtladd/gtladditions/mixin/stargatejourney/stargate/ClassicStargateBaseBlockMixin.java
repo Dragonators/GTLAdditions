@@ -1,5 +1,8 @@
 package com.gtladd.gtladditions.mixin.stargatejourney.stargate;
 
+import com.gregtechceu.gtceu.utils.GTUtil;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -7,6 +10,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,8 +31,13 @@ import net.povstalec.sgjourney.common.sgjourney.PointOfOrigin;
 import net.povstalec.sgjourney.common.sgjourney.Symbols;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+
+import java.util.List;
+
+import static com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent;
 
 @Mixin(ClassicStargateBaseBlock.class)
 public abstract class ClassicStargateBaseBlockMixin extends HorizontalDirectionalBlock {
@@ -39,6 +49,30 @@ public abstract class ClassicStargateBaseBlockMixin extends HorizontalDirectiona
 
     protected ClassicStargateBaseBlockMixin(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        tooltip.add(createRainbowComponent(
+                Component.translatable("tooltip.gtladditions.classic_stargate_base_block").getString()));
+        if (GTUtil.isShiftDown()) {
+            tooltip.addAll(
+                    List.of(
+                            Component.translatable("tooltip.gtladditions.stargate_structure.1"),
+                            Component.translatable("tooltip.gtladditions.stargate_structure.2"),
+                            Component.translatable("tooltip.gtladditions.stargate_structure.3"),
+                            Component.translatable("tooltip.gtladditions.stargate_structure.4"),
+                            Component.translatable("tooltip.gtladditions.stargate_structure.5"),
+                            Component.translatable("tooltip.gtladditions.stargate_structure.6"),
+                            Component.translatable("tooltip.gtladditions.stargate_structure.7"),
+                            Component.translatable("tooltip.gtladditions.stargate_structure.8"),
+                            Component.translatable("tooltip.gtladditions.stargate_structure.9"),
+                            Component.translatable("tooltip.gtladditions.stargate_structure.10")));
+        } else {
+            tooltip.add(Component.translatable("tooltip.gtladditions.stargate_structure.0")
+                    .withStyle(ChatFormatting.DARK_GRAY));
+        }
+        super.appendHoverText(stack, level, tooltip, flag);
     }
 
     @SuppressWarnings("deprecation")

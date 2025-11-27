@@ -72,6 +72,7 @@ import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.STAR_CORE_STRIPP
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.STELLAR_LGNITION
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.TECTONIC_FAULT_GENERATOR
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.VOIDFLUX_REACTION
+import com.gtladd.gtladditions.utils.CommonUtils.createObfuscatedDeleteComponent
 import com.hepdd.gtmthings.data.CustomMachines
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.ChatFormatting
@@ -1128,7 +1129,7 @@ object MultiBlockMachine {
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.2"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.3"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.4"))
-            .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.5", GTLAddMachines.createObfuscatedDeleteComponent(
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.5", createObfuscatedDeleteComponent(
                 Long.MAX_VALUE.toString())))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.6"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.7"))

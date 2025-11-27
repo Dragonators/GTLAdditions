@@ -35,11 +35,6 @@ class ConfigHolder {
             @Configurable.Range(min = 1, max = 500000)
             @JvmField
             var externalStorageMaxTimes = 250000
-
-            @Configurable
-            @Configurable.Comment("可能会极小地影响性能")
-            @JvmField
-            var enableSmoothAnimations = true
         }
 
         class SuperPatternBufferConfig {

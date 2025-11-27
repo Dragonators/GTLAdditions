@@ -4,18 +4,24 @@ import appeng.api.crafting.PatternDetailsHelper
 import appeng.api.stacks.AEItemKey
 import appeng.api.stacks.GenericStack
 import appeng.crafting.pattern.AEProcessingPattern
+import com.gregtechceu.gtceu.client.util.TooltipHelper
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import committee.nova.mods.avaritia.init.registry.ModItems
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import net.minecraft.ChatFormatting
 import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 import net.povstalec.sgjourney.StargateJourney
 import net.povstalec.sgjourney.common.init.BlockInit
+import org.gtlcore.gtlcore.utils.TextUtil
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.DecimalFormat
@@ -110,6 +116,54 @@ object CommonUtils {
             FormattingUtil.formatNumbers(value)
         else
             SCIENTIFIC2_FORMAT.format(value).lowercase().replace("e", "e+")
+
+    @JvmStatic
+    fun createRainbowComponent(string: String): Component {
+        return Component.literal(TextUtil.full_color(string))
+            .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
+    }
+
+    fun createLanguageRainbowComponent(component: MutableComponent): Component {
+        return component.withStyle { style: Style -> style.withColor(TooltipHelper.RAINBOW.current) }
+    }
+
+    fun createObfuscatedRainbowComponent(text: String): Component {
+        val component = Component.empty()
+
+        text.forEachIndexed { index, char ->
+            component.append(
+                Component.literal(char.toString())
+                    .withStyle(ChatFormatting.OBFUSCATED)
+                    .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current)}
+            )
+        }
+
+        return component
+    }
+
+    fun createObfuscatedDeleteComponent(text: String): Component {
+        val rainbowColors = arrayOf(
+            ChatFormatting.RED,
+            ChatFormatting.GOLD,
+            ChatFormatting.YELLOW,
+            ChatFormatting.GREEN,
+            ChatFormatting.AQUA,
+            ChatFormatting.BLUE,
+            ChatFormatting.LIGHT_PURPLE
+        )
+        val component = Component.empty()
+
+        text.forEachIndexed { index, char ->
+            component.append(
+                Component.literal(char.toString())
+                    .withStyle(ChatFormatting.OBFUSCATED)
+                    .withStyle(ChatFormatting.STRIKETHROUGH)
+                    .withStyle(rainbowColors[index % 7])
+            )
+        }
+
+        return component
+    }
 
     // ===================================================
     // Pattern Helper

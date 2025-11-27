@@ -187,10 +187,10 @@ object IndustrialArrayPosHelper {
         return Array(offsets.size) { i ->
             val (x, y, z) = offsets[i]
             when (rotation % 4) {
-                0 -> intArrayOf(x, y, z)        // EAST: 不变
-                1 -> intArrayOf(z, y, -x)       // SOUTH: 逆时针90度
-                2 -> intArrayOf(-x, y, -z)      // WEST: 180度
-                3 -> intArrayOf(-z, y, x)       // NORTH: 顺时针90度
+                0 -> intArrayOf(x, y, z)        // EAST: no rotation
+                1 -> intArrayOf(-z, y, x)       // SOUTH: 90° clockwise
+                2 -> intArrayOf(-x, y, -z)      // WEST: 180°
+                3 -> intArrayOf(z, y, -x)       // NORTH: 270° clockwise
                 else -> intArrayOf(x, y, z)
             }
         }

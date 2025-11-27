@@ -7,7 +7,6 @@ import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRender
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.SubspaceCorridorHubIndustrialArray
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
@@ -29,6 +28,7 @@ import net.minecraftforge.client.model.data.ModelData
 import org.gtlcore.gtlcore.GTLCore
 import org.gtlcore.gtlcore.client.ClientUtil
 import org.gtlcore.gtlcore.client.renderer.RenderBufferHelper
+import org.gtlcore.gtlcore.utils.RenderUtil
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import java.util.*
@@ -55,7 +55,7 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
         if (blockEntity is IMachineBlockEntity) {
             val machine = blockEntity.metaMachine as? SubspaceCorridorHubIndustrialArray ?: return
             if (machine.recipeLogic.isWorking) {
-                val tick = RenderUtils.getSmoothTick(machine, partialTicks)
+                val tick = RenderUtil.getSmoothTick(machine, partialTicks)
                 val seed = blockEntity.blockPos.asLong()
 
                 val (x, y, z) = when (machine.frontFacing) {
