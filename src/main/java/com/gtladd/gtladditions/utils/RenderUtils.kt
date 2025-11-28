@@ -1,11 +1,9 @@
 ﻿package com.gtladd.gtladditions.utils
 
-import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.client.renderer.GTRenderTypes
 import com.gtladd.gtladditions.client.GTLAddRenderTypes
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
-import com.gtladd.gtladditions.config.ConfigHolder
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import dev.ftb.mods.ftbchunks.client.FTBChunksRenderTypes

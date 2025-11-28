@@ -60,79 +60,45 @@ import kotlin.math.roundToInt
 object MutableMultiBlockModify {
 
     fun init() {
-        val mutableDefinitions = arrayOf(
-            MultiBlockMachineA.FISHING_GROUND,
-            MultiBlockMachineA.LARGE_GREENHOUSE,
-            MultiBlockMachineA.A_MASS_FABRICATOR,
-            AdditionalMultiBlockMachine.HUGE_INCUBATOR,
-            MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER,
-            AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE,
-            MultiBlockMachineA.NANO_CORE,
-            AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV],
-            MultiBlockMachineA.LARGE_RECYCLER,
-            MultiBlockMachineA.ADVANCED_SPS_CRAFTING,
-            MultiBlockMachineA.PETROCHEMICAL_PLANT,
-            MultiBlockMachineB.WOOD_DISTILLATION,
-            AdvancedMultiBlockMachine.PCB_FACTORY,
-            AdditionalMultiBlockMachine.ADVANCED_RARE_EARTH_CENTRIFUGAL,
-            MultiBlockMachineB.GRAVITATION_SHOCKBURST,
-            AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR,
-            MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE,
-            MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT,
-            MultiBlockMachineA.SUPER_PARTICLE_COLLIDER,
-            MultiBlockMachineA.MATTER_FABRICATOR)
+        val mutableMachines = mapOf(
+            MultiBlockMachineA.FISHING_GROUND to MutableMultiBlocksA.FISHING_GROUND,
+            MultiBlockMachineA.LARGE_GREENHOUSE to MutableMultiBlocksA.LARGE_GREENHOUSE,
+            MultiBlockMachineA.A_MASS_FABRICATOR to MutableMultiBlocksA.A_MASS_FABRICATOR,
+            AdditionalMultiBlockMachine.HUGE_INCUBATOR to MutableMultiBlocksB.HUGE_INCUBATOR,
+            MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER to MutableMultiBlocksB.DIMENSIONALLY_TRANSCENDENT_MIXER,
+            AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE to MutableMultiBlocksB.SUPRACHRONAL_ASSEMBLY_LINE,
+            MultiBlockMachineA.NANO_CORE to MutableMultiBlocksC.NANO_CORE,
+            AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV] to MutableMultiBlocksC.COMPRESSED_FUSION_REACTOR,
+            MultiBlockMachineA.LARGE_RECYCLER to MutableMultiBlocksA.LARGE_RECYCLER,
+            MultiBlockMachineA.ADVANCED_SPS_CRAFTING to MutableMultiBlocksA.ADVANCED_SPS_CRAFTING,
+            MultiBlockMachineA.PETROCHEMICAL_PLANT to MutableMultiBlocksA.PETROCHEMICAL_PLANT,
+            MultiBlockMachineB.WOOD_DISTILLATION to MutableMultiBlocksA.WOOD_DISTILLATION,
+            AdvancedMultiBlockMachine.PCB_FACTORY to MutableMultiBlocksA.PCB_FACTORY,
+            AdditionalMultiBlockMachine.ADVANCED_RARE_EARTH_CENTRIFUGAL to MutableMultiBlocksD.ADVANCED_RARE_EARTH_CENTRIFUGAL,
+            MultiBlockMachineB.GRAVITATION_SHOCKBURST to MutableMultiBlocksA.GRAVITATION_SHOCKBURST,
+            AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR to MutableMultiBlocksA.ADVANCED_NEUTRON_ACTIVATOR,
+            MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE to MutableMultiBlocksD.COMPONENT_ASSEMBLY_LINE,
+            MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT to MutableMultiBlocksA.ATOMIC_ENERGY_EXCITATION_PLANT,
+            MultiBlockMachineA.SUPER_PARTICLE_COLLIDER to MutableMultiBlocksD.SUPER_PARTICLE_COLLIDER,
+            MultiBlockMachineA.MATTER_FABRICATOR to MutableMultiBlocksD.MATTER_FABRICATOR
+        )
 
-        val mutablePATTERNS = arrayOf(
-            MutableMultiBlocksA.FISHING_GROUND,
-            MutableMultiBlocksA.LARGE_GREENHOUSE,
-            MutableMultiBlocksA.A_MASS_FABRICATOR,
-            MutableMultiBlocksB.HUGE_INCUBATOR,
-            MutableMultiBlocksB.DIMENSIONALLY_TRANSCENDENT_MIXER,
-            MutableMultiBlocksB.SUPRACHRONAL_ASSEMBLY_LINE,
-            MutableMultiBlocksC.NANO_CORE,
-            MutableMultiBlocksC.COMPRESSED_FUSION_REACTOR,
-            MutableMultiBlocksA.LARGE_RECYCLER,
-            MutableMultiBlocksA.ADVANCED_SPS_CRAFTING,
-            MutableMultiBlocksA.PETROCHEMICAL_PLANT,
-            MutableMultiBlocksA.WOOD_DISTILLATION,
-            MutableMultiBlocksA.PCB_FACTORY,
-            MutableMultiBlocksD.ADVANCED_RARE_EARTH_CENTRIFUGAL,
-            MutableMultiBlocksA.GRAVITATION_SHOCKBURST,
-            MutableMultiBlocksA.ADVANCED_NEUTRON_ACTIVATOR,
-            MutableMultiBlocksD.COMPONENT_ASSEMBLY_LINE,
-            MutableMultiBlocksA.ATOMIC_ENERGY_EXCITATION_PLANT,
-            MutableMultiBlocksD.SUPER_PARTICLE_COLLIDER,
-            MutableMultiBlocksD.MATTER_FABRICATOR)
+        val multipleMachines = mapOf(
+            MultiBlockMachineA.ADVANCED_INTEGRATED_ORE_PROCESSOR to MultiRecipeMultiBlocks.ADVANCED_INTEGRATED_ORE_PROCESSOR,
+            MultiBlockMachineA.COOLING_TOWER to ElectricMultiRecipeMultiBlocks.COOLING_TOWER,
+            MultiBlockMachineA.MEGA_DISTILLERY to ElectricMultiRecipeMultiBlocks.MEGA_DISTILLERY,
+            MultiBlockMachineA.HOLY_SEPARATOR to ElectricMultiRecipeMultiBlocks.HOLY_SEPARATOR,
+            MultiBlockMachineA.FIELD_EXTRUDER_FACTORY to ElectricMultiRecipeMultiBlocks.FIELD_EXTRUDER_FACTORY,
+            MultiBlockMachineA.MEGA_CANNER to ElectricMultiRecipeMultiBlocks.MEGA_CANNER,
+            MultiBlockMachineA.MEGA_WIREMILL to CoilMultiRecipeMultiBlocks.MEGA_WIREMILL,
+            MultiBlockMachineA.MEGA_PRESSER to CoilMultiRecipeMultiBlocks.MEGA_PRESSER,
+            MultiBlockMachineA.MEGA_EXTRACTOR to CoilMultiRecipeMultiBlocks.MEGA_EXTRACTOR,
+            MultiBlockMachineA.MEGA_FLUID_HEATER to CoilMultiRecipeMultiBlocks.MEGA_FLUID_HEATER,
+            MultiBlockMachineA.ADVANCED_MULTI_SMELTER to CoilMultiRecipeMultiBlocks.ADVANCED_MULTI_SMELTER,
+            MultiBlockMachineA.SUPER_BLAST_SMELTER to CoilMultiRecipeMultiBlocks.SUPER_BLAST_SMELTER
+        )
 
-        val multipleDefinitions = arrayOf(
-            MultiBlockMachineA.ADVANCED_INTEGRATED_ORE_PROCESSOR,
-            MultiBlockMachineA.COOLING_TOWER,
-            MultiBlockMachineA.MEGA_DISTILLERY,
-            MultiBlockMachineA.HOLY_SEPARATOR,
-            MultiBlockMachineA.FIELD_EXTRUDER_FACTORY,
-            MultiBlockMachineA.MEGA_CANNER,
-            MultiBlockMachineA.MEGA_WIREMILL,
-            MultiBlockMachineA.MEGA_PRESSER,
-            MultiBlockMachineA.MEGA_EXTRACTOR,
-            MultiBlockMachineA.MEGA_FLUID_HEATER,
-            MultiBlockMachineA.ADVANCED_MULTI_SMELTER,
-            MultiBlockMachineA.SUPER_BLAST_SMELTER)
-
-        val multiplePATTERNS = arrayOf(
-            MultiRecipeMultiBlocks.ADVANCED_INTEGRATED_ORE_PROCESSOR,
-            ElectricMultiRecipeMultiBlocks.COOLING_TOWER,
-            ElectricMultiRecipeMultiBlocks.MEGA_DISTILLERY,
-            ElectricMultiRecipeMultiBlocks.HOLY_SEPARATOR,
-            ElectricMultiRecipeMultiBlocks.FIELD_EXTRUDER_FACTORY,
-            ElectricMultiRecipeMultiBlocks.MEGA_CANNER,
-            CoilMultiRecipeMultiBlocks.MEGA_WIREMILL,
-            CoilMultiRecipeMultiBlocks.MEGA_PRESSER,
-            CoilMultiRecipeMultiBlocks.MEGA_EXTRACTOR,
-            CoilMultiRecipeMultiBlocks.MEGA_FLUID_HEATER,
-            CoilMultiRecipeMultiBlocks.ADVANCED_MULTI_SMELTER,
-            CoilMultiRecipeMultiBlocks.SUPER_BLAST_SMELTER)
-
-        val addDefinitions = arrayOf(
+        val addDefinitions = listOf(
             NEXUS_SATELLITE_FACTORY_MKI,
             NEXUS_SATELLITE_FACTORY_MKII,
             NEXUS_SATELLITE_FACTORY_MKIII,
@@ -152,9 +118,10 @@ object MutableMultiBlockModify {
             INFERNO_CLEFT_SMELTING_VAULT,
             SKELETON_SHIFT_RIFT_ENGINE,
             APOCALYPTIC_TORSION_QUANTUM_MATRIX,
-            DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY)
+            DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY
+        )
 
-        enableThreadModifier(arrayOf(*mutableDefinitions, *multipleDefinitions), arrayOf(*mutablePATTERNS, *multiplePATTERNS))
+        enableThreadModifier(mutableMachines + multipleMachines)
 
         setParallelHatchMutable(
             AdditionalMultiBlockMachine.HUGE_INCUBATOR,
@@ -167,18 +134,20 @@ object MutableMultiBlockModify {
         )
         setOtherMutable()
 
-        for (definition in arrayOf(*mutableDefinitions, AdvancedMultiBlockMachine.CREATE_AGGREGATION, AdvancedMultiBlockMachine.DOOR_OF_CREATE)) {
+        val mutableWithExtra = mutableMachines.keys + listOf(
+            AdvancedMultiBlockMachine.CREATE_AGGREGATION,
+            AdvancedMultiBlockMachine.DOOR_OF_CREATE
+        )
+        for (definition in mutableWithExtra) {
             addTooltips(
                 definition,
                 Component.translatable("gtladditions.multiblock.thread.tooltip.0"),
                 Component.translatable(
                     "gtladditions.multiblock.thread.tooltip.1",
                     Component.literal(ThreadMultiplierStrategy.getAdditionalMultiplier(definition).toString())
-                        .withStyle(
-                            ChatFormatting.GOLD
-                        )
-
-                ), when (definition) {
+                        .withStyle(ChatFormatting.GOLD)
+                ),
+                when (definition) {
                     MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE ->
                         Component.translatable("gtladditions.multiblock.thread.component_assembly_line.tooltip.0")
                     MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT ->
@@ -187,26 +156,26 @@ object MutableMultiBlockModify {
                 }
             )
         }
-        for (definition in arrayOf(*multipleDefinitions, *addDefinitions)) {
+
+        val multipleWithAdd = multipleMachines.keys + addDefinitions
+        for (definition in multipleWithAdd) {
             addTooltips(
                 definition,
                 Component.translatable("gtladditions.multiblock.thread.tooltip.2"),
                 Component.translatable(
                     "gtladditions.multiblock.thread.tooltip.1",
                     Component.literal(ThreadMultiplierStrategy.getAdditionalMultiplier(definition).toString())
-                        .withStyle(
-                            ChatFormatting.GOLD
-                        )
+                        .withStyle(ChatFormatting.GOLD)
                 )
             )
         }
     }
 
     fun enableThreadModifier(
-        definitions: Array<out MultiblockMachineDefinition>,
-        func: Array<out Function<MultiblockMachineDefinition, BlockPattern>>) {
-        for ((index, definition) in definitions.withIndex()) {
-            definition.patternFactory = SupplierMemoizer.memoize { func[index].apply(definition) }
+        machinePatternMap: Map<MultiblockMachineDefinition, Function<MultiblockMachineDefinition, BlockPattern>>
+    ) {
+        for ((definition, pattern) in machinePatternMap) {
+            definition.patternFactory = SupplierMemoizer.memoize { pattern.apply(definition) }
         }
     }
 
