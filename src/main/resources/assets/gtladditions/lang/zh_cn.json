@@ -26,6 +26,7 @@
   "block.gtladditions.heliothermal_plasma_fabricator": "恒星热能等离子制造机",
   "block.gtladditions.huge_steam_input_hatch": "巨型蒸汽输入仓",
   "block.gtladditions.inferno_cleft_smelting_vault": "炽隙裂炼穹",
+  "block.gtladditions.infinity_input_dual_hatch": "无尽输入总成",
   "block.gtladditions.lucid_etchdreamer": "光之蚀梦者",
   "block.gtladditions.macro_atomic_resonant_fragment_stripper": "宏原子谐振碎片剥离器",
   "block.gtladditions.me_super_pattern_buffer": "超级样板总成",
@@ -234,6 +235,7 @@
   "tooltip.gtladditions.industrial_array_max": "已解锁悖论实现理论",
   "tooltip.gtladditions.stargate_structure.0": "按住Shift以查看具体结构",
   "tooltip.gtladditions.stargate_structure.1": "□◆■◆■◆□",
+  "tooltip.gtladditions.stargate_structure.10": "§b★§r: 1x§6星门基座块",
   "tooltip.gtladditions.stargate_structure.2": "■■□□□■■",
   "tooltip.gtladditions.stargate_structure.3": "◆□□□□□◆",
   "tooltip.gtladditions.stargate_structure.4": "■□□□□□■",
@@ -241,6 +243,5 @@
   "tooltip.gtladditions.stargate_structure.6": "◆■□□□■◆",
   "tooltip.gtladditions.stargate_structure.7": "□■◆★◆■□",
   "tooltip.gtladditions.stargate_structure.8": "§b■§r: 14x§6星门环块",
-  "tooltip.gtladditions.stargate_structure.9": "§b◆§r: 9x§6星门导标块",
-  "tooltip.gtladditions.stargate_structure.10": "§b★§r: 1x§6星门基座块"
+  "tooltip.gtladditions.stargate_structure.9": "§b◆§r: 9x§6星门导标块"
 }

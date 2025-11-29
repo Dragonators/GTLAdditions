@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.common.data.GTItems.TOOL_DATA_MODULE
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.*
 import com.gregtechceu.gtceu.data.recipe.builder.ShapedRecipeBuilder
+import com.gregtechceu.gtceu.data.recipe.builder.ShapelessRecipeBuilder
 import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
@@ -19,6 +20,8 @@ import com.gtladd.gtladditions.common.items.GTLAddItems.SPACETIME_LENS
 import com.gtladd.gtladditions.common.items.GTLAddItems.SPACETIME_SOC_WAFER
 import com.gtladd.gtladditions.common.items.GTLAddItems.STRANGE_ANNIHILATION_FUEL_ROD
 import com.gtladd.gtladditions.common.items.GTLAddItems.SUPER_DENSE_MAGMATTER_PLATE
+import com.gtladd.gtladditions.common.machine.GTLAddMachines.INFINITY_INPUT_DUAL_HATCH
+import com.gtladd.gtladditions.common.machine.GTLAddMachines.Ultimate_INPUT_DUAL_HATCH
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
@@ -81,13 +84,17 @@ object Misc {
             .outputFluids(Mana.getFluid(256000000))
             .EUt(VA[MAX].toLong()).duration(320)
             .save(provider)
-        ShapedRecipeBuilder(id("ultimate_input_dual_hatch"))
-            .output(getItemStack("gtladditions:ultimate_input_dual_hatch"))
+        ShapedRecipeBuilder(id("infinity_input_dual_hatch"))
+            .output(INFINITY_INPUT_DUAL_HATCH.asStack())
             .pattern(" S ")
             .pattern("SDS")
             .pattern(" S ")
             .define('S', getItemStack("gtladditions:super_input_dual_hatch"))
             .define('D', getItemStack("gtlcore:max_storage"))
+            .save(provider)
+        ShapelessRecipeBuilder(id("infinity_input_dual_hatch_2"))
+            .output(INFINITY_INPUT_DUAL_HATCH.asStack())
+            .requires(Ultimate_INPUT_DUAL_HATCH.asStack())
             .save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("astral_array"))
             .inputItems(EYE_OF_HARMONY, 64)

@@ -26,6 +26,7 @@
   "block.gtladditions.heliothermal_plasma_fabricator": "Heliothermal Plasma Fabricator",
   "block.gtladditions.huge_steam_input_hatch": "Huge Steam Input Hatch",
   "block.gtladditions.inferno_cleft_smelting_vault": "Inferno Cleft Smelting Vault",
+  "block.gtladditions.infinity_input_dual_hatch": "Infinity Input Dual Hatch",
   "block.gtladditions.lucid_etchdreamer": "Lucid Etchdreamer",
   "block.gtladditions.macro_atomic_resonant_fragment_stripper": "Macro Atomic Resonant Fragment Stripper",
   "block.gtladditions.me_super_pattern_buffer": "Me Super Pattern Buffer",
@@ -234,6 +235,7 @@
   "tooltip.gtladditions.industrial_array_max": "Unlocked Paradoxical Attainment",
   "tooltip.gtladditions.stargate_structure.0": "Hold Shift to view structure",
   "tooltip.gtladditions.stargate_structure.1": "□◆■◆■◆□",
+  "tooltip.gtladditions.stargate_structure.10": "§b★§r: 1x§6Stargate Base Block",
   "tooltip.gtladditions.stargate_structure.2": "■■□□□■■",
   "tooltip.gtladditions.stargate_structure.3": "◆□□□□□◆",
   "tooltip.gtladditions.stargate_structure.4": "■□□□□□■",
@@ -241,6 +243,5 @@
   "tooltip.gtladditions.stargate_structure.6": "◆■□□□■◆",
   "tooltip.gtladditions.stargate_structure.7": "□■◆★◆■□",
   "tooltip.gtladditions.stargate_structure.8": "§b■§r: 14x§6Stargate Ring Block",
-  "tooltip.gtladditions.stargate_structure.9": "§b◆§r: 9x§6Stargate Chevron Block",
-  "tooltip.gtladditions.stargate_structure.10": "§b★§r: 1x§6Stargate Base Block"
+  "tooltip.gtladditions.stargate_structure.9": "§b◆§r: 9x§6Stargate Chevron Block"
 }
