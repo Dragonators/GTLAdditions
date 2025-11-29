@@ -11,7 +11,6 @@ import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient
 import com.gregtechceu.gtceu.utils.FluidStackHashStrategy
 import com.gtladd.gtladditions.utils.TransferHelper
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
-import com.lowdragmc.lowdraglib.side.fluid.FluidTransferHelper
 import com.lowdragmc.lowdraglib.side.fluid.IFluidTransfer
 import com.lowdragmc.lowdraglib.syncdata.IContentChangeAware
 import com.lowdragmc.lowdraglib.syncdata.ITagSerializable
@@ -56,13 +55,12 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) : NotifiableRecipeHandl
     fun isEmpty(): Boolean = fluidInventory.isEmpty()
 
     fun importFromNearby(vararg facings: Direction) {
-        val level = machine.level
+        val level = machine.level ?: return
         val pos = machine.pos
 
         for (facing in facings) {
-            FluidTransferHelper.importToTarget(
+            TransferHelper.importToTarget(
                 this,
-                Int.Companion.MAX_VALUE,
                 machine.getFluidCapFilter(facing),
                 level,
                 pos.relative(facing),

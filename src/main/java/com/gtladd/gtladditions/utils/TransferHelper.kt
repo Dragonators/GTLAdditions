@@ -144,4 +144,47 @@ object TransferHelper {
             target.onContentsChanged()
         }
     }
+
+    fun importToTarget(
+        target: FastNotifiableInputFluidTank,
+        filter: Predicate<FluidStack>,
+        level: Level,
+        pos: BlockPos,
+        direction: Direction?
+    ) {
+        val source = FluidTransferHelper.getFluidTransfer(level, pos, direction) ?: return
+
+        var changed = false
+        val fluidInventory = target.getFluidInventory()
+
+        for (srcIndex in 0 until source.tanks) {
+            val currentFluid = source.getFluidInTank(srcIndex)
+            if (currentFluid.isEmpty || !filter.test(currentFluid)) {
+                continue
+            }
+
+            val existing: FluidStack? = fluidInventory.get(currentFluid)
+            val canInsert = Long.MAX_VALUE - (existing?.amount ?: 0)
+            val toDrainAmount = canInsert.coerceAtMost(currentFluid.amount)
+
+            if (toDrainAmount > 0) {
+                val toDrain = currentFluid.copy()
+                toDrain.amount = toDrainAmount
+                val drained = source.drain(toDrain, false)
+
+                if (!drained.isEmpty) {
+                    existing?.let {
+                        it.amount += drained.amount
+                    } ?: run {
+                        fluidInventory.add(drained)
+                    }
+                    changed = true
+                }
+            }
+        }
+
+        if (changed) {
+            target.onContentsChanged()
+        }
+    }
 }
