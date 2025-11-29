@@ -17,6 +17,7 @@ import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.Companion.REGISTRATE
 import com.gtladd.gtladditions.api.registry.MachineBuilderExtensions.overlayHullRenderer
 import com.gtladd.gtladditions.common.machine.hatch.HugeSteamHatchPartMachine
+import com.gtladd.gtladditions.common.machine.hatch.InfinityDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.SuperDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.UltimateDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
@@ -25,6 +26,7 @@ import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.modify.MultiBlockModify
 import com.gtladd.gtladditions.common.modify.MutableMultiBlockModify
 import com.gtladd.gtladditions.config.ConfigHolder
+import com.gtladd.gtladditions.utils.CommonUtils
 import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeDualHatchPartMachine
 import com.hepdd.gtmthings.common.registry.GTMTRegistration
@@ -44,6 +46,7 @@ object GTLAddMachines {
     val HUGE_STEAM_HATCH: MachineDefinition
     val SUPER_INPUT_DUAL_HATCH: MachineDefinition
     val Ultimate_INPUT_DUAL_HATCH: MachineDefinition
+    val INFINITY_INPUT_DUAL_HATCH: MachineDefinition
     val ME_SUPER_PATTERN_BUFFER: MachineDefinition
     val ME_SUPER_PATTERN_BUFFER_PROXY: MachineDefinition
     val SUPER_PARALLEL_HATCH: MachineDefinition
@@ -151,12 +154,27 @@ object GTLAddMachines {
             .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 129))
             .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 64,
                 FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)))
-            .tooltipBuilder(GTLAdd_ADD).register()
+            .tooltipBuilder(GTLAdd_ADD).tier(14).register()
+        INFINITY_INPUT_DUAL_HATCH = REGISTRATE.machine("infinity_input_dual_hatch")
+        { InfinityDualHatchPartMachine(it!!) }
+            .rotationState(RotationState.ALL)
+            .abilities(*GTMachines.DUAL_INPUT_HATCH_ABILITIES)
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/infinity_input_dual_hatch_casing"), ResourceLocation(GTLAdditions.MOD_ID, "block/machine/part/ultimate_input_dual_hatch.import"))
+            .langValue("Infinity Input Dual Hatch")
+            .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity",
+                Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel")
+                    .withStyle(ChatFormatting.GOLD).withStyle(ChatFormatting.BOLD),
+            ))
+            .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult",
+                Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel")
+                    .withStyle(ChatFormatting.GOLD).withStyle(ChatFormatting.BOLD),
+                FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)))
+            .tooltipBuilder(GTLAdd_ADD).tier(14).register()
         ME_SUPER_PATTERN_BUFFER = REGISTRATE.machine("me_super_pattern_buffer")
         { MESuperPatternBufferPartMachine(it!!, ConfigHolder.INSTANCE.superPatternBuffer.patternsPerRow, ConfigHolder.INSTANCE.superPatternBuffer.rowsPerPage, ConfigHolder.INSTANCE.superPatternBuffer.maxPages) }
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.IMPORT_ITEMS, PartAbility.IMPORT_FLUIDS)
-            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer"))
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/infinity_input_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer"))
             .langValue("Me Super Pattern Buffer")
             .tooltips(Component.translatable("tooltip.gtlcore.bigger_stronger").withStyle(ChatFormatting.GOLD),
                 Component.translatable("block.gtceu.pattern_buffer.desc.0"),
@@ -175,7 +193,7 @@ object GTLAddMachines {
         { MESuperPatternBufferProxyPartMachine(it!!) }
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.IMPORT_ITEMS, PartAbility.IMPORT_FLUIDS)
-            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer_proxy"))
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/infinity_input_dual_hatch_casing"), GTCEu.id("block/machine/part/me_pattern_buffer_proxy"))
             .langValue("Me Super Pattern Buffer Proxy")
             .tooltips(Component.translatable("block.gtceu.pattern_buffer_proxy.desc.0"),
                 Component.translatable("block.gtceu.pattern_buffer_proxy.desc.1"),
@@ -199,7 +217,7 @@ object GTLAddMachines {
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.OUTPUT_LASER, PartAbility.OUTPUT_ENERGY)
             .tier(GTValues.MAX)
-            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTLAdditions.id("block/machine/part/wireless_energy_network_terminal"))
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/wireless_terminate_casing"), GTLAdditions.id("block/machine/part/wireless_energy_network_terminal"))
             .langValue("Wireless Energy Network Output Terminal")
             .tooltips(Component.translatable("gtceu.universal.disabled"),
                 Component.translatable("gtladditions.machine.wireless_energy_network_terminal.tooltips.0"),
@@ -212,7 +230,7 @@ object GTLAddMachines {
             .rotationState(RotationState.ALL)
             .abilities(PartAbility.INPUT_LASER, PartAbility.INPUT_ENERGY)
             .tier(GTValues.MAX)
-            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), GTLAdditions.id("block/machine/part/wireless_energy_network_terminal"))
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/wireless_terminate_casing"), GTLAdditions.id("block/machine/part/wireless_energy_network_terminal"))
             .langValue("Wireless Energy Network Input Terminal")
             .tooltips(Component.translatable("gtceu.universal.disabled"),
                 Component.translatable("gtladditions.machine.wireless_energy_network_terminal.tooltips.0"),

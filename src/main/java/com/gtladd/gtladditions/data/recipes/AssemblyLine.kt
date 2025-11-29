@@ -15,7 +15,7 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
 import com.gtladd.gtladditions.common.items.GTLAddItems.THERMAL_SUPERCONDUCTOR
-import com.gtladd.gtladditions.common.machine.GTLAddMachines.Ultimate_INPUT_DUAL_HATCH
+import com.gtladd.gtladditions.common.machine.GTLAddMachines.INFINITY_INPUT_DUAL_HATCH
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
@@ -379,7 +379,7 @@ object AssemblyLine {
             .inputItems(frameGt, MagnetohydrodynamicallyConstrainedStarMatter, 64)
             .inputItems(rodLong, CREON, 48)
             .inputItems(rodLong, CREON, 48)
-            .inputItems(Ultimate_INPUT_DUAL_HATCH, 4)
+            .inputItems(INFINITY_INPUT_DUAL_HATCH, 4)
             .inputItems(getItemStack("kubejs:hypercube", 64))
             .inputItems(RELATIVISTIC_HEAT_CAPACITOR, 32)
             .inputItems(THERMAL_SUPERCONDUCTOR, 48)

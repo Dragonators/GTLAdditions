@@ -58,7 +58,7 @@ open class SuperNotifiableFluidTank(
                     continue
                 }
 
-                var toDrain = currentFluid.copy()
+                val toDrain = currentFluid.copy()
                 var remainAmount = currentFluid.amount
                 do {
                     val filled = target.fill(
@@ -66,18 +66,15 @@ open class SuperNotifiableFluidTank(
                         IFluidHandler.FluidAction.SIMULATE
                     )
                     if (filled > 0) {
-                        toDrain = currentFluid.copy()
                         toDrain.amount = filled.toLong()
                         target.fill(
                             FluidHelperImpl.toFluidStack(source.drain(toDrain, false)),
                             IFluidHandler.FluidAction.EXECUTE
                         )
                         remainAmount -= filled
-                        if (remainAmount <= 0) break
                     } else {
                         break
                     }
-                    toDrain = currentFluid.copy()
                     toDrain.amount = remainAmount
                 } while (!toDrain.isEmpty)
             }
