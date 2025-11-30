@@ -12,7 +12,6 @@ import com.gregtechceu.gtceu.utils.ItemStackHashStrategy
 import com.gtladd.gtladditions.utils.TransferHelper
 import com.hepdd.gtmthings.utils.FormatUtil
 import com.lowdragmc.lowdraglib.side.item.IItemTransfer
-import com.lowdragmc.lowdraglib.side.item.ItemTransferHelper
 import com.lowdragmc.lowdraglib.syncdata.IContentChangeAware
 import com.lowdragmc.lowdraglib.syncdata.ITagSerializable
 import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenCustomHashMap
@@ -42,11 +41,12 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
         itemInventory.defaultReturnValue(0)
     }
 
-
     val realSize: Int
         get() = itemInventory.size
 
-    fun getInventory() = itemInventory
+    fun isEmpty(): Boolean = itemInventory.isEmpty()
+
+    fun getItemStorage() = itemInventory
 
     fun addDisplayText(textList: MutableList<Component?>) {
         for (entry in Object2LongMaps.fastIterable(itemInventory)) {
@@ -59,8 +59,6 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
             )
         }
     }
-
-    fun isEmpty(): Boolean = itemInventory.isEmpty()
 
     fun importFromNearby(vararg facings: Direction) {
         val level = machine.level ?: return

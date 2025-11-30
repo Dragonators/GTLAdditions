@@ -2,7 +2,6 @@ package com.gtladd.gtladditions.data.recipes
 
 import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
-import com.gregtechceu.gtceu.api.data.tag.TagUtil
 import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
 import com.gregtechceu.gtceu.common.data.GTItems.*
@@ -54,7 +53,7 @@ object PartMachine {
             .inputItems(getItemStack("avaritia:endest_pearl", 64))
             .inputItems(getItemStack("kubejs:chaotic_energy_core", 16))
             .inputItems(getItemStack("kubejs:create_ultimate_battery", 16))
-            .inputItems(TagUtil.createModItemTag("circuits/max"), 16)
+            .inputItems(CustomTags.MAX_CIRCUITS, 16)
             .inputItems(getItemStack("gtceu:create_computation", 4))
             .inputItems(getItemStack("minecraft:repeating_command_block", 4))
             .inputFluids(SpaceTime.getFluid(6553600))
@@ -73,7 +72,7 @@ object PartMachine {
             .inputItems(getItemStack("gtlcore:spacetimebendingcore", 64))
             .inputItems(getItemStack("kubejs:proto_matter", 64))
             .inputItems(EXTREMELY_ULTIMATE_BATTERY, 16)
-            .inputItems(TagUtil.createModItemTag("circuits/uxv"), 16)
+            .inputItems(CustomTags.UXV_CIRCUITS, 16)
             .inputItems(getItemStack("gtceu:me_extend_pattern_buffer", 16))
             .inputItems(getItemStack("gtceu:me_dual_hatch_stock_part_machine", 16))
             .inputItems(EMITTER_UXV, 8)
@@ -104,7 +103,7 @@ object PartMachine {
             .inputItems(ROBOT_ARM_UXV, 16)
             .inputItems(CONVEYOR_MODULE_UXV, 16)
             .inputItems(getItemStack("gtceu:me_dual_hatch_stock_part_machine", 4))
-            .inputItems(TagUtil.createModItemTag("circuits/uxv"), 4)
+            .inputItems(CustomTags.UXV_CIRCUITS, 4)
             .inputItems(getItemStack("kubejs:entangled_singularity", 64))
             .inputItems(getItemStack("ae2:quantum_ring", 64))
             .inputItems(getItemStack("ae2:quantum_link", 32))
@@ -178,7 +177,7 @@ object PartMachine {
             .inputItems(nanoswarm, BlackDwarfMatter, 8192)
             .inputItems(nanoswarm, WhiteDwarfMatter, 8192)
             .inputItems(GTLAddItems.SPACETIME_LENS, 4096)
-            .inputItems(TagUtil.createModItemTag("circuits/uxv"), 131072)
+            .inputItems(CustomTags.UXV_CIRCUITS, 131072)
             .inputFluids(Radox.getFluid(589000000))
             .inputFluids(TemporalFluid.getFluid(46080000))
             .inputFluids(Shirabon.getFluid(92160000))
@@ -189,6 +188,30 @@ object PartMachine {
                 b !!.researchStack(GTLAddMachines.SUPER_PARALLEL_HATCH.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("infinity_input_dual_hatch"))
+            .inputItems(getItemStack("gtmthings:uhv_huge_dual_hatch", 64))
+            .inputItems(getItemStack("gtmthings:uev_huge_dual_hatch", 64))
+            .inputItems(getItemStack("gtmthings:uiv_huge_dual_hatch", 64))
+            .inputItems(getItemStack("gtmthings:uxv_huge_dual_hatch", 64))
+            .inputItems(getItemStack("gtmthings:opv_huge_dual_hatch", 64))
+            .inputItems(GTLAddMachines.SUPER_INPUT_DUAL_HATCH, 16)
+            .inputItems(INFINITE_CELL_COMPONENT, 16)
+            .inputItems(CustomTags.OpV_CIRCUITS, 4)
+            .inputItems(getItemStack("kubejs:nuclear_star", 8))
+            .inputItems(getItemStack("kubejs:quantumchromodynamic_protective_plating", 6))
+            .inputItems(getItemStack("kubejs:stabilized_wormhole_generator", 2))
+            .inputFluids(Periodicium.getFluid(5760))
+            .inputFluids(Radox.getFluid(5760))
+            .inputFluids(CosmicNeutronium.getFluid(5760))
+            .inputFluids(Infinity.getFluid(2560))
+            .outputItems(GTLAddMachines.INFINITY_INPUT_DUAL_HATCH)
+            .EUt(VA[OpV].toLong()).duration(5120)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(GTLAddMachines.SUPER_INPUT_DUAL_HATCH.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[OpV]).CWUt(1280)
             }
             .save(provider)
     }

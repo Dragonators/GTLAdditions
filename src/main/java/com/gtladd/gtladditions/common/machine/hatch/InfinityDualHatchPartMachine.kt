@@ -24,17 +24,23 @@ import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget
 import com.lowdragmc.lowdraglib.gui.widget.DraggableScrollableWidgetGroup
 import com.lowdragmc.lowdraglib.gui.widget.Widget
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
+import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.side.fluid.FluidTransferHelper
 import com.lowdragmc.lowdraglib.side.item.ItemTransferHelper
 import com.lowdragmc.lowdraglib.syncdata.ISubscription
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
+import it.unimi.dsi.fastutil.objects.Object2LongMap
+import it.unimi.dsi.fastutil.objects.Object2LongMaps
+import it.unimi.dsi.fastutil.objects.ObjectIterator
+import it.unimi.dsi.fastutil.objects.ObjectSets
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Block
 import org.gtlcore.gtlcore.api.machine.trait.NotifiableCircuitItemStackHandler
 
@@ -61,6 +67,12 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
     private var tankSubs: ISubscription? = null
     private var hasFluidTransfer = false
     private var hasItemTransfer = false
+
+    val itemIterator: ObjectIterator<Object2LongMap.Entry<ItemStack>>
+        get() = Object2LongMaps.unmodifiable(inventory.getItemStorage()).object2LongEntrySet().iterator()
+
+    val fluidIterator: ObjectIterator<FluidStack>
+        get() = ObjectSets.unmodifiable(tank.getFluidStorage()).iterator()
 
     override fun onLoad() {
         super.onLoad()
@@ -189,14 +201,6 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
         )
     }
 
-    override fun isDistinct(): Boolean = inventory.isDistinct && circuitInventory.isDistinct && shareInventory.isDistinct
-
-    override fun setDistinct(isDistinct: Boolean) {
-        inventory.isDistinct = isDistinct
-        circuitInventory.isDistinct = isDistinct
-        shareInventory.isDistinct = isDistinct
-    }
-
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
         super<TieredIOPartMachine>.attachConfigurators(configuratorPanel)
 
@@ -238,6 +242,14 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
                     )
                 )
         )
+    }
+
+    override fun isDistinct(): Boolean = inventory.isDistinct && circuitInventory.isDistinct && shareInventory.isDistinct
+
+    override fun setDistinct(isDistinct: Boolean) {
+        inventory.isDistinct = isDistinct
+        circuitInventory.isDistinct = isDistinct
+        shareInventory.isDistinct = isDistinct
     }
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER

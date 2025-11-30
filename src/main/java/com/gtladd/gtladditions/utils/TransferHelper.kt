@@ -27,7 +27,7 @@ object TransferHelper {
         val target = FluidTransferHelper.getFluidTransfer(level, pos, direction) ?: return
 
         var changed = false
-        val iterator = source.getFluidInventory().iterator()
+        val iterator = source.getFluidStorage().iterator()
         while (iterator.hasNext()) {
             val currentFluid = iterator.next()
 
@@ -69,7 +69,7 @@ object TransferHelper {
         val target = ItemTransferHelper.getItemTransfer(level, pos, direction) ?: return
 
         var changed = false
-        val iterator = Object2LongMaps.fastIterator(source.getInventory())
+        val iterator = Object2LongMaps.fastIterator(source.getItemStorage())
         while (iterator.hasNext()) {
             val entry = iterator.next()
             val stack = entry.key
@@ -117,7 +117,7 @@ object TransferHelper {
         val source = ItemTransferHelper.getItemTransfer(level, pos, direction) ?: return
 
         var changed = false
-        val inventory = target.getInventory()
+        val inventory = target.getItemStorage()
 
         for (srcIndex in 0 until source.slots) {
             val sourceStack = source.extractItem(srcIndex, Int.MAX_VALUE, true, false)
@@ -155,7 +155,7 @@ object TransferHelper {
         val source = FluidTransferHelper.getFluidTransfer(level, pos, direction) ?: return
 
         var changed = false
-        val fluidInventory = target.getFluidInventory()
+        val fluidInventory = target.getFluidStorage()
 
         for (srcIndex in 0 until source.tanks) {
             val currentFluid = source.getFluidInTank(srcIndex)

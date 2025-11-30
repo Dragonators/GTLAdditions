@@ -26,7 +26,6 @@ import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.modify.MultiBlockModify
 import com.gtladd.gtladditions.common.modify.MutableMultiBlockModify
 import com.gtladd.gtladditions.config.ConfigHolder
-import com.gtladd.gtladditions.utils.CommonUtils
 import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeDualHatchPartMachine
 import com.hepdd.gtmthings.common.registry.GTMTRegistration
