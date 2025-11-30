@@ -35,7 +35,9 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) : NotifiableRecipeHandl
     val realSize: Int
         get() = fluidInventory.size
 
-    fun getFluidInventory() = fluidInventory
+    fun isEmpty(): Boolean = fluidInventory.isEmpty()
+
+    fun getFluidStorage() = fluidInventory
 
     fun addDisplayText(textList: MutableList<Component?>) {
         for (fluidStack in fluidInventory) {
@@ -51,8 +53,6 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) : NotifiableRecipeHandl
             )
         }
     }
-
-    fun isEmpty(): Boolean = fluidInventory.isEmpty()
 
     fun importFromNearby(vararg facings: Direction) {
         val level = machine.level ?: return
