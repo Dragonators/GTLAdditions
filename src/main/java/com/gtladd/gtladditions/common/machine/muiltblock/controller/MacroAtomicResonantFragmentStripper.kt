@@ -99,11 +99,11 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
         /**
          * Formula: parallelMultiplier = 2^(6 + 10*((astralArrayCount - 1)/184)^2)
          */
-        fun calculateParallelAmount(count: Int, temprature: Int): Int {
-            if (count == 0) return 1
+        fun calculateParallelAmount(count: Int, temperature: Int): Int {
+            val base = (1536 + max(temperature - 21600, 0) / 1200 * 300)
+            if (count == 0) return base
             val normalized = (count - 1) / 184.0
             val exponent = 6 + 10 * normalized * normalized
-            val base = (1536 + max(temprature - 21600, 0) / 1200 * 300)
             return (base * 2.0.pow(exponent)).roundToInt()
         }
 
