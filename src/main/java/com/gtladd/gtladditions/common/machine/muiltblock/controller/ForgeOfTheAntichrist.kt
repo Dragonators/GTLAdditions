@@ -406,12 +406,14 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                         }
 
                         fullCell[id]?.let { it ->
-                            copyList.add(
-                                it.copy(
-                                    ItemRecipeCapability.CAP,
-                                    ContentModifier.multiplier(modifier.multiplier - 1)
+                            if (modifier.multiplier >= 2) {
+                                copyList.add(
+                                    it.copy(
+                                        ItemRecipeCapability.CAP,
+                                        ContentModifier.multiplier(modifier.multiplier - 1)
+                                    )
                                 )
-                            )
+                            }
                         }
 
                         after[cap] = copyList
