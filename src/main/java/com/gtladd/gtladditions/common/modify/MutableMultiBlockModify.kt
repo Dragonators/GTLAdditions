@@ -242,7 +242,7 @@ object MutableMultiBlockModify {
         MultiBlockMachineA.NANO_CORE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
                 override fun getMaxParallel(): Int {
-                    return 8192
+                    return if (getRecipeLogic().isMultipleRecipeMode()) 67108864 else 8192
                 }
 
                 override fun createRecipeLogic(vararg args: Any?): RecipeLogic {

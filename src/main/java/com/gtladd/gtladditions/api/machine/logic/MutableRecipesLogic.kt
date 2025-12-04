@@ -161,7 +161,7 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
 
             if (RecipeRunnerHelper.handleRecipeInput(machine, paralleledRecipe)) {
                 remain -= pair.secondLong()
-                totalEu += getRecipeEut(paralleledRecipe) * paralleledRecipe.duration * euMultiplier
+                totalEu += getRecipeEut(match).toDouble() * p * paralleledRecipe.duration * euMultiplier
                 RecipeCalculationHelper.collectOutputs(paralleledRecipe, itemOutputs, fluidOutputs)
             }
             if (totalEu / maxEUt > 20 * 500) break
