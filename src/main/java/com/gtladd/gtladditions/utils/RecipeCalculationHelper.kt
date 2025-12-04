@@ -48,7 +48,7 @@ object RecipeCalculationHelper {
         maxEUt: Long,
         euMultiplier: Double,
         getTotalRecipeEu: (GTRecipe) -> Double,
-        crossinline shouldBreak: (Double, Long) -> Boolean = { totalEu, _ -> totalEu / maxEUt > 20 * 500 }
+        crossinline shouldBreak: (Double) -> Boolean = { totalEu -> totalEu / maxEUt > 20 * 500 }
     ): Triple<ObjectArrayList<Content>, ObjectArrayList<Content>, Double> {
         val itemOutputs = ObjectArrayList<Content>()
         val fluidOutputs = ObjectArrayList<Content>()
@@ -65,10 +65,10 @@ object RecipeCalculationHelper {
                     paralleledRecipe
                 )
             ) {
-                totalEu += getTotalRecipeEu(paralleledRecipe) * euMultiplier
+                totalEu += getTotalRecipeEu(r) * p * euMultiplier
                 collectOutputs(paralleledRecipe, itemOutputs, fluidOutputs)
             }
-            if (shouldBreak(totalEu, maxEUt)) break
+            if (shouldBreak(totalEu)) break
         }
 
         return Triple(itemOutputs, fluidOutputs, totalEu)
@@ -128,7 +128,7 @@ object RecipeCalculationHelper {
         recipe.outputs[FluidRecipeCapability.CAP] = fluidOutputs
 
         val d = totalEu / maxEUt
-        val eut = if (d > minDuration) maxEUt else (maxEUt * d / minDuration).toLong()
+        val eut = if (d > minDuration) maxEUt else (totalEu / minDuration).toLong()
         recipe.tickInputs[EURecipeCapability.CAP] = listOf(Content(eut, 10000, 10000, 0, null, null))
         recipe.duration = maxOf(d, minDuration.toDouble()).toInt()
         IGTRecipe.of(recipe).setHasTick(true)

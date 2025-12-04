@@ -112,7 +112,7 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
 
             if (handleRecipeInput(machine, paralleledRecipe)) {
                 remain -= p;
-                totalEu += getTotalEuOfRecipe(paralleledRecipe) * euMultiplier;
+                totalEu += getTotalEuOfRecipe(match) * p * euMultiplier;
                 RecipeCalculationHelper.INSTANCE.collectOutputs(paralleledRecipe, itemOutputs, fluidOutputs);
             }
             if (totalEu / maxEUt > 20 * 500) break;
