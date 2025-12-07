@@ -186,9 +186,10 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
         val existing = itemInventory.getLong(stack)
         val realInsert = min(Long.MAX_VALUE - existing, count.toLong())
 
-        if (!simulate) {
+        if (!simulate && realInsert > 0L) {
             stack.count = 1
             itemInventory.addTo(stack, realInsert)
+            if (notifyChanges) this.onContentsChanged()
         }
 
         return if (realInsert == count.toLong())
