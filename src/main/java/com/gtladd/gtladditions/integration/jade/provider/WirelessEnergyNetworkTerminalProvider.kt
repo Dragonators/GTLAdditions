@@ -20,6 +20,7 @@ import snownee.jade.api.IServerDataProvider
 import snownee.jade.api.ITooltip
 import snownee.jade.api.config.IPluginConfig
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.math.RoundingMode
 
 class WirelessEnergyNetworkTerminalProvider : IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
@@ -43,11 +44,11 @@ class WirelessEnergyNetworkTerminalProvider : IBlockComponentProvider, IServerDa
                         tooltip.add(Component.translatable("gtmthings.machine.wireless_energy_hatch.tooltip.3", uuid))
                     }
 
-                    val totalEu = WirelessEnergyManager.getUserEU(uuid)
+                    val totalEu = BigInteger(serverData.getByteArray("totalEu"))
                     val abs = totalEu.abs()
                     val longEu = NumberUtils.getLongValue(totalEu)
-                    val energyTier =
-                        if (longEu == Long.MAX_VALUE) GTValues.MAX_TRUE else NumberUtils.getFakeVoltageTier(longEu)
+                    val energyTier = if (longEu == Long.MAX_VALUE) GTValues.MAX_TRUE else NumberUtils.getFakeVoltageTier(longEu)
+
                     val text = Component.literal(CommonUtils.format2Double(abs.toDouble())).withStyle(RED)
                         .append(
                             Component.literal(" EU").withStyle(RESET)
@@ -93,7 +94,10 @@ class WirelessEnergyNetworkTerminalProvider : IBlockComponentProvider, IServerDa
         if (blockEntity is IMachineBlockEntity) {
             val machine = blockEntity.metaMachine
             if (machine is WirelessEnergyNetworkTerminalPartMachineBase) {
-                machine.uuid?.let { compoundTag.putUUID("uuid", it) }
+                machine.uuid?.let {
+                    compoundTag.putUUID("uuid", it)
+                    compoundTag.putByteArray("totalEu", WirelessEnergyManager.getUserEU(it).toByteArray())
+                }
             }
         }
     }

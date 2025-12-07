@@ -25,15 +25,14 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.item.ItemEntity
-import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.AABB
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
 import org.gtlcore.gtlcore.utils.MachineIO
+import org.gtlcore.gtlcore.utils.MachineUtil
 import org.gtlcore.gtlcore.utils.Registries
 import org.gtlcore.gtlcore.utils.Registries.getItem
 import java.util.function.Predicate
@@ -41,38 +40,11 @@ import net.minecraft.core.registries.Registries as MinecraftRegistries
 
 @Suppress("DuplicatedCode")
 object MultiBlockModify {
-    private val armorMap by lazy {
-        mapOf(
-            getItem("kubejs:magnetohydrodynamicallyconstrainedstarmatter_boots") to EquipmentSlot.FEET,
-            getItem("kubejs:magnetohydrodynamicallyconstrainedstarmatter_leggings") to EquipmentSlot.LEGS,
-            getItem("kubejs:magnetohydrodynamicallyconstrainedstarmatter_chestplate") to EquipmentSlot.CHEST,
-            getItem("kubejs:magnetohydrodynamicallyconstrainedstarmatter_helmet") to EquipmentSlot.HEAD,
-        )
-    }
 
     private val createDimension = ResourceKey.create(
         MinecraftRegistries.DIMENSION,
         ResourceLocation("kubejs", "create")
     )
-
-    private fun hasFullArmorSet(player: Player): Boolean {
-        return armorMap.all { entry ->
-            player.getItemBySlot(entry.value).`is`(entry.key)
-        }
-    }
-
-    private fun createItemEntity(level: ServerLevel, x: Double, y: Double, z: Double, itemStack: ItemStack) {
-        val newItem = ItemEntity(
-            level,
-            x,
-            y,
-            z,
-            itemStack
-        )
-        newItem.setDeltaMovement(0.0, 0.2, 0.0)
-        newItem.setPickUpDelay(10)
-        level.addFreshEntity(newItem)
-    }
 
     private val doorOfCreateOnWorking = Predicate { machine: IRecipeLogicMachine ->
         if (machine.recipeLogic.progress == 5 && machine is DoorOfCreate) {
@@ -101,7 +73,7 @@ object MultiBlockModify {
                     if (entity is ItemEntity) {
                         when {
                             entity.item.`kjs$getId`() == "gtceu:magnetohydrodynamicallyconstrainedstarmatter_block" -> {
-                                createItemEntity(
+                                MachineUtil.createItemEntity(
                                     level,
                                     entity.x,
                                     entity.y,
@@ -112,7 +84,7 @@ object MultiBlockModify {
                             }
 
                             entity.item.`kjs$getId`() == "gtceu:magmatter_ingot" && entity.item.count >= 64 -> {
-                                createItemEntity(
+                                MachineUtil.createItemEntity(
                                     level,
                                     entity.x,
                                     entity.y,
@@ -123,7 +95,7 @@ object MultiBlockModify {
                             }
                         }
                     } else if (entity is ServerPlayer) {
-                        if (hasFullArmorSet(entity)) {
+                        if (MachineUtil.hasFullArmorSet(entity)) {
                             level.server.getLevel(createDimension)?.let { targetLevel ->
                                 entity.teleportTo(
                                     targetLevel,
