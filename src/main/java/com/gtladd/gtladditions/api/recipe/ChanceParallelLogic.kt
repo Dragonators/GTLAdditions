@@ -20,6 +20,8 @@ import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 import org.gtlcore.gtlcore.api.machine.trait.MEPatternRecipeHandlePart
 import org.gtlcore.gtlcore.api.machine.trait.RecipeHandlePart
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
+import org.gtlcore.gtlcore.utils.datastructure.Int128
+import java.math.BigInteger
 import java.util.function.Predicate
 
 object ChanceParallelLogic {
@@ -281,7 +283,10 @@ object ChanceParallelLogic {
             // parallel <= ((maxOutputs + 1) * maxChance - 1 - cached) / chance
             // This ensures: floor((parallel * chance + cached) / maxChance) <= maxOutputs
             val maxOutputs = available / chanceNeeded.amount
-            var maxParallelForThis = ((maxOutputs + 1) * chanceNeeded.maxChance - 1 - cached) / chanceNeeded.chance
+            var maxParallelForThis = (Int128(maxOutputs + 1)
+                .multiply(Int128(chanceNeeded.maxChance.toLong()))
+                .subtract(Int128((1 + cached).toLong()))
+                .divide(chanceNeeded.chance.toLong()) as Number).toLong()
 
             // Ensure non-negative
             if (maxParallelForThis < 0) maxParallelForThis = 0
