@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions
 
+import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.addon.GTAddon
 import com.gregtechceu.gtceu.api.addon.IGTAddon
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate
@@ -14,6 +15,7 @@ import com.gtladd.gtladditions.data.recipes.newmachinerecipe.*
 import com.gtladd.gtladditions.data.recipes.process.SocProcess
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.resources.ResourceLocation
+import org.gtlcore.gtlcore.config.ConfigHolder
 import java.util.function.Consumer
 
 @Suppress("unused")
