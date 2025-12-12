@@ -44,6 +44,7 @@ import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.EYE_OF_HARMONY
+import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getItem
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
@@ -216,8 +217,19 @@ object Misc {
             .EUt(16 * VA[MAX].toLong())
             .duration(1600)
             .save(provider)
-
         initAdditionMaterial(provider)
+        if (!ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+            GREENHOUSE_RECIPES.recipeBuilder(id("oak_sapling"))
+                .notConsumable(getItemStack("minecraft:oak_sapling"))
+                .inputFluids(Water.getFluid(1000))
+                .circuitMeta(24)
+                .outputItems(getItemStack("minecraft:oak_log", 64))
+                .outputItems(getItemStack("minecraft:oak_sapling", 6))
+                .outputItems(getItemStack("minecraft:apple", 6))
+                .EUt(30L)
+                .duration(600)
+                .save(provider)
+        }
     }
 
     fun initAdditionMaterial(provider : Consumer<FinishedRecipe?>) {
