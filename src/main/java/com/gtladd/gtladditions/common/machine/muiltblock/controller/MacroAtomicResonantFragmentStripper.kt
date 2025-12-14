@@ -5,17 +5,15 @@ import com.google.common.primitives.Ints
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
-import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.IAstralArrayInteractionMachine
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.data.ParallelData
+import com.gtladd.gtladditions.utils.RecipeCalculationHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
-import it.unimi.dsi.fastutil.longs.LongArrayList
-import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import kotlin.math.max
@@ -123,22 +121,11 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
 
             override fun calculateParallels(): ParallelData? {
                 val recipes = lookupRecipeIterator()
-                if (recipes.isEmpty()) return null
-
-                val recipeList = ObjectArrayList<GTRecipe>(recipes.size)
-                val parallelsList = LongArrayList(recipes.size)
-                val eachParallel = getMachine().parallelAmount
-
-                for (recipe in recipes) {
-                    val parallel = getMaxParallel(recipe, eachParallel)
-                    if (parallel > 0) {
-                        recipeList.add(recipe)
-                        parallelsList.add(parallel)
-                    }
-                }
-
-                return if (recipeList.isEmpty()) null
-                else ParallelData(recipeList, parallelsList.toLongArray())
+                return RecipeCalculationHelper.calculateParallelsWithProcessing(
+                    recipes, machine,
+                    getParallelLimitForRecipe = { getMachine().parallelAmount },
+                    getMaxParallelForRecipe = ::getMaxParallel
+                )
             }
         }
     }

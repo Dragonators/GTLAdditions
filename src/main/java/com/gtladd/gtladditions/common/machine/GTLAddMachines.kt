@@ -19,7 +19,6 @@ import com.gtladd.gtladditions.api.registry.MachineBuilderExtensions.overlayHull
 import com.gtladd.gtladditions.common.machine.hatch.HugeSteamHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.InfinityDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.hatch.SuperDualHatchPartMachine
-import com.gtladd.gtladditions.common.machine.hatch.UltimateDualHatchPartMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.part.*
 import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
@@ -44,7 +43,6 @@ object GTLAddMachines {
     @JvmField
     val HUGE_STEAM_HATCH: MachineDefinition
     val SUPER_INPUT_DUAL_HATCH: MachineDefinition
-    val Ultimate_INPUT_DUAL_HATCH: MachineDefinition
     val INFINITY_INPUT_DUAL_HATCH: MachineDefinition
     val ME_SUPER_PATTERN_BUFFER: MachineDefinition
     val ME_SUPER_PATTERN_BUFFER_PROXY: MachineDefinition
@@ -143,16 +141,6 @@ object GTLAddMachines {
             .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 37))
             .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 24,
                     FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 12)))
-            .tooltipBuilder(GTLAdd_ADD).tier(14).register()
-        Ultimate_INPUT_DUAL_HATCH = REGISTRATE.machine("ultimate_input_dual_hatch")
-        { UltimateDualHatchPartMachine(it!!, 64) }
-            .rotationState(RotationState.ALL)
-            .abilities(*GTMachines.DUAL_INPUT_HATCH_ABILITIES)
-            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/ultimate_dual_hatch_casing"), ResourceLocation(GTLAdditions.MOD_ID, "block/machine/part/ultimate_input_dual_hatch.import"))
-            .langValue("Ultimate Input Dual Hatch")
-            .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", 129))
-            .tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult", 64,
-                FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)))
             .tooltipBuilder(GTLAdd_ADD).tier(14).register()
         INFINITY_INPUT_DUAL_HATCH = REGISTRATE.machine("infinity_input_dual_hatch")
         { InfinityDualHatchPartMachine(it!!) }

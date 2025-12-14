@@ -13,10 +13,10 @@ import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectr
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
 import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
+import com.gtladd.gtladditions.utils.RecipeCalculationHelper
 import com.gtladd.gtladditions.utils.antichrist.AntichristPosHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
-import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
 import net.minecraft.ChatFormatting
@@ -178,23 +178,16 @@ open class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, vararg ar
 
             override fun calculateParallels(): ParallelData? {
                 val recipes = lookupRecipeIterator()
-                if (recipes.isEmpty()) return null
-
-                val recipeList = ObjectArrayList<GTRecipe>(recipes.size)
-                val parallelsList = LongArrayList(recipes.size)
                 val modifier = ContentModifier.multiplier(getMachine().host!!.recipeOutputMultiply)
 
-                for (recipe in recipes) {
-                    val modified = if (enableModify(recipe)) copyAndModifyRecipe(recipe, modifier) else recipe
-                    val parallel = getMaxParallel(modified, Long.MAX_VALUE)
-                    if (parallel > 0) {
-                        recipeList.add(modified)
-                        parallelsList.add(parallel)
+                return RecipeCalculationHelper.calculateParallelsWithProcessing(
+                    recipes, machine,
+                    getParallelLimitForRecipe = { Long.MAX_VALUE },
+                    getMaxParallelForRecipe = ::getMaxParallel,
+                    modifyRecipe = { recipe ->
+                        if (enableModify(recipe)) copyAndModifyRecipe(recipe, modifier) else recipe
                     }
-                }
-
-                return if (recipeList.isEmpty()) null
-                else ParallelData(recipeList, parallelsList.toLongArray())
+                )
             }
 
             override fun checkRecipe(recipe: GTRecipe): Boolean {

@@ -5,15 +5,16 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
-import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
 import com.gtladd.gtladditions.api.machine.IWirelessElectricMultiblockMachine
 import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler
 import com.gtladd.gtladditions.api.recipe.IWirelessGTRecipe
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe
+import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import com.gtladd.gtladditions.utils.RecipeCalculationHelper.multipleRecipe
 import it.unimi.dsi.fastutil.longs.LongLongPair
-import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
@@ -22,10 +23,9 @@ import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
-import java.math.BigDecimal
-import java.math.BigInteger
 import java.util.*
 import java.util.function.BiPredicate
+import kotlin.sequences.toCollection
 
 open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLogic, IRecipeStatus
         where T : WorkableElectricMultiblockMachine,
@@ -133,39 +133,32 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
     }
 
     protected open fun getRecipe(): GTRecipe? {
+        if (!checkBeforeWorking()) return null
+
+        val parallelData = calculateParallels() ?: return null
+
         val wirelessTrait = getMachine().getWirelessNetworkEnergyHandler()
-        return if (wirelessTrait != null) getWirelessRecipe(wirelessTrait) else getNormalRecipe()
+        return if (wirelessTrait != null)
+            buildFinalWirelessRecipe(parallelData, wirelessTrait)
+        else
+            buildFinalNormalRecipe(parallelData)
     }
 
-    private fun getNormalRecipe(): GTRecipe? {
-        if (!machine.hasProxies()) return null
+    protected open fun calculateParallels(): ParallelData? {
+        val recipes = lookupRecipeSet()
+        val totalParallel = getMachine().maxParallel.toLong() * getMultipleThreads()
 
+        return RecipeCalculationHelper.calculateParallelsWithGreedyAllocation(
+            recipes, totalParallel, machine,
+            getParallelAndConsumption = { recipe, remaining -> calculateParallel(machine, recipe, remaining) },
+        )
+    }
+
+    private fun buildFinalNormalRecipe(parallelData: ParallelData): GTRecipe? {
         val maxEUt = getMachine().overclockVoltage
-        if (maxEUt <= 0) return null
-
-        val iterator = lookupRecipeIterator()
-        val euMultiplier = euMultiplier
-        val itemOutputs = ObjectArrayList<Content>()
-        val fluidOutputs = ObjectArrayList<Content>()
-
-        var totalEu = 0.0
-        var remain = getMachine().maxParallel.toLong() * getMultipleThreads()
-        while (remain > 0 && iterator.hasNext()) {
-            val match = iterator.next()
-            val pair = calculateParallel(machine, match, remain)
-            val p = pair.firstLong()
-            if (p <= 0) continue
-
-            var paralleledRecipe = RecipeCalculationHelper.multipleRecipe(match, p)
-            paralleledRecipe = IParallelLogic.getRecipeOutputChance(machine, paralleledRecipe)
-
-            if (RecipeRunnerHelper.handleRecipeInput(machine, paralleledRecipe)) {
-                remain -= pair.secondLong()
-                totalEu += getRecipeEut(match).toDouble() * p * paralleledRecipe.duration * euMultiplier
-                RecipeCalculationHelper.collectOutputs(paralleledRecipe, itemOutputs, fluidOutputs)
-            }
-            if (totalEu / maxEUt > 20 * 500) break
-        }
+        val (itemOutputs, fluidOutputs, totalEu) = RecipeCalculationHelper.processParallelDataNormal(
+            parallelData, machine, maxEUt, euMultiplier, { getRecipeEut(it).toDouble() * it.duration }
+        )
 
         if (!RecipeCalculationHelper.hasOutputs(itemOutputs, fluidOutputs)) {
             if (recipeStatus == null || recipeStatus.isSuccess) RecipeResult.of(this.machine, RecipeResult.FAIL_FIND)
@@ -175,51 +168,33 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
         return RecipeCalculationHelper.buildNormalRecipe(itemOutputs, fluidOutputs, totalEu, maxEUt, 20)
     }
 
-    private fun getWirelessRecipe(wirelessTrait: IWirelessNetworkEnergyHandler): WirelessGTRecipe? {
+    private fun buildFinalWirelessRecipe(
+        parallelData: ParallelData,
+        wirelessTrait: IWirelessNetworkEnergyHandler
+    ): WirelessGTRecipe? {
         if (!wirelessTrait.isOnline) return null
 
-        val iterator = lookupRecipeIterator()
-        val maxTotalEu = wirelessTrait.maxAvailableEnergy
-        val euMultiplier = euMultiplier
-        val itemOutputs = ObjectArrayList<Content>()
-        val fluidOutputs = ObjectArrayList<Content>()
-
-        var remain = getMachine().maxParallel.toLong() * getMultipleThreads()
-        var totalEu = BigInteger.ZERO
-
-        while (remain > 0 && iterator.hasNext()) {
-            val match = iterator.next()
-            val pair = calculateParallel(machine, match, remain)
-            val p = pair.firstLong()
-            if (p <= 0) continue
-
-            var parallelEUt = BigInteger.valueOf(getRecipeEut(match))
-            var paralleledRecipe = RecipeCalculationHelper.multipleRecipe(match, p)
-            if (p > 1) parallelEUt = parallelEUt.multiply(BigInteger.valueOf(p))
-
-            val tempTotalEu = totalEu.add(
-                BigDecimal.valueOf(paralleledRecipe.duration * euMultiplier)
-                    .multiply(BigDecimal(parallelEUt)).toBigInteger()
-            )
-            if (tempTotalEu > maxTotalEu) {
-                if (totalEu.signum() == 0) RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_EU_IN)
-                break
-            }
-
-            paralleledRecipe = IParallelLogic.getRecipeOutputChance(machine, paralleledRecipe)
-            if (RecipeRunnerHelper.handleRecipeInput(machine, paralleledRecipe)) {
-                remain -= pair.secondLong()
-                totalEu = tempTotalEu
-                RecipeCalculationHelper.collectOutputs(paralleledRecipe, itemOutputs, fluidOutputs)
-            }
-        }
+        val (itemOutputs, fluidOutputs, totalEu) = RecipeCalculationHelper.processParallelDataWireless(
+            parallelData, machine, wirelessTrait.maxAvailableEnergy, euMultiplier, this::getRecipeEut
+        )
 
         if (!RecipeCalculationHelper.hasOutputs(itemOutputs, fluidOutputs)) {
             if (recipeStatus == null || recipeStatus.isSuccess) RecipeResult.of(this.machine, RecipeResult.FAIL_FIND)
             return null
         }
 
-        return RecipeCalculationHelper.buildWirelessRecipe(itemOutputs, fluidOutputs, 20, totalEu)
+        return RecipeCalculationHelper.buildWirelessRecipe(
+            itemOutputs,
+            fluidOutputs,
+            20,
+            totalEu
+        )
+    }
+
+    protected open fun checkBeforeWorking(): Boolean {
+        if (!machine.hasProxies()) return false
+        if (getMachine().overclockVoltage <= 0) return false
+        return true
     }
 
     protected open fun calculateParallel(
@@ -245,18 +220,19 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
         return RecipeHelper.getInputEUt(recipe)
     }
 
-    protected open fun lookupRecipeIterator(): Iterator<GTRecipe> {
+    protected open fun lookupRecipeSet(): Set<GTRecipe> {
         return if (isLock) {
             when {
                 lockRecipe == null -> {
                     lockRecipe = machine.recipeType.lookup.find(machine, this::checkRecipe)
-                    lockRecipe?.let { Collections.singleton(it).iterator() } ?: Collections.emptyIterator()
+                    lockRecipe?.let { Collections.singleton(it) } ?: emptySet()
                 }
-                checkRecipe(lockRecipe) -> Collections.singleton(lockRecipe).iterator()
-                else -> Collections.emptyIterator()
+                checkRecipe(lockRecipe) -> Collections.singleton(lockRecipe)
+                else -> emptySet()
             }
         } else {
-            machine.recipeType.lookup.getRecipeIterator(machine, this::checkRecipe)
+            machine.recipeType.lookup.getRecipeIterator(machine, this::checkRecipe).asSequence()
+                .toCollection(ObjectOpenHashSet())
         }
     }
 

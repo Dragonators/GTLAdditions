@@ -5,7 +5,6 @@ import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
-import com.gregtechceu.gtceu.api.recipe.RecipeHelper
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecipesLogic
@@ -14,14 +13,11 @@ import com.gtladd.gtladditions.api.recipe.ChanceParallelLogic
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import it.unimi.dsi.fastutil.longs.LongLongPair
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
-import org.gtlcore.gtlcore.api.recipe.RecipeResult
-import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
-import java.math.BigDecimal
-import java.math.BigInteger
 
 class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any?) :
     GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine(
@@ -57,62 +53,6 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
                 return Ints.saturatedCast(MAX_THREADS + getMachine().getAdditionalThread())
             }
 
-            override fun getGTRecipe(): GTRecipe? {
-                if (!checkBeforeWorking()) return null
-
-                val recipes = this.lookupRecipeIterator()
-                if (recipes.isEmpty()) return null
-
-                val maxTotalEu = getMachine().getWirelessNetworkEnergyHandler().maxAvailableEnergy
-                val euMultiplier = this.euMultiplier
-                val itemOutputs = ObjectArrayList<Content>()
-                val fluidOutputs = ObjectArrayList<Content>()
-
-                var totalEu = BigInteger.ZERO
-                var remain = this.parallel.maxParallel * getMultipleThreads().toLong()
-
-                for (match in recipes) {
-                    if (remain <= 0) break
-
-                    var modifiedMatch = modifyChance(match)
-                    val p = getMaxParallel(modifiedMatch, remain)
-                    if (p <= 0) continue
-
-                    var parallelEUt = BigInteger.valueOf(RecipeHelper.getInputEUt(match))
-
-                    modifiedMatch = if (p > 1) {
-                        parallelEUt = parallelEUt.multiply(BigInteger.valueOf(p))
-                        RecipeCalculationHelper.copyFixRecipe(modifiedMatch, ContentModifier.multiplier(p.toDouble()), INPUT_CHANCE_RATIO)
-                    } else modifiedMatch
-                    IGTRecipe.of(modifiedMatch).realParallels = p
-
-                    val tempTotalEu = totalEu.add(
-                        BigDecimal.valueOf(modifiedMatch.duration * euMultiplier)
-                            .multiply(BigDecimal(parallelEUt)).toBigInteger()
-                    )
-                    if (tempTotalEu > maxTotalEu) {
-                        if (totalEu.signum() == 0) RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_EU_IN)
-                        break
-                    }
-
-                    if (RecipeRunnerHelper.handleRecipeInput(machine, modifiedMatch)) {
-                        remain -= p
-                        totalEu = tempTotalEu
-                        RecipeCalculationHelper.collectOutputs(modifiedMatch, itemOutputs, fluidOutputs)
-                    }
-                }
-
-                if (!RecipeCalculationHelper.hasOutputs(itemOutputs, fluidOutputs)) {
-                    if (recipeStatus == null || recipeStatus.isSuccess) {
-                        RecipeResult.of(this.machine, RecipeResult.FAIL_FIND)
-                    }
-                    return null
-                }
-
-                val minDuration = limited.getLimitedDuration()
-                return RecipeCalculationHelper.buildWirelessRecipe(itemOutputs, fluidOutputs, minDuration, totalEu)
-            }
-
             override fun getMaxParallel(recipe: GTRecipe, limit: Long): Long {
                 return ChanceParallelLogic.getMaxParallel(
                     getMachine(),
@@ -125,28 +65,44 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
                 )
             }
 
-            // Disable
-            override fun buildFinalNormalRecipe(parallelData: ParallelData): GTRecipe? {
-                return null
-            }
-
-            // Disable
             override fun calculateParallels(): ParallelData? {
-                return null
+                val recipes = lookupRecipeIterator()
+                val totalParallel = getMachine().maxParallel.toLong() * getMultipleThreads()
+
+                return RecipeCalculationHelper.calculateParallelsWithGreedyAllocation(
+                    recipes, totalParallel, machine,
+                    modifyRecipe = ::modifyChance,
+                    createParalleledRecipe = { recipe, p ->
+                        RecipeCalculationHelper.multipleRecipe(recipe, p) {
+                            RecipeCalculationHelper.copyFixRecipe(
+                                recipe,
+                                ContentModifier.multiplier(p.toDouble()),
+                                INPUT_CHANCE_RATIO
+                            )
+                        }
+                    },
+                    getParallelAndConsumption = { recipe, remain ->
+                        val p = getMaxParallel(recipe, remain)
+                        LongLongPair.of(p, p)
+                    }
+                )
             }
 
             companion object {
                 private const val MAX_THREADS: Long = 1024
                 private const val INPUT_CHANCE_RATIO = 10
 
-                private fun modifyContents(before: Map<RecipeCapability<*>, MutableList<Content>>, isInput: Boolean): Reference2ReferenceOpenHashMap<RecipeCapability<*>, MutableList<Content>> {
+                private fun modifyContents(
+                    before: Map<RecipeCapability<*>, MutableList<Content>>,
+                    isInput: Boolean
+                ): Reference2ReferenceOpenHashMap<RecipeCapability<*>, MutableList<Content>> {
                     val after = Reference2ReferenceOpenHashMap<RecipeCapability<*>, MutableList<Content>>()
                     for (entry in before) {
                         val cap = entry.key
                         val contentList = after.computeIfAbsent(cap) { ObjectArrayList() }
                         for (cont in entry.value) {
                             if (cont.chance >= cont.maxChance) contentList.add(cont)
-                            else if(cont.chance != 0) {
+                            else if (cont.chance != 0) {
                                 val copy = cont.copy(cap, null)
                                 if (isInput) copy.maxChance = cont.maxChance * INPUT_CHANCE_RATIO
                                 else copy.chance = cont.maxChance

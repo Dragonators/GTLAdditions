@@ -11,8 +11,6 @@ import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
-import it.unimi.dsi.fastutil.ints.IntArrayList
-import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
@@ -96,35 +94,11 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
 
     protected open fun calculateParallels(): ParallelData? {
         val recipes = lookupRecipeIterator()
-        val length = recipes.size
-        if (length == 0) return null
-
         val totalParallel = parallel.maxParallel.toLong() * getMultipleThreads()
-        var remaining = totalParallel
-        val parallels = LongArray(length)
-        var index = 0
-        val recipeList = ObjectArrayList<GTRecipe>(length)
-        val remainingWants = LongArrayList(length)
-        val remainingIndices = IntArrayList(length)
 
-        for (r in recipes) {
-            val p = getMaxParallel(r, totalParallel)
-            if (p <= 0) continue
-            recipeList.add(r)
-            val allocated = minOf(p, totalParallel / length)
-            parallels[index] = allocated
-            val want = p - allocated
-            if (want > 0) {
-                remainingWants.add(want)
-                remainingIndices.add(index)
-            }
-            remaining -= allocated
-            index++
-        }
-
-        if (recipeList.isEmpty()) return null
-
-        return RecipeCalculationHelper.getParallelData(remaining, parallels, remainingWants, remainingIndices, recipeList)
+        return RecipeCalculationHelper.calculateParallelsWithFairAllocation(
+            recipes, totalParallel
+        ) { recipe -> getMaxParallel(recipe, totalParallel) }
     }
 
     protected open fun buildFinalNormalRecipe(parallelData: ParallelData): GTRecipe? {
@@ -148,10 +122,10 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
         if (!wirelessTrait.isOnline) return null
 
         val (itemOutputs, fluidOutputs, totalEu) = RecipeCalculationHelper.processParallelDataWireless(
-            parallelData, machine, wirelessTrait.maxAvailableEnergy, euMultiplier
-        ) { RecipeHelper.getInputEUt(it) }
+            parallelData, machine, wirelessTrait.maxAvailableEnergy, euMultiplier, ::getWirelessRecipeEut, isEnergyConsumer()
+        )
 
-        if (!RecipeCalculationHelper.hasOutputs(itemOutputs, fluidOutputs)) {
+        if (isEnergyConsumer() && !RecipeCalculationHelper.hasOutputs(itemOutputs, fluidOutputs)) {
             if (recipeStatus == null || recipeStatus.isSuccess) RecipeResult.of(this.machine, RecipeResult.FAIL_FIND)
             return null
         }
@@ -171,6 +145,10 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
             totalEu
         )
     }
+
+    protected open fun getWirelessRecipeEut(recipe: GTRecipe): Long = RecipeHelper.getInputEUt(recipe)
+
+    protected open fun isEnergyConsumer(): Boolean = true
 
     protected open fun lookupRecipeIterator(): Set<GTRecipe> {
         return if (isLock) {

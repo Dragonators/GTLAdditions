@@ -43,6 +43,7 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_SUPPORT_CASI
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_TRIM_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.POWER_MODULE_7
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.QUANTUM_GLASS
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.REMOTE_GRAVITON_FLOW_REGULATOR
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS
@@ -89,6 +90,7 @@ import org.gtlcore.gtlcore.common.data.GTLBlocks.*
 import org.gtlcore.gtlcore.common.data.GTLMachines
 import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.ME_EXTENDED_EXPORT_BUFFER
 import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.STOCKING_IMPORT_BUS_ME
+import org.gtlcore.gtlcore.common.data.GTLMaterials.Infinity
 import org.gtlcore.gtlcore.common.data.GTLMaterials.Mithril
 import org.gtlcore.gtlcore.common.data.GTLMaterials.QuantumChromodynamicallyConfinedMatter
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
@@ -130,6 +132,7 @@ object MultiBlockMachine {
     val HEART_OF_THE_UNIVERSE: MultiblockMachineDefinition
     val SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY: MultiblockMachineDefinition
     val DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY: MultiblockMachineDefinition
+    val SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR: MultiblockMachineDefinition
     val MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER: MultiblockMachineDefinition?
 
     init {
@@ -1484,6 +1487,42 @@ object MultiBlockMachine {
             .workableCasingRenderer(
                 GTLCore.id("block/casings/sps_casing"),
                 GTCEu.id("block/multiblock/research_station")
+            )
+            .register()
+
+        SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR = REGISTRATE.multiblock("space_infinity_integrated_ore_processor",
+            Function { SpaceInfinityIntegratedOreProcessor(it) })
+            .allRotation()
+            .tooltipTextKey(Component.translatable("gtceu.machine.integrated_ore_processor.tooltip.0"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.advanced_integrated_ore_processor.tooltip.0"))
+            .tooltipTextKey(Component.translatable("gtceu.multiblock.only.laser.tooltip"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.8"))
+            .tooltipTextKey(Component.translatable("tooltip.gtlcore.structure.source", "TST"))
+            .tooltipTextRecipeTypes(INTEGRATED_ORE_PROCESSOR)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(INTEGRATED_ORE_PROCESSOR)
+            .appearanceBlock(CASING_TUNGSTENSTEEL_ROBUST)
+            .pattern { definition: MultiblockMachineDefinition? ->
+                MultiBlockStructureE.SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR!!
+                    .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
+                    .where("A", Predicates.blocks(IRIDIUM_CASING.get()))
+                    .where("B", Predicates.blocks(SPACE_ELEVATOR_MECHANICAL_CASING.get()))
+                    .where("C", Predicates.blocks(SPACE_ELEVATOR_SUPPORT.get()))
+                    .where("D", Predicates.blocks(getBlock("kubejs:space_elevator_internal_support")))
+                    .where("E", Predicates.blocks(POWER_MODULE_7.get()))
+                    .where("F", Predicates.blocks(getBlock("kubejs:dimensional_bridge_casing")))
+                    .where("G", Predicates.blocks(getBlock("kubejs:high_strength_concrete")))
+                    .where("H", Predicates.blocks(SPACE_ELEVATOR_MECHANICAL_CASING.get())
+                        .or(Predicates.abilities(PartAbility.INPUT_LASER))
+                        .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
+                        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS))
+                        .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS)))
+                    .where("I", Predicates.blocks(ChemicalHelper.getBlock(frameGt, Infinity)))
+                    .build()
+            }
+            .workableCasingRenderer(
+                GTLCore.id("block/space_elevator_mechanical_casing"),
+                GTCEu.id("block/multiblock/data_bank")
             )
             .register()
 

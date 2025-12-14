@@ -15,10 +15,12 @@ import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
 import com.gtladd.gtladditions.common.items.GTLAddItems
+import com.gtladd.gtladditions.common.items.GTLAddItems.ASTRAL_ARRAY
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
 import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.SUPER_PARALLEL_HATCH
+import com.gtladd.gtladditions.common.machine.GTLAddMachines.THREAD_MODIFIER_HATCH
 import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
@@ -832,6 +834,33 @@ object NewMultiBlockMachineController {
             .EUt(VA[MAX].toLong()).duration(4000)
             .stationResearch { b : StationRecipeBuilder? ->
                 b !!.researchStack(MOLECULAR_ASSEMBLER_MATRIX.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("space_infinity_integrated_ore_processor"))
+            .inputItems(ADVANCED_INTEGRATED_ORE_PROCESSOR, 1024)
+            .inputItems(ADVANCED_INTEGRATED_ORE_PROCESSOR, 1024)
+            .inputItems(ADVANCED_INTEGRATED_ORE_PROCESSOR, 1024)
+            .inputItems(ADVANCED_INTEGRATED_ORE_PROCESSOR, 1024)
+            .inputItems(THREAD_MODIFIER_HATCH, 4)
+            .inputItems(ROBOT_ARM_MAX, 32)
+            .inputItems(CONVEYOR_MODULE_MAX, 64)
+            .inputItems(ELECTRIC_PUMP_MAX, 16)
+            .inputItems(EMITTER_MAX, 16)
+            .inputItems(plateDense, Infinity, 64)
+            .inputItems(plateDense, Infinity, 64)
+            .inputItems(plateDense, Infinity, 64)
+            .inputItems(plateDense, Infinity, 64)
+            .inputItems(ASTRAL_ARRAY, 64)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(829440))
+            .inputFluids(Magmatter.getFluid(144000))
+            .inputFluids(Infinity.getFluid(576000))
+            .inputFluids(Miracle.getFluid(576000))
+            .outputItems(MultiBlockMachine.SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR)
+            .EUt(VA[MAX].toLong()).duration(5120)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(ADVANCED_INTEGRATED_ORE_PROCESSOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }

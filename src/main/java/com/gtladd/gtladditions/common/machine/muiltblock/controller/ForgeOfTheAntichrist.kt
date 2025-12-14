@@ -20,13 +20,13 @@ import com.gtladd.gtladditions.common.machine.trait.StarRitualTrait
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.utils.CommonUtils.createObfuscatedRainbowComponent
 import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
+import com.gtladd.gtladditions.utils.RecipeCalculationHelper
 import com.gtladd.gtladditions.utils.StarGradient
 import com.gtladd.gtladditions.utils.antichrist.AntichristPosHelper
 import com.gtladd.gtladditions.utils.antichrist.ServerMachineManager
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
-import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
@@ -313,23 +313,15 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
             override fun calculateParallels(): ParallelData? {
                 val recipes = lookupRecipeIterator()
-                if (recipes.isEmpty()) return null
-
-                val recipeList = ObjectArrayList<GTRecipe>(recipes.size)
-                val parallelsList = LongArrayList(recipes.size)
                 val modifier = ContentModifier.multiplier(getMachine().recipeOutputMultiply)
 
-                for (recipe in recipes) {
-                    val modified = copyAndModifyRecipe(recipe, modifier)
-                    val parallel = getMaxParallel(modified, Long.MAX_VALUE)
-                    if (parallel > 0) {
-                        recipeList.add(modified)
-                        parallelsList.add(parallel)
-                    }
-                }
-
-                return if (recipeList.isEmpty()) null
-                else ParallelData(recipeList, parallelsList.toLongArray())
+                return RecipeCalculationHelper.calculateParallelsWithProcessing(
+                    recipes, machine,
+                    getParallelLimitForRecipe = { Long.MAX_VALUE },
+                    getMaxParallelForRecipe = ::getMaxParallel,
+                    modifyRecipe = { recipe -> copyAndModifyRecipe(recipe, modifier) },
+                    useModifiedRecipe = true,
+                )
             }
 
             private fun copyAndModifyRecipe(recipe: GTRecipe, modifier: ContentModifier): GTRecipe {
