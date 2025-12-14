@@ -19,10 +19,13 @@ import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic;
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.MacroAtomicResonantFragmentStripper;
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.SpaceInfinityIntegratedOreProcessor;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.ForgeOfTheAntichristModuleBase;
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.HelioFusionExoticizer;
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.LightHunterSpaceStationModuleBase;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Unique;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
@@ -30,8 +33,13 @@ import snownee.jade.api.config.IPluginConfig;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponent;
+
 @Mixin(ParallelProvider.class)
 public abstract class ParallelProviderMixin {
+
+    @Unique
+    private static final long INFINITY_FEATURE = -114514;
 
     /**
      * @author Draongs
@@ -45,14 +53,23 @@ public abstract class ParallelProviderMixin {
                 iTooltip.add(Component.translatable(
                         "gtceu.multiblock.parallel",
                         Component.literal(parallel + "").withStyle(ChatFormatting.DARK_PURPLE)));
+            } else if (parallel == INFINITY_FEATURE) {
+                iTooltip.add(Component.translatable(
+                        "gtceu.multiblock.parallel",
+                        createLanguageRainbowComponent(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel"))));
             }
-            if (blockAccessor.getServerData().contains("threads")) {
-                int threads = blockAccessor.getServerData().getInt("threads");
-                if (threads > 0) {
-                    iTooltip.add(Component.translatable(
-                            "gtladditions.multiblock.threads",
-                            Component.literal(threads + "").withStyle(ChatFormatting.GOLD)));
-                }
+        }
+        if (blockAccessor.getServerData().contains("threads")) {
+            int threads = blockAccessor.getServerData().getInt("threads");
+            if (threads > 0) {
+                iTooltip.add(Component.translatable(
+                        "gtladditions.multiblock.threads",
+                        Component.literal(String.valueOf(threads)).withStyle(ChatFormatting.GOLD)));
+            } else if (threads == INFINITY_FEATURE) {
+                iTooltip.add(Component.translatable(
+                        "gtladditions.multiblock.threads",
+                        createLanguageRainbowComponent(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel"))));
+
             }
         }
     }
@@ -68,17 +85,26 @@ public abstract class ParallelProviderMixin {
                 compoundTag.putLong("parallel", parallelHatch.getCurrentParallel());
             } else if (blockEntity.getMetaMachine() instanceof WorkableMultiblockMachine workableElectricMultiblockMachine && workableElectricMultiblockMachine.isFormed()) {
                 if (workableElectricMultiblockMachine instanceof GTLAddWorkableElectricMultipleRecipesMachine addMachine) {
-                    if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist) return;
-                    if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichristModuleBase) return;
-                    if (workableElectricMultiblockMachine instanceof MacroAtomicResonantFragmentStripper atomic) {
+                    if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist) {
+                        compoundTag.putLong("parallel", INFINITY_FEATURE);
+                        compoundTag.putLong("threads", INFINITY_FEATURE);
+                    } else if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichristModuleBase) {
+                        compoundTag.putLong("parallel", INFINITY_FEATURE);
+                        if (!(workableElectricMultiblockMachine instanceof HelioFusionExoticizer))
+                            compoundTag.putLong("threads", INFINITY_FEATURE);
+                    } else if (workableElectricMultiblockMachine instanceof MacroAtomicResonantFragmentStripper atomic) {
                         compoundTag.putLong("parallel", atomic.getRealParallel());
-                        return;
+                        compoundTag.putLong("threads", INFINITY_FEATURE);
+                    } else if (workableElectricMultiblockMachine instanceof SpaceInfinityIntegratedOreProcessor) {
+                        compoundTag.putLong("parallel", INFINITY_FEATURE);
+                        compoundTag.putLong("threads", INFINITY_FEATURE);
+                    } else if (workableElectricMultiblockMachine instanceof LightHunterSpaceStationModuleBase lightHunterSpaceStationModuleBase && lightHunterSpaceStationModuleBase.isConnectedToHost() && Objects.requireNonNull(lightHunterSpaceStationModuleBase.getHost()).unlockParadoxical()) {
+                        compoundTag.putLong("parallel", INFINITY_FEATURE);
+                        compoundTag.putLong("threads", INFINITY_FEATURE);
+                    } else {
+                        compoundTag.putLong("parallel", addMachine.getMaxParallel());
+                        compoundTag.putLong("threads", addMachine.getRecipeLogic().getMultipleThreads());
                     }
-                    if (workableElectricMultiblockMachine instanceof LightHunterSpaceStationModuleBase lightHunterSpaceStationModuleBase) {
-                        if (lightHunterSpaceStationModuleBase.isConnectedToHost() && Objects.requireNonNull(lightHunterSpaceStationModuleBase.getHost()).unlockParadoxical()) return;
-                    }
-                    compoundTag.putLong("parallel", addMachine.getMaxParallel());
-                    compoundTag.putLong("threads", addMachine.getRecipeLogic().getMultipleThreads());
                 } else {
                     var logic = workableElectricMultiblockMachine.getRecipeLogic();
                     if (logic instanceof MultipleRecipesLogic) {

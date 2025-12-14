@@ -9,10 +9,10 @@ import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 import com.gregtechceu.gtceu.data.recipe.misc.RecyclingRecipes;
 
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 @Mixin(RecyclingRecipes.class)
 public abstract class RecyclingRecipesMixin {
 
-    @SuppressWarnings("deprecation")
     @Inject(method = "registerExtractorRecycling",
             at = @At(value = "INVOKE", target = "Lcom/gregtechceu/gtceu/api/data/chemical/ChemicalHelper;getUnificationEntry(Lnet/minecraft/world/level/ItemLike;)Lcom/gregtechceu/gtceu/api/data/chemical/material/stack/UnificationEntry;", shift = At.Shift.AFTER),
             remap = false)
@@ -39,7 +38,7 @@ public abstract class RecyclingRecipesMixin {
             if (ms != null && ms.material() != null) {
                 Material m = ms.material();
                 if (m.hasProperty(PropertyKey.FLUID) && m.getFluid() != null && prefix == TagPrefix.dust) {
-                    ResourceLocation itemPath = BuiltInRegistries.ITEM.getKey(input.getItem());
+                    ResourceLocation itemPath = ForgeRegistries.ITEMS.getKey(input.getItem());
                     GTRecipeBuilder builder = GTLAddRecipesTypes.MOLECULAR_DECONSTRUCTION.recipeBuilder(GTLAdditions.id("molecular_deconstruction_" + itemPath.getPath()))
                             .inputItems(TagPrefix.dust, m).outputFluids(m.getFluid(144L)).duration((int) Math.max(1L, ms.amount() * ms.material().getMass() / 4028800L))
                             .EUt((long) GTValues.VA[1] * (long) multiplier / 4L);

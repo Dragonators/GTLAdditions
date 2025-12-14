@@ -123,6 +123,7 @@ object CommonUtils {
             .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
     }
 
+    @JvmStatic
     fun createLanguageRainbowComponent(component: MutableComponent): Component {
         return component.withStyle { style: Style -> style.withColor(TooltipHelper.RAINBOW.current) }
     }
