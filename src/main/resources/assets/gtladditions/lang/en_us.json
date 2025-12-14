@@ -137,7 +137,7 @@
   "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.4": "Only works with §6Starmetal§r tier or higher coils",
   "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.5": "Has special cross-recipe parallelization, executes §6all§r recipes at once",
   "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.6": "Each recipe has the same parallel amount",
-  "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.7": "Allows embedding 192 §6Astral Arrays§r at most to increase parallel multiplier per recipe",
+  "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.7": "Allows embedding 256 §6Astral Arrays§r at most to increase parallel multiplier per recipe",
   "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.8": "Multiplier formula: 2^(6 + 10*((count - 1)/184)^2)",
   "gtladditions.multiblock.multiple_recipe_types_machine.tooltip.0": "Supports §ccross-§6recipe §etype §aparallelization",
   "gtladditions.multiblock.thread.atomic_energy_excitation_plant.tooltip.0": "Has infinite parallel when executing fuel refining recipes in cross-recipe mode",

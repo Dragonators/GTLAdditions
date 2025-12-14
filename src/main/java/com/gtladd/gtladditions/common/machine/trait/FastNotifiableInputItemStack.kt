@@ -25,14 +25,14 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.Ingredient
-import org.gtlcore.gtlcore.api.machine.trait.MEStock.IMEPartMachine
+import org.gtlcore.gtlcore.api.machine.trait.MEStock.IOptimizedMEList
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
 import org.gtlcore.gtlcore.integration.ae2.AEUtils
 import kotlin.math.max
 import kotlin.math.min
 
 class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandlerTrait<Ingredient>(machine),
-    ICapabilityTrait, IItemTransfer, IMEPartMachine, ITagSerializable<CompoundTag>, IContentChangeAware {
+    ICapabilityTrait, IItemTransfer, IOptimizedMEList, ITagSerializable<CompoundTag>, IContentChangeAware {
 
     private val itemInventory: Object2LongLinkedOpenCustomHashMap<ItemStack> =
         Object2LongLinkedOpenCustomHashMap(ItemStackHashStrategy.comparingAllButCount())

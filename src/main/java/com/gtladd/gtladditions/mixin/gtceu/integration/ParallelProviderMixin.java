@@ -40,7 +40,7 @@ public abstract class ParallelProviderMixin {
     @Overwrite(remap = false)
     public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
         if (blockAccessor.getServerData().contains("parallel")) {
-            int parallel = blockAccessor.getServerData().getInt("parallel");
+            long parallel = blockAccessor.getServerData().getLong("parallel");
             if (parallel > 0) {
                 iTooltip.add(Component.translatable(
                         "gtceu.multiblock.parallel",
@@ -65,31 +65,35 @@ public abstract class ParallelProviderMixin {
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
         if (blockAccessor.getBlockEntity() instanceof MetaMachineBlockEntity blockEntity) {
             if (blockEntity.getMetaMachine() instanceof IParallelHatch parallelHatch) {
-                compoundTag.putInt("parallel", parallelHatch.getCurrentParallel());
+                compoundTag.putLong("parallel", parallelHatch.getCurrentParallel());
             } else if (blockEntity.getMetaMachine() instanceof WorkableMultiblockMachine workableElectricMultiblockMachine && workableElectricMultiblockMachine.isFormed()) {
                 if (workableElectricMultiblockMachine instanceof GTLAddWorkableElectricMultipleRecipesMachine addMachine) {
                     if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist) return;
                     if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichristModuleBase) return;
+                    if (workableElectricMultiblockMachine instanceof MacroAtomicResonantFragmentStripper atomic) {
+                        compoundTag.putLong("parallel", atomic.getRealParallel());
+                        return;
+                    }
                     if (workableElectricMultiblockMachine instanceof SubspaceCorridorHubIndustrialArrayModuleBase subspaceModuleBase) {
-                        if (subspaceModuleBase.isConnectedToHost() && Objects.requireNonNull(subspaceModuleBase.getHost()).unlockParadoxical()) return;
+                        if (subspaceModuleBase.isConnectedToHost() && Objects.requireNonNull(subspaceModuleBase.getHost())
+                                .unlockParadoxical())
+                            return;
                     }
-                    compoundTag.putInt("parallel", addMachine.getMaxParallel());
-                    if (!(workableElectricMultiblockMachine instanceof MacroAtomicResonantFragmentStripper)) {
-                        compoundTag.putInt("threads", addMachine.getRecipeLogic().getMultipleThreads());
-                    }
+                    compoundTag.putLong("parallel", addMachine.getMaxParallel());
+                    compoundTag.putLong("threads", addMachine.getRecipeLogic().getMultipleThreads());
                 } else {
                     var logic = workableElectricMultiblockMachine.getRecipeLogic();
                     if (logic instanceof MultipleRecipesLogic) {
-                        compoundTag.putInt("parallel", ((ParallelMachine) workableElectricMultiblockMachine).getMaxParallel());
-                        compoundTag.putInt("threads", Ints.saturatedCast(64L + ((IThreadModifierMachine) workableElectricMultiblockMachine).getAdditionalThread()));
+                        compoundTag.putLong("parallel", ((ParallelMachine) workableElectricMultiblockMachine).getMaxParallel());
+                        compoundTag.putLong("threads", Ints.saturatedCast(64L + ((IThreadModifierMachine) workableElectricMultiblockMachine).getAdditionalThread()));
                     } else if (logic instanceof MutableRecipesLogic<?> mutableRecipesLogic) {
-                        compoundTag.putInt("parallel", ((ParallelMachine) workableElectricMultiblockMachine).getMaxParallel());
-                        if (mutableRecipesLogic.getMultipleThreads() > 1) compoundTag.putInt("threads", mutableRecipesLogic.getMultipleThreads());
+                        compoundTag.putLong("parallel", ((ParallelMachine) workableElectricMultiblockMachine).getMaxParallel());
+                        if (mutableRecipesLogic.getMultipleThreads() > 1) compoundTag.putLong("threads", mutableRecipesLogic.getMultipleThreads());
                     } else if (blockEntity.getMetaMachine() instanceof ParallelMachine controller) {
-                        compoundTag.putInt("parallel", controller.getMaxParallel());
+                        compoundTag.putLong("parallel", controller.getMaxParallel());
                     } else {
                         Optional<IParallelHatch> parallelHatch = Optional.ofNullable(((IRecipeCapabilityMachine) workableElectricMultiblockMachine).getParallelHatch());
-                        parallelHatch.ifPresent(iParallelHatch -> compoundTag.putInt("parallel", iParallelHatch.getCurrentParallel()));
+                        parallelHatch.ifPresent(iParallelHatch -> compoundTag.putLong("parallel", iParallelHatch.getCurrentParallel()));
                     }
                 }
             }

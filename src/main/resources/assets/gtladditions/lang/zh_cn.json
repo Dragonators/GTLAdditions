@@ -137,7 +137,7 @@
   "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.4": "只有在§6星辉§r级别或以上的线圈加持下才能工作",
   "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.5": "拥有特殊的跨配方并行，一次性执行§6所有§r配方",
   "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.6": "每个配方拥有§b相同§r的并行数",
-  "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.7": "允许嵌入至多192个§6星规矩阵§r，提高每个配方的并行倍率",
+  "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.7": "允许嵌入至多256个§6星规矩阵§r，提高每个配方的并行倍率",
   "gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.8": "倍率计算公式为: 2^(6 + 10*((count - 1)/184)^2)",
   "gtladditions.multiblock.multiple_recipe_types_machine.tooltip.0": "支持§c跨§6配§e方§a种§b类§d并行",
   "gtladditions.multiblock.nexus_satellite_factory.tooltip.0": "§7需要安装至亚空间航道枢纽运行",

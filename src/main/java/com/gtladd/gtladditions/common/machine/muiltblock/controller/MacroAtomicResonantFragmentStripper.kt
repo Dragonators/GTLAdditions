@@ -1,6 +1,7 @@
 ﻿package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
 import com.google.common.base.Predicate
+import com.google.common.primitives.Ints
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
@@ -19,7 +20,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import kotlin.math.max
 import kotlin.math.pow
-import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
     GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(holder), IAstralArrayInteractionMachine {
@@ -28,13 +29,15 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
     override var astralArrayCount: Int = 0
 
     @field:Persisted
-    private var parallelAmount: Int = 1
+    private var parallelAmount: Long = 1
+
+    fun getRealParallel(): Long = parallelAmount
 
     override fun getFieldHolder(): ManagedFieldHolder {
         return MANAGED_FIELD_HOLDER
     }
 
-    override fun getMaxParallel(): Int = parallelAmount
+    override fun getMaxParallel(): Int = Ints.saturatedCast(parallelAmount)
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return MacroAtomicResonantFragmentStripperLogic(this)
@@ -58,18 +61,19 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
     }
 
     override fun addParallelDisplay(textList: MutableList<Component?>) {
-        if (maxParallel > 1) {
+        if (parallelAmount > 1) {
             textList.add(
                 Component.translatable(
                     "gtceu.multiblock.parallel",
-                    Component.literal(FormattingUtil.formatNumbers(maxParallel)).withStyle(ChatFormatting.DARK_PURPLE)
+                    Component.literal(FormattingUtil.formatNumbers(parallelAmount)).withStyle(ChatFormatting.DARK_PURPLE)
                 ).withStyle(ChatFormatting.GRAY)
             )
         }
         textList.add(
             Component.translatable(
                 "gtladditions.multiblock.threads",
-                Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel").withStyle(ChatFormatting.GOLD)
+                Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel")
+                    .withStyle(ChatFormatting.GOLD)
             ).withStyle(ChatFormatting.GRAY)
         )
     }
@@ -83,8 +87,8 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
         return actualIncrease
     }
 
-    companion object{
-        const val MAX_ASTRAL_ARRAY_COUNT = 192
+    companion object {
+        const val MAX_ASTRAL_ARRAY_COUNT = 256
 
         val FRAGMENT_STRIPPER = Predicate { machine: IRecipeLogicMachine ->
             return@Predicate if (machine is MacroAtomicResonantFragmentStripper) machine.coilType.coilTemperature >= 21600 else false
@@ -99,16 +103,16 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
         /**
          * Formula: parallelMultiplier = 2^(6 + 10*((astralArrayCount - 1)/184)^2)
          */
-        fun calculateParallelAmount(count: Int, temperature: Int): Int {
-            val base = (1536 + max(temperature - 21600, 0) / 1200 * 300)
+        fun calculateParallelAmount(count: Int, temperature: Int): Long {
+            val base = (1536L + max(temperature - 21600, 0) / 1200 * 300)
             if (count == 0) return base
             val normalized = (count - 1) / 184.0
             val exponent = 6 + 10 * normalized * normalized
-            return (base * 2.0.pow(exponent)).roundToInt()
+            return (base * 2.0.pow(exponent)).roundToLong()
         }
 
         class MacroAtomicResonantFragmentStripperLogic(parallel: MacroAtomicResonantFragmentStripper) :
-            GTLAddMultipleRecipesLogic(parallel, FRAGMENT_STRIPPER){
+            GTLAddMultipleRecipesLogic(parallel, FRAGMENT_STRIPPER) {
             init {
                 this.setReduction(4.0, 1.0)
             }
@@ -123,7 +127,7 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
 
                 val recipeList = ObjectArrayList<GTRecipe>(recipes.size)
                 val parallelsList = LongArrayList(recipes.size)
-                val eachParallel = this.parallel.maxParallel.toLong()
+                val eachParallel = getMachine().parallelAmount
 
                 for (recipe in recipes) {
                     val parallel = getMaxParallel(recipe, eachParallel)

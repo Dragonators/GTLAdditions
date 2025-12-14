@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.common.blocks
 
+import com.gregtechceu.gtceu.api.block.ActiveBlock
 import com.gregtechceu.gtceu.api.item.tool.GTToolType
 import com.gregtechceu.gtceu.common.data.GTModels
 import com.gtladd.gtladditions.GTLAdditions
@@ -25,6 +26,8 @@ import net.minecraft.world.level.block.GlassBlock
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.common.block.BlockMap
+import org.gtlcore.gtlcore.common.data.GTLBlocks
 import java.util.function.Supplier
 
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "DEPRECATION")
@@ -43,6 +46,8 @@ object GTLAddBlocks {
     val PHONON_CONDUIT: BlockEntry<Block>
     val EXTREME_DENSITY_CASING: BlockEntry<Block>
     val GRAVITY_STABILIZATION_CASING: BlockEntry<Block>
+    val POWER_MODULE_6: BlockEntry<ActiveBlock>
+    val POWER_MODULE_7: BlockEntry<ActiveBlock>
 
     fun init() {}
 
@@ -103,6 +108,14 @@ object GTLAddBlocks {
         GRAVITY_STABILIZATION_CASING = createCasingBlock(
             "gravity_stabilization_casing",
             GTLCore.id("block/casings/gravity_stabilization_casing")
+        )
+        POWER_MODULE_6 = GTLBlocks.createActiveTierCasing(
+            "power_module_6",
+            "block/variant/power_module", BlockMap.sepmMap, 6
+        )
+        POWER_MODULE_7 = GTLBlocks.createActiveTierCasing(
+            "power_module_7",
+            "block/variant/power_module", BlockMap.sepmMap, 9
         )
         GTLAddRegistration.REGISTRATE.creativeModeTab(GTLAddCreativeModeTabs.GTLADD_MACHINE)
     }
