@@ -12,6 +12,8 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.POWER_MODULE_6
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.POWER_MODULE_7
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
 import com.gtladd.gtladditions.common.items.GTLAddItems.THERMAL_SUPERCONDUCTOR
@@ -24,6 +26,7 @@ import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_LASER_INPUT_HATCH
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
 import org.gtlcore.gtlcore.common.data.GTLBlocks.*
+import org.gtlcore.gtlcore.common.data.GTLItems.ELECTRIC_MOTOR_MAX
 import org.gtlcore.gtlcore.common.data.GTLItems.EMITTER_MAX
 import org.gtlcore.gtlcore.common.data.GTLItems.FIELD_GENERATOR_MAX
 import org.gtlcore.gtlcore.common.data.GTLMachines.LAW_CLEANING_GRAVITY_CONFIGURATION_MAINTENANCE_HATCH
@@ -417,6 +420,44 @@ object AssemblyLine {
                 b !!.researchStack(GRAVI_STAR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024, 2048000)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("power_module_6")
+            .inputItems(POWER_MODULE_5)
+            .inputItems(FIELD_GENERATOR_UEV, 8)
+            .inputItems(CONVEYOR_MODULE_UIV, 16)
+            .inputItems(ELECTRIC_MOTOR_OpV, 4)
+            .inputItems(gearSmall, MELLION, 8)
+            .inputItems(plateDouble, Chaos, 24)
+            .inputFluids(Draconium.getFluid(86400))
+            .inputFluids(SuperMutatedLivingSolder.getFluid(115200))
+            .inputFluids(Periodicium.getFluid(115200))
+            .inputFluids(Radox.getFluid(230400))
+            .outputItems(POWER_MODULE_6)
+            .EUt(VA[OpV].toLong()).duration(4000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(POWER_MODULE_5.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[OpV]).CWUt(1024)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder("power_module_7")
+            .inputItems(POWER_MODULE_6)
+            .inputItems(FIELD_GENERATOR_UIV, 80)
+            .inputItems(CONVEYOR_MODULE_UXV, 160)
+            .inputItems(ELECTRIC_MOTOR_MAX, 40)
+            .inputItems(gearSmall, TranscendentMetal, 80)
+            .inputItems(plateDouble, Cosmic, 240)
+            .inputFluids(PHONON_MEDIUM.getFluid(345600))
+            .inputFluids(SuperMutatedLivingSolder.getFluid(460800))
+            .inputFluids(Miracle.getFluid(460800))
+            .inputFluids(PrimordialMatter.getFluid(921600))
+            .outputItems(POWER_MODULE_7)
+            .EUt(VA[MAX].toLong()).duration(40000)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b !!.researchStack(POWER_MODULE_6.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
             .save(provider)
     }
