@@ -16,6 +16,7 @@ import com.hepdd.gtmthings.common.block.machine.trait.CatalystFluidStackHandler
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import it.unimi.dsi.fastutil.objects.*
 import net.minecraft.world.item.crafting.Ingredient
+import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 import org.gtlcore.gtlcore.api.machine.trait.MEPatternRecipeHandlePart
 import org.gtlcore.gtlcore.api.machine.trait.RecipeHandlePart
@@ -39,7 +40,7 @@ object ChanceParallelLogic {
     }
 
     fun getMaxParallel(
-        holder: IRecipeCapabilityHolder,
+        holder: ParallelMachine,
         recipe: GTRecipe,
         parallelAmount: Long,
         chanceCaches: Map<RecipeCapability<*>, Object2IntMap<*>>,
@@ -84,7 +85,7 @@ object ChanceParallelLogic {
 
     @Suppress("UNCHECKED_CAST")
     fun getInputItemParallel(
-        holder: IRecipeCapabilityHolder,
+        holder: ParallelMachine,
         recipe: GTRecipe,
         parallelAmount: Long,
         cache: Object2IntMap<*>?,
@@ -102,6 +103,7 @@ object ChanceParallelLogic {
         val chanceMap = Object2ReferenceOpenCustomHashMap<Ingredient, ContentAmountPair>(
             IngredientEquality.IngredientHashStrategy.INSTANCE
         )
+        val confirmMEStock = holder.needConfirmMEStock()
 
         for (content in recipe.getInputContents(ItemRecipeCapability.CAP)) {
             if (content.chance <= 0) continue
@@ -141,7 +143,7 @@ object ChanceParallelLogic {
             }
 
             is RecipeHandlePart -> {
-                for (entry in Object2LongMaps.fastIterable(handle.getSelfContent(ItemRecipeCapability.CAP))) {
+                for (entry in Object2LongMaps.fastIterable(handle.getSelfContent(ItemRecipeCapability.CAP, confirmMEStock))) {
                     ingredientStacks.addTo(entry.key, entry.longValue)
                 }
             }
@@ -150,7 +152,7 @@ object ChanceParallelLogic {
                 val sharedRecipeHandlePart = holder.sharedRecipeHandlePart
                 if (sharedRecipeHandlePart != null) {
                     for (entry in Object2LongMaps.fastIterable(
-                        sharedRecipeHandlePart.getSelfContent(ItemRecipeCapability.CAP)
+                        sharedRecipeHandlePart.getSelfContent(ItemRecipeCapability.CAP, confirmMEStock)
                     )) {
                         ingredientStacks.addTo(entry.key, entry.longValue)
                     }
@@ -169,7 +171,7 @@ object ChanceParallelLogic {
 
     @Suppress("UNCHECKED_CAST")
     fun getInputFluidParallel(
-        holder: IRecipeCapabilityHolder,
+        holder: ParallelMachine,
         recipe: GTRecipe,
         parallelAmount: Long,
         cache: Object2IntMap<*>?,
@@ -183,6 +185,7 @@ object ChanceParallelLogic {
 
         val guaranteedFluidMap = Object2LongOpenHashMap<FluidIngredient>()
         val chanceFluidMap = Object2ReferenceOpenHashMap<FluidIngredient, ContentAmountPair>()
+        val confirmMEStock = holder.needConfirmMEStock()
 
         for (content in recipe.getInputContents(FluidRecipeCapability.CAP)) {
             if (content.chance <= 0) continue
@@ -216,9 +219,9 @@ object ChanceParallelLogic {
 
             is RecipeHandlePart -> {
                 val content = if (holder.isDistinct) {
-                    handle.getSelfContent(FluidRecipeCapability.CAP)
+                    handle.getSelfContent(FluidRecipeCapability.CAP, confirmMEStock)
                 } else {
-                    handle.getContentWithShared(FluidRecipeCapability.CAP)
+                    handle.getContentWithShared(FluidRecipeCapability.CAP, confirmMEStock)
                 }
                 for (entry in Object2LongMaps.fastIterable(content)) {
                     ingredientStacks.addTo(entry.key, entry.longValue)

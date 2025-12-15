@@ -50,6 +50,8 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
         return this.limitedDuration
     }
 
+    override fun needConfirmMEStock(): Boolean = false
+
     // ========================================
     // GUI SYSTEM
     // ========================================

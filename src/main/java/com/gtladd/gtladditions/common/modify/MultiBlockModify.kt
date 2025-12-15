@@ -16,7 +16,7 @@ import com.gregtechceu.gtceu.utils.SupplierMemoizer
 import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.CreateAggregation
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.DoorOfCreate
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MolecularAssemblerMultiblockMachine
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.MolecularAssemblerMultiblockMachine
 import com.gtladd.gtladditions.common.modify.multiblockMachine.WorkableMultiBlock
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.network.chat.Component

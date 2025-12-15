@@ -14,4 +14,6 @@ class AddMutableElectricParallelHatchMultiblockMachine (holder: IMachineBlockEnt
     override fun getRecipeLogic(): AddMutableRecipesLogic<MutableElectricMultiblockMachine> {
         return super.getRecipeLogic() as AddMutableRecipesLogic<MutableElectricMultiblockMachine>
     }
+
+    override fun needConfirmMEStock(): Boolean = false
 }

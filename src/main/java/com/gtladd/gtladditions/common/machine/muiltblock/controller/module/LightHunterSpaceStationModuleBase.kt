@@ -98,6 +98,8 @@ class LightHunterSpaceStationModuleBase(holder: IMachineBlockEntity) :
         removeFromHost(this.host)
     }
 
+    override fun needConfirmMEStock(): Boolean = true
+
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     companion object {
