@@ -1494,7 +1494,6 @@ object MultiBlockMachine {
             Function { SpaceInfinityIntegratedOreProcessor(it) })
             .allRotation()
             .tooltipTextKey(Component.translatable("gtceu.machine.integrated_ore_processor.tooltip.0"))
-            .tooltipTextKey(Component.translatable("gtceu.machine.advanced_integrated_ore_processor.tooltip.0"))
             .tooltipTextKey(Component.translatable("gtceu.multiblock.only.laser.tooltip"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.8"))
             .tooltipTextKey(Component.translatable("tooltip.gtlcore.structure.source", "TST"))
