@@ -31,9 +31,9 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
 
     fun getRealParallel(): Long = parallelAmount
 
-    override fun getFieldHolder(): ManagedFieldHolder {
-        return MANAGED_FIELD_HOLDER
-    }
+    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
+
+    override fun needConfirmMEStock(): Boolean = true
 
     override fun getMaxParallel(): Int = Ints.saturatedCast(parallelAmount)
 

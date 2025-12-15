@@ -24,6 +24,8 @@ class SpaceInfinityIntegratedOreProcessor(holder: IMachineBlockEntity, vararg ar
         return super.getRecipeLogic() as InfinityIntegratedOreProcessorLogic
     }
 
+    override fun needConfirmMEStock(): Boolean = true
+
     override fun addParallelDisplay(textList: MutableList<Component?>) {
         textList.add(
             Component.translatable(

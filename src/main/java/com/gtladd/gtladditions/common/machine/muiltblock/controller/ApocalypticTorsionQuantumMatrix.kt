@@ -38,6 +38,8 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
         return super.getRecipeLogic() as ApocalypticTorsionQuantumMatrixLogic
     }
 
+    override fun needConfirmMEStock(): Boolean = true
+
     companion object {
         class ApocalypticTorsionQuantumMatrixLogic(parallel: ApocalypticTorsionQuantumMatrix) :
             GTLAddMultipleTypeWirelessRecipesLogic(parallel) {

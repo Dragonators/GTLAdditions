@@ -116,6 +116,8 @@ open class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, vararg ar
         )
     }
 
+    override fun needConfirmMEStock(): Boolean = true
+
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     companion object {

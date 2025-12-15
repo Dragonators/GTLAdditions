@@ -74,6 +74,8 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
     override fun getRecipeLogic(): ForgeOfTheAntichristLogic = super.getRecipeLogic() as ForgeOfTheAntichristLogic
 
+    override fun needConfirmMEStock(): Boolean = true
+
     // ========================================
     // GUI
     // ========================================

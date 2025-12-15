@@ -3,7 +3,7 @@
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MolecularAssemblerMultiblockMachine
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.MolecularAssemblerMultiblockMachine
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.core.BlockPos
