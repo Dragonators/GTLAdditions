@@ -53,6 +53,7 @@ object BiologicalSimulation {
             }
             setSpawnEggRecipes(biological, provider)
         }
+        generateSpecialSpawnEggRecipe(provider)
         generateSpecialRecipes(provider)
     }
 
@@ -77,6 +78,22 @@ object BiologicalSimulation {
         addInputItems(builder, item)
         builder.outputItems(getItemStack("minecraft:" + item.name + "_spawn_egg"))
             .EUt(VA[3].toLong()).duration(1200).save(provider)
+    }
+
+    private fun generateSpecialSpawnEggRecipe(provider: Consumer<FinishedRecipe?>) {
+        INCUBATOR_RECIPES.recipeBuilder(id("wandering_trader_spawn_egg"))
+            .inputItems(getItemStack("minecraft:bone", 4))
+            .inputItems(getItemStack("minecraft:rotten_flesh", 4))
+            .inputItems(getItemStack("minecraft:llama_spawn_egg", 4))
+            .inputItems(getItemStack("minecraft:dragon_breath", 4))
+            .inputItems(getItemStack("minecraft:enchanted_golden_apple", 4))
+            .inputItems(getItemStack("minecraft:lead", 4))
+            .inputFluids(Biomass.getFluid(1000))
+            .inputFluids(Milk.getFluid(1000))
+            .outputItems(getItemStack("minecraft:wandering_trader_spawn_egg"))
+            .EUt(VA[3].toLong())
+            .duration(1200)
+            .save(provider)
     }
 
     private fun addOutputItems(builder: GTRecipeBuilder, item: Biological, sword: Sword) {
