@@ -21,6 +21,8 @@ import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 import org.gtlcore.gtlcore.api.machine.trait.MEPatternRecipeHandlePart
 import org.gtlcore.gtlcore.api.machine.trait.RecipeHandlePart
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
+import org.gtlcore.gtlcore.utils.NumberUtils
+import org.gtlcore.gtlcore.utils.NumberUtils.saturatedAdd
 import org.gtlcore.gtlcore.utils.datastructure.Int128
 import java.math.BigInteger
 import java.util.function.Predicate
@@ -138,13 +140,13 @@ object ChanceParallelLogic {
         when (handle) {
             is MEPatternRecipeHandlePart -> {
                 for (entry in Object2LongMaps.fastIterable(handle.getMEContent(ItemRecipeCapability.CAP, recipe))) {
-                    ingredientStacks.addTo(entry.key, entry.longValue)
+                    ingredientStacks.mergeLong(entry.key, entry.longValue, NumberUtils::saturatedAdd)
                 }
             }
 
             is RecipeHandlePart -> {
                 for (entry in Object2LongMaps.fastIterable(handle.getSelfContent(ItemRecipeCapability.CAP, confirmMEStock))) {
-                    ingredientStacks.addTo(entry.key, entry.longValue)
+                    ingredientStacks.mergeLong(entry.key, entry.longValue, NumberUtils::saturatedAdd)
                 }
             }
 
@@ -154,7 +156,7 @@ object ChanceParallelLogic {
                     for (entry in Object2LongMaps.fastIterable(
                         sharedRecipeHandlePart.getSelfContent(ItemRecipeCapability.CAP, confirmMEStock)
                     )) {
-                        ingredientStacks.addTo(entry.key, entry.longValue)
+                        ingredientStacks.mergeLong(entry.key, entry.longValue, NumberUtils::saturatedAdd)
                     }
                 }
             }
@@ -213,7 +215,7 @@ object ChanceParallelLogic {
         when (handle) {
             is MEPatternRecipeHandlePart -> {
                 for (entry in Object2LongMaps.fastIterable(handle.getMEContent(FluidRecipeCapability.CAP, recipe))) {
-                    ingredientStacks.addTo(entry.key, entry.longValue)
+                    ingredientStacks.mergeLong(entry.key, entry.longValue, NumberUtils::saturatedAdd)
                 }
             }
 
@@ -224,7 +226,7 @@ object ChanceParallelLogic {
                     handle.getContentWithShared(FluidRecipeCapability.CAP, confirmMEStock)
                 }
                 for (entry in Object2LongMaps.fastIterable(content)) {
-                    ingredientStacks.addTo(entry.key, entry.longValue)
+                    ingredientStacks.mergeLong(entry.key, entry.longValue, NumberUtils::saturatedAdd)
                 }
             }
 
@@ -235,7 +237,7 @@ object ChanceParallelLogic {
                         if (handler is CatalystFluidStackHandler) continue
                         for (obj in handler.contents) {
                             if (obj is FluidStack) {
-                                ingredientStacks.addTo(obj, obj.amount)
+                                ingredientStacks.mergeLong(obj, obj.amount, NumberUtils::saturatedAdd)
                             }
                         }
                     }
@@ -286,7 +288,7 @@ object ChanceParallelLogic {
             // parallel <= ((maxOutputs + 1) * maxChance - 1 - cached) / chance
             // This ensures: floor((parallel * chance + cached) / maxChance) <= maxOutputs
             val maxOutputs = available / chanceNeeded.amount
-            var maxParallelForThis = (Int128(maxOutputs + 1)
+            var maxParallelForThis = (Int128(maxOutputs).add(1L)
                 .multiply(Int128(chanceNeeded.maxChance.toLong()))
                 .subtract(Int128((1 + cached).toLong()))
                 .divide(chanceNeeded.chance.toLong()) as Number).toLong()
