@@ -13,11 +13,6 @@ class ConfigHolder {
     @JvmField
     var superPatternBuffer = SuperPatternBufferConfig()
 
-    @Configurable
-    @Configurable.Comment("性能配置")
-    @JvmField
-    var performance = PerformanceConfig()
-
     companion object {
         @JvmStatic
         val INSTANCE: ConfigHolder by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
@@ -26,15 +21,6 @@ class ConfigHolder {
 
         fun init() {
             INSTANCE
-        }
-
-        class PerformanceConfig {
-
-            @Configurable
-            @Configurable.Comment("样板供应器额外发配次数")
-            @Configurable.Range(min = 1, max = 500000)
-            @JvmField
-            var externalStorageMaxTimes = 250000
         }
 
         class SuperPatternBufferConfig {

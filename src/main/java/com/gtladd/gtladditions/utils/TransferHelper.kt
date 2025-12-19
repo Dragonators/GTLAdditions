@@ -1,5 +1,13 @@
 ﻿package com.gtladd.gtladditions.utils
 
+import appeng.api.config.Actionable
+import appeng.api.networking.security.IActionSource
+import appeng.api.stacks.AEFluidKey
+import appeng.api.stacks.AEItemKey
+import appeng.api.stacks.AEKey
+import appeng.api.storage.MEStorage
+import appeng.capabilities.Capabilities
+import appeng.me.helpers.MachineSource
 import com.google.common.primitives.Ints
 import com.gtladd.gtladditions.common.machine.trait.FastNotifiableInputFluidTank
 import com.gtladd.gtladditions.common.machine.trait.FastNotifiableInputItemStack
@@ -24,8 +32,16 @@ object TransferHelper {
     ) {
         if (source.isEmpty()) return
 
-        val target = FluidTransferHelper.getFluidTransfer(level, pos, direction) ?: return
+        var hasME = false
+        level.getBlockEntity(pos)
+            ?.getCapability(Capabilities.STORAGE, direction)
+            ?.ifPresent { meStorage ->
+                tryExportFluidToMEStorage(source, filter, meStorage)
+                hasME = true
+            }
+        if (hasME) return
 
+        val target = FluidTransferHelper.getFluidTransfer(level, pos, direction) ?: return
         var changed = false
         val iterator = source.getFluidStorage().iterator()
         while (iterator.hasNext()) {
@@ -66,8 +82,16 @@ object TransferHelper {
     ) {
         if (source.isEmpty()) return
 
-        val target = ItemTransferHelper.getItemTransfer(level, pos, direction) ?: return
+        var hasME = false
+        level.getBlockEntity(pos)
+            ?.getCapability(Capabilities.STORAGE, direction)
+            ?.ifPresent { meStorage ->
+                tryExportItemToMEStorage(source, filter, meStorage)
+                hasME = true
+            }
+        if (hasME) return
 
+        val target = ItemTransferHelper.getItemTransfer(level, pos, direction) ?: return
         var changed = false
         val iterator = Object2LongMaps.fastIterator(source.getItemStorage())
         while (iterator.hasNext()) {
@@ -186,5 +210,120 @@ object TransferHelper {
         if (changed) {
             target.onContentsChanged()
         }
+    }
+
+    fun insertFromME(
+        itemTarget: FastNotifiableInputItemStack,
+        fluidTarget: FastNotifiableInputFluidTank,
+        what: AEKey,
+        amount: Long,
+        mode: Actionable
+    ): Long {
+        return when (what) {
+            is AEItemKey -> {
+                val inventory = itemTarget.getItemStorage()
+                val itemStack = what.toStack()
+                val realInsert = amount.coerceAtMost(Long.MAX_VALUE - inventory.getLong(itemStack))
+
+                if (mode != Actionable.SIMULATE && realInsert > 0) {
+                    itemStack.count = 1
+                    inventory.addTo(itemStack, realInsert)
+                    itemTarget.onContentsChanged()
+                }
+
+                realInsert
+            }
+            is AEFluidKey -> {
+                val inventory = fluidTarget.getFluidStorage()
+                val fluidStack = FluidStack.create(what.fluid, 1)
+                val existing = inventory.get(fluidStack)
+                val realInsert = amount.coerceAtMost(Long.MAX_VALUE - (existing?.amount ?: 0))
+
+                if (mode != Actionable.SIMULATE && realInsert > 0) {
+                    fluidStack.amount = realInsert
+                    existing?.let {
+                        it.amount += realInsert
+                    } ?: run {
+                        inventory.add(fluidStack)
+                    }
+                    fluidTarget.onContentsChanged()
+                }
+
+                realInsert
+            }
+            else -> 0
+        }
+    }
+
+    private fun tryExportItemToMEStorage(
+        source: FastNotifiableInputItemStack,
+        filter: Predicate<ItemStack>,
+        meStorage: MEStorage
+    ): Boolean {
+        val actionSource: IActionSource = MachineSource { null }
+        var changed = false
+
+        val iterator = Object2LongMaps.fastIterator(source.getItemStorage())
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            if (entry.key.isEmpty) {
+                iterator.remove()
+                continue
+            }
+
+            val stack = entry.key.takeIf(filter::test) ?: continue
+            val aeKey = AEItemKey.of(stack) ?: continue
+            val count = entry.longValue
+
+            meStorage.insert(aeKey, count, Actionable.MODULATE, actionSource)
+                .takeIf { it > 0 }
+                ?.let { inserted ->
+                    val remaining = count - inserted
+                    if (remaining <= 0) {
+                        iterator.remove()
+                    } else {
+                        entry.setValue(remaining)
+                    }
+                    changed = true
+                }
+        }
+
+        return changed.also { if (it) source.onContentsChanged() }
+    }
+
+    private fun tryExportFluidToMEStorage(
+        source: FastNotifiableInputFluidTank,
+        filter: Predicate<FluidStack>,
+        meStorage: MEStorage
+    ): Boolean {
+        val actionSource: IActionSource = MachineSource { null }
+        var changed = false
+
+        val iterator = source.getFluidStorage().iterator()
+        while (iterator.hasNext()) {
+            val fluidStack = iterator.next()
+
+            if (fluidStack.isEmpty) {
+                iterator.remove()
+                continue
+            }
+            if (!filter.test(fluidStack)) continue
+
+            meStorage.insert(
+                AEFluidKey.of(fluidStack.fluid, fluidStack.tag),
+                fluidStack.amount,
+                Actionable.MODULATE,
+                actionSource
+            ).takeIf { it > 0 }
+                ?.let { inserted ->
+                    fluidStack.amount -= inserted
+                    if (fluidStack.amount <= 0) {
+                        iterator.remove()
+                    }
+                    changed = true
+                }
+        }
+
+        return changed.also { if (it) source.onContentsChanged() }
     }
 }
