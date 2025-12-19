@@ -1,5 +1,9 @@
 ﻿package com.gtladd.gtladditions.common.machine.hatch
 
+import appeng.api.config.Actionable
+import appeng.api.networking.security.IActionSource
+import appeng.api.stacks.AEKey
+import appeng.api.storage.MEStorage
 import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
@@ -13,6 +17,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredIOPartMachine
 import com.gtladd.gtladditions.common.machine.trait.FastNotifiableInputFluidTank
 import com.gtladd.gtladditions.common.machine.trait.FastNotifiableInputItemStack
 import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
+import com.gtladd.gtladditions.utils.TransferHelper
 import com.hepdd.gtmthings.api.machine.fancyconfigurator.ButtonConfigurator
 import com.hepdd.gtmthings.api.machine.fancyconfigurator.InventoryFancyConfigurator
 import com.hepdd.gtmthings.common.block.machine.trait.CatalystFluidStackHandler
@@ -45,7 +50,7 @@ import net.minecraft.world.level.block.Block
 import org.gtlcore.gtlcore.api.machine.trait.NotifiableCircuitItemStackHandler
 
 class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
-    TieredIOPartMachine(holder, 14, IO.IN), IMachineLife, IDistinctPart {
+    TieredIOPartMachine(holder, 14, IO.IN), IMachineLife, IDistinctPart, MEStorage {
 
     @field:Persisted
     private val shareTank: CatalystFluidStackHandler = CatalystFluidStackHandler(this, 9, 16000L, IO.IN, IO.NONE)
@@ -149,6 +154,28 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
             changed = true
         }
         if (changed) setWorkingEnabled(false)
+    }
+
+    // ========================================
+    // ME integration
+    // ========================================
+
+    override fun insert(what: AEKey?, amount: Long, mode: Actionable?, source: IActionSource?): Long {
+        MEStorage.checkPreconditions(what, amount, mode, source)
+
+        return TransferHelper.insertFromME(
+            this.inventory,
+            this.tank,
+            what!!,
+            amount,
+            mode!!
+        )
+    }
+
+    override fun extract(what: AEKey?, amount: Long, mode: Actionable?, source: IActionSource?): Long = 0
+
+    override fun getDescription(): Component? {
+        return Component.translatable("block.gtladditions.infinity_input_dual_hatch")
     }
 
     // ========================================

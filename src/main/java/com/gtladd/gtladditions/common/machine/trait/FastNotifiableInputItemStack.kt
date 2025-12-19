@@ -10,7 +10,6 @@ import com.gregtechceu.gtceu.api.machine.trait.NotifiableRecipeHandlerTrait
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.utils.ItemStackHashStrategy
 import com.gtladd.gtladditions.utils.TransferHelper
-import com.hepdd.gtmthings.utils.FormatUtil
 import com.lowdragmc.lowdraglib.side.item.IItemTransfer
 import com.lowdragmc.lowdraglib.syncdata.IContentChangeAware
 import com.lowdragmc.lowdraglib.syncdata.ITagSerializable
@@ -28,6 +27,7 @@ import net.minecraft.world.item.crafting.Ingredient
 import org.gtlcore.gtlcore.api.machine.trait.MEStock.IOptimizedMEList
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
 import org.gtlcore.gtlcore.integration.ae2.AEUtils
+import org.gtlcore.gtlcore.utils.NumberUtils
 import kotlin.math.max
 import kotlin.math.min
 
@@ -53,7 +53,7 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
             textList.add(
                 entry.key.displayName.copy().setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
                     .append(
-                        Component.literal(FormatUtil.formatNumber(entry.longValue))
+                        Component.literal(NumberUtils.formatLong(entry.longValue))
                             .setStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))
                     )
             )
