@@ -7,6 +7,7 @@ import appeng.api.storage.MEStorage
 import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
+import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfiguratorButton
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CircuitFancyConfigurator
@@ -230,7 +231,21 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
 
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
         super<TieredIOPartMachine>.attachConfigurators(configuratorPanel)
-        super<IDistinctPart>.attachConfigurators(configuratorPanel)
+
+        configuratorPanel.attachConfigurators(
+            IFancyConfiguratorButton.Toggle(
+                GuiTextures.BUTTON_DISTINCT_BUSES.getSubTexture(0.0, 0.5, 1.0, 0.5),
+                GuiTextures.BUTTON_DISTINCT_BUSES.getSubTexture(0.0, 0.0, 1.0, 0.5),
+                { this.isDistinct() },
+                { clickData: ClickData?, pressed: Boolean? -> setDistinct(pressed!!) })
+                .setTooltipsSupplier { pressed: Boolean ->
+                    listOf<Component?>(
+                        Component.translatable("gtceu.multiblock.universal.distinct")
+                            .setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
+                            .append(Component.translatable(if (pressed) "gtceu.multiblock.universal.distinct.yes" else "gtceu.multiblock.universal.distinct.no"))
+                    )
+                }
+        )
 
         configuratorPanel.attachConfigurators(CircuitFancyConfigurator(this.circuitInventory.storage))
 
