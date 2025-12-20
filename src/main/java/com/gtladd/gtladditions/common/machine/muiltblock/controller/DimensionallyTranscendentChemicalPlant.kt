@@ -35,7 +35,7 @@ class DimensionallyTranscendentChemicalPlant(holder: IMachineBlockEntity) :
                     recipes,
                     totalParallel,
                     { recipe -> getMaxParallel(recipe, totalParallel) },
-                    { recipe -> IGTRecipe.of(recipe).euTier <= GTValues.UV }
+                    { recipe -> IGTRecipe.of(recipe).euTier > GTValues.UV }
                 )
             }
         }
