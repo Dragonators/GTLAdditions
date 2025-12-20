@@ -17,6 +17,7 @@ import com.gtladd.gtladditions.common.data.ParallelData
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntList
 import it.unimi.dsi.fastutil.longs.LongArrayList
+import it.unimi.dsi.fastutil.longs.LongBooleanPair
 import it.unimi.dsi.fastutil.longs.LongList
 import it.unimi.dsi.fastutil.longs.LongLongPair
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
@@ -199,8 +200,7 @@ object RecipeCalculationHelper {
     inline fun calculateParallelsWithFairAllocation(
         recipes: Collection<GTRecipe>,
         totalParallel: Long,
-        crossinline getParallelForRecipe: (GTRecipe) -> Long,
-        crossinline consumeParallel: (GTRecipe) -> Boolean = { true },
+        crossinline getParallelAndIfConsumption: (GTRecipe) -> LongBooleanPair
     ): ParallelData? {
         val length = recipes.size
         if (length == 0) return null
@@ -213,11 +213,12 @@ object RecipeCalculationHelper {
         val remainingIndices = IntArrayList(length)
 
         for (r in recipes) {
-            val p = getParallelForRecipe(r)
+            val pair = getParallelAndIfConsumption(r)
+            val p = pair.firstLong()
             if (p <= 0) continue
-            recipeList.add(r)
 
-            if (!consumeParallel(r)) {
+            recipeList.add(r)
+            if (!pair.secondBoolean()) {
                 parallels[index] = p
                 index++
                 continue
