@@ -10,6 +10,7 @@ import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import it.unimi.dsi.fastutil.longs.LongBooleanPair
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import java.util.function.BiPredicate
 
@@ -34,9 +35,14 @@ class DimensionallyTranscendentChemicalPlant(holder: IMachineBlockEntity) :
                 return RecipeCalculationHelper.calculateParallelsWithFairAllocation(
                     recipes,
                     totalParallel,
-                    { recipe -> getMaxParallel(recipe, totalParallel) },
-                    { recipe -> IGTRecipe.of(recipe).euTier > GTValues.UV }
-                )
+                ) { recipe ->
+                    val consume = IGTRecipe.of(recipe).euTier > GTValues.UV
+                    val p = getMaxParallel(
+                        recipe,
+                        if (consume) totalParallel else Long.MAX_VALUE
+                    )
+                    LongBooleanPair.of(p, consume)
+                }
             }
         }
     }

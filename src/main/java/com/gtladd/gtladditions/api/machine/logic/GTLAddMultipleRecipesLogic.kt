@@ -11,6 +11,7 @@ import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import it.unimi.dsi.fastutil.longs.LongBooleanPair
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
@@ -98,9 +99,8 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
 
         return RecipeCalculationHelper.calculateParallelsWithFairAllocation(
             recipes,
-            totalParallel,
-            { recipe -> getMaxParallel(recipe, totalParallel) }
-        )
+            totalParallel
+        ) { recipe -> LongBooleanPair.of(getMaxParallel(recipe, totalParallel), true) }
     }
 
     protected open fun buildFinalNormalRecipe(parallelData: ParallelData): GTRecipe? {
