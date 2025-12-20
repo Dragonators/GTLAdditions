@@ -22,7 +22,9 @@ open class AddMutableRecipesLogic<T>(machine: T) : MutableRecipesLogic<T>(machin
         val totalParallel = getMachine().maxParallel.toLong() * getMultipleThreads()
 
         return RecipeCalculationHelper.calculateParallelsWithFairAllocation(
-            recipes, totalParallel
-        ) { recipe -> calculateParallel(machine, recipe, totalParallel).firstLong() }
+            recipes,
+            totalParallel,
+            { recipe -> calculateParallel(machine, recipe, totalParallel).firstLong() }
+        )
     }
 }

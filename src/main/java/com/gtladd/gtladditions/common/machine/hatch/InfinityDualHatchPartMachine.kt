@@ -230,6 +230,7 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
 
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
         super<TieredIOPartMachine>.attachConfigurators(configuratorPanel)
+        super<IDistinctPart>.attachConfigurators(configuratorPanel)
 
         configuratorPanel.attachConfigurators(CircuitFancyConfigurator(this.circuitInventory.storage))
 

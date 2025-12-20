@@ -146,7 +146,7 @@
   "gtladditions.multiblock.multiple_recipe_types_machine.tooltip.0": "Supports §ccross-§6recipe §etype §aparallelization",
   "gtladditions.multiblock.nexus_satellite_factory.tooltip.0": "§7Must be installed on Light Hunter Space Station to function",
   "gtladditions.multiblock.thread.atomic_energy_excitation_plant.tooltip.0": "Has infinite parallel when executing fuel refining recipes in cross-recipe mode",
-  "gtladditions.multiblock.thread.component_assembly_line.tooltip.0": "Has infinite parallel when executing IV tier or lower recipes in cross-recipe mode",
+  "gtladditions.multiblock.thread.below.tooltip.0": "Has infinite parallel when executing %s tier or lower recipes in cross-recipe mode",
   "gtladditions.multiblock.thread.tooltip.0": "Allows using §6Spheres Divergence Engine§r, unlocks §6Multiple Recipe Parallel§r mode, improves thread limit",
   "gtladditions.multiblock.thread.tooltip.1": "Thread Multiplier is %s",
   "gtladditions.multiblock.thread.tooltip.2": "Allows using §6Spheres Divergence Engine§r, improves §6thread limit§r",

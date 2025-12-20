@@ -199,7 +199,8 @@ object RecipeCalculationHelper {
     inline fun calculateParallelsWithFairAllocation(
         recipes: Collection<GTRecipe>,
         totalParallel: Long,
-        crossinline getParallelForRecipe: (GTRecipe) -> Long
+        crossinline getParallelForRecipe: (GTRecipe) -> Long,
+        crossinline consumeParallel: (GTRecipe) -> Boolean = { true },
     ): ParallelData? {
         val length = recipes.size
         if (length == 0) return null
@@ -215,6 +216,13 @@ object RecipeCalculationHelper {
             val p = getParallelForRecipe(r)
             if (p <= 0) continue
             recipeList.add(r)
+
+            if (!consumeParallel(r)) {
+                parallels[index] = p
+                index++
+                continue
+            }
+
             val allocated = minOf(p, totalParallel / length)
             parallels[index] = allocated
             val want = p - allocated

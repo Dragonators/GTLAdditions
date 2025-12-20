@@ -146,7 +146,7 @@
   "gtladditions.multiblock.multiple_recipe_types_machine.tooltip.0": "支持§c跨§6配§e方§a种§b类§d并行",
   "gtladditions.multiblock.nexus_satellite_factory.tooltip.0": "§7需要安装至猎光号空间站运行",
   "gtladditions.multiblock.thread.atomic_energy_excitation_plant.tooltip.0": "跨配方模式下，执行燃料精炼配方时，拥有无限并行",
-  "gtladditions.multiblock.thread.component_assembly_line.tooltip.0": "跨配方模式下，执行IV及以下配方时，拥有无限并行",
+  "gtladditions.multiblock.thread.below.tooltip.0": "跨配方模式下，执行%s及以下配方时，拥有无限并行",
   "gtladditions.multiblock.thread.tooltip.0": "允许使用§6天球分歧引擎§r，解锁§6跨配方并行§r模式，提高线程上限",
   "gtladditions.multiblock.thread.tooltip.1": "线程倍率为%s",
   "gtladditions.multiblock.thread.tooltip.2": "允许使用§6天球分歧引擎§r，提高§6线程上限§r",
