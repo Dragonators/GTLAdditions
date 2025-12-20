@@ -149,9 +149,11 @@ object MutableMultiBlockModify {
                 ),
                 when (definition) {
                     MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE ->
-                        Component.translatable("gtladditions.multiblock.thread.component_assembly_line.tooltip.0")
+                        Component.translatable("gtladditions.multiblock.thread.below.tooltip.0", "IV")
                     MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT ->
                         Component.translatable("gtladditions.multiblock.thread.atomic_energy_excitation_plant.tooltip.0")
+                    AdvancedMultiBlockMachine.PCB_FACTORY ->
+                        Component.translatable("gtladditions.multiblock.thread.below.tooltip.0", "LuV")
                     else -> null
                 }
             )
@@ -166,7 +168,12 @@ object MutableMultiBlockModify {
                     "gtladditions.multiblock.thread.tooltip.1",
                     Component.literal(ThreadMultiplierStrategy.getAdditionalMultiplier(definition).toString())
                         .withStyle(ChatFormatting.GOLD)
-                )
+                ),
+                when (definition) {
+                    DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT ->
+                        Component.translatable("gtladditions.multiblock.thread.below.tooltip.0", "UV")
+                    else -> null
+                }
             )
         }
     }

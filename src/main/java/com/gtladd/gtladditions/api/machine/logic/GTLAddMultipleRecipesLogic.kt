@@ -97,8 +97,10 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
         val totalParallel = parallel.maxParallel.toLong() * getMultipleThreads()
 
         return RecipeCalculationHelper.calculateParallelsWithFairAllocation(
-            recipes, totalParallel
-        ) { recipe -> getMaxParallel(recipe, totalParallel) }
+            recipes,
+            totalParallel,
+            { recipe -> getMaxParallel(recipe, totalParallel) }
+        )
     }
 
     protected open fun buildFinalNormalRecipe(parallelData: ParallelData): GTRecipe? {

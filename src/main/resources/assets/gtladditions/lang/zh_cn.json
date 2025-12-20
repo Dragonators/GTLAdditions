@@ -148,7 +148,7 @@
   "gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.6": "嵌入§b512§r枚星阵后，解锁§k§d悖论实现理论",
   "gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.7": "为所有模块提供§k§d无限§r并行与线程",
   "gtladditions.multiblock.thread.atomic_energy_excitation_plant.tooltip.0": "跨配方模式下，执行燃料精炼配方时，拥有无限并行",
-  "gtladditions.multiblock.thread.component_assembly_line.tooltip.0": "跨配方模式下，执行IV及以下配方时，拥有无限并行",
+  "gtladditions.multiblock.thread.below.tooltip.0": "跨配方模式下，执行%s及以下配方时，拥有无限并行",
   "gtladditions.multiblock.thread.tooltip.0": "允许使用§6天球分歧引擎§r，解锁§6跨配方并行§r模式，提高线程上限",
   "gtladditions.multiblock.thread.tooltip.1": "线程倍率为%s",
   "gtladditions.multiblock.thread.tooltip.2": "允许使用§6天球分歧引擎§r，提高§6线程上限§r",

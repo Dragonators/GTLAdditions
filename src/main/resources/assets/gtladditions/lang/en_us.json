@@ -149,6 +149,7 @@
   "gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.5": "Allows installing up to §6138§r Nexus Satellite Factory modules",
   "gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.6": "Embedding §b512§r Astral Arrays unlocks §k§dParadoxical Attainment",
   "gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.7": "Provides §k§dinfinity§r parallel and threads to all modules",
+  "gtladditions.multiblock.thread.below.tooltip.0": "Has infinite parallel when executing %s tier or lower recipes in cross-recipe mode",
   "gtladditions.multiblock.thread.tooltip.0": "Allows using §6Spheres Divergence Engine§r, unlocks §6Multiple Recipe Parallel§r mode, improves thread limit",
   "gtladditions.multiblock.thread.tooltip.1": "Thread Multiplier is %s",
   "gtladditions.multiblock.thread.tooltip.2": "Allows using §6Spheres Divergence Engine§r, improves §6thread limit§r",

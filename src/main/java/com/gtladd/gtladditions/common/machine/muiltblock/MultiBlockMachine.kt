@@ -692,7 +692,7 @@ object MultiBlockMachine {
             .register()
 
         DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT = REGISTRATE.multiblock("dimensionally_transcendent_chemical_plant",
-            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it) })
+            Function { DimensionallyTranscendentChemicalPlant(it) })
             .nonYAxisRotation()
             .tooltipTextKey(Component.translatable("gtceu.multiblock.dimensionally_transcendent_chemical_plant"))
             .tooltipTextCoilParallel()
