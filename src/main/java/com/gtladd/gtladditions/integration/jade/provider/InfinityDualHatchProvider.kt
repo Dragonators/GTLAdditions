@@ -11,8 +11,8 @@ import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
-import net.minecraftforge.registries.ForgeRegistries
 import org.gtlcore.gtlcore.utils.NumberUtils
+import org.gtlcore.gtlcore.utils.Registries
 import snownee.jade.api.BlockAccessor
 import snownee.jade.api.IBlockComponentProvider
 import snownee.jade.api.IServerDataProvider
@@ -42,7 +42,7 @@ class InfinityDualHatchProvider : IBlockComponentProvider, IServerDataProvider<B
             val itemTags = serverData.getList("items", Tag.TAG_COMPOUND.toInt())
             for (t in itemTags) {
                 val itemTag = t as? CompoundTag ?: continue
-                val item = ForgeRegistries.ITEMS.getValue(ResourceLocation(itemTag.getString("item"))) ?: continue
+                val item = Registries.getItem(itemTag.getString("item"))
                 val count = itemTag.getLong("count")
                 if (count > 0) {
                     val stack = ItemStack(item)
@@ -58,7 +58,7 @@ class InfinityDualHatchProvider : IBlockComponentProvider, IServerDataProvider<B
             val fluidTags = serverData.getList("fluids", Tag.TAG_COMPOUND.toInt())
             for (t in fluidTags) {
                 val fluidTag = t as? CompoundTag ?: continue
-                val fluid = ForgeRegistries.FLUIDS.getValue(ResourceLocation(fluidTag.getString("fluid"))) ?: continue
+                val fluid = Registries.getFluid(fluidTag.getString("fluid"))
                 val amount = fluidTag.getLong("amount")
                 if (amount > 0) {
                     tooltip.add(GTElementHelper.smallFluid(JadeFluidObject.of(fluid)))
@@ -76,9 +76,8 @@ class InfinityDualHatchProvider : IBlockComponentProvider, IServerDataProvider<B
             val itemTags = ListTag()
             for (entry in dualHatch.itemIterator) {
                 val stack = entry.key
-                val key = ForgeRegistries.ITEMS.getKey(stack.item) ?: continue
                 val itemTag = CompoundTag()
-                itemTag.putString("item", key.toString())
+                itemTag.putString("item", Registries.getItemId(stack))
                 itemTag.putLong("count", entry.longValue)
                 itemTags.add(itemTag)
             }
@@ -86,9 +85,8 @@ class InfinityDualHatchProvider : IBlockComponentProvider, IServerDataProvider<B
 
             val fluidTags = ListTag()
             for (fluidStack in dualHatch.fluidIterator) {
-                val key = ForgeRegistries.FLUIDS.getKey(fluidStack.fluid) ?: continue
                 val fluidTag = CompoundTag()
-                fluidTag.putString("fluid", key.toString())
+                fluidTag.putString("fluid", Registries.getFluidId(fluidStack))
                 fluidTag.putLong("amount", fluidStack.amount)
                 fluidTags.add(fluidTag)
             }

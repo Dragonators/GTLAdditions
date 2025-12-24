@@ -69,6 +69,7 @@ import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.MATTER_EXOTIC
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.MOLECULAR_DECONSTRUCTION
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.NIGHTMARE_CRAFTING
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.PHOTON_MATRIX_ETCH
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.SPACE_ORE_PROCESSOR
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.STAR_CORE_STRIPPER
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.STELLAR_LGNITION
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.TECTONIC_FAULT_GENERATOR
@@ -133,7 +134,7 @@ object MultiBlockMachine {
     val SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY: MultiblockMachineDefinition
     val DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY: MultiblockMachineDefinition
     val SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR: MultiblockMachineDefinition
-    val MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER: MultiblockMachineDefinition?
+    val MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER: MultiblockMachineDefinition
 
     init {
         REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_MACHINE }
@@ -1493,13 +1494,14 @@ object MultiBlockMachine {
         SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR = REGISTRATE.multiblock("space_infinity_integrated_ore_processor",
             Function { SpaceInfinityIntegratedOreProcessor(it) })
             .allRotation()
-            .tooltipTextKey(Component.translatable("gtceu.machine.integrated_ore_processor.tooltip.0"))
-            .tooltipTextKey(Component.translatable("gtceu.multiblock.only.laser.tooltip"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.space_infinity_integrated_ore_processor.tooltip.0"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.space_infinity_integrated_ore_processor.tooltip.1"))
             .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.8"))
+            .tooltipTextKey(Component.translatable("gtceu.multiblock.only.laser.tooltip"))
             .tooltipTextKey(Component.translatable("tooltip.gtlcore.structure.source", "TST"))
-            .tooltipTextRecipeTypes(INTEGRATED_ORE_PROCESSOR)
+            .tooltipTextRecipeTypes(SPACE_ORE_PROCESSOR)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
-            .recipeType(INTEGRATED_ORE_PROCESSOR)
+            .recipeType(SPACE_ORE_PROCESSOR)
             .appearanceBlock(CASING_TUNGSTENSTEEL_ROBUST)
             .pattern { definition: MultiblockMachineDefinition? ->
                 MultiBlockStructureE.SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR!!
@@ -1525,62 +1527,84 @@ object MultiBlockMachine {
             )
             .register()
 
-        MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER = if (ConfigHolder.INSTANCE.enableSkyBlokeMode)
-            REGISTRATE.multiblock(
-                "macro_atomic_resonant_fragment_stripper",
-                Function { MacroAtomicResonantFragmentStripper(it) })
-                .nonYAxisRotation()
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.0"))
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.1"))
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.2"))
-                .tooltipTextKey(Component.translatable("gtceu.machine.eut_multiplier.tooltip", 4))
-                .tooltipTextLaser()
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.base_parallel", Component.literal("1536").withStyle(ChatFormatting.GOLD)))
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.3"))
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.4"))
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.5"))
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.6"))
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.7"))
-                .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.8"))
-                .tooltipTextKey(Component.translatable("tooltip.gtlcore.structure.source", "TST"))
-                .tooltipTextRecipeTypes(STAR_CORE_STRIPPER)
-                .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
-                .recipeTypes(STAR_CORE_STRIPPER)
-                .appearanceBlock(HYPER_MECHANICAL_CASING)
-                .pattern { definition: MultiblockMachineDefinition? ->
-                    MultiBlockStructureE.MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER!!
-                        .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
-                        .where("A", Predicates.blocks(FUSION_GLASS.get()))
-                        .where("B", Predicates.blocks(QFT_COIL.get()))
-                        .where("C", Predicates.blocks(getBlock("kubejs:annihilate_core")))
-                        .where("D", Predicates.heatingCoils())
-                        .where("E", Predicates.blocks(ECHO_CASING.get()))
-                        .where("F", Predicates.blocks(getBlock("kubejs:dimensional_stability_casing")))
-                        .where("G", Predicates.blocks(HYPER_MECHANICAL_CASING.get()))
-                        .where("H", Predicates.blocks(FUSION_CASING_MK5.get()))
-                        .where("I", Predicates.blocks(SPS_CASING.get()))
-                        .where("J", Predicates.blocks(getBlock("kubejs:dyson_control_toroid")))
-                        .where("K", Predicates.blocks(getBlock("kubejs:dyson_receiver_casing")))
-                        .where("L", Predicates.blocks(getBlock("kubejs:dyson_control_casing")))
-                        .where("M", Predicates.blocks(getBlock("kubejs:dimensional_bridge_casing")))
-                        .where("N", Predicates.blocks(ChemicalHelper.getBlock(frameGt, QuantumChromodynamicallyConfinedMatter)))
-                        .where("O", Predicates.blocks(ChemicalHelper.getBlock(frameGt, Neutronium)))
-                        .where("Y", Predicates.blocks(HYPER_MECHANICAL_CASING.get())
-                                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS))
-                                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
-                                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS))
-                                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
-                                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2))
-                                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
-                        .where("Z", Predicates.blocks(HIGH_POWER_CASING.get()))
-                        .build()
+        MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER = REGISTRATE.multiblock(
+            "macro_atomic_resonant_fragment_stripper",
+            Function { MacroAtomicResonantFragmentStripper(it) })
+            .nonYAxisRotation()
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.0"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.1"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.2"))
+            .tooltipTextKey(Component.translatable("gtceu.machine.eut_multiplier.tooltip", 4))
+            .tooltipTextLaser()
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.3"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.4"))
+            .apply {
+                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                    tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.3"))
+                    tooltipTextKey(
+                        Component.translatable(
+                            "gtladditions.multiblock.base_parallel",
+                            Component.literal("1536").withStyle(ChatFormatting.GOLD)
+                        )
+                    )
+                    tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.5"))
+                    tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.6"))
+                    tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.7"))
+                    tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.8"))
                 }
-                .workableCasingRenderer(
-                    GTLCore.id("block/casings/hyper_mechanical_casing"),
-                    GTCEu.id("block/multiblock/fusion_reactor")
-                )
-                .register()
-        else null
+            }
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.tooltip.3"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.9"))
+            .tooltipTextKey(Component.translatable("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.10"))
+            .tooltipTextKey(Component.translatable("tooltip.gtlcore.structure.source", "TST"))
+            .apply {
+                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) tooltipTextRecipeTypes(STAR_CORE_STRIPPER, ELEMENT_COPYING_RECIPES)
+                else tooltipTextRecipeTypes(ELEMENT_COPYING_RECIPES)
+            }
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .apply {
+                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) recipeTypes(STAR_CORE_STRIPPER, ELEMENT_COPYING_RECIPES)
+                else recipeTypes(ELEMENT_COPYING_RECIPES)
+            }
+            .appearanceBlock(HYPER_MECHANICAL_CASING)
+            .pattern { definition: MultiblockMachineDefinition? ->
+                MultiBlockStructureE.MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER!!
+                    .where("~", Predicates.controller(Predicates.blocks(definition!!.get())))
+                    .where("A", Predicates.blocks(FUSION_GLASS.get()))
+                    .where("B", Predicates.blocks(QFT_COIL.get()))
+                    .where("C", Predicates.blocks(getBlock("kubejs:annihilate_core")))
+                    .where("D", Predicates.heatingCoils())
+                    .where("E", Predicates.blocks(ECHO_CASING.get()))
+                    .where("F", Predicates.blocks(getBlock("kubejs:dimensional_stability_casing")))
+                    .where("G", Predicates.blocks(HYPER_MECHANICAL_CASING.get()))
+                    .where("H", Predicates.blocks(FUSION_CASING_MK5.get()))
+                    .where("I", Predicates.blocks(SPS_CASING.get()))
+                    .where("J", Predicates.blocks(getBlock("kubejs:dyson_control_toroid")))
+                    .where("K", Predicates.blocks(getBlock("kubejs:dyson_receiver_casing")))
+                    .where("L", Predicates.blocks(getBlock("kubejs:dyson_control_casing")))
+                    .where("M", Predicates.blocks(getBlock("kubejs:dimensional_bridge_casing")))
+                    .where(
+                        "N",
+                        Predicates.blocks(ChemicalHelper.getBlock(frameGt, QuantumChromodynamicallyConfinedMatter))
+                    )
+                    .where("O", Predicates.blocks(ChemicalHelper.getBlock(frameGt, Neutronium)))
+                    .where(
+                        "Y", Predicates.blocks(HYPER_MECHANICAL_CASING.get())
+                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS))
+                            .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
+                            .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS))
+                            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
+                            .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2))
+                            .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
+                    )
+                    .where("Z", Predicates.blocks(HIGH_POWER_CASING.get()))
+                    .build()
+            }
+            .workableCasingRenderer(
+                GTLCore.id("block/casings/hyper_mechanical_casing"),
+                GTCEu.id("block/multiblock/fusion_reactor")
+            )
+            .register()
 
         REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_ITEMS }
     }

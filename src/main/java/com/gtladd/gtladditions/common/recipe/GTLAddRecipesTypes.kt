@@ -46,6 +46,7 @@ object GTLAddRecipesTypes {
     val MATTER_EXOTIC: GTRecipeType
     val INTER_STELLAR: GTRecipeType
     val NIGHTMARE_CRAFTING: GTRecipeType
+    val SPACE_ORE_PROCESSOR: GTRecipeType
 
     val FORGE_OF_THE_ANTICHRIST: GTRecipeType
     val QUANTUM_OSCILLATION: GTRecipeType
@@ -183,6 +184,11 @@ object GTLAddRecipesTypes {
             .setMaxTooltips(1)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.SCIENCE)
+        SPACE_ORE_PROCESSOR = GTRecipeTypes.register("space_ore_processor", GTRecipeTypes.MULTIBLOCK)
+            .setEUIO(IO.IN)
+            .setMaxIOSize(2, 9, 0, 0)
+            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+            .setSound(GTSoundEntries.MACERATOR)
         FORGE_OF_THE_ANTICHRIST = GTRecipeTypes.register("forge_of_the_antichrist", GTRecipeTypes.DUMMY)
             .setXEIVisible(false)
             .setSound(GTLAddSoundEntries.FORGE_OF_THE_ANTICHRIST)

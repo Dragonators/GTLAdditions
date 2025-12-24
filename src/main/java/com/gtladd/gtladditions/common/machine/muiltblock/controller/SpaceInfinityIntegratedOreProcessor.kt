@@ -1,6 +1,7 @@
 ﻿package com.gtladd.gtladditions.common.machine.muiltblock.controller
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
@@ -9,6 +10,9 @@ import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
+import org.gtlcore.gtlcore.common.data.GTLMaterials
+import org.gtlcore.gtlcore.utils.MachineIO
+import java.util.function.Predicate
 
 class SpaceInfinityIntegratedOreProcessor(holder: IMachineBlockEntity, vararg args: Any?) :
     GTLAddWorkableElectricMultipleRecipesMachine(
@@ -17,7 +21,7 @@ class SpaceInfinityIntegratedOreProcessor(holder: IMachineBlockEntity, vararg ar
     ) {
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
-        return InfinityIntegratedOreProcessorLogic(this)
+        return InfinityIntegratedOreProcessorLogic(this, BEFORE_RECIPE)
     }
 
     override fun getRecipeLogic(): InfinityIntegratedOreProcessorLogic {
@@ -46,8 +50,11 @@ class SpaceInfinityIntegratedOreProcessor(holder: IMachineBlockEntity, vararg ar
     }
 
     companion object {
-        class InfinityIntegratedOreProcessorLogic(parallel: SpaceInfinityIntegratedOreProcessor) :
-            GTLAddMultipleRecipesLogic(parallel) {
+        class InfinityIntegratedOreProcessorLogic(
+            parallel: SpaceInfinityIntegratedOreProcessor,
+            beforeWorking: Predicate<IRecipeLogicMachine>?
+        ) :
+            GTLAddMultipleRecipesLogic(parallel, beforeWorking) {
             override fun getMachine(): SpaceInfinityIntegratedOreProcessor {
                 return super.getMachine() as SpaceInfinityIntegratedOreProcessor
             }
@@ -60,6 +67,14 @@ class SpaceInfinityIntegratedOreProcessor(holder: IMachineBlockEntity, vararg ar
                     getMaxParallelForRecipe = ::getMaxParallel
                 )
             }
+        }
+
+        private val BEFORE_RECIPE = Predicate { machine: IRecipeLogicMachine ->
+            if (machine is SpaceInfinityIntegratedOreProcessor) return@Predicate MachineIO.inputFluid(
+                machine,
+                GTLMaterials.StellarEnergyRocketFuel.getFluid(100000)
+            )
+            false
         }
     }
 }

@@ -156,38 +156,6 @@ object SkyTearsAndGregHeart {
         newBuilder.save(provider)
     }
 
-    fun buildController(provider : Consumer<FinishedRecipe?>){
-        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("macro_atomic_resonant_fragment_stripper"))
-            .inputItems(LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE, 768)
-            .inputItems(CustomTags.OpV_CIRCUITS, 64)
-            .inputItems(CustomTags.OpV_CIRCUITS, 64)
-            .inputItems(LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE, 768)
-            .inputItems(getItemStack("kubejs:dark_matter", 64))
-            .inputItems(getItemStack("kubejs:dark_matter", 64))
-            .inputItems(getItemStack("kubejs:dark_matter", 64))
-            .inputItems(getItemStack("kubejs:dark_matter", 64))
-            .inputItems(getItemStack("kubejs:space_drone_mk5", 64))
-            .inputItems(COMPRESSED_FUSION_REACTOR[GTValues.UEV], 64)
-            .inputItems(RHENIUM_REINFORCED_ENERGY_GLASS, 48)
-            .inputItems(FIELD_GENERATOR_UXV, 32)
-            .inputItems(ROBOT_ARM_UXV, 48)
-            .inputItems(REALLY_ULTIMATE_BATTERY, 48)
-            .inputItems(getItemStack("kubejs:awakened_core", 64))
-            .inputItems(wireGtHex, NaquadriaticTaranium, 64)
-            .inputFluids(Starmetal.getFluid(14600))
-            .inputFluids(CelestialTungsten.getFluid(58900))
-            .inputFluids(Oganesson.getFluid(200000))
-            .inputFluids(UUMatter.getFluid(128000))
-            .outputItems(MultiBlockMachine.MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER!!)
-            .EUt(VA[UXV].toLong()).duration(9600)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE.asStack())
-                    .dataStack(TOOL_DATA_MODULE.asStack())
-                    .EUt(VA[UXV]).CWUt(2048, 4096000)
-            }
-            .save(provider)
-    }
-
     fun init(provider : Consumer<FinishedRecipe?>){
         if (!ConfigHolder.INSTANCE.enableSkyBlokeMode) return
         STAR_CORE_STRIPPER.recipeBuilder(id("for_stargate"))

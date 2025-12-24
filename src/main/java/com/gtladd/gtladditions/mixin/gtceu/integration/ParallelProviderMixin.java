@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponent;
+import static org.gtlcore.gtlcore.common.data.GTLRecipeTypes.ELEMENT_COPYING_RECIPES;
 
 @Mixin(ParallelProvider.class)
 public abstract class ParallelProviderMixin {
@@ -93,7 +94,7 @@ public abstract class ParallelProviderMixin {
                         if (!(workableElectricMultiblockMachine instanceof HelioFusionExoticizer))
                             compoundTag.putLong("threads", INFINITY_FEATURE);
                     } else if (workableElectricMultiblockMachine instanceof MacroAtomicResonantFragmentStripper atomic) {
-                        compoundTag.putLong("parallel", atomic.getRealParallel());
+                        compoundTag.putLong("parallel", atomic.getRecipeType() == ELEMENT_COPYING_RECIPES ? INFINITY_FEATURE : atomic.getRealParallel());
                         compoundTag.putLong("threads", INFINITY_FEATURE);
                     } else if (workableElectricMultiblockMachine instanceof SpaceInfinityIntegratedOreProcessor) {
                         compoundTag.putLong("parallel", INFINITY_FEATURE);

@@ -1,5 +1,7 @@
 package com.gtladd.gtladditions.mixin.gtceu.recipe;
 
+import org.gtlcore.gtlcore.utils.Registries;
+
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
@@ -12,7 +14,6 @@ import com.gregtechceu.gtceu.data.recipe.misc.RecyclingRecipes;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import com.gtladd.gtladditions.GTLAdditions;
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
@@ -38,7 +39,7 @@ public abstract class RecyclingRecipesMixin {
             if (ms != null && ms.material() != null) {
                 Material m = ms.material();
                 if (m.hasProperty(PropertyKey.FLUID) && m.getFluid() != null && prefix == TagPrefix.dust) {
-                    ResourceLocation itemPath = ForgeRegistries.ITEMS.getKey(input.getItem());
+                    ResourceLocation itemPath = Registries.getResourceKey(input);
                     GTRecipeBuilder builder = GTLAddRecipesTypes.MOLECULAR_DECONSTRUCTION.recipeBuilder(GTLAdditions.id("molecular_deconstruction_" + itemPath.getPath()))
                             .inputItems(TagPrefix.dust, m).outputFluids(m.getFluid(144L)).duration((int) Math.max(1L, ms.amount() * ms.material().getMass() / 4028800L))
                             .EUt((long) GTValues.VA[1] * (long) multiplier / 4L);

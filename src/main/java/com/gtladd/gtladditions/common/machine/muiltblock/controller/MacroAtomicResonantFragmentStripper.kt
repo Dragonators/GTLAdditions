@@ -5,17 +5,21 @@ import com.google.common.primitives.Ints
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.IAstralArrayInteractionMachine
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.data.ParallelData
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.STAR_CORE_STRIPPER
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
+import org.gtlcore.gtlcore.api.recipe.RecipeResult
+import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.ELEMENT_COPYING_RECIPES
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToLong
@@ -35,7 +39,7 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
 
     override fun needConfirmMEStock(): Boolean = true
 
-    override fun getMaxParallel(): Int = Ints.saturatedCast(parallelAmount)
+    override fun getMaxParallel(): Int = Ints.saturatedCast(getRealParallel())
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic {
         return MacroAtomicResonantFragmentStripperLogic(this)
@@ -88,8 +92,36 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
     companion object {
         const val MAX_ASTRAL_ARRAY_COUNT = 256
 
+        val FAIL_NO_ASTRAL_ARRAY: RecipeResult = RecipeResult.fail(
+            Component.translatable("gtladditions.recipe.fail.no.astral.array")
+        )
+
         val FRAGMENT_STRIPPER = Predicate { machine: IRecipeLogicMachine ->
-            return@Predicate if (machine is MacroAtomicResonantFragmentStripper) machine.coilType.coilTemperature >= 21600 else false
+            if (machine !is MacroAtomicResonantFragmentStripper) return@Predicate false
+
+            when (machine.recipeType) {
+                STAR_CORE_STRIPPER -> {
+                    (machine.coilType.coilTemperature >= 21600).also { passed ->
+                        if (!passed) RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_TEMPERATURE)
+                    }
+                }
+                ELEMENT_COPYING_RECIPES -> {
+                    val hasEternityCoil = machine.coilType.coilTemperature >= 96000
+                    val hasEnoughAstralArrays = machine.astralArrayCount >= MAX_ASTRAL_ARRAY_COUNT
+                    when {
+                        !hasEternityCoil -> {
+                            RecipeResult.of(machine, RecipeResult.FAIL_NO_ENOUGH_TEMPERATURE)
+                            false
+                        }
+                        !hasEnoughAstralArrays -> {
+                            RecipeResult.of(machine, FAIL_NO_ASTRAL_ARRAY)
+                            false
+                        }
+                        else -> true
+                    }
+                }
+                else -> false
+            }
         }
 
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder =
@@ -121,9 +153,16 @@ class MacroAtomicResonantFragmentStripper(holder: IMachineBlockEntity) :
 
             override fun calculateParallels(): ParallelData? {
                 val recipes = lookupRecipeIterator()
+                val getParallelLimitForRecipe: (GTRecipe) -> Long =
+                    if (getMachine().recipeType == STAR_CORE_STRIPPER) {
+                        { getMachine().getRealParallel() }
+                    } else {
+                        { Long.MAX_VALUE }
+                    }
+
                 return RecipeCalculationHelper.calculateParallelsWithProcessing(
                     recipes, machine,
-                    getParallelLimitForRecipe = { getMachine().parallelAmount },
+                    getParallelLimitForRecipe,
                     getMaxParallelForRecipe = ::getMaxParallel
                 )
             }

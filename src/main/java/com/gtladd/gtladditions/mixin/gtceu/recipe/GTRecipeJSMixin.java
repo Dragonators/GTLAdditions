@@ -1,10 +1,11 @@
 package com.gtladd.gtladditions.mixin.gtceu.recipe;
 
+import org.gtlcore.gtlcore.utils.Registries;
+
 import com.gregtechceu.gtceu.integration.kjs.recipe.GTRecipeSchema;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import dev.latvian.mods.kubejs.item.InputItem;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,8 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.Objects;
 
 @Mixin(GTRecipeSchema.GTRecipeJS.class)
 public abstract class GTRecipeJSMixin {
@@ -35,7 +34,7 @@ public abstract class GTRecipeJSMixin {
             Ingredient ingredient = stack.ingredient;
             ItemStack[] items = ingredient.getItems();
             if (items.length > 0) {
-                String itemId = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(items[0].getItem())).toString();
+                String itemId = Registries.getItemId(items[0]);
                 if ("kubejs:glacio_spirit".equals(itemId) && chance == 8000 && tierChanceBoost == 100) {
                     int lastChance = this.chance;
                     int lastTierChanceBoost = this.tierChanceBoost;

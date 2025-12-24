@@ -1,5 +1,7 @@
 package com.gtladd.gtladditions.common.modify
 
+import com.gregtechceu.gtceu.api.GTValues
+import com.gregtechceu.gtceu.api.GTValues.VA
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKey
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys.GAS
@@ -7,6 +9,7 @@ import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys.LIQUID
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient
 import com.gregtechceu.gtceu.common.data.GCyMRecipeTypes.ALLOY_BLAST_RECIPES
+import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gregtechceu.gtceu.common.data.GTMaterials.Helium
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.LASER_ENGRAVER_RECIPES
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.VACUUM_RECIPES
@@ -14,6 +17,7 @@ import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.CHAOTIC_ALCHEMY
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.PHOTON_MATRIX_ETCH
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.SPACE_ORE_PROCESSOR
 import com.gtladd.gtladditions.utils.TempChemicalHelper
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLMaterials.EuvPhotoresist
@@ -32,10 +36,11 @@ object RecipesModify {
         initPhotonMatrixEtch()
         initAntientropyCondensation()
         initChaoticAlchemy()
+        initSpaceOreProcessor()
         if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.init()
     }
 
-    private fun initAntientropyCondensation(){
+    private fun initAntientropyCondensation() {
         val liquidHeliumPredicate = createFluidPredicate(LIQUID)
         val gasHeliumPredicate = createFluidPredicate(GAS)
 
@@ -64,6 +69,7 @@ object RecipesModify {
                         val expectedTag = if (storageKey == LIQUID) "forge.liquid_helium" else "forge.gas_helium"
                         value.tag.location.toLanguageKey() == expectedTag
                     }
+
                     else -> {
                         value.fluids?.any { it.isSame(Helium.getFluid(storageKey)) } == true
                     }
@@ -72,7 +78,7 @@ object RecipesModify {
         }
     }
 
-    private fun initChaoticAlchemy(){
+    private fun initChaoticAlchemy() {
         ALLOY_BLAST_RECIPES.onRecipeBuild { recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe?> ->
             val chaoticRecipeBuilder = CHAOTIC_ALCHEMY
                 .copyFrom(recipeBuilder)
@@ -93,7 +99,7 @@ object RecipesModify {
         }
     }
 
-    private fun initPhotonMatrixEtch(){
+    private fun initPhotonMatrixEtch() {
         LASER_ENGRAVER_RECIPES.onRecipeBuild { recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe> ->
             if (recipeBuilder.output.containsKey(FluidRecipeCapability.CAP)) return@onRecipeBuild
             val photonBuilder = PHOTON_MATRIX_ETCH.copyFrom(recipeBuilder)
@@ -108,6 +114,16 @@ object RecipesModify {
                 dimensionalBuilder.inputFluids(Photoresist.getFluid(value.toLong()))
             }
             dimensionalBuilder.save(provider)
+        }
+    }
+
+    private fun initSpaceOreProcessor() {
+        INTEGRATED_ORE_PROCESSOR.onRecipeBuild { recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe> ->
+            val spaceBuilder = SPACE_ORE_PROCESSOR
+                .copyFrom(recipeBuilder)
+                .EUt(VA[GTValues.HV].toLong())
+            spaceBuilder.input[FluidRecipeCapability.CAP]?.clear()
+            spaceBuilder.save(provider)
         }
     }
 }

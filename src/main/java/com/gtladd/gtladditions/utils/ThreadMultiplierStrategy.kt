@@ -35,6 +35,7 @@ object ThreadMultiplierStrategy {
         MultiBlockMachineA.MATTER_FABRICATOR to 3,
         AdvancedMultiBlockMachine.CREATE_AGGREGATION to 16,
         AdvancedMultiBlockMachine.DOOR_OF_CREATE to 16,
+        AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER to 256,
         MultiBlockMachine.DRACONIC_COLLAPSE_CORE to 16,
         MultiBlockMachine.TITAN_CRIP_EARTHBORE to 2,
         MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE to 2
