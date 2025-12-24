@@ -136,7 +136,8 @@ object MutableMultiBlockModify {
 
         val mutableWithExtra = mutableMachines.keys + listOf(
             AdvancedMultiBlockMachine.CREATE_AGGREGATION,
-            AdvancedMultiBlockMachine.DOOR_OF_CREATE
+            AdvancedMultiBlockMachine.DOOR_OF_CREATE,
+            AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER
         )
         for (definition in mutableWithExtra) {
             addTooltips(

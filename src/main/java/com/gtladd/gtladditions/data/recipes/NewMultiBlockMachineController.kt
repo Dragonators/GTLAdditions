@@ -26,13 +26,13 @@ import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE
-import com.gtladd.gtladditions.common.modify.SkyTearsAndGregHeart
 import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_ENERGY_INPUT_HATCH
 import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_LASER_INPUT_HATCH
 import com.hepdd.gtmthings.data.CustomMachines.HUGE_INPUT_DUAL_HATCH
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix
 import org.gtlcore.gtlcore.common.data.GTLBlocks
+import org.gtlcore.gtlcore.common.data.GTLBlocks.RHENIUM_REINFORCED_ENERGY_GLASS
 import org.gtlcore.gtlcore.common.data.GTLItems.*
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES
@@ -43,6 +43,7 @@ import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.SLAUGH
 import org.gtlcore.gtlcore.common.data.machines.GCyMMachines.*
 import org.gtlcore.gtlcore.common.data.machines.GeneratorMachine.*
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA.*
+import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineB.LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
@@ -865,6 +866,47 @@ object NewMultiBlockMachineController {
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
             .save(provider)
-        if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.buildController(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("macro_atomic_resonant_fragment_stripper"))
+            .apply {
+                if (ConfigHolder.INSTANCE.enableSkyBlokeMode)
+                    inputItems(LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE, 768)
+                else
+                    inputItems(ELEMENT_COPYING, 64)
+            }
+            .inputItems(CustomTags.OpV_CIRCUITS, 64)
+            .inputItems(CustomTags.OpV_CIRCUITS, 64)
+            .apply {
+                if (ConfigHolder.INSTANCE.enableSkyBlokeMode)
+                    inputItems(ELEMENT_COPYING, 768)
+                else
+                    inputItems(ELEMENT_COPYING, 64)
+            }
+            .inputItems(getItemStack("kubejs:dark_matter", 64))
+            .inputItems(getItemStack("kubejs:dark_matter", 64))
+            .inputItems(getItemStack("kubejs:dark_matter", 64))
+            .inputItems(getItemStack("kubejs:dark_matter", 64))
+            .inputItems(getItemStack("kubejs:space_drone_mk5", 64))
+            .inputItems(COMPRESSED_FUSION_REACTOR[UEV], 64)
+            .inputItems(RHENIUM_REINFORCED_ENERGY_GLASS, 48)
+            .inputItems(FIELD_GENERATOR_UXV, 32)
+            .inputItems(ROBOT_ARM_UXV, 48)
+            .inputItems(REALLY_ULTIMATE_BATTERY, 48)
+            .inputItems(getItemStack("kubejs:awakened_core", 64))
+            .inputItems(wireGtHex, NaquadriaticTaranium, 64)
+            .inputFluids(Starmetal.getFluid(14600))
+            .inputFluids(CelestialTungsten.getFluid(58900))
+            .inputFluids(Oganesson.getFluid(200000))
+            .inputFluids(UUMatter.getFluid(128000))
+            .outputItems(MultiBlockMachine.MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER)
+            .EUt(VA[UXV].toLong()).duration(9600)
+            .stationResearch { b : StationRecipeBuilder? ->
+                b!!.researchStack(
+                    if (ConfigHolder.INSTANCE.enableSkyBlokeMode) LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE.asStack()
+                    else ELEMENT_COPYING.asStack()
+                )
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UXV]).CWUt(2048, 4096000)
+            }
+            .save(provider)
     }
 }

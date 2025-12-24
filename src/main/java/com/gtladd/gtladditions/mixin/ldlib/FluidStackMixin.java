@@ -1,13 +1,13 @@
 package com.gtladd.gtladditions.mixin.ldlib;
 
+import org.gtlcore.gtlcore.utils.Registries;
+
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,7 +27,7 @@ public abstract class FluidStackMixin {
      */
     @Overwrite(remap = false)
     public static FluidStack readFromBuf(FriendlyByteBuf buf) {
-        Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(buf.readUtf()));
+        Fluid fluid = Registries.getFluid(buf.readUtf());
         long amount = buf.readVarLong(); // ????????
         CompoundTag tag = buf.readNbt();
         if (fluid == Fluids.EMPTY) return EMPTY;

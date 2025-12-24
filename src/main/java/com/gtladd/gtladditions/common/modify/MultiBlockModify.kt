@@ -17,6 +17,7 @@ import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.CreateAggregation
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.DoorOfCreate
 import com.gtladd.gtladditions.common.machine.muiltblock.controller.MolecularAssemblerMultiblockMachine
+import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.AdvancedInfiniteDrillMachine
 import com.gtladd.gtladditions.common.modify.multiblockMachine.WorkableMultiBlock
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.network.chat.Component
@@ -152,7 +153,7 @@ object MultiBlockModify {
 
     fun init() {
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.patternFactory = SupplierMemoizer.memoize {
-            (WorkableMultiBlock.doorOfCreatePattern).apply(AdvancedMultiBlockMachine.DOOR_OF_CREATE)
+            (WorkableMultiBlock.DOOR_OF_CREATE).apply(AdvancedMultiBlockMachine.DOOR_OF_CREATE)
         }
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             DoorOfCreate(blockEntity)
@@ -162,7 +163,7 @@ object MultiBlockModify {
 
 
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.patternFactory = SupplierMemoizer.memoize {
-            (WorkableMultiBlock.createAggregation).apply(AdvancedMultiBlockMachine.CREATE_AGGREGATION)
+            (WorkableMultiBlock.CREATE_AGGREGATION).apply(AdvancedMultiBlockMachine.CREATE_AGGREGATION)
         }
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             CreateAggregation(blockEntity)
@@ -172,11 +173,18 @@ object MultiBlockModify {
 
 
         GTMachines.ACTIVE_TRANSFORMER.patternFactory = SupplierMemoizer.memoize {
-            (WorkableMultiBlock.activeTransformer).apply(GTMachines.ACTIVE_TRANSFORMER)
+            (WorkableMultiBlock.ACTIVE_TRANSFORMER).apply(GTMachines.ACTIVE_TRANSFORMER)
         }
 
         AdditionalMultiBlockMachine.MOLECULAR_ASSEMBLER_MATRIX.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             MolecularAssemblerMultiblockMachine(blockEntity)
+        }
+
+        AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.patternFactory = SupplierMemoizer.memoize {
+            (WorkableMultiBlock.ADVANCED_INFINITE_DRILLER).apply(AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER)
+        }
+        AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            AdvancedInfiniteDrillMachine(blockEntity)
         }
     }
 }
