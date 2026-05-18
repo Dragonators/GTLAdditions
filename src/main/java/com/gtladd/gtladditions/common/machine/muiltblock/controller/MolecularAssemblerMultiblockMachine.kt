@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Style
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.common.machine.trait.MolecularAssemblerRecipesLogic
+import org.gtlcore.gtlcore.mixin.gtm.api.recipe.RecipeLogicAccessor
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
 
 class MolecularAssemblerMultiblockMachine(holder: IMachineBlockEntity) :
@@ -40,6 +41,27 @@ class MolecularAssemblerMultiblockMachine(holder: IMachineBlockEntity) :
 
                     return
                 } else super.findAndHandleRecipe()
+            }
+
+            override fun onRecipeFinish() {
+                if (!isInfinityMode) {
+                    super.onRecipeFinish()
+                    return
+                }
+                if (this.lastRecipe != null) {
+                    getMachine().maHandler?.handleRecipeOutput(this.lastRecipe)
+
+                    val match = getMaxRecipe()
+                    if (match != null) {
+                        setupRecipe(match)
+                    } else {
+                        lastRecipe = null
+                        this.status = Status.IDLE
+                        this.progress = 0
+                        this.duration = 0
+                        (this as RecipeLogicAccessor).setIsActive(false)
+                    }
+                }
             }
 
             private fun getMaxRecipe(): GTRecipe? {
