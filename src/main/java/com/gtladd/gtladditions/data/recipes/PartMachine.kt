@@ -1,7 +1,10 @@
 package com.gtladd.gtladditions.data.recipes
 
+import appeng.core.definitions.AEBlocks
 import com.gregtechceu.gtceu.api.GTValues.*
+import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
+import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
 import com.gregtechceu.gtceu.common.data.GTItems.*
@@ -10,6 +13,7 @@ import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
+import com.gregtechceu.gtceu.data.recipe.VanillaRecipeHelper
 import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
@@ -62,6 +66,51 @@ object PartMachine {
                 b!!.researchStack(INTEGRATED_ORE_PROCESSOR.asStack())
                     .dataStack(TOOL_DATA_ORB.asStack())
                     .EUt(VA[ZPM]).CWUt(128)
+            }
+            .save(provider)
+        VanillaRecipeHelper.addShapedRecipe(
+            provider,
+            true,
+            id("vientiane_transcription_node"),
+            GTLAddMachines.VIENTIANE_TRANSCRIPTION_NODE.asStack(),
+            "ADA",
+            "CBC",
+            "EFE",
+            'A',
+            CustomTags.MAX_CIRCUITS,
+            'B',
+            FLUID_REGULATOR_MAX,
+            'C',
+            ChemicalHelper.get(wireFine, Shirabon),
+            'D',
+            GTMachines.HULL[14].asStack(),
+            'E',
+            EMITTER_MAX.asStack(),
+            'F',
+            GTLMachines.HEAT_SENSOR.asStack()
+        )
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("transmutation_bus"))
+            .inputItems(GTMachines.HULL[UIV])
+            .inputItems(GTLMachines.BLOCK_BUS.asStack(8))
+            .inputItems(GTLMachines.GTAEMachines.ME_EXTENDED_EXPORT_BUFFER.asStack(8))
+            .inputItems(AEBlocks.CHEST.stack(8))
+            .inputItems(CustomTags.UXV_CIRCUITS, 8)
+            .inputItems(ROBOT_ARM_UXV, 16)
+            .inputItems(FIELD_GENERATOR_UXV, 2)
+            .inputItems(gear, AstralTitanium, 8)
+            .inputItems(gear, CelestialTungsten, 8)
+            .inputItems(getItemStack("kubejs:wyvern_core", 16))
+            .inputFluids(Legendarium.getFluid(FluidStorageKeys.PLASMA, 5760))
+            .inputFluids(SuperMutatedLivingSolder.getFluid(1440))
+            .inputFluids(MetastableHassium.getFluid(FluidStorageKeys.LIQUID, 1152))
+            .inputFluids(MetastableOganesson.getFluid(1152))
+            .outputItems(GTLAddMachines.ME_BLOCK_CONVERSATION)
+            .EUt(VA[UIV].toLong())
+            .duration(4000)
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GTLMachines.BLOCK_BUS.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UXV]).CWUt(2048)
             }
             .save(provider)
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("super_parallel_hatch"))

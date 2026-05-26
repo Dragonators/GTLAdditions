@@ -41,6 +41,7 @@ categories:
 * [Space Scaling Instrument](space_scaling_instrument.md)
 * [Subspace Corridor Hub](subspace_corridor_hub_industrial_array.md)
 * [Nexus Satellite Factory](nexus_satellite_factory.md)
+* [Macro Atomic Resonant Fragment Stripper](macro_atomic_resonant_fragment_stripper.md)
 
 ## <Color color="#0000FF">**OpV**</Color>
 
@@ -58,4 +59,3 @@ categories:
 * [Helio Forge Modules](helio_forge_modules.md)
 * [Heart of the Universe](heart_of_the_universe.md)
 * [Dimension Focus Infinity Crafting Array](dimension_focus_infinity_crafting_array.md)
-* [Macro Atomic Resonant Fragment Stripper](macro_atomic_resonant_fragment_stripper.md)
