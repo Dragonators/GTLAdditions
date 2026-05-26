@@ -11,6 +11,8 @@ import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipeMachine
 import com.gtladd.gtladditions.api.machine.gui.LimitedDurationConfigurator
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.utils.CommonUtils
+import com.gtladd.gtladditions.utils.ComponentExtensions.literal
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.ChatFormatting
@@ -26,29 +28,22 @@ import org.gtlcore.gtlcore.utils.NumberUtils
 import kotlin.math.max
 
 open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEntity, vararg args: Any?) :
-    WorkableElectricMultipleRecipesMachine(holder, *args), IGTLAddMultiRecipeMachine {
+    WorkableElectricMultipleRecipesMachine(holder, *args),
+    IGTLAddMultiRecipeMachine {
     @field:Persisted(key = "drLimit")
     private var limitedDuration = 20
 
-    override fun getFieldHolder(): ManagedFieldHolder {
-        return MANAGED_FIELD_HOLDER
-    }
+    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
-    public override fun createRecipeLogic(vararg args: Any): RecipeLogic {
-        return GTLAddMultipleRecipesLogic(this)
-    }
+    public override fun createRecipeLogic(vararg args: Any): RecipeLogic = GTLAddMultipleRecipesLogic(this)
 
-    override fun getRecipeLogic(): GTLAddMultipleRecipesLogic {
-        return super.getRecipeLogic() as GTLAddMultipleRecipesLogic
-    }
+    override fun getRecipeLogic(): GTLAddMultipleRecipesLogic = super.getRecipeLogic() as GTLAddMultipleRecipesLogic
 
     override fun setLimitedDuration(duration: Int) {
         if (duration != limitedDuration) limitedDuration = duration
     }
 
-    override fun getLimitedDuration(): Int {
-        return this.limitedDuration
-    }
+    override fun getLimitedDuration(): Int = this.limitedDuration
 
     override fun needConfirmMEStock(): Boolean = false
 
@@ -56,9 +51,7 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
     // GUI SYSTEM
     // ========================================
 
-    protected open fun createConfigurators(): IFancyConfigurator? {
-        return LimitedDurationConfigurator(this)
-    }
+    protected open fun createConfigurators(): IFancyConfigurator? = LimitedDurationConfigurator(this)
 
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
         super.attachConfigurators(configuratorPanel)
@@ -86,13 +79,13 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
             }
         } else {
             textList.add(
-                Component.translatable("gtceu.multiblock.invalid_structure")
+                "gtceu.multiblock.invalid_structure".toComponent
                     .withStyle(
                         Style.EMPTY.withColor(ChatFormatting.RED)
                             .withHoverEvent(
                                 HoverEvent(
                                     HoverEvent.Action.SHOW_TEXT,
-                                    Component.translatable("gtceu.multiblock.invalid_structure.tooltip")
+                                    "gtceu.multiblock.invalid_structure.tooltip".toComponent
                                         .withStyle(ChatFormatting.GRAY)
                                 )
                             )
@@ -116,38 +109,33 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
 
             // Max energy per tick
             textList.add(
-                Component.translatable(
-                    "gtceu.multiblock.max_energy_per_tick",
-                    CommonUtils.formatBigIntegerFixed(totalEu),
-                    Component.literal(NewGTValues.VNF[energyTier])
-                )
+                "gtceu.multiblock.max_energy_per_tick".toComponent(CommonUtils.formatBigIntegerFixed(totalEu), NewGTValues.VNF[energyTier].literal)
                     .withStyle(ChatFormatting.GRAY)
                     .withStyle {
                         it.withHoverEvent(
                             HoverEvent(
                                 HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("gtceu.multiblock.max_energy_per_tick_hover")
+                                "gtceu.multiblock.max_energy_per_tick_hover".toComponent
                                     .withStyle(ChatFormatting.GRAY)
                             )
                         )
-                    })
+                    }
+            )
 
             // Max recipe tier
             textList.add(
-                Component.translatable(
-                    "gtceu.multiblock.max_recipe_tier",
-                    Component.literal(GTValues.VNF[energyTier.coerceAtMost(14)])
-                )
+                "gtceu.multiblock.max_recipe_tier".toComponent(GTValues.VNF[energyTier.coerceAtMost(14)].literal)
                     .withStyle(ChatFormatting.GRAY)
                     .withStyle {
                         it.withHoverEvent(
                             HoverEvent(
                                 HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("gtceu.multiblock.max_recipe_tier_hover")
+                                "gtceu.multiblock.max_recipe_tier_hover".toComponent
                                     .withStyle(ChatFormatting.GRAY)
                             )
                         )
-                    })
+                    }
+            )
 
             return@addEnergyDisplay
         }
@@ -156,50 +144,52 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
         if (energyContainer != null && energyContainer.energyCapacity > 0) {
             val maxVoltage = max(energyContainer.inputVoltage, energyContainer.outputVoltage)
             textList.add(
-                Component.translatable(
-                    "gtceu.multiblock.max_energy_per_tick",
+                "gtceu.multiblock.max_energy_per_tick".toComponent(
                     FormattingUtil.formatNumbers(maxVoltage),
-                    Component.literal(
-                        NewGTValues.VNF[if (maxVoltage == Long.MAX_VALUE) GTValues.MAX_TRUE else NumberUtils.getFakeVoltageTier(
-                            maxVoltage
-                        )]
-                    )
+                    NewGTValues.VNF[
+                        if (maxVoltage == Long.MAX_VALUE) {
+                            GTValues.MAX_TRUE
+                        } else {
+                            NumberUtils.getFakeVoltageTier(
+                                maxVoltage
+                            )
+                        }
+                    ].literal
                 )
                     .withStyle(ChatFormatting.GRAY)
                     .withStyle {
                         it.withHoverEvent(
                             HoverEvent(
                                 HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("gtceu.multiblock.max_energy_per_tick_hover")
+                                "gtceu.multiblock.max_energy_per_tick_hover".toComponent
                                     .withStyle(ChatFormatting.GRAY)
                             )
                         )
-                    })
+                    }
+            )
         }
 
         // Max recipe tier
         if (tier >= GTValues.ULV) {
             textList.add(
-                Component.translatable(
-                    "gtceu.multiblock.max_recipe_tier",
-                    Component.literal(GTValues.VNF[tier.coerceAtMost(14)])
-                )
+                "gtceu.multiblock.max_recipe_tier".toComponent(GTValues.VNF[tier.coerceAtMost(14)].literal)
                     .withStyle(ChatFormatting.GRAY)
                     .withStyle {
                         it.withHoverEvent(
                             HoverEvent(
                                 HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("gtceu.multiblock.max_recipe_tier_hover")
+                                "gtceu.multiblock.max_recipe_tier_hover".toComponent
                                     .withStyle(ChatFormatting.GRAY)
                             )
                         )
-                    })
+                    }
+            )
         }
     }
 
     protected open fun addMachineModeDisplay(textList: MutableList<Component?>) {
         textList.add(
-            Component.translatable("gtceu.gui.machinemode", Component.translatable(recipeType.registryName.toLanguageKey()))
+            "gtceu.gui.machinemode".toComponent(recipeType.registryName.toLanguageKey().toComponent)
                 .withStyle(ChatFormatting.AQUA)
         )
     }
@@ -207,38 +197,32 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
     protected open fun addParallelDisplay(textList: MutableList<Component?>) {
         if (maxParallel > 1) {
             textList.add(
-                Component.translatable(
-                    "gtceu.multiblock.parallel",
-                    Component.literal(FormattingUtil.formatNumbers(maxParallel)).withStyle(ChatFormatting.DARK_PURPLE)
-                ).withStyle(ChatFormatting.GRAY)
+                "gtceu.multiblock.parallel".toComponent(FormattingUtil.formatNumbers(maxParallel).literal.withStyle(ChatFormatting.DARK_PURPLE)).withStyle(ChatFormatting.GRAY)
             )
         }
-        if(getRecipeLogic().getMultipleThreads() > 1) {
+        if (getRecipeLogic().getMultipleThreads() > 1) {
             textList.add(
-                Component.translatable(
-                    "gtladditions.multiblock.threads",
-                    Component.literal(FormattingUtil.formatNumbers(getRecipeLogic().getMultipleThreads())).withStyle(ChatFormatting.GOLD)
-                ).withStyle(ChatFormatting.GRAY)
+                "gtladditions.multiblock.threads".toComponent((FormattingUtil.formatNumbers(getRecipeLogic().getMultipleThreads())).literal.withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY)
             )
         }
     }
 
     protected open fun addWorkingStatus(textList: MutableList<Component?>) {
         when {
-            !isWorkingEnabled -> textList.add(Component.translatable("gtceu.multiblock.work_paused").withStyle(ChatFormatting.GOLD))
+            !isWorkingEnabled -> textList.add("gtceu.multiblock.work_paused".toComponent.withStyle(ChatFormatting.GOLD))
 
             isActive -> {
-                textList.add(Component.translatable("gtceu.multiblock.running").withStyle(ChatFormatting.GREEN))
-                textList.add(Component.translatable("gtceu.multiblock.progress", (recipeLogic.progressPercent * 100).toInt()))
+                textList.add("gtceu.multiblock.running".toComponent.withStyle(ChatFormatting.GREEN))
+                textList.add("gtceu.multiblock.progress".toComponent((recipeLogic.progressPercent * 100).toInt()))
             }
 
-            else -> textList.add(Component.translatable("gtceu.multiblock.idling"))
+            else -> textList.add("gtceu.multiblock.idling".toComponent)
         }
     }
 
     protected open fun addRecipeLockDisplay(textList: MutableList<Component?>, iLockRecipe: ILockRecipe) {
         val text = if (iLockRecipe.isLock && iLockRecipe.lockRecipe != null) {
-            Component.translatable("gui.gtlcore.recipe_lock.recipe").withStyle {
+            "gui.gtlcore.recipe_lock.recipe".toComponent.withStyle {
                 it.withHoverEvent(
                     HoverEvent(
                         HoverEvent.Action.SHOW_TEXT,
@@ -248,7 +232,7 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
                 )
             }
         } else {
-            Component.translatable("gui.gtlcore.recipe_lock.no_recipe")
+            "gui.gtlcore.recipe_lock.no_recipe".toComponent
         }
         textList.add(text)
     }

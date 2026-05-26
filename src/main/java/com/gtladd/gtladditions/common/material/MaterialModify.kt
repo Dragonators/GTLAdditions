@@ -1,0 +1,68 @@
+﻿package com.gtladd.gtladditions.common.material
+
+import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.*
+import com.gregtechceu.gtceu.api.fluids.FluidBuilder
+import com.gregtechceu.gtceu.api.fluids.FluidState
+import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
+import com.gregtechceu.gtceu.common.data.GTMaterials
+import com.gregtechceu.gtceu.common.data.GTMaterials.Germanium
+import com.gregtechceu.gtceu.common.data.GTMaterials.Rhenium
+import com.gregtechceu.gtceu.common.data.GTMaterials.Technetium
+import org.gtlcore.gtlcore.api.data.chemical.material.info.GTLMaterialFlags
+import org.gtlcore.gtlcore.common.data.GTLMaterials
+
+object MaterialModify {
+    init {
+        GTLMaterials.TranscendentMetal.addFlags(MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_DENSE)
+        GTLMaterials.AttunedTengam.addFlags(MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_RING)
+        GTLMaterials.AstralTitanium.addFlags(MaterialFlags.GENERATE_FRAME)
+        GTLMaterials.Hypogen.addFlags(
+            MaterialFlags.GENERATE_BOLT_SCREW,
+            MaterialFlags.GENERATE_FRAME,
+            MaterialFlags.GENERATE_DENSE,
+            MaterialFlags.GENERATE_LONG_ROD
+        )
+        GTLMaterials.MetastableOganesson.addFlags(MaterialFlags.GENERATE_DENSE)
+        GTLMaterials.Infinity.addFlags(MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.BlackDwarfMatter.addFlags(MaterialFlags.GENERATE_DENSE)
+        GTLMaterials.DraconiumAwakened.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.Legendarium.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.TitanPrecisionSteel.addFlags(MaterialFlags.GENERATE_FRAME)
+        GTLMaterials.CosmicNeutronium.addFlags(MaterialFlags.GENERATE_DENSE)
+        GTLMaterials.AbyssalAlloy.addFlags(MaterialFlags.GENERATE_FRAME)
+        GTLMaterials.Periodicium.addFlags(MaterialFlags.GENERATE_ROD)
+        GTLMaterials.Echoite.addFlags(MaterialFlags.GENERATE_GEAR, MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.NaquadriaticTaranium.addFlags(MaterialFlags.GENERATE_DENSE)
+        GTLMaterials.Cosmic.addFlags(MaterialFlags.GENERATE_DENSE, GTLMaterialFlags.GENERATE_NANOSWARM)
+        GTLMaterials.Eternity.addFlags(MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.Shirabon.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.Chaos.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.MagnetohydrodynamicallyConstrainedStarMatter.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.WhiteDwarfMatter.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.BlackDwarfMatter.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+        GTLMaterials.SpaceTime.addFlags(MaterialFlags.GENERATE_LONG_ROD)
+
+        Technetium.setProperty(PropertyKey.FLUID, FluidProperty(FluidStorageKeys.LIQUID, FluidBuilder()))
+        Rhenium.setProperty(PropertyKey.FLUID, FluidProperty(FluidStorageKeys.LIQUID, FluidBuilder()))
+        Germanium.setProperty(PropertyKey.FLUID, FluidProperty(FluidStorageKeys.LIQUID, FluidBuilder()))
+        GTLMaterials.Cosmic.setProperty(
+            PropertyKey.FLUID,
+            FluidProperty(FluidStorageKeys.LIQUID, FluidBuilder().customStill())
+        )
+        GTLMaterials.Eternity.setProperty(
+            PropertyKey.WIRE,
+            WireProperties(Int.MAX_VALUE, 4194304, 0, true)
+        )
+        GTLMaterials.MetastableOganesson.setProperty(PropertyKey.INGOT, IngotProperty())
+        GTMaterials.Plutonium241.getProperty(PropertyKey.FLUID)
+            .enqueueRegistration(FluidStorageKeys.PLASMA, (FluidBuilder()).state(FluidState.PLASMA))
+        GTLMaterials.TranscendentMetal.setProperty(
+            PropertyKey.FLUID_PIPE,
+            FluidPipeProperties(Int.MAX_VALUE, Int.MAX_VALUE.toLong(), true, true, true, true)
+        )
+    }
+
+    fun init() {
+    }
+}

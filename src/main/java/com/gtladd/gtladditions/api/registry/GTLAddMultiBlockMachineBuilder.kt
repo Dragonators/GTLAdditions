@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType
 import com.gregtechceu.gtceu.api.registry.registrate.MultiblockMachineBuilder
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
@@ -34,58 +35,34 @@ class GTLAddMultiBlockMachineBuilder private constructor(
     blockEntityFactory
 ) {
 
-    fun allRotation(): GTLAddMultiBlockMachineBuilder {
-        return super.rotationState(RotationState.ALL) as GTLAddMultiBlockMachineBuilder
-    }
+    fun allRotation(): GTLAddMultiBlockMachineBuilder = super.rotationState(RotationState.ALL) as GTLAddMultiBlockMachineBuilder
 
-    fun nonYAxisRotation(): GTLAddMultiBlockMachineBuilder {
-        return super.rotationState(RotationState.NON_Y_AXIS).allowExtendedFacing(false) as GTLAddMultiBlockMachineBuilder
-    }
+    fun nonYAxisRotation(): GTLAddMultiBlockMachineBuilder = super.rotationState(RotationState.NON_Y_AXIS).allowExtendedFacing(false) as GTLAddMultiBlockMachineBuilder
 
-    fun noneRotation(): GTLAddMultiBlockMachineBuilder {
-        return super.rotationState(RotationState.NONE).allowExtendedFacing(false).allowFlip(false) as GTLAddMultiBlockMachineBuilder
-    }
+    fun noneRotation(): GTLAddMultiBlockMachineBuilder = super.rotationState(RotationState.NONE).allowExtendedFacing(false).allowFlip(false) as GTLAddMultiBlockMachineBuilder
 
-    fun tooltipTextKey(key: Component): GTLAddMultiBlockMachineBuilder {
-        return super.tooltips(key) as GTLAddMultiBlockMachineBuilder
-    }
+    fun tooltipTextKey(vararg key: Component): GTLAddMultiBlockMachineBuilder = super.tooltips(*key) as GTLAddMultiBlockMachineBuilder
 
-    fun tooltipTextMaxParallels(parallel: Any): GTLAddMultiBlockMachineBuilder {
-        return super.tooltips(Component.translatable("gtceu.multiblock.max_parallel", parallel)) as GTLAddMultiBlockMachineBuilder
-    }
+    fun tooltipTextMaxParallels(parallel: Any): GTLAddMultiBlockMachineBuilder = super.tooltips("gtceu.multiblock.max_parallel".toComponent(parallel)) as GTLAddMultiBlockMachineBuilder
 
     fun tooltipTextRecipeTypes(vararg recipeTypes: GTRecipeType): GTLAddMultiBlockMachineBuilder {
-        val components = recipeTypes.map { Component.translatable(it.registryName.toLanguageKey()) }.toTypedArray()
-        return super.tooltips(Component.translatable("gtceu.machine.available_recipe_map_${recipeTypes.size}.tooltip", *components)) as GTLAddMultiBlockMachineBuilder
+        val components = recipeTypes.map { it.registryName.toLanguageKey().toComponent }.toTypedArray()
+        return super.tooltips("gtceu.machine.available_recipe_map_${recipeTypes.size}.tooltip".toComponent(*components)) as GTLAddMultiBlockMachineBuilder
     }
 
-    fun tooltipTextCoilParallel(): GTLAddMultiBlockMachineBuilder {
-        return super.tooltips(Component.translatable("gtceu.multiblock.coil_parallel")) as GTLAddMultiBlockMachineBuilder
-    }
+    fun tooltipTextCoilParallel(): GTLAddMultiBlockMachineBuilder = super.tooltips("gtceu.multiblock.coil_parallel".toComponent) as GTLAddMultiBlockMachineBuilder
 
-    fun tooltipTextLaser(): GTLAddMultiBlockMachineBuilder {
-        return super.tooltips(Component.translatable("gtceu.multiblock.laser.tooltip")) as GTLAddMultiBlockMachineBuilder
-    }
+    fun tooltipTextLaser(): GTLAddMultiBlockMachineBuilder = super.tooltips("gtceu.multiblock.laser.tooltip".toComponent) as GTLAddMultiBlockMachineBuilder
 
-    fun tooltipOnlyTextLaser(): GTLAddMultiBlockMachineBuilder {
-        return super.tooltips(Component.translatable("gtceu.multiblock.only.laser.tooltip")) as GTLAddMultiBlockMachineBuilder
-    }
+    fun tooltipOnlyTextLaser(): GTLAddMultiBlockMachineBuilder = super.tooltips("gtceu.multiblock.only.laser.tooltip".toComponent) as GTLAddMultiBlockMachineBuilder
 
-    fun tooltipTextMultiRecipes(): GTLAddMultiBlockMachineBuilder {
-        return super.tooltips(Component.translatable("gtceu.machine.multiple_recipes.tooltip")) as GTLAddMultiBlockMachineBuilder
-    }
+    fun tooltipTextMultiRecipes(): GTLAddMultiBlockMachineBuilder = super.tooltips("gtceu.machine.multiple_recipes.tooltip".toComponent) as GTLAddMultiBlockMachineBuilder
 
-    fun tooltipTextParallelHatch(): GTLAddMultiBlockMachineBuilder {
-        return super.tooltips(Component.translatable("gtceu.multiblock.parallelizable.tooltip")) as GTLAddMultiBlockMachineBuilder
-    }
+    fun tooltipTextParallelHatch(): GTLAddMultiBlockMachineBuilder = super.tooltips("gtceu.multiblock.parallelizable.tooltip".toComponent) as GTLAddMultiBlockMachineBuilder
 
-    fun tooltipTextPerfectOverclock(): GTLAddMultiBlockMachineBuilder {
-        return super.tooltips(Component.translatable("gtceu.machine.perfect_oc")) as GTLAddMultiBlockMachineBuilder
-    }
+    fun tooltipTextPerfectOverclock(): GTLAddMultiBlockMachineBuilder = super.tooltips("gtceu.machine.perfect_oc".toComponent) as GTLAddMultiBlockMachineBuilder
 
-    fun coilParallelDisplay(): GTLAddMultiBlockMachineBuilder {
-        return super.additionalDisplay(GTLMachines.MULTIPLERECIPES_COIL_PARALLEL) as GTLAddMultiBlockMachineBuilder
-    }
+    fun coilParallelDisplay(): GTLAddMultiBlockMachineBuilder = super.additionalDisplay(GTLMachines.MULTIPLERECIPES_COIL_PARALLEL) as GTLAddMultiBlockMachineBuilder
 
     companion object {
         fun createMulti(
@@ -94,8 +71,6 @@ class GTLAddMultiBlockMachineBuilder private constructor(
             blockFactory: BiFunction<BlockBehaviour.Properties, MultiblockMachineDefinition, IMachineBlock>,
             itemFactory: BiFunction<IMachineBlock, Item.Properties, MetaMachineItem>,
             blockEntityFactory: TriFunction<BlockEntityType<*>, BlockPos, BlockState, IMachineBlockEntity>
-        ): GTLAddMultiBlockMachineBuilder {
-            return GTLAddMultiBlockMachineBuilder(name, metaMachine, blockFactory, itemFactory, blockEntityFactory)
-        }
+        ): GTLAddMultiBlockMachineBuilder = GTLAddMultiBlockMachineBuilder(name, metaMachine, blockFactory, itemFactory, blockEntityFactory)
     }
 }

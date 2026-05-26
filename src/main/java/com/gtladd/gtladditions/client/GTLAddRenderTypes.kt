@@ -7,10 +7,17 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
+@Suppress("INFERRED_INVISIBLE_RETURN_TYPE_WARNING")
 @OnlyIn(Dist.CLIENT)
 class GTLAddRenderTypes(
-    name: String, format: VertexFormat, mode: VertexFormat.Mode, bufferSize: Int,
-    affectsCrumbling: Boolean, sortOnUpload: Boolean, setupState: Runnable, clearState: Runnable
+    name: String,
+    format: VertexFormat,
+    mode: VertexFormat.Mode,
+    bufferSize: Int,
+    affectsCrumbling: Boolean,
+    sortOnUpload: Boolean,
+    setupState: Runnable,
+    clearState: Runnable
 ) : RenderType(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setupState, clearState) {
 
     companion object {

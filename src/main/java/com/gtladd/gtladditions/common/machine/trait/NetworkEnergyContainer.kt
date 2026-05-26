@@ -7,7 +7,7 @@ import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableRecipeHandlerTrait
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
-import com.gtladd.gtladditions.common.machine.muiltblock.part.WirelessEnergyNetworkTerminalPartMachineBase
+import com.gtladd.gtladditions.common.machine.multiblock.part.WirelessEnergyNetworkTerminalPartMachineBase
 import com.hepdd.gtmthings.api.misc.WirelessEnergyManager
 import net.minecraft.core.Direction
 import org.gtlcore.gtlcore.api.capability.IInt128EnergyContainer
@@ -17,7 +17,9 @@ import org.gtlcore.gtlcore.utils.datastructure.Int128
 class NetworkEnergyContainer(
     machine: WirelessEnergyNetworkTerminalPartMachineBase,
     private val handlerIO: IO
-) : NotifiableRecipeHandlerTrait<Long>(machine), IEnergyContainer, IInt128EnergyContainer {
+) : NotifiableRecipeHandlerTrait<Long>(machine),
+    IEnergyContainer,
+    IInt128EnergyContainer {
 
     private val energyCapacity: Long = Long.MAX_VALUE
     private val inputVoltage: Long
@@ -60,9 +62,7 @@ class NetworkEnergyContainer(
         }
     }
 
-    override fun getMachine(): WirelessEnergyNetworkTerminalPartMachineBase {
-        return super.getMachine() as WirelessEnergyNetworkTerminalPartMachineBase
-    }
+    override fun getMachine(): WirelessEnergyNetworkTerminalPartMachineBase = super.getMachine() as WirelessEnergyNetworkTerminalPartMachineBase
 
     override fun onMachineLoad() {
         super.onMachineLoad()
@@ -123,14 +123,12 @@ class NetworkEnergyContainer(
         return if (sum <= 0) null else listOf(sum)
     }
 
-    override fun getEnergyStored(): Long {
-        return if (handlerIO == IO.IN) {
-            getMachine().uuid?.let { uuid ->
-                NumberUtils.getLongValue(WirelessEnergyManager.getUserEU(uuid))
-            } ?: 0
-        } else {
-            0
-        }
+    override fun getEnergyStored(): Long = if (handlerIO == IO.IN) {
+        getMachine().uuid?.let { uuid ->
+            NumberUtils.getLongValue(WirelessEnergyManager.getUserEU(uuid))
+        } ?: 0
+    } else {
+        0
     }
 
     override fun getEnergyCapacity(): Long = energyCapacity
@@ -174,5 +172,5 @@ class NetworkEnergyContainer(
 
     override fun outputsEnergy(side: Direction): Boolean = false
 
-    override fun getHandlerIO(): IO?  = handlerIO
+    override fun getHandlerIO(): IO? = handlerIO
 }

@@ -62,8 +62,11 @@ object BiologicalSimulation {
             id(item.name + (if (sword.damage > 10) "_1" else (if (sword.damage > 0) "_2" else "_3")))
         ).notConsumable(getItemStack("minecraft:" + item.name + "_spawn_egg"))
             .notConsumable(getItemStack("kubejs:" + item.data + "_data"))
-        if (sword.name == "avaritia:infinity_sword") builder.notConsumable(getItemStack(sword.name))
-        else builder.chancedInput(getItemStack(sword.name), sword.damage, 0)
+        if (sword.name == "avaritia:infinity_sword") {
+            builder.notConsumable(getItemStack(sword.name))
+        } else {
+            builder.chancedInput(getItemStack(sword.name), sword.damage, 0)
+        }
         builder.inputFluids(Biomass.getFluid((1000 / sword.factor).toLong()))
         addOutputItems(builder, item, sword)
         builder.EUt(VA[item.eut].toLong()).duration(400 / sword.factor).save(provider)

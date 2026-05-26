@@ -21,7 +21,9 @@ import net.minecraft.world.inventory.InventoryMenu
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-open class OverlayHullMachineRenderer : MachineRenderer, IPartRenderer {
+open class OverlayHullMachineRenderer :
+    MachineRenderer,
+    IPartRenderer {
 
     protected val overlayModel: IModelRenderer
 
@@ -31,11 +33,13 @@ open class OverlayHullMachineRenderer : MachineRenderer, IPartRenderer {
         side: ResourceLocation,
         overlayModel: ResourceLocation
     ) : super(GTCEu.id("block/machine/hull_machine")) {
-        setTextureOverride(mapOf(
-            "bottom" to bottom,
-            "top" to top,
-            "side" to side
-        ))
+        setTextureOverride(
+            mapOf(
+                "bottom" to bottom,
+                "top" to top,
+                "side" to side
+            )
+        )
         this.overlayModel = IModelRenderer(overlayModel)
     }
 
@@ -43,11 +47,13 @@ open class OverlayHullMachineRenderer : MachineRenderer, IPartRenderer {
         res: ResourceLocation,
         overlayModel: ResourceLocation
     ) : super(GTCEu.id("block/machine/hull_machine")) {
-        setTextureOverride(mapOf(
-            "bottom" to res,
-            "top" to res,
-            "side" to res
-        ))
+        setTextureOverride(
+            mapOf(
+                "bottom" to res,
+                "top" to res,
+                "side" to res
+            )
+        )
         this.overlayModel = IModelRenderer(overlayModel)
     }
 

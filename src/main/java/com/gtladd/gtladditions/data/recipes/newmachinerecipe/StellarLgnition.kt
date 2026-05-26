@@ -11,7 +11,7 @@ import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import java.util.function.Consumer
 
 object StellarLgnition {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         addRecipe(Argon, 36000, provider)
         addRecipe(Helium, 36000, provider)
         addRecipe(Iron, 52000, provider)
@@ -28,7 +28,7 @@ object StellarLgnition {
         addRecipe(Plutonium241, 48000, provider)
     }
 
-    private fun addRecipe(material : Material, temperature : Int, provider : Consumer<FinishedRecipe?>) {
+    private fun addRecipe(material: Material, temperature: Int, provider: Consumer<FinishedRecipe?>) {
         GTLAddRecipesTypes.STELLAR_LGNITION.recipeBuilder(GTLAdditions.id(material.name))
             .circuitMeta(1)
             .inputFluids(material.getFluid(10000))

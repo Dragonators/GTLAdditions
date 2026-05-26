@@ -4,7 +4,8 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.HeartOfTheUniverse
+import com.gtladd.gtladditions.client.render.withPose
+import com.gtladd.gtladditions.common.machine.multiblock.controller.HeartOfTheUniverse
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
@@ -21,10 +22,11 @@ import org.gtlcore.gtlcore.utils.RenderUtil
 import java.util.function.Consumer
 import kotlin.math.sin
 
-class HeartOfTheUniverseRenderer : WorkableCasingMachineRenderer(
-    GTCEu.id("block/casings/hpca/high_power_casing"),
-    GTCEu.id("block/multiblock/cosmos_simulation")
-) {
+class HeartOfTheUniverseRenderer :
+    WorkableCasingMachineRenderer(
+        GTCEu.id("block/casings/hpca/high_power_casing"),
+        GTCEu.id("block/multiblock/cosmos_simulation")
+    ) {
 
     @OnlyIn(Dist.CLIENT)
     override fun render(
@@ -84,28 +86,35 @@ class HeartOfTheUniverseRenderer : WorkableCasingMachineRenderer(
             y: Double,
             z: Double
         ) {
-            poseStack.pushPose()
-            poseStack.translate(x, y, z)
+            poseStack.withPose {
+                translate(x, y, z)
 
-            val heartbeatScale = calculateHeartbeatScale(tick)
-            poseStack.scale(heartbeatScale, heartbeatScale, heartbeatScale)
+                val heartbeatScale = calculateHeartbeatScale(tick)
+                scale(heartbeatScale, heartbeatScale, heartbeatScale)
 
-            val rotation = RenderUtils.createRandomRotation(RandomSource.create(randomSeed), 0.5f, 2.0f)
+                val rotation = RenderUtils.createRandomRotation(RandomSource.create(randomSeed), 0.5f, 2.0f)
 
-            RenderUtils.renderHaloLayer(
-                poseStack, buffer, 0.45f * 1.02f,
-                rotation.axis, rotation.getAngle(tick),
-                HALO_TEX, SPACE_MODEL
-            )
+                RenderUtils.renderHaloLayer(
+                    this,
+                    buffer,
+                    0.45f * 1.02f,
+                    rotation.axis,
+                    rotation.getAngle(tick),
+                    HALO_TEX,
+                    SPACE_MODEL
+                )
 
-            RenderUtils.renderStarLayer(
-                poseStack, buffer, SPACE_MODEL, 0.45f,
-                rotation.axis, rotation.getAngle(tick),
-                FastColor.ARGB32.color(255, 255, 255, 255),
-                RenderType.solid()
-            )
-
-            poseStack.popPose()
+                RenderUtils.renderStarLayer(
+                    this,
+                    buffer,
+                    SPACE_MODEL,
+                    0.45f,
+                    rotation.axis,
+                    rotation.getAngle(tick),
+                    FastColor.ARGB32.color(255, 255, 255, 255),
+                    RenderType.solid()
+                )
+            }
         }
     }
 }

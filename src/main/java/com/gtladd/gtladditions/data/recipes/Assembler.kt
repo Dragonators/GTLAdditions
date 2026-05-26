@@ -28,7 +28,7 @@ import java.util.function.Consumer
 
 object Assembler {
 
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         addHugeOutput(provider)
         ASSEMBLER_RECIPES.recipeBuilder(id("naquadria_charge_more"))
             .inputItems(QUANTUM_STAR)
@@ -112,14 +112,14 @@ object Assembler {
             .EUt(VA[UHV].toLong()).duration(100).save(provider)
     }
 
-    private fun addHugeOutput(provider : Consumer<FinishedRecipe?>) {
-        for (tier in 1 .. 13) {
+    private fun addHugeOutput(provider: Consumer<FinishedRecipe?>) {
+        for (tier in 1..13) {
             val s = VN[tier].lowercase(Locale.getDefault())
             ASSEMBLER_RECIPES.recipeBuilder(GTMThings.id("huge_output_dual_hatch_$s"))
                 .inputItems(GTLMachines.HUGE_FLUID_EXPORT_HATCH[tier].asStack())
                 .inputItems(if (tier > 4) QUANTUM_CHEST[tier] else SUPER_CHEST[tier])
                 .inputFluids(SolderingAlloy.getFluid(144L))
-                .outputItems(GTLAddMachines.HUGE_OUTPUT_DUAL_HATCH[tier] !!.asStack())
+                .outputItems(GTLAddMachines.HUGE_OUTPUT_DUAL_HATCH[tier]!!.asStack())
                 .duration(200).EUt(VA[tier].toLong()).save(provider)
         }
     }

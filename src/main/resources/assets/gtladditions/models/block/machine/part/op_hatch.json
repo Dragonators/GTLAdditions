@@ -1,0 +1,19 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "overlay_screen": "gtladditions:block/machine/op_hatch",
+    "bottom": "gtceu:block/casings/voltage/uv/bottom",
+    "top": "gtceu:block/casings/voltage/uv/top",
+    "particle": "gtceu:block/casings/voltage/uv/side",
+    "side": "gtceu:block/casings/voltage/uv/side"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 0],
+      "faces": {
+        "north": {"texture": "#overlay_screen", "cullface": "north"}
+      }
+    }
+  ]
+}

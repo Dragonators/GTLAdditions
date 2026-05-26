@@ -183,16 +183,14 @@ object IndustrialArrayPosHelper {
     }
 
     @Suppress("SameParameterValue")
-    private fun rotateOffsets(offsets: Array<IntArray>, rotation: Int): Array<IntArray> {
-        return Array(offsets.size) { i ->
-            val (x, y, z) = offsets[i]
-            when (rotation % 4) {
-                0 -> intArrayOf(x, y, z)        // EAST: no rotation
-                1 -> intArrayOf(-z, y, x)       // SOUTH: 90° clockwise
-                2 -> intArrayOf(-x, y, -z)      // WEST: 180°
-                3 -> intArrayOf(z, y, -x)       // NORTH: 270° clockwise
-                else -> intArrayOf(x, y, z)
-            }
+    private fun rotateOffsets(offsets: Array<IntArray>, rotation: Int): Array<IntArray> = Array(offsets.size) { i ->
+        val (x, y, z) = offsets[i]
+        when (rotation % 4) {
+            0 -> intArrayOf(x, y, z) // EAST: no rotation
+            1 -> intArrayOf(-z, y, x) // SOUTH: 90° clockwise
+            2 -> intArrayOf(-x, y, -z) // WEST: 180°
+            3 -> intArrayOf(z, y, -x) // NORTH: 270° clockwise
+            else -> intArrayOf(x, y, z)
         }
     }
 }

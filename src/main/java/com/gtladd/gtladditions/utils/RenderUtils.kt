@@ -2,6 +2,7 @@
 
 import com.gregtechceu.gtceu.client.renderer.GTRenderTypes
 import com.gtladd.gtladditions.client.GTLAddRenderTypes
+import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
 import com.mojang.blaze3d.vertex.PoseStack
@@ -69,32 +70,40 @@ object RenderUtils {
      * @param type          Render type to use
      */
     fun renderStarLayer(
-        poseStack: PoseStack, buffer: MultiBufferSource,
-        modelLocation: ResourceLocation?, size: Float,
-        rotationAxis: Vector3f, angle: Float, argb32: Int, type: RenderType
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        modelLocation: ResourceLocation?,
+        size: Float,
+        rotationAxis: Vector3f,
+        angle: Float,
+        argb32: Int,
+        type: RenderType
     ) {
-        poseStack.pushPose()
-        poseStack.scale(size, size, size)
-        poseStack.mulPose(
-            Quaternionf().fromAxisAngleDeg(
-                rotationAxis.x, rotationAxis.y, rotationAxis.z, angle
+        poseStack.withPose {
+            scale(size, size, size)
+            mulPose(
+                Quaternionf().fromAxisAngleDeg(
+                    rotationAxis.x,
+                    rotationAxis.y,
+                    rotationAxis.z,
+                    angle
+                )
             )
-        )
 
-        ClientUtil.modelRenderer().renderModel(
-            poseStack.last(),
-            buffer.getBuffer(type),
-            null,
-            ClientUtil.getBakedModel(modelLocation),
-            FastColor.ARGB32.red(argb32) / 255f,
-            FastColor.ARGB32.green(argb32) / 255f,
-            FastColor.ARGB32.blue(argb32) / 255f,
-            LightTexture.FULL_BRIGHT,
-            OverlayTexture.NO_OVERLAY,
-            ModelData.EMPTY,
-            type
-        )
-        poseStack.popPose()
+            ClientUtil.modelRenderer().renderModel(
+                last(),
+                buffer.getBuffer(type),
+                null,
+                ClientUtil.getBakedModel(modelLocation),
+                FastColor.ARGB32.red(argb32) / 255f,
+                FastColor.ARGB32.green(argb32) / 255f,
+                FastColor.ARGB32.blue(argb32) / 255f,
+                LightTexture.FULL_BRIGHT,
+                OverlayTexture.NO_OVERLAY,
+                ModelData.EMPTY,
+                type
+            )
+        }
     }
 
     /**
@@ -109,9 +118,13 @@ object RenderUtils {
      * @param modelLocation Resource location of the model to render
      */
     fun renderHaloLayer(
-        poseStack: PoseStack, buffer: MultiBufferSource, size: Float,
-        rotationAxis: Vector3f, angle: Float,
-        haloTexture: ResourceLocation, modelLocation: ResourceLocation
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        size: Float,
+        rotationAxis: Vector3f,
+        angle: Float,
+        haloTexture: ResourceLocation,
+        modelLocation: ResourceLocation
     ) {
         renderHaloLayer(poseStack, buffer, size, rotationAxis, angle, haloTexture, modelLocation, 1.0f, false)
     }
@@ -130,42 +143,49 @@ object RenderUtils {
      * @param useCustomRenderType If true, uses custom non-additive blending to prevent over-brightness
      */
     fun renderHaloLayer(
-        poseStack: PoseStack, buffer: MultiBufferSource, size: Float,
-        rotationAxis: Vector3f, angle: Float,
-        haloTexture: ResourceLocation, modelLocation: ResourceLocation,
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        size: Float,
+        rotationAxis: Vector3f,
+        angle: Float,
+        haloTexture: ResourceLocation,
+        modelLocation: ResourceLocation,
         alpha: Float = 1.0f,
         useCustomRenderType: Boolean = false
     ) {
-        poseStack.pushPose()
-        poseStack.scale(size, size, size)
-        poseStack.mulPose(
-            Quaternionf().fromAxisAngleDeg(
-                rotationAxis.x, rotationAxis.y, rotationAxis.z, angle
+        poseStack.withPose {
+            scale(size, size, size)
+            mulPose(
+                Quaternionf().fromAxisAngleDeg(
+                    rotationAxis.x,
+                    rotationAxis.y,
+                    rotationAxis.z,
+                    angle
+                )
             )
-        )
 
-        val renderType = if (useCustomRenderType) {
-            GTLAddRenderTypes.createFullBrightGlowLayer(haloTexture)
-        } else {
-            RenderType.eyes(haloTexture)
+            val renderType = if (useCustomRenderType) {
+                GTLAddRenderTypes.createFullBrightGlowLayer(haloTexture)
+            } else {
+                RenderType.eyes(haloTexture)
+            }
+
+            val consumer = buffer.getBuffer(renderType)
+
+            val finalAlpha = alpha.coerceIn(0.0f, 1.0f)
+
+            ClientUtil.modelRenderer().renderModel(
+                last(),
+                consumer,
+                null,
+                ClientUtil.getBakedModel(modelLocation),
+                finalAlpha, finalAlpha, finalAlpha,
+                LightTexture.FULL_BRIGHT,
+                OverlayTexture.NO_OVERLAY,
+                ModelData.EMPTY,
+                renderType
+            )
         }
-
-        val consumer = buffer.getBuffer(renderType)
-
-        val finalAlpha = alpha.coerceIn(0.0f, 1.0f)
-
-        ClientUtil.modelRenderer().renderModel(
-            poseStack.last(),
-            consumer,
-            null,
-            ClientUtil.getBakedModel(modelLocation),
-            finalAlpha, finalAlpha, finalAlpha,
-            LightTexture.FULL_BRIGHT,
-            OverlayTexture.NO_OVERLAY,
-            ModelData.EMPTY,
-            renderType
-        )
-        poseStack.popPose()
     }
 
     /**
@@ -183,9 +203,15 @@ object RenderUtils {
      * @param outerRadius Outer radius of the star, used to calculate beam width multiplier
      */
     fun drawBeaconToStar(
-        poseStack: PoseStack, buffer: MultiBufferSource,
-        starX: Double, starY: Double, starZ: Double,
-        argb32: Int, tick: Float, blockEntity: BlockEntity, outerRadius: Float
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        starX: Double,
+        starY: Double,
+        starZ: Double,
+        argb32: Int,
+        tick: Float,
+        blockEntity: BlockEntity,
+        outerRadius: Float
     ) {
         val vertexConsumer = buffer.getBuffer(FTBChunksRenderTypes.WAYPOINTS_DEPTH)
 
@@ -245,9 +271,15 @@ object RenderUtils {
      * @param beaconWidth Beam width multiplier base value
      */
     fun drawBeaconToSky(
-        poseStack: PoseStack, buffer: MultiBufferSource,
-        baseX: Double, baseY: Double, baseZ: Double,
-        argb32: Int, tick: Float, blockEntity: BlockEntity, beaconWidth: Float
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        baseX: Double,
+        baseY: Double,
+        baseZ: Double,
+        argb32: Int,
+        tick: Float,
+        blockEntity: BlockEntity,
+        beaconWidth: Float
     ) {
         val from = Vec3(baseX, baseY + 460.0, baseZ)
         val to = Vec3(baseX, baseY, baseZ)
@@ -268,9 +300,14 @@ object RenderUtils {
      * @param beaconWidth Beam width multiplier base value
      */
     fun drawBeaconToSky(
-        poseStack: PoseStack, buffer: MultiBufferSource,
-        from: Vec3, to: Vec3,
-        argb32: Int, tick: Float, blockEntity: BlockEntity, beaconWidth: Float
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        from: Vec3,
+        to: Vec3,
+        argb32: Int,
+        tick: Float,
+        blockEntity: BlockEntity,
+        beaconWidth: Float
     ) {
         drawBeacon(
             poseStack, buffer, from, to, argb32, tick, blockEntity,
@@ -295,10 +332,17 @@ object RenderUtils {
      * @param endWidthMultiplier Width multiplier at the end point (1.0 = straight beam, no expansion)
      */
     fun drawBeacon(
-        poseStack: PoseStack, buffer: MultiBufferSource,
-        from: Vec3, to: Vec3,
-        argb32: Int, tick: Float, blockEntity: BlockEntity,
-        beaconWidth: Float, fadeRatio: Float, expandRatio: Float, endWidthMultiplier: Float
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        from: Vec3,
+        to: Vec3,
+        argb32: Int,
+        tick: Float,
+        blockEntity: BlockEntity,
+        beaconWidth: Float,
+        fadeRatio: Float,
+        expandRatio: Float,
+        endWidthMultiplier: Float
     ) {
         val vertexConsumer = buffer.getBuffer(FTBChunksRenderTypes.WAYPOINTS_DEPTH)
 
@@ -354,7 +398,10 @@ object RenderUtils {
         to: Vec3,
         playerPos: Vec3,
         buffer: VertexConsumer,
-        r: Int, g: Int, b: Int, alpha: Int,
+        r: Int,
+        g: Int,
+        b: Int,
+        alpha: Int,
         width: Float,
         fadeRatio: Float,
         expandRatio: Float,
@@ -450,21 +497,35 @@ object RenderUtils {
             val segEndZ = from.z + normDirZ * segEnd
 
             val segStartWidth = calculateSegmentWidth(
-                segStart, expandStartDist, beamLength,
-                baseWidthHalf, endWidthHalf, expandRatio
+                segStart,
+                expandStartDist,
+                beamLength,
+                baseWidthHalf,
+                endWidthHalf,
+                expandRatio
             ).toDouble()
             val segEndWidth = calculateSegmentWidth(
-                segEnd, expandStartDist, beamLength,
-                baseWidthHalf, endWidthHalf, expandRatio
+                segEnd,
+                expandStartDist,
+                beamLength,
+                baseWidthHalf,
+                endWidthHalf,
+                expandRatio
             ).toDouble()
 
             val segStartAlpha = calculateSegmentAlpha(
-                segStart, fadeStartDist, beamLength,
-                alpha, fadeRatio
+                segStart,
+                fadeStartDist,
+                beamLength,
+                alpha,
+                fadeRatio
             )
             val segEndAlpha = calculateSegmentAlpha(
-                segEnd, fadeStartDist, beamLength,
-                alpha, fadeRatio
+                segEnd,
+                fadeStartDist,
+                beamLength,
+                alpha,
+                fadeRatio
             )
 
             val v1 = (segStart / beamLength).toFloat()
@@ -509,8 +570,12 @@ object RenderUtils {
     }
 
     private fun calculateSegmentWidth(
-        position: Double, expandStart: Double, beamLength: Double,
-        baseWidth: Float, endWidth: Float, expandRatio: Float
+        position: Double,
+        expandStart: Double,
+        beamLength: Double,
+        baseWidth: Float,
+        endWidth: Float,
+        expandRatio: Float
     ): Float {
         if (position <= expandStart) {
             return baseWidth
@@ -525,8 +590,11 @@ object RenderUtils {
     }
 
     private fun calculateSegmentAlpha(
-        position: Double, fadeStart: Double, beamLength: Double,
-        maxAlpha: Int, fadeRatio: Float
+        position: Double,
+        fadeStart: Double,
+        beamLength: Double,
+        maxAlpha: Int,
+        fadeRatio: Float
     ): Int {
         if (position <= fadeStart) {
             return maxAlpha
@@ -540,10 +608,21 @@ object RenderUtils {
     }
 
     private fun renderQuadSimple(
-        buffer: VertexConsumer, matrix: Matrix4f,
-        p1: Vec3, p2: Vec3, p3: Vec3, p4: Vec3,
-        r: Int, g: Int, b: Int, alphaStart: Int, alphaEnd: Int,
-        u1: Float, v1: Float, u2: Float, v2: Float
+        buffer: VertexConsumer,
+        matrix: Matrix4f,
+        p1: Vec3,
+        p2: Vec3,
+        p3: Vec3,
+        p4: Vec3,
+        r: Int,
+        g: Int,
+        b: Int,
+        alphaStart: Int,
+        alphaEnd: Int,
+        u1: Float,
+        v1: Float,
+        u2: Float,
+        v2: Float
     ) {
         buffer.vertex(matrix, p1.x.toFloat(), p1.y.toFloat(), p1.z.toFloat())
             .color(r, g, b, alphaStart)
@@ -633,39 +712,38 @@ object RenderUtils {
     ) {
         val position = motionParams.getPosition(tick)
 
-        poseStack.pushPose()
-        poseStack.translate(position.x, position.y, position.z)
+        poseStack.withPose {
+            translate(position.x, position.y, position.z)
 
-        if (faceMotion) {
-            val facingAngle = motionParams.getFacingAngle(tick)
-            poseStack.mulPose(Quaternionf().fromAxisAngleDeg(0f, 1f, 0f, facingAngle + 90f))
+            if (faceMotion) {
+                val facingAngle = motionParams.getFacingAngle(tick)
+                mulPose(Quaternionf().fromAxisAngleDeg(0f, 1f, 0f, facingAngle + 90f))
+            }
+
+            if (additionalRotation != null) {
+                mulPose(additionalRotation)
+            }
+
+            scale(size, size, size)
+
+            if (centered) {
+                translate(-0.5, -0.5, -0.5)
+            }
+
+            ClientUtil.modelRenderer().renderModel(
+                last(),
+                vertexConsumer, // Use pre-obtained consumer
+                null,
+                bakedModel, // Use pre-obtained model
+                FastColor.ARGB32.red(argb32) / 255f,
+                FastColor.ARGB32.green(argb32) / 255f,
+                FastColor.ARGB32.blue(argb32) / 255f,
+                LightTexture.FULL_BRIGHT,
+                OverlayTexture.NO_OVERLAY,
+                ModelData.EMPTY,
+                type
+            )
         }
-
-        if (additionalRotation != null) {
-            poseStack.mulPose(additionalRotation)
-        }
-
-        poseStack.scale(size, size, size)
-
-        if (centered) {
-            poseStack.translate(-0.5, -0.5, -0.5)
-        }
-
-        ClientUtil.modelRenderer().renderModel(
-            poseStack.last(),
-            vertexConsumer,  // Use pre-obtained consumer
-            null,
-            bakedModel,  // Use pre-obtained model
-            FastColor.ARGB32.red(argb32) / 255f,
-            FastColor.ARGB32.green(argb32) / 255f,
-            FastColor.ARGB32.blue(argb32) / 255f,
-            LightTexture.FULL_BRIGHT,
-            OverlayTexture.NO_OVERLAY,
-            ModelData.EMPTY,
-            type
-        )
-
-        poseStack.popPose()
     }
 
     /**
@@ -683,62 +761,60 @@ object RenderUtils {
         motionParams: CircularMotionParams,
         segments: Int = 128
     ) {
-        poseStack.pushPose()
+        poseStack.withPose {
+            val center = motionParams.centerPos
+            translate(center.x, center.y, center.z)
 
-        val center = motionParams.centerPos
-        poseStack.translate(center.x, center.y, center.z)
+            val tiltAngleRad = Math.toRadians(motionParams.tiltAngle.toDouble()).toFloat()
+            val tiltDir = motionParams.tiltDirection
+            mulPose(Quaternionf().fromAxisAngleRad(tiltDir.x, tiltDir.y, tiltDir.z, tiltAngleRad))
 
-        val tiltAngleRad = Math.toRadians(motionParams.tiltAngle.toDouble()).toFloat()
-        val tiltDir = motionParams.tiltDirection
-        poseStack.mulPose(Quaternionf().fromAxisAngleRad(tiltDir.x, tiltDir.y, tiltDir.z, tiltAngleRad))
+            val vertexConsumer = buffer.getBuffer(GTRenderTypes.getLightRing())
+            val matrix = last().pose()
 
-        val vertexConsumer = buffer.getBuffer(GTRenderTypes.getLightRing())
-        val matrix = poseStack.last().pose()
+            val radius = motionParams.radius
+            val lineWidth = 1.5f
 
-        val radius = motionParams.radius
-        val lineWidth = 1.2f
+            for (i in 0..<segments) {
+                val angle1 = (2 * Math.PI * i / segments).toFloat()
+                val angle2 = (2 * Math.PI * (i + 1) / segments).toFloat()
 
-        for (i in 0..<segments) {
-            val angle1 = (2 * Math.PI * i / segments).toFloat()
-            val angle2 = (2 * Math.PI * (i + 1) / segments).toFloat()
+                val cos1 = MathCache.fastCos(angle1)
+                val sin1 = MathCache.fastSin(angle1)
+                val cos2 = MathCache.fastCos(angle2)
+                val sin2 = MathCache.fastSin(angle2)
 
-            val cos1 = MathCache.fastCos(angle1)
-            val sin1 = MathCache.fastSin(angle1)
-            val cos2 = MathCache.fastCos(angle2)
-            val sin2 = MathCache.fastSin(angle2)
+                val x1 = radius * cos1
+                val z1 = radius * sin1
+                val x2 = radius * cos2
+                val z2 = radius * sin2
 
-            val x1 = radius * cos1
-            val z1 = radius * sin1
-            val x2 = radius * cos2
-            val z2 = radius * sin2
+                val perpX1 = -sin1 * lineWidth
+                val perpZ1 = cos1 * lineWidth
+                val perpX2 = -sin2 * lineWidth
+                val perpZ2 = cos2 * lineWidth
 
-            val perpX1 = -sin1 * lineWidth
-            val perpZ1 = cos1 * lineWidth
-            val perpX2 = -sin2 * lineWidth
-            val perpZ2 = cos2 * lineWidth
+                vertexConsumer.vertex(matrix, x1 - perpX1, 0f, z1 - perpZ1)
+                    .color(255, 255, 255, 200)
+                    .uv(0f, 0f)
+                    .endVertex()
 
-            vertexConsumer.vertex(matrix, x1 - perpX1, 0f, z1 - perpZ1)
-                .color(255, 255, 255, 200)
-                .uv(0f, 0f)
-                .endVertex()
+                vertexConsumer.vertex(matrix, x1 + perpX1, 0f, z1 + perpZ1)
+                    .color(255, 255, 255, 200)
+                    .uv(1f, 0f)
+                    .endVertex()
 
-            vertexConsumer.vertex(matrix, x1 + perpX1, 0f, z1 + perpZ1)
-                .color(255, 255, 255, 200)
-                .uv(1f, 0f)
-                .endVertex()
+                vertexConsumer.vertex(matrix, x2 + perpX2, 0f, z2 + perpZ2)
+                    .color(255, 255, 255, 200)
+                    .uv(1f, 1f)
+                    .endVertex()
 
-            vertexConsumer.vertex(matrix, x2 + perpX2, 0f, z2 + perpZ2)
-                .color(255, 255, 255, 200)
-                .uv(1f, 1f)
-                .endVertex()
-
-            vertexConsumer.vertex(matrix, x2 - perpX2, 0f, z2 - perpZ2)
-                .color(255, 255, 255, 200)
-                .uv(0f, 1f)
-                .endVertex()
+                vertexConsumer.vertex(matrix, x2 - perpX2, 0f, z2 - perpZ2)
+                    .color(255, 255, 255, 200)
+                    .uv(0f, 1f)
+                    .endVertex()
+            }
         }
-
-        poseStack.popPose()
     }
 
     class SmoothAnimationTimer {
@@ -753,7 +829,7 @@ object RenderUtils {
          * @return Current progress, range 0.0 to 1.0
          */
         fun getProgress(durationMillis: Long): Float {
-            val durationTicks = durationMillis / 50.0f  // 1 tick = 50ms
+            val durationTicks = durationMillis / 50.0f // 1 tick = 50ms
             val elapsedTicks = GlobalRenderClock.getSmoothTick() - startTick
             return (elapsedTicks / durationTicks).coerceIn(0f, 1f)
         }

@@ -2,13 +2,14 @@ package com.gtladd.gtladditions.client.render.machine
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderColor
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderRadius
 import com.gtladd.gtladditions.client.RenderMode
+import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.data.RotationParams
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
+import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
 import com.gtladd.gtladditions.utils.RenderUtils
+import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderColor
+import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderRadius
 import com.gtladd.gtladditions.utils.antichrist.RingStructureVertexBuffer
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
@@ -122,29 +123,27 @@ class ForgeOfAntichristRenderer(
             renderMode: RenderMode,
             machine: ForgeOfTheAntichrist,
             tick: Float
-        ): Pair<Int, Float> {
-            return when (renderMode) {
-                RenderMode.NORMAL -> {
-                    Pair(machine.rgbFromTime, machine.radiusMultiplier)
-                }
+        ): Pair<Int, Float> = when (renderMode) {
+            RenderMode.NORMAL -> {
+                Pair(machine.rgbFromTime, machine.radiusMultiplier)
+            }
 
-                RenderMode.RAINBOW -> {
-                    val rainbowColor = getRainbowColor(tick)
-                    Pair(rainbowColor, machine.radiusMultiplier)
-                }
+            RenderMode.RAINBOW -> {
+                val rainbowColor = getRainbowColor(tick)
+                Pair(rainbowColor, machine.radiusMultiplier)
+            }
 
-                RenderMode.COLLAPSING -> {
-                    val rainbowColor = getRainbowColor(tick)
-                    val darkenedRainbow = getClientRenderColor(machine, rainbowColor)
-                    val clientRadius = getClientRenderRadius(machine, machine.radiusMultiplier)
-                    Pair(darkenedRainbow, clientRadius)
-                }
+            RenderMode.COLLAPSING -> {
+                val rainbowColor = getRainbowColor(tick)
+                val darkenedRainbow = getClientRenderColor(machine, rainbowColor)
+                val clientRadius = getClientRenderRadius(machine, machine.radiusMultiplier)
+                Pair(darkenedRainbow, clientRadius)
+            }
 
-                RenderMode.RECOVERING -> {
-                    val clientColor = getClientRenderColor(machine, machine.rgbFromTime)
-                    val clientRadius = getClientRenderRadius(machine, machine.radiusMultiplier)
-                    Pair(clientColor, clientRadius)
-                }
+            RenderMode.RECOVERING -> {
+                val clientColor = getClientRenderColor(machine, machine.rgbFromTime)
+                val clientRadius = getClientRenderRadius(machine, machine.radiusMultiplier)
+                Pair(clientColor, clientRadius)
             }
         }
 
@@ -159,7 +158,8 @@ class ForgeOfAntichristRenderer(
             renderMode: RenderMode
         ) {
             if (renderMode == RenderMode.NORMAL ||
-                renderMode == RenderMode.RAINBOW) {
+                renderMode == RenderMode.RAINBOW
+            ) {
                 RenderUtils.drawBeaconToStar(
                     poseStack, buffer, starPos.x, starPos.y, starPos.z,
                     argb32, tick, blockEntity, outerRadius
@@ -181,35 +181,44 @@ class ForgeOfAntichristRenderer(
             z: Double,
             renderMode: RenderMode
         ) {
-            poseStack.pushPose()
-            poseStack.translate(x, y, z)
+            poseStack.withPose {
+                translate(x, y, z)
 
-            val rotationSpeedMultiplier = when (renderMode) {
-                RenderMode.RAINBOW -> 1.7f
-                RenderMode.COLLAPSING -> 2.6f
-                else -> 1.0f
+                val rotationSpeedMultiplier = when (renderMode) {
+                    RenderMode.RAINBOW -> 1.7f
+                    RenderMode.COLLAPSING -> 2.6f
+                    else -> 1.0f
+                }
+
+                RenderUtils.renderStarLayer(
+                    this,
+                    buffer,
+                    STAR_LAYER_2,
+                    middleRadius,
+                    cache.rotation2.axis,
+                    cache.rotation1.getAngle(tick * rotationSpeedMultiplier),
+                    argb32,
+                    RenderType.translucent()
+                )
+
+                RenderUtils.renderStarLayer(
+                    this,
+                    buffer,
+                    STAR_LAYER_0,
+                    baseRadius,
+                    cache.rotation1.axis,
+                    cache.rotation0.getAngle(tick * rotationSpeedMultiplier),
+                    argb32,
+                    RenderType.solid()
+                )
+
+                RenderUtils.renderHaloLayer(
+                    this, buffer, outerRadius,
+                    cache.rotation0.axis, cache.rotation0.getAngle(tick * rotationSpeedMultiplier),
+                    HALO_TEX, STAR_LAYER_2,
+                    1.0f, true
+                )
             }
-
-            RenderUtils.renderStarLayer(
-                poseStack, buffer, STAR_LAYER_2, middleRadius,
-                cache.rotation2.axis, cache.rotation1.getAngle(tick * rotationSpeedMultiplier),
-                argb32, RenderType.translucent()
-            )
-
-            RenderUtils.renderStarLayer(
-                poseStack, buffer, STAR_LAYER_0, baseRadius,
-                cache.rotation1.axis, cache.rotation0.getAngle(tick * rotationSpeedMultiplier),
-                argb32, RenderType.solid()
-            )
-
-            RenderUtils.renderHaloLayer(
-                poseStack, buffer, outerRadius,
-                cache.rotation0.axis, cache.rotation0.getAngle(tick * rotationSpeedMultiplier),
-                HALO_TEX, STAR_LAYER_2,
-                1.0f, true
-            )
-
-            poseStack.popPose()
         }
 
         private fun renderAllRings(
@@ -232,34 +241,34 @@ class ForgeOfAntichristRenderer(
             Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer()
 
             RingStructureVertexBuffer.ringBuffers.forEachIndexed { index, buffer ->
-                poseStack.pushPose()
-                poseStack.translate(ringPos.x, ringPos.y, ringPos.z)
+                poseStack.withPose {
+                    translate(ringPos.x, ringPos.y, ringPos.z)
 
-                when (machine.frontFacing) {
-                    Direction.NORTH -> poseStack.mulPose(Axis.YP.rotationDegrees(270f))
-                    Direction.SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(90f))
-                    Direction.WEST -> poseStack.mulPose(Axis.YP.rotationDegrees(0f))
-                    Direction.EAST -> poseStack.mulPose(Axis.YP.rotationDegrees(180f))
-                    else -> {}
+                    when (machine.frontFacing) {
+                        Direction.NORTH -> mulPose(Axis.YP.rotationDegrees(270f))
+                        Direction.SOUTH -> mulPose(Axis.YP.rotationDegrees(90f))
+                        Direction.WEST -> mulPose(Axis.YP.rotationDegrees(0f))
+                        Direction.EAST -> mulPose(Axis.YP.rotationDegrees(180f))
+                        else -> {}
+                    }
+
+                    if (isWorking) {
+                        val direction = if (index == 1) -1.0f else 1.0f
+                        val speedMultiplier = 0.4f + (index * 0.4f)
+                        val angleOffset = index * 120f
+                        val rotationAngle = (tick * speedMultiplier * 2.0f * direction + angleOffset) % 360.0f
+
+                        mulPose(Quaternionf().fromAxisAngleDeg(1.0f, 0.0f, 0.0f, rotationAngle))
+                    }
+
+                    buffer.bind()
+                    buffer.drawWithShader(
+                        last().pose(),
+                        RenderSystem.getProjectionMatrix(),
+                        RenderSystem.getShader()!!
+                    )
+                    VertexBuffer.unbind()
                 }
-
-                if (isWorking) {
-                    val direction = if (index == 1) -1.0f else 1.0f
-                    val speedMultiplier = 0.4f + (index * 0.4f)
-                    val angleOffset = index * 120f
-                    val rotationAngle = (tick * speedMultiplier * 2.0f * direction + angleOffset) % 360.0f
-
-                    poseStack.mulPose(Quaternionf().fromAxisAngleDeg(1.0f, 0.0f, 0.0f, rotationAngle))
-                }
-
-                buffer.bind()
-                buffer.drawWithShader(
-                    poseStack.last().pose(),
-                    RenderSystem.getProjectionMatrix(),
-                    RenderSystem.getShader()!!
-                )
-                VertexBuffer.unbind()
-                poseStack.popPose()
             }
 
             RenderSystem.disableDepthTest()

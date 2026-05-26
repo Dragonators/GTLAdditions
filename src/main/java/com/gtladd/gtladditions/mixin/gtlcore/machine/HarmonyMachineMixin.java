@@ -11,18 +11,20 @@ import com.gregtechceu.gtceu.utils.FormattingUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
+import com.gtladd.gtladditions.api.machine.IHarmonyMachineAccessor;
 import com.gtladd.gtladditions.utils.CommonUtils;
 import com.hepdd.gtmthings.api.misc.WirelessEnergyManager;
 import com.hepdd.gtmthings.utils.TeamUtil;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @Mixin(HarmonyMachine.class)
+@Implements(@Interface(
+                       iface = IHarmonyMachineAccessor.class,
+                       prefix = "gtladditions$"))
 public abstract class HarmonyMachineMixin extends NoEnergyMultiblockMachine {
 
     @Shadow(remap = false)
@@ -41,6 +43,31 @@ public abstract class HarmonyMachineMixin extends NoEnergyMultiblockMachine {
 
     public HarmonyMachineMixin(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
+    }
+
+    @Unique
+    public boolean gtladditions$consumeCosmosStartup() {
+        if (userid == null || hydrogen < 1024000000L || helium < 1024000000L || oc <= 0) return false;
+        if (!WirelessEnergyManager.addEUToGlobalEnergyMap(userid, -getStartupEnergy(), this)) return false;
+
+        hydrogen -= 1024000000L;
+        helium -= 1024000000L;
+        return true;
+    }
+
+    @Unique
+    public boolean gtladditions$consumeAstralStartup() {
+        if (userid == null || hydrogen < 1024000000L || helium < 1024000000L) return false;
+        if (!WirelessEnergyManager.addEUToGlobalEnergyMap(userid, -Long.MAX_VALUE, this)) return false;
+
+        hydrogen -= 1024000000L;
+        helium -= 1024000000L;
+        return true;
+    }
+
+    @Unique
+    public int gtladditions$getHarmonyDuration() {
+        return (int) (4800 / Math.pow(2, oc));
     }
 
     /**

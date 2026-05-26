@@ -12,8 +12,9 @@ import snownee.jade.addon.universal.ItemStorageProvider
 import snownee.jade.api.Accessor
 import snownee.jade.api.view.*
 
-object GTItemStorageProvider : IServerExtensionProvider<MetaMachineBlockEntity, ItemStack>,
-IClientExtensionProvider<ItemStack, ItemView>{
+object GTItemStorageProvider :
+    IServerExtensionProvider<MetaMachineBlockEntity, ItemStack>,
+    IClientExtensionProvider<ItemStack, ItemView> {
     override fun getGroups(
         serverPlayer: ServerPlayer,
         serverLevel: ServerLevel,
@@ -21,10 +22,11 @@ IClientExtensionProvider<ItemStack, ItemView>{
         b: Boolean
     ): List<ViewGroup<ItemStack>>? {
         val machine = mmbe.getMetaMachine()
-        return if (machine is InfinityDualHatchPartMachine || machine is MEPatternBufferPartMachine)
+        return if (machine is InfinityDualHatchPartMachine || machine is MEPatternBufferPartMachine) {
             listOf()
-        else
+        } else {
             ItemStorageProvider.INSTANCE.getGroups(serverPlayer, serverLevel, mmbe, b)
+        }
     }
 
     override fun getUid(): ResourceLocation = GTLAdditions.id("ban_item_storage")
@@ -32,5 +34,5 @@ IClientExtensionProvider<ItemStack, ItemView>{
     override fun getClientGroups(
         accessor: Accessor<*>,
         list: List<ViewGroup<ItemStack>>
-    ): List<ClientViewGroup<ItemView>> = ItemStorageProvider.INSTANCE.getClientGroups(accessor, list);
+    ): List<ClientViewGroup<ItemView>> = ItemStorageProvider.INSTANCE.getClientGroups(accessor, list)
 }

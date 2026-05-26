@@ -2,7 +2,6 @@ package com.gtladd.gtladditions.api.recipe
 
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
-import com.gregtechceu.gtceu.api.capability.recipe.IRecipeCapabilityHolder
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
@@ -22,9 +21,7 @@ import org.gtlcore.gtlcore.api.machine.trait.MEPatternRecipeHandlePart
 import org.gtlcore.gtlcore.api.machine.trait.RecipeHandlePart
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
 import org.gtlcore.gtlcore.utils.NumberUtils
-import org.gtlcore.gtlcore.utils.NumberUtils.saturatedAdd
 import org.gtlcore.gtlcore.utils.datastructure.Int128
-import java.math.BigInteger
 import java.util.function.Predicate
 
 object ChanceParallelLogic {
@@ -136,8 +133,7 @@ object ChanceParallelLogic {
             ItemStackHashStrategy.comparingAllButCount()
         )
 
-        val handle = holder.getActiveRecipeHandle(recipe)
-        when (handle) {
+        when (val handle = holder.getActiveRecipeHandle(recipe)) {
             is MEPatternRecipeHandlePart -> {
                 for (entry in Object2LongMaps.fastIterable(handle.getMEContent(ItemRecipeCapability.CAP, recipe))) {
                     ingredientStacks.mergeLong(entry.key, entry.longValue, NumberUtils::saturatedAdd)
@@ -211,8 +207,7 @@ object ChanceParallelLogic {
 
         val ingredientStacks = Object2LongOpenCustomHashMap(FluidStackHashStrategy.comparingAllButAmount())
 
-        val handle = holder.getActiveRecipeHandle(recipe)
-        when (handle) {
+        when (val handle = holder.getActiveRecipeHandle(recipe)) {
             is MEPatternRecipeHandlePart -> {
                 for (entry in Object2LongMaps.fastIterable(handle.getMEContent(FluidRecipeCapability.CAP, recipe))) {
                     ingredientStacks.mergeLong(entry.key, entry.longValue, NumberUtils::saturatedAdd)
@@ -288,10 +283,12 @@ object ChanceParallelLogic {
             // parallel <= ((maxOutputs + 1) * maxChance - 1 - cached) / chance
             // This ensures: floor((parallel * chance + cached) / maxChance) <= maxOutputs
             val maxOutputs = available / chanceNeeded.amount
-            var maxParallelForThis = (Int128(maxOutputs).add(1L)
-                .multiply(Int128(chanceNeeded.maxChance.toLong()))
-                .subtract(Int128((1 + cached).toLong()))
-                .divide(chanceNeeded.chance.toLong()) as Number).toLong()
+            var maxParallelForThis = (
+                Int128(maxOutputs).add(1L)
+                    .multiply(Int128(chanceNeeded.maxChance.toLong()))
+                    .subtract(Int128((1 + cached).toLong()))
+                    .divide(chanceNeeded.chance.toLong()) as Number
+                ).toLong()
 
             // Ensure non-negative
             if (maxParallelForThis < 0) maxParallelForThis = 0

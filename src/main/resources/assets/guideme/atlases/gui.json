@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "guideme:gui/sprites/fluid_slot",
+      "sprite": "guideme:fluid_slot"
+    }
+  ]
+}

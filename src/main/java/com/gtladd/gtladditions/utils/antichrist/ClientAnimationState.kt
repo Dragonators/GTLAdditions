@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import kotlin.math.pow
 
 @OnlyIn(Dist.CLIENT)
-class ClientAnimationState() {
+class ClientAnimationState {
     private val collapseTimer = RenderUtils.SmoothAnimationTimer()
     private val recoverTimer = RenderUtils.SmoothAnimationTimer()
     private var isCollapsing: Boolean = false
@@ -23,16 +23,14 @@ class ClientAnimationState() {
         }
     }
 
-    fun getProgress(): Float {
-        return if (isCollapsing) {
-            val durationMillis = (CLIENT_COLLAPSE_DURATION_TICKS * 50).toLong()
-            val rawProgress = collapseTimer.getProgress(durationMillis)
-            smoothStep(rawProgress)
-        } else {
-            val durationMillis = (CLIENT_RECOVER_DURATION_TICKS * 50).toLong()
-            val rawProgress = recoverTimer.getProgress(durationMillis)
-            1.0f - smoothStep(rawProgress)
-        }
+    fun getProgress(): Float = if (isCollapsing) {
+        val durationMillis = (CLIENT_COLLAPSE_DURATION_TICKS * 50).toLong()
+        val rawProgress = collapseTimer.getProgress(durationMillis)
+        smoothStep(rawProgress)
+    } else {
+        val durationMillis = (CLIENT_RECOVER_DURATION_TICKS * 50).toLong()
+        val rawProgress = recoverTimer.getProgress(durationMillis)
+        1.0f - smoothStep(rawProgress)
     }
 
     fun getRenderColor(baseColor: Int): Int {

@@ -3,9 +3,9 @@ package com.gtladd.gtladditions.events
 import com.gtladd.gtladditions.GTLAdditions.Companion.MOD_ID
 import com.gtladd.gtladditions.utils.CommonUtils.VALID_TAG
 import com.gtladd.gtladditions.utils.CommonUtils.isTargetDimension
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.antichrist.ClientRingBlockHelper
 import com.gtladd.gtladditions.utils.antichrist.ServerMachineManager
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.Level
@@ -24,10 +24,11 @@ object PlayerDimensionChangeHandler {
     @JvmStatic
     fun onPlayerChangedDimension(event: PlayerEvent.PlayerChangedDimensionEvent) {
         (event.entity as? ServerPlayer)?.let { player ->
-            if (canPlayerChangeDimension(event.to, player))
+            if (canPlayerChangeDimension(event.to, player)) {
                 ServerMachineManager.syncAllToPlayer(player)
-            else
+            } else {
                 transportBackToOverWorld(player)
+            }
         }
     }
 
@@ -62,7 +63,7 @@ object PlayerDimensionChangeHandler {
     private fun transportBackToOverWorld(player: ServerPlayer) {
         player.teleportTo(player.server.overworld(), 0.0, 128.0, 0.0, player.yRot, player.xRot)
         player.sendSystemMessage(
-            Component.translatable("tooltip.gtladditions.dimension.forbidden")
+            "tooltip.gtladditions.dimension.forbidden".toComponent
         )
     }
 }

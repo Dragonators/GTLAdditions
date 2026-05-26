@@ -1,8 +1,9 @@
-﻿package com.gtladd.gtladditions.utils.antichrist
+package com.gtladd.gtladditions.utils.antichrist
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
-import com.gtladd.gtladditions.common.machine.muiltblock.structure.RingStructure
+import com.gtladd.gtladditions.common.machine.multiblock.structure.RingStructure
 import com.mojang.blaze3d.vertex.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.LightTexture
@@ -78,24 +79,28 @@ object RingStructureVertexBuffer {
                     val blockState = block.defaultBlockState()
                     val model = ClientUtil.blockRenderer().getBlockModel(blockState)
 
-                    poseStack.pushPose()
-                    poseStack.translate(
-                        (x - centerX),
-                        (centerY - y - 1),
-                        (z - centerZ)
-                    )
+                    poseStack.withPose {
+                        translate(
+                            (x - centerX),
+                            (centerY - y - 1),
+                            (z - centerZ)
+                        )
 
-                    val light = LightTexture.pack(
-                        block.getLightEmission(blockState, EmptyBlockGetter.INSTANCE, BlockPos.ZERO),
-                        13
-                    )
+                        val light = LightTexture.pack(
+                            block.getLightEmission(blockState, EmptyBlockGetter.INSTANCE, BlockPos.ZERO),
+                            13
+                        )
 
-                    renderBlockModelFaces(
-                        model, blockState, visibleFaces,
-                        light, poseStack, bufferBuilder, random
-                    )
-
-                    poseStack.popPose()
+                        renderBlockModelFaces(
+                            model,
+                            blockState,
+                            visibleFaces,
+                            light,
+                            this,
+                            bufferBuilder,
+                            random
+                        )
+                    }
                 }
             }
         }

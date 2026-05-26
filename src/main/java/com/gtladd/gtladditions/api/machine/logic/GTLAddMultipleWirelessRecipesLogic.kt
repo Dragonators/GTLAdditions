@@ -7,7 +7,9 @@ import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.matchRecipe
 import java.util.function.BiPredicate
 import java.util.function.Predicate
 
-open class GTLAddMultipleWirelessRecipesLogic : GTLAddMultipleRecipesLogic, IWirelessRecipeLogic {
+open class GTLAddMultipleWirelessRecipesLogic :
+    GTLAddMultipleRecipesLogic,
+    IWirelessRecipeLogic {
     constructor(parallel: GTLAddWirelessWorkableElectricMultipleRecipesMachine) : super(parallel)
 
     constructor(
@@ -20,9 +22,7 @@ open class GTLAddMultipleWirelessRecipesLogic : GTLAddMultipleRecipesLogic, IWir
         beforeWorking: Predicate<IRecipeLogicMachine>?
     ) : super(parallel, beforeWorking)
 
-    override fun getMachine(): GTLAddWirelessWorkableElectricMultipleRecipesMachine {
-        return super.getMachine() as GTLAddWirelessWorkableElectricMultipleRecipesMachine
-    }
+    override fun getMachine(): GTLAddWirelessWorkableElectricMultipleRecipesMachine = super.getMachine() as GTLAddWirelessWorkableElectricMultipleRecipesMachine
 
     override fun getGTRecipe(): GTRecipe? {
         if (!checkBeforeWorking()) return null
@@ -38,13 +38,10 @@ open class GTLAddMultipleWirelessRecipesLogic : GTLAddMultipleRecipesLogic, IWir
         return beforeWorking == null || beforeWorking.test(machine)
     }
 
-    override fun checkRecipe(recipe: GTRecipe): Boolean {
-        return matchRecipe(machine, recipe) && recipe.checkConditions(machine.recipeLogic).isSuccess &&
-                (recipeCheck == null || recipeCheck.test(recipe, machine))
-    }
+    override fun checkRecipe(recipe: GTRecipe): Boolean = matchRecipe(machine, recipe) &&
+        recipe.checkConditions(machine.recipeLogic).isSuccess &&
+        (recipeCheck == null || recipeCheck.test(recipe, machine))
 
     // Disable
-    override fun getTotalEuOfRecipe(recipe: GTRecipe): Double {
-        return 0.0
-    }
+    override fun getTotalEuOfRecipe(recipe: GTRecipe): Double = 0.0
 }

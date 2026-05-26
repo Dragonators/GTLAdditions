@@ -8,7 +8,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.material.GTLAddMaterial
-import com.gtladd.gtladditions.common.material.MaterialAdd
+import com.gtladd.gtladditions.common.material.MaterialModify
 import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.config.ConfigHolder
@@ -41,16 +41,14 @@ class GTLAdditions {
         }
     }
 
-    @Suppress("unused")
     @SubscribeEvent
     fun onMaterialRegistry(event: MaterialRegistryEvent) {
         GTCEuAPI.materialManager.createRegistry(MOD_ID)
     }
 
-    @Suppress("unused")
     @SubscribeEvent
     fun onMaterialRegister(event: MaterialEvent) {
-        MaterialAdd.init()
+        MaterialModify.init()
         GTLAddMaterial.init()
     }
 

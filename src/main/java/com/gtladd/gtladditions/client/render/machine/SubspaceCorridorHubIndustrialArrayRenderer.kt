@@ -7,7 +7,7 @@ import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRender
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.SubspaceCorridorHubIndustrialArray
+import com.gtladd.gtladditions.common.machine.multiblock.controller.SubspaceCorridorHubIndustrialArray
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
@@ -38,10 +38,11 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Suppress("SameParameterValue")
-class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer(
-    GTCEu.id("block/casings/hpca/high_power_casing"),
-    GTCEu.id("block/multiblock/data_bank")
-) {
+class SubspaceCorridorHubIndustrialArrayRenderer :
+    WorkableCasingMachineRenderer(
+        GTCEu.id("block/casings/hpca/high_power_casing"),
+        GTCEu.id("block/multiblock/data_bank")
+    ) {
 
     @OnlyIn(Dist.CLIENT)
     override fun render(
@@ -111,7 +112,9 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
             for (i in ORBIT_OBJECTS.indices) {
                 planetRotations.add(
                     RenderUtils.createRandomRotation(
-                        RandomSource.create(seed + i * 2000L), 0.1f, 0.5f
+                        RandomSource.create(seed + i * 2000L),
+                        0.1f,
+                        0.5f
                     )
                 )
                 orbitParams.add(getCircularMotionParams(seed, i, centerPos, 27.0f, 55.0f, 0f, 30f))
@@ -225,8 +228,12 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
             val rotation = cache.starRotation
 
             RenderUtils.renderStarLayer(
-                poseStack, buffer, STAR_LAYER, 0.23f,
-                rotation.axis, rotation.getAngle(tick),
+                poseStack,
+                buffer,
+                STAR_LAYER,
+                0.23f,
+                rotation.axis,
+                rotation.getAngle(tick),
                 FastColor.ARGB32.color(255, 255, 255, 255),
                 RenderType.solid()
             )
@@ -312,9 +319,7 @@ class SubspaceCorridorHubIndustrialArrayRenderer : WorkableCasingMachineRenderer
             )
         }
 
-        private fun createCacheKey(seed: Long, facing: Direction): Long {
-            return (seed and 0x1FFFFFFFFFFFFFFFL) or (facing.ordinal.toLong() shl 61)
-        }
+        private fun createCacheKey(seed: Long, facing: Direction): Long = (seed and 0x1FFFFFFFFFFFFFFFL) or (facing.ordinal.toLong() shl 61)
 
         private fun getOrCreateCache(seed: Long, facing: Direction, centerPos: Vec3): RenderCache {
             val key = createCacheKey(seed, facing)

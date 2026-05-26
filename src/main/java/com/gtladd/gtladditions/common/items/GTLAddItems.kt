@@ -6,8 +6,11 @@ import com.gregtechceu.gtceu.common.item.TooltipBehavior
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.Companion.REGISTRATE
 import com.gtladd.gtladditions.common.items.behavior.AstralArrayBehavior
 import com.gtladd.gtladditions.common.items.behavior.ModuleConnectionBehavior
+import com.gtladd.gtladditions.common.items.behavior.SuprachronalDataModuleBehavior
 import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.tterrag.registrate.util.entry.ItemEntry
+import com.tterrag.registrate.util.nullness.NonNullBiConsumer
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
 
@@ -38,6 +41,7 @@ object GTLAddItems {
     val PRIMARY_SOC_WAFER: ItemEntry<Item?>
     val PRIMARY_SOC: ItemEntry<Item?>
     val SPACETIME_LENS: ItemEntry<Item?>
+    val BARNARDA_DATA: ItemEntry<Item?>
     val PHONONIC_SEED_CRYSTAL: ItemEntry<Item?>
     val THERMAL_SUPERCONDUCTOR: ItemEntry<Item?>
     val RELATIVISTIC_HEAT_CAPACITOR: ItemEntry<Item?>
@@ -45,15 +49,23 @@ object GTLAddItems {
     val STARGATE_SHIELDING_FOIL: ItemEntry<Item?>
     val STARGATE_FRAME_PART: ItemEntry<Item?>
     val STARGATE_CHEVRON_UPGRADE: ItemEntry<Item?>
+    val ULTIMATE_CONVERSATION_CARD: ItemEntry<Item?>
     val DEBUG_MODULE_CONNECTOR: ItemEntry<ComponentItem>
     val STRANGE_ANNIHILATION_FUEL_ROD: ItemEntry<ComponentItem>
     val BLACK_HOLE_SEED: ItemEntry<ComponentItem>
+    val COMPRESSED_ASTRAL_ARRAY: ItemEntry<ComponentItem>
     val ASTRAL_ARRAY: ItemEntry<ComponentItem>
+    val SUPRACHRONAL_DATA_MODULE: ItemEntry<ComponentItem>
+    val GUIDE_BOOK: ItemEntry<ComponentItem>
 
     fun init() {}
 
-    private fun register(id: String, name: String): ItemEntry<Item?> {
-        return REGISTRATE.item(id) { properties: Item.Properties -> Item(properties) }.lang(name).register()
+    private fun register(id: String, name: String): ItemEntry<Item?> = REGISTRATE.item(id) { properties: Item.Properties -> Item(properties) }.lang(name).register()
+
+    private fun addTooltipLines(lines: MutableList<Component>, keyPrefix: String, count: Int) {
+        for (i in 0 until count) {
+            lines.add("$keyPrefix.$i".toComponent)
+        }
     }
 
     init {
@@ -84,6 +96,7 @@ object GTLAddItems {
         PREPARE_PRIMARY_SOC_WAFER = register("prepare_primary_soc_wafer", "Prepare Primary Soc Wafer")
         PRIMARY_SOC_WAFER = register("primary_soc_wafer", "Primary Soc Wafer")
         PRIMARY_SOC = register("primary_soc", "Primary Soc")
+        BARNARDA_DATA = register("barnarda_data", "Barnarda Data")
         PHONONIC_SEED_CRYSTAL = register("phononic_seed_crystal", "Phononic Seed Crystal")
         THERMAL_SUPERCONDUCTOR = register("thermal_superconductor", "Thermal Superconductor")
         RELATIVISTIC_HEAT_CAPACITOR = register("relativistic_heat_capacitor", "Relativistic Heat Capacitor")
@@ -91,15 +104,29 @@ object GTLAddItems {
         STARGATE_SHIELDING_FOIL = register("stargate_shielding_foil", "Stargate Shielding Foil")
         STARGATE_FRAME_PART = register("stargate_frame_part", "Stargate Frame Part")
         STARGATE_CHEVRON_UPGRADE = register("stargate_chevron_upgrade", "Stargate Chevron Upgrade")
+        ULTIMATE_CONVERSATION_CARD = register("ultimate_conversation_card", "Ultimate Conversation Card")
+        COMPRESSED_ASTRAL_ARRAY = REGISTRATE.item("compressed_astral_array") { properties: Item.Properties -> ComponentItem.create(properties) }
+            .onRegister(
+                GTItems.attach(
+                    TooltipBehavior
+                    { lines: MutableList<Component> ->
+                        addTooltipLines(lines, "gtladditions.item.compressed_astral_array.tooltips", 5)
+                    },
+                    AstralArrayBehavior
+                )
+            )
+            .lang("Compressed Astral Array")
+            .register()
         DEBUG_MODULE_CONNECTOR = REGISTRATE.item("debug_module_connector") { properties: Item.Properties -> ComponentItem.create(properties) }
             .onRegister(
                 GTItems.attach(
                     TooltipBehavior
                     { lines: MutableList<Component> ->
-                        lines.add(Component.translatable("gtladditions.item.debug_module_connector.tooltips.0"))
-                        lines.add(Component.translatable("gtladditions.item.debug_module_connector.tooltips.1"))
-                        lines.add(Component.translatable("gtladditions.item.debug_module_connector.tooltips.2"))
-                    }, ModuleConnectionBehavior
+                        lines.add("gtladditions.item.debug_module_connector.tooltips.0".toComponent)
+                        lines.add("gtladditions.item.debug_module_connector.tooltips.1".toComponent)
+                        lines.add("gtladditions.item.debug_module_connector.tooltips.2".toComponent)
+                    },
+                    ModuleConnectionBehavior
                 )
             )
             .lang("Debug Module Connector")
@@ -109,8 +136,9 @@ object GTLAddItems {
                 GTItems.attach(
                     TooltipBehavior
                     { lines: MutableList<Component> ->
-                        lines.add(Component.translatable("gtladditions.item.strange_annihilation_fuel_rod.tooltips.0"))
-                    })
+                        lines.add("gtladditions.item.strange_annihilation_fuel_rod.tooltips.0".toComponent)
+                    }
+                )
             )
             .lang("Strange Annihilation Fuel Rod")
             .register()
@@ -119,8 +147,9 @@ object GTLAddItems {
                 GTItems.attach(
                     TooltipBehavior
                     { lines: MutableList<Component> ->
-                        lines.add(Component.translatable("gtladditions.item.black_hole_seed.tooltips.0"))
-                    })
+                        lines.add("gtladditions.item.black_hole_seed.tooltips.0".toComponent)
+                    }
+                )
             )
             .lang("Black Hole Seed")
             .register()
@@ -129,14 +158,21 @@ object GTLAddItems {
                 GTItems.attach(
                     TooltipBehavior
                     { lines: MutableList<Component> ->
-                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.0"))
-                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.1"))
-                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.2"))
-                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.3"))
-                        lines.add(Component.translatable("gtladditions.item.astral_array.tooltips.4"))
-                    }, AstralArrayBehavior)
+                        addTooltipLines(lines, "gtladditions.item.astral_array.tooltips", 5)
+                    },
+                    AstralArrayBehavior
+                )
             )
             .lang("Astral Array")
+            .register()
+        SUPRACHRONAL_DATA_MODULE = REGISTRATE.item("suprachronal_data_module") { properties: Item.Properties -> ComponentItem.create(properties) }
+            .onRegister(GTItems.attach(SuprachronalDataModuleBehavior))
+            .lang("Suprachronal Data Module")
+            .register()
+        GUIDE_BOOK = REGISTRATE.item("guide") { properties: Item.Properties -> ComponentItem.create(properties) }
+            .onRegister(GTItems.attach(GuideBook()))
+            .model(NonNullBiConsumer.noop())
+            .lang("GTLAdditions Guide")
             .register()
     }
 }

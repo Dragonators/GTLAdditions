@@ -10,7 +10,7 @@ import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Consumer
 
 object TitansCripEarthbore {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         GTLAddRecipesTypes.TECTONIC_FAULT_GENERATOR.recipeBuilder(GTLAdditions.id("bedrock_dust"))
             .chancedInput(Registries.getItemStack("kubejs:bedrock_drill"), 100, 0)
             .circuitMeta(1)

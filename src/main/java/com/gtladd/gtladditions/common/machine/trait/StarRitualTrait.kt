@@ -3,11 +3,10 @@ package com.gtladd.gtladditions.common.machine.trait
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
 import com.gregtechceu.gtceu.common.data.GTMachines
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper
 import com.gtladd.gtladditions.client.RenderMode
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist.Companion.MAX_EFFICIENCY_SEC
+import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
 import com.gtladd.gtladditions.utils.CommonUtils
+import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener
@@ -57,14 +56,12 @@ class StarRitualTrait(
         }
     }
 
-    override fun getMachine(): ForgeOfTheAntichrist {
-        return super.getMachine() as ForgeOfTheAntichrist
-    }
+    override fun getMachine(): ForgeOfTheAntichrist = super.getMachine() as ForgeOfTheAntichrist
 
     fun handleStarRitualLogic() {
         when (renderMode) {
             RenderMode.NORMAL -> {
-                if (getMachine().runningSecs < MAX_EFFICIENCY_SEC) return
+                if (!getMachine().canStarRitualStart()) return
                 if (machine.offsetTimer % 10 == 0L) collectItemsInRange()
             }
 
@@ -109,7 +106,9 @@ class StarRitualTrait(
                 if (hasCollectedAll()) {
                     level.playSound(
                         null,
-                        center.x, center.y, center.z,
+                        center.x,
+                        center.y,
+                        center.z,
                         SoundEvents.END_PORTAL_SPAWN,
                         SoundSource.BLOCKS,
                         100f,
@@ -119,7 +118,9 @@ class StarRitualTrait(
                 } else {
                     level.playSound(
                         null,
-                        center.x, center.y, center.z,
+                        center.x,
+                        center.y,
+                        center.z,
                         SoundEvents.EXPERIENCE_ORB_PICKUP,
                         SoundSource.BLOCKS,
                         60f,
@@ -132,7 +133,7 @@ class StarRitualTrait(
 
     private fun triggerCollapse() {
         renderMode = RenderMode.COLLAPSING
-        isCollapsing = true  // Notify Client COLLAPSING
+        isCollapsing = true // Notify Client COLLAPSING
         serverCollapseTick = 0
         collectedItems.clear()
 
@@ -153,7 +154,7 @@ class StarRitualTrait(
                 spawnRewardItem()
 
                 renderMode = RenderMode.RECOVERING
-                isCollapsing = false  // Notify Client RECOVERING
+                isCollapsing = false // Notify Client RECOVERING
                 serverCollapseTick = 0
                 serverRecoverTick = 0
                 collapseSubs?.unsubscribe()
@@ -206,8 +207,9 @@ class StarRitualTrait(
         if (!canCollect(item)) return false
 
         collectedItems.add(item).also {
-            if (it && collectedItems.size == 1)
+            if (it && collectedItems.size == 1) {
                 renderMode = RenderMode.RAINBOW
+            }
         }
 
         return true

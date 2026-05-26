@@ -12,7 +12,8 @@ import snownee.jade.addon.universal.FluidStorageProvider
 import snownee.jade.api.Accessor
 import snownee.jade.api.view.*
 
-object GTFluidStorageProvider : IServerExtensionProvider<MetaMachineBlockEntity, CompoundTag>,
+object GTFluidStorageProvider :
+    IServerExtensionProvider<MetaMachineBlockEntity, CompoundTag>,
     IClientExtensionProvider<CompoundTag, FluidView> {
     override fun getGroups(
         serverPlayer: ServerPlayer,
@@ -21,10 +22,11 @@ object GTFluidStorageProvider : IServerExtensionProvider<MetaMachineBlockEntity,
         b: Boolean
     ): List<ViewGroup<CompoundTag>>? {
         val machine = mmbe.getMetaMachine()
-        return if (machine is InfinityDualHatchPartMachine || machine is MEPatternBufferPartMachine)
+        return if (machine is InfinityDualHatchPartMachine || machine is MEPatternBufferPartMachine) {
             listOf()
-        else
+        } else {
             FluidStorageProvider.INSTANCE.getGroups(serverPlayer, serverLevel, mmbe, b)
+        }
     }
 
     override fun getUid(): ResourceLocation = GTLAdditions.id("ban_fluid_storage")
@@ -32,11 +34,9 @@ object GTFluidStorageProvider : IServerExtensionProvider<MetaMachineBlockEntity,
     override fun getClientGroups(
         accessor: Accessor<*>,
         groups: List<ViewGroup<CompoundTag>>
-    ): List<ClientViewGroup<FluidView>> {
-        return ClientViewGroup.map(
-            groups,
-            FluidView::readDefault,
-            null
-        )
-    }
+    ): List<ClientViewGroup<FluidView>> = ClientViewGroup.map(
+        groups,
+        FluidView::readDefault,
+        null
+    )
 }

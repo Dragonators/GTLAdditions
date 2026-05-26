@@ -16,7 +16,7 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object Distort {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         DISTORT_RECIPES.recipeBuilder(id("rare_earth_dust_monazite"))
             .notConsumable(GTLTagPrefix.nanoswarm, Rhenium)
             .inputItems(dust, Monazite, 64)

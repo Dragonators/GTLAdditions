@@ -8,17 +8,14 @@ import com.gtladd.gtladditions.api.machine.feature.IThreadModifierPart
 import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic
 
 open class MutableElectricMultiblockMachine(holder: IMachineBlockEntity, vararg args: Any?) :
-    WorkableElectricMultiblockMachine(holder, *args), IWirelessThreadModifierParallelMachine {
+    WorkableElectricMultiblockMachine(holder, *args),
+    IWirelessThreadModifierParallelMachine {
     private var threadPartMachine: IThreadModifierPart? = null
 
-    override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
-        return MutableRecipesLogic(this)
-    }
+    override fun createRecipeLogic(vararg args: Any?): RecipeLogic = MutableRecipesLogic(this)
 
     @Suppress("UNCHECKED_CAST")
-    override fun getRecipeLogic(): MutableRecipesLogic<MutableElectricMultiblockMachine> {
-        return super.getRecipeLogic() as MutableRecipesLogic<MutableElectricMultiblockMachine>
-    }
+    override fun getRecipeLogic(): MutableRecipesLogic<MutableElectricMultiblockMachine> = super.getRecipeLogic() as MutableRecipesLogic<MutableElectricMultiblockMachine>
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
@@ -26,9 +23,7 @@ open class MutableElectricMultiblockMachine(holder: IMachineBlockEntity, vararg 
         getRecipeLogic().setUseMultipleRecipes(false)
     }
 
-    override fun getMaxParallel(): Int {
-        return Int.MAX_VALUE
-    }
+    override fun getMaxParallel(): Int = Int.MAX_VALUE
 
     override fun setThreadPartMachine(threadModifierPart: IThreadModifierPart) {
         this.threadPartMachine = threadModifierPart

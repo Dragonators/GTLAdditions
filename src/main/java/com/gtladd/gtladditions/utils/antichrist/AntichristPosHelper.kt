@@ -62,13 +62,11 @@ object AntichristPosHelper {
         return result.toTypedArray()
     }
 
-    private fun getPerpendicularDirections(facing: Direction): Pair<BlockPos, BlockPos> {
-        return when (facing) {
-            Direction.NORTH -> Pair(BlockPos(1, 0, 0), BlockPos(0, 1, 0))
-            Direction.SOUTH -> Pair(BlockPos(-1, 0, 0), BlockPos(0, 1, 0))
-            Direction.EAST -> Pair(BlockPos(0, 0, 1), BlockPos(0, 1, 0))
-            Direction.WEST -> Pair(BlockPos(0, 0, -1), BlockPos(0, 1, 0))
-            else -> Pair(BlockPos(1, 0, 0), BlockPos(0, 1, 0))
-        }
+    private fun getPerpendicularDirections(facing: Direction): Pair<BlockPos, BlockPos> = when (facing) {
+        Direction.NORTH -> Pair(BlockPos(1, 0, 0), BlockPos(0, 1, 0))
+        Direction.SOUTH -> Pair(BlockPos(-1, 0, 0), BlockPos(0, 1, 0))
+        Direction.EAST -> Pair(BlockPos(0, 0, 1), BlockPos(0, 1, 0))
+        Direction.WEST -> Pair(BlockPos(0, 0, -1), BlockPos(0, 1, 0))
+        else -> Pair(BlockPos(1, 0, 0), BlockPos(0, 1, 0))
     }
 }

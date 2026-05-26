@@ -15,10 +15,10 @@ import org.gtlcore.gtlcore.config.ConfigHolder
 import java.util.function.Consumer
 
 object IntegratedOreProcessor {
-    val oreNumber : Int = ConfigHolder.INSTANCE.oreMultiplier
-    val oreFluid : Int = 100 * oreNumber
+    val oreNumber: Int = ConfigHolder.INSTANCE.oreMultiplier
+    val oreFluid: Int = 100 * oreNumber
 
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         INTEGRATED_ORE_PROCESSOR.recipeBuilder(id("jasper_ore_processed"))
             .circuitMeta(24)
             .inputItems(SizedIngredient.create(Ingredient.of(TagUtil.createItemTag("ores/jasper"))))

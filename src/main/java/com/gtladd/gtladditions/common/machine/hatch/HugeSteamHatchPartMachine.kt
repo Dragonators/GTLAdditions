@@ -18,23 +18,22 @@ import javax.annotation.ParametersAreNonnullByDefault
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-class HugeSteamHatchPartMachine(holder: IMachineBlockEntity) :
-    FluidHatchPartMachine(holder, 0, IO.IN, 0, 1) {
-    override fun createTank(initialCapacity: Long, slots: Int, vararg args: Any?): NotifiableFluidTank {
-        return NotifiableFluidTank(this, slots, Int.Companion.MAX_VALUE.toLong(), io)
-            .setFilter { fluidStack : FluidStack? -> fluidStack !!.fluid.isSame(GTMaterials.Steam.fluid) }
-    }
+class HugeSteamHatchPartMachine(holder: IMachineBlockEntity) : FluidHatchPartMachine(holder, 0, IO.IN, 0, 1) {
+    override fun createTank(initialCapacity: Long, slots: Int, vararg args: Any?): NotifiableFluidTank = NotifiableFluidTank(this, slots, Int.Companion.MAX_VALUE.toLong(), io)
+        .setFilter { fluidStack: FluidStack? -> fluidStack!!.fluid.isSame(GTMaterials.Steam.fluid) }
 
-    override fun createUI(entityPlayer: Player): ModularUI {
-        return ModularUI(176, 166, this, entityPlayer)
-            .background(GuiTextures.BACKGROUND_STEAM.get(false))
-            .widget(ImageWidget(7, 16, 81, 55, GuiTextures.DISPLAY_STEAM.get(false)))
-            .widget(LabelWidget(11, 20, "gtceu.gui.fluid_amount"))
-            .widget(LabelWidget(11, 30) { tank.getFluidInTank(0).amount.toString() + "" }
-                .setTextColor(-1).setDropShadow(true))
-            .widget(LabelWidget(6, 6, blockState.block.descriptionId))
-            .widget(TankWidget(tank.storages[0], 90, 35, true, true)
-                .setBackground(GuiTextures.FLUID_SLOT))
-            .widget(UITemplate.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT_STEAM.get(false), 7, 84, true))
-    }
+    override fun createUI(entityPlayer: Player): ModularUI = ModularUI(176, 166, this, entityPlayer)
+        .background(GuiTextures.BACKGROUND_STEAM.get(false))
+        .widget(ImageWidget(7, 16, 81, 55, GuiTextures.DISPLAY_STEAM.get(false)))
+        .widget(LabelWidget(11, 20, "gtceu.gui.fluid_amount"))
+        .widget(
+            LabelWidget(11, 30) { tank.getFluidInTank(0).amount.toString() + "" }
+                .setTextColor(-1).setDropShadow(true)
+        )
+        .widget(LabelWidget(6, 6, blockState.block.descriptionId))
+        .widget(
+            TankWidget(tank.storages[0], 90, 35, true, true)
+                .setBackground(GuiTextures.FLUID_SLOT)
+        )
+        .widget(UITemplate.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT_STEAM.get(false), 7, 84, true))
 }

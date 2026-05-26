@@ -20,25 +20,24 @@ class GTLAddRegistration : GTRegistrate(GTLAdditions.MOD_ID) {
     override fun multiblock(
         name: String,
         metaMachine: Function<IMachineBlockEntity, out MultiblockControllerMachine?>
-    ): GTLAddMultiBlockMachineBuilder {
-        return GTLAddMultiBlockMachineBuilder.createMulti(
-            name,
-            metaMachine,
-            { properties: BlockBehaviour.Properties?, definition: MultiblockMachineDefinition? ->
-                MetaMachineBlock(
-                    properties!!,
-                    definition!!
-                )
-            },
-            { block: IMachineBlock?, properties: Item.Properties? -> MetaMachineItem(block!!, properties!!) },
-            { type: BlockEntityType<*>?, pos: BlockPos?, blockState: BlockState? ->
-                MetaMachineBlockEntity.createBlockEntity(
-                    type,
-                    pos,
-                    blockState
-                )
-            })
-    }
+    ): GTLAddMultiBlockMachineBuilder = GTLAddMultiBlockMachineBuilder.createMulti(
+        name,
+        metaMachine,
+        { properties: BlockBehaviour.Properties?, definition: MultiblockMachineDefinition? ->
+            MetaMachineBlock(
+                properties!!,
+                definition!!
+            )
+        },
+        { block: IMachineBlock?, properties: Item.Properties? -> MetaMachineItem(block!!, properties!!) },
+        { type: BlockEntityType<*>?, pos: BlockPos?, blockState: BlockState? ->
+            MetaMachineBlockEntity.createBlockEntity(
+                type,
+                pos,
+                blockState
+            )
+        }
+    )
 
     companion object {
         val REGISTRATE: GTLAddRegistration = GTLAddRegistration()

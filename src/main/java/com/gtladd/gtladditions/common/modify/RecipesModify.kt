@@ -21,13 +21,15 @@ import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.CHAOTIC_ALCHEMY
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.LEYLINE_CRYSTALLIZE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.PHOTON_MATRIX_ETCH
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.SPACE_ORE_PROCESSOR
+import com.gtladd.gtladditions.utils.RecipeCalculationHelper
 import com.gtladd.gtladditions.utils.TempChemicalHelper
 import net.minecraft.data.recipes.FinishedRecipe
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.Item
 import org.gtlcore.gtlcore.common.data.GTLMaterials.EuvPhotoresist
 import org.gtlcore.gtlcore.common.data.GTLMaterials.Photoresist
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
 import org.gtlcore.gtlcore.config.ConfigHolder
+import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Consumer
 import kotlin.math.log10
 
@@ -42,6 +44,7 @@ object RecipesModify {
         initChaoticAlchemy()
         initSpaceOreProcessor()
         initLeylineCrystallize()
+        initForgeOfTheAntichristSlotNames()
         if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.init()
     }
 
@@ -61,26 +64,26 @@ object RecipesModify {
         PLASMA_CONDENSER_RECIPES.onRecipeBuild { recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe> ->
             val antientropyBuilder = ANTIENTROPY_CONDENSATION.copyFrom(recipeBuilder)
             antientropyBuilder.input[FluidRecipeCapability.CAP]?.removeIf(liquidHeliumPredicate)
-            antientropyBuilder.output[FluidRecipeCapability.CAP]?.removeIf(gasHeliumPredicate)
+            if (antientropyBuilder.id.path != "helium_condenser") {
+                antientropyBuilder.output[FluidRecipeCapability.CAP]?.removeIf(gasHeliumPredicate)
+            }
             antientropyBuilder.save(provider)
         }
     }
 
-    private fun createFluidPredicate(storageKey: FluidStorageKey): (Content) -> Boolean {
-        return { content ->
-            FluidRecipeCapability.CAP.of(content.content)?.values?.firstOrNull()?.let { value ->
-                when (value) {
-                    is FluidIngredient.TagValue -> {
-                        val expectedTag = if (storageKey == LIQUID) "forge.liquid_helium" else "forge.gas_helium"
-                        value.tag.location.toLanguageKey() == expectedTag
-                    }
-
-                    else -> {
-                        value.fluids?.any { it.isSame(Helium.getFluid(storageKey)) } == true
-                    }
+    private fun createFluidPredicate(storageKey: FluidStorageKey): (Content) -> Boolean = { content ->
+        FluidRecipeCapability.CAP.of(content.content)?.values?.firstOrNull()?.let { value ->
+            when (value) {
+                is FluidIngredient.TagValue -> {
+                    val expectedTag = if (storageKey == LIQUID) "forge.liquid_helium" else "forge.gas_helium"
+                    value.tag.location.toLanguageKey() == expectedTag
                 }
-            } ?: false
-        }
+
+                else -> {
+                    value.fluids?.any { it.isSame(Helium.getFluid(storageKey)) } == true
+                }
+            }
+        } ?: false
     }
 
     private fun initChaoticAlchemy() {
@@ -147,5 +150,34 @@ object RecipesModify {
 
             leylineBuilder.save(provider)
         }
+    }
+
+    private fun initForgeOfTheAntichristSlotNames() {
+        DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES.onRecipeBuild { recipeBuilder: GTRecipeBuilder, _: Consumer<FinishedRecipe> ->
+            markCycleItemContents(recipeBuilder)
+        }
+        STELLAR_FORGE_RECIPES.onRecipeBuild { recipeBuilder: GTRecipeBuilder, _: Consumer<FinishedRecipe> ->
+            markCycleItemContents(recipeBuilder)
+        }
+    }
+
+    private fun markCycleItemContents(recipeBuilder: GTRecipeBuilder) {
+        markCycleItemContents(recipeBuilder.input[ItemRecipeCapability.CAP])
+        markCycleItemContents(recipeBuilder.output[ItemRecipeCapability.CAP])
+    }
+
+    private fun markCycleItemContents(contents: MutableList<Content>?) {
+        contents?.forEach { content ->
+            val item = ItemRecipeCapability.CAP.of(content.content).items.firstOrNull()?.item ?: return@forEach
+            if (item in cycleItems) content.slotName = RecipeCalculationHelper.RECIPE_CYCLE_CONTAINER
+        }
+    }
+
+    private val cycleItems: Set<Item> by lazy {
+        setOf(
+            Registries.getItem("kubejs:extremely_durable_plasma_cell"),
+            Registries.getItem("kubejs:time_dilation_containment_unit"),
+            Registries.getItem("kubejs:plasma_containment_cell")
+        )
     }
 }

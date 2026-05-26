@@ -18,6 +18,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredIOPartMachine
 import com.gtladd.gtladditions.common.machine.trait.FastNotifiableInputFluidTank
 import com.gtladd.gtladditions.common.machine.trait.FastNotifiableInputItemStack
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.TransferHelper
 import com.hepdd.gtmthings.api.machine.fancyconfigurator.ButtonConfigurator
 import com.hepdd.gtmthings.api.machine.fancyconfigurator.InventoryFancyConfigurator
@@ -51,7 +52,10 @@ import net.minecraft.world.level.block.Block
 import org.gtlcore.gtlcore.api.machine.trait.NotifiableCircuitItemStackHandler
 
 class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
-    TieredIOPartMachine(holder, 14, IO.IN), IMachineLife, IDistinctPart, MEStorage {
+    TieredIOPartMachine(holder, 14, IO.IN),
+    IMachineLife,
+    IDistinctPart,
+    MEStorage {
 
     @field:Persisted
     private val shareTank: CatalystFluidStackHandler = CatalystFluidStackHandler(this, 9, 16000L, IO.IN, IO.NONE)
@@ -175,9 +179,7 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
 
     override fun extract(what: AEKey?, amount: Long, mode: Actionable?, source: IActionSource?): Long = 0
 
-    override fun getDescription(): Component? {
-        return Component.translatable("block.gtladditions.infinity_input_dual_hatch")
-    }
+    override fun getDescription(): Component? = "block.gtladditions.infinity_input_dual_hatch".toComponent
 
     // ========================================
     // GUI
@@ -187,11 +189,13 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
         val height = 117
         val width = 178
         val group = WidgetGroup(0, 0, width + 8, height + 4)
-        val componentPanel = (ComponentPanelWidget(8, 5) { textList: MutableList<Component?>? ->
-            this.addDisplayText(
-                textList!!
+        val componentPanel = (
+            ComponentPanelWidget(8, 5) { textList: MutableList<Component?>? ->
+                this.addDisplayText(
+                    textList!!
+                )
+            }
             )
-        })
             .setMaxWidthLimit(width - 16)
         val screen = (DraggableScrollableWidgetGroup(4, 4, width, height))
             .setBackground(GuiTextures.DISPLAY).addWidget(componentPanel)
@@ -204,14 +208,15 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
         tank.addDisplayText(textList)
 
         if (textList.isEmpty()) {
-            textList.add(Component.translatable("gtmthings.machine.huge_item_bus.tooltip.3"))
+            textList.add("gtmthings.machine.huge_item_bus.tooltip.3".toComponent)
         }
 
         textList.add(
             0,
-            Component.translatable(
-                "gtmthings.machine.huge_item_bus.tooltip.2", inventory.realSize, createLanguageRainbowComponentOnServer(
-                    Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel")
+            "gtmthings.machine.huge_item_bus.tooltip.2".toComponent(
+                inventory.realSize,
+                createLanguageRainbowComponentOnServer(
+                    "gtladditions.multiblock.forge_of_the_antichrist.parallel".toComponent
                 )
             )
                 .setStyle(
@@ -219,9 +224,11 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
                 )
         )
         textList.add(
-            1, Component.translatable(
-                "gtmthings.machine.huge_dual_hatch.tooltip.2", tank.realSize, createLanguageRainbowComponentOnServer(
-                    Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel")
+            1,
+            "gtmthings.machine.huge_dual_hatch.tooltip.2".toComponent(
+                tank.realSize,
+                createLanguageRainbowComponentOnServer(
+                    "gtladditions.multiblock.forge_of_the_antichrist.parallel".toComponent
                 )
             ).setStyle(
                 Style.EMPTY.withColor(ChatFormatting.GREEN)
@@ -237,12 +244,13 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
                 GuiTextures.BUTTON_DISTINCT_BUSES.getSubTexture(0.0, 0.5, 1.0, 0.5),
                 GuiTextures.BUTTON_DISTINCT_BUSES.getSubTexture(0.0, 0.0, 1.0, 0.5),
                 { this.isDistinct() },
-                { clickData: ClickData?, pressed: Boolean? -> setDistinct(pressed!!) })
+                { clickData: ClickData?, pressed: Boolean? -> setDistinct(pressed!!) }
+            )
                 .setTooltipsSupplier { pressed: Boolean ->
                     listOf<Component?>(
-                        Component.translatable("gtceu.multiblock.universal.distinct")
+                        "gtceu.multiblock.universal.distinct".toComponent
                             .setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
-                            .append(Component.translatable(if (pressed) "gtceu.multiblock.universal.distinct.yes" else "gtceu.multiblock.universal.distinct.no"))
+                            .append((if (pressed) "gtceu.multiblock.universal.distinct.yes" else "gtceu.multiblock.universal.distinct.no").toComponent)
                     )
                 }
         )
@@ -250,38 +258,42 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
         configuratorPanel.attachConfigurators(CircuitFancyConfigurator(this.circuitInventory.storage))
 
         configuratorPanel.attachConfigurators(
-            (ButtonConfigurator(
-                GuiTextureGroup(
-                    GuiTextures.BUTTON,
-                    TextTexture("\ud83d\udd19")
+            (
+                ButtonConfigurator(
+                    GuiTextureGroup(
+                        GuiTextures.BUTTON,
+                        TextTexture("\ud83d\udd19")
+                    )
+                ) { clickData: ClickData ->
+                    this.refundAll()
+                }.setTooltips(listOf<Component>("gtmthings.machine.huge_item_bus.tooltip.1".toComponent))
                 )
-            ) { clickData: ClickData ->
-                this.refundAll()
-            }.setTooltips(listOf<Component>(Component.translatable("gtmthings.machine.huge_item_bus.tooltip.1"))))
         )
 
         configuratorPanel.attachConfigurators(
             InventoryFancyConfigurator(
                 this.shareInventory.storage,
-                Component.translatable("gui.gtmthings.share_inventory.title")
+                "gui.gtmthings.share_inventory.title".toComponent
             ).setTooltips(
                 listOf<Component>(
-                    Component.translatable("gui.gtmthings.share_inventory.desc.0"),
-                    Component.translatable("gui.gtmthings.share_inventory.desc.1"),
-                    Component.translatable("gui.gtmthings.share_inventory.desc.2")
+                    "gui.gtmthings.share_inventory.desc.0".toComponent,
+                    "gui.gtmthings.share_inventory.desc.1".toComponent,
+                    "gui.gtmthings.share_inventory.desc.2".toComponent
                 )
             )
         )
 
         configuratorPanel.attachConfigurators(
-            (FancyTankConfigurator(
-                this.shareTank.storages,
-                Component.translatable("gui.gtceu.share_tank.title")
-            ))
+            (
+                FancyTankConfigurator(
+                    this.shareTank.storages,
+                    "gui.gtceu.share_tank.title".toComponent
+                )
+                )
                 .setTooltips(
                     listOf<Component>(
-                        Component.translatable("gui.gtceu.share_tank.desc.0"),
-                        Component.translatable("gui.gtceu.share_inventory.desc.1")
+                        "gui.gtceu.share_tank.desc.0".toComponent,
+                        "gui.gtceu.share_inventory.desc.1".toComponent
                     )
                 )
         )

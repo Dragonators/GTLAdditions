@@ -16,31 +16,34 @@ import com.gtladd.gtladditions.api.machine.mutable.AddMutableElectricParallelHat
 import com.gtladd.gtladditions.api.machine.mutable.MutableCoilElectricParallelHatchMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricParallelHatchMultiblockMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ANTIENTROPY_CONDENSATION_CENTER
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ARCANE_CACHE_VAULT
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ASTRAL_CONVERGENCE_NEXUS
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ATOMIC_TRANSMUTATIOON_CORE
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.BIOLOGICAL_SIMULATION_LABORATORY
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.DRACONIC_COLLAPSE_CORE
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.INFERNO_CLEFT_SMELTING_VAULT
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.LUCID_ETCHDREAMER
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEBULA_REAPER
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKI
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.QUANTUM_SYPHON_MATRIX
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.TITAN_CRIP_EARTHBORE
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MutableFusionReactorMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MutablePCBFactoryMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MutableSuprachronalAssemblyLineMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.MutableTierCasingMachine
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ANTIENTROPY_CONDENSATION_CENTER
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ARCANE_CACHE_VAULT
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ASTRAL_CONVERGENCE_NEXUS
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ATOMIC_TRANSMUTATIOON_CORE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.BIOLOGICAL_SIMULATION_LABORATORY
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DRACONIC_COLLAPSE_CORE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.INFERNO_CLEFT_SMELTING_VAULT
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.LUCID_ETCHDREAMER
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEBULA_REAPER
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKI
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.QUANTUM_SYPHON_MATRIX
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.TITAN_CRIP_EARTHBORE
+import com.gtladd.gtladditions.common.machine.multiblock.controller.OreProcessorMachine
+import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.MutableFusionReactorMachine
+import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.MutablePCBFactoryMachine
+import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.MutableSuprachronalAssemblyLineMachine
+import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.MutableTierCasingMachine
 import com.gtladd.gtladditions.common.modify.multiblockMachine.*
+import com.gtladd.gtladditions.utils.ComponentExtensions.literal
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ThreadMultiplierStrategy
 import it.unimi.dsi.fastutil.longs.LongLongPair
 import net.minecraft.ChatFormatting
@@ -142,19 +145,18 @@ object MutableMultiBlockModify {
         for (definition in mutableWithExtra) {
             addTooltips(
                 definition,
-                Component.translatable("gtladditions.multiblock.thread.tooltip.0"),
-                Component.translatable(
-                    "gtladditions.multiblock.thread.tooltip.1",
-                    Component.literal(ThreadMultiplierStrategy.getAdditionalMultiplier(definition).toString())
+                "gtladditions.multiblock.thread.tooltip.0".toComponent,
+                "gtladditions.multiblock.thread.tooltip.1".toComponent(
+                    ThreadMultiplierStrategy.getAdditionalMultiplier(definition).toString().literal
                         .withStyle(ChatFormatting.GOLD)
                 ),
                 when (definition) {
                     MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE ->
-                        Component.translatable("gtladditions.multiblock.thread.below.tooltip.0", "IV")
+                        "gtladditions.multiblock.thread.below.tooltip.0".toComponent("IV")
                     MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT ->
-                        Component.translatable("gtladditions.multiblock.thread.atomic_energy_excitation_plant.tooltip.0")
+                        "gtladditions.multiblock.thread.atomic_energy_excitation_plant.tooltip.0".toComponent
                     AdvancedMultiBlockMachine.PCB_FACTORY ->
-                        Component.translatable("gtladditions.multiblock.thread.below.tooltip.0", "LuV")
+                        "gtladditions.multiblock.thread.below.tooltip.0".toComponent("LuV")
                     else -> null
                 }
             )
@@ -164,15 +166,14 @@ object MutableMultiBlockModify {
         for (definition in multipleWithAdd) {
             addTooltips(
                 definition,
-                Component.translatable("gtladditions.multiblock.thread.tooltip.2"),
-                Component.translatable(
-                    "gtladditions.multiblock.thread.tooltip.1",
-                    Component.literal(ThreadMultiplierStrategy.getAdditionalMultiplier(definition).toString())
+                "gtladditions.multiblock.thread.tooltip.2".toComponent,
+                "gtladditions.multiblock.thread.tooltip.1".toComponent(
+                    ThreadMultiplierStrategy.getAdditionalMultiplier(definition).toString().literal
                         .withStyle(ChatFormatting.GOLD)
                 ),
                 when (definition) {
                     DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT ->
-                        Component.translatable("gtladditions.multiblock.thread.below.tooltip.0", "UV")
+                        "gtladditions.multiblock.thread.below.tooltip.0".toComponent("UV")
                     else -> null
                 }
             )
@@ -206,7 +207,6 @@ object MutableMultiBlockModify {
         }
     }
 
-
     fun setOtherMutable() {
         MultiBlockMachineA.FISHING_GROUND.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             AddMutableElectricParallelHatchMultiblockMachine(blockEntity)
@@ -218,27 +218,21 @@ object MutableMultiBlockModify {
 
         MultiBlockMachineA.LARGE_RECYCLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricMultiblockMachine(blockEntity) {
-                override fun getMaxParallel(): Int {
-                    return 4.0.pow(tier - 4).roundToInt()
-                }
+                override fun getMaxParallel(): Int = 4.0.pow(tier - 4).roundToInt()
             }
         }
 
         MultiBlockMachineA.A_MASS_FABRICATOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
-                    return MutableRecipesLogic(this, 0.4)
-                }
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = MutableRecipesLogic(this, 0.4)
             }
         }
 
         MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
-                    return object : MutableRecipesLogic<MutableElectricParallelHatchMultiblockMachine>(this) {
-                        override val euMultiplier: Double
-                            get() = if (machine.recipeType == GTRecipeTypes.MIXER_RECIPES) super.euMultiplier * 0.2 else super.euMultiplier
-                    }
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = object : MutableRecipesLogic<MutableElectricParallelHatchMultiblockMachine>(this) {
+                    override val euMultiplier: Double
+                        get() = if (machine.recipeType == GTRecipeTypes.MIXER_RECIPES) super.euMultiplier * 0.2 else super.euMultiplier
                 }
             }
         }
@@ -249,13 +243,9 @@ object MutableMultiBlockModify {
 
         MultiBlockMachineA.NANO_CORE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
-                override fun getMaxParallel(): Int {
-                    return if (getRecipeLogic().isMultipleRecipeMode()) 67108864 else 8192
-                }
+                override fun getMaxParallel(): Int = if (getRecipeLogic().isMultipleRecipeMode()) 67108864 else 8192
 
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
-                    return MutableRecipesLogic(this, 0.05)
-                }
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = MutableRecipesLogic(this, 0.05)
             }
         }
 
@@ -271,37 +261,36 @@ object MutableMultiBlockModify {
             MutablePCBFactoryMachine(blockEntity)
         }
 
+        MultiBlockMachineA.ADVANCED_INTEGRATED_ORE_PROCESSOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            OreProcessorMachine(blockEntity)
+        }
+
         AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
-                    return object : MutableRecipesLogic<MutableElectricParallelHatchMultiblockMachine>(this) {
-                        override fun getRecipeEut(recipe: GTRecipe): Long {
-                            return recipe.data.getInt("evt") * 2000L
-                        }
-                    }
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = object : MutableRecipesLogic<MutableElectricParallelHatchMultiblockMachine>(this) {
+                    override fun getRecipeEut(recipe: GTRecipe): Long = recipe.data.getInt("evt") * 2000L
                 }
             }
         }
 
         MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableTierCasingMachine(blockEntity, "CATier") {
-                override fun createRecipeLogic(vararg args: Any): RecipeLogic {
-                    return object : MutableRecipesLogic<MutableTierCasingMachine>(this, TIER_CHECK) {
-                        override fun calculateParallel(
-                            machine: IRecipeLogicMachine,
-                            match: GTRecipe,
-                            remain: Long
-                        ): LongLongPair {
-                            return if (RecipeHelper.getInputEUt(match) <= GTValues.V[GTValues.IV]) {
-                                LongLongPair.of(
-                                    IParallelLogic.getMaxParallel(
-                                        machine,
-                                        match,
-                                        Long.MAX_VALUE
-                                    ), 0
-                                )
-                            } else super.calculateParallel(machine, match, remain)
-                        }
+                override fun createRecipeLogic(vararg args: Any): RecipeLogic = object : MutableRecipesLogic<MutableTierCasingMachine>(this, TIER_CHECK) {
+                    override fun calculateParallel(
+                        machine: IRecipeLogicMachine,
+                        match: GTRecipe,
+                        remain: Long
+                    ): LongLongPair = if (RecipeHelper.getInputEUt(match) <= GTValues.V[GTValues.IV]) {
+                        LongLongPair.of(
+                            IParallelLogic.getMaxParallel(
+                                machine,
+                                match,
+                                Long.MAX_VALUE
+                            ),
+                            0
+                        )
+                    } else {
+                        super.calculateParallel(machine, match, remain)
                     }
                 }
             }
@@ -309,26 +298,25 @@ object MutableMultiBlockModify {
 
         MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableCoilElectricParallelHatchMultiblockMachine(blockEntity) {
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
-                    return object : MutableRecipesLogic<MutableCoilElectricParallelHatchMultiblockMachine>(
-                        this,
-                        EBFChecks.ATOMIC_ENERGY_EXCITATION_PLANT_CHECK
-                    ) {
-                        override fun calculateParallel(
-                            machine: IRecipeLogicMachine,
-                            match: GTRecipe,
-                            remain: Long
-                        ): LongLongPair {
-                            return if (match.recipeType == GTLRecipeTypes.FUEL_REFINING_RECIPES) {
-                                LongLongPair.of(
-                                    IParallelLogic.getMaxParallel(
-                                        machine,
-                                        match,
-                                        Long.MAX_VALUE
-                                    ), 0
-                                )
-                            } else super.calculateParallel(machine, match, remain)
-                        }
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = object : MutableRecipesLogic<MutableCoilElectricParallelHatchMultiblockMachine>(
+                    this,
+                    EBFChecks.ATOMIC_ENERGY_EXCITATION_PLANT_CHECK
+                ) {
+                    override fun calculateParallel(
+                        machine: IRecipeLogicMachine,
+                        match: GTRecipe,
+                        remain: Long
+                    ): LongLongPair = if (match.recipeType == GTLRecipeTypes.FUEL_REFINING_RECIPES) {
+                        LongLongPair.of(
+                            IParallelLogic.getMaxParallel(
+                                machine,
+                                match,
+                                Long.MAX_VALUE
+                            ),
+                            0
+                        )
+                    } else {
+                        super.calculateParallel(machine, match, remain)
                     }
                 }
             }

@@ -14,7 +14,7 @@
   ],
   "key": {
     "A": {
-      "item": "gtladditions:heliofusion_exoticizer"
+      "item": "gtladditions:heliophase_leyline_crystallizer"
     },
     "B": {
       "item": "gtladditions:stargate_frame_part"
@@ -29,7 +29,7 @@
       "item": "sgjourney:reaction_chamber"
     },
     "F": {
-      "item": "gtladditions:forge_of_the_antichrist"
+      "item": "gtladditions:recursive_reverse_array"
     }
   },
   "result": {

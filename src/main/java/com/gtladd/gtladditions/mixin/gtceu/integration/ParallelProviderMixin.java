@@ -17,13 +17,10 @@ import com.google.common.primitives.Ints;
 import com.gtladd.gtladditions.api.machine.IThreadModifierMachine;
 import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic;
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.ForgeOfTheAntichrist;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.MacroAtomicResonantFragmentStripper;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.SpaceInfinityIntegratedOreProcessor;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.TaixuTurbidArray;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.ForgeOfTheAntichristModuleBase;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.HelioFusionExoticizer;
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.SubspaceCorridorHubIndustrialArrayModuleBase;
+import com.gtladd.gtladditions.common.machine.multiblock.controller.*;
+import com.gtladd.gtladditions.common.machine.multiblock.controller.module.ForgeOfTheAntichristModuleBase;
+import com.gtladd.gtladditions.common.machine.multiblock.controller.module.HelioFusionExoticizer;
+import com.gtladd.gtladditions.common.machine.multiblock.controller.module.SubspaceCorridorHubIndustrialArrayModuleBase;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
@@ -103,6 +100,9 @@ public abstract class ParallelProviderMixin {
                     } else if (workableElectricMultiblockMachine instanceof SubspaceCorridorHubIndustrialArrayModuleBase subspaceModuleBase && subspaceModuleBase.isConnectedToHost() && Objects.requireNonNull(subspaceModuleBase.getHost()).unlockParadoxical()) {
                         compoundTag.putLong("parallel", INFINITY_FEATURE);
                         compoundTag.putLong("threads", INFINITY_FEATURE);
+                    } else if (workableElectricMultiblockMachine instanceof SpaceScalingInstrument) {
+                        compoundTag.putLong("parallel", INFINITY_FEATURE);
+                        compoundTag.putLong("threads", INFINITY_FEATURE);
                     } else {
                         compoundTag.putLong("parallel", addMachine.getMaxParallel());
                         compoundTag.putLong("threads", addMachine.getRecipeLogic().getMultipleThreads());
@@ -120,6 +120,10 @@ public abstract class ParallelProviderMixin {
                             compoundTag.putLong("threads", mutableRecipesLogic.getMultipleThreads());
                     } else if (blockEntity.getMetaMachine() instanceof ParallelMachine controller) {
                         compoundTag.putLong("parallel", controller.getMaxParallel());
+                    } else if (workableElectricMultiblockMachine instanceof ConversationMachine conversationMachine) {
+                        compoundTag.putLong("parallel", conversationMachine.getParallel());
+                    } else if (workableElectricMultiblockMachine instanceof BasicOreProcessorMachine basicOreProcessorMachine) {
+                        compoundTag.putLong("parallel", basicOreProcessorMachine.getParallel());
                     } else {
                         Optional<IParallelHatch> parallelHatch = Optional.ofNullable(((IRecipeCapabilityMachine) workableElectricMultiblockMachine).getParallelHatch());
                         parallelHatch.ifPresent(iParallelHatch -> compoundTag.putLong("parallel", iParallelHatch.getCurrentParallel()));

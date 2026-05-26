@@ -7,6 +7,8 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.FancyTankConfigurator
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank
+import com.gtladd.gtladditions.utils.ComponentExtensions.literal
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeBusPartMachine
 import com.hepdd.gtmthings.common.block.machine.trait.CatalystFluidStackHandler
 import com.hepdd.gtmthings.utils.FormatUtil
@@ -34,8 +36,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler
 import org.gtlcore.gtlcore.utils.NumberUtils
 import java.util.function.Predicate
 
-open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, vararg args: Any?) :
-    HugeBusPartMachine(holder, tier, IO.IN, 9, *args) {
+open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, vararg args: Any?) : HugeBusPartMachine(holder, tier, IO.IN, 9, *args) {
     @field:Persisted
     protected val tank: NotifiableFluidTank
 
@@ -45,24 +46,24 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, var
     private var hasFluidTransfer = false
     private var hasItemTransfer = false
 
-    protected open fun createTank(): NotifiableFluidTank {
-        return SuperNotifiableFluidTank(this@SuperDualHatchPartMachine, 24, Long.Companion.MAX_VALUE shr 12, IO.IN)
-    }
+    protected open fun createTank(): NotifiableFluidTank = SuperNotifiableFluidTank(this@SuperDualHatchPartMachine, 24, Long.Companion.MAX_VALUE shr 12, IO.IN)
 
-    fun getTankInventorySize() : Int {
-        return this.tank.storages.size
-    }
+    fun getTankInventorySize(): Int = this.tank.storages.size
 
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
         super.attachConfigurators(configuratorPanel)
         configuratorPanel.attachConfigurators(
-            (FancyTankConfigurator(
-                this.shareTank.storages,
-                Component.translatable("gui.gtceu.share_tank.title")
-            ))
+            (
+                FancyTankConfigurator(
+                    this.shareTank.storages,
+                    "gui.gtceu.share_tank.title".toComponent
+                )
+                )
                 .setTooltips(
-                    listOf<Component?>(Component.translatable("gui.gtceu.share_tank.desc.0"),
-                        Component.translatable("gui.gtceu.share_inventory.desc.1"))
+                    listOf<Component?>(
+                        "gui.gtceu.share_tank.desc.0".toComponent,
+                        "gui.gtceu.share_inventory.desc.1".toComponent
+                    )
                 )
         )
     }
@@ -139,11 +140,13 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, var
         val height = 117
         val width = 178
         val group = WidgetGroup(0, 0, width + 8, height + 4)
-        val componentPanel = (ComponentPanelWidget(8, 5) { textList: MutableList<Component?>? ->
-            this.addDisplayText(
-                textList!!
+        val componentPanel = (
+            ComponentPanelWidget(8, 5) { textList: MutableList<Component?>? ->
+                this.addDisplayText(
+                    textList!!
+                )
+            }
             )
-        })
             .setMaxWidthLimit(width - 16)
         val screen = (DraggableScrollableWidgetGroup(4, 4, width, height))
             .setBackground(GuiTextures.DISPLAY).addWidget(componentPanel)
@@ -154,13 +157,13 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, var
     private fun addDisplayText(textList: MutableList<Component?>) {
         var itemCount = 0
         var tankCount = 0
-        for (i in 0..< inventorySize - 1) {
+        for (i in 0..<inventorySize - 1) {
             val `is` = super.getInventory().getStackInSlot(i)
             if (!`is`.isEmpty) {
                 textList.add(
                     `is`.displayName.copy().setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
                         .append(
-                            Component.literal(FormatUtil.formatNumber(`is`.count.toLong()))
+                            (FormatUtil.formatNumber(`is`.count.toLong())).literal
                                 .setStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))
                         )
                 )
@@ -173,10 +176,14 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, var
                 textList.add(
                     fs.displayName.copy().setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD))
                         .append(
-                            Component.literal(
-                                if (fs.amount < 1000L) fs.amount
-                                    .toString() + "mB" else NumberUtils.formatLong(fs.amount / 1000L) + "B"
-                            )
+                            (
+                                if (fs.amount < 1000L) {
+                                    fs.amount
+                                        .toString() + "mB"
+                                } else {
+                                    NumberUtils.formatLong(fs.amount / 1000L) + "B"
+                                }
+                                ).literal
                                 .setStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))
                         )
                 )
@@ -184,25 +191,24 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, var
             }
         }
         if (textList.isEmpty()) {
-            textList.add(Component.translatable("gtmthings.machine.huge_item_bus.tooltip.3"))
+            textList.add("gtmthings.machine.huge_item_bus.tooltip.3".toComponent)
         }
         textList.add(
             0,
-            Component.translatable("gtmthings.machine.huge_item_bus.tooltip.2", itemCount, inventorySize)
+            "gtmthings.machine.huge_item_bus.tooltip.2".toComponent(itemCount, inventorySize)
                 .setStyle(
                     Style.EMPTY.withColor(ChatFormatting.GREEN)
                 )
         )
         textList.add(
-            1, Component.translatable("gtmthings.machine.huge_dual_hatch.tooltip.2", tankCount, getTankInventorySize()).setStyle(
+            1,
+            "gtmthings.machine.huge_dual_hatch.tooltip.2".toComponent(tankCount, getTankInventorySize()).setStyle(
                 Style.EMPTY.withColor(ChatFormatting.GREEN)
             )
         )
     }
 
-    override fun getFieldHolder(): ManagedFieldHolder {
-        return MANAGED_FIELD_HOLDER
-    }
+    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     init {
         this.tank = this.createTank()

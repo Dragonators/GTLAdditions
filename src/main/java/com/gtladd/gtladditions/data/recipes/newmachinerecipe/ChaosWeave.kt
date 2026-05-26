@@ -9,7 +9,7 @@ import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Consumer
 
 object ChaosWeave {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         generateTagRecipes(
             provider,
             TagRecipeConfig("dusts"),
@@ -22,7 +22,7 @@ object ChaosWeave {
         )
     }
 
-    private fun generateTagRecipes(provider : Consumer<FinishedRecipe?>, vararg configs: TagRecipeConfig) {
+    private fun generateTagRecipes(provider: Consumer<FinishedRecipe?>, vararg configs: TagRecipeConfig) {
         for (config in configs) {
             val tagKey = TagUtil.createItemTag(config.tag)
             GTLAddRecipesTypes.CHAOS_WEAVE.recipeBuilder(GTLAdditions.id("chaos_weave_${tagKey.location.path}"))
@@ -34,6 +34,6 @@ object ChaosWeave {
 
     private data class TagRecipeConfig(
         val tag: String,
-        val inputCount: Int = 64,
+        val inputCount: Int = 64
     )
 }

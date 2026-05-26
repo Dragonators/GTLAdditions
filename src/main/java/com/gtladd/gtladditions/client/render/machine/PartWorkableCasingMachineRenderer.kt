@@ -23,7 +23,8 @@ open class PartWorkableCasingMachineRenderer(
     workableModel: ResourceLocation,
     protected val partEntry: BlockEntry<Block>,
     protected val partCasing: ResourceLocation
-) : WorkableCasingMachineRenderer(baseCasing, workableModel), IControllerRenderer {
+) : WorkableCasingMachineRenderer(baseCasing, workableModel),
+    IControllerRenderer {
 
     protected val partCasingModels: MutableMap<Direction, BakedModel> = EnumMap(Direction::class.java)
 

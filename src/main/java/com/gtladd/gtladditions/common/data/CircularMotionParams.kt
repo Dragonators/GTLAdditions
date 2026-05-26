@@ -44,7 +44,5 @@ data class CircularMotionParams(
         return centerPos.add(worldPos)
     }
 
-    fun getFacingAngle(tick: Float): Float {
-        return (angleOffset + tick * speed) % 360f
-    }
+    fun getFacingAngle(tick: Float): Float = (angleOffset + tick * speed) % 360f
 }

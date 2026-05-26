@@ -10,7 +10,9 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
 import java.math.BigInteger
 
-open class WirelessGTRecipe : GTRecipe, IWirelessGTRecipe {
+open class WirelessGTRecipe :
+    GTRecipe,
+    IWirelessGTRecipe {
 
     @JvmField
     val wirelessEuTickInputs: BigInteger?
@@ -143,7 +145,5 @@ open class WirelessGTRecipe : GTRecipe, IWirelessGTRecipe {
         this.wirelessEuTickInputs = wirelessEuTickInputs
     }
 
-    override fun getWirelessEuTickInputs(): BigInteger? {
-        return wirelessEuTickInputs
-    }
+    override fun getWirelessEuTickInputs(): BigInteger? = wirelessEuTickInputs
 }

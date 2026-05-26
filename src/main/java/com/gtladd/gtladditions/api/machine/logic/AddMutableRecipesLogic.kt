@@ -10,11 +10,11 @@ import it.unimi.dsi.fastutil.longs.LongBooleanPair
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 
 open class AddMutableRecipesLogic<T>(machine: T) : MutableRecipesLogic<T>(machine)
-        where T : WorkableElectricMultiblockMachine,
-              T : IRecipeLogicMachine,
-              T : IWirelessElectricMultiblockMachine,
-              T : IThreadModifierMachine,
-              T : ParallelMachine {
+    where T : WorkableElectricMultiblockMachine,
+          T : IRecipeLogicMachine,
+          T : IWirelessElectricMultiblockMachine,
+          T : IThreadModifierMachine,
+          T : ParallelMachine {
 
     override fun calculateParallels(): ParallelData? {
         val recipes = lookupRecipeSet()

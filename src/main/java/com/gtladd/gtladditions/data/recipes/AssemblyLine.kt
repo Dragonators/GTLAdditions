@@ -39,14 +39,14 @@ object AssemblyLine {
     private val wire = arrayOf<Material>(SamariumIronArsenicOxide, IndiumTinBariumTitaniumCuprate, UraniumRhodiumDinaquadide, EnrichedNaquadahTriniumEuropiumDuranide, RutheniumTriniumAmericiumNeutronate, Enderite, Echoite, Legendarium, DraconiumAwakened, Infinity)
     private val cable = arrayOf<Material>(Graphene, NiobiumTitanium, Trinium, NaquadahAlloy, Mendelevium, Mithril, Adamantine, NaquadriaticTaranium, Starmetal, CosmicNeutronium)
 
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         addLaserHatchRecipe(provider)
         addAntichristForgeRecipe(provider)
         addOtherRecipe(provider)
     }
 
-    private fun addLaserHatchRecipe(provider : Consumer<FinishedRecipe?>) {
-        for (i in IV.. 14) {
+    private fun addLaserHatchRecipe(provider: Consumer<FinishedRecipe?>) {
+        for (i in IV..14) {
             val tier = VN[i].lowercase(Locale.getDefault())
             ASSEMBLY_LINE_RECIPES.recipeBuilder(GTLAdditions.id(tier + "_16777216a_laser_source_hatch"))
                 .EUt(VA[i].toLong()).duration(200)
@@ -155,7 +155,7 @@ object AssemblyLine {
         }
     }
 
-    private fun addAntichristForgeRecipe(provider : Consumer<FinishedRecipe?>) {
+    private fun addAntichristForgeRecipe(provider: Consumer<FinishedRecipe?>) {
         ASSEMBLY_LINE_RECIPES.recipeBuilder("spatially_transcendent_gravitational_lens_assembly_line")
             .inputItems(GTLAddBlocks.QUANTUM_GLASS.asStack(64))
             .inputItems(INFINITY_GLASS.asStack(64))
@@ -178,8 +178,8 @@ object AssemblyLine {
             .inputFluids(BlackTitanium.getFluid(147000000))
             .outputItems(GTLAddBlocks.SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS.asStack())
             .EUt(31457280).duration(2000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(GTLAddBlocks.QUANTUM_GLASS.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GTLAddBlocks.QUANTUM_GLASS.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(8192, 48000000)
             }
@@ -202,8 +202,8 @@ object AssemblyLine {
             .inputFluids(Plutonium241.getFluid(FluidStorageKeys.PLASMA, 2304000))
             .outputItems(GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.asStack())
             .EUt(VA[UXV].toLong()).duration(2000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(getItemStack("gtceu:transcendentmetal_frame"))
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(getItemStack("gtceu:transcendentmetal_frame"))
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(8192, 48000000)
             }
@@ -225,8 +225,8 @@ object AssemblyLine {
             .inputFluids(Lead.getFluid(18432000))
             .outputItems(GTLAddBlocks.GOD_FORGE_SUPPORT_CASING.asStack())
             .EUt(VA[UXV].toLong()).duration(3200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GTLAddBlocks.SUPRACHRONAL_MAGNETIC_CONFINEMENT_CASING.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(8192, 48000000)
             }
@@ -244,8 +244,8 @@ object AssemblyLine {
             .inputFluids(Thorium.getFluid(18432000))
             .outputItems(GTLAddBlocks.GOD_FORGE_INNER_CASING.asStack())
             .EUt(VA[UXV].toLong()).duration(3200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(GTLAddBlocks.GOD_FORGE_SUPPORT_CASING.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GTLAddBlocks.GOD_FORGE_SUPPORT_CASING.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(8192, 48000000)
             }
@@ -254,7 +254,7 @@ object AssemblyLine {
             .inputItems(GTLAddBlocks.GOD_FORGE_INNER_CASING.asStack(8))
             .inputItems(getItemStack("kubejs:eternity_coil_block", 4096))
             .inputItems(getItemStack("kubejs:eternity_coil_block", 4096))
-            .inputItems(wireGtHex,SpaceTime, 1024)
+            .inputItems(wireGtHex, SpaceTime, 1024)
             .inputItems(getItemStack("gtceu:uv_solar_panel", 64))
             .inputItems(getItemStack("gtceu:uv_solar_panel", 64))
             .inputItems(getItemStack("gtceu:uv_solar_panel", 64))
@@ -268,8 +268,8 @@ object AssemblyLine {
             .inputFluids(ExcitedDtec.getFluid(1024000000))
             .outputItems(GTLAddBlocks.GOD_FORGE_ENERGY_CASING.asStack())
             .EUt(VA[UXV].toLong()).duration(3200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(GTLAddBlocks.GOD_FORGE_INNER_CASING.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GTLAddBlocks.GOD_FORGE_INNER_CASING.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(8192, 48000000)
             }
@@ -297,8 +297,8 @@ object AssemblyLine {
             .inputFluids(Neutronium.getFluid(494912000))
             .outputItems(GTLAddBlocks.GOD_FORGE_TRIM_CASING.asStack())
             .EUt(VA[UXV].toLong()).duration(4800)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(getItemStack("gtceu:transcendentmetal_block"))
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(getItemStack("gtceu:transcendentmetal_block"))
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(8192, 48000000)
             }
@@ -319,8 +319,8 @@ object AssemblyLine {
             .inputFluids(Infinity.getFluid(4608000))
             .outputItems(GTLAddBlocks.REMOTE_GRAVITON_FLOW_REGULATOR.asStack())
             .EUt(VA[UXV].toLong()).duration(1800)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(getItemStack("kubejs:graviton_transducer"))
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(getItemStack("kubejs:graviton_transducer"))
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(8192, 48000000)
             }
@@ -342,8 +342,8 @@ object AssemblyLine {
             .inputFluids(SpaceTime.getFluid(9216000))
             .outputItems(GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR.asStack())
             .EUt(VA[OpV].toLong()).duration(1800)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(GTLAddBlocks.REMOTE_GRAVITON_FLOW_REGULATOR.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GTLAddBlocks.REMOTE_GRAVITON_FLOW_REGULATOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(16384, 96000000)
             }
@@ -369,8 +369,8 @@ object AssemblyLine {
             .inputFluids(Eternity.getFluid(36864000))
             .outputItems(GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR.asStack())
             .EUt(VA[MAX].toLong()).duration(1800)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(32767, 192000000)
             }
@@ -394,15 +394,15 @@ object AssemblyLine {
             .inputFluids(PROTO_HALKONITE.getFluid(2304000))
             .outputItems(GTLAddBlocks.PHONON_CONDUIT.asStack())
             .EUt(VA[MAX].toLong()).duration(4000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(RELATIVISTIC_HEAT_CAPACITOR.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(RELATIVISTIC_HEAT_CAPACITOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(8192, 48000000)
             }
             .save(provider)
     }
 
-    private fun addOtherRecipe(provider : Consumer<FinishedRecipe?>) {
+    private fun addOtherRecipe(provider: Consumer<FinishedRecipe?>) {
         ASSEMBLY_LINE_RECIPES.recipeBuilder("gravity_stabilization_casing")
             .inputItems(MANIPULATOR.asStack(4))
             .inputItems(EMITTER_UIV, 4)
@@ -416,8 +416,8 @@ object AssemblyLine {
             .inputFluids(BedrockGas.getFluid(FluidStorageKeys.GAS, 2304))
             .outputItems(GTLAddBlocks.GRAVITY_STABILIZATION_CASING, 4)
             .EUt(VA[UIV].toLong()).duration(1200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(GRAVI_STAR.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GRAVI_STAR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024, 2048000)
             }
@@ -435,8 +435,8 @@ object AssemblyLine {
             .inputFluids(Radox.getFluid(230400))
             .outputItems(POWER_MODULE_6)
             .EUt(VA[OpV].toLong()).duration(4000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(POWER_MODULE_5.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(POWER_MODULE_5.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[OpV]).CWUt(1024)
             }
@@ -454,8 +454,8 @@ object AssemblyLine {
             .inputFluids(PrimordialMatter.getFluid(921600))
             .outputItems(POWER_MODULE_7)
             .EUt(VA[MAX].toLong()).duration(40000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(POWER_MODULE_6.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(POWER_MODULE_6.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }

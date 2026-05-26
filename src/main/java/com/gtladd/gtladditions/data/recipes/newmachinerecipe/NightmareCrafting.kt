@@ -11,7 +11,7 @@ import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Consumer
 
 object NightmareCrafting {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         NIGHTMARE_CRAFTING.recipeBuilder(GTLAdditions.id("fish_big"))
             .inputItems(COMPRESSED_PUFFERFISH, 32)
             .inputItems(SUPER_GLUE, 24)
