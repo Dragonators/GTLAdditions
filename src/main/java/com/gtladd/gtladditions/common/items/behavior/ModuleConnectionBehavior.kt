@@ -3,11 +3,11 @@ package com.gtladd.gtladditions.common.items.behavior
 import com.gregtechceu.gtceu.api.item.component.IInteractionItem
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine
+import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
-import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -44,18 +44,18 @@ object ModuleConnectionBehavior : IInteractionItem {
 
         val blockEntity = level.getBlockEntity(pos)
         val controller = ((blockEntity as? IMachineBlockEntity)?.metaMachine as? MultiblockControllerMachine)
-        val front : Direction
-        val up : Direction
+        val front: Direction
+        val up: Direction
 
         if (controller == null) {
             front = Direction.NORTH
             up = Direction.UP
             player.sendSystemMessage(
-                Component.literal("§e警告: 此方块不是多方块机器，使用默认朝向 (NORTH, UP)")
+                "§e警告: 此方块不是多方块机器，使用默认朝向 (NORTH, UP)".literal
             )
         } else {
             front = controller.frontFacing
-            up = if(controller.allowExtendedFacing() && controller.frontFacing.axis == Direction.Axis.Y) controller.upwardsFacing else Direction.UP
+            up = if (controller.allowExtendedFacing() && controller.frontFacing.axis == Direction.Axis.Y) controller.upwardsFacing else Direction.UP
         }
 
         val tag = itemStack.orCreateTag
@@ -70,10 +70,10 @@ object ModuleConnectionBehavior : IInteractionItem {
             tag.put(NBT_MODULES, ListTag())
 
             player.sendSystemMessage(
-                Component.literal("§a已记录主机坐标: (${pos.x}, ${pos.y}, ${pos.z})")
+                "§a已记录主机坐标: (${pos.x}, ${pos.y}, ${pos.z})".literal
             )
             player.sendSystemMessage(
-                Component.literal("§a主机朝向: Front=$front, Up=$up")
+                "§a主机朝向: Front=$front, Up=$up".literal
             )
         } else {
             val hostX = tag.getInt(NBT_HOST_X)
@@ -97,10 +97,10 @@ object ModuleConnectionBehavior : IInteractionItem {
             tag.put(NBT_MODULES, modulesList)
 
             player.sendSystemMessage(
-                Component.literal("§a已记录第 ${modulesList.size} 个模块，偏移量: ($offsetX, $offsetY, $offsetZ)")
+                "§a已记录第 ${modulesList.size} 个模块，偏移量: ($offsetX, $offsetY, $offsetZ)".literal
             )
             player.sendSystemMessage(
-                Component.literal("§a子机朝向: Front=$front, Up=$up")
+                "§a子机朝向: Front=$front, Up=$up".literal
             )
         }
 
@@ -122,7 +122,7 @@ object ModuleConnectionBehavior : IInteractionItem {
 
         if (!tag.getBoolean(NBT_HAS_HOST)) {
             serverPlayer.sendSystemMessage(
-                Component.literal("§c没有记录任何数据！")
+                "§c没有记录任何数据！".literal
             )
             return InteractionResultHolder.fail(itemStack)
         }
@@ -181,8 +181,11 @@ object ModuleConnectionBehavior : IInteractionItem {
                     appendLine("        Direction.$up,")
                     appendLine("        $definition")
                     append("    )")
-                    if (i < modulesList.size - 1) appendLine(",")
-                    else appendLine()
+                    if (i < modulesList.size - 1) {
+                        appendLine(",")
+                    } else {
+                        appendLine()
+                    }
                 }
                 appendLine(")")
             } else {
@@ -211,8 +214,11 @@ object ModuleConnectionBehavior : IInteractionItem {
                     appendLine("        Direction.$up,")
                     appendLine("        $definition")
                     append("    )")
-                    if (i < modulesList.size - 1) appendLine(",")
-                    else appendLine()
+                    if (i < modulesList.size - 1) {
+                        appendLine(",")
+                    } else {
+                        appendLine()
+                    }
                 }
                 appendLine(");")
             } else {
@@ -225,10 +231,10 @@ object ModuleConnectionBehavior : IInteractionItem {
         LOGGER.info("\n$output")
 
         serverPlayer.sendSystemMessage(
-            Component.literal("§a已将记录输出到日志！共 ${modulesList.size} 个模块")
+            "§a已将记录输出到日志！共 ${modulesList.size} 个模块".literal
         )
         serverPlayer.sendSystemMessage(
-            Component.literal("§e已清除所有记录数据")
+            "§e已清除所有记录数据".literal
         )
 
         tag.remove(NBT_HOST_X)
@@ -242,7 +248,5 @@ object ModuleConnectionBehavior : IInteractionItem {
         return InteractionResultHolder.success(itemStack)
     }
 
-    override fun sneakBypassUse(stack: ItemStack?, level: LevelReader?, pos: BlockPos?, player: Player?): Boolean {
-        return true
-    }
+    override fun sneakBypassUse(stack: ItemStack?, level: LevelReader?, pos: BlockPos?, player: Player?): Boolean = true
 }

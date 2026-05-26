@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.machine.trait.NotifiableRecipeHandlerTrait
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient
 import com.gregtechceu.gtceu.utils.FluidStackHashStrategy
+import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.TransferHelper
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.side.fluid.IFluidTransfer
@@ -26,8 +27,12 @@ import org.gtlcore.gtlcore.utils.NumberUtils
 import kotlin.math.max
 import kotlin.math.min
 
-class FastNotifiableInputFluidTank(machine: MetaMachine) : NotifiableRecipeHandlerTrait<FluidIngredient>(machine),
-    ICapabilityTrait, IFluidTransfer, ITagSerializable<CompoundTag>, IContentChangeAware {
+class FastNotifiableInputFluidTank(machine: MetaMachine) :
+    NotifiableRecipeHandlerTrait<FluidIngredient>(machine),
+    ICapabilityTrait,
+    IFluidTransfer,
+    ITagSerializable<CompoundTag>,
+    IContentChangeAware {
 
     private val fluidInventory: ObjectLinkedOpenCustomHashSet<FluidStack> =
         ObjectLinkedOpenCustomHashSet(FluidStackHashStrategy.comparingAllButAmount())
@@ -44,10 +49,14 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) : NotifiableRecipeHandl
             textList.add(
                 fluidStack.displayName.copy().setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD))
                     .append(
-                        Component.literal(
-                            if (fluidStack.amount < 1000L) fluidStack.amount
-                                .toString() + "mB" else NumberUtils.formatLong(fluidStack.amount / 1000L) + "B"
-                        )
+                        (
+                            if (fluidStack.amount < 1000L) {
+                                fluidStack.amount
+                                    .toString() + "mB"
+                            } else {
+                                NumberUtils.formatLong(fluidStack.amount / 1000L) + "B"
+                            }
+                            ).literal
                             .setStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))
                     )
             )
@@ -124,10 +133,11 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) : NotifiableRecipeHandl
                 val drain = min(leftAmount, innerStack.amount)
                 leftAmount -= drain
                 if (!simulate) {
-                    if (innerStack.amount == drain)
+                    if (innerStack.amount == drain) {
                         fluidInventory.remove(innerStack)
-                    else
+                    } else {
                         innerStack.amount -= drain
+                    }
                     changed = true
                 }
 
@@ -182,9 +192,9 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) : NotifiableRecipeHandl
         val fluidIn: FluidStack? = fluidInventory.get(resource)
         val realFill = min(Long.MAX_VALUE - (fluidIn?.amount ?: 0), resource.amount)
 
-        return if (simulate)
+        return if (simulate) {
             realFill
-        else
+        } else {
             if (realFill > 0) {
                 realFill.also {
                     fluidIn?.let {
@@ -194,7 +204,10 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) : NotifiableRecipeHandl
                     }
                     if (notifyChanges) this.onContentsChanged()
                 }
-            } else 0
+            } else {
+                0
+            }
+        }
     }
 
     override fun supportsFill(tank: Int): Boolean = true
@@ -215,14 +228,10 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) : NotifiableRecipeHandl
     override fun supportsDrain(tank: Int): Boolean = false
 
     @Suppress("UnstableApiUsage")
-    override fun createSnapshot(): Any {
-        throw UnsupportedOperationException("Why Fabric")
-    }
+    override fun createSnapshot(): Any = throw UnsupportedOperationException("Why Fabric")
 
     @Suppress("UnstableApiUsage")
-    override fun restoreFromSnapshot(snapshot: Any?) {
-        throw UnsupportedOperationException("Why Fabric")
-    }
+    override fun restoreFromSnapshot(snapshot: Any?): Unit = throw UnsupportedOperationException("Why Fabric")
 
     override fun serializeNBT(): CompoundTag {
         val tag = CompoundTag()

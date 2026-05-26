@@ -1,4 +1,4 @@
-﻿package com.gtladd.gtladditions.data.recipes
+package com.gtladd.gtladditions.data.recipes
 
 import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.GTValues.VEX
@@ -12,18 +12,18 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_ENERGY_CASIN
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_TRIM_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS
-import com.gtladd.gtladditions.common.items.GTLAddItems.ASTRAL_ARRAY
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
+import com.gtladd.gtladditions.common.items.GTLAddItems.COMPRESSED_ASTRAL_ARRAY
 import com.gtladd.gtladditions.common.items.GTLAddItems.PRIMARY_SOC
 import com.gtladd.gtladditions.common.items.GTLAddItems.STARGATE_CHEVRON_UPGRADE
 import com.gtladd.gtladditions.common.items.GTLAddItems.STARGATE_FRAME_PART
 import com.gtladd.gtladditions.common.items.GTLAddItems.STARGATE_SHIELDING_FOIL
 import com.gtladd.gtladditions.common.items.GTLAddItems.SUPER_DENSE_MAGMATTER_PLATE
-import com.gtladd.gtladditions.common.machine.GTLAddMachines.THREAD_MODIFIER_HATCH
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.ARCANIC_ASTROGRAPH
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.FORGE_OF_THE_ANTICHRIST
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOFUSION_EXOTICIZER
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.FORGE_OF_THE_ANTICHRIST
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIOPHASE_LEYLINE_CRYSTALLIZER
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.RECURSIVE_REVERSE_ARRAY
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.TIME_SPACE_DISTORTER
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
@@ -42,7 +42,6 @@ import org.gtlcore.gtlcore.common.recipe.condition.GravityCondition
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
-
 object StarGate {
     fun init(provider: Consumer<FinishedRecipe?>) {
         gregTech(provider)
@@ -53,6 +52,7 @@ object StarGate {
             .inputItems(getItemStack("kubejs:heartofthesmogus", 64))
             .inputItems(getItemStack("kubejs:temporal_matter", 671088640))
             .inputItems(getItemStack("kubejs:dark_matter", 671088640))
+            .inputItems(COMPRESSED_ASTRAL_ARRAY, 64)
             .inputItems(getItemStack("kubejs:extremely_durable_plasma_cell", 1073741824))
             .inputItems(getItemStack("kubejs:time_dilation_containment_unit", 1073741824))
             .inputItems(getItemStack("kubejs:plasma_containment_cell", 1073741824))
@@ -223,7 +223,7 @@ object StarGate {
             .save(provider)
 
         ASSEMBLER_MODULE_RECIPES.recipeBuilder("crystal_base")
-            .inputItems(ASTRAL_ARRAY, 576000)
+            .inputItems(COMPRESSED_ASTRAL_ARRAY, 576)
             .inputItems(PRIMARY_SOC, 1000000000)
             .inputItems(getItemStack("kubejs:chaotic_energy_core", 1000000))
             .inputItems(nanoswarm, Eternity, 16777216)
@@ -290,22 +290,22 @@ object StarGate {
             .save(provider)
 
         NIGHTMARE_CRAFTING.recipeBuilder(id("classic_stargate_ring_block"))
-            .inputItems(HELIOFUSION_EXOTICIZER, 18)
+            .inputItems(HELIOPHASE_LEYLINE_CRYSTALLIZER, 18)
             .inputItems(STARGATE_FRAME_PART, 21)
             .inputItems(getItemStack("sgjourney:universe_stargate_chevron", 3))
             .inputItems(STARGATE_SHIELDING_FOIL, 11)
             .inputItems(getItemStack("sgjourney:reaction_chamber", 9))
-            .inputItems(FORGE_OF_THE_ANTICHRIST, 9)
+            .inputItems(RECURSIVE_REVERSE_ARRAY, 9)
             .outputItems(getItemStack("sgjourney:classic_stargate_ring_block"))
             .duration(4000000)
             .EUt(VEX[22])
             .save(provider)
 
         NIGHTMARE_CRAFTING.recipeBuilder(id("classic_stargate_chevron_block"))
-            .inputItems(HELIOFUSION_EXOTICIZER, 16)
-            .inputItems(APOCALYPTIC_TORSION_QUANTUM_MATRIX, 12)
+            .inputItems(FORGE_OF_THE_ANTICHRIST, 16)
+            .inputItems(COMPRESSED_ASTRAL_ARRAY, 12)
             .inputItems(ULTIMATE_TEA, 4)
-            .inputItems(GOD_FORGE_ENERGY_CASING, 4)
+            .inputItems(TIME_SPACE_DISTORTER, 4)
             .inputItems(STARGATE_CHEVRON_UPGRADE, 4)
             .inputItems(getItemStack("sgjourney:classic_stargate_ring_block"))
             .outputItems(getItemStack("sgjourney:classic_stargate_chevron_block"))
@@ -314,18 +314,18 @@ object StarGate {
             .save(provider)
 
         NIGHTMARE_CRAFTING.recipeBuilder(id("classic_stargate_base_block"))
-            .inputItems(THREAD_MODIFIER_HATCH, 4)
+            .inputItems(RECURSIVE_REVERSE_ARRAY, 4)
             .inputItems(getItemStack("sgjourney:reaction_chamber", 16))
             .inputItems(ULTIMATE_TEA, 8)
             .inputItems(nanoswarm, Cosmic, 4)
-            .inputItems(FORGE_OF_THE_ANTICHRIST, 8)
+            .inputItems(TIME_SPACE_DISTORTER, 8)
             .inputItems(SUPER_DENSE_MAGMATTER_PLATE, 4)
             .inputItems(STARGATE_SHIELDING_FOIL, 8)
             .inputItems(STARGATE_CHEVRON_UPGRADE, 2)
             .inputItems(getItemStack("kubejs:create_ultimate_battery", 4))
             .inputItems(getItemStack("gtlcore:item_infinity_cell"))
-            .inputItems(ASTRAL_ARRAY, 6)
-            .inputItems(ARCANIC_ASTROGRAPH, 4)
+            .inputItems(COMPRESSED_ASTRAL_ARRAY, 6)
+            .inputItems(FORGE_OF_THE_ANTICHRIST, 4)
             .inputItems(getItemStack("sgjourney:classic_stargate_chevron_block", 8))
             .inputItems(APOCALYPTIC_TORSION_QUANTUM_MATRIX, 2)
             .inputItems(ItemInit.CRYSTAL_BASE.get())

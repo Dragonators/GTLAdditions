@@ -9,7 +9,7 @@ import net.minecraft.data.recipes.FinishedRecipe
 import java.util.function.Consumer
 
 object ElectricBlastFurnace {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         BLAST_RECIPES.recipeBuilder(GTLAdditions.id("magnesium_chloride_dust"))
             .inputItems(dust, Magnesia)
             .inputItems(dust, Carbon)

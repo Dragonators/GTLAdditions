@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gtladditions:item/suprachronal_data_module_chrono_core"
+  }
+}

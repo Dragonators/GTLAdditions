@@ -9,7 +9,9 @@ import com.gregtechceu.gtceu.api.fluids.FluidBuilder
 import com.gregtechceu.gtceu.api.fluids.FluidState
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.common.data.GTMaterials.Gallium
+import com.gregtechceu.gtceu.common.data.GTMaterials.Iridium
 import com.gregtechceu.gtceu.common.data.GTMaterials.Oxygen
+import com.gregtechceu.gtceu.common.data.GTMaterials.Ruthenium
 import com.gtladd.gtladditions.GTLAdditions
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 
@@ -19,14 +21,47 @@ object GTLAddMaterial {
     val AMMONIUM_GALIUM_SULFATE: Material =
         Material.Builder(GTLAdditions.id("ammonium_gallium_sulfate")).dust().color(0xFFF6E9)
             .iconSet(MaterialIconSet.DULL).buildAndRegister().setFormula("Ga(NH₄)(SO₄)₂")
+    val MINING_ESSENCE: Material =
+        Material.Builder(GTLAdditions.id("mining_essence"))
+            .liquid(FluidBuilder().block())
+            .color(0x835141)
+            .buildAndRegister()
+    val TREASURES_ESSENCE: Material =
+        Material.Builder(GTLAdditions.id("treasures_essence"))
+            .liquid(FluidBuilder().block())
+            .color(0x9C24FF)
+            .buildAndRegister()
+    val CRYSTALLINE_PROTOPLASM: Material =
+        Material.Builder(GTLAdditions.id("crystalline_protoplasm"))
+            .liquid(FluidBuilder().block())
+            .color(0x2ECF03)
+            .buildAndRegister()
+    val MOLTEN_RURIDIT: Material =
+        Material.Builder(GTLAdditions.id("ruridit"))
+            .fluid(FluidStorageKeys.MOLTEN, FluidBuilder().state(FluidState.LIQUID).temperature(2300))
+            .color(0x86b3b7)
+            .components(Ruthenium, 2, Iridium, 1)
+            .flags(MaterialFlags.DISABLE_DECOMPOSITION)
+            .iconSet(MaterialIconSet.METALLIC)
+            .buildAndRegister()
+    val LIQUID_RURIDIT: Material =
+        Material.Builder(GTLAdditions.id("liquid_ruridit"))
+            .fluid(FluidStorageKeys.LIQUID, FluidBuilder().state(FluidState.LIQUID).temperature(2300))
+            .components(Ruthenium, 2, Iridium, 1)
+            .flags(MaterialFlags.DISABLE_DECOMPOSITION)
+            .color(0x86b3b7)
+            .buildAndRegister()
     val CREON: Material =
         Material.Builder(GTLAdditions.id("creon"))
             .ingot()
             .liquid(1000)
             .plasma(10000)
             .flags(
-                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_GEAR, MaterialFlags.GENERATE_SMALL_GEAR,
-                MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_LONG_ROD
+                MaterialFlags.GENERATE_PLATE,
+                MaterialFlags.GENERATE_GEAR,
+                MaterialFlags.GENERATE_SMALL_GEAR,
+                MaterialFlags.GENERATE_DENSE,
+                MaterialFlags.GENERATE_LONG_ROD
             )
             .element(GTLAddElements.CREON)
             .color(0x460046)
@@ -85,7 +120,6 @@ object GTLAddMaterial {
             .color(0xffffff)
             .iconSet(MaterialIconSet.DULL)
             .buildAndRegister().setFormula("✟✵✟")
-
     fun init() {
     }
 }

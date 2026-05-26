@@ -13,6 +13,11 @@ class ConfigHolder {
     @JvmField
     var superPatternBuffer = SuperPatternBufferConfig()
 
+    @Configurable
+    @Configurable.Comment("AE2兼容配置")
+    @JvmField
+    var ae2 = AE2Config()
+
     companion object {
         @JvmStatic
         val INSTANCE: ConfigHolder by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
@@ -42,6 +47,15 @@ class ConfigHolder {
             @Configurable.Range(min = 1, max = 10)
             @JvmField
             var maxPages = 3
+        }
+
+        class AE2Config {
+
+            @Configurable
+            @Configurable.Comment("成型面板物品实体输出轮数。每轮最多输出一个对应物品的最大堆叠数量。")
+            @Configurable.Range(min = 1, max = 1000)
+            @JvmField
+            var formationPlaneItemEntityOutputRounds = 1
         }
     }
 }

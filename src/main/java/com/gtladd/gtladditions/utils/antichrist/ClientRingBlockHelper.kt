@@ -2,7 +2,7 @@ package com.gtladd.gtladditions.utils.antichrist
 import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer.Companion.BASE_DIRECTION
 import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer.Companion.STAR_OFFSET_X
 import com.gtladd.gtladditions.common.data.MachineInfo
-import com.gtladd.gtladditions.common.machine.muiltblock.structure.RingStructure
+import com.gtladd.gtladditions.common.machine.multiblock.structure.RingStructure
 import com.gtladd.gtladditions.utils.CommonUtils
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap
@@ -22,18 +22,16 @@ import net.minecraftforge.api.distmarker.OnlyIn
 @OnlyIn(Dist.CLIENT)
 object ClientRingBlockHelper {
     private const val FLAG = Block.UPDATE_MOVE_BY_PISTON or
-            Block.UPDATE_SUPPRESS_DROPS or
-            Block.UPDATE_KNOWN_SHAPE or
-            Block.UPDATE_CLIENTS or
-            Block.UPDATE_IMMEDIATE
+        Block.UPDATE_SUPPRESS_DROPS or
+        Block.UPDATE_KNOWN_SHAPE or
+        Block.UPDATE_CLIENTS or
+        Block.UPDATE_IMMEDIATE
 
     private var currentDimension: ResourceKey<Level>? = null
     private val DIMENSION_MACHINE_BLOCKS = Object2ReferenceOpenHashMap<ResourceKey<Level>, Long2ReferenceMap<LongSet>>()
     private val DIMENSION_CHUNK_BLOCKS = Object2ReferenceOpenHashMap<ResourceKey<Level>, Long2ReferenceMap<LongSet>>()
 
-    fun getProtectedBlocksInChunk(level: Level, x: Int, z: Int): LongSet? {
-        return DIMENSION_CHUNK_BLOCKS[level.dimension()]?.get(ChunkPos.asLong(x, z))
-    }
+    fun getProtectedBlocksInChunk(level: Level, x: Int, z: Int): LongSet? = DIMENSION_CHUNK_BLOCKS[level.dimension()]?.get(ChunkPos.asLong(x, z))
 
     fun syncDimensionMachines(level: Level, machines: Array<MachineInfo>) {
         clearDimensionData()

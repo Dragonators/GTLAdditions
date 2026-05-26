@@ -1,15 +1,9 @@
 package com.gtladd.gtladditions.utils
 
-import appeng.api.crafting.PatternDetailsHelper
-import appeng.api.stacks.AEItemKey
-import appeng.api.stacks.GenericStack
-import appeng.crafting.pattern.AEProcessingPattern
 import com.gregtechceu.gtceu.client.util.TooltipHelper
-import com.gregtechceu.gtceu.common.data.GTItems
-import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour
 import com.gregtechceu.gtceu.utils.FormattingUtil
+import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import committee.nova.mods.avaritia.init.registry.ModItems
-import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
@@ -17,7 +11,6 @@ import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 import net.povstalec.sgjourney.StargateJourney
 import net.povstalec.sgjourney.common.init.BlockInit
@@ -34,17 +27,17 @@ object CommonUtils {
     // ===================================================
 
     private val EXTENDED_UNITS = arrayOf(
-        "",  // 10^0
-        "K",  // 10^3 - Kilo
-        "M",  // 10^6 - Mega
-        "G",  // 10^9 - Giga
-        "T",  // 10^12 - Tera
-        "P",  // 10^15 - Peta
-        "E",  // 10^18 - Exa
-        "Z",  // 10^21 - Zetta
-        "Y",  // 10^24 - Yotta
-        "R",  // 10^27 - Ronna
-        "Q",  // 10^30 - Quetta
+        "", // 10^0
+        "K", // 10^3 - Kilo
+        "M", // 10^6 - Mega
+        "G", // 10^9 - Giga
+        "T", // 10^12 - Tera
+        "P", // 10^15 - Peta
+        "E", // 10^18 - Exa
+        "Z", // 10^21 - Zetta
+        "Y", // 10^24 - Yotta
+        "R", // 10^27 - Ronna
+        "Q", // 10^30 - Quetta
         // Beyond standard SI prefixes, use scientific notation style
         "e33", "e36", "e39", "e42", "e45", "e48", "e51", "e54", "e57", "e60",
         "e63", "e66", "e69", "e72", "e75", "e78", "e81", "e84", "e87", "e90",
@@ -63,8 +56,6 @@ object CommonUtils {
     private val SCIENTIFIC_FORMAT = DecimalFormat("0.########E0")
     private val SCIENTIFIC_FIXED_FORMAT = DecimalFormat("0.00000000E0")
     private val SCIENTIFIC2_FORMAT = DecimalFormat("0.##E0")
-    private val LONG_DECIMAL: BigDecimal = BigDecimal.valueOf(Long.MAX_VALUE)
-    private val LONG_INTEGER: BigInteger = BigInteger.valueOf(Long.MAX_VALUE)
     private val LOG_1000 = log10(1000.0)
 
     @JvmStatic
@@ -85,60 +76,58 @@ object CommonUtils {
     fun formatSignBigInteger(value: BigInteger): String {
         val absValue = value.abs()
         val sign = if (value.signum() >= 0) "+" else "-"
-        return if (absValue <= LONG_INTEGER)
+        return if (absValue <= Constants.LONG_MAX_BIG) {
             sign + FormattingUtil.formatNumbers(absValue.toLong())
-        else
+        } else {
             sign + SCIENTIFIC_FORMAT.format(value).lowercase().replace("e", "e+")
+        }
     }
 
     @JvmStatic
     fun formatBigIntegerFixed(value: BigInteger): String =
         value.abs().let { absValue ->
-            if (absValue <= LONG_INTEGER)
+            if (absValue <= Constants.LONG_MAX_BIG) {
                 FormattingUtil.formatNumbers(absValue.toLong())
-            else
+            } else {
                 SCIENTIFIC_FIXED_FORMAT.format(value).lowercase().replace("e", "e+")
+            }
         }
 
     @JvmStatic
     fun formatFixedBigDecimal(value: BigDecimal): String =
-        if (value <= LONG_DECIMAL)
+        if (value <= Constants.LONG_MAX_DECIMAL) {
             FormattingUtil.formatNumbers(value)
-        else
+        } else {
             SCIENTIFIC_FIXED_FORMAT.format(value).lowercase().replace("e", "e+")
+        }
 
     @JvmStatic
     fun format2BigDecimal(value: BigDecimal): String =
-        if (value <= LONG_DECIMAL)
+        if (value <= Constants.LONG_MAX_DECIMAL) {
             FormattingUtil.formatNumbers(value)
-        else
+        } else {
             SCIENTIFIC2_FORMAT.format(value).lowercase().replace("e", "e+")
+        }
 
     @JvmStatic
-    fun createRainbowComponent(string: String): Component {
-        return Component.literal(TextUtil.full_color(string))
-            .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
-    }
+    fun createRainbowComponent(string: String): Component = TextUtil.full_color(string).literal
+        .withStyle { style: Style? -> style!!.withColor(TooltipHelper.RAINBOW.current) }
 
     @JvmStatic
-    fun createLanguageRainbowComponent(component: MutableComponent): Component {
-        return component.withStyle { style: Style -> style.withColor(TooltipHelper.RAINBOW.current) }
-    }
+    fun createLanguageRainbowComponent(component: MutableComponent): Component = component.withStyle { style: Style -> style.withColor(TooltipHelper.RAINBOW.current) }
 
-    fun createObfuscatedRainbowComponent(text: String): Component {
-        return formattingComponent(
-            Component.literal(text),
-            arrayOf(
-                ChatFormatting.RED,
-                ChatFormatting.GOLD,
-                ChatFormatting.YELLOW,
-                ChatFormatting.GREEN,
-                ChatFormatting.AQUA,
-                ChatFormatting.BLUE,
-                ChatFormatting.LIGHT_PURPLE
-            )
-        ).withStyle(ChatFormatting.OBFUSCATED)
-    }
+    fun createObfuscatedRainbowComponent(text: String): Component = formattingComponent(
+        text.literal,
+        arrayOf(
+            ChatFormatting.RED,
+            ChatFormatting.GOLD,
+            ChatFormatting.YELLOW,
+            ChatFormatting.GREEN,
+            ChatFormatting.AQUA,
+            ChatFormatting.BLUE,
+            ChatFormatting.LIGHT_PURPLE
+        )
+    ).withStyle(ChatFormatting.OBFUSCATED)
 
     private fun formattingComponent(component: MutableComponent, colours: Array<ChatFormatting>): MutableComponent {
         val delay = 200.0
@@ -148,20 +137,18 @@ object CommonUtils {
         return component.withStyle(color)
     }
 
-    fun createLanguageRainbowComponentOnServer(component: MutableComponent): Component {
-        return formattingComponent(
-            component,
-            arrayOf(
-                ChatFormatting.RED,
-                ChatFormatting.GOLD,
-                ChatFormatting.YELLOW,
-                ChatFormatting.GREEN,
-                ChatFormatting.AQUA,
-                ChatFormatting.BLUE,
-                ChatFormatting.LIGHT_PURPLE
-            )
+    fun createLanguageRainbowComponentOnServer(component: MutableComponent): MutableComponent = formattingComponent(
+        component,
+        arrayOf(
+            ChatFormatting.RED,
+            ChatFormatting.GOLD,
+            ChatFormatting.YELLOW,
+            ChatFormatting.GREEN,
+            ChatFormatting.AQUA,
+            ChatFormatting.BLUE,
+            ChatFormatting.LIGHT_PURPLE
         )
-    }
+    )
 
     fun createObfuscatedDeleteComponent(text: String): Component {
         val rainbowColors = arrayOf(
@@ -177,7 +164,7 @@ object CommonUtils {
 
         text.forEachIndexed { index, char ->
             component.append(
-                Component.literal(char.toString())
+                char.toString().literal
                     .withStyle(ChatFormatting.OBFUSCATED)
                     .withStyle(ChatFormatting.STRIKETHROUGH)
                     .withStyle(rainbowColors[index % 7])
@@ -185,46 +172,6 @@ object CommonUtils {
         }
 
         return component
-    }
-
-    // ===================================================
-    // Pattern Helper
-    // ===================================================
-
-    fun createPatternWithCircuit(
-        originalPatternStack: ItemStack,
-        circuitConfig: Int,
-        replaceExisting: Boolean,
-        level: Level?
-    ): ItemStack {
-        val pattern = PatternDetailsHelper.decodePattern(originalPatternStack, level) as? AEProcessingPattern
-            ?: return ItemStack.EMPTY
-
-        val originalInputs = pattern.sparseInputs
-        val originalOutputs = pattern.sparseOutputs
-
-        val filteredInputs = ObjectArrayList<GenericStack>()
-        var hasCircuit = false
-
-        for (input in originalInputs.filterNotNull()) {
-            val isCircuit = (input.what() as? AEItemKey)?.item == GTItems.INTEGRATED_CIRCUIT.asItem()
-
-            if (isCircuit) {
-                hasCircuit = true
-            } else {
-                filteredInputs.add(input)
-            }
-        }
-
-        return when {
-            circuitConfig == 0 && !hasCircuit -> originalPatternStack
-            circuitConfig != 0 && hasCircuit && !replaceExisting -> originalPatternStack
-            circuitConfig != 0 -> {
-                filteredInputs.add(0, GenericStack.fromItemStack(IntCircuitBehaviour.stack(circuitConfig)))
-                PatternDetailsHelper.encodeProcessingPattern(filteredInputs.toTypedArray(), originalOutputs)
-            }
-            else -> PatternDetailsHelper.encodeProcessingPattern(filteredInputs.toTypedArray(), originalOutputs)
-        }
     }
 
     // ===================================================
@@ -306,13 +253,11 @@ object CommonUtils {
         }
     }
 
-    private fun getHorizontalIndex(facing: Direction): Int {
-        return when (facing) {
-            Direction.EAST -> 0
-            Direction.SOUTH -> 1
-            Direction.WEST -> 2
-            Direction.NORTH -> 3
-            else -> 0
-        }
+    private fun getHorizontalIndex(facing: Direction): Int = when (facing) {
+        Direction.EAST -> 0
+        Direction.SOUTH -> 1
+        Direction.WEST -> 2
+        Direction.NORTH -> 3
+        else -> 0
     }
 }

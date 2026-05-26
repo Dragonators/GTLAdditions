@@ -12,9 +12,9 @@ import com.gtladd.gtladditions.api.recipe.IWirelessGTRecipe
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper.multipleRecipe
 import it.unimi.dsi.fastutil.longs.LongLongPair
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import org.gtlcore.gtlcore.api.machine.ISuspendableMachine
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
@@ -27,12 +27,16 @@ import java.util.*
 import java.util.function.BiPredicate
 import kotlin.sequences.toCollection
 
-open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLogic, IRecipeStatus
-        where T : WorkableElectricMultiblockMachine,
-              T : IRecipeLogicMachine,
-              T : IWirelessElectricMultiblockMachine,
-              T : IThreadModifierMachine,
-              T : ParallelMachine {
+open class MutableRecipesLogic<T> :
+    RecipeLogic,
+    ILockRecipe,
+    IWirelessRecipeLogic,
+    IRecipeStatus
+    where T : WorkableElectricMultiblockMachine,
+          T : IRecipeLogicMachine,
+          T : IWirelessElectricMultiblockMachine,
+          T : IThreadModifierMachine,
+          T : ParallelMachine {
 
     private var useMultipleRecipes = false
     private val reductionRatio: Double
@@ -57,23 +61,30 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun getMachine(): T {
-        return super.getMachine() as T
-    }
+    override fun getMachine(): T = super.getMachine() as T
 
     override fun findAndHandleRecipe() {
-        if (useMultipleRecipes) findAndHandleMultipleRecipe()
-        else super.findAndHandleRecipe()
+        if (useMultipleRecipes) {
+            findAndHandleMultipleRecipe()
+        } else {
+            super.findAndHandleRecipe()
+        }
     }
 
     override fun onRecipeFinish() {
-        if (useMultipleRecipes) onMultipleRecipeFinish()
-        else super.onRecipeFinish()
+        if (useMultipleRecipes) {
+            onMultipleRecipeFinish()
+        } else {
+            super.onRecipeFinish()
+        }
     }
 
     override fun handleRecipeWorking() {
-        if (useMultipleRecipes) handleMultipleRecipeWorking()
-        else super.handleRecipeWorking()
+        if (useMultipleRecipes) {
+            handleMultipleRecipeWorking()
+        } else {
+            super.handleRecipeWorking()
+        }
     }
 
     // ========================================
@@ -94,14 +105,18 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
     protected open fun onMultipleRecipeFinish() {
         machine.afterWorking()
         lastRecipe?.let { RecipeRunnerHelper.handleRecipeOutput(this.machine, it) }
-        val match = getRecipe()
-        if (match != null) {
-            if (RecipeRunnerHelper.matchRecipeOutput(machine, match)) {
-                setupRecipe(match)
+
+        val suspendableMachine = machine as? ISuspendableMachine
+        if (suspendableMachine?.`gtlcore$isSuspendAfterFinish`() == true) {
+            status = Status.SUSPEND
+            suspendableMachine.`gtlcore$setSuspendAfterFinish`(false)
+        } else {
+            getRecipe()?.takeIf { RecipeRunnerHelper.matchRecipeOutput(machine, it) }?.let {
+                setupRecipe(it)
                 return
             }
+            status = Status.IDLE
         }
-        status = Status.IDLE
         progress = 0
         duration = 0
     }
@@ -138,10 +153,11 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
         val parallelData = calculateParallels() ?: return null
 
         val wirelessTrait = getMachine().getWirelessNetworkEnergyHandler()
-        return if (wirelessTrait != null)
+        return if (wirelessTrait != null) {
             buildFinalWirelessRecipe(parallelData, wirelessTrait)
-        else
+        } else {
             buildFinalNormalRecipe(parallelData)
+        }
     }
 
     protected open fun calculateParallels(): ParallelData? {
@@ -149,15 +165,21 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
         val totalParallel = getMachine().maxParallel.toLong() * getMultipleThreads()
 
         return RecipeCalculationHelper.calculateParallelsWithGreedyAllocation(
-            recipes, totalParallel, machine,
-            getParallelAndConsumption = { recipe, remaining -> calculateParallel(machine, recipe, remaining) },
+            recipes,
+            totalParallel,
+            machine,
+            getParallelAndConsumption = { recipe, remaining -> calculateParallel(machine, recipe, remaining) }
         )
     }
 
     protected open fun buildFinalNormalRecipe(parallelData: ParallelData): GTRecipe? {
         val maxEUt = getMachine().overclockVoltage
         val (itemOutputs, fluidOutputs, totalEu) = RecipeCalculationHelper.processParallelDataNormal(
-            parallelData, machine, maxEUt, euMultiplier, { getRecipeEut(it).toDouble() * it.duration }
+            parallelData,
+            machine,
+            maxEUt,
+            euMultiplier,
+            { getRecipeEut(it).toDouble() * it.duration }
         )
 
         if (!RecipeCalculationHelper.hasOutputs(itemOutputs, fluidOutputs)) {
@@ -175,7 +197,11 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
         if (!wirelessTrait.isOnline) return null
 
         val (itemOutputs, fluidOutputs, totalEu) = RecipeCalculationHelper.processParallelDataWireless(
-            parallelData, machine, wirelessTrait.maxAvailableEnergy, euMultiplier, this::getRecipeEut
+            parallelData,
+            machine,
+            wirelessTrait.maxAvailableEnergy,
+            euMultiplier,
+            this::getRecipeEut
         )
 
         if (!RecipeCalculationHelper.hasOutputs(itemOutputs, fluidOutputs)) {
@@ -206,9 +232,7 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
         return LongLongPair.of(p, p)
     }
 
-    open fun getMultipleThreads(): Int {
-        return if (getMachine().getAdditionalThread() > 0) getMachine().getAdditionalThread() else 1
-    }
+    open fun getMultipleThreads(): Int = if (getMachine().getAdditionalThread() > 0) getMachine().getAdditionalThread() else 1
 
     protected open val euMultiplier: Double
         get() {
@@ -216,36 +240,28 @@ open class MutableRecipesLogic<T> : RecipeLogic, ILockRecipe, IWirelessRecipeLog
             return if (maintenanceMachine != null) maintenanceMachine.durationMultiplier * this.reductionRatio else this.reductionRatio
         }
 
-    protected open fun getRecipeEut(recipe: GTRecipe): Long {
-        return RecipeHelper.getInputEUt(recipe)
-    }
+    protected open fun getRecipeEut(recipe: GTRecipe): Long = RecipeHelper.getInputEUt(recipe)
 
-    protected open fun lookupRecipeSet(): Set<GTRecipe> {
-        return if (isLock) {
-            when {
-                lockRecipe == null -> {
-                    lockRecipe = machine.recipeType.lookup.find(machine, this::checkRecipe)
-                    lockRecipe?.let { Collections.singleton(it) } ?: emptySet()
-                }
-                checkRecipe(lockRecipe) -> Collections.singleton(lockRecipe)
-                else -> emptySet()
+    protected open fun lookupRecipeSet(): Set<GTRecipe> = if (isLock) {
+        when {
+            lockRecipe == null -> {
+                lockRecipe = machine.recipeType.lookup.find(machine, this::checkRecipe)
+                lockRecipe?.let { Collections.singleton(it) } ?: emptySet()
             }
-        } else {
-            machine.recipeType.lookup.getRecipeIterator(machine, this::checkRecipe).asSequence()
-                .toCollection(ObjectOpenHashSet())
+            checkRecipe(lockRecipe) -> Collections.singleton(lockRecipe)
+            else -> emptySet()
         }
+    } else {
+        machine.recipeType.lookup.getRecipeIterator(machine, this::checkRecipe).asSequence()
+            .toCollection(ObjectOpenHashSet())
     }
 
-    protected open fun checkRecipe(recipe: GTRecipe): Boolean {
-        return RecipeRunnerHelper.matchRecipe(machine, recipe) &&
-                IGTRecipe.of(recipe).euTier <= getMachine().tier &&
-                recipe.checkConditions(this).isSuccess &&
-                (recipeCheck == null || recipeCheck.test(recipe, machine))
-    }
+    protected open fun checkRecipe(recipe: GTRecipe): Boolean = RecipeRunnerHelper.matchRecipe(machine, recipe) &&
+        IGTRecipe.of(recipe).euTier <= getMachine().tier &&
+        recipe.checkConditions(this).isSuccess &&
+        (recipeCheck == null || recipeCheck.test(recipe, machine))
 
-    override fun getWirelessMachine(): IWirelessElectricMultiblockMachine {
-        return machine as IWirelessElectricMultiblockMachine
-    }
+    override fun getWirelessMachine(): IWirelessElectricMultiblockMachine = machine as IWirelessElectricMultiblockMachine
 
     fun setUseMultipleRecipes(useMultipleRecipes: Boolean) {
         this.useMultipleRecipes = useMultipleRecipes

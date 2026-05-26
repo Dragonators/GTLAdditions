@@ -4,11 +4,11 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.integration.jade.GTElementHelper
 import com.gtladd.gtladditions.common.machine.hatch.InfinityDualHatchPartMachine
+import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import net.minecraft.ChatFormatting
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.Tag
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.utils.NumberUtils
@@ -20,7 +20,9 @@ import snownee.jade.api.ITooltip
 import snownee.jade.api.config.IPluginConfig
 import snownee.jade.api.fluid.JadeFluidObject
 
-class InfinityDualHatchProvider : IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+class InfinityDualHatchProvider :
+    IBlockComponentProvider,
+    IServerDataProvider<BlockAccessor> {
 
     override fun appendTooltip(tooltip: ITooltip, accessor: BlockAccessor, config: IPluginConfig) {
         val blockEntity = accessor.blockEntity as? IMachineBlockEntity ?: return
@@ -47,9 +49,9 @@ class InfinityDualHatchProvider : IBlockComponentProvider, IServerDataProvider<B
                 if (count > 0) {
                     val stack = ItemStack(item)
                     tooltip.add(tooltip.elementHelper.smallItem(stack))
-                    val text = Component.literal(" ")
-                        .append(Component.literal(NumberUtils.formatLong(count)).withStyle(ChatFormatting.DARK_PURPLE))
-                        .append(Component.literal(" × ").withStyle(ChatFormatting.WHITE))
+                    val text = " ".literal
+                        .append(NumberUtils.formatLong(count).literal.withStyle(ChatFormatting.DARK_PURPLE))
+                        .append(" × ".literal.withStyle(ChatFormatting.WHITE))
                         .append(stack.hoverName.copy().withStyle(ChatFormatting.GOLD))
                     tooltip.append(text)
                 }
@@ -62,10 +64,10 @@ class InfinityDualHatchProvider : IBlockComponentProvider, IServerDataProvider<B
                 val amount = fluidTag.getLong("amount")
                 if (amount > 0) {
                     tooltip.add(GTElementHelper.smallFluid(JadeFluidObject.of(fluid)))
-                    val text = Component.literal(" ")
+                    val text = " ".literal
                         .append(if (amount < 1000L) "${amount}mB" else "${NumberUtils.formatLong(amount / 1000)}B")
                         .withStyle(ChatFormatting.DARK_PURPLE)
-                        .append(Component.literal(" ").withStyle(ChatFormatting.WHITE))
+                        .append(" ".literal.withStyle(ChatFormatting.WHITE))
                         .append(fluid.fluidType.description.copy().withStyle(ChatFormatting.DARK_AQUA))
                     tooltip.append(text)
                 }

@@ -10,18 +10,15 @@ import kotlin.math.min
 import kotlin.math.pow
 
 open class MutableCoilElectricMultiblockMachine(holder: IMachineBlockEntity) :
-    CoilWorkableElectricMultiblockMachine(holder), IWirelessThreadModifierParallelMachine {
+    CoilWorkableElectricMultiblockMachine(holder),
+    IWirelessThreadModifierParallelMachine {
 
     private var threadPartMachine: IThreadModifierPart? = null
 
-    override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
-        return MutableRecipesLogic(this)
-    }
+    override fun createRecipeLogic(vararg args: Any?): RecipeLogic = MutableRecipesLogic(this)
 
     @Suppress("UNCHECKED_CAST")
-    override fun getRecipeLogic(): MutableRecipesLogic<MutableCoilElectricMultiblockMachine> {
-        return super.getRecipeLogic() as MutableRecipesLogic<MutableCoilElectricMultiblockMachine>
-    }
+    override fun getRecipeLogic(): MutableRecipesLogic<MutableCoilElectricMultiblockMachine> = super.getRecipeLogic() as MutableRecipesLogic<MutableCoilElectricMultiblockMachine>
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
@@ -35,9 +32,7 @@ open class MutableCoilElectricMultiblockMachine(holder: IMachineBlockEntity) :
         getRecipeLogic().setUseMultipleRecipes(false)
     }
 
-    override fun getMaxParallel(): Int {
-        return min(Int.MAX_VALUE, 2.0.pow(this.coilType.coilTemperature / 900.0).toInt())
-    }
+    override fun getMaxParallel(): Int = min(Int.MAX_VALUE, 2.0.pow(this.coilType.coilTemperature / 900.0).toInt())
 
     override fun setThreadPartMachine(threadModifierPart: IThreadModifierPart) {
         this.threadPartMachine = threadModifierPart

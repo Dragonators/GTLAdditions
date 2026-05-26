@@ -21,7 +21,7 @@ object MECapabilityHandler {
 
         if (blockEntity !is MetaMachineBlockEntity) return
 
-        if(blockEntity.definition === INFINITY_INPUT_DUAL_HATCH) {
+        if (blockEntity.definition === INFINITY_INPUT_DUAL_HATCH) {
             event.addCapability(
                 id("infinity_input_dual_hatch"),
                 MEStorageCapabilityProvider { blockEntity.getMetaMachine() as InfinityDualHatchPartMachine }

@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.common.data.GTBlocks
 import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
+import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Function
@@ -59,12 +60,16 @@ object MultiRecipeMultiBlocks {
             .where("F", Predicates.blocks(GTBlocks.CASING_GRATE.get()))
             .where("G", Predicates.blocks(GTBlocks.CASING_HSSE_STURDY.get()))
             .where("H", Predicates.blocks(GTLBlocks.HSSS_REINFORCED_BOROSILICATE_GLASS.get()))
-            .where("I", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST.get())
-                .or(Predicates.abilities(PartAbility.INPUT_LASER))
-                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
-                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS))
-                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
-                .or(Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1)))
+            .where(
+                "I",
+                Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_ROBUST.get())
+                    .or(Predicates.abilities(PartAbility.INPUT_LASER))
+                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS))
+                    .or(Predicates.abilities(PartAbility.EXPORT_ITEMS))
+                    .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
+                    .or(Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1))
+                    .or(Predicates.blocks(GTLAddMachines.ORE_PROCESSOR_HATCH.get()).setMaxGlobalLimited(1))
+            )
             .where(" ", Predicates.any())
             .build()
     }

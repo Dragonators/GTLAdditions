@@ -1,0 +1,10 @@
+{
+  "parent": "gtceu:block/overlay/front",
+  "textures": {
+    "overlay": "gtceu:block/overlay/appeng/me_extended_export_buffer",
+    "bottom": "gtceu:block/casings/voltage/uiv/bottom",
+    "top": "gtceu:block/casings/voltage/uiv/top",
+    "particle": "gtceu:block/casings/voltage/uiv/side",
+    "side": "gtceu:block/casings/voltage/uiv/side"
+  }
+}

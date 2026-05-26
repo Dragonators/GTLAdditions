@@ -11,7 +11,7 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object HeliofusionExoticizer {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         GTLAddRecipesTypes.MATTER_EXOTIC.recipeBuilder(GTLAdditions.id("high_energy_quark_gluon_matter_exotic"))
             .inputFluids(GTLMaterials.HeavyQuarkDegenerateMatter.getFluid(5760))
             .inputFluids(GTLMaterials.CosmicSuperconductor.getFluid(2880))

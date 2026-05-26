@@ -1,26 +1,35 @@
 package com.gtladd.gtladditions.common.modify
 
 import com.google.common.primitives.Ints
+import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
+import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
+import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern
+import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic
 import com.gregtechceu.gtceu.api.recipe.logic.OCParams
 import com.gregtechceu.gtceu.api.recipe.logic.OCResult
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifierList
+import com.gregtechceu.gtceu.common.data.GTBlocks
 import com.gregtechceu.gtceu.common.data.GTMachines
+import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers
 import com.gregtechceu.gtceu.utils.SupplierMemoizer
 import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.CreateAggregation
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.DoorOfCreate
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.MolecularAssemblerMultiblockMachine
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.mutable.AdvancedInfiniteDrillMachine
+import com.gtladd.gtladditions.common.machine.GTLAddMachines
+import com.gtladd.gtladditions.common.machine.multiblock.controller.BasicOreProcessorMachine
+import com.gtladd.gtladditions.common.machine.multiblock.controller.MolecularAssemblerMultiblockMachine
+import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.AdvancedInfiniteDrillMachine
+import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.CreateAggregation
+import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.DoorOfCreate
 import com.gtladd.gtladditions.common.modify.multiblockMachine.WorkableMultiBlock
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import net.minecraft.core.particles.ParticleTypes
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
@@ -30,8 +39,10 @@ import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.AABB
+import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
+import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 import org.gtlcore.gtlcore.utils.MachineIO
 import org.gtlcore.gtlcore.utils.MachineUtil
 import org.gtlcore.gtlcore.utils.Registries
@@ -65,8 +76,14 @@ object MultiBlockModify {
                 )
 
                 val entities = level.getEntitiesOfClass(
-                    Entity::class.java, AABB(
-                        pos.x - 10.0, pos.y - 10.0, pos.z - 10.0, pos.x + 10.0, pos.y + 10.0, pos.z + 10.0
+                    Entity::class.java,
+                    AABB(
+                        pos.x - 10.0,
+                        pos.y - 10.0,
+                        pos.z - 10.0,
+                        pos.x + 10.0,
+                        pos.y + 10.0,
+                        pos.z + 10.0
                     )
                 )
 
@@ -100,16 +117,16 @@ object MultiBlockModify {
                             level.server.getLevel(createDimension)?.let { targetLevel ->
                                 entity.teleportTo(
                                     targetLevel,
-                                    0.0, 1.0, 0.0,
+                                    0.0,
+                                    1.0,
+                                    0.0,
                                     entity.yRot,
-                                    entity.xRot,
+                                    entity.xRot
                                 )
                             }
                         } else {
                             entity.`kjs$setStatusMessage`(
-                                Component.translatable(
-                                    "message.gtlcore.equipment_incompatible_dimension"
-                                )
+                                "message.gtlcore.equipment_incompatible_dimension".toComponent
                             )
                         }
                     }
@@ -125,15 +142,17 @@ object MultiBlockModify {
                 val pos = machine.self().pos.offset(0, -16, 0)
                 val blockId = level.getBlockState(pos).block.`kjs$getId`()
                 when {
-                    blockId == "kubejs:command_block_broken" && MachineIO.inputItem(
-                        machine as WorkableMultiblockMachine,
-                        Registries.getItemStack("kubejs:chain_command_block_core")
-                    ) -> level.setBlockAndUpdate(pos, Blocks.CHAIN_COMMAND_BLOCK.defaultBlockState())
+                    blockId == "kubejs:command_block_broken" &&
+                        MachineIO.inputItem(
+                            machine as WorkableMultiblockMachine,
+                            Registries.getItemStack("kubejs:chain_command_block_core")
+                        ) -> level.setBlockAndUpdate(pos, Blocks.CHAIN_COMMAND_BLOCK.defaultBlockState())
 
-                    blockId == "kubejs:chain_command_block_broken" && MachineIO.inputItem(
-                        machine as WorkableMultiblockMachine,
-                        Registries.getItemStack("kubejs:repeating_command_block_core")
-                    ) -> level.setBlockAndUpdate(pos, Blocks.REPEATING_COMMAND_BLOCK.defaultBlockState())
+                    blockId == "kubejs:chain_command_block_broken" &&
+                        MachineIO.inputItem(
+                            machine as WorkableMultiblockMachine,
+                            Registries.getItemStack("kubejs:repeating_command_block_core")
+                        ) -> level.setBlockAndUpdate(pos, Blocks.REPEATING_COMMAND_BLOCK.defaultBlockState())
                 }
             }
         }
@@ -141,17 +160,52 @@ object MultiBlockModify {
     }
 
     private val recipeModifierList = RecipeModifierList(
-        { machine: MetaMachine?, recipe: GTRecipe?, params: OCParams?, result: OCResult? ->
+        { machine: MetaMachine?, recipe: GTRecipe?, _: OCParams?, _: OCResult? ->
             GTRecipeModifiers.accurateParallel(
                 machine,
                 recipe!!,
                 Ints.saturatedCast(1L + (machine as IThreadModifierMachine).getAdditionalThread()),
                 false
             ).getFirst()
-        }, GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false))
+        },
+        GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false))
     )
 
     fun init() {
+        MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+            BasicOreProcessorMachine(blockEntity)
+        }
+        MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.recipeModifier = RecipeModifierList(
+            GTRecipeModifiers.PARALLEL_HATCH,
+            BasicOreProcessorMachine::recipeModifier
+        )
+        MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.patternFactory = SupplierMemoizer.memoize {
+            FactoryBlockPattern.start()
+                .aisle("aaaaaa     ", "abbbba     ", "abbbba     ", "abbbba     ", "abbbba     ", "aaaaaa     ", "           ", "           ", "           ", "           ", "           ", "           ")
+                .aisle("aaaaaaaaaaa", "bd  d accca", "bd  d accca", "bd  d accca", "bd  d accca", "aaaaaaaccca", "       ccc ", "       ccc ", "       ccc ", "       ccc ", "       ccc ", "           ")
+                .aisle("aaaaaaaaaaa", "b ee  c   c", "b ee  ffffc", "b ee  c   c", "b ee  ffffc", "aaaaaac   c", "      cfffc", "      c   c", "      cfffc", "      c   c", "      cfffc", "       gcc ")
+                .aisle("aaaaaaaaaaa", "b ee  c   c", "b ee  ffffc", "b ee  c   c", "b ee  ffffc", "aaaaaac   c", "      cfffc", "      c   c", "      cfffc", "      c   c", "      cfffc", "       ccc ")
+                .aisle("aaaaaaaaaaa", "bd  d accca", "bd  d ac~ca", "bd  d accca", "bd  d accca", "aaaaaaaccca", "       ccc ", "       ccc ", "       ccc ", "       ccc ", "       ccc ", "           ")
+                .aisle("aaaaaa     ", "abbbba     ", "abbbba     ", "abbbba     ", "abbbba     ", "aaaaaa     ", "           ", "           ", "           ", "           ", "           ", "           ")
+                .where("~", Predicates.controller(Predicates.blocks(MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.get())))
+                .where(
+                    "c",
+                    Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get()).setMinGlobalLimited(60)
+                        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
+                        .or(Predicates.autoAbilities(GTLRecipeTypes.INTEGRATED_ORE_PROCESSOR))
+                        .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
+                        .or(Predicates.blocks(GTLAddMachines.ORE_PROCESSOR_HATCH.get()).setMaxGlobalLimited(1))
+                )
+                .where("a", Predicates.blocks(GTBlocks.CASING_HSSE_STURDY.get()))
+                .where("b", Predicates.blocks(GTBlocks.CASING_LAMINATED_GLASS.get()))
+                .where("d", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.frameGt, GTMaterials.BlueSteel)))
+                .where("e", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_GEARBOX.get()))
+                .where("f", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_PIPE.get()))
+                .where("g", Predicates.blocks(GTMachines.MUFFLER_HATCH[7].get()))
+                .where(" ", Predicates.any())
+                .build()
+        }
+
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.patternFactory = SupplierMemoizer.memoize {
             (WorkableMultiBlock.DOOR_OF_CREATE).apply(AdvancedMultiBlockMachine.DOOR_OF_CREATE)
         }
@@ -161,7 +215,6 @@ object MultiBlockModify {
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.onWorking = doorOfCreateOnWorking
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.recipeModifier = recipeModifierList
 
-
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.patternFactory = SupplierMemoizer.memoize {
             (WorkableMultiBlock.CREATE_AGGREGATION).apply(AdvancedMultiBlockMachine.CREATE_AGGREGATION)
         }
@@ -170,7 +223,6 @@ object MultiBlockModify {
         }
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.onWorking = createAggregationOnWorking
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.recipeModifier = recipeModifierList
-
 
         GTMachines.ACTIVE_TRANSFORMER.patternFactory = SupplierMemoizer.memoize {
             (WorkableMultiBlock.ACTIVE_TRANSFORMER).apply(GTMachines.ACTIVE_TRANSFORMER)

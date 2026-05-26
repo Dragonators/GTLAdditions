@@ -23,7 +23,7 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object SocProcess {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         ElectricBlastFurnace.init(provider)
         Cutter.init(provider)
         EngravingArray.init(provider)
@@ -31,7 +31,7 @@ object SocProcess {
         generatedRecipe(provider)
     }
 
-    private fun generatedRecipe(provider : Consumer<FinishedRecipe?>) {
+    private fun generatedRecipe(provider: Consumer<FinishedRecipe?>) {
         CHEMICAL_BATH_RECIPES.recipeBuilder(id("bioware_echo_shard_wafer"))
             .inputItems(GTLAddItems.ECHO_SHARD_WAFER.asStack())
             .inputFluids(BiohmediumSterilized.getFluid(250))
@@ -96,7 +96,7 @@ object SocProcess {
     }
 
     internal object ElectricBlastFurnace {
-        fun init(provider : Consumer<FinishedRecipe?>) {
+        fun init(provider: Consumer<FinishedRecipe?>) {
             BLAST_RECIPES.recipeBuilder(id("echo_shard_boule"))
                 .inputItems(GTItems.SILICON_BOULE, 64)
                 .inputItems(dust, GTLAddMaterial.GALLIUM_OXIDE, 16)
@@ -106,20 +106,36 @@ object SocProcess {
                 .EUt(VA[UV].toLong()).duration(21000)
                 .blastFurnaceTemp(14400).save(provider)
             addBlastRecipe(
-                Hassium, GTLAddItems.HASSIUM_BOULE,
-                VA[UHV], 24000, 18000, provider
+                Hassium,
+                GTLAddItems.HASSIUM_BOULE,
+                VA[UHV],
+                24000,
+                18000,
+                provider
             )
             addBlastRecipe(
-                Starmetal, GTLAddItems.STARMETAL_BOULE,
-                VA[UEV], 27000, 21000, provider
+                Starmetal,
+                GTLAddItems.STARMETAL_BOULE,
+                VA[UEV],
+                27000,
+                21000,
+                provider
             )
             addBlastRecipe(
-                Periodicium, GTLAddItems.PERIODICIUM_BOULE,
-                VA[UXV], 30000, 36000, provider
+                Periodicium,
+                GTLAddItems.PERIODICIUM_BOULE,
+                VA[UXV],
+                30000,
+                36000,
+                provider
             )
             addBlastRecipe(
-                Infinity, GTLAddItems.INFINITY_BOULE,
-                VA[OpV], 33000, 62000, provider
+                Infinity,
+                GTLAddItems.INFINITY_BOULE,
+                VA[OpV],
+                33000,
+                62000,
+                provider
             )
             CHEMICAL_RECIPES.recipeBuilder(id("ammonium_gallium_sulfate"))
                 .inputItems(dust, Gallium)
@@ -145,12 +161,12 @@ object SocProcess {
         }
 
         fun addBlastRecipe(
-            input : Material,
-            output : ItemEntry<Item?>,
-            eut : Int,
-            duration : Int,
-            temperature : Int,
-            provider : Consumer<FinishedRecipe?>
+            input: Material,
+            output: ItemEntry<Item?>,
+            eut: Int,
+            duration: Int,
+            temperature: Int,
+            provider: Consumer<FinishedRecipe?>
         ) {
             BLAST_RECIPES.recipeBuilder(id(output.asItem().toString()))
                 .inputItems(GTItems.SILICON_BOULE, 64)
@@ -163,67 +179,107 @@ object SocProcess {
     }
 
     internal object Cutter {
-        fun init(provider : Consumer<FinishedRecipe?>) {
+        fun init(provider: Consumer<FinishedRecipe?>) {
             addCutterRecipe(
-                "echo_shard_wafer", GTLAddItems.ECHO_SHARD_BOULE,
-                16, GTLAddItems.ECHO_SHARD_WAFER,
-                VA[UV], CleanroomType.STERILE_CLEANROOM, provider
+                "echo_shard_wafer",
+                GTLAddItems.ECHO_SHARD_BOULE,
+                16,
+                GTLAddItems.ECHO_SHARD_WAFER,
+                VA[UV],
+                CleanroomType.STERILE_CLEANROOM,
+                provider
             )
             addCutterRecipe(
-                "outstanding_soc", GTLAddItems.OUTSTANDING_SOC_WAFER,
-                6, GTLAddItems.OUTSTANDING_SOC,
-                VA[UV], CleanroomType.STERILE_CLEANROOM, provider
+                "outstanding_soc",
+                GTLAddItems.OUTSTANDING_SOC_WAFER,
+                6,
+                GTLAddItems.OUTSTANDING_SOC,
+                VA[UV],
+                CleanroomType.STERILE_CLEANROOM,
+                provider
             )
             addCutterRecipe(
-                "hassium_wafer", GTLAddItems.HASSIUM_BOULE,
-                16, GTLAddItems.HASSIUM_WAFER,
-                VA[UHV], LAW_CLEANROOM, provider
+                "hassium_wafer",
+                GTLAddItems.HASSIUM_BOULE,
+                16,
+                GTLAddItems.HASSIUM_WAFER,
+                VA[UHV],
+                LAW_CLEANROOM,
+                provider
             )
             addCutterRecipe(
-                "extraordinary_soc_wafer", GTLAddItems.EXTRAORDINARY_SOC_WAFER,
-                6, GTLAddItems.EXTRAORDINARY_SOC,
-                VA[UHV], LAW_CLEANROOM, provider
+                "extraordinary_soc_wafer",
+                GTLAddItems.EXTRAORDINARY_SOC_WAFER,
+                6,
+                GTLAddItems.EXTRAORDINARY_SOC,
+                VA[UHV],
+                LAW_CLEANROOM,
+                provider
             )
             addCutterRecipe(
-                "starmetal_wafer", GTLAddItems.STARMETAL_BOULE,
-                16, GTLAddItems.STARMETAL_WAFER,
-                VA[UEV], LAW_CLEANROOM, provider
+                "starmetal_wafer",
+                GTLAddItems.STARMETAL_BOULE,
+                16,
+                GTLAddItems.STARMETAL_WAFER,
+                VA[UEV],
+                LAW_CLEANROOM,
+                provider
             )
             addCutterRecipe(
-                "chaos_soc", GTLAddItems.CHAOS_SOC_WAFER,
-                6, GTLAddItems.CHAOS_SOC,
-                VA[UEV], LAW_CLEANROOM, provider
+                "chaos_soc",
+                GTLAddItems.CHAOS_SOC_WAFER,
+                6,
+                GTLAddItems.CHAOS_SOC,
+                VA[UEV],
+                LAW_CLEANROOM,
+                provider
             )
             addCutterRecipe(
-                "periodicium_wafer", GTLAddItems.PERIODICIUM_BOULE,
-                256, GTLAddItems.PERIODICIUM_WAFER,
-                VA[UXV], LAW_CLEANROOM, provider
+                "periodicium_wafer",
+                GTLAddItems.PERIODICIUM_BOULE,
+                256,
+                GTLAddItems.PERIODICIUM_WAFER,
+                VA[UXV],
+                LAW_CLEANROOM,
+                provider
             )
             addCutterRecipe(
-                "spacetime_soc", GTLAddItems.SPACETIME_SOC_WAFER,
-                6, GTLAddItems.SPACETIME_SOC,
-                VA[UXV], LAW_CLEANROOM, provider
+                "spacetime_soc",
+                GTLAddItems.SPACETIME_SOC_WAFER,
+                6,
+                GTLAddItems.SPACETIME_SOC,
+                VA[UXV],
+                LAW_CLEANROOM,
+                provider
             )
             addCutterRecipe(
-                "infinity_wafer", GTLAddItems.INFINITY_BOULE,
-                16, GTLAddItems.INFINITY_WAFER,
-                VA[OpV], LAW_CLEANROOM, provider
+                "infinity_wafer",
+                GTLAddItems.INFINITY_BOULE,
+                16,
+                GTLAddItems.INFINITY_WAFER,
+                VA[OpV],
+                LAW_CLEANROOM,
+                provider
             )
             addCutterRecipe(
-                "primary_soc", GTLAddItems.PRIMARY_SOC_WAFER,
-                6, GTLAddItems.PRIMARY_SOC,
-                VA[OpV], LAW_CLEANROOM, provider
+                "primary_soc",
+                GTLAddItems.PRIMARY_SOC_WAFER,
+                6,
+                GTLAddItems.PRIMARY_SOC,
+                VA[OpV],
+                LAW_CLEANROOM,
+                provider
             )
         }
 
         private fun addCutterRecipe(
-            id : String?,
-            input : ItemEntry<Item?>,
-            output : Int,
-            outputItem : ItemEntry<Item?>,
-            eut : Int,
-            cleanroomType : CleanroomType,
-            provider : Consumer<FinishedRecipe?>
+            id: String?,
+            input: ItemEntry<Item?>,
+            output: Int,
+            outputItem: ItemEntry<Item?>,
+            eut: Int,
+            cleanroomType: CleanroomType,
+            provider: Consumer<FinishedRecipe?>
         ) {
             val builder = CUTTER_RECIPES.recipeBuilder(id(id + "_0"))
                 .inputItems(input)
@@ -241,43 +297,68 @@ object SocProcess {
     }
 
     internal object EngravingArray {
-        fun init(provider : Consumer<FinishedRecipe?>) {
+        fun init(provider: Consumer<FinishedRecipe?>) {
             addEngravingRecipe(
-                GTLAddItems.BIOWARE_ECHO_SHARD_BOULE, Photoresist,
-                "kubejs:grating_lithography_mask", GTLAddItems.OUTSTANDING_SOC_WAFER,
-                VA[UHV], 300, CleanroomType.STERILE_CLEANROOM, provider
+                GTLAddItems.BIOWARE_ECHO_SHARD_BOULE,
+                Photoresist,
+                "kubejs:grating_lithography_mask",
+                GTLAddItems.OUTSTANDING_SOC_WAFER,
+                VA[UHV],
+                300,
+                CleanroomType.STERILE_CLEANROOM,
+                provider
             )
             addEngravingRecipe(
-                GTLAddItems.PREPARE_EXTRAORDINARY_SOC_WAFER, Photoresist,
-                "kubejs:grating_lithography_mask", GTLAddItems.EXTRAORDINARY_SOC_WAFER,
-                VA[UEV], 400, LAW_CLEANROOM, provider
+                GTLAddItems.PREPARE_EXTRAORDINARY_SOC_WAFER,
+                Photoresist,
+                "kubejs:grating_lithography_mask",
+                GTLAddItems.EXTRAORDINARY_SOC_WAFER,
+                VA[UEV],
+                400,
+                LAW_CLEANROOM,
+                provider
             )
             addEngravingRecipe(
-                GTLAddItems.DRAGON_ELEMENT_STARMETAL_WAFER, EuvPhotoresist,
-                "kubejs:grating_lithography_mask", GTLAddItems.CHAOS_SOC_WAFER,
-                VA[UIV], 500, LAW_CLEANROOM, provider
+                GTLAddItems.DRAGON_ELEMENT_STARMETAL_WAFER,
+                EuvPhotoresist,
+                "kubejs:grating_lithography_mask",
+                GTLAddItems.CHAOS_SOC_WAFER,
+                VA[UIV],
+                500,
+                LAW_CLEANROOM,
+                provider
             )
             addEngravingRecipe(
-                GTLAddItems.PREPARE_SPACETIME_SOC_WAFER, GammaRaysPhotoresist,
-                "gtladditions:spacetime_lens", GTLAddItems.SPACETIME_SOC_WAFER,
-                VA[UXV], 600, LAW_CLEANROOM, provider
+                GTLAddItems.PREPARE_SPACETIME_SOC_WAFER,
+                GammaRaysPhotoresist,
+                "gtladditions:spacetime_lens",
+                GTLAddItems.SPACETIME_SOC_WAFER,
+                VA[UXV],
+                600,
+                LAW_CLEANROOM,
+                provider
             )
             addEngravingRecipe(
-                GTLAddItems.PREPARE_PRIMARY_SOC_WAFER, GammaRaysPhotoresist,
-                "gtladditions:spacetime_lens", GTLAddItems.PRIMARY_SOC_WAFER,
-                VA[OpV], 800, LAW_CLEANROOM, provider
+                GTLAddItems.PREPARE_PRIMARY_SOC_WAFER,
+                GammaRaysPhotoresist,
+                "gtladditions:spacetime_lens",
+                GTLAddItems.PRIMARY_SOC_WAFER,
+                VA[OpV],
+                800,
+                LAW_CLEANROOM,
+                provider
             )
         }
 
         private fun addEngravingRecipe(
-            input : ItemEntry<Item?>,
-            fluid : Material,
-            noInput : String,
-            output : ItemEntry<Item?>,
-            eut : Int,
-            duration : Int,
-            cleanroomType : CleanroomType,
-            provider : Consumer<FinishedRecipe?>
+            input: ItemEntry<Item?>,
+            fluid: Material,
+            noInput: String,
+            output: ItemEntry<Item?>,
+            eut: Int,
+            duration: Int,
+            cleanroomType: CleanroomType,
+            provider: Consumer<FinishedRecipe?>
         ) {
             DIMENSIONAL_FOCUS_ENGRAVING_ARRAY_RECIPES.recipeBuilder(id(output.asItem().toString()))
                 .inputItems(input).notConsumable(getItemStack(noInput))
@@ -293,7 +374,7 @@ object SocProcess {
     }
 
     internal object CircuitAssembler {
-        fun init(provider : Consumer<FinishedRecipe?>) {
+        fun init(provider: Consumer<FinishedRecipe?>) {
             addCircuitRecipe(
                 "bioware_processor",
                 "kubejs:bioware_printed_circuit_board", GTLAddItems.OUTSTANDING_SOC,
@@ -319,15 +400,15 @@ object SocProcess {
         }
 
         private fun addCircuitRecipe(
-            id : String?,
-            inputs : String,
-            input : ItemEntry<Item?>,
-            material1 : Material,
-            material2 : Material,
-            output : String,
-            eut : Int,
-            cleanroomType : CleanroomType,
-            provider : Consumer<FinishedRecipe?>
+            id: String?,
+            inputs: String,
+            input: ItemEntry<Item?>,
+            material1: Material,
+            material2: Material,
+            output: String,
+            eut: Int,
+            cleanroomType: CleanroomType,
+            provider: Consumer<FinishedRecipe?>
         ) {
             val builder = CIRCUIT_ASSEMBLER_RECIPES.recipeBuilder(id(id + "_0"))
                 .inputItems(getItemStack(inputs))
@@ -348,7 +429,7 @@ object SocProcess {
                 .duration(if (eut <= VA[UEV]) 200 else 150).save(provider)
         }
 
-        private fun generateCircuitRecipes(provider : Consumer<FinishedRecipe?>) {
+        private fun generateCircuitRecipes(provider: Consumer<FinishedRecipe?>) {
             CIRCUIT_ASSEMBLER_RECIPES.recipeBuilder(id("cosmic_processor"))
                 .inputItems(getItemStack("kubejs:cosmic_printed_circuit_board"))
                 .inputItems(GTLAddItems.SPACETIME_SOC)

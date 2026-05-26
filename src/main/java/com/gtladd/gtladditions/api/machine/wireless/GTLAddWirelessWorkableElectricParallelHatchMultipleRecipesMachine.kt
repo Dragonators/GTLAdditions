@@ -7,7 +7,5 @@ class GTLAddWirelessWorkableElectricParallelHatchMultipleRecipesMachine(
     holder: IMachineBlockEntity,
     vararg args: Any?
 ) : GTLAddWirelessWorkableElectricMultipleRecipesMachine(holder, *args) {
-    override fun getMaxParallel(): Int {
-        return GTLRecipeModifiers.getHatchParallel(this)
-    }
+    override fun getMaxParallel(): Int = GTLRecipeModifiers.getHatchParallel(this)
 }

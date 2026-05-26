@@ -11,15 +11,22 @@ interface IAstralArrayInteractionMachine : IMachineModifyDrops {
     val astralArrayCount: Int
 
     override fun onDrops(list: MutableList<ItemStack>) {
-        val count = this.astralArrayCount
-        if (count > 0) {
-            var i = 0
-            while (i < count) {
-                val stackSize = min(64, count - i)
-                val stack = ItemStack(GTLAddItems.ASTRAL_ARRAY.asItem(), stackSize)
-                list.add(stack)
-                i += 64
-            }
+        var count = this.astralArrayCount
+        while (count > 0) {
+            val stackSize = min(64, count)
+            list.add(ItemStack(GTLAddItems.ASTRAL_ARRAY.asItem(), stackSize))
+            count -= stackSize
+        }
+    }
+
+    companion object {
+        const val ASTRAL_ARRAY_EQUIVALENT = 1
+        const val COMPRESSED_ASTRAL_ARRAY_EQUIVALENT = 1024
+
+        fun getAstralArrayEquivalent(stack: ItemStack): Int = when {
+            stack.`is`(GTLAddItems.COMPRESSED_ASTRAL_ARRAY.asItem()) -> COMPRESSED_ASTRAL_ARRAY_EQUIVALENT
+            stack.`is`(GTLAddItems.ASTRAL_ARRAY.asItem()) -> ASTRAL_ARRAY_EQUIVALENT
+            else -> 0
         }
     }
 }

@@ -11,15 +11,9 @@ open class GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine(
     vararg args: Any?
 ) : GTLAddWirelessWorkableElectricMultipleRecipesMachine(holder, *args) {
 
-    override fun createRecipeLogic(vararg args: Any): RecipeLogic {
-        return GTLAddMultipleTypeWirelessRecipesLogic(this)
-    }
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic = GTLAddMultipleTypeWirelessRecipesLogic(this)
 
-    override fun getRecipeLogic(): GTLAddMultipleTypeWirelessRecipesLogic {
-        return super.getRecipeLogic() as GTLAddMultipleTypeWirelessRecipesLogic
-    }
+    override fun getRecipeLogic(): GTLAddMultipleTypeWirelessRecipesLogic = super.getRecipeLogic() as GTLAddMultipleTypeWirelessRecipesLogic
 
-    override fun getRecipeType(): GTRecipeType {
-        return dummyRecipeType
-    }
+    override fun getRecipeType(): GTRecipeType = dummyRecipeType
 }

@@ -1,40 +1,25 @@
 package com.gtladd.gtladditions.common.modify
 
 import com.gregtechceu.gtceu.api.GTValues
-import com.gregtechceu.gtceu.api.GTValues.UXV
 import com.gregtechceu.gtceu.api.GTValues.VA
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.toolHeadDrill
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix.wireGtHex
-import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.common.data.GTItems.*
 import com.gregtechceu.gtceu.common.data.GTMaterials
-import com.gregtechceu.gtceu.common.data.GTMaterials.Oganesson
-import com.gregtechceu.gtceu.common.data.GTMaterials.UUMatter
-import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
-import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gregtechceu.gtceu.utils.ItemStackHashStrategy
-import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.GTLAdditions.Companion.id
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
-import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.STAR_CORE_STRIPPER
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.world.item.ItemStack
-import org.gtlcore.gtlcore.common.data.GTLBlocks.RHENIUM_REINFORCED_ENERGY_GLASS
-import org.gtlcore.gtlcore.common.data.GTLItems
 import org.gtlcore.gtlcore.common.data.GTLItems.*
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR
-import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineB.LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
@@ -49,7 +34,7 @@ object SkyTearsAndGregHeart {
                 ChemicalHelper.get(toolHeadDrill, GTMaterials.Steel),
                 ChemicalHelper.get(toolHeadDrill, GTMaterials.Titanium),
                 ChemicalHelper.get(toolHeadDrill, GTMaterials.NaquadahAlloy),
-                ChemicalHelper.get(toolHeadDrill, GTMaterials.Neutronium),
+                ChemicalHelper.get(toolHeadDrill, GTMaterials.Neutronium)
             ),
             ItemStackHashStrategy.comparingAllButCount()
         )
@@ -85,8 +70,9 @@ object SkyTearsAndGregHeart {
             recipeBuilder.input[ItemRecipeCapability.CAP]?.let {
                 for (content in it) {
                     val stacks = ItemRecipeCapability.CAP.of(content.content).items
-                    if (stacks.size > 0 && exceptDrills.contains(stacks[0])) return@onRecipeBuild
-                    else if (stacks[0].`is`(targetDrill.item)) {
+                    if (stacks.size > 0 && exceptDrills.contains(stacks[0])) {
+                        return@onRecipeBuild
+                    } else if (stacks[0].`is`(targetDrill.item)) {
                         genTargetDrillRecipe(recipeBuilder, provider)
                         return@onRecipeBuild
                     }
@@ -117,8 +103,9 @@ object SkyTearsAndGregHeart {
                     }
                 } else {
                     for (content in contentList) {
-                        if (content.chance >= content.maxChance) copyList.add(content)
-                        else {
+                        if (content.chance >= content.maxChance) {
+                            copyList.add(content)
+                        } else {
                             val temp = content.copy(cap, null)
                             temp.chance = temp.maxChance
                             copyList.add(temp)
@@ -156,7 +143,7 @@ object SkyTearsAndGregHeart {
         newBuilder.save(provider)
     }
 
-    fun init(provider : Consumer<FinishedRecipe?>){
+    fun init(provider: Consumer<FinishedRecipe?>) {
         if (!ConfigHolder.INSTANCE.enableSkyBlokeMode) return
         STAR_CORE_STRIPPER.recipeBuilder(id("for_stargate"))
             .notConsumable(WORLD_FRAGMENTS_OVERWORLD)

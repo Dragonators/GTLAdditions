@@ -13,7 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.module.ForgeOfTheAntichristModuleBase;
+import com.gtladd.gtladditions.common.machine.multiblock.controller.module.ForgeOfTheAntichristModuleBase;
 import com.hepdd.gtmthings.common.block.machine.multiblock.part.HugeBusPartMachine;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSets;

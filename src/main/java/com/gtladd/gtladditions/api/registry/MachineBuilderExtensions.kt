@@ -6,7 +6,7 @@ import com.gtladd.gtladditions.client.render.machine.OverlayHullMachineRenderer
 import net.minecraft.resources.ResourceLocation
 
 object MachineBuilderExtensions {
-    fun <D: MachineDefinition> MachineBuilder<D>.overlayHullRenderer(
+    fun <D : MachineDefinition> MachineBuilder<D>.overlayHullRenderer(
         bottom: ResourceLocation,
         top: ResourceLocation,
         side: ResourceLocation,
@@ -14,7 +14,7 @@ object MachineBuilderExtensions {
     ): MachineBuilder<D> =
         this.renderer { OverlayHullMachineRenderer(bottom, top, side, overlayModel) }
 
-    fun <D: MachineDefinition> MachineBuilder<D>.overlayHullRenderer(
+    fun <D : MachineDefinition> MachineBuilder<D>.overlayHullRenderer(
         res: ResourceLocation,
         overlayModel: ResourceLocation
     ): MachineBuilder<D> =

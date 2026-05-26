@@ -33,34 +33,28 @@ class WirelessGTRecipeBuilder : GTRecipeBuilder {
         return this
     }
 
-    override fun buildRawRecipe(): WirelessGTRecipe {
-        return WirelessGTRecipe(
-            recipeType,
-            id.withPrefix("${recipeType.registryName.path}/"),
-            input,
-            output,
-            tickInput,
-            tickOutput,
-            inputChanceLogic,
-            outputChanceLogic,
-            tickInputChanceLogic,
-            tickOutputChanceLogic,
-            conditions,
-            listOf<Any>(),
-            data,
-            duration,
-            isFuel,
-            wirelessEut
-        )
-    }
+    override fun buildRawRecipe(): WirelessGTRecipe = WirelessGTRecipe(
+        recipeType,
+        id.withPrefix("${recipeType.registryName.path}/"),
+        input,
+        output,
+        tickInput,
+        tickOutput,
+        inputChanceLogic,
+        outputChanceLogic,
+        tickInputChanceLogic,
+        tickOutputChanceLogic,
+        conditions,
+        listOf<Any>(),
+        data,
+        duration,
+        isFuel,
+        wirelessEut
+    )
 
     companion object {
-        fun ofRaw(): WirelessGTRecipeBuilder {
-            return ofRaw(GTRecipeTypes.DUMMY_RECIPES)
-        }
+        fun ofRaw(): WirelessGTRecipeBuilder = ofRaw(GTRecipeTypes.DUMMY_RECIPES)
 
-        fun ofRaw(recipeType: GTRecipeType): WirelessGTRecipeBuilder {
-            return WirelessGTRecipeBuilder(GTCEu.id("raw"), recipeType)
-        }
+        fun ofRaw(recipeType: GTRecipeType): WirelessGTRecipeBuilder = WirelessGTRecipeBuilder(GTCEu.id("raw"), recipeType)
     }
 }

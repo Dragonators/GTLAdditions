@@ -12,7 +12,7 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object Qft {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         QFT_RECIPES.recipeBuilder(id("resonating_gem"))
             .notConsumable(getItemStack("kubejs:eternity_catalyst"))
             .inputItems(dust, Sapphire, 64)

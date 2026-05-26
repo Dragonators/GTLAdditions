@@ -49,19 +49,11 @@ object StarGradient {
         return (r shl 16) or (g shl 8) or b
     }
 
-    private fun lerp(x: Double, y: Double, t: Double): Double {
-        return x + (y - x) * t
-    }
+    private fun lerp(x: Double, y: Double, t: Double): Double = x + (y - x) * t
 
-    private fun sRGBToLinear(c: Double): Double {
-        return if (c <= 0.04045) (c / 12.92) else ((c + 0.055) / 1.055).pow(2.4)
-    }
+    private fun sRGBToLinear(c: Double): Double = if (c <= 0.04045) (c / 12.92) else ((c + 0.055) / 1.055).pow(2.4)
 
-    private fun linearToSRGB(c: Double): Double {
-        return if (c <= 0.0031308) (c * 12.92) else (1.055 * c.pow(1.0 / 2.4) - 0.055)
-    }
+    private fun linearToSRGB(c: Double): Double = if (c <= 0.0031308) (c * 12.92) else (1.055 * c.pow(1.0 / 2.4) - 0.055)
 
-    private fun clamp01(x: Double): Double {
-        return if (x < 0) 0.0 else (if (x > 1) 1.0 else x)
-    }
+    private fun clamp01(x: Double): Double = if (x < 0) 0.0 else (if (x > 1) 1.0 else x)
 }

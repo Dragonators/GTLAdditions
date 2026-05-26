@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.machine.trait.ICapabilityTrait
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableRecipeHandlerTrait
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.utils.ItemStackHashStrategy
+import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.TransferHelper
 import com.lowdragmc.lowdraglib.side.item.IItemTransfer
 import com.lowdragmc.lowdraglib.syncdata.IContentChangeAware
@@ -31,8 +32,13 @@ import org.gtlcore.gtlcore.utils.NumberUtils
 import kotlin.math.max
 import kotlin.math.min
 
-class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandlerTrait<Ingredient>(machine),
-    ICapabilityTrait, IItemTransfer, IOptimizedMEList, ITagSerializable<CompoundTag>, IContentChangeAware {
+class FastNotifiableInputItemStack(machine: MetaMachine) :
+    NotifiableRecipeHandlerTrait<Ingredient>(machine),
+    ICapabilityTrait,
+    IItemTransfer,
+    IOptimizedMEList,
+    ITagSerializable<CompoundTag>,
+    IContentChangeAware {
 
     private val itemInventory: Object2LongLinkedOpenCustomHashMap<ItemStack> =
         Object2LongLinkedOpenCustomHashMap(ItemStackHashStrategy.comparingAllButCount())
@@ -53,7 +59,7 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
             textList.add(
                 entry.key.displayName.copy().setStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
                     .append(
-                        Component.literal(NumberUtils.formatLong(entry.longValue))
+                        NumberUtils.formatLong(entry.longValue).literal
                             .setStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))
                     )
             )
@@ -131,10 +137,11 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
                 val extracted = min(has, leftAmount)
                 leftAmount -= extracted
                 if (!simulate) {
-                    if (extracted == has)
+                    if (extracted == has) {
                         itemInventory.removeLong(itemStack)
-                    else
+                    } else {
                         itemInventory.addTo(itemStack, -extracted)
+                    }
                 }
                 changed = true
 
@@ -144,10 +151,11 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
                 }
             }
 
-            if (ingredient is LongIngredient)
+            if (ingredient is LongIngredient) {
                 ingredient.actualAmount = leftAmount
-            else
+            } else {
                 items[0].count = Ints.saturatedCast(leftAmount)
+            }
         }
 
         if (!simulate && changed) onContentsChanged()
@@ -155,10 +163,8 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
         return left.ifEmpty { null }
     }
 
-    override fun getContents(): List<Any> {
-        return itemInventory.map { entry ->
-            entry.key.copyWithCount(Ints.saturatedCast(entry.value))
-        }
+    override fun getContents(): List<Any> = itemInventory.map { entry ->
+        entry.key.copyWithCount(Ints.saturatedCast(entry.value))
     }
 
     override fun getTotalContentAmount(): Double = itemInventory.values.sum().toDouble()
@@ -192,10 +198,11 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
             if (notifyChanges) this.onContentsChanged()
         }
 
-        return if (realInsert == count.toLong())
+        return if (realInsert == count.toLong()) {
             ItemStack.EMPTY
-        else
+        } else {
             stack.copyWithCount(count - realInsert.toInt())
+        }
     }
 
     override fun extractItem(slot: Int, amount: Int, simulate: Boolean, notifyChanges: Boolean): ItemStack =
@@ -206,14 +213,10 @@ class FastNotifiableInputItemStack(machine: MetaMachine) : NotifiableRecipeHandl
     override fun isItemValid(slot: Int, stack: ItemStack): Boolean = true
 
     @Suppress("UnstableApiUsage")
-    override fun createSnapshot(): Any {
-        throw UnsupportedOperationException("Why Fabric")
-    }
+    override fun createSnapshot(): Any = throw UnsupportedOperationException("Why Fabric")
 
     @Suppress("UnstableApiUsage")
-    override fun restoreFromSnapshot(snapshot: Any?) {
-        throw UnsupportedOperationException("Why Fabric")
-    }
+    override fun restoreFromSnapshot(snapshot: Any?): Unit = throw UnsupportedOperationException("Why Fabric")
 
     override fun onConfigChanged() {}
 

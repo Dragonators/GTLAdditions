@@ -29,19 +29,17 @@ class LongFluidStack : FluidStack {
 
     override fun copy(): LongFluidStack = LongFluidStack(fluid, longAmount, tag)
 
-    override fun containsFluid(other: FluidStack): Boolean {
-        return isFluidEqual(other) && if (other is LongFluidStack) {
+    override fun containsFluid(other: FluidStack): Boolean = isFluidEqual(other) &&
+        if (other is LongFluidStack) {
             this.longAmount >= other.longAmount
         } else {
             this.longAmount >= other.amount
         }
-    }
 
-    override fun isFluidStackIdentical(other: FluidStack): Boolean {
-        return isFluidEqual(other) && if (other is LongFluidStack) {
+    override fun isFluidStackIdentical(other: FluidStack): Boolean = isFluidEqual(other) &&
+        if (other is LongFluidStack) {
             this.longAmount == other.longAmount
         } else {
             this.longAmount == other.amount.toLong()
         }
-    }
 }

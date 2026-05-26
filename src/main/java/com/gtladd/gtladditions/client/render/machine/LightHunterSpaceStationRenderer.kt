@@ -4,10 +4,12 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
-import com.gtladd.gtladditions.common.machine.muiltblock.controller.LightHunterSpaceStation
+import com.gtladd.gtladditions.common.machine.multiblock.controller.LightHunterSpaceStation
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
+import com.gtladd.gtladditions.utils.Constants.ORBIT_OBJECTS
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
@@ -32,10 +34,11 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
-    GTCEu.id("block/casings/hpca/high_power_casing"),
-    GTCEu.id("block/multiblock/data_bank")
-) {
+class LightHunterSpaceStationRenderer :
+    WorkableCasingMachineRenderer(
+        GTCEu.id("block/casings/hpca/high_power_casing"),
+        GTCEu.id("block/multiblock/data_bank")
+    ) {
 
     @OnlyIn(Dist.CLIENT)
     override fun render(
@@ -113,22 +116,6 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
         private val STAR_LAYER = GTLAdditions.id("obj/star_layer_1")
         private val SPACE_MODEL = GTLAdditions.id("obj/heart_of_universe")
         private val HALO_TEX = GTLAdditions.id("textures/block/obj/halo_tex1.png")
-        private val ORBIT_OBJECTS = listOf(
-            GTLAdditions.id("obj/planets/the_nether"),
-            GTLAdditions.id("obj/planets/overworld"),
-            GTLAdditions.id("obj/planets/the_end"),
-            GTLAdditions.id("obj/planets/ceres"),
-            GTLAdditions.id("obj/planets/enceladus"),
-            GTLAdditions.id("obj/planets/ganymede"),
-            GTLAdditions.id("obj/planets/io"),
-            GTLAdditions.id("obj/planets/mars"),
-            GTLAdditions.id("obj/planets/mercury"),
-            GTLAdditions.id("obj/planets/moon"),
-            GTLAdditions.id("obj/planets/pluto"),
-            GTLAdditions.id("obj/planets/titan"),
-            GTLAdditions.id("obj/planets/venus")
-        )
-
         private val CACHE_MAP = ConcurrentHashMap<Long, RenderCache>()
 
         private fun renderBeam(
@@ -156,19 +143,22 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
         ) {
             val cache = getOrCreateCache(seed, facing, starPos)
 
-            poseStack.pushPose()
-            poseStack.translate(starPos.x, starPos.y, starPos.z)
+            poseStack.withPose {
+                translate(starPos.x, starPos.y, starPos.z)
 
-            val rotation = cache.starRotation
+                val rotation = cache.starRotation
 
-            RenderUtils.renderStarLayer(
-                poseStack, buffer, STAR_LAYER, 0.20f,
-                rotation.axis, rotation.getAngle(tick),
-                FastColor.ARGB32.color(255, 255, 255, 255),
-                RenderType.solid()
-            )
-
-            poseStack.popPose()
+                RenderUtils.renderStarLayer(
+                    this,
+                    buffer,
+                    STAR_LAYER,
+                    0.20f,
+                    rotation.axis,
+                    rotation.getAngle(tick),
+                    FastColor.ARGB32.color(255, 255, 255, 255),
+                    RenderType.solid()
+                )
+            }
         }
 
         private fun renderBlackHole(
@@ -181,25 +171,32 @@ class LightHunterSpaceStationRenderer : WorkableCasingMachineRenderer(
         ) {
             val cache = getOrCreateCache(seed, facing, starPos)
 
-            poseStack.pushPose()
-            poseStack.translate(starPos.x, starPos.y, starPos.z)
+            poseStack.withPose {
+                translate(starPos.x, starPos.y, starPos.z)
 
-            val rotation = cache.starRotation
+                val rotation = cache.starRotation
 
-            RenderUtils.renderHaloLayer(
-                poseStack, buffer, 0.20f * 1.02f,
-                rotation.axis, rotation.getAngle(tick),
-                HALO_TEX, SPACE_MODEL
-            )
+                RenderUtils.renderHaloLayer(
+                    this,
+                    buffer,
+                    0.20f * 1.02f,
+                    rotation.axis,
+                    rotation.getAngle(tick),
+                    HALO_TEX,
+                    SPACE_MODEL
+                )
 
-            RenderUtils.renderStarLayer(
-                poseStack, buffer, SPACE_MODEL, 0.20f,
-                rotation.axis, rotation.getAngle(tick),
-                FastColor.ARGB32.color(255, 255, 255, 255),
-                RenderType.solid()
-            )
-
-            poseStack.popPose()
+                RenderUtils.renderStarLayer(
+                    this,
+                    buffer,
+                    SPACE_MODEL,
+                    0.20f,
+                    rotation.axis,
+                    rotation.getAngle(tick),
+                    FastColor.ARGB32.color(255, 255, 255, 255),
+                    RenderType.solid()
+                )
+            }
         }
 
         private fun renderOrbit(

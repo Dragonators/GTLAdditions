@@ -24,28 +24,28 @@ open class GTLAddMultipleTypeWirelessRecipesLogic : GTLAddMultipleWirelessRecipe
         itemOutputs: ObjectArrayList<Content>,
         fluidOutputs: ObjectArrayList<Content>,
         totalEu: BigInteger
-    ): WirelessGTRecipe {
-        return RecipeCalculationHelper.buildWirelessRecipe(
-            itemOutputs, fluidOutputs, limited.getLimitedDuration(), totalEu, getMachine().recipeType
-        )
-    }
+    ): WirelessGTRecipe = RecipeCalculationHelper.buildWirelessRecipe(
+        itemOutputs,
+        fluidOutputs,
+        limited.getLimitedDuration(),
+        totalEu,
+        getMachine().recipeType
+    )
 
-    override fun lookupRecipeIterator(): Set<GTRecipe> {
-        return if (isLock) {
-            when {
-                lockRecipe == null -> {
-                    lockRecipe = machine.recipeTypes.asSequence()
-                        .mapNotNull { it.lookup.find(machine, this::checkRecipe) }
-                        .firstOrNull()
-                    lockRecipe?.let { Collections.singleton(it) } ?: emptySet()
-                }
-                checkRecipe(lockRecipe) -> Collections.singleton(lockRecipe)
-                else -> emptySet()
+    override fun lookupRecipeIterator(): Set<GTRecipe> = if (isLock) {
+        when {
+            lockRecipe == null -> {
+                lockRecipe = machine.recipeTypes.asSequence()
+                    .mapNotNull { it.lookup.find(machine, this::checkRecipe) }
+                    .firstOrNull()
+                lockRecipe?.let { Collections.singleton(it) } ?: emptySet()
             }
-        } else {
-            machine.recipeTypes.asSequence()
-                .flatMap { it.lookup.getRecipeIterator(machine, this::checkRecipe).asSequence() }
-                .toCollection(ObjectOpenHashSet())
+            checkRecipe(lockRecipe) -> Collections.singleton(lockRecipe)
+            else -> emptySet()
         }
+    } else {
+        machine.recipeTypes.asSequence()
+            .flatMap { it.lookup.getRecipeIterator(machine, this::checkRecipe).asSequence() }
+            .toCollection(ObjectOpenHashSet())
     }
 }

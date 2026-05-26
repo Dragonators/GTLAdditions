@@ -1,4 +1,4 @@
-﻿package com.gtladd.gtladditions.utils
+package com.gtladd.gtladditions.utils
 
 import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
@@ -7,6 +7,7 @@ import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType
+import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
@@ -23,12 +24,17 @@ import it.unimi.dsi.fastutil.longs.LongLongPair
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.crafting.Ingredient
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
+import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
+import org.gtlcore.gtlcore.utils.Registries
 import java.math.BigDecimal
 import java.math.BigInteger
+import kotlin.collections.get
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -50,10 +56,8 @@ object RecipeCalculationHelper {
 
     fun multipleRecipe(
         recipe: GTRecipe,
-        parallel: Long,
-    ): GTRecipe {
-        return multipleRecipe(recipe, parallel) { recipe -> recipe.copy(ContentModifier.multiplier(parallel.toDouble()), false) }
-    }
+        parallel: Long
+    ): GTRecipe = multipleRecipe(recipe, parallel) { recipe -> recipe.copy(ContentModifier.multiplier(parallel.toDouble()), false) }
 
     inline fun processParallelDataNormal(
         parallelData: ParallelData,
@@ -74,9 +78,12 @@ object RecipeCalculationHelper {
                 val processedRecipe = IParallelLogic.getRecipeOutputChance(machine, multipleRecipe(r, p))
 
                 if (RecipeRunnerHelper.matchRecipeInput(
-                        machine, processedRecipe
-                    ) && RecipeRunnerHelper.handleRecipeInput(
-                        machine, processedRecipe
+                        machine,
+                        processedRecipe
+                    ) &&
+                    RecipeRunnerHelper.handleRecipeInput(
+                        machine,
+                        processedRecipe
                     )
                 ) {
                     totalEu += getTotalRecipeEu(r) * p * euMultiplier
@@ -126,9 +133,12 @@ object RecipeCalculationHelper {
                 val paralleledRecipe = IParallelLogic.getRecipeOutputChance(machine, multipleRecipe(r, p))
 
                 if (RecipeRunnerHelper.matchRecipeInput(
-                        machine, paralleledRecipe
-                    ) && RecipeRunnerHelper.handleRecipeInput(
-                        machine, paralleledRecipe
+                        machine,
+                        paralleledRecipe
+                    ) &&
+                    RecipeRunnerHelper.handleRecipeInput(
+                        machine,
+                        paralleledRecipe
                     )
                 ) {
                     accumulatedEu = tempAccumulatedEu
@@ -189,9 +199,7 @@ object RecipeCalculationHelper {
         recipe.outputs[FluidRecipeCapability.CAP]?.let { fluidOutputs.addAll(it) }
     }
 
-    fun hasOutputs(itemOutputs: List<Content>, fluidOutputs: List<Content>): Boolean {
-        return itemOutputs.isNotEmpty() || fluidOutputs.isNotEmpty()
-    }
+    fun hasOutputs(itemOutputs: List<Content>, fluidOutputs: List<Content>): Boolean = itemOutputs.isNotEmpty() || fluidOutputs.isNotEmpty()
 
     // ===================================================
     // ParallelData Calculation
@@ -235,18 +243,16 @@ object RecipeCalculationHelper {
             index++
         }
 
-        if (recipeList.isEmpty()) return null
+        if (recipeList.isEmpty) return null
 
         return getFinalParallelData(remaining, parallels, remainingWants, remainingIndices, recipeList)
     }
 
-    inline fun calculateParallelsWithGreedyAllocation(
+    fun calculateParallelsWithGreedyAllocation(
         recipes: Collection<GTRecipe>,
         totalParallel: Long,
         machine: IRecipeLogicMachine,
-        crossinline modifyRecipe: (GTRecipe) -> GTRecipe = { it },
-        crossinline createParalleledRecipe: (GTRecipe, Long) -> GTRecipe = { r, p -> multipleRecipe(r, p) },
-        crossinline getParallelAndConsumption: (GTRecipe, Long) -> LongLongPair
+        getParallelAndConsumption: (GTRecipe, Long) -> LongLongPair
     ): ParallelData? {
         var remain = totalParallel
 
@@ -256,14 +262,13 @@ object RecipeCalculationHelper {
 
         for (match in recipes) {
             if (remain <= 0) break
-            val modified = modifyRecipe(match)
-            val pair = getParallelAndConsumption(modified, remain)
+            val pair = getParallelAndConsumption(match, remain)
             val p = pair.firstLong()
             if (p <= 0) continue
 
             val paralleledRecipe = IParallelLogic.getRecipeOutputChance(
                 machine,
-                createParalleledRecipe(modified, p)
+                multipleRecipe(match, p)
             )
             if (RecipeRunnerHelper.handleRecipeInput(machine, paralleledRecipe)) {
                 remain -= pair.secondLong()
@@ -273,8 +278,11 @@ object RecipeCalculationHelper {
             }
         }
 
-        return if (recipeList.isEmpty()) null
-        else ParallelData(recipeList, parallelsList.toLongArray(), false, processedRecipeList)
+        return if (recipeList.isEmpty) {
+            null
+        } else {
+            ParallelData(recipeList, parallelsList.toLongArray(), false, processedRecipeList)
+        }
     }
 
     inline fun calculateParallelsWithProcessing(
@@ -317,8 +325,11 @@ object RecipeCalculationHelper {
             }
         }
 
-        return if (recipeList.isEmpty()) null
-        else ParallelData(recipeList, parallelsList.toLongArray(), !preProcessRecipes, processedRecipeList)
+        return if (recipeList.isEmpty) {
+            null
+        } else {
+            ParallelData(recipeList, parallelsList.toLongArray(), !preProcessRecipes, processedRecipeList)
+        }
     }
 
     fun getFinalParallelData(
@@ -331,10 +342,11 @@ object RecipeCalculationHelper {
         if (recipeList.isEmpty()) return null
         if (remaining <= 0 || remainingWants.isEmpty()) return ParallelData(recipeList, parallels)
 
-        return if (remainingWants.size <= 64)
+        return if (remainingWants.size <= 64) {
             getParallelDataBitmap(remaining, parallels, remainingWants, remainingIndices, recipeList)
-        else
+        } else {
             getParallelDataIndexArray(remaining, parallels, remainingWants, remainingIndices, recipeList)
+        }
     }
 
     private fun getParallelDataBitmap(
@@ -453,9 +465,14 @@ object RecipeCalculationHelper {
         Reference2ReferenceArrayMap<RecipeCapability<*>, List<Content>>().apply {
             contents.forEach { (cap, contentList) ->
                 if (contentList.isNotEmpty()) {
-                    put(cap, ObjectArrayList(contentList.map { content ->
-                        copyFixBoost(content, cap, modifier, fixMultiplier)
-                    }))
+                    put(
+                        cap,
+                        ObjectArrayList(
+                            contentList.map { content ->
+                                copyFixBoost(content, cap, modifier, fixMultiplier)
+                            }
+                        )
+                    )
                 }
             }
         }
@@ -480,5 +497,55 @@ object RecipeCalculationHelper {
             content.slotName,
             content.uiName
         )
+    }
+
+    // ===================================================
+    // Recycle Recipe
+    // ===================================================
+
+    const val RECIPE_CYCLE_CONTAINER = "recipe_cycle_container"
+
+    private val fullCell by lazy {
+        mapOf(
+            ResourceLocation("kubejs", "stellar_forge/contained_exotic_matter") to Content(
+                LongIngredient.create(Ingredient.of(Registries.getItemStack("kubejs:time_dilation_containment_unit"))),
+                ChanceLogic.getMaxChancedValue(),
+                ChanceLogic.getMaxChancedValue(),
+                0,
+                null,
+                null
+            ),
+            ResourceLocation("kubejs", "stellar_forge/extremely_durable_plasma_cell") to Content(
+                LongIngredient.create(Ingredient.of(Registries.getItemStack("kubejs:extremely_durable_plasma_cell"))),
+                ChanceLogic.getMaxChancedValue(),
+                ChanceLogic.getMaxChancedValue(),
+                0,
+                null,
+                null
+            ),
+            ResourceLocation("kubejs", "stellar_forge/contained_kerr_newmann_singularity") to Content(
+                LongIngredient.create(Ingredient.of(Registries.getItemStack("kubejs:time_dilation_containment_unit"))),
+                ChanceLogic.getMaxChancedValue(),
+                ChanceLogic.getMaxChancedValue(),
+                0,
+                null,
+                null
+            )
+        )
+    }
+
+    fun isRecipeCycleContainerContent(content: Content): Boolean = content.slotName == RECIPE_CYCLE_CONTAINER
+
+    fun appendSpecificInput(copyList: MutableList<Content>, id: ResourceLocation, modifier: ContentModifier) {
+        fullCell[id]?.let {
+            if (modifier.multiplier >= 2) {
+                copyList.add(
+                    it.copy(
+                        ItemRecipeCapability.CAP,
+                        ContentModifier.multiplier(modifier.multiplier - 1)
+                    )
+                )
+            }
+        }
     }
 }

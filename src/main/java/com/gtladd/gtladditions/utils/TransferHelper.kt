@@ -218,41 +218,39 @@ object TransferHelper {
         what: AEKey,
         amount: Long,
         mode: Actionable
-    ): Long {
-        return when (what) {
-            is AEItemKey -> {
-                val inventory = itemTarget.getItemStorage()
-                val itemStack = what.toStack()
-                val realInsert = amount.coerceAtMost(Long.MAX_VALUE - inventory.getLong(itemStack))
+    ): Long = when (what) {
+        is AEItemKey -> {
+            val inventory = itemTarget.getItemStorage()
+            val itemStack = what.toStack()
+            val realInsert = amount.coerceAtMost(Long.MAX_VALUE - inventory.getLong(itemStack))
 
-                if (mode != Actionable.SIMULATE && realInsert > 0) {
-                    itemStack.count = 1
-                    inventory.addTo(itemStack, realInsert)
-                    itemTarget.onContentsChanged()
-                }
-
-                realInsert
+            if (mode != Actionable.SIMULATE && realInsert > 0) {
+                itemStack.count = 1
+                inventory.addTo(itemStack, realInsert)
+                itemTarget.onContentsChanged()
             }
-            is AEFluidKey -> {
-                val inventory = fluidTarget.getFluidStorage()
-                val fluidStack = FluidStack.create(what.fluid, 1)
-                val existing = inventory.get(fluidStack)
-                val realInsert = amount.coerceAtMost(Long.MAX_VALUE - (existing?.amount ?: 0))
 
-                if (mode != Actionable.SIMULATE && realInsert > 0) {
-                    fluidStack.amount = realInsert
-                    existing?.let {
-                        it.amount += realInsert
-                    } ?: run {
-                        inventory.add(fluidStack)
-                    }
-                    fluidTarget.onContentsChanged()
-                }
-
-                realInsert
-            }
-            else -> 0
+            realInsert
         }
+        is AEFluidKey -> {
+            val inventory = fluidTarget.getFluidStorage()
+            val fluidStack = FluidStack.create(what.fluid, 1)
+            val existing = inventory.get(fluidStack)
+            val realInsert = amount.coerceAtMost(Long.MAX_VALUE - (existing?.amount ?: 0))
+
+            if (mode != Actionable.SIMULATE && realInsert > 0) {
+                fluidStack.amount = realInsert
+                existing?.let {
+                    it.amount += realInsert
+                } ?: run {
+                    inventory.add(fluidStack)
+                }
+                fluidTarget.onContentsChanged()
+            }
+
+            realInsert
+        }
+        else -> 0
     }
 
     private fun tryExportItemToMEStorage(

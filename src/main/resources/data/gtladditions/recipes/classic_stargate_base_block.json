@@ -14,7 +14,7 @@
   ],
   "key": {
     "A": {
-      "item": "gtladditions:thread_modifier_hatch"
+      "item": "gtladditions:recursive_reverse_array"
     },
     "B": {
       "item": "sgjourney:reaction_chamber"
@@ -26,7 +26,7 @@
       "item": "gtceu:cosmic_nanoswarm"
     },
     "E": {
-      "item": "gtladditions:forge_of_the_antichrist"
+      "item": "gtladditions:time_space_distorter"
     },
     "F": {
       "item": "gtladditions:super_dense_magmatter_plate"
@@ -44,10 +44,10 @@
       "item": "gtlcore:item_infinity_cell"
     },
     "K": {
-      "item": "gtladditions:astral_array"
+      "item": "gtladditions:compressed_astral_array"
     },
     "L": {
-      "item": "gtladditions:arcanic_astrograph"
+      "item": "gtladditions:forge_of_the_antichrist"
     },
     "M": {
       "item": "sgjourney:classic_stargate_chevron_block"

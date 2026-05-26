@@ -1,6 +1,6 @@
 package com.gtladd.gtladditions.integration.xei
 
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine.HELIOFLARE_POWER_FORGE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIOFLARE_POWER_FORGE
 import com.lowdragmc.lowdraglib.LDLib
 import dev.emi.emi.api.EmiEntrypoint
 import dev.emi.emi.api.EmiPlugin

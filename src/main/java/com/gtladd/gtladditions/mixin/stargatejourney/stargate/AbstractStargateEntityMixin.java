@@ -4,15 +4,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.povstalec.sgjourney.common.block_entities.stargate.AbstractStargateEntity;
 import net.povstalec.sgjourney.common.block_entities.tech.EnergyBlockEntity;
+import net.povstalec.sgjourney.common.config.CommonStargateConfig;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(AbstractStargateEntity.class)
 public abstract class AbstractStargateEntityMixin extends EnergyBlockEntity {
@@ -67,5 +71,11 @@ public abstract class AbstractStargateEntityMixin extends EnergyBlockEntity {
 
     public long extractEnergy(long maxExtract, boolean simulate) {
         return 0;
+    }
+
+    @Redirect(method = "disconnectStargate", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeConfigSpec$BooleanValue;get()Ljava/lang/Object;"), remap = false)
+    private Object allowDisconnectFromBothEnds(ForgeConfigSpec.BooleanValue value) {
+        if (value == CommonStargateConfig.end_connection_from_both_ends) return true;
+        return value.get();
     }
 }

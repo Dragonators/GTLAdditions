@@ -13,7 +13,7 @@ import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Consumer
 
 object EMResonanceConversionField {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         addRecipe(Blocks.BONE_BLOCK, Registries.getBlock("kubejs:essence_block"), 4, provider)
         addRecipe(Blocks.OAK_LOG, Blocks.CRIMSON_STEM, 1, provider)
         addRecipe(Blocks.BIRCH_LOG, Blocks.WARPED_STEM, 1, provider)
@@ -28,10 +28,9 @@ object EMResonanceConversionField {
         )
     }
 
-    private fun addRecipe(input : Block, output : Block, euT : Int, provider : Consumer<FinishedRecipe?>) {
+    private fun addRecipe(input: Block, output: Block, euT: Int, provider: Consumer<FinishedRecipe?>) {
         GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD.recipeBuilder(GTLAdditions.id(output.descriptionId))
             .inputItems(input.asItem())
-            .circuitMeta(1)
             .outputItems(output.asItem())
             .EUt(GTValues.VA[euT].toLong()).save(provider)
     }

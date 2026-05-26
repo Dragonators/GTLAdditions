@@ -6,6 +6,7 @@
   "mixins": [
     "ae2.ExternalStorageFacadeAccessor",
     "ae2.FluidIngredientConverterMixin",
+    "ae2.ItemPlacementStrategyMixin",
     "ae2.ItemPickupStrategyMixin",
     "gtceu.api.capability.CWURecipeCapabilityMixin",
     "gtceu.api.machine.IFancyUIMachineMixin",
@@ -42,6 +43,7 @@
     "gtmtings.WirelessEnergyManagerMixin",
     "gtmtings.WirelessEnergyMonitorMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMixin",
+    "guide.DefaultExtensionsMixin",
     "ldlib.FluidHelperImplMixin",
     "ldlib.FluidStackMixin",
     "mc.RecipeManagerMixin",

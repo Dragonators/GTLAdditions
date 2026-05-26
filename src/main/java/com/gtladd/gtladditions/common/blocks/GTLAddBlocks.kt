@@ -111,38 +111,40 @@ object GTLAddBlocks {
         )
         POWER_MODULE_6 = GTLBlocks.createActiveTierCasing(
             "power_module_6",
-            "block/variant/power_module", BlockMap.sepmMap, 6
+            "block/variant/power_module",
+            BlockMap.sepmMap,
+            6
         )
         POWER_MODULE_7 = GTLBlocks.createActiveTierCasing(
             "power_module_7",
-            "block/variant/power_module", BlockMap.sepmMap, 9
+            "block/variant/power_module",
+            BlockMap.sepmMap,
+            9
         )
         GTLAddRegistration.REGISTRATE.creativeModeTab(GTLAddCreativeModeTabs.GTLADD_MACHINE)
     }
 
-    fun createCasingBlock(name: String, texture: ResourceLocation?): BlockEntry<Block> {
-        return createCasingBlock(
-            name,
-            { properties: BlockBehaviour.Properties? -> Block(properties) },
-            texture,
-            NonNullSupplier { Blocks.IRON_BLOCK },
-            { Supplier { RenderType.cutoutMipped() } })
-    }
+    fun createCasingBlock(name: String, texture: ResourceLocation?): BlockEntry<Block> = createCasingBlock(
+        name,
+        { properties: BlockBehaviour.Properties? -> Block(properties) },
+        texture,
+        NonNullSupplier { Blocks.IRON_BLOCK },
+        { Supplier { RenderType.cutoutMipped() } }
+    )
 
     private fun createGlassCasingBlock(
-        name: String, texture: ResourceLocation?,
+        name: String,
+        texture: ResourceLocation?,
         type: Supplier<Supplier<RenderType?>?>
-    ): BlockEntry<Block> {
-        return createCasingBlock(
-            name,
-            { arg: BlockBehaviour.Properties? ->
-                GlassBlock(arg)
-            },
-            texture,
-            NonNullSupplier { Blocks.GLASS },
-            type
-        )
-    }
+    ): BlockEntry<Block> = createCasingBlock(
+        name,
+        { arg: BlockBehaviour.Properties? ->
+            GlassBlock(arg)
+        },
+        texture,
+        NonNullSupplier { Blocks.GLASS },
+        type
+    )
 
     @Suppress("removal")
     fun createGravitonCasingBlock(name: String, sideTexture: ResourceLocation?): BlockEntry<Block> {
@@ -152,17 +154,22 @@ object GTLAddBlocks {
             .properties { p: BlockBehaviour.Properties? -> p!!.isValidSpawn { state: BlockState?, level: BlockGetter?, pos: BlockPos?, ent: EntityType<*>? -> false } }
             .addLayer { Supplier { RenderType.cutoutMipped() } }
             .blockstate { ctx: DataGenContext<Block, Block?>, prov: RegistrateBlockstateProvider ->
-                prov.simpleBlock(ctx.entry, prov.models()
-                    .cube(name, topBottomTexture, topBottomTexture, sideTexture, sideTexture, sideTexture, sideTexture)
-                    .texture("particle", sideTexture))
+                prov.simpleBlock(
+                    ctx.entry,
+                    prov.models()
+                        .cube(name, topBottomTexture, topBottomTexture, sideTexture, sideTexture, sideTexture, sideTexture)
+                        .texture("particle", sideTexture)
+                )
             }
             .tag(GTToolType.WRENCH.harvestTags[0], BlockTags.MINEABLE_WITH_PICKAXE)
-            .item(NonNullBiFunction { block: Block?, properties: Item.Properties? ->
-                BlockItem(
-                    block,
-                    properties
-                )
-            })
+            .item(
+                NonNullBiFunction { block: Block?, properties: Item.Properties? ->
+                    BlockItem(
+                        block,
+                        properties
+                    )
+                }
+            )
             .build()
             .register()
     }
@@ -174,20 +181,20 @@ object GTLAddBlocks {
         texture: ResourceLocation?,
         properties: NonNullSupplier<out Block?>,
         type: Supplier<Supplier<RenderType?>?>
-    ): BlockEntry<Block> {
-        return GTLAddRegistration.REGISTRATE.block<Block?>(name, blockSupplier)
-            .initialProperties(properties)
-            .properties { p: BlockBehaviour.Properties? -> p!!.isValidSpawn { state: BlockState?, level: BlockGetter?, pos: BlockPos?, ent: EntityType<*>? -> false } }
-            .addLayer(type)
-            .blockstate(GTModels.cubeAllModel(name, texture))
-            .tag(GTToolType.WRENCH.harvestTags[0], BlockTags.MINEABLE_WITH_PICKAXE)
-            .item(NonNullBiFunction { block: Block?, properties: Item.Properties? ->
+    ): BlockEntry<Block> = GTLAddRegistration.REGISTRATE.block<Block?>(name, blockSupplier)
+        .initialProperties(properties)
+        .properties { p: BlockBehaviour.Properties? -> p!!.isValidSpawn { state: BlockState?, level: BlockGetter?, pos: BlockPos?, ent: EntityType<*>? -> false } }
+        .addLayer(type)
+        .blockstate(GTModels.cubeAllModel(name, texture))
+        .tag(GTToolType.WRENCH.harvestTags[0], BlockTags.MINEABLE_WITH_PICKAXE)
+        .item(
+            NonNullBiFunction { block: Block?, properties: Item.Properties? ->
                 BlockItem(
                     block,
                     properties
                 )
-            })
-            .build()
-            .register()
-    }
+            }
+        )
+        .build()
+        .register()
 }

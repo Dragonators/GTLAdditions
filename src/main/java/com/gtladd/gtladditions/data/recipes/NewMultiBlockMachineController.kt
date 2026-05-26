@@ -13,7 +13,9 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GRAVITY_STABILIZATION_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_CASING
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.ASTRAL_ARRAY
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
@@ -22,7 +24,10 @@ import com.gtladd.gtladditions.common.items.GTLAddItems.SUPER_DENSE_MAGMATTER_PL
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.SUPER_PARALLEL_HATCH
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.THREAD_MODIFIER_HATCH
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ARCANE_CACHE_VAULT
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SPACE_SCALING_INSTRUMENT
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
@@ -31,10 +36,11 @@ import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_ENERGY_INPUT_HATCH
 import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_LASER_INPUT_HATCH
 import com.hepdd.gtmthings.data.CustomMachines.HUGE_INPUT_DUAL_HATCH
 import net.minecraft.data.recipes.FinishedRecipe
-import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix
+import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLBlocks.RHENIUM_REINFORCED_ENERGY_GLASS
 import org.gtlcore.gtlcore.common.data.GTLItems.*
+import org.gtlcore.gtlcore.common.data.GTLMachines
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine.ADVANCED_VACUUM_DRYING_FURNACE
@@ -50,7 +56,7 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object NewMultiBlockMachineController {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("nexus_satellite_factory_mk1"))
             .inputItems(MEGA_PRESSER, 16)
             .inputItems(MEGA_WIREMILL, 16)
@@ -69,8 +75,8 @@ object NewMultiBlockMachineController {
             .inputFluids(RAREEARTH.getFluid(16000))
             .outputItems(MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKI)
             .EUt(VA[UXV].toLong()).duration(1200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(PROCESSING_PLANT.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(PROCESSING_PLANT.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024)
             }
@@ -93,8 +99,8 @@ object NewMultiBlockMachineController {
             .inputFluids(SuperheavyLAlloy.getFluid(16000))
             .outputItems(MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII)
             .EUt(VA[UXV].toLong()).duration(1200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(SEPARATED_PLANT.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(SEPARATED_PLANT.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024)
             }
@@ -117,8 +123,8 @@ object NewMultiBlockMachineController {
             .inputFluids(SuperheavyHAlloy.getFluid(16000))
             .outputItems(MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII)
             .EUt(VA[UXV].toLong()).duration(1200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(MIXED_PLANT.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(MIXED_PLANT.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024)
             }
@@ -141,8 +147,8 @@ object NewMultiBlockMachineController {
             .inputFluids(Transition.getFluid(16000))
             .outputItems(MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV)
             .EUt(VA[UXV].toLong()).duration(1200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(ASSEMBLE_PLANT.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(ASSEMBLE_PLANT.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024)
             }
@@ -152,8 +158,8 @@ object NewMultiBlockMachineController {
             .inputItems(DIMENSIONAL_FOCUS_ENGRAVING_ARRAY, 16)
             .inputItems(ENGRAVING_LASER_PLANT, 64)
             .inputItems(LARGE_ENGRAVING_LASER, 64)
-            .inputItems(GTLTagPrefix.nanoswarm, Draconium, 64)
-            .inputItems(GTLTagPrefix.nanoswarm, Starmetal, 64)
+            .inputItems(nanoswarm, Draconium, 64)
+            .inputItems(nanoswarm, Starmetal, 64)
             .inputItems(CustomTags.OpV_CIRCUITS, 16)
             .inputItems(INSANELY_ULTIMATE_BATTERY)
             .inputItems(TOOL_DATA_MODULE, 64)
@@ -170,13 +176,13 @@ object NewMultiBlockMachineController {
             .inputFluids(Periodicium.getFluid(16000))
             .outputItems(MultiBlockMachine.LUCID_ETCHDREAMER)
             .EUt(VA[OpV].toLong()).duration(2560)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(DIMENSIONAL_FOCUS_ENGRAVING_ARRAY.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(DIMENSIONAL_FOCUS_ENGRAVING_ARRAY.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[OpV]).CWUt(4096)
             }
             .save(provider)
-        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("atomic_transmutation_core"))
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("subatomic_transmutatioon_core"))
             .inputItems(BLOCK_CONVERSION_ROOM, 64)
             .inputItems(LARGE_BLOCK_CONVERSION_ROOM, 64)
             .inputItems(getItemStack("gtceu:block_bus", 64))
@@ -197,12 +203,45 @@ object NewMultiBlockMachineController {
             .inputFluids(SolderingAlloy.getFluid(32000))
             .inputFluids(ActiniumSuperhydride.getFluid(FluidStorageKeys.PLASMA, 16000))
             .inputFluids(Echoite.getFluid(FluidStorageKeys.PLASMA, 16000))
-            .outputItems(MultiBlockMachine.ATOMIC_TRANSMUTATIOON_CORE)
+            .outputItems(MultiBlockMachine.SUBATOMIC_TRANSMUTATIOON_CORE)
             .EUt(VA[UXV].toLong()).duration(2560)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(LARGE_BLOCK_CONVERSION_ROOM.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(LARGE_BLOCK_CONVERSION_ROOM.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UIV]).CWUt(768)
+            }
+            .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("planetary_ionisation_convergence_tower"))
+            .inputItems(getItemStack("minecraft:lightning_rod", 64))
+            .inputItems(
+                GTLMachines.LIGHTNING_ROD[4].asStack(64),
+                GTLMachines.LIGHTNING_ROD[5].asStack(64),
+                GTLMachines.LIGHTNING_ROD[6].asStack(64)
+            )
+            .inputItems(CustomTags.UEV_CIRCUITS, 16)
+            .inputItems(GTLBlocks.SPS_CASING, 16)
+            .inputItems(getItemStack("kubejs:space_drone_mk3", 16))
+            .inputItems(nanoswarm, Neutronium, 64)
+            .inputItems(
+                getItemStack("gtceu:uhv_ultimate_battery", 56),
+                getItemStack("gtceu:uhv_ultimate_battery", 56)
+            )
+            .inputItems(getItemStack("kubejs:nm_chip", 48))
+            .inputItems(getItemStack("gtceu:highly_advanced_soc", 48))
+            .inputItems(FIELD_GENERATOR_UEV, 64)
+            .inputItems(plateDouble, Quantum, 32)
+            .inputItems(getItemStack("kubejs:special_ceramics", 64))
+            .inputFluids(Promethium.getFluid(8192))
+            .inputFluids(Rhenium.getFluid(8192))
+            .inputFluids(MutatedLivingSolder.getFluid(16384))
+            .inputFluids(HastelloyX78.getFluid(9216))
+            .outputItems(MultiBlockMachine.PLANETARY_IONISATION_CONVERGENCE_TOWER)
+            .EUt(VA[UIV].toLong()).duration(6000)
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GTLMachines.LIGHTNING_ROD[6].asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UIV]).CWUt(256)
             }
             .save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("arcanic_astrograph"))
@@ -219,8 +258,8 @@ object NewMultiBlockMachineController {
             .inputItems(getItemStack("avaritia:singularity", 64))
             .inputItems(getItemStack("avaritia:cosmic_meatballs", 64))
             .inputItems(getItemStack("kubejs:quantum_anomaly", 64))
-            .inputItems(GTLTagPrefix.nanoswarm, TranscendentMetal, 64)
-            .inputItems(GTLTagPrefix.nanoswarm, SpaceTime, 64)
+            .inputItems(nanoswarm, TranscendentMetal, 64)
+            .inputItems(nanoswarm, SpaceTime, 64)
             .inputItems(getItemStack("kubejs:giga_chad", 64))
             .inputFluids(MagnetohydrodynamicallyConstrainedStarMatter.getFluid(6553600))
             .inputFluids(TemporalFluid.getFluid(6553600))
@@ -228,8 +267,8 @@ object NewMultiBlockMachineController {
             .inputFluids(DimensionallyTranscendentResidue.getFluid(2147483647))
             .outputItems(MultiBlockMachine.ARCANIC_ASTROGRAPH)
             .duration(288000).EUt(262144L * VA[MAX])
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(EYE_OF_HARMONY.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(EYE_OF_HARMONY.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(131072)
             }
@@ -257,8 +296,8 @@ object NewMultiBlockMachineController {
             .inputFluids(SpatialFluid.getFluid(4096))
             .outputItems(MultiBlockMachine.ASTRAL_CONVERGENCE_NEXUS)
             .duration(72000).EUt(4096L * VA[MAX])
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(SPACE_ELEVATOR.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(SPACE_ELEVATOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[OpV]).CWUt(4096)
             }
@@ -284,8 +323,8 @@ object NewMultiBlockMachineController {
             .inputFluids(RawStarMatter.getFluid(FluidStorageKeys.PLASMA, 9216))
             .outputItems(MultiBlockMachine.DRACONIC_COLLAPSE_CORE)
             .EUt(VA[OpV].toLong()).duration(6000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(AGGREGATION_DEVICE.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(AGGREGATION_DEVICE.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[OpV]).CWUt(2048)
             }
@@ -313,8 +352,8 @@ object NewMultiBlockMachineController {
             .inputFluids(FullerenePolymerMatrixPulp.getFluid(4608))
             .outputItems(MultiBlockMachine.TITAN_CRIP_EARTHBORE)
             .EUt(VA[UXV].toLong()).duration(1800)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(BEDROCK_DRILLING_RIG.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(BEDROCK_DRILLING_RIG.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024)
             }
@@ -342,8 +381,8 @@ object NewMultiBlockMachineController {
             .inputFluids(DegenerateRhenium.getFluid(4608))
             .outputItems(MultiBlockMachine.NEBULA_REAPER)
             .EUt(VA[UXV].toLong()).duration(1200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(ADVANCED_INFINITE_DRILLER.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(ADVANCED_INFINITE_DRILLER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024)
             }
@@ -371,8 +410,8 @@ object NewMultiBlockMachineController {
             .inputFluids(FullerenePolymerMatrixPulp.getFluid(4608))
             .outputItems(MultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT)
             .EUt(VA[UXV].toLong()).duration(1200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(LARGE_CHEMICAL_PLANT.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(LARGE_CHEMICAL_PLANT.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024)
             }
@@ -400,8 +439,8 @@ object NewMultiBlockMachineController {
             .inputFluids(Dubnium.getFluid(4608))
             .outputItems(MultiBlockMachine.QUANTUM_SYPHON_MATRIX)
             .EUt(VA[UIV].toLong()).duration(1200)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(getItemStack("gtceu:large_gas_collector"))
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(getItemStack("gtceu:large_gas_collector"))
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UIV]).CWUt(832)
             }
@@ -429,8 +468,8 @@ object NewMultiBlockMachineController {
             .inputFluids(Chaos.getFluid(100000))
             .outputItems(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE)
             .EUt(VA[MAX] * 4096L).duration(72000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(16384)
             }
@@ -457,8 +496,8 @@ object NewMultiBlockMachineController {
             .inputFluids(TaraniumRichLiquidHelium4.getFluid(4000))
             .outputItems(MultiBlockMachine.ANTIENTROPY_CONDENSATION_CENTER)
             .EUt(VA[UIV].toLong()).duration(2560)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(COOLING_TOWER.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(COOLING_TOWER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UIV]).CWUt(832)
             }
@@ -486,8 +525,8 @@ object NewMultiBlockMachineController {
             .inputFluids(Mana.getFluid(10000))
             .outputItems(MultiBlockMachine.TAIXU_TURBID_ARRAY)
             .EUt(VA[UIV].toLong()).duration(12000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(getItemStack("ae2:condenser"))
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(getItemStack("ae2:condenser"))
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UIV]).CWUt(1280)
             }
@@ -514,8 +553,8 @@ object NewMultiBlockMachineController {
             .inputFluids(Zylon.getFluid(4608))
             .outputItems(GTLAddMachines.SUPER_INPUT_DUAL_HATCH)
             .EUt(VA[UIV].toLong()).duration(5120)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(getItemStack("gtmthings:uiv_huge_dual_hatch"))
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(getItemStack("gtmthings:uiv_huge_dual_hatch"))
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UIV]).CWUt(640)
             }
@@ -528,7 +567,7 @@ object NewMultiBlockMachineController {
             .inputItems(LARGE_PYROLYSE_OVEN, 64)
             .inputItems(gear, AstralTitanium, 32)
             .inputItems(TRANSCENDENT_ULTIMATE_BATTERY, 4)
-            .inputItems(GTLTagPrefix.nanoswarm, Vibranium, 16)
+            .inputItems(nanoswarm, Vibranium, 16)
             .inputItems(plateDouble, HastelloyX78, 32)
             .inputItems(FIELD_GENERATOR_UIV, 8)
             .inputItems(pipeHugeFluid, HeavyQuarkDegenerateMatter, 64)
@@ -541,8 +580,8 @@ object NewMultiBlockMachineController {
             .outputItems(MultiBlockMachine.INFERNO_CLEFT_SMELTING_VAULT)
             .EUt(VA[UIV].toLong())
             .duration(2000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(LARGE_CRACKER.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(LARGE_CRACKER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UIV]).CWUt(512)
             }
@@ -570,8 +609,8 @@ object NewMultiBlockMachineController {
             .outputItems(MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE)
             .EUt(VA[UXV].toLong())
             .duration(2400)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(DECAY_HASTENER.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(DECAY_HASTENER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(2048)
             }
@@ -588,7 +627,7 @@ object NewMultiBlockMachineController {
             .inputItems(CONVEYOR_MODULE_ZPM, 4)
             .inputFluids(Americium.getFluid(2304))
             .outputItems(MultiBlockMachine.BIOLOGICAL_SIMULATION_LABORATORY)
-            .EUt(7).duration(1200).save(provider)
+            .EUt(VA[ZPM].toLong()).duration(1200).save(provider)
         ASSEMBLER_RECIPES.recipeBuilder(id("extremiity_packer"))
             .inputItems(PACKER[HV], 32)
             .inputItems(PACKER[EV], 16)
@@ -600,8 +639,34 @@ object NewMultiBlockMachineController {
             .inputItems(ROBOT_ARM_ZPM, 8)
             .inputItems(CONVEYOR_MODULE_ZPM, 8)
             .inputFluids(Tritanium.getFluid(2304))
-            .outputItems(MultiBlockMachine.ARCANE_CACHE_VAULT)
+            .outputItems(ARCANE_CACHE_VAULT)
             .EUt(VA[8].toLong()).duration(600).save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("space_scaling_instrument"))
+            .inputItems(ARCANE_CACHE_VAULT, 16)
+            .inputItems(PACKER[UV], 64)
+            .inputItems(PACKER[UHV], 32)
+            .inputItems(PACKER[UEV], 16)
+            .inputItems(PACKER[UIV], 8)
+            .inputItems(PACKER[UXV], 4)
+            .inputItems(CustomTags.OpV_CIRCUITS, 16)
+            .inputItems(ROBOT_ARM_UXV, 8)
+            .inputItems(CONVEYOR_MODULE_UXV, 8)
+            .inputItems(wireFine, Starmetal, 16)
+            .inputItems(wireFine, HeavyQuarkDegenerateMatter, 16)
+            .inputItems(nanoswarm, Draconium, 4)
+            .inputFluids(
+                Vibranium.getFluid(2304),
+                Draconium.getFluid(2304),
+                Periodicium.getFluid(576),
+                SuperMutatedLivingSolder.getFluid(8192)
+            )
+            .outputItems(SPACE_SCALING_INSTRUMENT)
+            .stationResearch {
+                it.researchStack(ARCANE_CACHE_VAULT.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UXV]).CWUt(640)
+            }
+            .EUt(VA[UXV].toLong()).duration(1200).save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("apocalyptic_torsion_quantum_matrix_suprachronal_assembly_line"))
             .inputItems(QFT, 1024)
             .inputItems(CREATIVE_LASER_INPUT_HATCH, 64)
@@ -625,8 +690,37 @@ object NewMultiBlockMachineController {
             .inputFluids(SpaceTime.getFluid(601989888))
             .outputItems(MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX)
             .EUt(VA[MAX].toLong()).duration(1152000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(QFT.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(QFT.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("time_space_distorter"))
+            .inputItems(APOCALYPTIC_TORSION_QUANTUM_MATRIX, 64)
+            .inputItems(GRAVITY_STABILIZATION_CASING, 1024)
+            .inputItems(getItemStack("kubejs:hyperdimensional_drone", 1024))
+            .inputItems(getItemStack("kubejs:stabilized_wormhole_generator", 1024))
+            .inputItems(plateDense, TranscendentMetal, 512)
+            .inputItems(net.minecraft.world.item.Items.REPEATING_COMMAND_BLOCK, 256)
+            .inputItems(getItemStack("kubejs:suprachronal_mainframe_complex", 256))
+            .inputItems(plateDense, MELLION, 512)
+            .inputItems(SUPER_DENSE_MAGMATTER_PLATE, 512)
+            .inputItems(nanoswarm, Eternity, 256)
+            .inputItems(nanoswarm, Cosmic, 256)
+            .inputItems(plateDense, Eternity, 512)
+            .inputItems(TEMPORAL_ANCHOR_FIELD_CASING, 64)
+            .inputItems(PHONON_CONDUIT, 64)
+            .inputItems(getItemStack("kubejs:cosmic_singularity", 480))
+            .inputItems(CustomTags.MAX_CIRCUITS, 4096)
+            .inputFluids(Infinity.getFluid(409600000))
+            .inputFluids(SpaceTime.getFluid(409600000))
+            .inputFluids(Magmatter.getFluid(409600000))
+            .inputFluids(Miracle.getFluid(100000000))
+            .outputItems(MultiBlockMachine.TIME_SPACE_DISTORTER)
+            .EUt(VA[MAX] * 16384L).duration(57600)
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(APOCALYPTIC_TORSION_QUANTUM_MATRIX.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
@@ -644,7 +738,7 @@ object NewMultiBlockMachineController {
             .inputItems(plateDense, Hypogen, 4194304)
             .inputItems(plateDense, MELLION, 4194304)
             .inputItems(plateDense, MetastableOganesson, 4194304)
-            .inputItems(wireGtHex,Eternity, 65536)
+            .inputItems(wireGtHex, Eternity, 65536)
             .inputItems(CustomTags.MAX_CIRCUITS, 16777216)
             .inputItems(CREATIVE_LASER_INPUT_HATCH, 256)
             .inputItems(CREATIVE_ENERGY_INPUT_HATCH, 256)
@@ -654,10 +748,145 @@ object NewMultiBlockMachineController {
             .inputFluids(SpatialFluid.getFluid(144000000000))
             .outputItems(MultiBlockMachine.FORGE_OF_THE_ANTICHRIST)
             .EUt(VA[MAX].toLong()).duration(2304000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(GTLAddBlocks.GOD_FORGE_ENERGY_CASING.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(GTLAddBlocks.GOD_FORGE_ENERGY_CASING.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("recursive_reverse_array"))
+            .inputItems(getItemStack("kubejs:supracausal_mainframe", 256))
+            .inputItems(getItemStack("kubejs:suprachronal_max", 256))
+            .inputItems(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE, 128)
+            .inputItems(MultiBlockMachine.FORGE_OF_THE_ANTICHRIST, 64)
+            .inputItems(CREATE_COMPUTATION, 256)
+            .inputItems(DIMENSIONALLY_TRANSCENDENT_MIXER, 384)
+            .inputItems(block, Magmatter, 512)
+            .inputItems(GTLBlocks.CREATE_CASING.asStack(512))
+            .inputItems(getItemStack("kubejs:chaotic_energy_core", 72))
+            .inputItems(GTLAddItems.PRIMARY_SOC.asStack(1024))
+            .inputItems(GTLAddItems.PRIMARY_SOC.asStack(1024))
+            .inputItems(getItemStack("kubejs:hyperdimensional_drone", 288))
+            .inputItems(getItemStack("kubejs:create_aggregatione_core", 480))
+            .inputItems(GTLAddItems.COMPRESSED_ASTRAL_ARRAY, 64)
+            .inputItems(RELATIVISTIC_HEAT_CAPACITOR, 640)
+            .inputItems(getItemStack("avaritia:singularity", 1024))
+            .inputFluids(Miracle.getFluid(100000000))
+            .inputFluids(RawStarMatter.getFluid(FluidStorageKeys.PLASMA, 1638400000))
+            .inputFluids(PROTO_HALKONITE.getFluid(144000000))
+            .inputFluids(CosmicElement.getFluid(14400000000))
+            .outputItems(MultiBlockMachine.RECURSIVE_REVERSE_ARRAY)
+            .EUt(VA[MAX].toLong())
+            .duration(2304000)
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(MultiBlockMachine.FORGE_OF_THE_ANTICHRIST.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX])
+                    .CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("supratemporal_boosting_engine"))
+            .inputItems(getItemStack("kubejs:supracausal_mainframe", 40))
+            .inputItems(getItemStack("kubejs:suprachronal_max", 40))
+            .inputItems(getItemStack("kubejs:spacetime_compression_field_generator", 1024))
+            .inputItems(getItemStack("kubejs:spacetime_compression_field_generator", 1024))
+            .inputItems(getItemStack("kubejs:dimension_creation_casing", 64))
+            .inputItems(GTLMachines.NEUTRON_ACCELERATOR[14], 256)
+            .inputItems(getItemStack("kubejs:spacetime_catalyst", 640))
+            .inputItems(FIELD_GENERATOR_MAX.asStack(320))
+            .inputItems(GTLBlocks.CREATE_CASING.asStack(128))
+            .inputItems(wireGtHex, SpaceTime, 72)
+            .inputItems(plateDouble, Shirabon, 256)
+            .inputItems(foil, Cosmic, 256)
+            .inputFluids(TemporalFluid.getFluid(480000000))
+            .inputFluids(SpatialFluid.getFluid(480000000))
+            .inputFluids(PrimordialMatter.getFluid(480000000))
+            .outputItems(MultiBlockMachine.SUPRATEMPORAL_BOOSTING_ENGINE)
+            .EUt(1024L * VA[MAX])
+            .duration(23000)
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(getItemStack("kubejs:spacetime_compression_field_generator"))
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX])
+                    .CWUt(16384)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("magnetorheological_convergence_core"))
+            .inputItems(getItemStack("kubejs:supracausal_mainframe", 40))
+            .inputItems(getItemStack("kubejs:suprachronal_max", 40))
+            .inputItems(SUPER_DENSE_MAGMATTER_PLATE, 64)
+            .inputItems(block, Magmatter, 64)
+            .inputItems(getItemStack("kubejs:recursively_folded_negative_space", 480))
+            .inputItems(GTLAddItems.SPACETIME_LENS, 256)
+            .inputItems(GTLAddItems.PRIMARY_SOC, 240)
+            .inputItems(FIELD_GENERATOR_MAX.asStack(64))
+            .inputItems(GTLBlocks.CREATE_CASING.asStack(128))
+            .inputItems(wireGtHex, SpaceTime, 72)
+            .inputItems(plateDouble, Shirabon, 256)
+            .inputItems(foil, Cosmic, 256)
+            .inputFluids(Eternity.getFluid(48000000))
+            .inputFluids(Chaos.getFluid(48000000))
+            .inputFluids(Magmatter.getFluid(48000000))
+            .outputItems(MultiBlockMachine.MAGNETORHEOLOGICAL_CONVERGENCE_CORE)
+            .EUt(1024L * VA[MAX])
+            .duration(23000)
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(SUPER_DENSE_MAGMATTER_PLATE.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX])
+                    .CWUt(16384)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("spacetime_stasis_device"))
+            .inputItems(getItemStack("kubejs:supracausal_mainframe", 40))
+            .inputItems(getItemStack("kubejs:suprachronal_max", 40))
+            .inputItems(getItemStack("kubejs:create_ultimate_battery", 480))
+            .inputItems(getItemStack("kubejs:chaotic_energy_core", 128))
+            .inputItems(CREATE_COMPUTATION, 64)
+            .inputItems(getItemStack("kubejs:hyperdimensional_drone", 80))
+            .inputItems(ASTRAL_ARRAY, 16)
+            .inputItems(getItemStack("kubejs:temporal_matter", 1024))
+            .inputItems(GTLBlocks.CREATE_CASING.asStack(128))
+            .inputItems(wireGtHex, SpaceTime, 72)
+            .inputItems(plateDouble, Shirabon, 256)
+            .inputItems(foil, Cosmic, 256)
+            .inputFluids(TranscendentMetal.getFluid(960000000))
+            .inputFluids(SpaceTime.getFluid(1638400000))
+            .outputItems(MultiBlockMachine.SPACETIME_STASIS_DEVICE)
+            .EUt(1024L * VA[MAX])
+            .duration(23000)
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(CREATE_COMPUTATION.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX])
+                    .CWUt(16384)
+            }
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("catalytic_cascade_array"))
+            .inputItems(getItemStack("kubejs:supracausal_mainframe", 128))
+            .inputItems(getItemStack("kubejs:suprachronal_max", 128))
+            .inputItems(DIMENSIONALLY_TRANSCENDENT_MIXER, 640)
+            .inputItems(getItemStack("kubejs:create_aggregatione_core", 480))
+            .inputItems(getItemStack("avaritia:singularity", 1024))
+            .inputItems(plateDouble, MagnetohydrodynamicallyConstrainedStarMatter, 4096)
+            .inputItems(getItemStack("kubejs:nuclear_star", 4096))
+            .inputItems(FIELD_GENERATOR_MAX.asStack(128))
+            .inputItems(GTLBlocks.CREATE_CASING.asStack(384))
+            .inputItems(wireGtHex, SpaceTime, 256)
+            .inputItems(plateDouble, Shirabon, 512)
+            .inputItems(foil, Cosmic, 512)
+            .inputFluids(DimensionallyTranscendentProsaicCatalyst.getFluid(32000000000))
+            .inputFluids(DimensionallyTranscendentResplendentCatalyst.getFluid(32000000000))
+            .inputFluids(DimensionallyTranscendentExoticCatalyst.getFluid(32000000000))
+            .inputFluids(DimensionallyTranscendentStellarCatalyst.getFluid(32000000000))
+            .outputItems(MultiBlockMachine.CATALYTIC_CASCADE_ARRAY)
+            .EUt(1024L * VA[MAX])
+            .duration(23000)
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(getItemStack("kubejs:nuclear_star"))
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX])
+                    .CWUt(16384)
             }
             .save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("heart_of_the_universe_assembly_line"))
@@ -681,8 +910,8 @@ object NewMultiBlockMachineController {
             .inputFluids(TranscendentMetal.getFluid(460800000))
             .outputItems(MultiBlockMachine.HEART_OF_THE_UNIVERSE)
             .EUt(VA[MAX].toLong()).duration(2304000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(ANNIHILATE_GENERATOR.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(ANNIHILATE_GENERATOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
@@ -693,14 +922,14 @@ object NewMultiBlockMachineController {
             .inputItems(COMPRESSED_FUSION_REACTOR[UEV], 64)
             .inputItems(STAR_ULTIMATE_MATERIAL_FORGE_FACTORY, 64)
             .inputItems(getItemStack("kubejs:create_ultimate_battery", 4))
-            .inputItems(wireGtHex,Eternity, 64)
-            .inputItems(wireGtHex,Infinity, 64)
-            .inputItems(wireGtHex,SpaceTime, 64)
+            .inputItems(wireGtHex, Eternity, 64)
+            .inputItems(wireGtHex, Infinity, 64)
+            .inputItems(wireGtHex, SpaceTime, 64)
             .inputItems(PHONON_CONDUIT, 8)
             .inputItems(GTLAddBlocks.GOD_FORGE_ENERGY_CASING, 1)
-            .inputItems(plateDouble,Cosmic, 40)
-            .inputItems(plateDense,CREON, 64)
-            .inputItems(plateDense,MELLION, 64)
+            .inputItems(plateDouble, Cosmic, 40)
+            .inputItems(plateDense, CREON, 64)
+            .inputItems(plateDense, MELLION, 64)
             .inputItems(getItemStack("kubejs:hyperdimensional_drone", 16))
             .inputFluids(UUMatter.getFluid(147456000))
             .inputFluids(ExcitedDtec.getFluid(2048000000))
@@ -708,8 +937,8 @@ object NewMultiBlockMachineController {
             .inputFluids(TranscendentMetal.getFluid(147456000))
             .outputItems(MultiBlockMachine.HELIOFUSION_EXOTICIZER)
             .EUt(VA[MAX].toLong()).duration(2304000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(DIMENSIONALLY_TRANSCENDENT_MIXER.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(DIMENSIONALLY_TRANSCENDENT_MIXER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
@@ -720,12 +949,12 @@ object NewMultiBlockMachineController {
             .inputItems(SUPER_BLAST_SMELTER, 256)
             .inputItems(ADVANCED_MULTI_SMELTER, 1024)
             .inputItems(MEGA_ULTIMATE_BATTERY, 64)
-            .inputItems(wireGtHex,Echoite, 64)
+            .inputItems(wireGtHex, Echoite, 64)
             .inputItems(ROBOT_ARM_OpV, 64)
             .inputItems(CONVEYOR_MODULE_OpV, 64)
-            .inputItems(plateDense,PROTO_HALKONITE, 16)
-            .inputItems(plateDense,CREON, 8)
-            .inputItems(plateDense,MELLION, 8)
+            .inputItems(plateDense, PROTO_HALKONITE, 16)
+            .inputItems(plateDense, CREON, 8)
+            .inputItems(plateDense, MELLION, 8)
             .inputItems(CustomTags.UXV_CIRCUITS, 64)
             .inputFluids(SuperMutatedLivingSolder.getFluid(147456000))
             .inputFluids(ExcitedDtec.getFluid(2048000000))
@@ -733,8 +962,8 @@ object NewMultiBlockMachineController {
             .inputFluids(TranscendentMetal.getFluid(147456000))
             .outputItems(MultiBlockMachine.HELIOFLARE_POWER_FORGE)
             .EUt(VA[MAX].toLong()).duration(2304000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(SUPER_BLAST_SMELTER.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(SUPER_BLAST_SMELTER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
@@ -744,14 +973,14 @@ object NewMultiBlockMachineController {
             .inputItems(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE, 4)
             .inputItems(MultiBlockMachine.TAIXU_TURBID_ARRAY, 4)
             .inputItems(MEGA_ULTIMATE_BATTERY, 64)
-            .inputItems(wireGtHex,Legendarium, 64)
+            .inputItems(wireGtHex, Legendarium, 64)
             .inputItems(ROBOT_ARM_MAX, 64)
             .inputItems(CONVEYOR_MODULE_MAX, 64)
             .inputItems(ELECTRIC_PUMP_MAX, 64)
             .inputItems(RELATIVISTIC_HEAT_CAPACITOR, 32)
-            .inputItems(plateDense,Hypogen, 32)
-            .inputItems(plateDense,CREON, 16)
-            .inputItems(plateDense,MELLION, 16)
+            .inputItems(plateDense, Hypogen, 32)
+            .inputItems(plateDense, CREON, 16)
+            .inputItems(plateDense, MELLION, 16)
             .inputItems(CustomTags.MAX_CIRCUITS, 64)
             .inputFluids(SuperMutatedLivingSolder.getFluid(147456000))
             .inputFluids(ExcitedDtec.getFluid(2048000000))
@@ -759,8 +988,8 @@ object NewMultiBlockMachineController {
             .inputFluids(TranscendentMetal.getFluid(147456000))
             .outputItems(MultiBlockMachine.HELIOFLUIX_MELTING_CORE)
             .EUt(VA[MAX].toLong()).duration(2304000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
@@ -770,14 +999,14 @@ object NewMultiBlockMachineController {
             .inputItems(FUSION_REACTOR[UEV], 256)
             .inputItems(SUPER_PARTICLE_COLLIDER, 256)
             .inputItems(MEGA_ULTIMATE_BATTERY, 64)
-            .inputItems(wireGtHex,Echoite, 64)
+            .inputItems(wireGtHex, Echoite, 64)
             .inputItems(ROBOT_ARM_OpV, 64)
             .inputItems(CONVEYOR_MODULE_OpV, 64)
             .inputItems(ELECTRIC_PUMP_OpV, 64)
             .inputItems(RELATIVISTIC_HEAT_CAPACITOR, 16)
-            .inputItems(plateDense,Infinity, 32)
-            .inputItems(plateDense,CREON, 16)
-            .inputItems(plateDense,MELLION, 16)
+            .inputItems(plateDense, Infinity, 32)
+            .inputItems(plateDense, CREON, 16)
+            .inputItems(plateDense, MELLION, 16)
             .inputItems(CustomTags.OpV_CIRCUITS, 64)
             .inputFluids(SuperMutatedLivingSolder.getFluid(147456000))
             .inputFluids(ExcitedDtec.getFluid(2048000000))
@@ -785,8 +1014,8 @@ object NewMultiBlockMachineController {
             .inputFluids(TranscendentMetal.getFluid(147456000))
             .outputItems(MultiBlockMachine.HELIOTHERMAL_PLASMA_FABRICATOR)
             .EUt(VA[MAX].toLong()).duration(2304000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(SUPER_PARTICLE_COLLIDER.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(SUPER_PARTICLE_COLLIDER.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
@@ -802,9 +1031,9 @@ object NewMultiBlockMachineController {
             .inputItems(SUPER_DENSE_MAGMATTER_PLATE, 64)
             .inputItems(PHONON_CONDUIT, 256)
             .inputItems(GTLAddBlocks.GOD_FORGE_ENERGY_CASING, 64)
-            .inputItems(plateDense,Cosmic, 4096)
-            .inputItems(plateDense,Eternity, 4096)
-            .inputItems(plateDense,Infinity, 4096)
+            .inputItems(plateDense, Cosmic, 4096)
+            .inputItems(plateDense, Eternity, 4096)
+            .inputItems(plateDense, Infinity, 4096)
             .inputItems(ASTRAL_ARRAY, 1024)
             .inputFluids(MagnetohydrodynamicallyConstrainedStarMatter.getFluid(14745600000))
             .inputFluids(Chaos.getFluid(20480000000))
@@ -812,8 +1041,8 @@ object NewMultiBlockMachineController {
             .inputFluids(TranscendentMetal.getFluid(14745600000))
             .outputItems(MultiBlockMachine.HELIOPHASE_LEYLINE_CRYSTALLIZER)
             .EUt(VA[MAX].toLong()).duration(2304000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(MultiBlockMachine.DRACONIC_COLLAPSE_CORE.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(MultiBlockMachine.DRACONIC_COLLAPSE_CORE.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
@@ -836,8 +1065,8 @@ object NewMultiBlockMachineController {
             .inputFluids(HeavyLeptonMixture.getFluid(1600000))
             .outputItems(MultiBlockMachine.LIGHT_HUNTER_SPACE_STATION)
             .EUt(VA[UXV].toLong()).duration(2400)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(SUPRACHRONAL_ASSEMBLY_LINE.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(SUPRACHRONAL_ASSEMBLY_LINE.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(1024, 2048000)
             }
@@ -861,8 +1090,8 @@ object NewMultiBlockMachineController {
             .inputFluids(WhiteDwarfMatter.getFluid(1600000))
             .outputItems(MultiBlockMachine.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY)
             .EUt(VA[MAX].toLong()).duration(4000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(MOLECULAR_ASSEMBLER_MATRIX.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(MOLECULAR_ASSEMBLER_MATRIX.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
@@ -888,26 +1117,28 @@ object NewMultiBlockMachineController {
             .inputFluids(Miracle.getFluid(576000))
             .outputItems(MultiBlockMachine.SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR)
             .EUt(VA[MAX].toLong()).duration(5120)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(ADVANCED_INTEGRATED_ORE_PROCESSOR.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(ADVANCED_INTEGRATED_ORE_PROCESSOR.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }
             .save(provider)
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("macro_atomic_resonant_fragment_stripper"))
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode)
+                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
                     inputItems(LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE, 768)
-                else
+                } else {
                     inputItems(ELEMENT_COPYING, 64)
+                }
             }
             .inputItems(CustomTags.OpV_CIRCUITS, 64)
             .inputItems(CustomTags.OpV_CIRCUITS, 64)
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode)
+                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
                     inputItems(ELEMENT_COPYING, 768)
-                else
+                } else {
                     inputItems(ELEMENT_COPYING, 64)
+                }
             }
             .inputItems(getItemStack("kubejs:dark_matter", 64))
             .inputItems(getItemStack("kubejs:dark_matter", 64))
@@ -927,10 +1158,13 @@ object NewMultiBlockMachineController {
             .inputFluids(UUMatter.getFluid(128000))
             .outputItems(MultiBlockMachine.MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER)
             .EUt(VA[UXV].toLong()).duration(9600)
-            .stationResearch { b : StationRecipeBuilder? ->
+            .stationResearch { b: StationRecipeBuilder? ->
                 b!!.researchStack(
-                    if (ConfigHolder.INSTANCE.enableSkyBlokeMode) LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE.asStack()
-                    else ELEMENT_COPYING.asStack()
+                    if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                        LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE.asStack()
+                    } else {
+                        ELEMENT_COPYING.asStack()
+                    }
                 )
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(2048, 4096000)

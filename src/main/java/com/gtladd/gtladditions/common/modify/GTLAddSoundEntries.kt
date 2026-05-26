@@ -13,9 +13,7 @@ object GTLAddSoundEntries {
     fun init() {
     }
 
-    private fun register(name: String, attenuationDistance: Int): SoundEntry {
-        return REGISTRATE.sound(GTLAdditions.id(name)).attenuationDistance(attenuationDistance).build()
-    }
+    private fun register(name: String, attenuationDistance: Int): SoundEntry = REGISTRATE.sound(GTLAdditions.id(name)).attenuationDistance(attenuationDistance).build()
 
     init {
         FORGE_OF_THE_ANTICHRIST = register("forgeofantichrist", 64)

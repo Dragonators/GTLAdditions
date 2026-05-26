@@ -5,20 +5,27 @@ import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
 import com.gregtechceu.gtceu.common.data.GCyMRecipeTypes.ALLOY_BLAST_RECIPES
+import com.gregtechceu.gtceu.common.data.GTItems.EMITTER_OpV
+import com.gregtechceu.gtceu.common.data.GTItems.FIELD_GENERATOR_OpV
+import com.gregtechceu.gtceu.common.data.GTItems.SENSOR_OpV
 import com.gregtechceu.gtceu.common.data.GTItems.TOOL_DATA_MODULE
+import com.gregtechceu.gtceu.common.data.GTItems.TOOL_DATA_STICK
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.*
+import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
 import com.gtladd.gtladditions.common.items.GTLAddItems.INFINITY_WAFER
 import com.gtladd.gtladditions.common.items.GTLAddItems.PHONONIC_SEED_CRYSTAL
+import com.gtladd.gtladditions.common.items.GTLAddItems.PRIMARY_SOC
 import com.gtladd.gtladditions.common.items.GTLAddItems.PRIMARY_SOC_WAFER
 import com.gtladd.gtladditions.common.items.GTLAddItems.SPACETIME_LENS
+import com.gtladd.gtladditions.common.items.GTLAddItems.SPACETIME_SOC
 import com.gtladd.gtladditions.common.items.GTLAddItems.SPACETIME_SOC_WAFER
 import com.gtladd.gtladditions.common.items.GTLAddItems.STRANGE_ANNIHILATION_FUEL_ROD
 import com.gtladd.gtladditions.common.items.GTLAddItems.SUPER_DENSE_MAGMATTER_PLATE
-import com.gtladd.gtladditions.common.machine.muiltblock.MultiBlockMachine
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.MELLION
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_CRYSTAL_SOLUTION
@@ -26,6 +33,7 @@ import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE_BASE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.CHAOTIC_ALCHEMY
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.COMPRESSED_ASTRAL_ARRAY
 import dev.latvian.mods.kubejs.KubeJS
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.resources.ResourceLocation
@@ -34,11 +42,15 @@ import net.minecraft.world.level.block.Blocks
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
 import org.gtlcore.gtlcore.common.data.GTLBlocks.CREATE_CASING
 import org.gtlcore.gtlcore.common.data.GTLBlocks.DIMENSION_CONNECTION_CASING
+import org.gtlcore.gtlcore.common.data.GTLItems
 import org.gtlcore.gtlcore.common.data.GTLItems.EMITTER_MAX
 import org.gtlcore.gtlcore.common.data.GTLItems.FIELD_GENERATOR_MAX
+import org.gtlcore.gtlcore.common.data.GTLItems.SUPER_GLUE
+import org.gtlcore.gtlcore.common.data.GTLItems.WORLD_FRAGMENTS_BARNARDA
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.CREATE_COMPUTATION
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.EYE_OF_HARMONY
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getItem
@@ -46,7 +58,7 @@ import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object Misc {
-    fun init(provider : Consumer<FinishedRecipe?>) {
+    fun init(provider: Consumer<FinishedRecipe?>) {
         DECAY_HASTENER_RECIPES.recipeBuilder(id("tiranium50"))
             .inputFluids(Titanium.getFluid(144))
             .outputFluids(Titanium50.getFluid(144))
@@ -102,10 +114,42 @@ object Misc {
             .inputFluids(ExcitedDtsc.getFluid(524288))
             .outputItems(GTLAddItems.ASTRAL_ARRAY)
             .EUt(VA[MAX].toLong()).duration(12000)
-            .stationResearch { b : StationRecipeBuilder? ->
-                b !!.researchStack(MultiBlockMachine.ARCANIC_ASTROGRAPH.asStack())
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(MultiBlockMachine.ARCANIC_ASTROGRAPH.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
+            }
+            .save(provider)
+        COMPRESSED_ASTRAL_ARRAY.recipeBuilder(id("compressed_astral_array"))
+            .inputItems(BLACK_HOLE_SEED, 144)
+            .inputItems(nanoswarm, Eternity, 64)
+            .inputItems(nanoswarm, SpaceTime, 64)
+            .inputItems(Blocks.REPEATING_COMMAND_BLOCK.asItem(), 64)
+            .inputFluids(Miracle.getFluid(576000))
+            .duration(600)
+            .save(provider)
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("suprachronal_data_module"))
+            .inputItems(CREATE_COMPUTATION, 4)
+            .inputItems(FIELD_GENERATOR_MAX, 8)
+            .inputItems(CustomTags.MAX_CIRCUITS, 16)
+            .inputItems(getItemStack("kubejs:two_way_foil", 32))
+            .inputItems(SUPER_GLUE, 4)
+            .inputItems(SPACETIME_SOC, 64)
+            .inputItems(SPACETIME_SOC, 48)
+            .inputItems(PRIMARY_SOC, 64)
+            .inputItems(getItemStack("kubejs:stabilized_wormhole_generator", 64))
+            .inputItems(nanoswarm, SpaceTime, 8)
+            .inputItems(nanoswarm, TranscendentMetal, 8)
+            .inputItems(nanoswarm, Eternity, 8)
+            .inputFluids(DimensionallyTranscendentResidue.getFluid(12960))
+            .inputFluids(Radox.getFluid(5760))
+            .inputFluids(MagnetohydrodynamicallyConstrainedStarMatter.getFluid(5760))
+            .outputItems(GTLAddItems.SUPRACHRONAL_DATA_MODULE)
+            .EUt(VA[MAX].toLong()).duration(12000)
+            .stationResearch { b: StationRecipeBuilder? ->
+                b!!.researchStack(BLACK_HOLE_SEED.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[MAX]).CWUt(16384)
             }
             .save(provider)
         PRECISION_ASSEMBLER_RECIPES.recipeBuilder(id("strange_annihilation_fuel_rod"))
@@ -150,9 +194,12 @@ object Misc {
         NEUTRON_COMPRESSOR_RECIPES.recipeBuilder(id("avaritia_singularity_spacetime"))
             .inputItems(block, SpaceTime, 64)
             .inputItems(block, Eternity, 64)
-            .outputItems(ItemStack(getItem("avaritia:singularity")).apply {
-                orCreateTag.putString("Id", "avaritia:spacetime")
-            }, 64)
+            .outputItems(
+                ItemStack(getItem("avaritia:singularity")).apply {
+                    orCreateTag.putString("Id", "avaritia:spacetime")
+                },
+                64
+            )
             .EUt(VA[MAX].toLong())
             .duration(1200)
             .save(provider)
@@ -209,6 +256,47 @@ object Misc {
             .EUt(16 * VA[MAX].toLong())
             .duration(1600)
             .save(provider)
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("extreme_conversion_simulate_card"))
+            .inputItems(GTLItems.FAST_CONVERSION_SIMULATE_CARD.asStack())
+            .inputItems(EMITTER_OpV, 4)
+            .inputItems(SENSOR_OpV, 4)
+            .inputItems(FIELD_GENERATOR_OpV, 2)
+            .inputItems(getItemStack("kubejs:supracausal_processor", 2))
+            .inputItems(foil, Radox, 16)
+            .inputItems(wireFine, DraconiumAwakened, 32)
+            .inputFluids(RawRadox.getFluid(2000))
+            .inputFluids(AstralTitanium.getFluid(FluidStorageKeys.PLASMA, 5600))
+            .inputFluids(CelestialTungsten.getFluid(FluidStorageKeys.PLASMA, 5600))
+            .outputItems(GTLAddItems.ULTIMATE_CONVERSATION_CARD.asStack())
+            .EUt(VA[OpV].toLong()).duration(300)
+            .stationResearch {
+                it.researchStack(GTLItems.FAST_CONVERSION_SIMULATE_CARD.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[OpV]).CWUt(1024)
+            }
+            .save(provider)
+        WORLD_DATA_SCANNER_RECIPES.recipeBuilder(id("barnarda_data"))
+            .circuitMeta(1)
+            .inputItems(TOOL_DATA_STICK.asStack(8))
+            .inputItems(getItemStack("kubejs:barnarda_log", 64))
+            .inputFluids(PCBCoolant.getFluid(800))
+            .inputFluids(BarnardaAir.getFluid(64000))
+            .outputItems(GTLAddItems.BARNARDA_DATA.asStack(8))
+            .EUt(2048).duration(4000)
+            .dimension(KubeJS.id("barnarda"))
+            .save(provider)
+        if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+            WORLD_DATA_SCANNER_RECIPES.recipeBuilder(id("barnarda_data_sky"))
+                .notConsumable(WORLD_FRAGMENTS_BARNARDA.asStack())
+                .inputItems(TOOL_DATA_STICK.asStack(8))
+                .inputItems(getItemStack("kubejs:barnarda_log", 64))
+                .inputFluids(PCBCoolant.getFluid(800))
+                .inputFluids(BarnardaAir.getFluid(64000))
+                .outputItems(GTLAddItems.BARNARDA_DATA.asStack(8))
+                .EUt(2048).duration(4000)
+                .dimension(KubeJS.id("barnarda"))
+                .save(provider)
+        }
         initAdditionMaterial(provider)
         if (!ConfigHolder.INSTANCE.enableSkyBlokeMode) {
             GREENHOUSE_RECIPES.recipeBuilder(id("oak_sapling"))
@@ -224,7 +312,7 @@ object Misc {
         }
     }
 
-    fun initAdditionMaterial(provider : Consumer<FinishedRecipe?>) {
+    fun initAdditionMaterial(provider: Consumer<FinishedRecipe?>) {
         FUSION_RECIPES.recipeBuilder(id("plutonium241_plasma"))
             .inputFluids(Lutetium.getFluid(16))
             .inputFluids(Vanadium.getFluid(16))
