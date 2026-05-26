@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import com.gtladd.gtladditions.GTLAdditions;
+import com.gtladd.gtladditions.common.material.GTLAddMaterial;
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,9 +41,17 @@ public abstract class RecyclingRecipesMixin {
                 Material m = ms.material();
                 if (m.hasProperty(PropertyKey.FLUID) && m.getFluid() != null && prefix == TagPrefix.dust) {
                     ResourceLocation itemPath = Registries.getResourceKey(input);
+                    long eut = (long) GTValues.VA[1] * (long) multiplier / 4L;
+                    int duration = (int) Math.max(1L, ms.amount() * ms.material().getMass() / 4028800L);
+                    if (m == GTLAddMaterial.INSTANCE.getMELLION()) {
+                        eut = GTValues.VA[GTValues.MAX];
+                        duration = 100 * 20;
+                    }
                     GTRecipeBuilder builder = GTLAddRecipesTypes.MOLECULAR_DECONSTRUCTION.recipeBuilder(GTLAdditions.id("molecular_deconstruction_" + itemPath.getPath()))
-                            .inputItems(TagPrefix.dust, m).outputFluids(m.getFluid(144L)).duration((int) Math.max(1L, ms.amount() * ms.material().getMass() / 4028800L))
-                            .EUt((long) GTValues.VA[1] * (long) multiplier / 4L);
+                            .inputItems(TagPrefix.dust, m)
+                            .outputFluids(m.getFluid(144L))
+                            .duration(duration)
+                            .EUt(eut);
                     builder.save(provider);
                 }
             }

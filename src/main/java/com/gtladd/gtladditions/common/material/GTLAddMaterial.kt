@@ -78,7 +78,8 @@ object GTLAddMaterial {
                 MaterialFlags.GENERATE_GEAR,
                 MaterialFlags.GENERATE_DENSE,
                 MaterialFlags.GENERATE_LONG_ROD,
-                MaterialFlags.DISABLE_DECOMPOSITION
+                MaterialFlags.DISABLE_DECOMPOSITION,
+                MaterialFlags.NO_SMELTING
             )
             .color(0x3c0505)
             .iconSet(MaterialIconSet.SHINY)

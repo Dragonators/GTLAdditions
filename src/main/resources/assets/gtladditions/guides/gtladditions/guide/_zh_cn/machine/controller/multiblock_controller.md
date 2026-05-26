@@ -41,6 +41,7 @@ categories:
 * [空间缩放仪](space_scaling_instrument.md)
 * [猎光号空间站](light_hunter_space_station.md)
 * [枢纽卫星工厂](nexus_satellite_factory.md)
+* [宏原子谐振碎片剥离器](macro_atomic_resonant_fragment_stripper.md)
 
 ## <Color color="#0000FF">**OpV**</Color>
 
@@ -58,4 +59,3 @@ categories:
 * [Helio 系列煅炉模块](helio_forge_modules.md)
 * [宇宙之心](heart_of_the_universe.md)
 * [维度聚焦无尽合成阵列](dimension_focus_infinity_crafting_array.md)
-* [宏原子谐振碎片剥离器](macro_atomic_resonant_fragment_stripper.md)
