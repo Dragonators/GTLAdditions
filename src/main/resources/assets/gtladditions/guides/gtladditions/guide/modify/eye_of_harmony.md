@@ -7,7 +7,6 @@ categories:
   - modify
 item_ids:
   - gtceu:eye_of_harmony
-  - gtladditions:arcanic_astrograph
 ---
 
 # Eye of Harmony and Arcanic Astrograph

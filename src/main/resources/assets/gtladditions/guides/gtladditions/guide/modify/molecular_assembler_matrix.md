@@ -7,7 +7,6 @@ categories:
   - modify
 item_ids:
   - gtceu:molecular_assembler_matrix
-  - gtladditions:dimension_focus_infinity_crafting_array
 ---
 
 # Molecular Assembler and Infinity Crafting Module

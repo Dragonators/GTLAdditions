@@ -6,7 +6,6 @@ navigation:
 categories:
   - modify
 item_ids:
-  - gtladditions:thread_modifier_hatch
   - gtceu:fishing_ground
   - gtceu:large_greenhouse
   - gtceu:a_mass_fabricator
@@ -26,7 +25,6 @@ item_ids:
   - gtceu:component_assembly_line
   - gtceu:atomic_energy_excitation_plant
   - gtceu:super_particle_collider
-  - gtceu:matter_fabricator
   - gtceu:cooling_tower
   - gtceu:mega_distillery
   - gtceu:holy_separator

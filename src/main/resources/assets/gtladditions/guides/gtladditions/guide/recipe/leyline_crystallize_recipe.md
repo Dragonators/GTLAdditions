@@ -6,12 +6,9 @@ navigation:
 categories:
   - recipe
 item_ids:
-  - gtladditions:heliophase_leyline_crystallizer
   - kubejs:dragon_stabilizer_core
   - gtceu:magmatter_block
   - minecraft:command_block
-  - minecraft:chain_command_block
-  - minecraft:repeating_command_block
 ---
 
 # Leyline Crystallize Recipes

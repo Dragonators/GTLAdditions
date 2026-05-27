@@ -8,19 +8,7 @@ item_ids:
   - gtladditions:stargate_frame_part
   - gtladditions:stargate_shielding_foil
   - gtladditions:stargate_chevron_upgrade
-  - gtladditions:dimension_focus_infinity_crafting_array
-  - gtladditions:forge_of_the_antichrist
-  - gtladditions:recursive_reverse_array
-  - gtladditions:supratemporal_boosting_engine
   - gtceu:creative_chest
-  - sgjourney:classic_stargate_ring_block
-  - sgjourney:classic_stargate_chevron_block
-  - sgjourney:classic_stargate_base_block
-  - sgjourney:pegasus_dhd
-  - sgjourney:universe_stargate
-  - avaritia:neutron_ring
-  - avaritia:infinity_ring
-  - avaritia:infinity_umbrella
 ---
 
 # <Color color="#FFAA00">**Final Goal: Star Ritual**</Color>
