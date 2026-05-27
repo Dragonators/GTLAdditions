@@ -5,8 +5,6 @@ navigation:
   position: 6
 categories:
   - 配方
-item_ids:
-  - gtceu:matter_fabricator
 ---
 
 # AE2 相关配方

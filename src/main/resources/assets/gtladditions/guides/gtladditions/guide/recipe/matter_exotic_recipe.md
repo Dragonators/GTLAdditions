@@ -6,7 +6,6 @@ navigation:
 categories:
   - recipe
 item_ids:
-  - gtladditions:heliofusion_exoticizer
   - avaritia:eternal_singularity
 ---
 

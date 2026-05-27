@@ -7,7 +7,6 @@ categories:
   - 魔改
 item_ids:
   - gtceu:eye_of_harmony
-  - gtladditions:arcanic_astrograph
 ---
 
 # 鸿蒙之眼与奥术星图

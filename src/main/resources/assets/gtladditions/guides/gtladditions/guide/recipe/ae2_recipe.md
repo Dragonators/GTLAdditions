@@ -5,8 +5,6 @@ navigation:
   position: 6
 categories:
   - recipe
-item_ids:
-  - gtceu:matter_fabricator
 ---
 
 # AE2 Recipes

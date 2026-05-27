@@ -7,7 +7,6 @@ categories:
   - 魔改
 item_ids:
   - gtceu:molecular_assembler_matrix
-  - gtladditions:dimension_focus_infinity_crafting_array
 ---
 
 # 分子操纵者与无尽合成模块

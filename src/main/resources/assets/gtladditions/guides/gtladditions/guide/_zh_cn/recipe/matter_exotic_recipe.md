@@ -6,7 +6,6 @@ navigation:
 categories:
   - 配方
 item_ids:
-  - gtladditions:heliofusion_exoticizer
   - avaritia:eternal_singularity
 ---
 

@@ -6,16 +6,11 @@ navigation:
 categories:
   - recipe
 item_ids:
-  - gtladditions:dimension_focus_infinity_crafting_array
   - expatternprovider:fishbig
   - avaritia:ultimate_stew
   - avaritia:cosmic_meatballs
   - avaritia:endest_pearl
   - avaritia:endless_cake
-  - gtladditions:stargate_chevron_upgrade
-  - sgjourney:classic_stargate_ring_block
-  - sgjourney:classic_stargate_chevron_block
-  - sgjourney:classic_stargate_base_block
 ---
 
 # Nightmare Crafting Recipes

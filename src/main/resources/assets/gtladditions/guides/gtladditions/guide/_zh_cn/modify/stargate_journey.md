@@ -5,12 +5,6 @@ navigation:
   position: 6
 categories:
   - 魔改
-item_ids:
-  - sgjourney:pegasus_dhd
-  - sgjourney:universe_stargate
-  - avaritia:neutron_ring
-  - avaritia:infinity_umbrella
-  - avaritia:infinity_ring
 ---
 
 # 星门之旅

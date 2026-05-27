@@ -5,11 +5,6 @@ navigation:
   position: 10
 categories:
   - 魔改
-item_ids:
-  - ae2:formation_plane
-  - ae2:annihilation_plane
-  - minecraft:chain_command_block
-  - minecraft:repeating_command_block
 ---
 
 # AE2 自动化

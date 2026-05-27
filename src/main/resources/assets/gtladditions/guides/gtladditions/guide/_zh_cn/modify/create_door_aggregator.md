@@ -8,10 +8,6 @@ categories:
 item_ids:
   - gtceu:door_of_create
   - gtceu:create_aggregation
-  - ae2:annihilation_plane
-  - ae2:formation_plane
-  - minecraft:chain_command_block
-  - minecraft:repeating_command_block
 ---
 
 # 创造之门与创造聚合仪
