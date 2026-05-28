@@ -84,7 +84,7 @@ The module has a 12-second fuel cycle. When placed, it randomly selects two item
 
 Activating focus requires:
 
-* Precisely inputting the two selected item stacks through two ULV huge item input buses.
+* Precisely inputting the two selected item types through two ULV huge item input buses.
 * Precisely inputting the selected fluid through one LV huge fluid input hatch.
 * Continuously providing 2 magnetic matter blocks per second through item input.
 * If amounts are too high, too low, or missing, the module GUI displays the failed item and focus does not enable.

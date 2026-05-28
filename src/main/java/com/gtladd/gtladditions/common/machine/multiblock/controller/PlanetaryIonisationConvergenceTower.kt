@@ -17,6 +17,7 @@ import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.gui.MultiblockDisplayText
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ComponentExtensions.translatable
+import com.gtladd.gtladditions.utils.MachineUtil.inputFluid
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -33,7 +34,6 @@ import org.gtlcore.gtlcore.api.machine.trait.IRecipeStatus
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine
-import org.gtlcore.gtlcore.utils.MachineUtil.inputFluid
 import org.gtlcore.gtlcore.utils.Registries
 import kotlin.enums.enumEntries
 import kotlin.math.min

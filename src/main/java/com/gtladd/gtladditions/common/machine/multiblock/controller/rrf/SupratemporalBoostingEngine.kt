@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gtladd.gtladditions.common.machine.hatch.VientianeTranscriptionNode
+import com.gtladd.gtladditions.utils.MachineUtil.inputFluid
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
@@ -13,7 +14,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.level.material.Fluids
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.common.data.GTLMaterials
-import org.gtlcore.gtlcore.utils.MachineUtil.inputFluid
 import org.gtlcore.gtlcore.utils.Registries
 import kotlin.math.exp
 import kotlin.math.max
@@ -190,6 +190,6 @@ class SupratemporalBoostingEngine(holder: IMachineBlockEntity, vararg args: Any?
         private val RAW_STAR_MATTER_PLASMA = GTLMaterials.RawStarMatter.getFluid(FluidStorageKeys.PLASMA, 100000)
         private val ICE = GTMaterials.Ice.getFluid(100000)
         private val HELIUM = GTMaterials.Helium.getFluid(FluidStorageKeys.LIQUID, 100000)
-        private val CRYOTHEUM = FluidStack.create(Registries.getFluid("kubejs:gelid_cryotheum"), 100000)
+        private val CRYOTHEUM by lazy { FluidStack.create(Registries.getFluid("kubejs:gelid_cryotheum"), 100000) }
     }
 }

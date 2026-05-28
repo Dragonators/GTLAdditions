@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.utils
 
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
+import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import net.minecraft.world.item.ItemStack
@@ -28,7 +29,7 @@ object MachineUtil {
 
         fun fluid(stack: FluidStack): InputBuilder {
             if (!stack.isEmpty) {
-                builder.inputFluids(stack)
+                builder.inputFluids(FluidIngredient.of(stack))
                 hasInput = true
             }
             return this
