@@ -63,4 +63,8 @@ object AntichristRingRenderer {
         RenderSystem.disableDepthTest()
         RenderSystem.disableBlend()
     }
+
+    fun renderTerrainBatched(profile: AntichristRenderProfile, poseStack: PoseStack) {
+        RingStructureVertexBuffer.renderTerrainBatched(profile, poseStack)
+    }
 }

@@ -18,11 +18,11 @@ public abstract class AntichristVertexBufferMixin {
             at = @At(
                      value = "INVOKE",
                      target = "Lnet/minecraft/client/renderer/ShaderInstance;apply()V",
-                     shift = At.Shift.AFTER))
+                     shift = At.Shift.BEFORE))
     private void gtladditions$unlockOculusDepthColorBeforeAntichristDraw(
                                                                          Matrix4f modelViewMatrix, Matrix4f projectionMatrix, ShaderInstance shader, CallbackInfo ci) {
         if (AntichristOculusCompat.isAntichristShader(shader.getName())) {
-            AntichristOculusCompat.bindFallbackTargetForAntichristShader();
+            AntichristOculusCompat.beginAntichristShaderPass();
         }
     }
 
@@ -35,7 +35,7 @@ public abstract class AntichristVertexBufferMixin {
     private void gtladditions$bindMainTargetAfterAntichristDraw(
                                                                 Matrix4f modelViewMatrix, Matrix4f projectionMatrix, ShaderInstance shader, CallbackInfo ci) {
         if (AntichristOculusCompat.isAntichristShader(shader.getName())) {
-            AntichristOculusCompat.bindMainTargetAfterAntichristShader();
+            AntichristOculusCompat.endAntichristShaderPass();
         }
     }
 }

@@ -1,10 +1,10 @@
 package com.gtladd.gtladditions.client.render.machine
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
-import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristBeamRenderer
+import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristDeferredRenderer
+import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristOculusCompat
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRenderProfile
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRingRenderer
-import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristStarRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
 import com.mojang.blaze3d.vertex.PoseStack
 import com.tterrag.registrate.util.entry.BlockEntry
@@ -41,14 +41,15 @@ class ForgeOfAntichristRenderer(
         val profile = AntichristRenderProfile.create(machine, tick, isWorking)
 
         if (machine.isFormed) {
-            AntichristRingRenderer.render(profile, poseStack)
+            if (AntichristOculusCompat.shouldUseTerrainRingRenderer()) {
+                AntichristDeferredRenderer.enqueueRing(blockEntity, profile)
+            } else {
+                AntichristRingRenderer.render(profile, poseStack)
+            }
         }
 
         if (isWorking) {
-            AntichristStarRenderer.renderOpaque(profile, poseStack)
-            AntichristStarRenderer.renderTransparent(profile, poseStack)
-            AntichristBeamRenderer.render(profile, poseStack, blockEntity)
-            AntichristStarRenderer.renderTransparentDepthForShaderpack(profile, poseStack)
+            AntichristDeferredRenderer.enqueue(blockEntity, profile)
         }
     }
 
