@@ -40,17 +40,15 @@ class ForgeOfAntichristRenderer(
         val tick = if (isWorking) RenderUtil.getSmoothTick(machine, partialTicks) else 0f
         val profile = AntichristRenderProfile.create(machine, tick, isWorking)
 
-        if (isWorking) {
-            AntichristStarRenderer.renderOpaque(profile, poseStack)
-        }
-
         if (machine.isFormed) {
             AntichristRingRenderer.render(profile, poseStack)
         }
 
         if (isWorking) {
+            AntichristStarRenderer.renderOpaque(profile, poseStack)
             AntichristStarRenderer.renderTransparent(profile, poseStack)
             AntichristBeamRenderer.render(profile, poseStack, blockEntity)
+            AntichristStarRenderer.renderTransparentDepthForShaderpack(profile, poseStack)
         }
     }
 

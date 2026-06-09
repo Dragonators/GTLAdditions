@@ -78,6 +78,10 @@ repositories {
         url = "https://modmaven.dev/"
     }
     maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
+    maven {
         url = "https://maven.theillusivec4.top/"
     }
     maven {
@@ -177,6 +181,7 @@ dependencies {
     modRuntimeOnly("mezz.jei:jei-$project.minecraft_version-forge:$project.jei_version") { transitive = false }
 
     modRuntimeOnly("maven.modrinth:embeddium:0.3.30+mc1.20.1")
+    modCompileOnly("maven.modrinth:oculus:1.20.1-1.7.0") { transitive = false }
 
     modRuntimeOnly("dev:rubidium-extra:0.5.4.3+mc1.20.1-build.121")
 

@@ -36,3 +36,10 @@ mandatory = true
 versionRange = "[0.6.44,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "oculus"
+mandatory = true
+versionRange = "[1.7.0,)"
+ordering = "AFTER"
+side = "CLIENT"
