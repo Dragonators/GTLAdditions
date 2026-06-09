@@ -77,7 +77,7 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-* 进阶集成矿石处理厂
+* <ItemLink id="gtceu:advanced_integrated_ore_processor" />
 * <ItemLink id="gtceu:cooling_tower" />
 * <ItemLink id="gtceu:mega_distillery" />
 * <ItemLink id="gtceu:holy_separator" />
