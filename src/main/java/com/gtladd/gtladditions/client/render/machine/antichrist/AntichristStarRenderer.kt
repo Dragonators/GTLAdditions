@@ -57,6 +57,18 @@ object AntichristStarRenderer {
         RenderSystem.disableBlend()
     }
 
+    fun renderTransparentDepthForShaderpack(profile: AntichristRenderProfile, poseStack: PoseStack) {
+        if (!AntichristOculusCompat.shouldWriteStarShellDepthForShaderpack()) return
+        if (AntichristShaders.starShader == null) return
+
+        RenderSystem.disableBlend()
+        RenderSystem.enableDepthTest()
+        RenderSystem.depthMask(true)
+        RenderSystem.colorMask(false, false, false, false)
+        renderLayer(profile, poseStack, STAR_LAYER_2, profile.starRadius * 1.04f, LAYER_2_AXIS, 67f, 1.0f)
+        RenderSystem.colorMask(true, true, true, true)
+    }
+
     private fun renderLayer(
         profile: AntichristRenderProfile,
         poseStack: PoseStack,
