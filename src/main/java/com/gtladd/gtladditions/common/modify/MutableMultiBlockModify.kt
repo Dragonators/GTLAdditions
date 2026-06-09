@@ -4,18 +4,23 @@ import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
+import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
-import com.gregtechceu.gtceu.api.pattern.BlockPattern
+import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
+import com.gregtechceu.gtceu.common.data.GCyMBlocks
+import com.gregtechceu.gtceu.common.data.GTBlocks
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
-import com.gregtechceu.gtceu.utils.SupplierMemoizer
 import com.gtladd.gtladditions.api.machine.EBFChecks
+import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
 import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic
 import com.gtladd.gtladditions.api.machine.mutable.AddMutableElectricParallelHatchMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableCoilElectricParallelHatchMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricMultiblockMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricParallelHatchMultiblockMachine
+import com.gtladd.gtladditions.api.pattern.patchPatternPredicates
+import com.gtladd.gtladditions.api.pattern.patternPredicateSelector
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ANTIENTROPY_CONDENSATION_CENTER
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ARCANE_CACHE_VAULT
@@ -41,7 +46,6 @@ import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.Muta
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.MutablePCBFactoryMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.MutableSuprachronalAssemblyLineMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.MutableTierCasingMachine
-import com.gtladd.gtladditions.common.modify.multiblockMachine.*
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ThreadMultiplierStrategy
@@ -50,55 +54,56 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
+import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
+import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineB
 import java.util.function.BiConsumer
-import java.util.function.Function
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
 object MutableMultiBlockModify {
 
     fun init() {
-        val mutableMachines = mapOf(
-            MultiBlockMachineA.FISHING_GROUND to MutableMultiBlocksA.FISHING_GROUND,
-            MultiBlockMachineA.LARGE_GREENHOUSE to MutableMultiBlocksA.LARGE_GREENHOUSE,
-            MultiBlockMachineA.A_MASS_FABRICATOR to MutableMultiBlocksA.A_MASS_FABRICATOR,
-            AdditionalMultiBlockMachine.HUGE_INCUBATOR to MutableMultiBlocksB.HUGE_INCUBATOR,
-            MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER to MutableMultiBlocksB.DIMENSIONALLY_TRANSCENDENT_MIXER,
-            AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE to MutableMultiBlocksB.SUPRACHRONAL_ASSEMBLY_LINE,
-            MultiBlockMachineA.NANO_CORE to MutableMultiBlocksC.NANO_CORE,
-            AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV] to MutableMultiBlocksC.COMPRESSED_FUSION_REACTOR,
-            MultiBlockMachineA.LARGE_RECYCLER to MutableMultiBlocksA.LARGE_RECYCLER,
-            MultiBlockMachineA.ADVANCED_SPS_CRAFTING to MutableMultiBlocksA.ADVANCED_SPS_CRAFTING,
-            MultiBlockMachineA.PETROCHEMICAL_PLANT to MutableMultiBlocksA.PETROCHEMICAL_PLANT,
-            MultiBlockMachineB.WOOD_DISTILLATION to MutableMultiBlocksA.WOOD_DISTILLATION,
-            AdvancedMultiBlockMachine.PCB_FACTORY to MutableMultiBlocksA.PCB_FACTORY,
-            AdditionalMultiBlockMachine.ADVANCED_RARE_EARTH_CENTRIFUGAL to MutableMultiBlocksD.ADVANCED_RARE_EARTH_CENTRIFUGAL,
-            MultiBlockMachineB.GRAVITATION_SHOCKBURST to MutableMultiBlocksA.GRAVITATION_SHOCKBURST,
-            AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR to MutableMultiBlocksA.ADVANCED_NEUTRON_ACTIVATOR,
-            MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE to MutableMultiBlocksD.COMPONENT_ASSEMBLY_LINE,
-            MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT to MutableMultiBlocksA.ATOMIC_ENERGY_EXCITATION_PLANT,
-            MultiBlockMachineA.SUPER_PARTICLE_COLLIDER to MutableMultiBlocksD.SUPER_PARTICLE_COLLIDER,
-            MultiBlockMachineA.MATTER_FABRICATOR to MutableMultiBlocksD.MATTER_FABRICATOR
+        val mutableMachines = listOf(
+            MultiBlockMachineA.FISHING_GROUND,
+            MultiBlockMachineA.LARGE_GREENHOUSE,
+            MultiBlockMachineA.A_MASS_FABRICATOR,
+            AdditionalMultiBlockMachine.HUGE_INCUBATOR,
+            MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER,
+            AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE,
+            MultiBlockMachineA.NANO_CORE,
+            AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV],
+            MultiBlockMachineA.LARGE_RECYCLER,
+            MultiBlockMachineA.ADVANCED_SPS_CRAFTING,
+            MultiBlockMachineA.PETROCHEMICAL_PLANT,
+            MultiBlockMachineB.WOOD_DISTILLATION,
+            AdvancedMultiBlockMachine.PCB_FACTORY,
+            AdditionalMultiBlockMachine.ADVANCED_RARE_EARTH_CENTRIFUGAL,
+            MultiBlockMachineB.GRAVITATION_SHOCKBURST,
+            AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR,
+            MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE,
+            MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT,
+            MultiBlockMachineA.SUPER_PARTICLE_COLLIDER,
+            MultiBlockMachineA.MATTER_FABRICATOR
         )
 
-        val multipleMachines = mapOf(
-            MultiBlockMachineA.ADVANCED_INTEGRATED_ORE_PROCESSOR to MultiRecipeMultiBlocks.ADVANCED_INTEGRATED_ORE_PROCESSOR,
-            MultiBlockMachineA.COOLING_TOWER to ElectricMultiRecipeMultiBlocks.COOLING_TOWER,
-            MultiBlockMachineA.MEGA_DISTILLERY to ElectricMultiRecipeMultiBlocks.MEGA_DISTILLERY,
-            MultiBlockMachineA.HOLY_SEPARATOR to ElectricMultiRecipeMultiBlocks.HOLY_SEPARATOR,
-            MultiBlockMachineA.FIELD_EXTRUDER_FACTORY to ElectricMultiRecipeMultiBlocks.FIELD_EXTRUDER_FACTORY,
-            MultiBlockMachineA.MEGA_CANNER to ElectricMultiRecipeMultiBlocks.MEGA_CANNER,
-            MultiBlockMachineA.MEGA_WIREMILL to CoilMultiRecipeMultiBlocks.MEGA_WIREMILL,
-            MultiBlockMachineA.MEGA_PRESSER to CoilMultiRecipeMultiBlocks.MEGA_PRESSER,
-            MultiBlockMachineA.MEGA_EXTRACTOR to CoilMultiRecipeMultiBlocks.MEGA_EXTRACTOR,
-            MultiBlockMachineA.MEGA_FLUID_HEATER to CoilMultiRecipeMultiBlocks.MEGA_FLUID_HEATER,
-            MultiBlockMachineA.ADVANCED_MULTI_SMELTER to CoilMultiRecipeMultiBlocks.ADVANCED_MULTI_SMELTER,
-            MultiBlockMachineA.SUPER_BLAST_SMELTER to CoilMultiRecipeMultiBlocks.SUPER_BLAST_SMELTER
+        val multipleMachines = listOf(
+            MultiBlockMachineA.ADVANCED_INTEGRATED_ORE_PROCESSOR,
+            MultiBlockMachineA.COOLING_TOWER,
+            MultiBlockMachineA.MEGA_DISTILLERY,
+            MultiBlockMachineA.HOLY_SEPARATOR,
+            MultiBlockMachineA.FIELD_EXTRUDER_FACTORY,
+            MultiBlockMachineA.MEGA_CANNER,
+            MultiBlockMachineA.MEGA_WIREMILL,
+            MultiBlockMachineA.MEGA_PRESSER,
+            MultiBlockMachineA.MEGA_EXTRACTOR,
+            MultiBlockMachineA.MEGA_FLUID_HEATER,
+            MultiBlockMachineA.ADVANCED_MULTI_SMELTER,
+            MultiBlockMachineA.SUPER_BLAST_SMELTER
         )
 
         val addDefinitions = listOf(
@@ -124,7 +129,7 @@ object MutableMultiBlockModify {
             DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY
         )
 
-        enableThreadModifier(mutableMachines + multipleMachines)
+        enableThreadModifier()
 
         setParallelHatchMutable(
             AdditionalMultiBlockMachine.HUGE_INCUBATOR,
@@ -137,7 +142,7 @@ object MutableMultiBlockModify {
         )
         setOtherMutable()
 
-        val mutableWithExtra = mutableMachines.keys + listOf(
+        val mutableWithExtra = mutableMachines + listOf(
             AdvancedMultiBlockMachine.CREATE_AGGREGATION,
             AdvancedMultiBlockMachine.DOOR_OF_CREATE,
             AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER
@@ -162,7 +167,7 @@ object MutableMultiBlockModify {
             )
         }
 
-        val multipleWithAdd = multipleMachines.keys + addDefinitions
+        val multipleWithAdd = multipleMachines + addDefinitions
         for (definition in multipleWithAdd) {
             addTooltips(
                 definition,
@@ -180,11 +185,48 @@ object MutableMultiBlockModify {
         }
     }
 
-    fun enableThreadModifier(
-        machinePatternMap: Map<MultiblockMachineDefinition, Function<MultiblockMachineDefinition, BlockPattern>>
-    ) {
-        for ((definition, pattern) in machinePatternMap) {
-            definition.patternFactory = SupplierMemoizer.memoize { pattern.apply(definition) }
+    fun enableThreadModifier() {
+        val threadModifierPredicate = { Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1) }
+        val threadModifierTargets = mapOf(
+            MultiBlockMachineA.FISHING_GROUND to patternPredicateSelector({ GTLBlocks.ALUMINIUM_BRONZE_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.LARGE_GREENHOUSE to patternPredicateSelector({ GTBlocks.CASING_STAINLESS_CLEAN.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.A_MASS_FABRICATOR to patternPredicateSelector({ GTBlocks.MACHINE_CASING_UXV.get() }, PartAbility.PARALLEL_HATCH),
+            AdditionalMultiBlockMachine.HUGE_INCUBATOR to patternPredicateSelector({ GTBlocks.CASING_PTFE_INERT.get() }, PartAbility.INPUT_LASER),
+            MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER to patternPredicateSelector({ GTLBlocks.DIMENSIONALLY_TRANSCENDENT_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE to patternPredicateSelector({ GTLBlocks.MOLECULAR_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.NANO_CORE to patternPredicateSelector({ GTLBlocks.NAQUADAH_ALLOY_CASING.get() }, PartAbility.INPUT_LASER),
+            AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV] to patternPredicateSelector({ GTLFusionCasingBlock.getCasingState(GTValues.UEV) }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.LARGE_RECYCLER to patternPredicateSelector({ GTBlocks.STEEL_HULL.get() }, PartAbility.MAINTENANCE),
+            MultiBlockMachineA.ADVANCED_SPS_CRAFTING to patternPredicateSelector({ GTBlocks.FUSION_CASING_MK2.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.PETROCHEMICAL_PLANT to patternPredicateSelector({ GTBlocks.CASING_STAINLESS_CLEAN.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineB.WOOD_DISTILLATION to patternPredicateSelector({ GTBlocks.CASING_INVAR_HEATPROOF.get() }, PartAbility.PARALLEL_HATCH),
+            AdvancedMultiBlockMachine.PCB_FACTORY to patternPredicateSelector({ GCyMBlocks.CASING_WATERTIGHT.get() }, PartAbility.PARALLEL_HATCH),
+            AdditionalMultiBlockMachine.ADVANCED_RARE_EARTH_CENTRIFUGAL to patternPredicateSelector({ GTLBlocks.SPS_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineB.GRAVITATION_SHOCKBURST to patternPredicateSelector({ GTLBlocks.CREATE_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR to patternPredicateSelector({ GTLBlocks.SPS_CASING.get() }, PartAbility.INPUT_LASER),
+            MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE to patternPredicateSelector({ GTLBlocks.IRIDIUM_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT to patternPredicateSelector({ GTLBlocks.DIMENSIONALLY_TRANSCENDENT_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.SUPER_PARTICLE_COLLIDER to patternPredicateSelector({ GTLBlocks.LAFIUM_MECHANICAL_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.MATTER_FABRICATOR to patternPredicateSelector({ GTBlocks.HIGH_POWER_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.ADVANCED_INTEGRATED_ORE_PROCESSOR to patternPredicateSelector({ GTBlocks.CASING_TUNGSTENSTEEL_ROBUST.get() }, PartAbility.INPUT_LASER),
+            MultiBlockMachineA.COOLING_TOWER to patternPredicateSelector({ GTBlocks.CASING_ALUMINIUM_FROSTPROOF.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.MEGA_DISTILLERY to patternPredicateSelector({ GTBlocks.CASING_STAINLESS_CLEAN.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.HOLY_SEPARATOR to patternPredicateSelector({ GTLBlocks.IRIDIUM_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.FIELD_EXTRUDER_FACTORY to patternPredicateSelector({ GTLBlocks.IRIDIUM_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.MEGA_CANNER to patternPredicateSelector({ GTLBlocks.LAFIUM_MECHANICAL_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            MultiBlockMachineA.MEGA_WIREMILL to patternPredicateSelector({ GTLBlocks.OXIDATION_RESISTANT_HASTELLOY_N_MECHANICAL_CASING.get() }, PartAbility.INPUT_LASER),
+            MultiBlockMachineA.MEGA_PRESSER to patternPredicateSelector({ GTLBlocks.MOLECULAR_CASING.get() }, PartAbility.INPUT_LASER),
+            MultiBlockMachineA.MEGA_EXTRACTOR to patternPredicateSelector({ GTLBlocks.HYPER_MECHANICAL_CASING.get() }, PartAbility.INPUT_LASER),
+            MultiBlockMachineA.MEGA_FLUID_HEATER to patternPredicateSelector({ GTLBlocks.IRIDIUM_CASING.get() }, PartAbility.INPUT_LASER),
+            MultiBlockMachineA.ADVANCED_MULTI_SMELTER to patternPredicateSelector({ GTBlocks.CASING_INVAR_HEATPROOF.get() }, PartAbility.INPUT_LASER),
+            MultiBlockMachineA.SUPER_BLAST_SMELTER to patternPredicateSelector({ GCyMBlocks.CASING_HIGH_TEMPERATURE_SMELTING.get() }, PartAbility.PARALLEL_HATCH)
+        )
+        for ((definition, selector) in threadModifierTargets) {
+            definition.patchPatternPredicates(
+                "thread_modifier",
+                selector,
+                threadModifierPredicate
+            )
         }
     }
 

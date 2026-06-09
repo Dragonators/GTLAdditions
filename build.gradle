@@ -74,6 +74,10 @@ repositories {
         url = "https://maven.blamejared.com/"
     }
     maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev/"
+    }
+    maven {
         url = "https://maven.theillusivec4.top/"
     }
     maven {
@@ -133,7 +137,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-    modImplementation 'appeng:appliedenergistics2-forge-15.2.1'
+    modImplementation("appeng:appliedenergistics2-forge:15.4.10") { transitive = false }
 
     modImplementation("dev.architectury:architectury-forge:${project.architectury_version}")
 

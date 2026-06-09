@@ -77,7 +77,7 @@ These existing multiblocks can gain or enhance cross-recipe parallel processing 
 
 <Column gap="2" fullWidth={true}>
 
-* Advanced Integrated Ore Processor
+* <ItemLink id="gtceu:advanced_integrated_ore_processor" />
 * <ItemLink id="gtceu:cooling_tower" />
 * <ItemLink id="gtceu:mega_distillery" />
 * <ItemLink id="gtceu:holy_separator" />

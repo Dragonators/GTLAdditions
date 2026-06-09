@@ -1,14 +1,11 @@
 package com.gtladd.gtladditions.common.modify
 
 import com.google.common.primitives.Ints
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
-import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern
 import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic
@@ -17,17 +14,19 @@ import com.gregtechceu.gtceu.api.recipe.logic.OCResult
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifierList
 import com.gregtechceu.gtceu.common.data.GTBlocks
 import com.gregtechceu.gtceu.common.data.GTMachines
-import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers
-import com.gregtechceu.gtceu.utils.SupplierMemoizer
+import com.gregtechceu.gtceu.common.machine.multiblock.electric.ActiveTransformerMachine
+import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
 import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
+import com.gtladd.gtladditions.api.pattern.patchPatternPredicates
+import com.gtladd.gtladditions.api.pattern.patternPredicateSelector
+import com.gtladd.gtladditions.api.pattern.replacePatternPredicates
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.multiblock.controller.BasicOreProcessorMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.MolecularAssemblerMultiblockMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.AdvancedInfiniteDrillMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.CreateAggregation
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.DoorOfCreate
-import com.gtladd.gtladditions.common.modify.multiblockMachine.WorkableMultiBlock
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.resources.ResourceKey
@@ -39,7 +38,7 @@ import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.AABB
-import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
+import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
@@ -179,62 +178,70 @@ object MultiBlockModify {
             GTRecipeModifiers.PARALLEL_HATCH,
             BasicOreProcessorMachine::recipeModifier
         )
-        MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.patternFactory = SupplierMemoizer.memoize {
-            FactoryBlockPattern.start()
-                .aisle("aaaaaa     ", "abbbba     ", "abbbba     ", "abbbba     ", "abbbba     ", "aaaaaa     ", "           ", "           ", "           ", "           ", "           ", "           ")
-                .aisle("aaaaaaaaaaa", "bd  d accca", "bd  d accca", "bd  d accca", "bd  d accca", "aaaaaaaccca", "       ccc ", "       ccc ", "       ccc ", "       ccc ", "       ccc ", "           ")
-                .aisle("aaaaaaaaaaa", "b ee  c   c", "b ee  ffffc", "b ee  c   c", "b ee  ffffc", "aaaaaac   c", "      cfffc", "      c   c", "      cfffc", "      c   c", "      cfffc", "       gcc ")
-                .aisle("aaaaaaaaaaa", "b ee  c   c", "b ee  ffffc", "b ee  c   c", "b ee  ffffc", "aaaaaac   c", "      cfffc", "      c   c", "      cfffc", "      c   c", "      cfffc", "       ccc ")
-                .aisle("aaaaaaaaaaa", "bd  d accca", "bd  d ac~ca", "bd  d accca", "bd  d accca", "aaaaaaaccca", "       ccc ", "       ccc ", "       ccc ", "       ccc ", "       ccc ", "           ")
-                .aisle("aaaaaa     ", "abbbba     ", "abbbba     ", "abbbba     ", "abbbba     ", "aaaaaa     ", "           ", "           ", "           ", "           ", "           ", "           ")
-                .where("~", Predicates.controller(Predicates.blocks(MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.get())))
-                .where(
-                    "c",
-                    Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get()).setMinGlobalLimited(60)
-                        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
-                        .or(Predicates.autoAbilities(GTLRecipeTypes.INTEGRATED_ORE_PROCESSOR))
-                        .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                        .or(Predicates.blocks(GTLAddMachines.ORE_PROCESSOR_HATCH.get()).setMaxGlobalLimited(1))
-                )
-                .where("a", Predicates.blocks(GTBlocks.CASING_HSSE_STURDY.get()))
-                .where("b", Predicates.blocks(GTBlocks.CASING_LAMINATED_GLASS.get()))
-                .where("d", Predicates.blocks(ChemicalHelper.getBlock(TagPrefix.frameGt, GTMaterials.BlueSteel)))
-                .where("e", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_GEARBOX.get()))
-                .where("f", Predicates.blocks(GTBlocks.CASING_TUNGSTENSTEEL_PIPE.get()))
-                .where("g", Predicates.blocks(GTMachines.MUFFLER_HATCH[7].get()))
-                .where(" ", Predicates.any())
-                .build()
-        }
+        MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.patchPatternPredicates(
+            "ore_processor_hatch",
+            patternPredicateSelector({ GTBlocks.CASING_STAINLESS_CLEAN.get() }, PartAbility.PARALLEL_HATCH, PartAbility.MAINTENANCE),
+            { Predicates.blocks(GTLAddMachines.ORE_PROCESSOR_HATCH.get()).setMaxGlobalLimited(1) }
+        )
 
-        AdvancedMultiBlockMachine.DOOR_OF_CREATE.patternFactory = SupplierMemoizer.memoize {
-            (WorkableMultiBlock.DOOR_OF_CREATE).apply(AdvancedMultiBlockMachine.DOOR_OF_CREATE)
-        }
+        val threadModifierPredicate = { Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1) }
+        AdvancedMultiBlockMachine.DOOR_OF_CREATE.patchPatternPredicates(
+            "thread_modifier",
+            patternPredicateSelector(
+                { GTLBlocks.DIMENSION_CONNECTION_CASING.get() },
+                PartAbility.IMPORT_ITEMS,
+                PartAbility.EXPORT_ITEMS,
+                PartAbility.INPUT_ENERGY
+            ),
+            threadModifierPredicate
+        )
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             DoorOfCreate(blockEntity)
         }
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.onWorking = doorOfCreateOnWorking
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.recipeModifier = recipeModifierList
 
-        AdvancedMultiBlockMachine.CREATE_AGGREGATION.patternFactory = SupplierMemoizer.memoize {
-            (WorkableMultiBlock.CREATE_AGGREGATION).apply(AdvancedMultiBlockMachine.CREATE_AGGREGATION)
-        }
+        AdvancedMultiBlockMachine.CREATE_AGGREGATION.patchPatternPredicates(
+            "thread_modifier",
+            patternPredicateSelector(
+                { GTLBlocks.DIMENSION_CONNECTION_CASING.get() },
+                PartAbility.IMPORT_ITEMS,
+                PartAbility.EXPORT_ITEMS,
+                PartAbility.INPUT_ENERGY,
+                PartAbility.COMPUTATION_DATA_RECEPTION
+            ),
+            threadModifierPredicate
+        )
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             CreateAggregation(blockEntity)
         }
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.onWorking = createAggregationOnWorking
         AdvancedMultiBlockMachine.CREATE_AGGREGATION.recipeModifier = recipeModifierList
 
-        GTMachines.ACTIVE_TRANSFORMER.patternFactory = SupplierMemoizer.memoize {
-            (WorkableMultiBlock.ACTIVE_TRANSFORMER).apply(GTMachines.ACTIVE_TRANSFORMER)
-        }
+        GTMachines.ACTIVE_TRANSFORMER.replacePatternPredicates(
+            "active_transformer_min_casing_limit",
+            patternPredicateSelector({ GTBlocks.HIGH_POWER_CASING.get() }),
+            {
+                Predicates.blocks(GTBlocks.HIGH_POWER_CASING.get())
+                    .or(ActiveTransformerMachine.getHatchPredicates())
+            }
+        )
 
         AdditionalMultiBlockMachine.MOLECULAR_ASSEMBLER_MATRIX.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             MolecularAssemblerMultiblockMachine(blockEntity)
         }
 
-        AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.patternFactory = SupplierMemoizer.memoize {
-            (WorkableMultiBlock.ADVANCED_INFINITE_DRILLER).apply(AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER)
-        }
+        AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.patchPatternPredicates(
+            "thread_modifier",
+            patternPredicateSelector(
+                { Registries.getBlock("gtlcore:iridium_casing") },
+                PartAbility.IMPORT_FLUIDS,
+                PartAbility.EXPORT_FLUIDS,
+                PartAbility.INPUT_ENERGY,
+                PartAbility.INPUT_LASER
+            ),
+            threadModifierPredicate
+        )
         AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             AdvancedInfiniteDrillMachine(blockEntity)
         }
