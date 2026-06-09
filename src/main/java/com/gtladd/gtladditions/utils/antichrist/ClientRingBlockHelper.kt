@@ -1,6 +1,6 @@
 package com.gtladd.gtladditions.utils.antichrist
-import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer.Companion.BASE_DIRECTION
-import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer.Companion.STAR_OFFSET_X
+import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRenderProfile.Companion.BASE_DIRECTION
+import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRenderProfile.Companion.STAR_OFFSET_X
 import com.gtladd.gtladditions.common.data.MachineInfo
 import com.gtladd.gtladditions.common.machine.multiblock.structure.RingStructure
 import com.gtladd.gtladditions.utils.CommonUtils
