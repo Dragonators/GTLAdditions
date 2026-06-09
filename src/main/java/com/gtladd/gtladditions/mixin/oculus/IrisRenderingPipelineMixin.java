@@ -5,7 +5,10 @@ import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
 import net.irisshaders.iris.targets.RenderTargets;
 
 import com.google.common.collect.ImmutableSet;
+import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristDeferredRenderer;
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristIrisPipelineBridge;
+import com.mojang.blaze3d.platform.GlStateManager;
+import org.lwjgl.opengl.GL30C;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -13,6 +16,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 @Mixin(value = IrisRenderingPipeline.class, remap = false)
 public abstract class IrisRenderingPipelineMixin implements AntichristIrisPipelineBridge {
@@ -35,6 +41,9 @@ public abstract class IrisRenderingPipelineMixin implements AntichristIrisPipeli
     @Shadow
     public boolean isBeforeTranslucent;
 
+    @Shadow
+    private boolean isMainBound;
+
     @Unique
     private GlFramebuffer gtladditions$antichristFallbackBeforeTranslucent;
 
@@ -47,12 +56,35 @@ public abstract class IrisRenderingPipelineMixin implements AntichristIrisPipeli
     @Unique
     private int gtladditions$antichristFallbackHeight = -1;
 
+    @Unique
+    private final Deque<int[]> gtladditions$antichristFramebufferStack = new ArrayDeque<>();
+
+    @Unique
+    private final Deque<Boolean> gtladditions$antichristMainBoundStack = new ArrayDeque<>();
+
     @Override
-    public void gtladditions$bindAntichristFallbackTarget() {
+    public void gtladditions$beginAntichristFallbackTarget() {
         gtladditions$ensureAntichristFallbackTargets();
+        gtladditions$antichristFramebufferStack.push(new int[] {
+                GlStateManager._getInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING),
+                GlStateManager._getInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING) });
+        gtladditions$antichristMainBoundStack.push(isMainBound);
 
         GlFramebuffer fallback = isBeforeTranslucent ? gtladditions$antichristFallbackBeforeTranslucent : gtladditions$antichristFallbackAfterTranslucent;
         fallback.bind();
+        isMainBound = false;
+    }
+
+    @Override
+    public void gtladditions$endAntichristFallbackTarget() {
+        if (gtladditions$antichristFramebufferStack.isEmpty()) {
+            return;
+        }
+
+        int[] previousFramebuffers = gtladditions$antichristFramebufferStack.pop();
+        GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, previousFramebuffers[0]);
+        GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, previousFramebuffers[1]);
+        isMainBound = !gtladditions$antichristMainBoundStack.isEmpty() && gtladditions$antichristMainBoundStack.pop();
     }
 
     @Unique
@@ -73,12 +105,17 @@ public abstract class IrisRenderingPipelineMixin implements AntichristIrisPipeli
     @Unique
     private GlFramebuffer gtladditions$createAntichristFallbackTarget(ImmutableSet<Integer> flippedTargets) {
         int[] drawBuffers = new int[] { GTLADDITIONS_ANTICHRIST_FALLBACK_TARGET };
-        return flippedTargets.contains(GTLADDITIONS_ANTICHRIST_FALLBACK_TARGET) ? renderTargets.createFramebufferWritingToAlt(drawBuffers) : renderTargets.createFramebufferWritingToMain(drawBuffers);
+        return renderTargets.createGbufferFramebuffer(flippedTargets, drawBuffers);
     }
 
     @Inject(method = "destroy", at = @At("HEAD"))
     private void gtladditions$destroyAntichristFallbackTargets(CallbackInfo ci) {
         gtladditions$destroyAntichristFallbackTargets();
+    }
+
+    @Inject(method = "finalizeLevelRendering", at = @At("TAIL"))
+    private void gtladditions$renderAntichristAfterShaderpackFinal(CallbackInfo ci) {
+        AntichristDeferredRenderer.renderAfterShaderpackFinal();
     }
 
     @Unique
@@ -93,5 +130,7 @@ public abstract class IrisRenderingPipelineMixin implements AntichristIrisPipeli
         }
         gtladditions$antichristFallbackWidth = -1;
         gtladditions$antichristFallbackHeight = -1;
+        gtladditions$antichristFramebufferStack.clear();
+        gtladditions$antichristMainBoundStack.clear();
     }
 }

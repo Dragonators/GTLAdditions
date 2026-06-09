@@ -6,5 +6,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public interface AntichristIrisPipelineBridge {
 
-    void gtladditions$bindAntichristFallbackTarget();
+    void gtladditions$beginAntichristFallbackTarget();
+
+    void gtladditions$endAntichristFallbackTarget();
 }
