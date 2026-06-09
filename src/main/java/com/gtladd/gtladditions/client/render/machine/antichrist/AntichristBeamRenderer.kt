@@ -31,6 +31,7 @@ object AntichristBeamRenderer {
     private const val ENDPOINT_FLOATS = (MAX_SEGMENTS + 1) * 3
     private const val BACK_PLATE_DISTANCE = -121.5f
     private const val BACK_PLATE_RADIUS = 13.0f
+    private const val INTENSE_BEAM_TANGENT_FADE_DISTANCE = 3.75f
 
     private val SPACE_LAYER = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/space_layer.png")
 
@@ -113,9 +114,8 @@ object AntichristBeamRenderer {
         val backX = max(-radius, (nextX + radius) / 2.0f)
         val backY = interpolate(startX, nextX, startY, nextY, backX)
 
-        endpoints.add(Vector3f(backY, backX, 0.0f))
-
         var transparency = 0.2f
+        addIntenseBeamStart(endpoints, backY, backX, nextY, nextX, transparency)
         for (i in 2 downTo 0) {
             endpoints.add(Vector3f(getLensRadius(i) / 2.0f, getLensDistance(i), transparency))
             transparency += 0.3f
@@ -185,6 +185,61 @@ object AntichristBeamRenderer {
         1 -> 3.5f
         2 -> 5.0f
         else -> error("Unexpected lens id $lensId")
+    }
+
+    private fun addIntenseBeamStart(
+        endpoints: MutableList<Vector3f>,
+        outerRadius: Float,
+        outerOffset: Float,
+        lensRadius: Float,
+        lensOffset: Float,
+        lensTransparency: Float
+    ) {
+        val tangentProgress = closestPointProgressToCenter(lensRadius, lensOffset, outerRadius, outerOffset)
+        val tangentRadius = interpolate(0.0f, 1.0f, lensRadius, outerRadius, tangentProgress)
+        val tangentOffset = interpolate(0.0f, 1.0f, lensOffset, outerOffset, tangentProgress)
+        val tangentTransparency = lensTransparency * (1.0f - tangentProgress)
+        val fadeProgress = moveToward(
+            tangentRadius,
+            tangentOffset,
+            outerRadius,
+            outerOffset,
+            INTENSE_BEAM_TANGENT_FADE_DISTANCE
+        )
+        val fadeRadius = interpolate(0.0f, 1.0f, tangentRadius, outerRadius, fadeProgress)
+        val fadeOffset = interpolate(0.0f, 1.0f, tangentOffset, outerOffset, fadeProgress)
+
+        endpoints.add(Vector3f(fadeRadius, fadeOffset, 0.0f))
+        endpoints.add(Vector3f(tangentRadius, tangentOffset, tangentTransparency))
+    }
+
+    private fun closestPointProgressToCenter(
+        startRadius: Float,
+        startOffset: Float,
+        endRadius: Float,
+        endOffset: Float
+    ): Float {
+        val radiusDelta = endRadius - startRadius
+        val offsetDelta = endOffset - startOffset
+        val lengthSqr = radiusDelta * radiusDelta + offsetDelta * offsetDelta
+        if (lengthSqr <= 0.0001f) return 1.0f
+
+        return (-(startRadius * radiusDelta + startOffset * offsetDelta) / lengthSqr).coerceIn(0.0f, 1.0f)
+    }
+
+    private fun moveToward(
+        startRadius: Float,
+        startOffset: Float,
+        outerRadius: Float,
+        outerOffset: Float,
+        distance: Float
+    ): Float {
+        val radiusDelta = outerRadius - startRadius
+        val offsetDelta = outerOffset - startOffset
+        val length = sqrt(radiusDelta * radiusDelta + offsetDelta * offsetDelta)
+        if (length <= 0.0001f) return 0.0f
+
+        return minOf(distance, length) / length
     }
 
     private fun interpolate(x0: Float, x1: Float, y0: Float, y1: Float, x: Float): Float =
