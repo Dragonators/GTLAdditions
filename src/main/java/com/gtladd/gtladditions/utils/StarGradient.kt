@@ -4,21 +4,29 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 object StarGradient {
-    fun getRGBFromTime(ratio: Double): Int {
-        val orange = 0xFF8C2A
-        val blueWh = 0xBFD8FF
-        val white = 0xFFFFFF
+    private val SPECTRAL_STOPS = arrayOf(
+        0.00 to 0xF0673D,
+        0.16 to 0xFF9B4D,
+        0.34 to 0xFFD36D,
+        0.50 to 0xFFF6D8,
+        0.64 to 0xFFFFFF,
+        0.80 to 0xC7DDFF,
+        1.00 to 0x85AAFF
+    )
 
-        val result: Int
-        if (ratio <= 0.5) {
-            val p = ratio / 0.5
-            result = lerpSRGB(orange, blueWh, p)
-        } else {
-            val p = (ratio - 0.5) / 0.5
-            result = lerpSRGB(blueWh, white, p)
+    fun getRGBFromTime(ratio: Double): Int {
+        val clampedRatio = clamp01(ratio)
+
+        for (index in 1 until SPECTRAL_STOPS.size) {
+            val previousStop = SPECTRAL_STOPS[index - 1]
+            val currentStop = SPECTRAL_STOPS[index]
+            if (clampedRatio <= currentStop.first) {
+                val segmentRatio = (clampedRatio - previousStop.first) / (currentStop.first - previousStop.first)
+                return lerpSRGB(previousStop.second, currentStop.second, segmentRatio)
+            }
         }
 
-        return result
+        return SPECTRAL_STOPS.last().second
     }
 
     private fun lerpSRGB(colorA: Int, colorB: Int, t: Double): Int {
