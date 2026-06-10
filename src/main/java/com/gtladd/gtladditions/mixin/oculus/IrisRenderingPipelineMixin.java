@@ -10,6 +10,8 @@ import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristIrisPi
 import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.opengl.GL30C;
 import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,7 +23,10 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 @Mixin(value = IrisRenderingPipeline.class, remap = false)
-public abstract class IrisRenderingPipelineMixin implements AntichristIrisPipelineBridge {
+@Implements(@Interface(
+                       iface = AntichristIrisPipelineBridge.class,
+                       prefix = "gtladditions$"))
+public abstract class IrisRenderingPipelineMixin {
 
     @Unique
     private static final int GTLADDITIONS_ANTICHRIST_FALLBACK_TARGET = 0;
@@ -62,9 +67,9 @@ public abstract class IrisRenderingPipelineMixin implements AntichristIrisPipeli
     @Unique
     private final Deque<Boolean> gtladditions$antichristMainBoundStack = new ArrayDeque<>();
 
-    @Override
+    @Unique
     public void gtladditions$beginAntichristFallbackTarget() {
-        gtladditions$ensureAntichristFallbackTargets();
+        gtladditionsInternal$ensureAntichristFallbackTargets();
         gtladditions$antichristFramebufferStack.push(new int[] {
                 GlStateManager._getInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING),
                 GlStateManager._getInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING) });
@@ -75,7 +80,7 @@ public abstract class IrisRenderingPipelineMixin implements AntichristIrisPipeli
         isMainBound = false;
     }
 
-    @Override
+    @Unique
     public void gtladditions$endAntichristFallbackTarget() {
         if (gtladditions$antichristFramebufferStack.isEmpty()) {
             return;
@@ -88,38 +93,38 @@ public abstract class IrisRenderingPipelineMixin implements AntichristIrisPipeli
     }
 
     @Unique
-    private void gtladditions$ensureAntichristFallbackTargets() {
+    private void gtladditionsInternal$ensureAntichristFallbackTargets() {
         int width = renderTargets.getCurrentWidth();
         int height = renderTargets.getCurrentHeight();
         if (gtladditions$antichristFallbackBeforeTranslucent != null && gtladditions$antichristFallbackAfterTranslucent != null && width == gtladditions$antichristFallbackWidth && height == gtladditions$antichristFallbackHeight) {
             return;
         }
 
-        gtladditions$destroyAntichristFallbackTargets();
-        gtladditions$antichristFallbackBeforeTranslucent = gtladditions$createAntichristFallbackTarget(flippedAfterPrepare);
-        gtladditions$antichristFallbackAfterTranslucent = gtladditions$createAntichristFallbackTarget(flippedAfterTranslucent);
+        gtladditionsInternal$destroyAntichristFallbackTargets();
+        gtladditions$antichristFallbackBeforeTranslucent = gtladditionsInternal$createAntichristFallbackTarget(flippedAfterPrepare);
+        gtladditions$antichristFallbackAfterTranslucent = gtladditionsInternal$createAntichristFallbackTarget(flippedAfterTranslucent);
         gtladditions$antichristFallbackWidth = width;
         gtladditions$antichristFallbackHeight = height;
     }
 
     @Unique
-    private GlFramebuffer gtladditions$createAntichristFallbackTarget(ImmutableSet<Integer> flippedTargets) {
+    private GlFramebuffer gtladditionsInternal$createAntichristFallbackTarget(ImmutableSet<Integer> flippedTargets) {
         int[] drawBuffers = new int[] { GTLADDITIONS_ANTICHRIST_FALLBACK_TARGET };
         return renderTargets.createGbufferFramebuffer(flippedTargets, drawBuffers);
     }
 
     @Inject(method = "destroy", at = @At("HEAD"))
-    private void gtladditions$destroyAntichristFallbackTargets(CallbackInfo ci) {
-        gtladditions$destroyAntichristFallbackTargets();
+    private void gtladditionsInternal$destroyAntichristFallbackTargetsOnDestroy(CallbackInfo ci) {
+        gtladditionsInternal$destroyAntichristFallbackTargets();
     }
 
     @Inject(method = "finalizeLevelRendering", at = @At("TAIL"))
-    private void gtladditions$renderAntichristAfterShaderpackFinal(CallbackInfo ci) {
+    private void gtladditionsInternal$renderAntichristAfterShaderpackFinal(CallbackInfo ci) {
         AntichristDeferredRenderer.renderAfterShaderpackFinal();
     }
 
     @Unique
-    private void gtladditions$destroyAntichristFallbackTargets() {
+    private void gtladditionsInternal$destroyAntichristFallbackTargets() {
         if (gtladditions$antichristFallbackBeforeTranslucent != null) {
             renderTargets.destroyFramebuffer(gtladditions$antichristFallbackBeforeTranslucent);
             gtladditions$antichristFallbackBeforeTranslucent = null;

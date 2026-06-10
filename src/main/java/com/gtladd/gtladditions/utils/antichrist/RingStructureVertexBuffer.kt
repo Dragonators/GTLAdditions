@@ -1,17 +1,15 @@
 package com.gtladd.gtladditions.utils.antichrist
 
-import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRenderProfile
+import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRingTransforms
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.machine.multiblock.structure.RingStructure
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
-import com.mojang.math.Axis
 import it.unimi.dsi.fastutil.objects.Object2IntMap
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings
 import net.irisshaders.iris.vertices.BlockSensitiveBufferBuilder
@@ -33,24 +31,9 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.data.ModelData
 import org.gtlcore.gtlcore.client.ClientUtil
-import org.joml.Quaternionf
 
 @OnlyIn(Dist.CLIENT)
 object RingStructureVertexBuffer {
-
-    val vanillaRingBuffers: Array<VertexBuffer> by lazy {
-        try {
-            Array(preparedRings.size) { tier ->
-                uploadVanillaRing(preparedRings[tier])
-            }
-        } catch (e: Exception) {
-            GTLAdditions.LOGGER.error("Failed to build vanilla ring VertexBuffers", e)
-            Array(3) { VertexBuffer(VertexBuffer.Usage.STATIC) }
-        }
-    }
-
-    val ringBuffers: Array<VertexBuffer>
-        get() = vanillaRingBuffers
 
     val BLOCK_MAPPER: Map<Char, Block> by lazy {
         mapOf(
@@ -83,66 +66,11 @@ object RingStructureVertexBuffer {
     fun renderTerrainBatched(profile: AntichristRenderProfile, poseStack: PoseStack) {
         terrainUploadedRings.forEachIndexed { index, uploadedRing ->
             poseStack.withPose {
-                translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
-
-                when (profile.facing) {
-                    Direction.NORTH -> mulPose(Axis.YP.rotationDegrees(270f))
-                    Direction.SOUTH -> mulPose(Axis.YP.rotationDegrees(90f))
-                    Direction.WEST -> mulPose(Axis.YP.rotationDegrees(0f))
-                    Direction.EAST -> mulPose(Axis.YP.rotationDegrees(180f))
-                    else -> {}
-                }
-
-                if (profile.isWorking) {
-                    val direction = if (index == 1) -1.0f else 1.0f
-                    val speedMultiplier = 0.4f + index * 0.4f
-                    val angleOffset = index * 120f
-                    val rotationAngle = (profile.tick * speedMultiplier * 2.0f * direction + angleOffset) % 360.0f
-
-                    mulPose(Quaternionf().fromAxisAngleDeg(1.0f, 0.0f, 0.0f, rotationAngle))
-                }
+                AntichristRingTransforms.apply(profile, index, this)
 
                 renderUploadedTerrainRing(uploadedRing, this)
             }
         }
-    }
-
-    private fun uploadVanillaRing(preparedRing: PreparedRing): VertexBuffer {
-        val buffer = VertexBuffer(VertexBuffer.Usage.STATIC)
-        val bufferBuilder = Tesselator.getInstance().builder
-        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK)
-        val poseStack = PoseStack()
-        preparedRing.blocksByRenderType.values.forEach { preparedBlocks ->
-            preparedBlocks.forEach { preparedBlock ->
-                poseStack.withPose {
-                    translate(
-                        preparedBlock.localX.toDouble(),
-                        preparedBlock.localY.toDouble(),
-                        preparedBlock.localZ.toDouble()
-                    )
-
-                    val pose = last()
-                    preparedBlock.quads.forEach { quad ->
-                        bufferBuilder.putBulkData(
-                            pose,
-                            quad,
-                            1.0f,
-                            1.0f,
-                            1.0f,
-                            1.0f,
-                            preparedBlock.light,
-                            OverlayTexture.NO_OVERLAY,
-                            true
-                        )
-                    }
-                }
-            }
-        }
-
-        buffer.bind()
-        buffer.upload(bufferBuilder.end())
-        VertexBuffer.unbind()
-        return buffer
     }
 
     private fun prepareRing(

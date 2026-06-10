@@ -2,9 +2,7 @@ package com.gtladd.gtladditions.client.render.machine
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristDeferredRenderer
-import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristOculusCompat
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRenderProfile
-import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRingRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
 import com.mojang.blaze3d.vertex.PoseStack
 import com.tterrag.registrate.util.entry.BlockEntry
@@ -15,7 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.utils.RenderUtil
-import java.util.function.Consumer
 
 class ForgeOfAntichristRenderer(
     baseCasing: ResourceLocation,
@@ -37,25 +34,18 @@ class ForgeOfAntichristRenderer(
 
         val machine = blockEntity.metaMachine as? ForgeOfTheAntichrist ?: return
         val isWorking = machine.recipeLogic.isWorking
+        if (!machine.isFormed && !isWorking) return
+
         val tick = if (isWorking) RenderUtil.getSmoothTick(machine, partialTicks) else 0f
         val profile = AntichristRenderProfile.create(machine, tick, isWorking)
 
         if (machine.isFormed) {
-            if (AntichristOculusCompat.shouldUseTerrainRingRenderer()) {
-                AntichristDeferredRenderer.enqueueRing(blockEntity, profile)
-            } else {
-                AntichristRingRenderer.render(profile, poseStack)
-            }
+            AntichristDeferredRenderer.enqueueRing(blockEntity, profile)
         }
 
         if (isWorking) {
             AntichristDeferredRenderer.enqueue(blockEntity, profile)
         }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    override fun onAdditionalModel(registry: Consumer<ResourceLocation>) {
-        super.onAdditionalModel(registry)
     }
 
     @OnlyIn(Dist.CLIENT)

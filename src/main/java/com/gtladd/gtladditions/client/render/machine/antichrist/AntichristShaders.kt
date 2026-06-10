@@ -33,7 +33,7 @@ object AntichristShaders {
 
 @Suppress("unused")
 @Mod.EventBusSubscriber(
-    modid = GTLAdditions.Companion.MOD_ID,
+    modid = GTLAdditions.MOD_ID,
     bus = Mod.EventBusSubscriber.Bus.MOD,
     value = [Dist.CLIENT]
 )

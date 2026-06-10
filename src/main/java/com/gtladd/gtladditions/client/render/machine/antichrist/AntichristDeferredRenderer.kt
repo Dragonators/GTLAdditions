@@ -2,9 +2,11 @@ package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.render.withPose
+import com.gtladd.gtladditions.utils.antichrist.RingStructureVertexBuffer
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexSorting
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap
 import net.minecraft.client.Minecraft
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
@@ -22,16 +24,16 @@ import org.joml.Matrix4f
     value = [Dist.CLIENT]
 )
 object AntichristDeferredRenderer {
-    private val entries = LinkedHashMap<Long, Entry>()
-    private val ringEntries = LinkedHashMap<Long, Entry>()
+    private val entries = Long2ObjectLinkedOpenHashMap<Entry>()
+    private val ringEntries = Long2ObjectLinkedOpenHashMap<Entry>()
     private var postFinalContext: PostFinalContext? = null
 
     fun enqueue(blockEntity: BlockEntity, profile: AntichristRenderProfile) {
-        entries[blockEntity.blockPos.asLong()] = Entry(blockEntity, profile)
+        entries.put(blockEntity.blockPos.asLong(), Entry(blockEntity, profile))
     }
 
     fun enqueueRing(blockEntity: BlockEntity, profile: AntichristRenderProfile) {
-        ringEntries[blockEntity.blockPos.asLong()] = Entry(blockEntity, profile)
+        ringEntries.put(blockEntity.blockPos.asLong(), Entry(blockEntity, profile))
     }
 
     @SubscribeEvent
@@ -52,7 +54,7 @@ object AntichristDeferredRenderer {
                             blockEntity.blockPos.y - cameraPosition.y,
                             blockEntity.blockPos.z - cameraPosition.z
                         )
-                        AntichristRingRenderer.renderTerrainBatched(entry.profile, this)
+                        RingStructureVertexBuffer.renderTerrainBatched(entry.profile, this)
                     }
                 }
                 ringEntries.clear()
@@ -76,17 +78,7 @@ object AntichristDeferredRenderer {
                 val iterator = entries.values.iterator()
                 while (iterator.hasNext()) {
                     val entry = iterator.next()
-                    val blockEntity = entry.blockEntity
-                    if (blockEntity.isRemoved) continue
-
-                    event.poseStack.withPose {
-                        translate(
-                            blockEntity.blockPos.x - cameraPosition.x,
-                            blockEntity.blockPos.y - cameraPosition.y,
-                            blockEntity.blockPos.z - cameraPosition.z
-                        )
-                        render(entry.profile, this, blockEntity, true)
-                    }
+                    renderEntryRelativeToCamera(entry, cameraPosition, event.poseStack)
                 }
                 entries.clear()
             }
@@ -109,17 +101,7 @@ object AntichristDeferredRenderer {
             val poseStack = PoseStack()
             poseStack.mulPoseMatrix(context.poseMatrix)
             context.entries.forEach { entry ->
-                val blockEntity = entry.blockEntity
-                if (blockEntity.isRemoved) return@forEach
-
-                poseStack.withPose {
-                    translate(
-                        blockEntity.blockPos.x - context.cameraPosition.x,
-                        blockEntity.blockPos.y - context.cameraPosition.y,
-                        blockEntity.blockPos.z - context.cameraPosition.z
-                    )
-                    render(entry.profile, this, blockEntity, false)
-                }
+                renderEntryRelativeToCamera(entry, context.cameraPosition, poseStack)
             }
         } finally {
             RenderSystem.setProjectionMatrix(previousProjection, VertexSorting.ORTHOGRAPHIC_Z)
@@ -133,18 +115,32 @@ object AntichristDeferredRenderer {
         }
     }
 
+    private fun renderEntryRelativeToCamera(
+        entry: Entry,
+        cameraPosition: Vec3,
+        poseStack: PoseStack
+    ) {
+        val blockEntity = entry.blockEntity
+        if (blockEntity.isRemoved) return
+
+        poseStack.withPose {
+            translate(
+                blockEntity.blockPos.x - cameraPosition.x,
+                blockEntity.blockPos.y - cameraPosition.y,
+                blockEntity.blockPos.z - cameraPosition.z
+            )
+            render(entry.profile, this, blockEntity)
+        }
+    }
+
     private fun render(
         profile: AntichristRenderProfile,
         poseStack: PoseStack,
-        blockEntity: BlockEntity,
-        writeDepthShell: Boolean
+        blockEntity: BlockEntity
     ) {
         AntichristStarRenderer.renderOpaque(profile, poseStack)
         AntichristStarRenderer.renderTransparent(profile, poseStack)
         AntichristBeamRenderer.render(profile, poseStack, blockEntity)
-        if (writeDepthShell) {
-            AntichristStarRenderer.renderTransparentDepthForShaderpack(profile, poseStack)
-        }
     }
 
     private data class Entry(
