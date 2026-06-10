@@ -70,7 +70,6 @@
     "stargatejourney.stargate.StargateStructureMixin"
   ],
   "client": [
-    "minecraft.client.AntichristVertexBufferMixin",
     "minecraft.client.ClientLevelChunkCacheMixin",
     "oculus.DepthColorStorageAccessor",
     "oculus.IrisRenderingPipelineMixin",

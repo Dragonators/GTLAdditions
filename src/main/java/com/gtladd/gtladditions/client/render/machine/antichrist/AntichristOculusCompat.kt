@@ -15,16 +15,19 @@ import org.lwjgl.opengl.GL20C
 @OnlyIn(Dist.CLIENT)
 object AntichristOculusCompat {
     private const val IRIS_RENDER_TARGET_LIMIT = 16
-    private const val STAR_SHADER = "gtladditions:gtladditions_antichrist_star"
-    private const val BEAM_SHADER = "gtladditions:gtladditions_antichrist_beam"
     private val maxDrawBuffers = IntArray(1)
     private var directMainTargetDepth = 0
 
-    @JvmStatic
-    fun isAntichristShader(shaderName: String): Boolean = shaderName == STAR_SHADER || shaderName == BEAM_SHADER
+    fun withAntichristShaderPass(draw: () -> Unit) {
+        beginAntichristShaderPass()
+        try {
+            draw()
+        } finally {
+            endAntichristShaderPass()
+        }
+    }
 
-    @JvmStatic
-    fun beginAntichristShaderPass() {
+    private fun beginAntichristShaderPass() {
         if (directMainTargetDepth > 0) {
             Minecraft.getInstance().mainRenderTarget.bindWrite(false)
             unlockDepthColorForAntichristShader()
@@ -40,8 +43,7 @@ object AntichristOculusCompat {
         unlockDepthColorForAntichristShader()
     }
 
-    @JvmStatic
-    fun endAntichristShaderPass() {
+    private fun endAntichristShaderPass() {
         if (directMainTargetDepth > 0) {
             Minecraft.getInstance().mainRenderTarget.bindWrite(false)
             return
@@ -72,8 +74,8 @@ object AntichristOculusCompat {
     fun shouldRenderAfterShaderpackFinal(): Boolean = shouldUseShaderpackCompatPath()
 
     private fun unlockDepthColorForAntichristShader() {
-        if (DepthColorStorageAccessor.`gtladditions$isDepthColorLocked`()) {
-            DepthColorStorageAccessor.`gtladditions$unlockDepthColor`()
+        if (DepthColorStorageAccessor.isDepthColorLocked()) {
+            DepthColorStorageAccessor.unlockDepthColor()
         }
     }
 

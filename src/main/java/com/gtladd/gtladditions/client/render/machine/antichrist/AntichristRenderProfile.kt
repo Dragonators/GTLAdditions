@@ -3,6 +3,7 @@ package com.gtladd.gtladditions.client.render.machine.antichrist
 import com.gtladd.gtladditions.client.RenderMode
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
+import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientBeamAlpha
 import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderColor
 import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderRadius
 import net.minecraft.core.Direction
@@ -21,10 +22,11 @@ data class AntichristRenderProfile(
     val colorR: Float,
     val colorG: Float,
     val colorB: Float,
-    val starRadius: Float
+    val starRadius: Float,
+    val beamAlpha: Float
 ) {
     val shouldRenderBeam: Boolean
-        get() = renderMode == RenderMode.NORMAL || renderMode == RenderMode.RAINBOW
+        get() = beamAlpha > 0.001f
 
     val beamYawDegrees: Float
         get() = when (facing) {
@@ -59,7 +61,8 @@ data class AntichristRenderProfile(
                 colorR = ((argb32 shr 16) and 0xFF) / 255.0f,
                 colorG = ((argb32 shr 8) and 0xFF) / 255.0f,
                 colorB = (argb32 and 0xFF) / 255.0f,
-                starRadius = BASE_STAR_RADIUS * radiusMultiplier
+                starRadius = BASE_STAR_RADIUS * radiusMultiplier,
+                beamAlpha = getClientBeamAlpha(machine, renderMode)
             )
         }
 

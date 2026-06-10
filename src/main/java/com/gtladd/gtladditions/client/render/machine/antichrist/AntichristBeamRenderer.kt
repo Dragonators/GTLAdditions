@@ -47,8 +47,8 @@ object AntichristBeamRenderer {
         val shader = AntichristShaders.beamShader ?: return
 
         updateCameraPositionInBeamSpace(profile, blockEntity)
-        writeSoftBeamSegments(profile.starRadius, softBeam)
-        writeIntenseBeamSegments(profile.starRadius, intenseBeam)
+        writeSoftBeamSegments(profile.starRadius, profile.beamAlpha, softBeam)
+        writeIntenseBeamSegments(profile.starRadius, profile.beamAlpha, intenseBeam)
 
         poseStack.withPose {
             translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
@@ -73,12 +73,16 @@ object AntichristBeamRenderer {
             shader.getUniform("Color")?.set(profile.colorR, profile.colorG, profile.colorB)
             shader.getUniform("Intensity")?.set(2.0f)
             shader.getUniform("SegmentArray")?.set(softBeam.values)
-            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            AntichristOculusCompat.withAntichristShaderPass {
+                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            }
 
             shader.getUniform("Color")?.set(1.0f, 1.0f, 1.0f)
             shader.getUniform("Intensity")?.set(4.0f)
             shader.getUniform("SegmentArray")?.set(intenseBeam.values)
-            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            AntichristOculusCompat.withAntichristShaderPass {
+                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            }
 
             VertexBuffer.unbind()
             RenderSystem.enableCull()
@@ -87,7 +91,7 @@ object AntichristBeamRenderer {
         }
     }
 
-    private fun writeSoftBeamSegments(starRadius: Float, segments: SegmentBuffer) {
+    private fun writeSoftBeamSegments(starRadius: Float, beamAlpha: Float, segments: SegmentBuffer) {
         segments.clear()
 
         val angle = getStartAngle(starRadius)
@@ -98,14 +102,14 @@ object AntichristBeamRenderer {
         segments.add(startY, startX, 0.0f)
 
         for (i in 2 downTo 0) {
-            segments.add(getLensRadius(i), getLensDistance(i), 1.0f)
+            segments.add(getLensRadius(i), getLensDistance(i), beamAlpha)
         }
 
-        segments.add(BACK_PLATE_RADIUS, BACK_PLATE_DISTANCE, -0.05f)
+        segments.add(BACK_PLATE_RADIUS, BACK_PLATE_DISTANCE, -0.05f * beamAlpha)
         segments.repeatLastEndpoint()
     }
 
-    private fun writeIntenseBeamSegments(starRadius: Float, segments: SegmentBuffer) {
+    private fun writeIntenseBeamSegments(starRadius: Float, beamAlpha: Float, segments: SegmentBuffer) {
         segments.clear()
 
         val angle = getStartAngle(starRadius)
@@ -120,9 +124,9 @@ object AntichristBeamRenderer {
         val backY = interpolate(startX, nextX, startY, nextY, backX)
 
         var transparency = 0.2f
-        addIntenseBeamStart(segments, backY, backX, nextY, nextX, transparency)
+        addIntenseBeamStart(segments, backY, backX, nextY, nextX, transparency * beamAlpha)
         for (i in 2 downTo 0) {
-            segments.add(getLensRadius(i) / 2.0f, getLensDistance(i), transparency)
+            segments.add(getLensRadius(i) / 2.0f, getLensDistance(i), transparency * beamAlpha)
             transparency += 0.3f
         }
 
@@ -133,7 +137,7 @@ object AntichristBeamRenderer {
         val midX = lastX + 8.0f
         val midY = interpolate(currentX, lastX, currentY, lastY, midX)
 
-        segments.add(midY, midX, transparency)
+        segments.add(midY, midX, transparency * beamAlpha)
         segments.add(lastY, lastX, 0.0f)
         segments.repeatLastEndpoint()
     }

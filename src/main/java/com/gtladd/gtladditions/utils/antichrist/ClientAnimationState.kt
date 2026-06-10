@@ -1,5 +1,6 @@
 ﻿package com.gtladd.gtladditions.utils.antichrist
 
+import com.gtladd.gtladditions.client.RenderMode
 import com.gtladd.gtladditions.common.machine.trait.StarRitualTrait.Companion.CLIENT_COLLAPSE_DURATION_TICKS
 import com.gtladd.gtladditions.common.machine.trait.StarRitualTrait.Companion.CLIENT_RECOVER_DURATION_TICKS
 import com.gtladd.gtladditions.utils.RenderUtils
@@ -9,6 +10,11 @@ import kotlin.math.pow
 
 @OnlyIn(Dist.CLIENT)
 class ClientAnimationState {
+    private companion object {
+        const val BEAM_FULL_ALPHA_RADIUS_FRACTION = 0.95f
+        const val BEAM_ZERO_ALPHA_RADIUS_FRACTION = 0.10f
+    }
+
     private val collapseTimer = RenderUtils.SmoothAnimationTimer()
     private val recoverTimer = RenderUtils.SmoothAnimationTimer()
     private var isCollapsing: Boolean = false
@@ -51,15 +57,40 @@ class ClientAnimationState {
         return (0xFF shl 24) or (newR shl 16) or (newG shl 8) or newB
     }
 
-    fun getRenderRadius(baseRadius: Float): Float {
+    fun getRenderRadius(baseRadius: Float): Float = baseRadius * getRenderRadiusFraction()
+
+    fun getBeamAlpha(renderMode: RenderMode): Float = when (renderMode) {
+        RenderMode.NORMAL,
+        RenderMode.RAINBOW -> 1.0f
+
+        RenderMode.COLLAPSING -> {
+            1.0f - smootherStep(getBeamFadeProgress(BEAM_FULL_ALPHA_RADIUS_FRACTION, BEAM_ZERO_ALPHA_RADIUS_FRACTION))
+        }
+
+        RenderMode.RECOVERING -> {
+            smootherStep(getBeamFadeProgress(BEAM_ZERO_ALPHA_RADIUS_FRACTION, BEAM_FULL_ALPHA_RADIUS_FRACTION))
+        }
+    }
+
+    private fun getRenderRadiusFraction(): Float {
         val currentProgress = getProgress()
         val smoothProgress = easeInOutCubic(currentProgress)
-        return baseRadius * (1.0f - smoothProgress * 0.98f)
+        return 1.0f - smoothProgress * 0.98f
+    }
+
+    private fun getBeamFadeProgress(startRadiusFraction: Float, endRadiusFraction: Float): Float {
+        val radiusFraction = getRenderRadiusFraction()
+        return ((radiusFraction - startRadiusFraction) / (endRadiusFraction - startRadiusFraction)).coerceIn(0.0f, 1.0f)
     }
 
     private fun smoothStep(t: Float): Float {
         val x = t.coerceIn(0f, 1f)
         return x * x * (3f - 2f * x)
+    }
+
+    private fun smootherStep(t: Float): Float {
+        val x = t.coerceIn(0f, 1f)
+        return x * x * x * (x * (x * 6f - 15f) + 10f)
     }
 
     private fun easeInOutCubic(t: Float): Float {

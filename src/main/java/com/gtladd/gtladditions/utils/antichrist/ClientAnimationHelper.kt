@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.utils.antichrist
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.gtladd.gtladditions.client.RenderMode
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -23,4 +24,7 @@ object ClientAnimationHelper {
 
     fun getClientRenderRadius(machine: ForgeOfTheAntichrist, baseRadius: Float): Float =
         getOrCreate(machine).getRenderRadius(baseRadius)
+
+    fun getClientBeamAlpha(machine: ForgeOfTheAntichrist, renderMode: RenderMode): Float =
+        getOrCreate(machine).getBeamAlpha(renderMode)
 }
