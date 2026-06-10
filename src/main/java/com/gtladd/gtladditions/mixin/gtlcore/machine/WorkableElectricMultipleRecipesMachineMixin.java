@@ -15,36 +15,36 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Implements(@Interface(
                        iface = IWirelessThreadModifierParallelMachine.class,
-                       prefix = "gTLAdditions$"))
+                       prefix = "gtladditions$"))
 @Mixin(WorkableElectricMultipleRecipesMachine.class)
 public abstract class WorkableElectricMultipleRecipesMachineMixin extends WorkableElectricMultiblockMachine {
 
     @Unique
-    protected @Nullable IThreadModifierPart gTLAdditions$threadPartMachine = null;
+    protected @Nullable IThreadModifierPart gtladditions$threadPartMachine = null;
 
     public WorkableElectricMultipleRecipesMachineMixin(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
     }
 
     @Unique
-    public void gTLAdditions$setThreadPartMachine(@Nullable IThreadModifierPart threadPartMachine) {
-        this.gTLAdditions$threadPartMachine = threadPartMachine;
+    public void gtladditions$setThreadPartMachine(@Nullable IThreadModifierPart threadPartMachine) {
+        this.gtladditions$threadPartMachine = threadPartMachine;
     }
 
     @Unique
-    public @Nullable IThreadModifierPart gTLAdditions$getThreadPartMachine() {
-        return gTLAdditions$threadPartMachine;
+    public @Nullable IThreadModifierPart gtladditions$getThreadPartMachine() {
+        return gtladditions$threadPartMachine;
     }
 
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
-        this.gTLAdditions$threadPartMachine = null;
+        this.gtladditions$threadPartMachine = null;
     }
 
     @Override
     public void onPartUnload() {
         super.onPartUnload();
-        this.gTLAdditions$threadPartMachine = null;
+        this.gtladditions$threadPartMachine = null;
     }
 }

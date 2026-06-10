@@ -39,7 +39,7 @@ import static com.hepdd.gtmthings.utils.TeamUtil.GetName;
 public abstract class WirelessEnergyMonitorMixin extends MetaMachine {
 
     @Unique
-    private List<MachineEnergyData> gTLAdditions$cachedSortedBigEntries = null;
+    private List<MachineEnergyData> gtladditions$cachedSortedBigEntries = null;
     @Shadow(remap = false)
     private UUID userid;
     @Shadow(remap = false)
@@ -60,8 +60,8 @@ public abstract class WirelessEnergyMonitorMixin extends MetaMachine {
     }
 
     @Unique
-    private List<MachineEnergyData> gTLAdditions$getSortedBigEntries() {
-        if (gTLAdditions$cachedSortedBigEntries == null || getOffsetTimer() % 20 == 0) {
+    private List<MachineEnergyData> gtladditions$getSortedBigEntries() {
+        if (gtladditions$cachedSortedBigEntries == null || getOffsetTimer() % 20 == 0) {
             List<MachineEnergyData> dataList = new ObjectArrayList<>();
 
             for (var entry : BIG_MACHINE_DATA.asMap().entrySet()) {
@@ -71,11 +71,11 @@ public abstract class WirelessEnergyMonitorMixin extends MetaMachine {
             }
 
             dataList.sort(null);
-            gTLAdditions$cachedSortedBigEntries = dataList;
+            gtladditions$cachedSortedBigEntries = dataList;
 
             BIG_MACHINE_DATA.invalidateAll();
         }
-        return gTLAdditions$cachedSortedBigEntries;
+        return gtladditions$cachedSortedBigEntries;
     }
 
     /**
@@ -111,7 +111,7 @@ public abstract class WirelessEnergyMonitorMixin extends MetaMachine {
         textList.add(Component.translatable("gtmthings.machine.wireless_energy_monitor.tooltip.statistics")
                 .append(ComponentPanelWidget.withButton(all ? Component.translatable("gtmthings.machine.wireless_energy_monitor.tooltip.all") : Component.translatable("gtmthings.machine.wireless_energy_monitor.tooltip.team"), "all")));
 
-        for (var entry : gTLAdditions$getSortedBigEntries()) {
+        for (var entry : gtladditions$getSortedBigEntries()) {
             UUID uuid = entry.userId;
             if (all || TeamUtil.getTeamUUID(uuid) == TeamUtil.getTeamUUID(this.userid)) {
                 MetaMachine machine = entry.machine;
