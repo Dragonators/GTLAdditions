@@ -205,8 +205,8 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
                     val modifier = ContentModifier.multiplier(multiplier)
                     for (recipe in recipes) {
                         for ((capability, contents) in recipe.outputs) {
-                            for (content in contents) {
-                                content.content = capability.copyContent(content.content, modifier)
+                            for (i in contents.indices) {
+                                contents[i] = contents[i].copy(capability, modifier)
                             }
                         }
                     }

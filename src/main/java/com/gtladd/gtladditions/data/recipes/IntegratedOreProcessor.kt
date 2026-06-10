@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.data.recipes
 
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.crushedPurified
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.dust
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix.rawOre
 import com.gregtechceu.gtceu.api.data.tag.TagUtil
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
@@ -47,6 +48,15 @@ object IntegratedOreProcessor {
                 .chancedOutput(dust, pure[1], 2 * oreNumber, 3300, 0)
                 .outputItems(dust, Stone, 2 * oreNumber)
                 .EUt(30).duration(26 + 200 * 2 * oreNumber).save(provider)
+            INTEGRATED_ORE_PROCESSOR.recipeBuilder(id("purified_" + pure[0].name + "_raw_ore_8"))
+                .circuitMeta(8)
+                .inputItems(rawOre, pure[0])
+                .inputFluids(DistilledWater.getFluid(oreFluid.toLong()))
+                .outputItems(crushedPurified, pure[0], oreNumber)
+                .chancedOutput(dust, pure[1], 1400, 850)
+                .chancedOutput(dust, pure[1], oreNumber, 3300, 0)
+                .outputItems(dust, Stone, oreNumber)
+                .EUt(30).duration(26 + 200 * oreNumber).save(provider)
             if (pure[0] == Chalcocite) return
             INTEGRATED_ORE_PROCESSOR.recipeBuilder(id("purified_" + pure[0].name + "_ore_9"))
                 .circuitMeta(9)
@@ -57,6 +67,15 @@ object IntegratedOreProcessor {
                 .chancedOutput(dust, pure[2], 2 * oreNumber, 7000, 580)
                 .outputItems(dust, Stone, 2 * oreNumber)
                 .EUt(30).duration(26 + 200 * 2 * oreNumber).save(provider)
+            INTEGRATED_ORE_PROCESSOR.recipeBuilder(id("purified_" + pure[0].name + "_raw_ore_9"))
+                .circuitMeta(9)
+                .inputItems(rawOre, pure[0])
+                .inputFluids(pure[3].getFluid(oreFluid.toLong()))
+                .outputItems(crushedPurified, pure[0], oreNumber)
+                .chancedOutput(dust, pure[1], 1400, 850)
+                .chancedOutput(dust, pure[2], oreNumber, 7000, 580)
+                .outputItems(dust, Stone, oreNumber)
+                .EUt(30).duration(26 + 200 * oreNumber).save(provider)
         }
     }
 }
