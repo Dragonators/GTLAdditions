@@ -9,12 +9,12 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface DepthColorStorageAccessor {
 
     @Invoker(value = "isDepthColorLocked", remap = false)
-    static boolean gtladditions$isDepthColorLocked() {
+    static boolean isDepthColorLocked() {
         throw new AssertionError();
     }
 
     @Invoker(value = "unlockDepthColor", remap = false)
-    static void gtladditions$unlockDepthColor() {
+    static void unlockDepthColor() {
         throw new AssertionError();
     }
 }

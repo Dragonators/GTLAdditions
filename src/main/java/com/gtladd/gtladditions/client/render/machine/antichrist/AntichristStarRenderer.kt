@@ -85,7 +85,9 @@ object AntichristStarRenderer {
             shader.getUniform("Gamma")?.set(AntichristRenderProfile.STAR_GAMMA)
 
             sphereBuffer.bind()
-            sphereBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            AntichristOculusCompat.withAntichristShaderPass {
+                sphereBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            }
             VertexBuffer.unbind()
             RenderSystem.enableCull()
         }
