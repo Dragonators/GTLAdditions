@@ -42,7 +42,7 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
     private static final ItemStack CREATIVE_MAINFRAME = Registries.getItemStack("kubejs:suprachronal_mainframe_complex");
     @Unique
     @Persisted(key = "gtladditions$max")
-    private final NotifiableItemStackHandler gtlAdditions$max = this.gTLAdditions$createMachineStorage();
+    private final NotifiableItemStackHandler gtladditions$max = this.gtladditions$createMachineStorage();
 
     @Shadow(remap = false)
     private float durationMultiplier;
@@ -63,8 +63,8 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
 
     @Override
     public void setDurationMultiplier(float count) {
-        if (count > gTLAdditions$getMax()) this.durationMultiplier = gTLAdditions$getMax();
-        else this.durationMultiplier = Math.max(count, gTLAdditions$getMin());
+        if (count > gtladditions$getMax()) this.durationMultiplier = gtladditions$getMax();
+        else this.durationMultiplier = Math.max(count, gtladditions$getMin());
     }
 
     @Override
@@ -74,7 +74,7 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
 
     @Override
     public void onMachineRemoved() {
-        this.clearInventory(this.gtlAdditions$max.storage);
+        this.clearInventory(this.gtladditions$max.storage);
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
      */
     @Overwrite(remap = false)
     private void incInternalMultiplier(int multiplier) {
-        durationMultiplier = Math.min(durationMultiplier + 0.01F * (float) multiplier, gTLAdditions$getMax());
+        durationMultiplier = Math.min(durationMultiplier + 0.01F * (float) multiplier, gtladditions$getMax());
     }
 
     /**
@@ -92,7 +92,7 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
      */
     @Overwrite(remap = false)
     private void decInternalMultiplier(int multiplier) {
-        durationMultiplier = Math.max(durationMultiplier - 0.01F * (float) multiplier, gTLAdditions$getMin());
+        durationMultiplier = Math.max(durationMultiplier - 0.01F * (float) multiplier, gtladditions$getMin());
     }
 
     /**
@@ -117,13 +117,13 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
                 else if (componentData.equals("add")) this.incInternalMultiplier(multiplier);
             }
         }))).setBackground(GuiTextures.BACKGROUND_INVERSE);
-        group.addWidget((new SlotWidget(gtlAdditions$max.storage, 0, 120, 40, true, true))
-                .setBackground(GuiTextures.SLOT).setHoverTooltips(gTLAdditions$setMaxTooltips()));
+        group.addWidget((new SlotWidget(gtladditions$max.storage, 0, 120, 40, true, true))
+                .setBackground(GuiTextures.SLOT).setHoverTooltips(gtladditions$setMaxTooltips()));
         return group;
     }
 
     @Unique
-    private NotifiableItemStackHandler gTLAdditions$createMachineStorage() {
+    private NotifiableItemStackHandler gtladditions$createMachineStorage() {
         NotifiableItemStackHandler handler = new NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH, (slots) -> new ItemStackTransfer(1) {
 
             public int getSlotLimit(int slot) {
@@ -135,7 +135,7 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
     }
 
     @Unique
-    private @NotNull List<Component> gTLAdditions$setMaxTooltips() {
+    private @NotNull List<Component> gtladditions$setMaxTooltips() {
         List<Component> tooltips = new ObjectArrayList<>();
         tooltips.add(Component.translatable("gtceu.universal.enabled"));
         tooltips.add(Component.translatable("gtceu.multiblock.use_different_mainframe"));
@@ -147,13 +147,13 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
     }
 
     @Unique
-    private Item gTLAdditions$getCurrentMainframe() {
-        return gtlAdditions$max.storage.getStackInSlot(0).getItem();
+    private Item gtladditions$getCurrentMainframe() {
+        return gtladditions$max.storage.getStackInSlot(0).getItem();
     }
 
     @Unique
-    private float gTLAdditions$getMax() {
-        Item mainframe = gTLAdditions$getCurrentMainframe();
+    private float gtladditions$getMax() {
+        Item mainframe = gtladditions$getCurrentMainframe();
 
         if (BIOWARE_MAINFRAME.is(mainframe)) return 3.0F;
         if (COSMIC_MAINFRAME.is(mainframe)) return 7.5F;
@@ -162,8 +162,8 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
     }
 
     @Unique
-    private float gTLAdditions$getMin() {
-        Item mainframe = gTLAdditions$getCurrentMainframe();
+    private float gtladditions$getMin() {
+        Item mainframe = gtladditions$getCurrentMainframe();
 
         if (BIOWARE_MAINFRAME.is(mainframe)) return 0.15F;
         if (COSMIC_MAINFRAME.is(mainframe)) return 0.1F;

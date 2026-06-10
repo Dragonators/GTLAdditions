@@ -22,14 +22,14 @@ public abstract class ItemEmiStackMixin extends EmiStack {
                remap = false)
     private String formatAmount(String count) {
         if (this.amount > 1L) {
-            return gTLAdditions$formatNumber(this.amount);
+            return gtladditions$formatNumber(this.amount);
         } else {
             return count;
         }
     }
 
     @Unique
-    private static String gTLAdditions$formatNumber(long amount) {
+    private static String gtladditions$formatNumber(long amount) {
         if (amount >= 1_000_000_000) {
             return (amount / 1_000_000_000) + "G";
         } else if (amount >= 1_000_000) {

@@ -49,7 +49,7 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
     @Final
     private static int MAX_THREADS;
     @Unique
-    private IWirelessThreadModifierParallelMachine gTLAdditions$machine;
+    private IWirelessThreadModifierParallelMachine gtladditions$machine;
 
     public MultipleRecipesLogicMixin(IRecipeLogicMachine machine) {
         super(machine);
@@ -57,7 +57,7 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
 
     @Inject(method = "<init>(Lorg/gtlcore/gtlcore/api/machine/multiblock/ParallelMachine;Ljava/util/function/BiPredicate;DD)V", at = @At("TAIL"), remap = false)
     private void onInit(ParallelMachine ignore1, BiPredicate<CompoundTag, IRecipeLogicMachine> ignore2, double ignore3, double ignore4, CallbackInfo ci) {
-        gTLAdditions$machine = ((IWirelessThreadModifierParallelMachine) getMachine());
+        gtladditions$machine = ((IWirelessThreadModifierParallelMachine) getMachine());
     }
 
     @Shadow(remap = false)
@@ -88,8 +88,8 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
     private GTRecipe getRecipe() {
         if (!machine.hasProxies()) return null;
 
-        final var wirelessTrait = gTLAdditions$machine.getWirelessNetworkEnergyHandler();
-        if (wirelessTrait != null) return gTLAdditions$getWirelessRecipe(wirelessTrait);
+        final var wirelessTrait = gtladditions$machine.getWirelessNetworkEnergyHandler();
+        if (wirelessTrait != null) return gtladditions$getWirelessRecipe(wirelessTrait);
 
         long maxEUt = getMachine().getOverclockVoltage();
         if (maxEUt <= 0) return null;
@@ -99,7 +99,7 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
         var fluidOutputs = new ObjectArrayList<Content>();
 
         double totalEu = 0;
-        long remain = (long) this.gTLAdditions$machine.getMaxParallel() * Ints.saturatedCast(MAX_THREADS + (long) gTLAdditions$machine.getAdditionalThread());
+        long remain = (long) this.gtladditions$machine.getMaxParallel() * Ints.saturatedCast(MAX_THREADS + (long) gtladditions$machine.getAdditionalThread());
 
         while (remain > 0 && iterator.hasNext()) {
             var match = iterator.next();
@@ -128,7 +128,7 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
 
     @Unique
     @Nullable
-    private WirelessGTRecipe gTLAdditions$getWirelessRecipe(@NotNull IWirelessNetworkEnergyHandler wirelessTrait) {
+    private WirelessGTRecipe gtladditions$getWirelessRecipe(@NotNull IWirelessNetworkEnergyHandler wirelessTrait) {
         if (!wirelessTrait.isOnline()) return null;
 
         final var iterator = lookupRecipeIterator();
@@ -137,7 +137,7 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
         final var itemOutputs = new ObjectArrayList<Content>();
         final var fluidOutputs = new ObjectArrayList<Content>();
 
-        long remain = (long) this.gTLAdditions$machine.getMaxParallel() * (MAX_THREADS + gTLAdditions$machine.getAdditionalThread());
+        long remain = (long) this.gtladditions$machine.getMaxParallel() * (MAX_THREADS + gtladditions$machine.getAdditionalThread());
         BigInteger totalEu = BigInteger.ZERO;
 
         while (remain > 0 && iterator.hasNext()) {
@@ -176,7 +176,7 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
     @Override
     @NotNull
     public IWirelessElectricMultiblockMachine getWirelessMachine() {
-        return gTLAdditions$machine;
+        return gtladditions$machine;
     }
 
     @Override

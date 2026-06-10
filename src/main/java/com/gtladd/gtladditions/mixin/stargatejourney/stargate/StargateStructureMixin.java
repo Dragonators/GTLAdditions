@@ -56,7 +56,7 @@ public abstract class StargateStructureMixin extends SGJourneyStructure {
                 context.chunkPos().getMinBlockZ() >> 2,
                 context.randomState().sampler());
 
-        if (gTLAdditions$isDimensionBiome(biome, context)) return false;
+        if (gtladditions$isDimensionBiome(biome, context)) return false;
         return true;
     }
 
@@ -67,12 +67,12 @@ public abstract class StargateStructureMixin extends SGJourneyStructure {
 
         ResourceLocation dimensionLocation = level.getLevel().dimension().location();
         if (isTargetDimension(dimensionLocation)) {
-            gTLAdditions$createDHDItemFrames(level, boundingBox, randomSource);
+            gtladditions$createDHDItemFrames(level, boundingBox, randomSource);
         }
     }
 
     @Unique
-    private void gTLAdditions$createDHDItemFrames(WorldGenLevel level, BoundingBox boundingBox, RandomSource randomSource) {
+    private void gtladditions$createDHDItemFrames(WorldGenLevel level, BoundingBox boundingBox, RandomSource randomSource) {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
         for (int x = boundingBox.minX(); x <= boundingBox.maxX(); x++) {
@@ -82,7 +82,7 @@ public abstract class StargateStructureMixin extends SGJourneyStructure {
                     BlockState state = level.getBlockState(pos);
 
                     if (state.getBlock() instanceof AbstractDHDBlock) {
-                        gTLAdditions$createItemFrameInFrontOfDHD(level, pos.immutable(), state, randomSource);
+                        gtladditions$createItemFrameInFrontOfDHD(level, pos.immutable(), state, randomSource);
                     }
                 }
             }
@@ -90,8 +90,8 @@ public abstract class StargateStructureMixin extends SGJourneyStructure {
     }
 
     @Unique
-    private void gTLAdditions$createItemFrameInFrontOfDHD(WorldGenLevel level, BlockPos dhdPos, BlockState dhdState, RandomSource randomSource) {
-        ItemStack displayItem = gTLAdditions$selectDisplayItemForDimension(level, randomSource);
+    private void gtladditions$createItemFrameInFrontOfDHD(WorldGenLevel level, BlockPos dhdPos, BlockState dhdState, RandomSource randomSource) {
+        ItemStack displayItem = gtladditions$selectDisplayItemForDimension(level, randomSource);
 
         Direction dhdFacing = dhdState.getValue(AbstractDHDBlock.FACING);
         BlockPos itemFramePos = dhdPos.relative(dhdFacing);
@@ -99,7 +99,7 @@ public abstract class StargateStructureMixin extends SGJourneyStructure {
         if (!level.getBlockState(itemFramePos).isAir()) {
             if (displayItem != null && !displayItem.isEmpty()) {
                 level.setBlock(itemFramePos, Blocks.AIR.defaultBlockState(), 3);
-                level.addFreshEntity(gTLAdditions$getItemEntity(level, itemFramePos, displayItem));
+                level.addFreshEntity(gtladditions$getItemEntity(level, itemFramePos, displayItem));
             }
             return;
         }
@@ -108,7 +108,7 @@ public abstract class StargateStructureMixin extends SGJourneyStructure {
         List<ItemFrame> existingFrames = level.getEntitiesOfClass(ItemFrame.class, checkArea);
         if (!existingFrames.isEmpty()) {
             if (displayItem != null && !displayItem.isEmpty()) {
-                level.addFreshEntity(gTLAdditions$getItemEntity(level, itemFramePos, displayItem));
+                level.addFreshEntity(gtladditions$getItemEntity(level, itemFramePos, displayItem));
             }
             return;
         }
@@ -122,7 +122,7 @@ public abstract class StargateStructureMixin extends SGJourneyStructure {
     }
 
     @Unique
-    private static @NotNull ItemEntity gTLAdditions$getItemEntity(WorldGenLevel level, BlockPos itemFramePos, ItemStack displayItem) {
+    private static @NotNull ItemEntity gtladditions$getItemEntity(WorldGenLevel level, BlockPos itemFramePos, ItemStack displayItem) {
         double x = itemFramePos.getX() + 0.5;
         double y = itemFramePos.getY() + 0.5;
         double z = itemFramePos.getZ() + 0.5;
@@ -138,13 +138,13 @@ public abstract class StargateStructureMixin extends SGJourneyStructure {
     }
 
     @Unique
-    private ItemStack gTLAdditions$selectDisplayItemForDimension(WorldGenLevel level, RandomSource randomSource) {
+    private ItemStack gtladditions$selectDisplayItemForDimension(WorldGenLevel level, RandomSource randomSource) {
         ResourceLocation dimensionLocation = level.getLevel().dimension().location();
         return selectDisplayItem(dimensionLocation);
     }
 
     @Unique
-    private boolean gTLAdditions$isDimensionBiome(Holder<Biome> biome, GenerationContext context) {
+    private boolean gtladditions$isDimensionBiome(Holder<Biome> biome, GenerationContext context) {
         if (biome.is(BiomeTags.IS_OVERWORLD)) return true;
 
         if (biome.is(BiomeTags.IS_NETHER)) return true;

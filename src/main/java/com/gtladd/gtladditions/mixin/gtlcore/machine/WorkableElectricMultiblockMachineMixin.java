@@ -31,7 +31,7 @@ import java.util.List;
 
 @Implements(@Interface(
                        iface = IWirelessElectricMultiblockMachine.class,
-                       prefix = "gTLAdditions$"))
+                       prefix = "gtladditions$"))
 @Mixin(WorkableElectricMultiblockMachine.class)
 public abstract class WorkableElectricMultiblockMachineMixin {
 
@@ -40,26 +40,26 @@ public abstract class WorkableElectricMultiblockMachineMixin {
 
     @Unique
     @Nullable
-    private IWirelessNetworkEnergyHandler gTLAdditions$wirelessNetworkEnergyHandler;
+    private IWirelessNetworkEnergyHandler gtladditions$wirelessNetworkEnergyHandler;
 
     @Inject(method = "onStructureInvalid", at = @At("TAIL"), remap = false)
     private void onStructureInvalid(CallbackInfo ci) {
-        this.gTLAdditions$wirelessNetworkEnergyHandler = null;
+        this.gtladditions$wirelessNetworkEnergyHandler = null;
     }
 
     @Inject(method = "onPartUnload", at = @At("TAIL"), remap = false)
     private void onPartUnload(CallbackInfo ci) {
-        this.gTLAdditions$wirelessNetworkEnergyHandler = null;
+        this.gtladditions$wirelessNetworkEnergyHandler = null;
     }
 
     @Unique
-    public void gTLAdditions$setWirelessNetworkEnergyHandler(@NotNull IWirelessNetworkEnergyHandler trait) {
-        this.gTLAdditions$wirelessNetworkEnergyHandler = trait;
+    public void gtladditions$setWirelessNetworkEnergyHandler(@NotNull IWirelessNetworkEnergyHandler trait) {
+        this.gtladditions$wirelessNetworkEnergyHandler = trait;
     }
 
     @Unique
-    public @Nullable IWirelessNetworkEnergyHandler gTLAdditions$getWirelessNetworkEnergyHandler() {
-        return this.gTLAdditions$wirelessNetworkEnergyHandler;
+    public @Nullable IWirelessNetworkEnergyHandler gtladditions$getWirelessNetworkEnergyHandler() {
+        return this.gtladditions$wirelessNetworkEnergyHandler;
     }
 
     @Redirect(method = "addDisplayText",
@@ -72,11 +72,11 @@ public abstract class WorkableElectricMultiblockMachineMixin {
                                                                   IEnergyContainer energyFormatted,
                                                                   @Local(argsOnly = true) List<Component> textList) {
         final var realThis = (WorkableElectricMultiblockMachine) (Object) this;
-        if (realThis.isFormed() && gTLAdditions$wirelessNetworkEnergyHandler != null && gTLAdditions$wirelessNetworkEnergyHandler.isOnline() &&
+        if (realThis.isFormed() && gtladditions$wirelessNetworkEnergyHandler != null && gtladditions$wirelessNetworkEnergyHandler.isOnline() &&
                 ((realThis.recipeLogic instanceof MutableRecipesLogic<?> mutableRecipesLogic && mutableRecipesLogic.isMultipleRecipeMode()) ||
                         realThis.recipeLogic instanceof MultipleRecipesLogic)) {
 
-            var totalEu = gTLAdditions$wirelessNetworkEnergyHandler.getMaxAvailableEnergy();
+            var totalEu = gtladditions$wirelessNetworkEnergyHandler.getMaxAvailableEnergy();
             var longEu = NumberUtils.getLongValue(totalEu);
             var energyTier = longEu == Long.MAX_VALUE ? GTValues.MAX_TRUE : NumberUtils.getFakeVoltageTier(longEu);
 
