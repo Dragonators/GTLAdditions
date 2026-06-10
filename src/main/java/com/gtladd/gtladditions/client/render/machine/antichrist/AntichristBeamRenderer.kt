@@ -13,7 +13,6 @@ import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Vector3f
@@ -39,13 +38,17 @@ object AntichristBeamRenderer {
         buildBeamBuffer()
     }
 
+    private val softBeam = SegmentBuffer()
+    private val intenseBeam = SegmentBuffer()
+    private val cameraPosition = Vector3f()
+
     fun render(profile: AntichristRenderProfile, poseStack: PoseStack, blockEntity: BlockEntity) {
         if (!profile.shouldRenderBeam) return
         val shader = AntichristShaders.beamShader ?: return
 
-        val camera = getCameraPositionInBeamSpace(profile, blockEntity)
-        val softSegments = bufferSoftBeam(profile.starRadius)
-        val intenseSegments = bufferIntenseBeam(profile.starRadius)
+        updateCameraPositionInBeamSpace(profile, blockEntity)
+        writeSoftBeamSegments(profile.starRadius, softBeam)
+        writeIntenseBeamSegments(profile.starRadius, intenseBeam)
 
         poseStack.withPose {
             translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
@@ -62,19 +65,19 @@ object AntichristBeamRenderer {
             RenderSystem.setShaderTexture(0, SPACE_LAYER)
 
             shader.getUniform("SegmentQuads")?.set(SEGMENT_QUADS.toFloat())
-            shader.getUniform("CameraPosition")?.set(camera.x, camera.y, camera.z)
+            shader.getUniform("CameraPosition")?.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
             shader.getUniform("Time")?.set(profile.tick)
 
             beamBuffer.bind()
 
             shader.getUniform("Color")?.set(profile.colorR, profile.colorG, profile.colorB)
             shader.getUniform("Intensity")?.set(2.0f)
-            shader.getUniform("SegmentArray")?.set(softSegments)
+            shader.getUniform("SegmentArray")?.set(softBeam.values)
             beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
 
             shader.getUniform("Color")?.set(1.0f, 1.0f, 1.0f)
             shader.getUniform("Intensity")?.set(4.0f)
-            shader.getUniform("SegmentArray")?.set(intenseSegments)
+            shader.getUniform("SegmentArray")?.set(intenseBeam.values)
             beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
 
             VertexBuffer.unbind()
@@ -84,25 +87,27 @@ object AntichristBeamRenderer {
         }
     }
 
-    private fun bufferSoftBeam(starRadius: Float): FloatArray {
-        val endpoints = ArrayList<Vector3f>(MAX_SEGMENTS + 1)
+    private fun writeSoftBeamSegments(starRadius: Float, segments: SegmentBuffer) {
+        segments.clear()
+
         val angle = getStartAngle(starRadius)
         val radius = starRadius * 1.1f
         val startX = -radius * cos(angle)
         val startY = radius * sin(angle)
 
-        endpoints.add(Vector3f(startY, startX, 0.0f))
+        segments.add(startY, startX, 0.0f)
 
         for (i in 2 downTo 0) {
-            endpoints.add(Vector3f(getLensRadius(i), getLensDistance(i), 1.0f))
+            segments.add(getLensRadius(i), getLensDistance(i), 1.0f)
         }
 
-        endpoints.add(Vector3f(BACK_PLATE_RADIUS, BACK_PLATE_DISTANCE, -0.05f))
-        return fillEndpointArray(endpoints)
+        segments.add(BACK_PLATE_RADIUS, BACK_PLATE_DISTANCE, -0.05f)
+        segments.repeatLastEndpoint()
     }
 
-    private fun bufferIntenseBeam(starRadius: Float): FloatArray {
-        val endpoints = ArrayList<Vector3f>(MAX_SEGMENTS + 1)
+    private fun writeIntenseBeamSegments(starRadius: Float, segments: SegmentBuffer) {
+        segments.clear()
+
         val angle = getStartAngle(starRadius)
         val radius = starRadius * 1.05f
         val startX = -radius * cos(angle)
@@ -115,9 +120,9 @@ object AntichristBeamRenderer {
         val backY = interpolate(startX, nextX, startY, nextY, backX)
 
         var transparency = 0.2f
-        addIntenseBeamStart(endpoints, backY, backX, nextY, nextX, transparency)
+        addIntenseBeamStart(segments, backY, backX, nextY, nextX, transparency)
         for (i in 2 downTo 0) {
-            endpoints.add(Vector3f(getLensRadius(i) / 2.0f, getLensDistance(i), transparency))
+            segments.add(getLensRadius(i) / 2.0f, getLensDistance(i), transparency)
             transparency += 0.3f
         }
 
@@ -128,39 +133,29 @@ object AntichristBeamRenderer {
         val midX = lastX + 8.0f
         val midY = interpolate(currentX, lastX, currentY, lastY, midX)
 
-        endpoints.add(Vector3f(midY, midX, transparency))
-        endpoints.add(Vector3f(lastY, lastX, 0.0f))
-        return fillEndpointArray(endpoints)
+        segments.add(midY, midX, transparency)
+        segments.add(lastY, lastX, 0.0f)
+        segments.repeatLastEndpoint()
     }
 
-    private fun fillEndpointArray(endpoints: List<Vector3f>): FloatArray {
-        val values = FloatArray(ENDPOINT_FLOATS)
-        val fallback = endpoints.last()
-
-        for (i in 0..MAX_SEGMENTS) {
-            val endpoint = endpoints.getOrElse(i) { fallback }
-            val base = i * 3
-            values[base] = endpoint.x
-            values[base + 1] = endpoint.y
-            values[base + 2] = endpoint.z
-        }
-
-        return values
-    }
-
-    private fun getCameraPositionInBeamSpace(profile: AntichristRenderProfile, blockEntity: BlockEntity): Vector3f {
+    private fun updateCameraPositionInBeamSpace(
+        profile: AntichristRenderProfile,
+        blockEntity: BlockEntity
+    ) {
         val cameraWorldPos = Minecraft.getInstance().gameRenderer.mainCamera.position
-        val blockWorldPos = Vec3.atLowerCornerOf(blockEntity.blockPos)
-        val cameraRelative = cameraWorldPos.subtract(blockWorldPos).subtract(profile.starPos)
+        val blockPos = blockEntity.blockPos
+        val cameraRelativeX = cameraWorldPos.x - blockPos.x.toDouble() - profile.starPos.x
+        val cameraRelativeY = cameraWorldPos.y - blockPos.y.toDouble() - profile.starPos.y
+        val cameraRelativeZ = cameraWorldPos.z - blockPos.z.toDouble() - profile.starPos.z
         val yawRadians = Math.toRadians((-profile.beamYawDegrees).toDouble())
         val cosYaw = cos(yawRadians).toFloat()
         val sinYaw = sin(yawRadians).toFloat()
-        val x = cameraRelative.x.toFloat()
-        val z = cameraRelative.z.toFloat()
+        val x = cameraRelativeX.toFloat()
+        val z = cameraRelativeZ.toFloat()
 
-        return Vector3f(
+        cameraPosition.set(
             cosYaw * x + sinYaw * z,
-            cameraRelative.y.toFloat(),
+            cameraRelativeY.toFloat(),
             -sinYaw * x + cosYaw * z
         )
     }
@@ -188,7 +183,7 @@ object AntichristBeamRenderer {
     }
 
     private fun addIntenseBeamStart(
-        endpoints: MutableList<Vector3f>,
+        segments: SegmentBuffer,
         outerRadius: Float,
         outerOffset: Float,
         lensRadius: Float,
@@ -209,8 +204,8 @@ object AntichristBeamRenderer {
         val fadeRadius = interpolate(0.0f, 1.0f, tangentRadius, outerRadius, fadeProgress)
         val fadeOffset = interpolate(0.0f, 1.0f, tangentOffset, outerOffset, fadeProgress)
 
-        endpoints.add(Vector3f(fadeRadius, fadeOffset, 0.0f))
-        endpoints.add(Vector3f(tangentRadius, tangentOffset, tangentTransparency))
+        segments.add(fadeRadius, fadeOffset, 0.0f)
+        segments.add(tangentRadius, tangentOffset, tangentTransparency)
     }
 
     private fun closestPointProgressToCenter(
@@ -262,5 +257,32 @@ object AntichristBeamRenderer {
 
     private fun addVertex(builder: BufferBuilder) {
         builder.vertex(0.0, 0.0, 0.0).endVertex()
+    }
+
+    private class SegmentBuffer {
+        val values = FloatArray(ENDPOINT_FLOATS)
+        private var endpointCount = 0
+
+        fun clear() {
+            endpointCount = 0
+        }
+
+        fun add(radius: Float, offset: Float, transparency: Float) {
+            val base = endpointCount * 3
+            values[base] = radius
+            values[base + 1] = offset
+            values[base + 2] = transparency
+            endpointCount++
+        }
+
+        fun repeatLastEndpoint() {
+            val fallbackBase = (endpointCount - 1) * 3
+            for (i in endpointCount..MAX_SEGMENTS) {
+                val base = i * 3
+                values[base] = values[fallbackBase]
+                values[base + 1] = values[fallbackBase + 1]
+                values[base + 2] = values[fallbackBase + 2]
+            }
+        }
     }
 }
