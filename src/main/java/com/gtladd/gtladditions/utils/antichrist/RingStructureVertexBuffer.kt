@@ -6,6 +6,7 @@ import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.machine.multiblock.structure.RingStructure
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
@@ -49,22 +50,13 @@ object RingStructureVertexBuffer {
         )
     }
 
-    private val blockStateIds: Object2IntMap<BlockState>? by lazy {
-        WorldRenderingSettings.INSTANCE.blockStateIds
-    }
-
-    private val preparedRings: Array<PreparedRing> by lazy {
-        Array(RingStructure.RINGS.size) { tier ->
-            prepareRing(RingStructure.RINGS[tier])
-        }
-    }
-
-    private val terrainUploadedRings: Array<UploadedTerrainRing> by lazy {
-        preparedRings.map(::uploadTerrainRing).toTypedArray()
-    }
+    private var vanillaTerrainUploadedRings: Array<UploadedTerrainRing>? = null
+    private var shaderTerrainUploadedRings: Array<UploadedTerrainRing>? = null
+    private var currentTerrainUploadedRings: Array<UploadedTerrainRing>? = null
+    private var useShaderCompatibleTerrainUpload = false
 
     fun renderTerrainBatched(profile: AntichristRenderProfile, poseStack: PoseStack) {
-        terrainUploadedRings.forEachIndexed { index, uploadedRing ->
+        (currentTerrainUploadedRings ?: ensureCurrentTerrainUploadedRings()).forEachIndexed { index, uploadedRing ->
             poseStack.withPose {
                 AntichristRingTransforms.apply(profile, index, this)
 
@@ -124,7 +116,7 @@ object RingStructureVertexBuffer {
                                 localX,
                                 localY,
                                 localZ,
-                                resolveBlockStateId(blockState),
+                                blockState,
                                 light,
                                 quads
                             )
@@ -139,13 +131,56 @@ object RingStructureVertexBuffer {
         )
     }
 
-    private fun uploadTerrainRing(preparedRing: PreparedRing): UploadedTerrainRing {
+    private fun ensureCurrentTerrainUploadedRings(): Array<UploadedTerrainRing> =
+        if (useShaderCompatibleTerrainUpload) {
+            ensureShaderTerrainUploadedRings()
+        } else {
+            ensureVanillaTerrainUploadedRings()
+        }
+
+    private fun ensureVanillaTerrainUploadedRings(): Array<UploadedTerrainRing> =
+        vanillaTerrainUploadedRings ?: buildTerrainUploadedRings(useBlockSensitiveBuilder = false).also {
+            vanillaTerrainUploadedRings = it
+            currentTerrainUploadedRings = it
+        }
+
+    private fun ensureShaderTerrainUploadedRings(): Array<UploadedTerrainRing> =
+        shaderTerrainUploadedRings ?: buildTerrainUploadedRings(useBlockSensitiveBuilder = true).also {
+            shaderTerrainUploadedRings = it
+            currentTerrainUploadedRings = it
+        }
+
+    private fun buildTerrainUploadedRings(useBlockSensitiveBuilder: Boolean): Array<UploadedTerrainRing> {
+        val preparedRings = Array(RingStructure.RINGS.size) { tier ->
+            prepareRing(RingStructure.RINGS[tier])
+        }
+
+        return preparedRings.map { uploadTerrainRing(it, useBlockSensitiveBuilder) }.toTypedArray()
+    }
+
+    @JvmStatic
+    fun useShaderCompatibleTerrainUploadMode() {
+        useShaderCompatibleTerrainUpload = true
+        currentTerrainUploadedRings = shaderTerrainUploadedRings
+    }
+
+    @JvmStatic
+    fun useVanillaCompatibleTerrainUploadMode() {
+        useShaderCompatibleTerrainUpload = false
+        currentTerrainUploadedRings = vanillaTerrainUploadedRings
+    }
+
+    private fun uploadTerrainRing(preparedRing: PreparedRing, useBlockSensitiveBuilder: Boolean): UploadedTerrainRing {
         val poseStack = PoseStack()
-        val builderPack = ChunkBufferBuilderPack()
+        val builderPack = if (useBlockSensitiveBuilder) ChunkBufferBuilderPack() else null
         val uploadedBuffers = linkedMapOf<RenderType, VertexBuffer>()
 
         preparedRing.blocksByRenderType.forEach { (renderType, preparedBlocks) ->
-            val consumer = builderPack.builder(renderType)
+            val consumer = if (useBlockSensitiveBuilder) {
+                builderPack!!.builder(renderType)
+            } else {
+                BufferBuilder(renderType.bufferSize())
+            }
             consumer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK)
             preparedBlocks.forEach { preparedBlock ->
                 poseStack.withPose {
@@ -157,7 +192,7 @@ object RingStructureVertexBuffer {
 
                     if (consumer is BlockSensitiveBufferBuilder) {
                         consumer.beginBlock(
-                            preparedBlock.blockStateId,
+                            resolveBlockStateId(preparedBlock.blockState),
                             (-1).toShort(),
                             preparedBlock.localX and 15,
                             preparedBlock.localY and 15,
@@ -240,9 +275,11 @@ object RingStructureVertexBuffer {
     }
 
     private fun resolveBlockStateId(blockState: BlockState): Short {
-        val ids = blockStateIds ?: return (-1).toShort()
+        val ids = currentBlockStateIds() ?: return (-1).toShort()
         return ids.getOrDefault(blockState, -1).toShort()
     }
+
+    private fun currentBlockStateIds(): Object2IntMap<BlockState>? = WorldRenderingSettings.INSTANCE.blockStateIds
 
     private fun getVisibleFaces(
         struct: Array<Array<String>>,
@@ -303,7 +340,7 @@ object RingStructureVertexBuffer {
         val localX: Int,
         val localY: Int,
         val localZ: Int,
-        val blockStateId: Short,
+        val blockState: BlockState,
         val light: Int,
         val quads: List<BakedQuad>
     )

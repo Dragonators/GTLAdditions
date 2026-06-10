@@ -2,11 +2,13 @@ package com.gtladd.gtladditions.mixin.oculus;
 
 import net.irisshaders.iris.gl.framebuffer.GlFramebuffer;
 import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
+import net.irisshaders.iris.shaderpack.programs.ProgramSet;
 import net.irisshaders.iris.targets.RenderTargets;
 
 import com.google.common.collect.ImmutableSet;
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristDeferredRenderer;
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristIrisPipelineBridge;
+import com.gtladd.gtladditions.utils.antichrist.RingStructureVertexBuffer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.opengl.GL30C;
 import org.spongepowered.asm.mixin.Final;
@@ -67,6 +69,11 @@ public abstract class IrisRenderingPipelineMixin {
     @Unique
     private final Deque<Boolean> gtladditions$antichristMainBoundStack = new ArrayDeque<>();
 
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void gtladditionsInternal$useShaderCompatibleRingTerrain(ProgramSet programSet, CallbackInfo ci) {
+        RingStructureVertexBuffer.useShaderCompatibleTerrainUploadMode();
+    }
+
     @Unique
     public void gtladditions$beginAntichristFallbackTarget() {
         gtladditionsInternal$ensureAntichristFallbackTargets();
@@ -115,6 +122,7 @@ public abstract class IrisRenderingPipelineMixin {
 
     @Inject(method = "destroy", at = @At("HEAD"))
     private void gtladditionsInternal$destroyAntichristFallbackTargetsOnDestroy(CallbackInfo ci) {
+        RingStructureVertexBuffer.useVanillaCompatibleTerrainUploadMode();
         gtladditionsInternal$destroyAntichristFallbackTargets();
     }
 
