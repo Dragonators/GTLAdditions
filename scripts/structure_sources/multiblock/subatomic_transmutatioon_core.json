@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "type": "factory_pattern",
+  "id": "subatomic_transmutatioon_core",
+  "aisles": [
+    [
+      "AAAAAAAAAAA",
+      "BBCCCCCCCBB",
+      "B         B",
+      "C         C",
+      "C         C",
+      "C         C",
+      "C         C",
+      "B         B",
+      "BBCCCCCCCBB",
+      "AAAAAAAAAAA"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "BEEEEEEEEEB",
+      " EEEEEEEEE ",
+      " EEFFFFFEE ",
+      " EFFFFFFFE ",
+      " EFFFFFFFE ",
+      " EEFFFFFEE ",
+      " EEEEEEEEE ",
+      "BEEEEEEEEEB",
+      "AdddddddddA"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "CEEEEEEEEEC",
+      " EGGGGGGGE ",
+      " EH     HE ",
+      " F       F ",
+      " F       F ",
+      " EH     HE ",
+      " EGGGGGGGE ",
+      "CEEEEEEEEEC",
+      "AdddddddddA"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "CEEEEEEEEEC",
+      " EGIIIIIGE ",
+      " F       F ",
+      " F       F ",
+      " F       F ",
+      " F       F ",
+      " EGIIIIIGE ",
+      "CEEEEEEEEEC",
+      "AdddddddddA"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "CEEEEEEEEEC",
+      " EGIIJIIGE ",
+      " F   K   F ",
+      " F   K   F ",
+      " F   K   F ",
+      " F   K   F ",
+      " EGIIJIIGE ",
+      "CEEEEEEEEEC",
+      "AdddddddddA"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "CEEEEEEEEEC",
+      " EGIJJJIGE ",
+      " F  KLK  F ",
+      " F  KLK  F ",
+      " F  KLK  F ",
+      " F  KLK  F ",
+      " EGIJJJIGE ",
+      "CEEEEEEEEEC",
+      "Adddd~ddddA"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "CEEEEEEEEEC",
+      " EGIIJIIGE ",
+      " F   K   F ",
+      " F   K   F ",
+      " F   K   F ",
+      " F   K   F ",
+      " EGIIJIIGE ",
+      "CEEEEEEEEEC",
+      "AdddddddddA"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "CEEEEEEEEEC",
+      " EGIIIIIGE ",
+      " F       F ",
+      " F       F ",
+      " F       F ",
+      " F       F ",
+      " EGIIIIIGE ",
+      "CEEEEEEEEEC",
+      "AdddddddddA"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "CEEEEEEEEEC",
+      " EGGGGGGGE ",
+      " EH     HE ",
+      " F       F ",
+      " F       F ",
+      " EH     HE ",
+      " EGGGGGGGE ",
+      "CEEEEEEEEEC",
+      "AdddddddddA"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "BEEEEEEEEEB",
+      " EEEEEEEEE ",
+      " EEFFFFFEE ",
+      " EFFFFFFFE ",
+      " EFFFFFFFE ",
+      " EEFFFFFEE ",
+      " EEEEEEEEE ",
+      "BEEEEEEEEEB",
+      "AdddddddddA"
+    ],
+    [
+      "AAAAAAAAAAA",
+      "BBCCCCCCCBB",
+      "B         B",
+      "C         C",
+      "C         C",
+      "C         C",
+      "C         C",
+      "B         B",
+      "BBCCCCCCCBB",
+      "AAAAAAAAAAA"
+    ]
+  ]
+}

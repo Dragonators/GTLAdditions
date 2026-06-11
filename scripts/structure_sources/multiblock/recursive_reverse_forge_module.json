@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "type": "factory_pattern",
+  "id": "recursive_reverse_forge_module",
+  "aisles": [
+    [
+      "  A                ",
+      "  A                ",
+      " AAAAAAAAAAAAAAAAA ",
+      " AAAAAAAAAAAAAAAAA ",
+      " AAAAAAAAAAAAAAAAA ",
+      "  A                ",
+      "  A                "
+    ],
+    [
+      "  A                ",
+      " AAAAAAAAAAAAAAAAA ",
+      "BCAAAAAAAAAAAAAAAAA",
+      "BC                A",
+      "BCAAAAAAAAAAAAAAAAA",
+      " AAAAAAAAAAAAAAAAA ",
+      "  A                "
+    ],
+    [
+      " AAAAAAAAAAAAAAAAA ",
+      "BCAAAAAAAAAAAAAAAAA",
+      "BCDDDDDDDDDDDDDDDDA",
+      "BCEEEEEEEEEEEEEEEEA",
+      "BCDDDDDDDDDDDDDDDDA",
+      "BCAAAAAAAAAAAAAAAAA",
+      " AAAAAAAAAAAAAAAAA "
+    ],
+    [
+      " AAAAAAAAAAAAAAAAA ",
+      "BC                A",
+      "BCEEEEEEEEEEEEEEEEA",
+      "FCBBBBBBBBBBBBBBBB ",
+      "BCEEEEEEEEEEEEEEEEA",
+      "BC                A",
+      " AAAAAAAAAAAAAAAAA "
+    ],
+    [
+      " AAAAAAAAAAAAAAAAA ",
+      "BCAAAAAAAAAAAAAAAAA",
+      "BCDDDDDDDDDDDDDDDDA",
+      "BCEEEEEEEEEEEEEEEEA",
+      "BCDDDDDDDDDDDDDDDDA",
+      "BCAAAAAAAAAAAAAAAAA",
+      " AAAAAAAAAAAAAAAAA "
+    ],
+    [
+      "  A                ",
+      " AAAAAAAAAAAAAAAAA ",
+      "BCAAAAAAAAAAAAAAAAA",
+      "BC                A",
+      "BCAAAAAAAAAAAAAAAAA",
+      " AAAAAAAAAAAAAAAAA ",
+      "  A                "
+    ],
+    [
+      "  A                ",
+      "  A                ",
+      " AAAAAAAAAAAAAAAAA ",
+      " AAAAAAAAAAAAAAAAA ",
+      " AAAAAAAAAAAAAAAAA ",
+      "  A                ",
+      "  A                "
+    ]
+  ]
+}

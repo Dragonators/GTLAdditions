@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "type": "factory_pattern",
+  "id": "biological_simulation_laboratory",
+  "aisles": [
+    [
+      " AAAAAAA ",
+      " A     A ",
+      " B     B ",
+      " B     B ",
+      "         ",
+      "         ",
+      "         ",
+      "         ",
+      "         ",
+      "         "
+    ],
+    [
+      "AAAAAAAAA",
+      "AACCCCCAA",
+      "BDEEEEEDB",
+      "BDEEEEEDB",
+      " DEEEEED ",
+      " DEEEEED ",
+      " DEEEEED ",
+      " DEEEEED ",
+      " DEEEEED ",
+      "  DDDDD  "
+    ],
+    [
+      "AAAAAAAAA",
+      " CFFFFFC ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " EGGGGGE ",
+      " DHHHHHD "
+    ],
+    [
+      "AAAAAAAAA",
+      " CFFFFFC ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " EGGGGGE ",
+      " DHHHHHD "
+    ],
+    [
+      "AAAAAAAAA",
+      " CFFFFFC ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " EGGGGGE ",
+      " DHHHHHD "
+    ],
+    [
+      "AAAAAAAAA",
+      " CFFFFFC ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " EGGGGGE ",
+      " DHHHHHD "
+    ],
+    [
+      "AAAAAAAAA",
+      " CFFFFFC ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " E     E ",
+      " EGGGGGE ",
+      " DHHHHHD "
+    ],
+    [
+      "AAAAAAAAA",
+      "AACCCCCAA",
+      "BDEEEEEDB",
+      "BDEEEEEDB",
+      " DEEEEED ",
+      " DEEEEED ",
+      " DEEEEED ",
+      " DEEEEED ",
+      " DEEEEED ",
+      "  DDDDD  "
+    ],
+    [
+      " AAA~AAA ",
+      " A     A ",
+      " B     B ",
+      " B     B ",
+      "         ",
+      "         ",
+      "         ",
+      "         ",
+      "         ",
+      "         "
+    ]
+  ]
+}

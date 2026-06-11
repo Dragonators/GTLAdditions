@@ -190,7 +190,7 @@ object MultiBlockMachine {
             .recipeType(POLARIZER_RECIPES) // 涓ゆ瀬纾佸寲鏈?
             .appearanceBlock(HIGH_POWER_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureE.LIGHT_HUNTER_SPACE_STATION_MODULE!!
+                MultiBlockStructure.LIGHT_HUNTER_SPACE_STATION_MODULE!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where("N", blocks(getBlock("kubejs:module_connector")))
                     .where("J", blocks(getBlock("kubejs:restraint_device")))
@@ -251,7 +251,7 @@ object MultiBlockMachine {
             .recipeType(ELECTROMAGNETIC_SEPARATOR_RECIPES) // 鐢电閫夌熆鏈?
             .appearanceBlock(HIGH_POWER_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureE.LIGHT_HUNTER_SPACE_STATION_MODULE!!
+                MultiBlockStructure.LIGHT_HUNTER_SPACE_STATION_MODULE!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where("N", blocks(getBlock("kubejs:module_connector")))
                     .where("J", blocks(getBlock("kubejs:restraint_device")))
@@ -313,7 +313,7 @@ object MultiBlockMachine {
             .recipeType(CHEMICAL_BATH_RECIPES) // 鍖栧娴告礂鏈?
             .appearanceBlock(HIGH_POWER_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureE.LIGHT_HUNTER_SPACE_STATION_MODULE!!
+                MultiBlockStructure.LIGHT_HUNTER_SPACE_STATION_MODULE!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where("N", blocks(getBlock("kubejs:module_connector")))
                     .where("J", blocks(getBlock("kubejs:restraint_device")))
@@ -375,7 +375,7 @@ object MultiBlockMachine {
             .recipeType(CIRCUIT_ASSEMBLER_RECIPES) // 鐢佃矾缁勮鏈?
             .appearanceBlock(HIGH_POWER_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureE.LIGHT_HUNTER_SPACE_STATION_MODULE!!
+                MultiBlockStructure.LIGHT_HUNTER_SPACE_STATION_MODULE!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where("N", blocks(getBlock("kubejs:module_connector")))
                     .where("J", blocks(getBlock("kubejs:restraint_device")))
@@ -510,7 +510,7 @@ object MultiBlockMachine {
             .recipeType(TRANSMUTATION_BLOCK_CONVERSION)
             .appearanceBlock(LAFIUM_MECHANICAL_CASING)
             .pattern {
-                MultiBlockStructureF.SUBATOMIC_TRANSMUTATIOON_CORE
+                MultiBlockStructure.SUBATOMIC_TRANSMUTATIOON_CORE
                     .where("~", controller(blocks(it.get())))
                     .where(
                         "d",
@@ -715,7 +715,7 @@ object MultiBlockMachine {
             .recipeType(PACKER_RECIPES)
             .appearanceBlock(OXIDATION_RESISTANT_HASTELLOY_N_MECHANICAL_CASING)
             .pattern {
-                MultiBlockStructureF.ARCANE_CACHE_VAULT_STRUCTURE
+                MultiBlockStructure.ARCANE_CACHE_VAULT_STRUCTURE
                     .where("W", controller(blocks(it.get())))
                     .where(
                         "C",
@@ -1283,7 +1283,7 @@ object MultiBlockMachine {
             .generator(true)
             .appearanceBlock(SPS_CASING)
             .pattern { definition ->
-                MultiBlockStructureF.PLANETARY_IONISATION_CONVERGENCE_TOWER
+                MultiBlockStructure.PLANETARY_IONISATION_CONVERGENCE_TOWER
                     .where("Z", controller(blocks(definition!!.get())))
                     .where(
                         "I",
@@ -1433,7 +1433,7 @@ object MultiBlockMachine {
             .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
             .appearanceBlock(DIMENSION_INJECTION_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureB.TIME_SPACE_DISTORTER_STRUCTURE
+                MultiBlockStructure.TIME_SPACE_DISTORTER_STRUCTURE
                     .where("~", controller(blocks(definition!!.get())))
                     .where(
                         "B",
@@ -1498,7 +1498,7 @@ object MultiBlockMachine {
             .recipeTypes(QFT_RECIPES, DISTORT_RECIPES, NEUTRON_COMPRESSOR_RECIPES)
             .appearanceBlock(DIMENSIONALLY_TRANSCENDENT_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureB.APOCALYPTIC_TORSION_QUANTUM_MATRIX!!
+                MultiBlockStructure.APOCALYPTIC_TORSION_QUANTUM_MATRIX!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where("A", blocks(QFT_COIL.get()))
                     .where("B", blocks(MANIPULATOR.get()))
@@ -1561,7 +1561,7 @@ object MultiBlockMachine {
             .appearanceBlock(GOD_FORGE_INNER_CASING)
             .recipeTypes(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES, STELLAR_FORGE_RECIPES, ULTIMATE_MATERIAL_FORGE_RECIPES)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureC.FORGE_OF_THE_ANTICHRIST!!
+                MultiBlockStructure.FORGE_OF_THE_ANTICHRIST!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where(
                         "A",
@@ -1610,7 +1610,7 @@ object MultiBlockMachine {
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(CREATE_CASING)
             .pattern {
-                MultiBlockStructureF.RECURSIVE_REVERSE_FORGE_STRUCTURE
+                MultiBlockStructure.RECURSIVE_REVERSE_FORGE_STRUCTURE
                     .where("V", controller(blocks(it.get())))
                     .where(
                         "B",
@@ -1655,7 +1655,7 @@ object MultiBlockMachine {
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(DIMENSION_INJECTION_CASING)
             .pattern {
-                MultiBlockStructureF.RECURSIVE_REVERSE_FORGE_MODULE_STRUCTURE
+                MultiBlockStructure.RECURSIVE_REVERSE_FORGE_MODULE_STRUCTURE
                     .where("F", controller(blocks(it.get())))
                     .where(
                         "B",
@@ -1678,7 +1678,7 @@ object MultiBlockMachine {
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(DIMENSION_INJECTION_CASING)
             .pattern {
-                MultiBlockStructureF.RECURSIVE_REVERSE_FORGE_MODULE_STRUCTURE
+                MultiBlockStructure.RECURSIVE_REVERSE_FORGE_MODULE_STRUCTURE
                     .where("F", controller(blocks(it.get())))
                     .where(
                         "B",
@@ -1705,7 +1705,7 @@ object MultiBlockMachine {
             .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
             .appearanceBlock(DIMENSION_INJECTION_CASING)
             .pattern {
-                MultiBlockStructureF.RECURSIVE_REVERSE_FORGE_MODULE_STRUCTURE
+                MultiBlockStructure.RECURSIVE_REVERSE_FORGE_MODULE_STRUCTURE
                     .where("F", controller(blocks(it.get())))
                     .where(
                         "B",
@@ -1731,7 +1731,7 @@ object MultiBlockMachine {
             .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
             .appearanceBlock(DIMENSION_INJECTION_CASING)
             .pattern {
-                MultiBlockStructureF.RECURSIVE_REVERSE_FORGE_MODULE_STRUCTURE
+                MultiBlockStructure.RECURSIVE_REVERSE_FORGE_MODULE_STRUCTURE
                     .where("F", controller(blocks(it.get())))
                     .where(
                         "B",
@@ -1770,7 +1770,7 @@ object MultiBlockMachine {
             .recipeTypes(MATTER_EXOTIC)
             .appearanceBlock(GOD_FORGE_TRIM_CASING)
             .pattern { definition ->
-                MultiBlockStructureD.FORGE_OF_THE_ANTICHRIST_MODULE!!
+                MultiBlockStructure.FORGE_OF_THE_ANTICHRIST_MODULE!!
                     .where("~", controller(blocks(definition.get())))
                     .where(
                         "B",
@@ -1811,7 +1811,7 @@ object MultiBlockMachine {
             .recipeTypes(FURNACE_RECIPES, BLAST_RECIPES, ALLOY_SMELTER_RECIPES, ALLOY_BLAST_RECIPES)
             .appearanceBlock(GOD_FORGE_TRIM_CASING)
             .pattern { definition ->
-                MultiBlockStructureD.FORGE_OF_THE_ANTICHRIST_MODULE!!
+                MultiBlockStructure.FORGE_OF_THE_ANTICHRIST_MODULE!!
                     .where("~", controller(blocks(definition.get())))
                     .where(
                         "B",
@@ -1852,7 +1852,7 @@ object MultiBlockMachine {
             .recipeTypes(CHAOTIC_ALCHEMY, MOLECULAR_DECONSTRUCTION)
             .appearanceBlock(GOD_FORGE_TRIM_CASING)
             .pattern { definition ->
-                MultiBlockStructureD.FORGE_OF_THE_ANTICHRIST_MODULE!!
+                MultiBlockStructure.FORGE_OF_THE_ANTICHRIST_MODULE!!
                     .where("~", controller(blocks(definition.get())))
                     .where(
                         "B",
@@ -1897,7 +1897,7 @@ object MultiBlockMachine {
             .recipeTypes(STELLAR_LGNITION, FUSION_RECIPES, SUPER_PARTICLE_COLLIDER_RECIPES)
             .appearanceBlock(GOD_FORGE_TRIM_CASING)
             .pattern { definition ->
-                MultiBlockStructureD.FORGE_OF_THE_ANTICHRIST_MODULE!!
+                MultiBlockStructure.FORGE_OF_THE_ANTICHRIST_MODULE!!
                     .where("~", controller(blocks(definition.get())))
                     .where(
                         "B",
@@ -1935,7 +1935,7 @@ object MultiBlockMachine {
             .recipeTypes(LEYLINE_CRYSTALLIZE)
             .appearanceBlock(GOD_FORGE_TRIM_CASING)
             .pattern { definition ->
-                MultiBlockStructureD.FORGE_OF_THE_ANTICHRIST_MODULE!!
+                MultiBlockStructure.FORGE_OF_THE_ANTICHRIST_MODULE!!
                     .where("~", controller(blocks(definition.get())))
                     .where(
                         "B",
@@ -1971,7 +1971,7 @@ object MultiBlockMachine {
             .recipeTypes(GENESIS_ENGINE)
             .appearanceBlock(DIMENSION_INJECTION_CASING)
             .pattern { definition ->
-                MultiBlockStructureD.ANNIHILATE_GENERATOR_STRUCTURE!!
+                MultiBlockStructure.ANNIHILATE_GENERATOR_STRUCTURE!!
                     .where("~", controller(blocks(definition.get())))
                     .where("A", blocks(GRAVITON_FIELD_CONSTRAINT_CASING.get()))
                     .where("B", blocks(getBlock("kubejs:annihilate_core")))
@@ -2015,7 +2015,7 @@ object MultiBlockMachine {
             .recipeType(NIGHTMARE_CRAFTING)
             .appearanceBlock(TEMPORAL_ANCHOR_FIELD_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureD.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY!!
+                MultiBlockStructure.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where("N", blocks(getBlock("gtceu:assembly_line_grating")))
                     .where("O", blocks(getBlock("gtceu:assembly_line_casing")))
@@ -2069,7 +2069,7 @@ object MultiBlockMachine {
             .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
             .appearanceBlock(HIGH_POWER_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureE.LIGHT_HUNTER_SPACE_STATION!!
+                MultiBlockStructure.LIGHT_HUNTER_SPACE_STATION!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where("b", blocks(getBlock("gtceu:uiv_machine_casing")))
                     .where("G", blocks(getBlock("kubejs:containment_field_generator")))
@@ -2133,7 +2133,7 @@ object MultiBlockMachine {
             .recipeType(SPACE_ORE_PROCESSOR)
             .appearanceBlock(CASING_TUNGSTENSTEEL_ROBUST)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureE.SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR!!
+                MultiBlockStructure.SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where("A", blocks(IRIDIUM_CASING.get()))
                     .where("B", blocks(SPACE_ELEVATOR_MECHANICAL_CASING.get()))
@@ -2205,7 +2205,7 @@ object MultiBlockMachine {
             }
             .appearanceBlock(HYPER_MECHANICAL_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
-                MultiBlockStructureE.MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER!!
+                MultiBlockStructure.MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER!!
                     .where("~", controller(blocks(definition!!.get())))
                     .where("A", blocks(FUSION_GLASS.get()))
                     .where("B", blocks(QFT_COIL.get()))
