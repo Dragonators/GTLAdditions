@@ -72,6 +72,9 @@ object RingStructureVertexBuffer {
         val centerX = structure.size / 2.0
         val centerY = structure[0].size / 2.0
         val centerZ = structure[0][0].length / 2.0
+        val blockCenterX = structure.size / 2
+        val blockCenterY = structure[0].size / 2
+        val blockCenterZ = structure[0][0].length / 2
         val preparedBlocksByRenderType = linkedMapOf<RenderType, MutableList<PreparedBlock>>()
 
         for (x in structure.indices) {
@@ -94,9 +97,12 @@ object RingStructureVertexBuffer {
                         block.getLightEmission(blockState, EmptyBlockGetter.INSTANCE, BlockPos.ZERO),
                         13
                     )
-                    val localX = (x - centerX).toInt()
-                    val localY = (centerY - y - 1).toInt()
-                    val localZ = (z - centerZ).toInt()
+                    val localX = x - centerX
+                    val localY = centerY - y - 1
+                    val localZ = z - centerZ
+                    val blockLocalX = x - blockCenterX
+                    val blockLocalY = blockCenterY - y
+                    val blockLocalZ = z - blockCenterZ
 
                     val modelData = ModelData.EMPTY
                     random.setSeed(42L)
@@ -116,6 +122,9 @@ object RingStructureVertexBuffer {
                                 localX,
                                 localY,
                                 localZ,
+                                blockLocalX,
+                                blockLocalY,
+                                blockLocalZ,
                                 blockState,
                                 light,
                                 quads
@@ -185,18 +194,18 @@ object RingStructureVertexBuffer {
             preparedBlocks.forEach { preparedBlock ->
                 poseStack.withPose {
                     translate(
-                        preparedBlock.localX.toDouble(),
-                        preparedBlock.localY.toDouble(),
-                        preparedBlock.localZ.toDouble()
+                        preparedBlock.localX,
+                        preparedBlock.localY,
+                        preparedBlock.localZ
                     )
 
                     if (consumer is BlockSensitiveBufferBuilder) {
                         consumer.beginBlock(
                             resolveBlockStateId(preparedBlock.blockState),
                             (-1).toShort(),
-                            preparedBlock.localX and 15,
-                            preparedBlock.localY and 15,
-                            preparedBlock.localZ and 15
+                            preparedBlock.blockLocalX and 15,
+                            preparedBlock.blockLocalY and 15,
+                            preparedBlock.blockLocalZ and 15
                         )
                     }
 
@@ -337,9 +346,12 @@ object RingStructureVertexBuffer {
     )
 
     private data class PreparedBlock(
-        val localX: Int,
-        val localY: Int,
-        val localZ: Int,
+        val localX: Double,
+        val localY: Double,
+        val localZ: Double,
+        val blockLocalX: Int,
+        val blockLocalY: Int,
+        val blockLocalZ: Int,
         val blockState: BlockState,
         val light: Int,
         val quads: List<BakedQuad>
