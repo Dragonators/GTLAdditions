@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "type": "factory_pattern",
+  "id": "quantum_syphon_matrix",
+  "aisles": [
+    [
+      "AAAAAAAAAAA",
+      "A ABBBBBA A",
+      "C ABBBBBA C",
+      "C ABBBBBA C",
+      "C AAAAAAA C",
+      "C  A   A  C"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "ADDEEEEEDDA",
+      "ADDEEEEEDDA",
+      "ADDEEEEEDDA",
+      "ADDDDDDDDDA",
+      "C  AAAAA  C"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "FGHHHHHHHGF",
+      "FGIIIIIIIGF",
+      "FGHHHHHHHGF",
+      "ADDDDDDDDDA",
+      "C  AFFFA  C"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "FGJJJJJJJGF",
+      "FEEEEEEEEEF",
+      "FGJJJJJJJGF",
+      "ADDDDDDDDDA",
+      "C  AF~FA  C"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "FGHHHHHHHGF",
+      "FGIIIIIIIGF",
+      "FGHHHHHHHGF",
+      "ADDDDDDDDDA",
+      "C  AFFFA  C"
+    ],
+    [
+      "ADDDDDDDDDA",
+      "ADDEEEEEDDA",
+      "ADDEEEEEDDA",
+      "ADDEEEEEDDA",
+      "ADDDDDDDDDA",
+      "C  AAAAA  C"
+    ],
+    [
+      "AAAAAAAAAAA",
+      "A ABBBBBA A",
+      "C ABBBBBA C",
+      "C ABBBBBA C",
+      "C AAAAAAA C",
+      "C  A   A  C"
+    ]
+  ]
+}

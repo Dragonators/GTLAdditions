@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "type": "factory_pattern",
+  "id": "subspace_corridor_hub_industrial_array_module",
+  "aisles": [
+    [
+      "C",
+      "B",
+      "B",
+      "B",
+      "~",
+      "B",
+      "B"
+    ],
+    [
+      "C",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B"
+    ],
+    [
+      "A",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B"
+    ]
+  ]
+}
