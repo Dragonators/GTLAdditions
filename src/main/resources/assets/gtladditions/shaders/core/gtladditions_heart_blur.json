@@ -1,0 +1,24 @@
+{
+  "vertex": "gtladditions:gtladditions_heart_post",
+  "fragment": "gtladditions:gtladditions_heart_blur",
+  "attributes": [
+    "Position",
+    "UV0"
+  ],
+  "samplers": [
+    {
+      "name": "Sampler0"
+    }
+  ],
+  "uniforms": [
+    {
+      "name": "TexelStep",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.RenderMode
+import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
 import com.gtladd.gtladditions.client.render.withPose
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
@@ -85,7 +86,7 @@ object AntichristStarRenderer {
             shader.getUniform("Gamma")?.set(AntichristRenderProfile.STAR_GAMMA)
 
             sphereBuffer.bind()
-            AntichristOculusCompat.withAntichristShaderPass {
+            DeferredOculusCompat.withDeferredShaderPass {
                 sphereBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
             }
             VertexBuffer.unbind()

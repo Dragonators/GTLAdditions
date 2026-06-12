@@ -1,0 +1,134 @@
+{
+  "vertex": "gtladditions:gtladditions_heart_black_hole",
+  "fragment": "gtladditions:gtladditions_heart_black_hole",
+  "attributes": [
+    "Position"
+  ],
+  "samplers": [],
+  "uniforms": [
+    {
+      "name": "ModelViewMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "ProjMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "Time",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "Center",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "BlackHoleAndDiskRadius",
+      "type": "float",
+      "count": 1,
+      "values": [
+        30.0
+      ]
+    },
+    {
+      "name": "SpaceSolidRadius",
+      "type": "float",
+      "count": 1,
+      "values": [
+        1.0
+      ]
+    },
+    {
+      "name": "SpaceFadeRadius",
+      "type": "float",
+      "count": 1,
+      "values": [
+        1.65
+      ]
+    },
+    {
+      "name": "RotationSpeed",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.3
+      ]
+    },
+    {
+      "name": "PassMode",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "CameraPosition",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "FacingAxis",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ]
+}
