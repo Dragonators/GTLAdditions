@@ -1,0 +1,40 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "1-srcalpha",
+    "srcalpha": "one",
+    "dstalpha": "1-srcalpha"
+  },
+  "vertex": "gtladditions:gtladditions_heart_post",
+  "fragment": "gtladditions:gtladditions_heart_composite",
+  "attributes": [
+    "Position",
+    "UV0"
+  ],
+  "samplers": [
+    {
+      "name": "EffectSampler"
+    },
+    {
+      "name": "BlurredEffectSampler"
+    },
+    {
+      "name": "MaskSampler"
+    },
+    {
+      "name": "BlurredMaskSampler"
+    }
+  ],
+  "uniforms": [
+    {
+      "name": "BlurInputScale",
+      "type": "float",
+      "count": 2,
+      "values": [
+        2.0,
+        2.0
+      ]
+    }
+  ]
+}

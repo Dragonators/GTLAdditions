@@ -137,10 +137,6 @@ dependencies {
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:$project.mixinextras_version"))
     implementation(include("io.github.llamalad7:mixinextras-forge:$project.mixinextras_version"))
 
-    // lombok
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
-
     modImplementation("appeng:appliedenergistics2-forge:15.4.10") { transitive = false }
 
     modImplementation("dev.architectury:architectury-forge:${project.architectury_version}")
@@ -270,7 +266,6 @@ publishing {
 
 spotless {
     encoding 'UTF-8'
-    def removeFinalNewline = { text -> text.replaceAll(/[\r\n]+\z/, '') }
 
     java {
         target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
@@ -282,7 +277,7 @@ spotless {
         importOrderFile(orderFile)
         removeUnusedImports('cleanthat-javaparser-unnecessaryimport')
         eclipse('4.31').configFile(formatFile)
-        custom 'removeFinalNewline', removeFinalNewline
+        replaceRegex 'removeFinalNewline', /[\r\n]+\z/, ''
     }
 
     kotlin {
@@ -294,7 +289,7 @@ spotless {
                 'ij_kotlin_allow_trailing_comma_on_call_site': 'false'
         ])
         trimTrailingWhitespace()
-        custom 'removeFinalNewline', removeFinalNewline
+        replaceRegex 'removeFinalNewline', /[\r\n]+\z/, ''
     }
 }
 kotlin {

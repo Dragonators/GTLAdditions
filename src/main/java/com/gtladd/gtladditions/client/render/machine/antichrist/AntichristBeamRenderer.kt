@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
 import com.gtladd.gtladditions.client.render.withPose
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
@@ -73,14 +74,14 @@ object AntichristBeamRenderer {
             shader.getUniform("Color")?.set(profile.colorR, profile.colorG, profile.colorB)
             shader.getUniform("Intensity")?.set(2.0f)
             shader.getUniform("SegmentArray")?.set(softBeam.values)
-            AntichristOculusCompat.withAntichristShaderPass {
+            DeferredOculusCompat.withDeferredShaderPass {
                 beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
             }
 
             shader.getUniform("Color")?.set(1.0f, 1.0f, 1.0f)
             shader.getUniform("Intensity")?.set(4.0f)
             shader.getUniform("SegmentArray")?.set(intenseBeam.values)
-            AntichristOculusCompat.withAntichristShaderPass {
+            DeferredOculusCompat.withDeferredShaderPass {
                 beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
             }
 
@@ -91,6 +92,7 @@ object AntichristBeamRenderer {
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun writeSoftBeamSegments(starRadius: Float, beamAlpha: Float, segments: SegmentBuffer) {
         segments.clear()
 
@@ -109,6 +111,7 @@ object AntichristBeamRenderer {
         segments.repeatLastEndpoint()
     }
 
+    @Suppress("SameParameterValue")
     private fun writeIntenseBeamSegments(starRadius: Float, beamAlpha: Float, segments: SegmentBuffer) {
         segments.clear()
 
@@ -226,6 +229,7 @@ object AntichristBeamRenderer {
         return (-(startRadius * radiusDelta + startOffset * offsetDelta) / lengthSqr).coerceIn(0.0f, 1.0f)
     }
 
+    @Suppress("SameParameterValue")
     private fun moveToward(
         startRadius: Float,
         startOffset: Float,

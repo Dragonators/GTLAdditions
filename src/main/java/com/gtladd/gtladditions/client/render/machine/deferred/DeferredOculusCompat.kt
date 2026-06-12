@@ -1,5 +1,6 @@
-package com.gtladd.gtladditions.client.render.machine.antichrist
+package com.gtladd.gtladditions.client.render.machine.deferred
 
+import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristIrisPipelineBridge
 import com.gtladd.gtladditions.mixin.oculus.DepthColorStorageAccessor
 import com.mojang.blaze3d.systems.RenderSystem
 import net.irisshaders.iris.Iris
@@ -13,44 +14,44 @@ import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL20C
 
 @OnlyIn(Dist.CLIENT)
-object AntichristOculusCompat {
+object DeferredOculusCompat {
     private const val IRIS_RENDER_TARGET_LIMIT = 16
     private val maxDrawBuffers = IntArray(1)
     private var directMainTargetDepth = 0
 
-    fun withAntichristShaderPass(draw: () -> Unit) {
-        beginAntichristShaderPass()
+    fun withDeferredShaderPass(draw: () -> Unit) {
+        beginDeferredShaderPass()
         try {
             draw()
         } finally {
-            endAntichristShaderPass()
+            endDeferredShaderPass()
         }
     }
 
-    private fun beginAntichristShaderPass() {
+    private fun beginDeferredShaderPass() {
         if (directMainTargetDepth > 0) {
             Minecraft.getInstance().mainRenderTarget.bindWrite(false)
-            unlockDepthColorForAntichristShader()
+            unlockDepthColorForDeferredShader()
             return
         }
 
         val pipeline = Iris.getPipelineManager().pipelineNullable
-        if (pipeline is AntichristIrisPipelineBridge) {
+        if (shouldUseShaderpackCompatPath() && pipeline is AntichristIrisPipelineBridge) {
             pipeline.beginAntichristFallbackTarget()
         } else {
             Minecraft.getInstance().mainRenderTarget.bindWrite(false)
         }
-        unlockDepthColorForAntichristShader()
+        unlockDepthColorForDeferredShader()
     }
 
-    private fun endAntichristShaderPass() {
+    private fun endDeferredShaderPass() {
         if (directMainTargetDepth > 0) {
             Minecraft.getInstance().mainRenderTarget.bindWrite(false)
             return
         }
 
         val pipeline = Iris.getPipelineManager().pipelineNullable
-        if (pipeline is AntichristIrisPipelineBridge) {
+        if (shouldUseShaderpackCompatPath() && pipeline is AntichristIrisPipelineBridge) {
             pipeline.endAntichristFallbackTarget()
         } else {
             Minecraft.getInstance().mainRenderTarget.bindWrite(false)
@@ -61,7 +62,7 @@ object AntichristOculusCompat {
         directMainTargetDepth++
         Minecraft.getInstance().mainRenderTarget.bindWrite(false)
         resetIndependentBufferBlendState()
-        unlockDepthColorForAntichristShader()
+        unlockDepthColorForDeferredShader()
     }
 
     fun endDirectMainTargetPass() {
@@ -73,7 +74,7 @@ object AntichristOculusCompat {
 
     fun shouldRenderAfterShaderpackFinal(): Boolean = shouldUseShaderpackCompatPath()
 
-    private fun unlockDepthColorForAntichristShader() {
+    private fun unlockDepthColorForDeferredShader() {
         if (DepthColorStorageAccessor.isDepthColorLocked()) {
             DepthColorStorageAccessor.unlockDepthColor()
         }
@@ -86,8 +87,6 @@ object AntichristOculusCompat {
         RenderSystem.defaultBlendFunc()
         if (!IrisRenderSystem.supportsBufferBlending()) return
 
-        // Photon weather uses per-buffer premultiplied alpha on colortex targets;
-        // FOA renders after final, so scrub indexed blend state before drawing to main.
         IrisRenderSystem.getIntegerv(GL20C.GL_MAX_DRAW_BUFFERS, maxDrawBuffers)
         val bufferCount = maxDrawBuffers[0].coerceAtMost(IRIS_RENDER_TARGET_LIMIT)
         for (buffer in 0 until bufferCount) {

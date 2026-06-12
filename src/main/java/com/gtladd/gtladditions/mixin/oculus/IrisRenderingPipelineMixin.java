@@ -6,8 +6,8 @@ import net.irisshaders.iris.shaderpack.programs.ProgramSet;
 import net.irisshaders.iris.targets.RenderTargets;
 
 import com.google.common.collect.ImmutableSet;
-import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristDeferredRenderer;
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristIrisPipelineBridge;
+import com.gtladd.gtladditions.client.render.machine.deferred.DeferredMachineRenderer;
 import com.gtladd.gtladditions.utils.antichrist.RingStructureVertexBuffer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import org.lwjgl.opengl.GL30C;
@@ -128,7 +128,7 @@ public abstract class IrisRenderingPipelineMixin {
 
     @Inject(method = "finalizeLevelRendering", at = @At("TAIL"))
     private void gtladditionsInternal$renderAntichristAfterShaderpackFinal(CallbackInfo ci) {
-        AntichristDeferredRenderer.renderAfterShaderpackFinal();
+        DeferredMachineRenderer.renderAfterShaderpackFinal();
     }
 
     @Unique
