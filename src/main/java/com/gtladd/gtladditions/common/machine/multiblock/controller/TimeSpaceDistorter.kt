@@ -201,6 +201,15 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
         }
 
     // ========================================
+    // Client rendering
+    // ========================================
+
+    fun shouldRenderMagicCircleEffect(): Boolean = isFormed && recipeLogic.isWorking && boundMatrixPos != null
+
+    val renderCausalityDistortionLevel: Int
+        get() = causalityDistortionLevel.coerceIn(1, 4)
+
+    // ========================================
     // GUI
     // ========================================
 
