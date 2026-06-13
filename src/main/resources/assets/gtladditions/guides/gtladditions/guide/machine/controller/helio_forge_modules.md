@@ -20,7 +20,7 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-The Helio series are work modules for <ItemLink id="gtladditions:forge_of_the_antichrist" />. A module must be installed in a module position around the Forge of the Antichrist and connected to a formed, currently working host. If it is not connected or the host is not running, the module will not progress recipes.
+The Helio series are work modules for <ItemLink id="gtladditions:forge_of_the_antichrist" />. A module must be installed in a module position around the Forge of the Antichrist and connected to a formed host that is currently working or anchored by <ItemLink id="gtladditions:spacetime_stasis_device" />. If it is not connected, or the host is neither running nor anchored, the module will not progress recipes.
 
 * Each module draws power directly from the wireless energy network and does not need energy hatches or laser hatches.
 * Modules have infinite parallel and infinite threads, as long as sufficient inputs, output space, and wireless energy are available.
@@ -85,7 +85,7 @@ The Helio series are work modules for <ItemLink id="gtladditions:forge_of_the_an
 <BlockImage id="gtladditions:heliophase_leyline_crystallizer" scale="4"/>
 
 * Used to connect leyline corridors through stellar power. It processes Leyline Crystallize recipes.
-* It only works when the connected <ItemLink id="gtladditions:forge_of_the_antichrist" /> has reached maximum efficiency and is currently running.
+* It only works when the connected <ItemLink id="gtladditions:forge_of_the_antichrist" /> has reached maximum efficiency and is currently running or anchored by <ItemLink id="gtladditions:spacetime_stasis_device" />.
 * Runtime EU multiplier is 256, and it shares the host's EU reduction.
 * This module does not share the host's output multiplier.
 

@@ -107,7 +107,7 @@ Stellar Thermal Smelting:
 ### Helio Modules
 
 * Forge of the Antichrist can connect Helio series modules to extend additional material processing lines.
-* Modules must be installed in module positions around the host and connected to a running Forge of the Antichrist. If they are not connected or the host is not running, modules do not work.
+* Modules must be installed in module positions around the host and connected to a Forge of the Antichrist that is running or anchored by <ItemLink id="gtladditions:spacetime_stasis_device" />. If they are not connected, or the host is neither running nor anchored, modules do not work.
 * Connected modules share the EU reduction from the host's continuous operation. Some modules also share the host's output multiplier for specified recipe categories.
 * <ItemLink id="gtladditions:heliophase_leyline_crystallizer" /> requires the host to have reached maximum efficiency before it can work.
 * For the recipe categories and shared multiplier rules of the five modules, see the <ItemLink id="gtladditions:heliofusion_exoticizer" /> page.
@@ -119,7 +119,7 @@ Stellar Thermal Smelting:
 ### Recursive Reversal
 
 * Forge of the Antichrist can bind to <ItemLink id="gtladditions:recursive_reverse_array" /> and receive buffs from the Recursive Reverse Array and its modules.
-* <ItemLink id="gtladditions:recursive_reverse_array" /> can help preserve running time while the Forge is idle, and under valid conditions it can further affect output, EU consumption, and some output handling.
+* <ItemLink id="gtladditions:recursive_reverse_array" /> can help preserve running time while the Forge is idle, let Helio modules treat the idle host as anchored by <ItemLink id="gtladditions:spacetime_stasis_device" />, and under valid conditions further affect output, EU consumption, and some output handling.
 * See the <ItemLink id="gtladditions:recursive_reverse_array" /> page for detailed module requirements and effects.
 
 </Column>

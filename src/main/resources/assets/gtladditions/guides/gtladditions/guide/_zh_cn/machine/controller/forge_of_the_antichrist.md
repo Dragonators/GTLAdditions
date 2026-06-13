@@ -107,7 +107,7 @@ item_ids:
 ### Helio 模块
 
 * 伪神之煅炉可以连接 Helio 系列模块，扩展出额外的材料处理线路。
-* 模块需要安装在主机周围的模块位置，并连接到正在运行的伪神之煅炉；未连接或主机未运行时，模块不会工作。
+* 模块需要安装在主机周围的模块位置，并连接到正在运行或被 <ItemLink id="gtladditions:spacetime_stasis_device" /> 锚定的伪神之煅炉；未连接、主机未运行且未被锚定时，模块不会工作。
 * 已连接模块共享主机连续运行带来的 EU 减免；部分模块在指定配方类别上还会共享主机的产出倍率。
 * <ItemLink id="gtladditions:heliophase_leyline_crystallizer" /> 要求主机已经达到最大效率才会工作。
 * 五台模块的配方类别和共享倍率规则请查看 <ItemLink id="gtladditions:heliofusion_exoticizer" /> 页面。
@@ -119,7 +119,7 @@ item_ids:
 ### 递归反演
 
 * 伪神之煅炉可以与 <ItemLink id="gtladditions:recursive_reverse_array" /> 绑定，获得递归反演阵列和其模块提供的增益。
-* <ItemLink id="gtladditions:recursive_reverse_array" /> 可帮助保留空闲时的运行时间，并在条件满足时进一步影响产出、耗电和部分输出处理。
+* <ItemLink id="gtladditions:recursive_reverse_array" /> 可帮助保留空闲时的运行时间，让 Helio 模块将空闲主机视为被 <ItemLink id="gtladditions:spacetime_stasis_device" /> 锚定，并在条件满足时进一步影响产出、耗电和部分输出处理。
 * 相关模块的具体需求和效果请查看 <ItemLink id="gtladditions:recursive_reverse_array" /> 页面。
 
 </Column>

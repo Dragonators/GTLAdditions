@@ -32,7 +32,7 @@ class HeliophaseLeylineCrystallizer(holder: IMachineBlockEntity, vararg args: An
                     RecipeResult.of(machine, FAIL_HOST_NOT_WORKING)
                     false
                 }
-                !host.isActive -> {
+                !host.isActiveOrStasisAnchored() -> {
                     RecipeResult.of(machine, FAIL_HOST_NOT_WORKING)
                     false
                 }

@@ -74,6 +74,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     private var mam = 0
     private var cachedRecursiveReverseBuffState: RecursiveReverseBuffState? = null
     private var cachedRecursiveReverseBuffTick: Long = -1
+    private var stasisAnchoredActive = false
 
     @field:DescSynced
     @field:Persisted
@@ -275,17 +276,24 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
     private fun updateRunningSecs() {
         if (this.offsetTimer % 20 == 0L) {
-            if (this.recipeLogic.isWorking) {
-                this.runningSecs = max(runningSecs + 1, 0)
-            } else if (getRecursiveReverseBuffState().spacetimeStasisActive) {
-                this.runningSecs = max(runningSecs, 0)
+            val delta = if (this.recipeLogic.isWorking) {
+                1L
             } else {
-                this.runningSecs = max(runningSecs - 16, 0)
+                val stasisActive = getRecursiveReverseBuffState().spacetimeStasisActive
+                if (stasisActive && !stasisAnchoredActive) {
+                    modules.forEach { module -> module.onConnected(this) }
+                }
+                stasisAnchoredActive = stasisActive
+                if (stasisActive) 0L else -16L
             }
+
+            this.runningSecs = (this.runningSecs + delta).coerceAtLeast(0)
         }
 
         this.updateRunningSecSubscription()
     }
+
+    fun isActiveOrStasisAnchored(): Boolean = this.recipeLogic.isWorking || stasisAnchoredActive
 
     // ========================================
     // Utils
