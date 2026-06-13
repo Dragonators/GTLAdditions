@@ -1,0 +1,9 @@
+{
+  "flip_v": true,
+  "loader": "forge:obj",
+  "model": "gtlcore:models/obj/space.obj",
+  "textures": {
+    "texture0": "gtladditions:block/obj/heartofuniverse",
+    "particle":"gtladditions:block/obj/heartofuniverse"
+  }
+}

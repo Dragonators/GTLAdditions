@@ -13,9 +13,12 @@ import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.joml.Quaternionf
 import org.joml.Vector3f
 import kotlin.math.asin
 import kotlin.math.atan2
@@ -54,42 +57,100 @@ object AntichristBeamRenderer {
         poseStack.withPose {
             translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
             mulPose(Axis.YP.rotationDegrees(profile.beamYawDegrees))
-
-            RenderSystem.enableBlend()
-            RenderSystem.blendFunc(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
-            )
-            RenderSystem.enableDepthTest()
-            RenderSystem.depthMask(false)
-            RenderSystem.disableCull()
-            RenderSystem.setShaderTexture(0, SPACE_LAYER)
-
-            shader.getUniform("SegmentQuads")?.set(SEGMENT_QUADS.toFloat())
-            shader.getUniform("CameraPosition")?.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
-            shader.getUniform("Time")?.set(profile.tick)
-
-            beamBuffer.bind()
-
-            shader.getUniform("Color")?.set(profile.colorR, profile.colorG, profile.colorB)
-            shader.getUniform("Intensity")?.set(2.0f)
-            shader.getUniform("SegmentArray")?.set(softBeam.values)
-            DeferredOculusCompat.withDeferredShaderPass {
-                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
-            }
-
-            shader.getUniform("Color")?.set(1.0f, 1.0f, 1.0f)
-            shader.getUniform("Intensity")?.set(4.0f)
-            shader.getUniform("SegmentArray")?.set(intenseBeam.values)
-            DeferredOculusCompat.withDeferredShaderPass {
-                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
-            }
-
-            VertexBuffer.unbind()
-            RenderSystem.enableCull()
-            RenderSystem.depthMask(true)
-            RenderSystem.disableBlend()
+            renderCurrentSegments(shader, profile.tick, profile.colorR, profile.colorG, profile.colorB, 1.0f, 1.0f, 1.0f)
         }
+    }
+
+    fun renderLinear(
+        blockEntity: BlockEntity,
+        poseStack: PoseStack,
+        tick: Float,
+        from: Vec3,
+        to: Vec3,
+        startRadius: Float,
+        endRadius: Float,
+        colorR: Float,
+        colorG: Float,
+        colorB: Float,
+        outerAlpha: Float,
+        innerRadiusScale: Float,
+        innerAlpha: Float
+    ) {
+        val beamX = to.x - from.x
+        val beamY = to.y - from.y
+        val beamZ = to.z - from.z
+        val beamLength = sqrt(beamX * beamX + beamY * beamY + beamZ * beamZ).toFloat()
+        if (beamLength <= 0.001f) return
+
+        val shader = AntichristShaders.beamShader ?: return
+        val direction = Vector3f(
+            (beamX / beamLength).toFloat(),
+            (beamY / beamLength).toFloat(),
+            (beamZ / beamLength).toFloat()
+        )
+        val rotation = Quaternionf().rotationTo(0.0f, 0.0f, 1.0f, direction.x, direction.y, direction.z)
+
+        updateCameraPositionInLocalBeamSpace(blockEntity, from, rotation)
+        writeLinearBeamSegments(startRadius, endRadius, beamLength, outerAlpha, softBeam)
+        writeLinearBeamSegments(
+            startRadius * innerRadiusScale,
+            endRadius * innerRadiusScale,
+            beamLength,
+            innerAlpha,
+            intenseBeam
+        )
+
+        poseStack.withPose {
+            translate(from.x, from.y, from.z)
+            mulPose(rotation)
+            renderCurrentSegments(shader, tick, colorR, colorG, colorB, 1.0f, 1.0f, 1.0f)
+        }
+    }
+
+    private fun PoseStack.renderCurrentSegments(
+        shader: ShaderInstance,
+        tick: Float,
+        colorR: Float,
+        colorG: Float,
+        colorB: Float,
+        intenseColorR: Float,
+        intenseColorG: Float,
+        intenseColorB: Float
+    ) {
+        RenderSystem.enableBlend()
+        RenderSystem.blendFunc(
+            GlStateManager.SourceFactor.SRC_ALPHA,
+            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+        )
+        RenderSystem.enableDepthTest()
+        RenderSystem.depthMask(false)
+        RenderSystem.disableCull()
+        RenderSystem.setShaderTexture(0, SPACE_LAYER)
+
+        shader.getUniform("SegmentQuads")?.set(SEGMENT_QUADS.toFloat())
+        shader.getUniform("CameraPosition")?.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
+        shader.getUniform("Time")?.set(tick)
+
+        beamBuffer.bind()
+
+        shader.getUniform("Color")?.set(colorR, colorG, colorB)
+        shader.getUniform("Intensity")?.set(2.0f)
+        shader.getUniform("SegmentArray")?.set(softBeam.values)
+        DeferredOculusCompat.withDeferredShaderPass {
+            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+        }
+
+        shader.getUniform("Color")?.set(intenseColorR, intenseColorG, intenseColorB)
+        shader.getUniform("Intensity")?.set(4.0f)
+        shader.getUniform("SegmentArray")?.set(intenseBeam.values)
+        DeferredOculusCompat.withDeferredShaderPass {
+            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+        }
+
+        VertexBuffer.unbind()
+        RenderSystem.enableCull()
+        RenderSystem.depthMask(true)
+        RenderSystem.disableBlend()
     }
 
     @Suppress("SameParameterValue")
@@ -145,6 +206,19 @@ object AntichristBeamRenderer {
         segments.repeatLastEndpoint()
     }
 
+    private fun writeLinearBeamSegments(
+        startRadius: Float,
+        endRadius: Float,
+        beamLength: Float,
+        alpha: Float,
+        segments: SegmentBuffer
+    ) {
+        segments.clear()
+        segments.add(startRadius, 0.0f, alpha)
+        segments.add(endRadius, beamLength, alpha)
+        segments.repeatLastEndpoint()
+    }
+
     private fun updateCameraPositionInBeamSpace(
         profile: AntichristRenderProfile,
         blockEntity: BlockEntity
@@ -165,6 +239,23 @@ object AntichristBeamRenderer {
             cameraRelativeY.toFloat(),
             -sinYaw * x + cosYaw * z
         )
+    }
+
+    private fun updateCameraPositionInLocalBeamSpace(
+        blockEntity: BlockEntity,
+        origin: Vec3,
+        rotation: Quaternionf
+    ) {
+        val cameraWorldPos = Minecraft.getInstance().gameRenderer.mainCamera.position
+        val blockPos = blockEntity.blockPos
+        val relative = Vector3f(
+            (cameraWorldPos.x - blockPos.x.toDouble() - origin.x).toFloat(),
+            (cameraWorldPos.y - blockPos.y.toDouble() - origin.y).toFloat(),
+            (cameraWorldPos.z - blockPos.z.toDouble() - origin.z).toFloat()
+        )
+
+        Quaternionf(rotation).conjugate().transform(relative)
+        cameraPosition.set(relative)
     }
 
     private fun getStartAngle(starRadius: Float): Float {

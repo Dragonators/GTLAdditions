@@ -1,0 +1,9 @@
+{
+  "flip_v": true,
+  "loader": "forge:obj",
+  "model": "gtlcore:models/obj/star.obj",
+  "textures": {
+    "texture0": "gtladditions:block/multiblock/light_hunter_space_station/star_layer_1",
+    "particle": "gtladditions:block/multiblock/light_hunter_space_station/star_layer_1"
+  }
+}

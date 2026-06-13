@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.render.machine.lighthunter.LightHunterSpaceStationBeamRenderer
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
@@ -58,7 +59,7 @@ class LightHunterSpaceStationRenderer :
                 val beamEnd = getRotatedRenderPosition(BASE_DIRECTION, facing, BEAM_OFFSET_X, 0.0, 0.0)
                 val starPos = getRotatedRenderPosition(BASE_DIRECTION, facing, STAR_OFFSET_X, 0.0, 0.0)
 
-                renderBeam(poseStack, buffer, blockEntity, Vec3(0.5, 0.5, 0.5), beamEnd, tick)
+                LightHunterSpaceStationBeamRenderer.enqueue(blockEntity, tick, Vec3(0.5, 0.5, 0.5), beamEnd)
                 if (machine.unlockParadoxical()) {
                     renderBlackHole(poseStack, buffer, facing, starPos, tick, seed)
                 } else {
@@ -113,25 +114,10 @@ class LightHunterSpaceStationRenderer :
         private const val MAX_TILT_ANGLE = 90f
         private val BASE_DIRECTION = Direction.EAST
 
-        private val STAR_LAYER = GTLAdditions.id("obj/star_layer_1")
-        private val SPACE_MODEL = GTLAdditions.id("obj/heart_of_universe")
+        private val STAR_LAYER = GTLAdditions.id("multiblock/light_hunter_space_station/star_layer_1")
+        private val SPACE_MODEL = GTLAdditions.id("multiblock/light_hunter_space_station/space")
         private val HALO_TEX = GTLAdditions.id("textures/block/obj/halo_tex1.png")
         private val CACHE_MAP = ConcurrentHashMap<Long, RenderCache>()
-
-        private fun renderBeam(
-            poseStack: PoseStack,
-            buffer: MultiBufferSource,
-            entity: BlockEntity,
-            from: Vec3,
-            to: Vec3,
-            tick: Float
-        ) {
-            RenderUtils.drawBeacon(
-                poseStack, buffer, from, to,
-                FastColor.ARGB32.color(140, 130, 168, 192), tick, entity,
-                1.7f, 0.0f, 0.0f, 1.0f
-            )
-        }
 
         private fun renderStar(
             poseStack: PoseStack,
