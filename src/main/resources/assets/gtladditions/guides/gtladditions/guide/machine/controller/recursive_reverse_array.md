@@ -98,6 +98,8 @@ Activating focus requires:
 
 * Runs continuously at OpV voltage and consumes 70B/s <FluidLink id="gtceu:spacetime" />.
 * When its own recipe is running and the common buff gate is active, the bound host does not lose running time while idle.
+* In the same active state, Helio modules connected to the bound host treat the host as anchored by the Spacetime Stasis Device and can progress recipes while the host itself is idle.
+* Anchoring only replaces the host-running requirement. It does not bypass maximum-efficiency or other module-specific requirements.
 * It does not actively add running time and does not provide an output multiplier or EU buff.
 * While the bound host is working, running time still increases normally.
 

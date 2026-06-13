@@ -129,7 +129,7 @@ abstract class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, varar
     companion object {
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
             ForgeOfTheAntichristModuleBase::class.java,
-            GTLAddWirelessWorkableElectricMultipleRecipesMachine.Companion.MANAGED_FIELD_HOLDER
+            GTLAddWirelessWorkableElectricMultipleRecipesMachine.MANAGED_FIELD_HOLDER
         )
 
         val FAIL_HOST_NOT_WORKING: RecipeResult = RecipeResult.fail(
@@ -137,7 +137,7 @@ abstract class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, varar
         )
 
         val BEFORE_WORKING = Predicate { machine: IRecipeLogicMachine ->
-            ((machine as ForgeOfTheAntichristModuleBase).host?.let { it -> return@let it.isActive } ?: false)
+            ((machine as ForgeOfTheAntichristModuleBase).host?.let { return@let it.isActiveOrStasisAnchored() } ?: false)
                 .also { if (!it) RecipeResult.of(machine, FAIL_HOST_NOT_WORKING) }
         }
 
@@ -187,7 +187,7 @@ abstract class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, varar
         ) : GTLAddMultipleWirelessRecipesLogic(parallel, beforeWorking) {
             override fun getMachine(): ForgeOfTheAntichristModuleBase = machine as ForgeOfTheAntichristModuleBase
             override fun getEuMultiplier(): Double =
-                getMachine().host?.let { ForgeOfTheAntichrist.Companion.getEuReduction(it) * super.getEuMultiplier() }
+                getMachine().host?.let { ForgeOfTheAntichrist.getEuReduction(it) * super.getEuMultiplier() }
                     ?: super.getEuMultiplier()
 
             override fun calculateParallels(): ParallelData? {
