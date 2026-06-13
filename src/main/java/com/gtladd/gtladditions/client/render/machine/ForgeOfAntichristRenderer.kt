@@ -33,7 +33,7 @@ class ForgeOfAntichristRenderer(
         if (blockEntity !is IMachineBlockEntity) return
 
         val machine = blockEntity.metaMachine as? ForgeOfTheAntichrist ?: return
-        val isWorking = machine.recipeLogic.isWorking
+        val isWorking = machine.isActiveOrStasisAnchored()
         if (!machine.isFormed && !isWorking) return
 
         val tick = if (isWorking) RenderUtil.getSmoothTick(machine, partialTicks) else 0f

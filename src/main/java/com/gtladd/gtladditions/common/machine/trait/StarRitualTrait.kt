@@ -61,16 +61,15 @@ class StarRitualTrait(
     fun handleStarRitualLogic() {
         when (renderMode) {
             RenderMode.NORMAL -> {
-                if (!getMachine().canStarRitualStart()) return
-                if (machine.offsetTimer % 10 == 0L) collectItemsInRange()
+                if (machine.offsetTimer % 10 != 0L || !getMachine().canStarRitualStart()) return
+                collectItemsInRange()
             }
 
             RenderMode.RAINBOW -> {
-                if (machine.offsetTimer % 10 == 0L) {
-                    collectItemsInRange()
-                    if (hasCollectedAll()) {
-                        triggerCollapse()
-                    }
+                if (machine.offsetTimer % 10 != 0L) return
+                collectItemsInRange()
+                if (hasCollectedAll()) {
+                    triggerCollapse()
                 }
             }
 

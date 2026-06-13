@@ -102,6 +102,7 @@ item_ids:
 仪式发生在 <ItemLink id="gtladditions:forge_of_the_antichrist" /> 的中子星处。开始前需要满足这些状态：
 
 * <ItemLink id="gtladditions:forge_of_the_antichrist" /> 已达到最大效率。
+* <ItemLink id="gtladditions:forge_of_the_antichrist" /> 正在运行，或被 <ItemLink id="gtladditions:spacetime_stasis_device" /> 锚定。
 * 它已与 <ItemLink id="gtladditions:recursive_reverse_array" /> 绑定。
 * 递归反演阵列的仪式门控处于有效状态：相关机器就绪，<ItemLink id="gtladditions:supratemporal_boosting_engine" /> 正在运行，未过热，并处在 93000K-97000K 的最佳温度区间。
 
