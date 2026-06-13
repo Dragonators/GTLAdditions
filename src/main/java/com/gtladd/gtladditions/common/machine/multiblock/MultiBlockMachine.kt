@@ -46,6 +46,7 @@ import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer
 import com.gtladd.gtladditions.client.render.machine.HeartOfTheUniverseRenderer
 import com.gtladd.gtladditions.client.render.machine.LightHunterSpaceStationRenderer
 import com.gtladd.gtladditions.client.render.machine.PartWorkableCasingMachineRenderer
+import com.gtladd.gtladditions.client.render.machine.TimeSpaceDistorterRenderer
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_ENERGY_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_INNER_CASING
@@ -1470,10 +1471,8 @@ object MultiBlockMachine {
                     .where("D", blocks(getBlock("kubejs:uruium_coil_block")))
                     .build()
             }
-            .workableCasingRenderer(
-                GTLCore.id("block/casings/dimension_injection_casing"),
-                GTCEu.id("block/multiblock/fusion_reactor")
-            )
+            .renderer { TimeSpaceDistorterRenderer() }
+            .hasTESR(true)
             .register()
 
         APOCALYPTIC_TORSION_QUANTUM_MATRIX = REGISTRATE.multiblock(
