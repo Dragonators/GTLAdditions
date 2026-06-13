@@ -103,6 +103,16 @@
       ]
     },
     {
+      "name": "BlackHoleRotation",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
       "name": "PassMode",
       "type": "float",
       "count": 1,

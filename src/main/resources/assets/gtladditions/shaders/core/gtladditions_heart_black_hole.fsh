@@ -8,6 +8,7 @@ uniform float BlackHoleAndDiskRadius;
 uniform float SpaceSolidRadius;
 uniform float SpaceFadeRadius;
 uniform float RotationSpeed;
+uniform vec3 BlackHoleRotation;
 uniform float PassMode;
 
 #moj_import <gtladditions:heart_volume_common.glsl>
@@ -59,6 +60,31 @@ vec3 toModelSpace(vec3 worldVector, vec3 modelRight, vec3 modelUp, vec3 modelFor
         dot(worldVector, modelRight),
         dot(worldVector, modelUp),
         dot(worldVector, modelForward)
+    );
+}
+
+vec3 fromModelSpace(vec3 modelVector, vec3 modelRight, vec3 modelUp, vec3 modelForward) {
+    return modelRight * modelVector.x + modelUp * modelVector.y + modelForward * modelVector.z;
+}
+
+vec3 rotateAroundAxis(vec3 vector, vec3 axis, float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    return vector * c + cross(axis, vector) * s + axis * dot(axis, vector) * (1.0 - c);
+}
+
+void rotateBasis(inout vec3 modelRight, inout vec3 modelUp, inout vec3 modelForward, vec3 axis, float angle) {
+    vec3 normalizedAxis = normalize(axis);
+    modelRight = rotateAroundAxis(modelRight, normalizedAxis, angle);
+    modelUp = rotateAroundAxis(modelUp, normalizedAxis, angle);
+    modelForward = rotateAroundAxis(modelForward, normalizedAxis, angle);
+}
+
+vec2 sphericalUv(vec3 direction) {
+    vec3 rd = normalize(direction);
+    return vec2(
+        atan(rd.z, rd.x) / TAU + 0.5,
+        asin(clamp(rd.y, -0.999, 0.999)) / PI + 0.5
     );
 }
 
@@ -160,24 +186,33 @@ vec4 shadeDisk(vec3 hit, vec3 vel, float time, int crossing, float spin) {
     return vec4(color, alpha);
 }
 
-vec3 starField(vec3 rd) {
-    float u = atan(rd.z, rd.x) / TAU + 0.5;
-    float v = asin(clamp(rd.y, -0.999, 0.999)) / PI + 0.5;
+vec3 flowStarDirection(vec3 rd, float seconds, vec3 axis, float speed, float sway, float swaySpeed) {
+    float angle = seconds * speed + sin(seconds * swaySpeed) * sway;
+    return rotateAroundAxis(rd, normalize(axis), angle);
+}
+
+vec3 starField(vec3 rd, float time) {
+    float seconds = time * SMOOTH_TICK_SECONDS;
     vec3 col = vec3(0.0);
 
-    vec2 cellA = floor(vec2(u, v) * 56.0);
-    vec2 fA = fract(vec2(u, v) * 56.0);
+    vec2 uvA = sphericalUv(flowStarDirection(rd, seconds, vec3(0.35, 0.91, 0.22), 0.010, 0.045, 0.017));
+    vec2 cellA = floor(uvA * 56.0);
+    vec2 fA = fract(uvA * 56.0);
     vec2 rA = vec2(hash(cellA), hash(cellA + 127.1));
     float dA = length(fA - rA);
     col += mix(vec3(1.0, 0.62, 0.34), vec3(0.55, 0.75, 1.0), rA.y) * pow(rA.x, 10.0) * exp(-dA * dA * 500.0) * 1.5;
 
-    vec2 cellB = floor(vec2(u, v) * 170.0);
-    vec2 fB = fract(vec2(u, v) * 170.0);
+    vec2 uvB = sphericalUv(flowStarDirection(rd, seconds, vec3(-0.62, 0.19, 0.76), -0.016, 0.030, 0.023));
+    vec2 cellB = floor(uvB * 170.0);
+    vec2 fB = fract(uvB * 170.0);
     vec2 rB = vec2(hash(cellB + 43.0), hash(cellB + 91.0));
     float dB = length(fB - rB);
     col += vec3(0.85, 0.88, 1.0) * pow(rB.x, 18.0) * exp(-dB * dB * 1000.0) * 0.9;
 
-    float nebula = fbmLite(vec2(u, v) * 3.0) * fbmLite(vec2(u, v) * 5.5 + 10.0);
+    vec2 uvNebula = sphericalUv(flowStarDirection(rd, seconds, vec3(0.18, 0.53, -0.83), 0.006, 0.070, 0.011));
+    vec2 nebulaFlow = vec2(seconds * 0.012, sin(seconds * 0.019) * 0.18);
+    float nebula = fbmLite(uvNebula * 3.0 + nebulaFlow) *
+        fbmLite(uvNebula * 5.5 + 10.0 - nebulaFlow.yx * 0.7);
     col += vec3(0.10, 0.04, 0.14) * pow(nebula, 3.0);
 
     return col;
@@ -198,10 +233,20 @@ void main() {
     float diskAnimationTime = Time * SMOOTH_TICK_SECONDS * RotationSpeed;
     float volumeRadius = getVolumeProxyRadius(Time, blackHoleAndDiskRadius, spaceFadeRadius);
     float fadeRadius = blackHoleAndDiskRadius * spaceFadeRadius;
-    vec3 modelForward = getModelForward();
-    vec3 modelRight = getModelRight(modelForward);
-    vec3 modelUp = vec3(0.0, 1.0, 0.0);
-    float spin = getSpin(modelForward);
+    vec3 baseModelForward = getModelForward();
+    vec3 baseModelRight = getModelRight(baseModelForward);
+    vec3 baseModelUp = vec3(0.0, 1.0, 0.0);
+    vec3 modelForward = rotateAroundAxis(baseModelForward, baseModelUp, BlackHoleRotation.y);
+    vec3 modelRight = normalize(cross(baseModelUp, modelForward));
+    vec3 modelUp = baseModelUp;
+    vec3 pitchAxis = modelRight;
+    rotateBasis(modelRight, modelUp, modelForward, pitchAxis, BlackHoleRotation.x);
+    vec3 rollAxis = modelUp;
+    rotateBasis(modelRight, modelUp, modelForward, rollAxis, BlackHoleRotation.z);
+    modelRight = normalize(modelRight);
+    modelUp = normalize(modelUp);
+    modelForward = normalize(modelForward);
+    float spin = getSpin(baseModelForward);
     float solidRadius = blackHoleAndDiskRadius * spaceSolidRadius;
 
     vec3 rayToSurface = volumeSurfacePosition - CameraPosition;
@@ -307,7 +352,15 @@ void main() {
     float nearLens = 1.0 - smoothstep(2.4, 7.2, minR);
     float lensAlpha = clamp(nearLens * 0.34 + photonLens * 0.18, 0.0, 0.58) * effectFade * LENS_ALPHA_SCALE;
     float spaceShellAlpha = effectFade;
-    vec3 backgroundColor = absorbed ? vec3(0.0) : starField(normalize(vel));
+    vec3 escapedDirection = normalize(vel);
+    vec3 escapedWorldDirection = fromModelSpace(escapedDirection, modelRight, modelUp, modelForward);
+    vec3 backgroundDirection = toModelSpace(
+        escapedWorldDirection,
+        baseModelRight,
+        baseModelUp,
+        baseModelForward
+    );
+    vec3 backgroundColor = absorbed ? vec3(0.0) : starField(normalize(backgroundDirection), Time);
 
     float shadowAlphaRaw = absorbed ? 1.0 : 0.0;
     float shadowCoreRadius = max(PROJECTED_SHADOW_CONTACT_RADIUS * SHADOW_CORE_RADIUS_SCALE, PROJECTED_SHADOW_RADIUS);
