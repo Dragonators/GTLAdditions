@@ -71,13 +71,7 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
 
                 renderBeamCylinders(poseStack, buffer, machine.frontFacing, tick)
 
-                RenderUtils.drawBeaconToSky(
-                    poseStack, buffer, x, y - 36, z,
-                    FastColor.ARGB32.color(255, 255, 255, 255),
-                    tick, blockEntity, 2.9f
-                )
-
-                renderStar(tick, poseStack, buffer, cache, x, y, z)
+                SubspaceCorridorHubBeamRenderer.enqueue(blockEntity, tick, Vec3(x, y, z), Vec3(x, y - 36, z))
 
                 renderOrbit(poseStack, buffer, cache, tick)
             }
@@ -87,7 +81,6 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
     @OnlyIn(Dist.CLIENT)
     override fun onAdditionalModel(registry: Consumer<ResourceLocation>) {
         super.onAdditionalModel(registry)
-        registry.accept(STAR_LAYER)
         registry.accept(CLIMBER_MODEL)
         ORBIT_OBJECTS.forEach(registry)
     }
@@ -106,7 +99,6 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
         val planetRotations: MutableList<RotationParams> = ObjectArrayList(13)
         val orbitParams: MutableList<CircularMotionParams> = ObjectArrayList(13)
         val planetSizes: MutableList<Float> = ObjectArrayList(13)
-        val starRotation: RotationParams
 
         init {
             for (i in ORBIT_OBJECTS.indices) {
@@ -120,14 +112,11 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
                 orbitParams.add(getCircularMotionParams(seed, i, centerPos, 27.0f, 55.0f, 0f, 30f))
                 planetSizes.add(getPlanetSize(seed, i, 1.3f, 2.7f))
             }
-
-            starRotation = RenderUtils.createRandomRotation(RandomSource.create(seed), 0.5f, 2.0f)
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     companion object {
-        private val STAR_LAYER: ResourceLocation = GTLAdditions.id("obj/star_layer_1")
         private val CLIMBER_MODEL: ResourceLocation = GTLCore.id("obj/climber")
         private val ORBIT_OBJECTS: List<ResourceLocation> = listOf(
             GTLAdditions.id("obj/planets/the_nether"),
@@ -210,34 +199,6 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
                 ModelData.EMPTY,
                 RenderType.solid()
             )
-            poseStack.popPose()
-        }
-
-        private fun renderStar(
-            tick: Float,
-            poseStack: PoseStack,
-            buffer: MultiBufferSource,
-            cache: RenderCache,
-            x: Double,
-            y: Double,
-            z: Double
-        ) {
-            poseStack.pushPose()
-            poseStack.translate(x, y, z)
-
-            val rotation = cache.starRotation
-
-            RenderUtils.renderStarLayer(
-                poseStack,
-                buffer,
-                STAR_LAYER,
-                0.23f,
-                rotation.axis,
-                rotation.getAngle(tick),
-                FastColor.ARGB32.color(255, 255, 255, 255),
-                RenderType.solid()
-            )
-
             poseStack.popPose()
         }
 

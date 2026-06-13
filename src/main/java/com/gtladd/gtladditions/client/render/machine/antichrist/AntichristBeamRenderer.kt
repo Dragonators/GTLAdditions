@@ -13,7 +13,9 @@ import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Vector3f
@@ -43,6 +45,21 @@ object AntichristBeamRenderer {
     private val intenseBeam = SegmentBuffer()
     private val cameraPosition = Vector3f()
 
+    data class VerticalTaperBeamProfile(
+        val tick: Float,
+        val basePos: Vec3,
+        val height: Float,
+        val bottomRadius: Float,
+        val topRadius: Float,
+        val colorR: Float,
+        val colorG: Float,
+        val colorB: Float,
+        val beamAlpha: Float
+    ) {
+        val shouldRenderBeam: Boolean
+            get() = beamAlpha > 0.001f && height > 0.001f && bottomRadius > 0.001f && topRadius >= 0.0f
+    }
+
     fun render(profile: AntichristRenderProfile, poseStack: PoseStack, blockEntity: BlockEntity) {
         if (!profile.shouldRenderBeam) return
         val shader = AntichristShaders.beamShader ?: return
@@ -54,42 +71,87 @@ object AntichristBeamRenderer {
         poseStack.withPose {
             translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
             mulPose(Axis.YP.rotationDegrees(profile.beamYawDegrees))
-
-            RenderSystem.enableBlend()
-            RenderSystem.blendFunc(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+            renderCurrentSegments(
+                shader,
+                profile.tick,
+                profile.colorR,
+                profile.colorG,
+                profile.colorB,
+                1.0f,
+                1.0f,
+                1.0f
             )
-            RenderSystem.enableDepthTest()
-            RenderSystem.depthMask(false)
-            RenderSystem.disableCull()
-            RenderSystem.setShaderTexture(0, SPACE_LAYER)
-
-            shader.getUniform("SegmentQuads")?.set(SEGMENT_QUADS.toFloat())
-            shader.getUniform("CameraPosition")?.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
-            shader.getUniform("Time")?.set(profile.tick)
-
-            beamBuffer.bind()
-
-            shader.getUniform("Color")?.set(profile.colorR, profile.colorG, profile.colorB)
-            shader.getUniform("Intensity")?.set(2.0f)
-            shader.getUniform("SegmentArray")?.set(softBeam.values)
-            DeferredOculusCompat.withDeferredShaderPass {
-                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
-            }
-
-            shader.getUniform("Color")?.set(1.0f, 1.0f, 1.0f)
-            shader.getUniform("Intensity")?.set(4.0f)
-            shader.getUniform("SegmentArray")?.set(intenseBeam.values)
-            DeferredOculusCompat.withDeferredShaderPass {
-                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
-            }
-
-            VertexBuffer.unbind()
-            RenderSystem.enableCull()
-            RenderSystem.depthMask(true)
-            RenderSystem.disableBlend()
         }
+    }
+
+    fun renderVerticalTaper(profile: VerticalTaperBeamProfile, poseStack: PoseStack, blockEntity: BlockEntity) {
+        if (!profile.shouldRenderBeam) return
+        val shader = AntichristShaders.beamShader ?: return
+
+        updateCameraPositionInVerticalBeamSpace(profile, blockEntity)
+        writeVerticalSoftBeamSegments(profile, softBeam)
+        writeVerticalIntenseBeamSegments(profile, intenseBeam)
+
+        poseStack.withPose {
+            translate(profile.basePos.x, profile.basePos.y, profile.basePos.z)
+            mulPose(Axis.XP.rotationDegrees(-90.0f))
+            renderCurrentSegments(
+                shader,
+                profile.tick,
+                profile.colorR,
+                profile.colorG,
+                profile.colorB,
+                1.0f,
+                1.0f,
+                1.0f
+            )
+        }
+    }
+
+    private fun PoseStack.renderCurrentSegments(
+        shader: ShaderInstance,
+        tick: Float,
+        colorR: Float,
+        colorG: Float,
+        colorB: Float,
+        intenseColorR: Float,
+        intenseColorG: Float,
+        intenseColorB: Float
+    ) {
+        RenderSystem.enableBlend()
+        RenderSystem.blendFunc(
+            GlStateManager.SourceFactor.SRC_ALPHA,
+            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+        )
+        RenderSystem.enableDepthTest()
+        RenderSystem.depthMask(false)
+        RenderSystem.disableCull()
+        RenderSystem.setShaderTexture(0, SPACE_LAYER)
+
+        shader.getUniform("SegmentQuads")?.set(SEGMENT_QUADS.toFloat())
+        shader.getUniform("CameraPosition")?.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
+        shader.getUniform("Time")?.set(tick)
+
+        beamBuffer.bind()
+
+        shader.getUniform("Color")?.set(colorR, colorG, colorB)
+        shader.getUniform("Intensity")?.set(2.0f)
+        shader.getUniform("SegmentArray")?.set(softBeam.values)
+        DeferredOculusCompat.withDeferredShaderPass {
+            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+        }
+
+        shader.getUniform("Color")?.set(intenseColorR, intenseColorG, intenseColorB)
+        shader.getUniform("Intensity")?.set(4.0f)
+        shader.getUniform("SegmentArray")?.set(intenseBeam.values)
+        DeferredOculusCompat.withDeferredShaderPass {
+            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+        }
+
+        VertexBuffer.unbind()
+        RenderSystem.enableCull()
+        RenderSystem.depthMask(true)
+        RenderSystem.disableBlend()
     }
 
     @Suppress("SameParameterValue")
@@ -145,6 +207,42 @@ object AntichristBeamRenderer {
         segments.repeatLastEndpoint()
     }
 
+    private fun writeVerticalSoftBeamSegments(
+        profile: VerticalTaperBeamProfile,
+        segments: SegmentBuffer
+    ) {
+        segments.clear()
+
+        val fadeEndOffset = profile.height * 0.1f
+        val fadeEndRadius = interpolate(0.0f, profile.height, profile.bottomRadius, profile.topRadius, fadeEndOffset)
+
+        segments.add(profile.bottomRadius, 0.0f, 0.0f)
+        segments.add(fadeEndRadius, fadeEndOffset, profile.beamAlpha)
+        segments.add(profile.topRadius, profile.height, profile.beamAlpha * 0.85f)
+        segments.repeatLastEndpoint()
+    }
+
+    private fun writeVerticalIntenseBeamSegments(
+        profile: VerticalTaperBeamProfile,
+        segments: SegmentBuffer
+    ) {
+        segments.clear()
+
+        val fadeEndOffset = profile.height * 0.1f
+        val fadeEndRadius = interpolate(
+            0.0f,
+            profile.height,
+            profile.bottomRadius * 0.45f,
+            profile.topRadius * 0.5f,
+            fadeEndOffset
+        )
+
+        segments.add(profile.bottomRadius * 0.45f, 0.0f, 0.0f)
+        segments.add(fadeEndRadius, fadeEndOffset, profile.beamAlpha * 0.55f)
+        segments.add(profile.topRadius * 0.5f, profile.height, profile.beamAlpha * 0.85f)
+        segments.repeatLastEndpoint()
+    }
+
     private fun updateCameraPositionInBeamSpace(
         profile: AntichristRenderProfile,
         blockEntity: BlockEntity
@@ -164,6 +262,23 @@ object AntichristBeamRenderer {
             cosYaw * x + sinYaw * z,
             cameraRelativeY.toFloat(),
             -sinYaw * x + cosYaw * z
+        )
+    }
+
+    private fun updateCameraPositionInVerticalBeamSpace(
+        profile: VerticalTaperBeamProfile,
+        blockEntity: BlockEntity
+    ) {
+        val cameraWorldPos = Minecraft.getInstance().gameRenderer.mainCamera.position
+        val blockPos = blockEntity.blockPos
+        val relativeX = cameraWorldPos.x - blockPos.x.toDouble() - profile.basePos.x
+        val relativeY = cameraWorldPos.y - blockPos.y.toDouble() - profile.basePos.y
+        val relativeZ = cameraWorldPos.z - blockPos.z.toDouble() - profile.basePos.z
+
+        cameraPosition.set(
+            relativeX.toFloat(),
+            -relativeZ.toFloat(),
+            relativeY.toFloat()
         )
     }
 

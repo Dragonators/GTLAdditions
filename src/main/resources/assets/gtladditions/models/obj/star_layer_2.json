@@ -1,9 +1,0 @@
-{
-  "flip_v": true,
-  "loader": "forge:obj",
-  "model": "gtladditions:models/obj/star.obj",
-  "textures": {
-    "texture0": "gtladditions:block/obj/starlayer2",
-    "particle":"gtladditions:block/obj/starlayer2"
-  }
-}

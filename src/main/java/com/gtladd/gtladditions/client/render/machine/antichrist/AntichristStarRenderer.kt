@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
+import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -39,9 +40,19 @@ object AntichristStarRenderer {
     }
 
     fun renderOpaque(profile: AntichristRenderProfile, poseStack: PoseStack) {
+        renderOpaque(profile, poseStack, STAR_LAYER_0)
+    }
+
+    fun renderOpaque(profile: AntichristRenderProfile, poseStack: PoseStack, texture: ResourceLocation) {
         RenderSystem.enableDepthTest()
         RenderSystem.depthMask(true)
-        renderLayer(profile, poseStack, STAR_LAYER_0, profile.starRadius, LAYER_0_AXIS, 130f, 1.0f)
+        renderLayer(profile, poseStack, texture, profile.starRadius, LAYER_0_AXIS, 130f, 1.0f)
+    }
+
+    fun renderOpaqueOriginalColor(profile: AntichristRenderProfile, poseStack: PoseStack, texture: ResourceLocation) {
+        RenderSystem.enableDepthTest()
+        RenderSystem.depthMask(true)
+        renderLayerOriginalColor(profile, poseStack, texture, profile.starRadius, LAYER_0_AXIS, 130f)
     }
 
     fun renderTransparent(profile: AntichristRenderProfile, poseStack: PoseStack) {
@@ -87,6 +98,41 @@ object AntichristStarRenderer {
 
             sphereBuffer.bind()
             DeferredOculusCompat.withDeferredShaderPass {
+                sphereBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            }
+            VertexBuffer.unbind()
+            RenderSystem.enableCull()
+        }
+    }
+
+    private fun renderLayerOriginalColor(
+        profile: AntichristRenderProfile,
+        poseStack: PoseStack,
+        texture: ResourceLocation,
+        radius: Float,
+        axis: Vector3f,
+        baseRotation: Float
+    ) {
+        val rotationSpeedMultiplier = when (profile.renderMode) {
+            RenderMode.RAINBOW -> 1.7f
+            RenderMode.COLLAPSING -> 2.6f
+            else -> 1.0f
+        }
+        val rotationDegrees = baseRotation + (profile.tick * rotationSpeedMultiplier) % 360000f
+
+        poseStack.withPose {
+            translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
+            mulPose(Quaternionf().fromAxisAngleDeg(axis.x, axis.y, axis.z, rotationDegrees))
+            scale(radius, radius, radius)
+
+            RenderSystem.disableCull()
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+            RenderSystem.setShaderTexture(0, texture)
+
+            sphereBuffer.bind()
+            DeferredOculusCompat.withDeferredShaderPass {
+                RenderSystem.setShader(GameRenderer::getPositionTexShader)
+                val shader = GameRenderer.getPositionTexShader() ?: return@withDeferredShaderPass
                 sphereBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
             }
             VertexBuffer.unbind()
