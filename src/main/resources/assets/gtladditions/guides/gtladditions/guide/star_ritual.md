@@ -102,6 +102,7 @@ These dimensions only allow entry through a Stargate wormhole; direct cross-dime
 The ritual takes place at the neutron star rendered by the <ItemLink id="gtladditions:forge_of_the_antichrist" />. Before it can begin:
 
 * The <ItemLink id="gtladditions:forge_of_the_antichrist" /> must have reached maximum efficiency.
+* The <ItemLink id="gtladditions:forge_of_the_antichrist" /> must be running or anchored by <ItemLink id="gtladditions:spacetime_stasis_device" />.
 * It must be bound to a <ItemLink id="gtladditions:recursive_reverse_array" />.
 * The Recursive Reverse Array's ritual gate must be active: the related machines are ready, the <ItemLink id="gtladditions:supratemporal_boosting_engine" /> is running, it is not overheated, and its temperature is in the 93000K-97000K optimal range.
 

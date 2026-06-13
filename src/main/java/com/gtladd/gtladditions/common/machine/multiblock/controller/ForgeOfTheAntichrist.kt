@@ -70,11 +70,14 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     @field:DescSynced
     var runningSecs: Long = 0
         private set
+
+    @field:DescSynced
+    private var stasisAnchoredActive = false
+
     private var runningSecSubs: TickableSubscription? = null
     private var mam = 0
     private var cachedRecursiveReverseBuffState: RecursiveReverseBuffState? = null
     private var cachedRecursiveReverseBuffTick: Long = -1
-    private var stasisAnchoredActive = false
 
     @field:DescSynced
     @field:Persisted
@@ -261,7 +264,6 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
             this.runningSecs = 1
             this.updateRunningSecSubscription()
         }
-        starRitual.handleStarRitualLogic()
         return super.onWorking()
     }
 
@@ -290,6 +292,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
             this.runningSecs = (this.runningSecs + delta).coerceAtLeast(0)
         }
 
+        if (isActiveOrStasisAnchored()) starRitual.handleStarRitualLogic()
         this.updateRunningSecSubscription()
     }
 
@@ -348,7 +351,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         return 1 + addition
     }
 
-    fun canStarRitualStart(): Boolean = getRecursiveReverseArray()?.isStarRitualGateActive() == true && runningSecs >= MAX_EFFICIENCY_SEC
+    fun canStarRitualStart(): Boolean = isActiveOrStasisAnchored() && getRecursiveReverseArray()?.isStarRitualGateActive() == true && runningSecs >= MAX_EFFICIENCY_SEC
 
     // ========================================
     // Utils - RRF
