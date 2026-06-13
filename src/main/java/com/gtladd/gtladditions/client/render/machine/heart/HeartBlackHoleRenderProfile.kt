@@ -21,6 +21,11 @@ object HeartBlackHoleVisualConfig {
 
     // Matches Radiant Event Horizon's default ROTATION_SPEED parameter.
     const val RADIANT_ROTATION_SPEED = 0.3f
+
+    // Whole-body rotation independent from accretion-disk flow, with vertical tilt bounded.
+    const val BLACK_HOLE_ROTATION_MIN_SPEED = 0.010f
+    const val BLACK_HOLE_ROTATION_MAX_SPEED = 0.024f
+    const val BLACK_HOLE_VERTICAL_ROTATION_LIMIT = 0.5235987f
 }
 
 @OnlyIn(Dist.CLIENT)

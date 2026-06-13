@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Matrix4f
 import org.lwjgl.opengl.GL30C
+import kotlin.math.sin
 
 @OnlyIn(Dist.CLIENT)
 internal interface HeartBlackHoleRenderEntry {
@@ -27,6 +28,13 @@ object HeartBlackHoleRenderer {
     private val EMPTY_PROFILE = HeartBlackHoleRenderProfile(0.0f, Vec3.ZERO, 0.0f, 0.0f, 1.0f)
     private const val VOLUME_PASS_EFFECT = 0.0f
     private const val VOLUME_PASS_MASK = 1.0f
+    private const val SMOOTH_TICK_SECONDS = 0.05f
+    private const val TAU = 6.2831855f
+    private const val ROTATION_PHASE_SALT = 0x13579BDF2468ACE0L
+    private const val ROTATION_SPEED_SALT = 0x2468ACE013579BDFL
+    private const val ROTATION_DIRECTION_SALT = 0x5DEECE66DL
+    private const val ROTATION_AXIS_SALT_STEP = 0x1F123BB5L
+    private const val PITCH_AXIS = 0
     private val drawCommandDistanceComparator = Comparator<HeartDrawCommand> { first, second ->
         second.distanceToCameraSqr.compareTo(first.distanceToCameraSqr)
     }
@@ -84,6 +92,10 @@ object HeartBlackHoleRenderer {
             val distanceY = centerY - cameraPosition.y
             val distanceZ = centerZ - cameraPosition.z
             val command = obtainDrawCommand(drawCommands.size)
+            val blockSeed = blockPos.asLong()
+            val blackHoleRotationX = getBlackHoleRotation(blockSeed, profile.tick, 0)
+            val blackHoleRotationY = getBlackHoleRotation(blockSeed, profile.tick, 1)
+            val blackHoleRotationZ = getBlackHoleRotation(blockSeed, profile.tick, 2)
 
             command.set(
                 profile,
@@ -93,7 +105,10 @@ object HeartBlackHoleRenderer {
                 cameraPosition.x - blockPos.x,
                 cameraPosition.y - blockPos.y,
                 cameraPosition.z - blockPos.z,
-                distanceX * distanceX + distanceY * distanceY + distanceZ * distanceZ
+                distanceX * distanceX + distanceY * distanceY + distanceZ * distanceZ,
+                blackHoleRotationX,
+                blackHoleRotationY,
+                blackHoleRotationZ
             )
             drawCommands.add(command)
         }
@@ -108,6 +123,33 @@ object HeartBlackHoleRenderer {
             drawCommandPool.add(HeartDrawCommand())
         }
         return drawCommandPool[index]
+    }
+
+    private fun getBlackHoleRotation(seed: Long, tick: Float, axis: Int): Float {
+        val axisSalt = ROTATION_AXIS_SALT_STEP * axis.toLong()
+        val phase = hashUnit(seed, ROTATION_PHASE_SALT + axisSalt) * TAU
+        val speedRandom = hashUnit(seed, ROTATION_SPEED_SALT + axisSalt)
+        val direction = if (hashUnit(seed, ROTATION_DIRECTION_SALT + axisSalt) < 0.5f) -1.0f else 1.0f
+        val speedRange = HeartBlackHoleVisualConfig.BLACK_HOLE_ROTATION_MAX_SPEED -
+            HeartBlackHoleVisualConfig.BLACK_HOLE_ROTATION_MIN_SPEED
+        val speed = HeartBlackHoleVisualConfig.BLACK_HOLE_ROTATION_MIN_SPEED +
+            speedRange * speedRandom
+        val angle = phase + tick * SMOOTH_TICK_SECONDS * speed * direction
+        return if (axis == PITCH_AXIS) {
+            sin(angle) * HeartBlackHoleVisualConfig.BLACK_HOLE_VERTICAL_ROTATION_LIMIT
+        } else {
+            angle
+        }
+    }
+
+    private fun hashUnit(seed: Long, salt: Long): Float {
+        var value = seed xor salt
+        value = value xor (value ushr 33)
+        value *= -49064778989728563L
+        value = value xor (value ushr 33)
+        value *= -4265267296055464877L
+        value = value xor (value ushr 33)
+        return ((value ushr 40) and 0xFFFFFFL).toFloat() / 0x1000000.toFloat()
     }
 
     private fun releaseDrawCommands() {
@@ -264,6 +306,7 @@ object HeartBlackHoleRenderer {
         private val spaceSolidRadius = shader.getUniform("SpaceSolidRadius")
         private val spaceFadeRadius = shader.getUniform("SpaceFadeRadius")
         private val rotationSpeed = shader.getUniform("RotationSpeed")
+        private val blackHoleRotation = shader.getUniform("BlackHoleRotation")
 
         fun applyVolumePass(volumePass: Float) {
             passMode?.set(volumePass)
@@ -283,6 +326,11 @@ object HeartBlackHoleRenderer {
             cameraPosition?.set(command.cameraX, command.cameraY, command.cameraZ)
             facingAxis?.set(profile.facingX, profile.facingY, profile.facingZ)
             rotationSpeed?.set(profile.rotationSpeed)
+            blackHoleRotation?.set(
+                command.blackHoleRotationX,
+                command.blackHoleRotationY,
+                command.blackHoleRotationZ
+            )
         }
     }
 
@@ -295,6 +343,9 @@ object HeartBlackHoleRenderer {
         var cameraY = 0.0f
         var cameraZ = 0.0f
         var distanceToCameraSqr = 0.0
+        var blackHoleRotationX = 0.0f
+        var blackHoleRotationY = 0.0f
+        var blackHoleRotationZ = 0.0f
 
         fun set(
             profile: HeartBlackHoleRenderProfile,
@@ -304,7 +355,10 @@ object HeartBlackHoleRenderer {
             cameraX: Double,
             cameraY: Double,
             cameraZ: Double,
-            distanceToCameraSqr: Double
+            distanceToCameraSqr: Double,
+            blackHoleRotationX: Float,
+            blackHoleRotationY: Float,
+            blackHoleRotationZ: Float
         ) {
             this.profile = profile
             this.translateX = translateX
@@ -314,10 +368,16 @@ object HeartBlackHoleRenderer {
             this.cameraY = cameraY.toFloat()
             this.cameraZ = cameraZ.toFloat()
             this.distanceToCameraSqr = distanceToCameraSqr
+            this.blackHoleRotationX = blackHoleRotationX
+            this.blackHoleRotationY = blackHoleRotationY
+            this.blackHoleRotationZ = blackHoleRotationZ
         }
 
         fun clearReferences() {
             profile = EMPTY_PROFILE
+            blackHoleRotationX = 0.0f
+            blackHoleRotationY = 0.0f
+            blackHoleRotationZ = 0.0f
         }
     }
 }
