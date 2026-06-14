@@ -34,6 +34,7 @@ forge*changelog.txt
 /changelog.txt
 /.gitattributes
 
+/docs
 /tmp
 /.claude
 /CLAUDE.md
