@@ -24,12 +24,10 @@ import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.SPACE_ORE_PROCES
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
 import com.gtladd.gtladditions.utils.TempChemicalHelper
 import net.minecraft.data.recipes.FinishedRecipe
-import net.minecraft.world.item.Item
 import org.gtlcore.gtlcore.common.data.GTLMaterials.EuvPhotoresist
 import org.gtlcore.gtlcore.common.data.GTLMaterials.Photoresist
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
 import org.gtlcore.gtlcore.config.ConfigHolder
-import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Consumer
 import kotlin.math.log10
 
@@ -169,15 +167,7 @@ object RecipesModify {
     private fun markCycleItemContents(contents: MutableList<Content>?) {
         contents?.forEach { content ->
             val item = ItemRecipeCapability.CAP.of(content.content).items.firstOrNull()?.item ?: return@forEach
-            if (item in cycleItems) content.slotName = RecipeCalculationHelper.RECIPE_CYCLE_CONTAINER
+            if (RecipeCalculationHelper.isRecipeCycleContainerItem(item)) content.slotName = RecipeCalculationHelper.RECIPE_CYCLE_CONTAINER
         }
-    }
-
-    private val cycleItems: Set<Item> by lazy {
-        setOf(
-            Registries.getItem("kubejs:extremely_durable_plasma_cell"),
-            Registries.getItem("kubejs:time_dilation_containment_unit"),
-            Registries.getItem("kubejs:plasma_containment_cell")
-        )
     }
 }

@@ -1,14 +1,18 @@
 package com.gtladd.gtladditions.common.machine.multiblock.part
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.integration.ae2.gui.widget.AETextInputButtonWidget
 import com.gregtechceu.gtceu.utils.ResearchManager
+import com.gtladd.gtladditions.api.machine.gui.FOAPatternConfigurator
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget
 import com.lowdragmc.lowdraglib.gui.widget.Widget
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
+import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
+import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.Tag
 import net.minecraft.world.InteractionHand
@@ -29,6 +33,12 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
     maxPages: Int = 3
 ) : MEPatternBufferPartMachine(holder, patternsPerRow * rowsPerPage * maxPages, IO.BOTH) {
     private val paginationUIManager: PaginationUIManager
+
+    @field:Persisted
+    private var foaModeEnabled: Boolean = false
+
+    @field:Persisted
+    private var foaPatternOutputMultiplier: Int = DEFAULT_MULTIPLIER
 
     init {
         val uiWidth = max(patternsPerRow * 18 + 16, 106)
@@ -81,9 +91,31 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
         return InteractionResult.PASS
     }
 
+    fun isFOAModeEnabled(): Boolean = foaModeEnabled
+
+    fun getFOAPatternOutputMultiplier(): Int = foaPatternOutputMultiplier
+
+    fun setFOAModeEnabled(enabled: Boolean) {
+        if (foaModeEnabled == enabled) return
+        foaModeEnabled = enabled
+        refreshAllByProduct()
+    }
+
+    fun setFOAPatternOutputMultiplier(multiplier: Int) {
+        if (foaPatternOutputMultiplier == multiplier) return
+        foaPatternOutputMultiplier = multiplier
+        refreshAllByProduct()
+    }
+
     // ========================================
     // GUI SYSTEM
     // ========================================
+
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        configuratorPanel.attachConfigurators(FOAPatternConfigurator(this))
+    }
+
     override fun createUIWidget(): Widget {
         val group = WidgetGroup(0, 0, paginationUIManager.uiWidth, paginationUIManager.uiHeight)
 
@@ -121,5 +153,18 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
         )
 
         return group
+    }
+
+    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
+
+    companion object {
+        private const val DEFAULT_MULTIPLIER = 15
+        const val MIN_MULTIPLIER = 1
+        const val MAX_MULTIPLIER = 30
+
+        private val MANAGED_FIELD_HOLDER = ManagedFieldHolder(
+            MESuperPatternBufferPartMachine::class.java,
+            MEPatternBufferPartMachine.MANAGED_FIELD_HOLDER
+        )
     }
 }

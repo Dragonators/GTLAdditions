@@ -32,6 +32,16 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
+## 神锻样板模式
+
+* 神锻样板模式配置页默认关闭，只会改变此 <ItemLink id="gtladditions:me_super_pattern_buffer" /> 向 AE 终端暴露的样板。
+* 样板输出倍率范围为 1 到 30，默认值为 15，对应 <ItemLink id="gtladditions:forge_of_the_antichrist" /> 最大效率。
+* 启用后，原始样板输入输出会按照 <ItemLink id="gtladditions:forge_of_the_antichrist" /> 的配方倍增规则进行修改。
+
+</Column>
+
+<Column gap="2" fullWidth={true}>
+
 ## 闪存绑定
 
 * 手持 <ItemLink id="gtceu:data_stick" /> 右键 <ItemLink id="gtladditions:me_super_pattern_buffer" />，会记录该总成的绑定信息。
