@@ -104,7 +104,7 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
     fun setFOAPatternOutputMultiplier(multiplier: Int) {
         if (foaPatternOutputMultiplier == multiplier) return
         foaPatternOutputMultiplier = multiplier
-        refreshAllByProduct()
+        if (foaModeEnabled) refreshAllByProduct()
     }
 
     // ========================================
