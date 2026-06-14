@@ -32,6 +32,16 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
+## Forge Pattern Mode
+
+* The Forge Pattern Mode page is disabled by default and only changes patterns exposed by this <ItemLink id="gtladditions:me_super_pattern_buffer" />.
+* The pattern output multiplier accepts values from 1 to 127. The default is 15, matching maximum <ItemLink id="gtladditions:forge_of_the_antichrist" /> efficiency.
+* When enabled, original pattern inputs and outputs are modified according to the recipe multiplication rules of <ItemLink id="gtladditions:forge_of_the_antichrist" />.
+
+</Column>
+
+<Column gap="2" fullWidth={true}>
+
 ## Flash Drive Binding
 
 * Right-click <ItemLink id="gtladditions:me_super_pattern_buffer" /> while holding a <ItemLink id="gtceu:data_stick" /> to record that buffer's binding information.

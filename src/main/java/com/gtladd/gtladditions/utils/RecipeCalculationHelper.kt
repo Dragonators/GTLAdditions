@@ -25,6 +25,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.Item
 import net.minecraft.world.item.crafting.Ingredient
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
@@ -505,7 +506,17 @@ object RecipeCalculationHelper {
 
     const val RECIPE_CYCLE_CONTAINER = "recipe_cycle_container"
 
-    private val fullCell by lazy {
+    val RECIPE_CYCLE_CONTAINER_ITEM_IDS: Set<ResourceLocation> = setOf(
+        ResourceLocation("kubejs", "extremely_durable_plasma_cell"),
+        ResourceLocation("kubejs", "time_dilation_containment_unit"),
+        ResourceLocation("kubejs", "plasma_containment_cell")
+    )
+
+    val RECIPE_CYCLE_CONTAINER_ITEMS: Set<Item> by lazy {
+        RECIPE_CYCLE_CONTAINER_ITEM_IDS.mapTo(mutableSetOf()) { id -> Registries.getItem(id.toString()) }
+    }
+
+    val FORGE_OF_THE_ANTICHRIST_SPECIAL_INPUT_RULES: Map<ResourceLocation, Content> by lazy {
         mapOf(
             ResourceLocation("kubejs", "stellar_forge/contained_exotic_matter") to Content(
                 LongIngredient.create(Ingredient.of(Registries.getItemStack("kubejs:time_dilation_containment_unit"))),
@@ -534,10 +545,12 @@ object RecipeCalculationHelper {
         )
     }
 
+    fun isRecipeCycleContainerItem(item: Item): Boolean = item in RECIPE_CYCLE_CONTAINER_ITEMS
+
     fun isRecipeCycleContainerContent(content: Content): Boolean = content.slotName == RECIPE_CYCLE_CONTAINER
 
     fun appendSpecificInput(copyList: MutableList<Content>, id: ResourceLocation, modifier: ContentModifier) {
-        fullCell[id]?.let {
+        FORGE_OF_THE_ANTICHRIST_SPECIAL_INPUT_RULES[id]?.let {
             if (modifier.multiplier >= 2) {
                 copyList.add(
                     it.copy(
