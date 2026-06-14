@@ -33,3 +33,6 @@ forge*changelog.txt
 /CREDITS.txt
 /changelog.txt
 /.gitattributes
+
+/docs
+/AGENTS.md
