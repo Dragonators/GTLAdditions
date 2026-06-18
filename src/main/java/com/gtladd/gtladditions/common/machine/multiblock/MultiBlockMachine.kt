@@ -1216,44 +1216,41 @@ object MultiBlockMachine {
             .shapeInfos { definition ->
                 val results = ObjectArrayList<MultiblockShapeInfo>()
                 val shapeInfo = MultiblockShapeInfo.builder()
-                    .where('~', definition, Direction.DOWN)
+                    .where('T', definition, Direction.DOWN)
                     .where('J', getBlock("gtlcore:dimension_injection_casing"))
-                    .where('N', getBlock("kubejs:eternity_coil_block"))
                     .where('G', getBlock("kubejs:hollow_casing"))
-                    .where('O', getBlock("gtceu:fusion_glass"))
                     .where('B', getBlock("gtlcore:dimensionally_transcendent_casing"))
-                    .where('R', STOCKING_IMPORT_BUS_ME, Direction.DOWN)
+                    .where('R', getBlock("kubejs:force_field_glass"))
                     .where('I', getBlock("gtlcore:sps_casing"))
-                    .where('K', getBlock("kubejs:containment_field_generator"))
-                    .where('L', getBlock("gtlcore:ultimate_stellar_containment_casing"))
-                    .where('M', getBlock("gtlcore:fusion_casing_mk5"))
-                    .where('S', ME_EXTENDED_EXPORT_BUFFER, Direction.DOWN)
+                    .where('K', getBlock("gtceu:uhv_machine_casing"))
+                    .where('L', getBlock("kubejs:containment_field_generator"))
+                    .where('M', getBlock("gtlcore:ultimate_stellar_containment_casing"))
+                    .where('S', getBlock("kubejs:speeding_pipe"))
                     .where('C', getBlock("gtceu:atomic_casing"))
                     .where('H', getBlock("gtceu:uhv_machine_casing"))
-                    .where('P', WIRELESS_LASER_INPUT_HATCH_67108864A[13], Direction.DOWN)
+                    .where('N', getBlock("gtlcore:fusion_casing_mk5"))
+                    .where('O', getBlock("kubejs:eternity_coil_block"))
+                    .where('P', getBlock("gtceu:fusion_glass"))
+                    .where('Q', getBlock("kubejs:dimensional_bridge_casing"))
                     .where('D', getBlock("gtceu:mithril_frame"))
-                    .where('U', getBlock("kubejs:speeding_pipe"))
-                    .where('V', getBlock("kubejs:dimensional_bridge_casing"))
                     .where('A', getBlock("gtlcore:iridium_casing"))
                     .where('F', getBlock("gtceu:naquadah_alloy_frame"))
-                    .where('T', getBlock("kubejs:force_field_glass"))
                     .where('E', getBlock("gtceu:woods_glass_block"))
+                    .where('X', WIRELESS_LASER_INPUT_HATCH_67108864A[13], Direction.DOWN)
+                    .where('Y', STOCKING_IMPORT_BUS_ME, Direction.DOWN)
+                    .where('Z', ME_EXTENDED_EXPORT_BUFFER, Direction.DOWN)
 
-                val arrays = arrayOf(
-                    arrayOf("             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "      A      ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             "),
-                    arrayOf("             ", "     AAA     ", "      A      ", "      A      ", "      A      ", "     AAA     ", "      A      ", "      A      ", "      A      ", "      A      ", "     BBB     ", "      A      ", "      A      ", "      A      ", "      A      ", "     AAA     ", "      A      ", "      A      ", "      A      ", "     AAA     ", "             "),
-                    arrayOf("     A A     ", "    CCCCC    ", "     BBB     ", "     BDB     ", "     B B     ", "   BBEEEBB   ", "    A   A    ", "             ", "             ", "     AAA     ", "     FGF     ", "     AAA     ", "             ", "             ", "    A   A    ", "   BBEEEBB   ", "     B B     ", "     BDB     ", "     BBB     ", "    CCCCC    ", "     A A     "),
-                    arrayOf("    HAHAH    ", "   CCCCCCC   ", "    HIJIH    ", "      D      ", "             ", "  B       B  ", "   AEEEEEA   ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "   AEEEEEA   ", "  B       B  ", "             ", "      D      ", "    HIJIH    ", "   CCCCCCC   ", "    HAHAH    "),
-                    arrayOf("   HAKHKAH   ", "  CCCCCCCCC  ", "   HAIJIAH   ", "    AAAAA    ", "     LLL     ", "  B  LLL  B  ", "  AE LLL EA  ", "    AEEEA    ", "    M   M    ", "    M   M    ", "    M   M    ", "    M   M    ", "    M   M    ", "    AEEEA    ", "  AE LLL EA  ", "  B  LLL  B  ", "     LLL     ", "    AAAAA    ", "   HAIJIAH   ", "  CCCCCCCCC  ", "   HAKHKAH   "),
-                    arrayOf("  AAKHHHKAA  ", " ACCCCCCCCCA ", "  BIIIJIIIB  ", "  B ANNNA B  ", "  B LLLLL B  ", " AE L   L EA ", "   ELLLLLE   ", "    E O E    ", "     ADA     ", "  A       A  ", " BF   O   FB ", "  A       A  ", "     ADA     ", "    E O E    ", "   ELLLLLE   ", " AE L   L EA ", "  B LLLLL B  ", "  B ANNNA B  ", "  BIIIJIIIB  ", " ACCCCCCCCCA ", "  AAKHHHKAA  "),
-                    arrayOf("   PPH~HRS   ", " ACCCCCCCCCA ", " ABJJJJJJJBA ", " ADDANKNADDA ", " A  LLTLL  A ", " AE L T L EA ", " A ELLTLLE A ", " A  EOKOE  A ", " A   DUD   A ", " AA   V   AA ", "ABG  OUO  GBA", " AA   V   AA ", " A   DUD   A ", " A  EOKOE  A ", " A ELLTLLE A ", " AE L T L EA ", " A  LLTLL  A ", " ADDANKNADDA ", " ABJJJJJJJBA ", " ACCCCCCCCCA ", "   HHHVHHH   "),
-                    arrayOf("  AAKHHHKAA  ", " ACCCCCCCCCA ", "  BIIIJIIIB  ", "  B ANNNA B  ", "  B LLLLL B  ", " AE L   L EA ", "   ELLLLLE   ", "    E O E    ", "     ADA     ", "  A       A  ", " BF   O   FB ", "  A       A  ", "     ADA     ", "    E O E    ", "   ELLLLLE   ", " AE L   L EA ", "  B LLLLL B  ", "  B ANNNA B  ", "  BIIIJIIIB  ", " ACCCCCCCCCA ", "  AAKHHHKAA  "),
-                    arrayOf("   HAKHKAH   ", "  CCCCCCCCC  ", "   HAIJIAH   ", "    AAAAA    ", "     LLL     ", "  B  LLL  B  ", "  AE LLL EA  ", "    AEEEA    ", "    M   M    ", "    M   M    ", "    M   M    ", "    M   M    ", "    M   M    ", "    AEEEA    ", "  AE LLL EA  ", "  B  LLL  B  ", "     LLL     ", "    AAAAA    ", "   HAIJIAH   ", "  CCCCCCCCC  ", "   HAKHKAH   "),
-                    arrayOf("    HAHAH    ", "   CCCCCCC   ", "    HIJIH    ", "      D      ", "             ", "  B       B  ", "   AEEEEEA   ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "   AEEEEEA   ", "  B       B  ", "             ", "      D      ", "    HIJIH    ", "   CCCCCCC   ", "    HAHAH    "),
-                    arrayOf("     A A     ", "    CCCCC    ", "     BBB     ", "     BDB     ", "     B B     ", "   BBEEEBB   ", "    A   A    ", "             ", "             ", "     AAA     ", "     FGF     ", "     AAA     ", "             ", "             ", "    A   A    ", "   BBEEEBB   ", "     B B     ", "     BDB     ", "     BBB     ", "    CCCCC    ", "     A A     "),
-                    arrayOf("             ", "     AAA     ", "      A      ", "      A      ", "      A      ", "     AAA     ", "      A      ", "      A      ", "      A      ", "      A      ", "     BBB     ", "      A      ", "      A      ", "      A      ", "      A      ", "     AAA     ", "      A      ", "      A      ", "      A      ", "     AAA     ", "             "),
-                    arrayOf("             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "      A      ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ")
-                )
+                val arrays = StructureResourceLoader.loadShapeInfoSlices(
+                    "multiblock/taixu_turbid_array.bin",
+                    "taixu_turbid_array"
+                ) { planeIndex, aisleIndex, rowIndex, symbol ->
+                    when {
+                        planeIndex == 6 && aisleIndex == 0 && rowIndex in 3..4 -> 'X'
+                        planeIndex == 6 && aisleIndex == 0 && rowIndex == 8 -> 'Y'
+                        planeIndex == 6 && aisleIndex == 0 && rowIndex == 9 -> 'Z'
+                        else -> symbol
+                    }
+                }
 
                 StructureSlicer.sliceAndInsert(arrays, 10, 12, 11, 1, 16).forEach {
                     var copy = shapeInfo.shallowCopy()

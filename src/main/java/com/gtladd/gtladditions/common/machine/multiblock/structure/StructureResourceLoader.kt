@@ -9,6 +9,8 @@ import java.io.EOFException
 import java.nio.charset.StandardCharsets
 
 object StructureResourceLoader {
+    data class RepeatableAisle(val aisleIndex: Int, val min: Int, val max: Int)
+
     private const val ROOT_PATH = "assets/gtladditions/structures"
     private const val KIND_FACTORY_PATTERN = 1
     private const val KIND_RING_SET = 2
@@ -20,6 +22,13 @@ object StructureResourceLoader {
         resourcePath: String,
         expectedId: String,
         vararg directions: RelativeDirection
+    ): FactoryBlockPattern = loadFactoryPattern(resourcePath, expectedId, emptyList(), *directions)
+
+    fun loadFactoryPattern(
+        resourcePath: String,
+        expectedId: String,
+        repeatableAisles: List<RepeatableAisle>,
+        vararg directions: RelativeDirection
     ): FactoryBlockPattern {
         val pattern = when (directions.size) {
             0 -> FactoryBlockPattern.start()
@@ -27,8 +36,14 @@ object StructureResourceLoader {
             else -> error(resourcePath, expectedId, "expected 0 or 3 relative directions, got ${directions.size}")
         }
 
-        loadAisles(resourcePath, expectedId).forEach { aisle ->
-            pattern.aisle(*aisle)
+        val repeatableByIndex = repeatableAisles.associateBy { it.aisleIndex }
+        loadAisles(resourcePath, expectedId).forEachIndexed { aisleIndex, aisle ->
+            val repeatable = repeatableByIndex[aisleIndex]
+            if (repeatable == null) {
+                pattern.aisle(*aisle)
+            } else {
+                pattern.aisleRepeatable(repeatable.min, repeatable.max, *aisle)
+            }
         }
         return pattern
     }
@@ -42,6 +57,27 @@ object StructureResourceLoader {
                 }
             }
         }
+
+    fun loadShapeInfoSlices(
+        resourcePath: String,
+        expectedId: String,
+        symbolMapper: (planeIndex: Int, aisleIndex: Int, rowIndex: Int, symbol: Char) -> Char
+    ): Array<Array<String>> {
+        val aisles = loadAisles(resourcePath, expectedId)
+        val rowCount = aisles[0].size
+        val planeCount = aisles[0][0].length
+
+        return Array(planeCount) { planeIndex ->
+            Array(aisles.size) { aisleIndex ->
+                buildString(rowCount) {
+                    for (rowIndex in 0 until rowCount) {
+                        val symbol = aisles[aisleIndex][rowIndex][planeIndex]
+                        append(symbolMapper(planeIndex, aisleIndex, rowIndex, symbol))
+                    }
+                }
+            }
+        }
+    }
 
     private fun loadAisles(resourcePath: String, expectedId: String): Array<Array<String>> =
         getOrLoad(factoryPatternCache, resourcePath) {
