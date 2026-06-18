@@ -183,6 +183,11 @@ object MultiBlockModify {
             patternPredicateSelector({ GTBlocks.CASING_STAINLESS_CLEAN.get() }, PartAbility.PARALLEL_HATCH, PartAbility.MAINTENANCE),
             { Predicates.blocks(GTLAddMachines.ORE_PROCESSOR_HATCH.get()).setMaxGlobalLimited(1) }
         )
+        MultiBlockMachineA.ADVANCED_INTEGRATED_ORE_PROCESSOR.patchPatternPredicates(
+            "ore_processor_hatch",
+            patternPredicateSelector({ GTBlocks.CASING_TUNGSTENSTEEL_ROBUST.get() }, PartAbility.INPUT_LASER),
+            { Predicates.blocks(GTLAddMachines.ORE_PROCESSOR_HATCH.get()).setMaxGlobalLimited(1) }
+        )
 
         val threadModifierPredicate = { Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1) }
         AdvancedMultiBlockMachine.DOOR_OF_CREATE.patchPatternPredicates(
