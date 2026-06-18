@@ -40,6 +40,7 @@ object MultiBlockStructure {
         StructureResourceLoader.loadFactoryPattern(
             "multiblock/taixu_turbid_array.bin",
             "taixu_turbid_array",
+            listOf(StructureResourceLoader.RepeatableAisle(10, 1, 16)),
             RelativeDirection.RIGHT,
             RelativeDirection.UP,
             RelativeDirection.BACK
