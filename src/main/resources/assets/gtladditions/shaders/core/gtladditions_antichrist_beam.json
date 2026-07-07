@@ -7,7 +7,9 @@
   "vertex": "gtladditions:gtladditions_antichrist_beam",
   "fragment": "gtladditions:gtladditions_antichrist_beam",
   "attributes": [
-    "Position"
+    "Position",
+    "UV0",
+    "Color"
   ],
   "samplers": [
     {
@@ -62,30 +64,6 @@
       ]
     },
     {
-      "name": "SegmentQuads",
-      "type": "float",
-      "count": 1,
-      "values": [
-        16.0
-      ]
-    },
-    {
-      "name": "Time",
-      "type": "float",
-      "count": 1,
-      "values": [
-        0.0
-      ]
-    },
-    {
-      "name": "SegmentArray",
-      "type": "float",
-      "count": 33,
-      "values": [
-        0.0
-      ]
-    },
-    {
       "name": "CameraPosition",
       "type": "float",
       "count": 3,
@@ -96,7 +74,7 @@
       ]
     },
     {
-      "name": "Color",
+      "name": "BeamColor",
       "type": "float",
       "count": 3,
       "values": [

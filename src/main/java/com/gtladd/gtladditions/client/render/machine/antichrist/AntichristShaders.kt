@@ -26,7 +26,7 @@ object AntichristShaders {
         ) { shader -> starShader = shader }
 
         event.registerShader(
-            ShaderInstance(event.resourceProvider, BEAM_SHADER_ID, DefaultVertexFormat.POSITION)
+            ShaderInstance(event.resourceProvider, BEAM_SHADER_ID, DefaultVertexFormat.POSITION_TEX_COLOR)
         ) { shader -> beamShader = shader }
     }
 }
