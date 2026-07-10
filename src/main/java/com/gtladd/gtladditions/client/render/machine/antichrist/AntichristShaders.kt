@@ -1,7 +1,9 @@
 package com.gtladd.gtladditions.client.render.machine.antichrist
 
+import com.google.common.collect.ImmutableMap
 import com.gtladd.gtladditions.GTLAdditions
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.renderer.ShaderInstance
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -13,6 +15,16 @@ import net.minecraftforge.fml.common.Mod
 object AntichristShaders {
     private val STAR_SHADER_ID = GTLAdditions.id("gtladditions_antichrist_star")
     private val BEAM_SHADER_ID = GTLAdditions.id("gtladditions_antichrist_beam")
+    internal val BEAM_VERTEX_FORMAT = VertexFormat(
+        ImmutableMap.of(
+            "Position",
+            DefaultVertexFormat.ELEMENT_POSITION,
+            "UV0",
+            DefaultVertexFormat.ELEMENT_UV0,
+            "UV1",
+            DefaultVertexFormat.ELEMENT_UV1
+        )
+    )
 
     var starShader: ShaderInstance? = null
         private set
@@ -26,7 +38,7 @@ object AntichristShaders {
         ) { shader -> starShader = shader }
 
         event.registerShader(
-            ShaderInstance(event.resourceProvider, BEAM_SHADER_ID, DefaultVertexFormat.POSITION_TEX_COLOR)
+            ShaderInstance(event.resourceProvider, BEAM_SHADER_ID, BEAM_VERTEX_FORMAT)
         ) { shader -> beamShader = shader }
     }
 }
