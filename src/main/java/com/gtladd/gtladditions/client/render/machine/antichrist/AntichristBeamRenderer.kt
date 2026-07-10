@@ -6,7 +6,6 @@ import com.gtladd.gtladditions.client.render.withPose
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexBuffer
@@ -24,6 +23,7 @@ import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -33,6 +33,7 @@ object AntichristBeamRenderer {
     private const val SEGMENT_QUADS = 16
     private const val ENDPOINT_FLOATS = (MAX_SEGMENTS + 1) * 3
     private const val PI = 3.1415926535897f
+    private const val ALPHA_PACK_SCALE = 10000.0f
     private const val BACK_PLATE_DISTANCE = -121.5f
     private const val BACK_PLATE_RADIUS = 13.0f
     private const val INTENSE_BEAM_TANGENT_FADE_DISTANCE = 3.75f
@@ -134,6 +135,7 @@ object AntichristBeamRenderer {
         shader.getUniform("Intensity")?.set(2.0f)
         uploadBeamBuffer(softBeam, tick)
         DeferredOculusCompat.withDeferredShaderPass {
+            beamBuffer.bind()
             beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
 
@@ -141,6 +143,7 @@ object AntichristBeamRenderer {
         shader.getUniform("Intensity")?.set(4.0f)
         uploadBeamBuffer(intenseBeam, tick)
         DeferredOculusCompat.withDeferredShaderPass {
+            beamBuffer.bind()
             beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
 
@@ -338,7 +341,7 @@ object AntichristBeamRenderer {
 
     private fun uploadBeamBuffer(segments: SegmentBuffer, tick: Float) {
         val builder = Tesselator.getInstance().builder
-        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR)
+        builder.begin(VertexFormat.Mode.TRIANGLES, AntichristShaders.BEAM_VERTEX_FORMAT)
         writeBeamVertices(builder, segments, tick)
 
         beamBuffer.bind()
@@ -375,13 +378,18 @@ object AntichristBeamRenderer {
         val y = sin(angle) * radius
         val timer = tick / 240.0f
         val heightOffset = (offset / 256.0f) + timer
-        val alpha = (segments.transparency(endpointId).coerceIn(0.0f, 1.0f) * 255.0f).toInt()
+        val alpha = packAlpha(segments.transparency(endpointId))
 
         builder.vertex(x.toDouble(), y.toDouble(), offset.toDouble())
             .uv(heightOffset, angle / (2.0f * PI) + heightOffset / 3.0f + timer)
-            .color(255, 255, 255, alpha)
+            .overlayCoords(alpha)
             .endVertex()
     }
+
+    private fun packAlpha(alpha: Float): Int =
+        (alpha * ALPHA_PACK_SCALE)
+            .roundToInt()
+            .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()) and 0xFFFF
 
     private fun getVertexAngle(quadId: Int, localId: Int, cameraAngle: Float): Float {
         val idOffset = if (localId > 1 && localId < 5) 0 else 1

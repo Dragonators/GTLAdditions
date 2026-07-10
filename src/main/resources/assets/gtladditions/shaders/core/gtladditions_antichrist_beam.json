@@ -9,7 +9,7 @@
   "attributes": [
     "Position",
     "UV0",
-    "Color"
+    "UV1"
   ],
   "samplers": [
     {
