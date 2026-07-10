@@ -3,7 +3,7 @@
 uniform sampler2D Sampler0;
 uniform float Intensity;
 uniform vec3 CameraPosition;
-uniform vec3 Color;
+uniform vec3 BeamColor;
 
 in vec2 texCoord;
 in vec2 localPosition;
@@ -24,5 +24,5 @@ void main() {
     float luminance = 1.0 - luminanceTransform(texColor.xyz);
     luminance = mix(luminance, 1.0, 1.0 - pow(angleAlpha, 6.0));
     float alpha = clamp(angleAlpha * transparency * luminance, 0.0, 1.0);
-    fragColor = vec4(Color, alpha);
+    fragColor = vec4(BeamColor, alpha);
 }

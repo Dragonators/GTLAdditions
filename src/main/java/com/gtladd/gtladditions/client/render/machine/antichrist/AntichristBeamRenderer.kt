@@ -6,7 +6,6 @@ import com.gtladd.gtladditions.client.render.withPose
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexBuffer
@@ -24,6 +23,7 @@ import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -32,6 +32,8 @@ object AntichristBeamRenderer {
     private const val MAX_SEGMENTS = 10
     private const val SEGMENT_QUADS = 16
     private const val ENDPOINT_FLOATS = (MAX_SEGMENTS + 1) * 3
+    private const val PI = 3.1415926535897f
+    private const val ALPHA_PACK_SCALE = 10000.0f
     private const val BACK_PLATE_DISTANCE = -121.5f
     private const val BACK_PLATE_RADIUS = 13.0f
     private const val INTENSE_BEAM_TANGENT_FADE_DISTANCE = 3.75f
@@ -39,7 +41,7 @@ object AntichristBeamRenderer {
     private val SPACE_LAYER = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/space_layer.png")
 
     private val beamBuffer: VertexBuffer by lazy {
-        buildBeamBuffer()
+        VertexBuffer(VertexBuffer.Usage.DYNAMIC)
     }
 
     private val softBeam = SegmentBuffer()
@@ -127,23 +129,21 @@ object AntichristBeamRenderer {
         RenderSystem.disableCull()
         RenderSystem.setShaderTexture(0, SPACE_LAYER)
 
-        shader.getUniform("SegmentQuads")?.set(SEGMENT_QUADS.toFloat())
         shader.getUniform("CameraPosition")?.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
-        shader.getUniform("Time")?.set(tick)
 
-        beamBuffer.bind()
-
-        shader.getUniform("Color")?.set(colorR, colorG, colorB)
+        shader.getUniform("BeamColor")?.set(colorR, colorG, colorB)
         shader.getUniform("Intensity")?.set(2.0f)
-        shader.getUniform("SegmentArray")?.set(softBeam.values)
+        uploadBeamBuffer(softBeam, tick)
         DeferredOculusCompat.withDeferredShaderPass {
+            beamBuffer.bind()
             beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
 
-        shader.getUniform("Color")?.set(intenseColorR, intenseColorG, intenseColorB)
+        shader.getUniform("BeamColor")?.set(intenseColorR, intenseColorG, intenseColorB)
         shader.getUniform("Intensity")?.set(4.0f)
-        shader.getUniform("SegmentArray")?.set(intenseBeam.values)
+        uploadBeamBuffer(intenseBeam, tick)
         DeferredOculusCompat.withDeferredShaderPass {
+            beamBuffer.bind()
             beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
 
@@ -339,23 +339,61 @@ object AntichristBeamRenderer {
     private fun interpolate(x0: Float, x1: Float, y0: Float, y1: Float, x: Float): Float =
         y0 + ((x - x0) * (y1 - y0)) / (x1 - x0)
 
-    private fun buildBeamBuffer(): VertexBuffer {
-        val buffer = VertexBuffer(VertexBuffer.Usage.STATIC)
+    private fun uploadBeamBuffer(segments: SegmentBuffer, tick: Float) {
         val builder = Tesselator.getInstance().builder
-        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION)
+        builder.begin(VertexFormat.Mode.TRIANGLES, AntichristShaders.BEAM_VERTEX_FORMAT)
+        writeBeamVertices(builder, segments, tick)
 
-        repeat(MAX_SEGMENTS * SEGMENT_QUADS * 6) {
-            addVertex(builder)
-        }
-
-        buffer.bind()
-        buffer.upload(builder.end())
-        VertexBuffer.unbind()
-        return buffer
+        beamBuffer.bind()
+        beamBuffer.upload(builder.end())
     }
 
-    private fun addVertex(builder: BufferBuilder) {
-        builder.vertex(0.0, 0.0, 0.0).endVertex()
+    private fun writeBeamVertices(builder: BufferBuilder, segments: SegmentBuffer, tick: Float) {
+        val cameraAngle = atan2(cameraPosition.y, cameraPosition.x)
+        for (segmentId in 0 until MAX_SEGMENTS) {
+            for (quadId in 0 until SEGMENT_QUADS) {
+                addBeamVertex(builder, segments, segmentId + 1, quadId, 0, cameraAngle, tick)
+                addBeamVertex(builder, segments, segmentId, quadId, 1, cameraAngle, tick)
+                addBeamVertex(builder, segments, segmentId, quadId, 2, cameraAngle, tick)
+                addBeamVertex(builder, segments, segmentId, quadId, 3, cameraAngle, tick)
+                addBeamVertex(builder, segments, segmentId + 1, quadId, 4, cameraAngle, tick)
+                addBeamVertex(builder, segments, segmentId + 1, quadId, 5, cameraAngle, tick)
+            }
+        }
+    }
+
+    private fun addBeamVertex(
+        builder: BufferBuilder,
+        segments: SegmentBuffer,
+        endpointId: Int,
+        quadId: Int,
+        localId: Int,
+        cameraAngle: Float,
+        tick: Float
+    ) {
+        val radius = segments.radius(endpointId)
+        val offset = segments.offset(endpointId)
+        val angle = getVertexAngle(quadId, localId, cameraAngle)
+        val x = cos(angle) * radius
+        val y = sin(angle) * radius
+        val timer = tick / 240.0f
+        val heightOffset = (offset / 256.0f) + timer
+        val alpha = packAlpha(segments.transparency(endpointId))
+
+        builder.vertex(x.toDouble(), y.toDouble(), offset.toDouble())
+            .uv(heightOffset, angle / (2.0f * PI) + heightOffset / 3.0f + timer)
+            .overlayCoords(alpha)
+            .endVertex()
+    }
+
+    private fun packAlpha(alpha: Float): Int =
+        (alpha * ALPHA_PACK_SCALE)
+            .roundToInt()
+            .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()) and 0xFFFF
+
+    private fun getVertexAngle(quadId: Int, localId: Int, cameraAngle: Float): Float {
+        val idOffset = if (localId > 1 && localId < 5) 0 else 1
+        return (PI * (quadId + idOffset).toFloat()) / SEGMENT_QUADS.toFloat() + (cameraAngle - PI / 2.0f)
     }
 
     private class SegmentBuffer {
@@ -383,5 +421,11 @@ object AntichristBeamRenderer {
                 values[base + 2] = values[fallbackBase + 2]
             }
         }
+
+        fun radius(endpointId: Int): Float = values[endpointId * 3]
+
+        fun offset(endpointId: Int): Float = values[endpointId * 3 + 1]
+
+        fun transparency(endpointId: Int): Float = values[endpointId * 3 + 2]
     }
 }
