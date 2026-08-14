@@ -47,7 +47,7 @@ import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
-import org.gtlcore.gtlcore.api.recipe.IGTRecipe
+import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
 import kotlin.math.exp
 import kotlin.math.max
@@ -459,8 +459,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
                 recipe.duration,
                 recipe.isFuel
             )
-            IGTRecipe.of(copy).realParallels = IGTRecipe.of(recipe).realParallels
-            copy.ocTier = recipe.ocTier
+            RecipeExtensionCopier.copy(recipe, copy)
             return copy
         }
 

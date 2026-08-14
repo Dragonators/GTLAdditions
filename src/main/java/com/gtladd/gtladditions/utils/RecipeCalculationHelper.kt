@@ -29,6 +29,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.crafting.Ingredient
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
+import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
@@ -50,7 +51,11 @@ object RecipeCalculationHelper {
         parallel: Long,
         crossinline copyRecipe: (GTRecipe) -> GTRecipe
     ): GTRecipe {
-        val processed = if (parallel > 1) copyRecipe(recipe) else recipe
+        val processed = if (parallel > 1) {
+            copyRecipe(recipe).also { RecipeExtensionCopier.copy(recipe, it) }
+        } else {
+            recipe
+        }
         IGTRecipe.of(processed).realParallels = parallel
         return processed
     }
@@ -440,22 +445,25 @@ object RecipeCalculationHelper {
     // ===================================================
 
     fun copyFixRecipe(origin: GTRecipe, modifier: ContentModifier, fixMultiplier: Int) =
-        GTRecipe(
-            origin.recipeType,
-            origin.id,
-            copyFixContents(origin.inputs, modifier, fixMultiplier),
-            copyFixContents(origin.outputs, modifier, fixMultiplier),
-            copyFixContents(origin.tickInputs, modifier, fixMultiplier),
-            copyFixContents(origin.tickOutputs, modifier, fixMultiplier),
-            Reference2ReferenceArrayMap(origin.inputChanceLogics),
-            Reference2ReferenceArrayMap(origin.outputChanceLogics),
-            Reference2ReferenceArrayMap(origin.tickInputChanceLogics),
-            Reference2ReferenceArrayMap(origin.tickOutputChanceLogics),
-            ObjectArrayList(origin.conditions),
-            ObjectArrayList(origin.ingredientActions),
-            origin.data,
-            origin.duration,
-            origin.isFuel
+        RecipeExtensionCopier.copy(
+            origin,
+            GTRecipe(
+                origin.recipeType,
+                origin.id,
+                copyFixContents(origin.inputs, modifier, fixMultiplier),
+                copyFixContents(origin.outputs, modifier, fixMultiplier),
+                copyFixContents(origin.tickInputs, modifier, fixMultiplier),
+                copyFixContents(origin.tickOutputs, modifier, fixMultiplier),
+                Reference2ReferenceArrayMap(origin.inputChanceLogics),
+                Reference2ReferenceArrayMap(origin.outputChanceLogics),
+                Reference2ReferenceArrayMap(origin.tickInputChanceLogics),
+                Reference2ReferenceArrayMap(origin.tickOutputChanceLogics),
+                ObjectArrayList(origin.conditions),
+                ObjectArrayList(origin.ingredientActions),
+                origin.data,
+                origin.duration,
+                origin.isFuel
+            )
         )
 
     fun copyFixContents(

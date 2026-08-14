@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.math.BigInteger;
 
@@ -34,6 +35,7 @@ public abstract class GTRecipePayloadMixin extends ObjectTypedPayload<GTRecipe> 
         tag.putString("id", payload.id.toString());
         tag.put("recipe", GTRecipeSerializer.CODEC.encodeStart(NbtOps.INSTANCE, payload).result().orElse(new CompoundTag()));
         tag.putLong("realParallels", IGTRecipe.of(payload).getRealParallels());
+        tag.putInt("batchSize", IGTRecipe.of(payload).getBatchSize());
         tag.putInt("ocTier", payload.ocTier);
         if (payload instanceof WirelessGTRecipe wirelessGTRecipe) {
             BigInteger wirelessEut = wirelessGTRecipe.getWirelessEuTickInputs();
@@ -54,10 +56,16 @@ public abstract class GTRecipePayloadMixin extends ObjectTypedPayload<GTRecipe> 
                     byte[] bytes = compoundTag.getByteArray("wirelessEut");
                     wirelessEut = new BigInteger(bytes);
                 }
-                payload = wirelessEut == null ? recipe : new WirelessGTRecipe(recipe, wirelessEut);
-                payload.id = new ResourceLocation(compoundTag.getString("id"));
-                IGTRecipe.of(payload).setRealParallels(compoundTag.contains("realParallels") ? compoundTag.getLong("realParallels") : 1);
-                payload.ocTier = compoundTag.getInt("ocTier");
+                recipe.id = new ResourceLocation(compoundTag.getString("id"));
+                IGTRecipe.of(recipe).setRealParallels(compoundTag.contains("realParallels") ? compoundTag.getLong("realParallels") : 1);
+                IGTRecipe.of(recipe).setBatchSize(compoundTag.contains("batchSize") ? compoundTag.getInt("batchSize") : 1);
+                recipe.ocTier = compoundTag.getInt("ocTier");
+                if (wirelessEut == null) {
+                    payload = recipe;
+                } else {
+                    payload = new WirelessGTRecipe(recipe, wirelessEut);
+                    gTLAdditions$copyRecipeExtensionState(recipe, payload);
+                }
             }
         } else if (tag instanceof StringTag stringTag) {
             var recipe = Registries.getRecipeManager().byKey(new ResourceLocation(stringTag.getAsString())).orElse(null);
@@ -82,10 +90,11 @@ public abstract class GTRecipePayloadMixin extends ObjectTypedPayload<GTRecipe> 
         buf.writeResourceLocation(payload.id);
         GTRecipeSerializer.SERIALIZER.toNetwork(buf, payload);
         buf.writeLong(IGTRecipe.of(payload).getRealParallels());
+        buf.writeInt(IGTRecipe.of(payload).getBatchSize());
         buf.writeInt(payload.ocTier);
         if (payload instanceof WirelessGTRecipe wirelessGTRecipe) {
             BigInteger wirelessEut = wirelessGTRecipe.getWirelessEuTickInputs();
-            if (wirelessEut != null && wirelessEut.shortValue() != 0) {
+            if (wirelessEut != null && wirelessEut.signum() != 0) {
                 buf.writeByteArray(wirelessEut.toByteArray());
             }
         }
@@ -97,18 +106,31 @@ public abstract class GTRecipePayloadMixin extends ObjectTypedPayload<GTRecipe> 
         if (buf.isReadable()) {
             GTRecipe recipe = GTRecipeSerializer.SERIALIZER.fromNetwork(id, buf);
             if (buf.isReadable()) {
-                IGTRecipe.of(payload).setRealParallels(buf.readLong());
-                payload.ocTier = buf.readInt();
+                IGTRecipe.of(recipe).setRealParallels(buf.readLong());
+                if (buf.isReadable()) {
+                    IGTRecipe.of(recipe).setBatchSize(buf.readInt());
+                    recipe.ocTier = buf.readInt();
+                }
             }
             if (buf.isReadable()) {
                 BigInteger wirelessEut = new BigInteger(buf.readByteArray());
                 payload = new WirelessGTRecipe(recipe, wirelessEut);
-                IGTRecipe.of(payload).setRealParallels(IGTRecipe.of(recipe).getRealParallels());
-                payload.ocTier = recipe.ocTier;
+                gTLAdditions$copyRecipeExtensionState(recipe, payload);
             } else payload = recipe;
         } else {
             RecipeManager recipeManager = Registries.getRecipeManager();
             this.payload = (GTRecipe) recipeManager.byKey(id).orElse(null);
         }
+    }
+
+    @Unique
+    private static void gTLAdditions$copyRecipeExtensionState(GTRecipe source, GTRecipe target) {
+        IGTRecipe sourceExtension = IGTRecipe.of(source);
+        IGTRecipe targetExtension = IGTRecipe.of(target);
+        targetExtension.setRealParallels(sourceExtension.getRealParallels());
+        targetExtension.setBatchSize(sourceExtension.getBatchSize());
+        targetExtension.setBatchProcessed(sourceExtension.isBatchProcessed());
+        targetExtension.setSubTickParallelized(sourceExtension.isSubTickParallelized());
+        target.ocTier = source.ocTier;
     }
 }

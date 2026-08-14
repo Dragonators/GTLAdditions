@@ -25,6 +25,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
+import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
 
@@ -256,8 +257,7 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
                         recipe.duration,
                         recipe.isFuel
                     )
-                    IGTRecipe.of(copy).realParallels = IGTRecipe.of(recipe).realParallels
-                    copy.ocTier = recipe.ocTier
+                    RecipeExtensionCopier.copy(recipe, copy)
                     return copy
                 }
             }
