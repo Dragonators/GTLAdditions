@@ -8,7 +8,7 @@ import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
-import org.gtlcore.gtlcore.api.recipe.IGTRecipe
+import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
 import kotlin.math.max
 
 object OreProcessorRecipeHelper {
@@ -40,8 +40,7 @@ object OreProcessorRecipeHelper {
             max((recipe.duration * durationMultiplier).toInt(), 1),
             recipe.isFuel
         )
-        IGTRecipe.of(copy).realParallels = IGTRecipe.of(recipe).realParallels
-        copy.ocTier = recipe.ocTier
+        RecipeExtensionCopier.copy(recipe, copy)
         return copy
     }
 
@@ -58,9 +57,9 @@ object OreProcessorRecipeHelper {
             if (contentList.isEmpty()) continue
             val copyList = ObjectArrayList<Content>(contentList.size)
             for (content in contentList) {
-                copyList.add(copyContent(content, capability, itemChanceBoost, outputMultiplier, inputFluidMultiplier))
+                copyContent(content, capability, itemChanceBoost, outputMultiplier, inputFluidMultiplier)?.let(copyList::add)
             }
-            copied[capability] = copyList
+            if (copyList.isNotEmpty()) copied[capability] = copyList
         }
         return copied
     }
@@ -71,7 +70,7 @@ object OreProcessorRecipeHelper {
         itemChanceBoost: Int,
         outputMultiplier: Double,
         inputFluidMultiplier: Double
-    ): Content {
+    ): Content? {
         val modifier = when {
             outputMultiplier != 1.0 -> ContentModifier.multiplier(outputMultiplier)
             capability == FluidRecipeCapability.CAP && inputFluidMultiplier != 1.0 -> ContentModifier.multiplier(inputFluidMultiplier)
@@ -82,13 +81,20 @@ object OreProcessorRecipeHelper {
         } else {
             capability.copyContent(content.content, modifier)
         }
-        return Content(
-            copiedContent,
-            content.chance,
-            content.maxChance,
-            if (capability == ItemRecipeCapability.CAP) content.tierChanceBoost * itemChanceBoost else content.tierChanceBoost,
-            content.slotName,
-            content.uiName
-        )
+
+        return if (capability == FluidRecipeCapability.CAP &&
+            FluidRecipeCapability.CAP.of(copiedContent).amount <= 0
+        ) {
+            null
+        } else {
+            Content(
+                copiedContent,
+                content.chance,
+                content.maxChance,
+                if (capability == ItemRecipeCapability.CAP) content.tierChanceBoost * itemChanceBoost else content.tierChanceBoost,
+                content.slotName,
+                content.uiName
+            )
+        }
     }
 }

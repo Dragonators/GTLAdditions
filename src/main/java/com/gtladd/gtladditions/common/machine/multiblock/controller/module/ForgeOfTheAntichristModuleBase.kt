@@ -26,7 +26,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
-import org.gtlcore.gtlcore.api.recipe.IGTRecipe
+import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 
@@ -159,8 +159,7 @@ abstract class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, varar
                 recipe.duration,
                 recipe.isFuel
             )
-            IGTRecipe.of(copy).realParallels = IGTRecipe.of(recipe).realParallels
-            copy.ocTier = recipe.ocTier
+            RecipeExtensionCopier.copy(recipe, copy)
             return copy
         }
 
