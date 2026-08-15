@@ -17,7 +17,7 @@ import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.gui.MultiblockDisplayText
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ComponentExtensions.translatable
-import com.gtladd.gtladditions.utils.MachineUtil.inputFluid
+import com.gtladd.gtladditions.utils.MachineUtil.input
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -26,7 +26,7 @@ import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Blocks
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.api.machine.trait.ICheckPatternMachine
@@ -141,7 +141,7 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
             .addComponent(
                 Component.translatable("gui.gtladditions.planetary_ionisation_convergence_tower_1", (coilEnergy?.material?.unlocalizedName ?: "").translatable),
                 Component.translatable("gui.gtladditions.planetary_ionisation_convergence_tower_2", this.stellarTier),
-                Component.translatable("gui.gtladditions.planetary_ionisation_convergence_tower_3", FormattingUtil.formatNumbers(this.storageEUt))
+                Component.translatable("gui.gtladditions.planetary_ionisation_convergence_tower_3", FormattingUtil.formatNumbers(this.storageEUt), "EU")
             )
             .addRecipeStatus(recipeLogic as IRecipeStatus)
     }
@@ -150,17 +150,53 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
+    private val sphereOffsetCache = mutableMapOf<Int, IntArray>()
+
+    private fun getSphereOffsets(radius: Int): IntArray = sphereOffsetCache.getOrPut(radius) {
+        val list = ArrayList<Int>((4.19 * radius * radius * radius).toInt() + 100)
+        val radiusSquared = radius * radius
+        for (dx in -radius..radius) {
+            val dxSquared = dx * dx
+            for (dy in -radius..radius) {
+                val dxDySquared = dxSquared + dy * dy
+                for (dz in -radius..radius) {
+                    if (dxDySquared + dz * dz <= radiusSquared) {
+                        list.add(((dx + radius) shl 16) or ((dy + radius) shl 8) or (dz + radius))
+                    }
+                }
+            }
+        }
+        list.toIntArray()
+    }
+
     override fun doExplosion(pos: BlockPos, explosionPower: Float) {
-        level?.let {
-            it.removeBlock(this.pos, false)
-            it.explode(
-                null,
-                pos.x + 0.5,
-                pos.y + 0.5,
-                pos.z + 0.5,
-                explosionPower,
-                Level.ExplosionInteraction.BLOCK
-            )
+        val currentLevel = level ?: return
+        currentLevel.removeBlock(this.pos, false)
+
+        val radius = explosionPower.toInt()
+        if (radius <= 0) return
+
+        val mutablePos = BlockPos.MutableBlockPos()
+        val airState = Blocks.AIR.defaultBlockState()
+        val resistanceOffset = 0.3f
+        val resistanceFactor = 0.11f
+        val inversePower = 1.0f / explosionPower
+
+        for (encodedOffset in getSphereOffsets(radius)) {
+            val dx = (encodedOffset shr 16 and 0xFF) - radius
+            val dy = (encodedOffset shr 8 and 0xFF) - radius
+            val dz = (encodedOffset and 0xFF) - radius
+
+            mutablePos.set(pos.x + dx, pos.y + dy, pos.z + dz)
+            val state = currentLevel.getBlockState(mutablePos)
+            if (state.isAir) continue
+
+            val distanceSquared = dx * dx + dy * dy + dz * dz
+            val resistance = state.block.getExplosionResistance(state, currentLevel, mutablePos, null)
+            val threshold = radius * (1.0 - (resistance + resistanceOffset) * resistanceFactor * inversePower)
+            if (threshold <= 0 || distanceSquared >= threshold * threshold) continue
+
+            currentLevel.setBlock(mutablePos, airState, 2)
         }
     }
 
@@ -168,7 +204,7 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
         val addEUt = if (start) coilEnergy?.instantPower ?: 0 else coilEnergy?.dischargePower ?: 0
         storageEUt += addEUt
         if (storageEUt > maxStorageEUt) {
-            doExplosion(pos, 500f)
+            doExplosion(pos, 80f)
         }
         return addEUt
     }
@@ -266,8 +302,7 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
                                     }
                                     else -> {
                                         pictMachine.startCycle =
-                                            inputFluid(pictMachine, RHENIUM) &&
-                                            inputFluid(pictMachine, ICE)
+                                            input(pictMachine).fluid(RHENIUM).fluid(ICE).execute()
                                         if (pictMachine.startCycle) {
                                             if (nextCycle % 10000 == 0 || pictMachine.cycleAmount == 0) {
                                                 pictMachine.machineStorage.extractItemInternal(0, 1, false)
@@ -288,8 +323,7 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
                                     }
                                     else -> {
                                         pictMachine.startCycle =
-                                            inputFluid(pictMachine, PROMETHIUM) &&
-                                            inputFluid(pictMachine, HELIUM)
+                                            input(pictMachine).fluid(PROMETHIUM).fluid(HELIUM).execute()
                                         if (pictMachine.startCycle) {
                                             if (nextCycle % 20000 == 0 || pictMachine.cycleAmount == 0) {
                                                 pictMachine.machineStorage.extractItemInternal(0, 1, false)
@@ -310,8 +344,7 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
                                     }
                                     else -> {
                                         pictMachine.startCycle =
-                                            inputFluid(pictMachine, CRYSTALMATRIX) &&
-                                            inputFluid(pictMachine, CRYOTHEUM)
+                                            input(pictMachine).fluid(CRYSTALMATRIX).fluid(CRYOTHEUM).execute()
                                         if (pictMachine.startCycle) {
                                             if (nextCycle % 100000 == 0 || pictMachine.cycleAmount == 0) {
                                                 pictMachine.machineStorage.extractItemInternal(0, 1, false)
