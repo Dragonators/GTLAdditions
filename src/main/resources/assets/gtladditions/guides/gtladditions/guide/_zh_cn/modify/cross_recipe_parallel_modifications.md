@@ -50,8 +50,8 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-* <ItemLink id="gtceu:fishing_ground" />：基础倍率 512。
-* <ItemLink id="gtceu:large_greenhouse" />：基础倍率 128。
+* <ItemLink id="gtceu:fishing_ground" />：基础倍率 4。
+* <ItemLink id="gtceu:large_greenhouse" />：基础倍率 4。
 * <ItemLink id="gtceu:a_mass_fabricator" />：基础倍率 16。
 * <ItemLink id="gtceu:huge_incubator" />：基础倍率 256。
 * <ItemLink id="gtceu:dimensionally_transcendent_mixer" />：基础倍率 1。

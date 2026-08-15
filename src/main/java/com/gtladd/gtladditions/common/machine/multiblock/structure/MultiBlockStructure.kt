@@ -168,4 +168,20 @@ object MultiBlockStructure {
             RelativeDirection.RIGHT
         )
     }
+
+    val PRIMORDIAL_EVOLUTION_NEXUS_STRUCTURE: FactoryBlockPattern by lazy(LazyThreadSafetyMode.NONE) {
+        StructureResourceLoader.loadFactoryPattern("multiblock/primordial_evolution_nexus.bin", "primordial_evolution_nexus")
+    }
+
+    val BIOSPHERE_III_STRUCTURE: FactoryBlockPattern by lazy(LazyThreadSafetyMode.NONE) {
+        StructureResourceLoader.loadFactoryPattern("multiblock/biosphere_iii.bin", "biosphere_iii")
+    }
+
+    val BIOSPHERE_III_MODULE_STRUCTURE: FactoryBlockPattern by lazy(LazyThreadSafetyMode.NONE) {
+        StructureResourceLoader.loadFactoryPattern("multiblock/biosphere_iii_module.bin", "biosphere_iii_module")
+    }
+
+    val SPACE_ELEVATOR_MKII_STRUCTURE: FactoryBlockPattern by lazy(LazyThreadSafetyMode.NONE) {
+        StructureResourceLoader.loadFactoryPattern("multiblock/space_elevator_mkii.bin", "space_elevator_mkii")
+    }
 }

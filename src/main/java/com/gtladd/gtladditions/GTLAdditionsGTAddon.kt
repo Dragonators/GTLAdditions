@@ -41,6 +41,7 @@ class GTLAdditionsGTAddon : IGTAddon {
         HeliofusionExoticizer.init(provider)
         LeylineCrystallize.init(provider)
         InterStellar.init(provider)
+        EvolutionOfPrimordial.init(provider)
         AE2.init(provider)
         Assembler.init(provider)
         AssemblyLine.init(provider)

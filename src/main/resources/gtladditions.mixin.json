@@ -34,6 +34,7 @@
     "gtlcore.machine.CoilWorkableElectricMultipleRecipesMachineMixin",
     "gtlcore.machine.HarmonyMachineMixin",
     "gtlcore.machine.LargeSteamParallelMultiblockMachineMixin",
+    "gtlcore.machine.SpaceElevatorModuleMachineMixin",
     "gtlcore.machine.WorkableElectricMultiblockMachineMixin",
     "gtlcore.machine.WorkableElectricMultipleRecipesMachineMixin",
     "gtlcore.machine.part.AutoConfigurationMaintenanceHatchPartMachineMixin",

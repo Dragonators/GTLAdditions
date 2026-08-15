@@ -19,6 +19,7 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.TEMPORAL_ANCHOR_FIELD_
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.ASTRAL_ARRAY
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
+import com.gtladd.gtladditions.common.items.GTLAddItems.OUTSTANDING_SOC_WAFER
 import com.gtladd.gtladditions.common.items.GTLAddItems.RELATIVISTIC_HEAT_CAPACITOR
 import com.gtladd.gtladditions.common.items.GTLAddItems.SUPER_DENSE_MAGMATTER_PLATE
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
@@ -51,12 +52,123 @@ import org.gtlcore.gtlcore.common.data.machines.GCyMMachines.*
 import org.gtlcore.gtlcore.common.data.machines.GeneratorMachine.*
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA.*
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineB.LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE
+import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineB.WOOD_DISTILLATION
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
 
 object NewMultiBlockMachineController {
     fun init(provider: Consumer<FinishedRecipe?>) {
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("primordial_evolution_nexus"))
+            .inputItems(PETROCHEMICAL_PLANT, 16)
+            .inputItems(WOOD_DISTILLATION, 16)
+            .inputItems(CustomTags.UIV_CIRCUITS, 8)
+            .inputItems(REALLY_ULTIMATE_BATTERY)
+            .inputItems(FIELD_GENERATOR_UEV, 16)
+            .inputItems(getItemStack("kubejs:x_ray_laser", 4))
+            .inputItems(nanoswarm, Iridium, 64)
+            .inputItems(nanoswarm, Osmium, 64)
+            .inputItems(plateDouble, Enderite, 8)
+            .inputItems(plateDouble, HastelloyX78, 8)
+            .inputItems(getItemStack("kubejs:hui_circuit_5", 32))
+            .inputItems(getItemStack("kubejs:special_ceramics", 32))
+            .inputFluids(Zylon.getFluid(5760))
+            .inputFluids(DegenerateRhenium.getFluid(FluidStorageKeys.PLASMA, 20000))
+            .inputFluids(Dubnium.getFluid(3200))
+            .inputFluids(Seaborgium.getFluid(3200))
+            .outputItems(MultiBlockMachine.PRIMORDIAL_EVOLUTION_NEXUS)
+            .EUt(VA[UEV].toLong()).duration(7200)
+            .stationResearch { builder ->
+                builder!!.researchStack(WOOD_DISTILLATION.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UIV]).CWUt(512)
+            }
+            .save(provider)
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("biosphere_iii"))
+            .inputItems(LARGE_GREENHOUSE, 16)
+            .inputItems(COVER_SOLAR_PANEL_HV, 4)
+            .inputItems(FIELD_GENERATOR_UEV, 8)
+            .inputItems(CustomTags.UIV_CIRCUITS, 16)
+            .inputItems(getItemStack("kubejs:biological_cells", 64))
+            .inputItems(getItemStack("kubejs:biological_cells", 64))
+            .inputItems(getItemStack("kubejs:essence_seed", 64))
+            .inputItems(getItemStack("kubejs:essence_seed", 64))
+            .inputItems(plateDouble, Seaborgium, 16)
+            .inputItems(plateDouble, Dubnium, 16)
+            .inputItems(rodLong, Neptunium, 8)
+            .inputItems(rodLong, Neptunium, 8)
+            .inputItems(wireFine, RutheniumTriniumAmericiumNeutronate, 48)
+            .inputItems(wireFine, RutheniumTriniumAmericiumNeutronate, 48)
+            .inputFluids(RawRadox.getFluid(1000))
+            .inputFluids(AbsoluteEthanol.getFluid(10000))
+            .inputFluids(MutatedLivingSolder.getFluid(5760))
+            .inputFluids(Polyetheretherketone.getFluid(7776))
+            .outputItems(MultiBlockMachine.BIOSPHERE_III)
+            .EUt(VA[UHV].toLong()).duration(7200)
+            .stationResearch { builder ->
+                builder!!.researchStack(LARGE_GREENHOUSE.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UV]).CWUt(512)
+            }
+            .save(provider)
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("garden_of_hermes"))
+            .inputItems(LARGE_GREENHOUSE, 8)
+            .inputItems(COVER_SOLAR_PANEL_HV, 2)
+            .inputItems(FIELD_GENERATOR_UEV, 4)
+            .inputItems(CustomTags.UIV_CIRCUITS, 8)
+            .inputItems(OUTSTANDING_SOC_WAFER, 64)
+            .inputItems(OUTSTANDING_SOC_WAFER, 64)
+            .inputItems(getItemStack("kubejs:draconium_dust", 64))
+            .inputItems(getItemStack("kubejs:draconium_dust", 64))
+            .inputItems(plateDouble, Quantanium, 16)
+            .inputItems(plateDouble, Highurabilityompoundteel, 16)
+            .inputItems(wireFine, TitanSteel, 48)
+            .inputItems(wireFine, TitanSteel, 48)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(20000))
+            .inputFluids(CaliforniumCyclopentadienide.getFluid(100000))
+            .inputFluids(Zylon.getFluid(14400))
+            .inputFluids(MoltenCalciumSalts.getFluid(12000))
+            .outputItems(MultiBlockMachine.BIOSPHERE_III_MODULE)
+            .EUt(VA[UEV].toLong()).duration(3600)
+            .stationResearch { builder ->
+                builder!!.researchStack(MultiBlockMachine.BIOSPHERE_III.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UEV]).CWUt(512)
+            }
+            .save(provider)
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder(id("mega_space_elevator"))
+            .inputItems(SPACE_ELEVATOR, 64)
+            .inputItems(SPACE_ELEVATOR, 64)
+            .inputItems(GTLBlocks.POWER_MODULE_5, 64)
+            .inputItems(getItemStack("kubejs:module_connector", 48))
+            .inputItems(CustomTags.OpV_CIRCUITS, 64)
+            .inputItems(INSANELY_ULTIMATE_BATTERY, 8)
+            .inputItems(FIELD_GENERATOR_UXV, 56)
+            .inputItems(wireGtHex, DraconiumAwakened, 32)
+            .inputItems(getItemStack("kubejs:nuclear_clock", 32))
+            .inputItems(getItemStack("kubejs:charged_lepton_trap_crystal", 32))
+            .inputItems(getItemStack("kubejs:eigenfolded_kerr_manifold", 64))
+            .inputItems(getItemStack("kubejs:eigenfolded_kerr_manifold", 64))
+            .inputItems(nanoswarm, BlackDwarfMatter, 64)
+            .inputItems(nanoswarm, WhiteDwarfMatter, 64)
+            .inputItems(getItemStack("kubejs:wyvern_core", 64))
+            .inputItems(getItemStack("kubejs:wyvern_core", 64))
+            .inputFluids(Hikarium.getFluid(1440000))
+            .inputFluids(SuperMutatedLivingSolder.getFluid(2880000))
+            .inputFluids(Radox.getFluid(560000))
+            .inputFluids(GammaRaysPhotoresist.getFluid(1000000))
+            .outputItems(MultiBlockMachine.SPACE_ELEVATOR_MKII)
+            .EUt(VA[OpV].toLong()).duration(7200)
+            .stationResearch { builder ->
+                builder!!.researchStack(MultiBlockMachine.NEBULA_REAPER.asStack())
+                    .dataStack(TOOL_DATA_MODULE.asStack())
+                    .EUt(VA[UXV]).CWUt(1024)
+            }
+            .save(provider)
+
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("nexus_satellite_factory_mk1"))
             .inputItems(MEGA_PRESSER, 16)
             .inputItems(MEGA_WIREMILL, 16)

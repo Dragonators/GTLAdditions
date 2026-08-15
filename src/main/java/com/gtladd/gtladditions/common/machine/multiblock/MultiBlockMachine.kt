@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
+import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility.COMPUTATION_DATA_RECEPTION
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility.EXPORT_FLUIDS
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility.EXPORT_ITEMS
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility.IMPORT_FLUIDS
@@ -46,6 +47,7 @@ import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer
 import com.gtladd.gtladditions.client.render.machine.HeartOfTheUniverseRenderer
 import com.gtladd.gtladditions.client.render.machine.PartWorkableCasingMachineRenderer
 import com.gtladd.gtladditions.client.render.machine.SubspaceCorridorHubIndustrialArrayRenderer
+import com.gtladd.gtladditions.client.render.machine.SpaceElevatorMKIIRenderer
 import com.gtladd.gtladditions.client.render.machine.TimeSpaceDistorterRenderer
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_ENERGY_CASING
@@ -67,6 +69,8 @@ import com.gtladd.gtladditions.common.machine.GTLAddMachines.WIRELESS_LASER_INPU
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.Wireless_Energy_Network_OUTPUT_Terminal
 import com.gtladd.gtladditions.common.machine.GTLAddPredicates
 import com.gtladd.gtladditions.common.machine.multiblock.controller.*
+import com.gtladd.gtladditions.common.machine.multiblock.controller.bs.BiosphereIIIController
+import com.gtladd.gtladditions.common.machine.multiblock.controller.bs.BiosphereIIIModule
 import com.gtladd.gtladditions.common.machine.multiblock.controller.module.*
 import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.*
 import com.gtladd.gtladditions.common.machine.multiblock.structure.*
@@ -78,6 +82,7 @@ import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.CHAOS_WEAVE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.CHAOTIC_ALCHEMY
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.COMPRESSED_ASTRAL_ARRAY
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.EVOLUTION_OF_PRIMORDIAL
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.GENESIS_ENGINE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.INTER_STELLAR
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.LEYLINE_CRYSTALLIZE
@@ -162,6 +167,10 @@ object MultiBlockMachine {
     val DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY: MultiblockMachineDefinition
     val SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR: MultiblockMachineDefinition
     val MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER: MultiblockMachineDefinition
+    val PRIMORDIAL_EVOLUTION_NEXUS: MultiblockMachineDefinition
+    val BIOSPHERE_III: MultiblockMachineDefinition
+    val BIOSPHERE_III_MODULE: MultiblockMachineDefinition
+    val SPACE_ELEVATOR_MKII: MultiblockMachineDefinition
 
     init {
         REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_MACHINE }
@@ -2068,6 +2077,259 @@ object MultiBlockMachine {
                     .build()
             }
             .renderer { SubspaceCorridorHubIndustrialArrayRenderer() }
+            .hasTESR(true)
+            .register()
+
+        PRIMORDIAL_EVOLUTION_NEXUS = REGISTRATE.multiblock(
+            "primordial_evolution_nexus",
+            Function { GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine(it) }
+        )
+            .nonYAxisRotation()
+            .tooltipTextCoilParallel()
+            .tooltipTextLaser()
+            .tooltipTextMultiRecipes()
+            .tooltipTextRecipeTypes(EVOLUTION_OF_PRIMORDIAL)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(EVOLUTION_OF_PRIMORDIAL)
+            .appearanceBlock(HIGH_POWER_CASING)
+            .pattern { definition: MultiblockMachineDefinition? ->
+                MultiBlockStructure.PRIMORDIAL_EVOLUTION_NEXUS_STRUCTURE
+                    .where("H", controller(blocks(definition!!.get())))
+                    .where("J", blocks(CASING_ALUMINIUM_FROSTPROOF.get()))
+                    .where("M", blocks(getBlock("kubejs:laser_cooling_casing")))
+                    .where("P", blocks(CLEANROOM_GLASS.get()))
+                    .where("[", blocks(ChemicalHelper.getBlock(frameGt, StainlessSteel)))
+                    .where(
+                        "F",
+                        blocks(HIGH_POWER_CASING.get()).or(abilities(EXPORT_ITEMS).setPreviewCount(1))
+                            .or(abilities(IMPORT_ITEMS).setPreviewCount(1))
+                            .or(abilities(EXPORT_FLUIDS).setPreviewCount(1))
+                            .or(abilities(IMPORT_FLUIDS).setPreviewCount(1))
+                            .or(abilities(INPUT_ENERGY).setMaxGlobalLimited(2))
+                            .or(abilities(INPUT_LASER).setMaxGlobalLimited(1))
+                            .or(abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1))
+                    )
+                    .where("A", blocks(getBlock("kubejs:high_strength_concrete")))
+                    .where("G", blocks(CASING_STAINLESS_CLEAN.get()))
+                    .where("`", blocks(CASING_ALUMINIUM_FROSTPROOF.get()))
+                    .where("L", blocks(getBlock("kubejs:gelid_cryotheum")))
+                    .where("+", blocks(getBlock("gtceu:crushing_wheels")))
+                    .where("_", blocks(ChemicalHelper.getBlock(frameGt, Tungsten)))
+                    .where("B", blocks(MOLECULAR_CASING.get()))
+                    .where("W", blocks(getBlock("gtceu:ptfe_pipe_casing")))
+                    .where("Q", blocks(ChemicalHelper.getBlock(com.gregtechceu.gtceu.api.data.tag.TagPrefix.block, RedAlloy)))
+                    .where("U", blocks(FUSION_GLASS.get()))
+                    .where("V", heatingCoils())
+                    .where("T", blocks(getBlock("kubejs:red_steel_casing")))
+                    .where("R", blocks(ChemicalHelper.getBlock(com.gregtechceu.gtceu.api.data.tag.TagPrefix.block, BlueAlloy)))
+                    .where("]", blocks(getBlock("gtceu:watertight_casing")))
+                    .where("S", blocks(CASING_TUNGSTENSTEEL_PIPE.get()))
+                    .where("K", blocks(HEAT_VENT.get()))
+                    .where("I", blocks(getBlock("kubejs:neutronium_pipe_casing")))
+                    .where("Z", blocks(getBlock("gtceu:secure_maceration_casing")))
+                    .where("D", blocks(getBlock("gtceu:high_temperature_smelting_casing")))
+                    .where("^", blocks(getBlock("gtceu:corrosion_proof_casing")))
+                    .where("N", blocks(GTMachines.MUFFLER_HATCH[10].get()))
+                    .where("O", blocks(getBlock("gtceu:vibration_safe_casing")))
+                    .where("Y", blocks(FILTER_CASING_STERILE.get()))
+                    .where("C", blocks(ANTIFREEZE_HEATPROOF_MACHINE_CASING.get()))
+                    .where("a", blocks(CASING_INVAR_HEATPROOF.get()))
+                    .where("E", blocks(CASING_EXTREME_ENGINE_INTAKE.get()))
+                    .where("c", blocks(CASING_STAINLESS_EVAPORATION.get()))
+                    .where("X", blocks(CASING_PTFE_INERT.get()))
+                    .where("b", blocks(ChemicalHelper.getBlock(frameGt, Ruridit)))
+                    .build()
+            }
+            .workableCasingRenderer(
+                GTCEu.id("block/casings/hpca/high_power_casing"),
+                GTCEu.id("block/multiblock/gcym/large_assembler")
+            )
+            .register()
+
+        BIOSPHERE_III = REGISTRATE.multiblock(
+            "biosphere_iii",
+            Function { BiosphereIIIController(it) }
+        )
+            .nonYAxisRotation()
+            .tooltipTextKey(
+                "gtladditions.multiblock.biosphere_iii.tooltip.0".toComponent,
+                "gtladditions.multiblock.biosphere_iii.tooltip.1".toComponent,
+                "gtladditions.multiblock.biosphere_iii.tooltip.2".toComponent
+            )
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .appearanceBlock(SPS_CASING)
+            .pattern { definition: MultiblockMachineDefinition? ->
+                MultiBlockStructure.BIOSPHERE_III_STRUCTURE
+                    .where("|", controller(blocks(definition!!.get())))
+                    .where(
+                        "{",
+                        blocks(SPS_CASING.get())
+                            .or(abilities(INPUT_ENERGY))
+                            .or(ability(INPUT_LASER, 11, 12, 13, 14))
+                            .or(abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1))
+                    )
+                    .where("b", blocks(getBlock("gtceu:computer_casing")))
+                    .where("g", blocks(getBlock("kubejs:neutronium_pipe_casing")))
+                    .where("r", blocks(getBlock("kubejs:molecular_coil")))
+                    .where("G", blocks(getBlock("minecraft:mud")))
+                    .where("B", blocks(getBlock("gtceu:naquadria_frame")))
+                    .where("*", blocks(getBlock("gtceu:sterilizing_filter_casing")))
+                    .where("<", blocks(getBlock("minecraft:diorite")))
+                    .where("K", blocks(getBlock("minecraft:gravel")))
+                    .where("m", heatingCoils())
+                    .where("E", blocks(getBlock("gtlcore:rhenium_reinforced_energy_glass")))
+                    .where("M", blocks(getBlock("minecraft:mangrove_leaves")))
+                    .where("T", blocks(getBlock("minecraft:oak_leaves")))
+                    .where("i", blocks(getBlock("gtlcore:super_computation_component")))
+                    .where("l", blocks(getBlock("gtlcore:antifreeze_heatproof_machine_casing")))
+                    .where("~", blocks(getBlock("minecraft:water")).or(blocks(getBlock("minecraft:bubble_column"))))
+                    .where("L", blocks(getBlock("minecraft:water")))
+                    .where("R", blocks(getBlock("minecraft:packed_mud")))
+                    .where("S", blocks(getBlock("kubejs:magic_core")))
+                    .where("y", blocks(getBlock("minecraft:red_stained_glass_pane")))
+                    .where("#", blocks(getBlock("minecraft:coarse_dirt")))
+                    .where(";", blocks(getBlock("minecraft:deepslate")))
+                    .where("H", blocks(getBlock("minecraft:dirt")))
+                    .where("P", blocks(getBlock("minecraft:mangrove_log")))
+                    .where("Y", blocks(getBlock("minecraft:acacia_log")))
+                    .where("t", blocks(getBlock("gtlcore:hyper_core")))
+                    .where("`", blocks(getBlock("gtceu:high_power_casing")))
+                    .where("W", blocks(getBlock("minecraft:sea_lantern")))
+                    .where("x", blocks(getBlock("minecraft:green_stained_glass_pane")))
+                    .where("&", blocks(getBlock("gtceu:cleanroom_glass")))
+                    .where("!", blocks(getBlock("kubejs:speeding_pipe")))
+                    .where("f", blocks(getBlock("gtceu:advanced_computer_casing")))
+                    .where("c", blocks(getBlock("gtlcore:oxidation_resistant_hastelloy_n_mechanical_casing")))
+                    .where("=", blocks(getBlock("gtlcore:iridium_casing")))
+                    .where("j", blocks(getBlock("gtlcore:enhance_hyper_mechanical_casing")))
+                    .where(">", blocks(getBlock("minecraft:granite")))
+                    .where("k", blocks(getBlock("kubejs:dimensional_bridge_casing")))
+                    .where("o", blocks(getBlock("gtlcore:dimensionally_transcendent_casing")))
+                    .where("O", blocks(getBlock("minecraft:sweet_berry_bush")))
+                    .where("@", blocks(getBlock("minecraft:yellow_stained_glass_pane")))
+                    .where(".", blocks(getBlock("gtlcore:degenerate_rhenium_constrained_casing")))
+                    .where("z", blocks(getBlock("kubejs:containment_field_generator")))
+                    .where("}", blocks(getBlock("minecraft:soul_sand")))
+                    .where("^", blocks(getBlock("minecraft:spruce_leaves")))
+                    .where("X", blocks(getBlock("minecraft:oak_log")))
+                    .where("J", blocks(getBlock("minecraft:sand")))
+                    .where("N", blocks(getBlock("minecraft:mangrove_roots")))
+                    .where("-", blocks(getBlock("minecraft:sponge")))
+                    .where("e", blocks(getBlock("kubejs:gelid_cryotheum")))
+                    .where("Q", blocks(getBlock("minecraft:grass_block")))
+                    .where("D", blocks(getBlock("gtceu:fusion_glass")))
+                    .where("V", blocks(getBlock("kubejs:hollow_casing")))
+                    .where("C", blocks(getBlock("kubejs:high_strength_concrete")))
+                    .where("h", blocks(getBlock("gtlcore:sps_casing")))
+                    .where("a", blocks(getBlock("gtceu:computer_heat_vent")))
+                    .where("d", blocks(getBlock("gtlcore:super_cooler_component")))
+                    .where("n", blocks(getBlock("gtlcore:molecular_casing")))
+                    .where("]", blocks(getBlock("minecraft:cactus")))
+                    .where("%", blocks(getBlock("gtceu:filter_casing")))
+                    .where("I", blocks(getBlock("gtlcore:law_filter_casing")))
+                    .where("v", blocks(getBlock("gtceu:uhv_ultimate_battery")))
+                    .where("_", blocks(getBlock("minecraft:spruce_log")))
+                    .where("[", blocks(getBlock("minecraft:clay")))
+                    .where("?", blocks(getBlock("minecraft:lava")))
+                    .where("u", blocks(getBlock("kubejs:force_field_glass")))
+                    .where("F", blocks(getBlock("gtceu:inert_machine_casing")))
+                    .where("q", blocks(getBlock("kubejs:restraint_device")))
+                    .where("A", blocks(getBlock("gtceu:plascrete")))
+                    .where("U", blocks(getBlock("minecraft:acacia_leaves")))
+                    .where(":", blocks(getBlock("minecraft:andesite")))
+                    .where("+", blocks(getBlock("gtlcore:hyper_mechanical_casing")))
+                    .where("p", blocks(getBlock("gtceu:atomic_casing")))
+                    .where("s", blocks(getBlock("kubejs:aggregatione_core")))
+                    .where("w", blocks(getBlock("minecraft:blue_stained_glass_pane")))
+                    .build()
+            }
+            .workableCasingRenderer(
+                GTLCore.id("block/casings/sps_casing"),
+                GTCEu.id("block/multiblock/implosion_compressor")
+            )
+            .register()
+
+        BIOSPHERE_III_MODULE = REGISTRATE.multiblock(
+            "garden_of_hermes",
+            Function { BiosphereIIIModule(it) }
+        )
+            .nonYAxisRotation()
+            .tooltipTextKey(
+                "gtceu.multiblock.biosphereiii.1".toComponent,
+                "gtladditions.multiblock.garden_of_hermes.tooltip.0".toComponent
+            )
+            .tooltipTextMultiRecipes()
+            .tooltipTextRecipeTypes(GREENHOUSE_RECIPES, FISHING_GROUND_RECIPES)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(GREENHOUSE_RECIPES)
+            .recipeType(FISHING_GROUND_RECIPES)
+            .appearanceBlock(HIGH_POWER_CASING)
+            .pattern { definition: MultiblockMachineDefinition? ->
+                MultiBlockStructure.BIOSPHERE_III_MODULE_STRUCTURE
+                    .where(
+                        "A",
+                        blocks(HIGH_POWER_CASING.get()).or(abilities(EXPORT_ITEMS).setPreviewCount(1))
+                            .or(abilities(IMPORT_ITEMS).setPreviewCount(1))
+                            .or(abilities(EXPORT_FLUIDS).setPreviewCount(1))
+                            .or(abilities(IMPORT_FLUIDS).setPreviewCount(1))
+                            .or(abilities(MAINTENANCE).setExactLimit(1))
+                    )
+                    .where("B", controller(blocks(definition!!.get())))
+                    .where("C", blocks(getBlock("kubejs:high_strength_concrete")))
+                    .build()
+            }
+            .workableCasingRenderer(
+                GTCEu.id("block/casings/hpca/high_power_casing"),
+                GTCEu.id("block/multiblock/implosion_compressor")
+            )
+            .register()
+
+        SPACE_ELEVATOR_MKII = REGISTRATE.multiblock(
+            "space_elevator_mkii",
+            Function { SpaceElevatorMKII(it) }
+        )
+            .nonYAxisRotation()
+            .recipeType(SPACE_ELEVATOR_RECIPES)
+            .tooltips(Component.translatable("gtceu.multiblock.space_elevator_mkii.0"))
+            .tooltips(Component.translatable("gtceu.machine.space_elevator.tooltip.1"))
+            .tooltips(Component.translatable("gtceu.multiblock.space_elevator_mkii.1"))
+            .tooltips(Component.translatable("gtceu.machine.space_elevator.tooltip.2"))
+            .tooltips(
+                Component.translatable(
+                    "gtceu.machine.available_recipe_map_1.tooltip",
+                    Component.translatable("gtceu.space_elevator")
+                )
+            )
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .appearanceBlock(SPACE_ELEVATOR_MECHANICAL_CASING)
+            .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 4.0, false)))
+            .pattern { definition: MultiblockMachineDefinition? ->
+                MultiBlockStructure.SPACE_ELEVATOR_MKII_STRUCTURE
+                    .where("P", controller(blocks(definition!!.get())))
+                    .where(
+                        "L",
+                        blocks(SPACE_ELEVATOR_MECHANICAL_CASING.get())
+                            .or(abilities(INPUT_ENERGY).setExactLimit(1))
+                            .or(abilities(IMPORT_ITEMS).setExactLimit(1))
+                            .or(abilities(COMPUTATION_DATA_RECEPTION).setExactLimit(1))
+                            .or(abilities(MAINTENANCE).setExactLimit(1))
+                    )
+                    .where("A", blocks(SPACE_ELEVATOR_SUPPORT.get()))
+                    .where("G", blocks(ChemicalHelper.getBlock(frameGt, Neutronium)))
+                    .where("E", blocks(getBlock("kubejs:space_elevator_internal_support")))
+                    .where("M", GTLPredicates.tierCasings(BlockMap.sepmMap, "SEPMTier"))
+                    .where("B", blocks(getBlock("kubejs:high_strength_concrete")))
+                    .where("D", blocks(SPACE_ELEVATOR_MECHANICAL_CASING.get()))
+                    .where("N", blocks(POWER_CORE.get()))
+                    .where("I", blocks(getBlock("kubejs:module_base")))
+                    .where("J", any().or(blocks(getBlock("kubejs:module_connector"))).setPreviewCount(1))
+                    .where("K", blocks(getBlock("ad_astra:glowing_iron_pillar")))
+                    .where("C", blocks(getBlock("ad_astra:aeronos_cap")))
+                    .where("H", blocks(getBlock("ad_astra:marked_iron_pillar")))
+                    .where("O", air())
+                    .build()
+            }
+            .renderer { SpaceElevatorMKIIRenderer() }
             .hasTESR(true)
             .register()
 

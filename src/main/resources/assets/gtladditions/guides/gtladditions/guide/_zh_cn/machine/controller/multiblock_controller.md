@@ -22,6 +22,9 @@ categories:
 
 * [量子虹吸矩阵](quantum_syphon_matrix.md)
 * [太虚浊化阵](taixu_turbid_array.md)
+* [太素衍化枢纽](primordial_evolution_nexus.md)
+* [生态圈3号](biosphere_iii.md)
+* [赫尔墨斯之圃](biosphere_iii.md)
 
 ## <Color color="#00AA00">**UIV**</Color>
 
@@ -42,6 +45,7 @@ categories:
 * [亚空间航道枢纽](subspace_corridor_hub_industrial_array.md)
 * [枢纽卫星工厂](nexus_satellite_factory.md)
 * [宏原子谐振碎片剥离器](macro_atomic_resonant_fragment_stripper.md)
+* [太空电梯MK2](space_elevator_mkii.md)
 
 ## <Color color="#0000FF">**OpV**</Color>
 
