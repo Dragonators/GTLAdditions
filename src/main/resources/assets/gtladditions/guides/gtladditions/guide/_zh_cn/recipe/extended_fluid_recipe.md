@@ -26,6 +26,11 @@ item_ids:
   - gtceu:rhenium_dust
   - gtceu:germanium_ingot
   - gtceu:germanium_dust
+  - gtceu:neptunium_block
+  - gtceu:neptunium_dust
+  - gtceu:neptunium_nugget
+  - gtceu:neptunium_rod
+  - gtceu:long_neptunium_rod
 ---
 
 # 更多流体相关配方
@@ -56,6 +61,7 @@ GTLAdditions 为钌铱合金补充了 <FluidLink id="gtladditions:molten_ruridit
 
 * 钌铱合金可以在合金高炉中直接转为熔融形态，也可以参与分子解构与混沌炼金处理。
 * GTLAdditions 还为锗、铼、锝补充了对应流体形式，便于后续流体化处理链使用。
+* 镎现已拥有锭属性，并可生成对应的块、粉、粒、杆和长杆形态。
 
 </Column>
 

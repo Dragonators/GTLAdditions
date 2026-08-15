@@ -84,6 +84,7 @@
   "gtladditions.tooltip.suprachronal_data_module.bound_source": "绑定到 %2$s, %3$s, %4$s 处的%1$s",
   "gtladditions.guide_name": "GTLAdditions 指南",
   "item.gtladditions.barnarda_data": "巴纳德C数据",
+  "item.gtladditions.create_data": "创造维度数据",
   "gtladditions.item.astral_array.tooltips.0": "§7此设备能够增强天球引擎的时空间压缩度",
   "gtladditions.item.astral_array.tooltips.1": "§7触及更遥远的世界",
   "gtladditions.item.astral_array.tooltips.2": "每颗拥有基础§664§r线程",

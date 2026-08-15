@@ -7,6 +7,7 @@ categories:
   - 魔改
 item_ids:
   - gtceu:eye_of_harmony
+  - gtladditions:create_data
 ---
 
 # 鸿蒙之眼与奥术星图
@@ -25,5 +26,15 @@ item_ids:
 * 成型后机器显示屏会显示当前绑定无线电网、启动耗能、氢储量和氦储量。
 
 </Column>
+
+<Column gap="2" fullWidth={true}>
+
+* 在内部槽位放入 <ItemLink id="gtladditions:create_data" /> ，以使基础配方的全部产物转换为 15,728,640 mB <FluidLink id="gtceu:raw_star_matter_plasma" />。该物品不会被消耗。
+
+</Column>
+
+<Row>
+<Recipe id="gtladditions:world_data_scanner/creative_data" />
+</Row>
 
 </Column>

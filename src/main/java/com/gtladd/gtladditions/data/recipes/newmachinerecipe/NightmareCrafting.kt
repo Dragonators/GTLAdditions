@@ -1,12 +1,16 @@
 ﻿package com.gtladd.gtladditions.data.recipes.newmachinerecipe
 
 import com.gregtechceu.gtceu.api.GTValues
+import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.data.GTMaterials.Milk
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.NIGHTMARE_CRAFTING
 import net.minecraft.data.recipes.FinishedRecipe
+import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
 import org.gtlcore.gtlcore.common.data.GTLItems.COMPRESSED_PUFFERFISH
 import org.gtlcore.gtlcore.common.data.GTLItems.SUPER_GLUE
+import org.gtlcore.gtlcore.common.data.GTLMaterials.CosmicNeutronium
+import org.gtlcore.gtlcore.common.data.GTLMaterials.Periodicium
 import org.gtlcore.gtlcore.utils.Registries
 import java.util.function.Consumer
 
@@ -83,6 +87,17 @@ object NightmareCrafting {
             .inputFluids(Milk.getFluid(11760000000))
             .outputItems(Registries.getItemStack("avaritia:endless_cake"))
             .duration(32000)
+            .EUt(GTValues.VA[GTValues.MAX].toLong())
+            .save(provider)
+        NIGHTMARE_CRAFTING.recipeBuilder(GTLAdditions.id("nan_certificate"))
+            .inputItems(Registries.getItemStack("gtceu:double_white_dwarf_mtter_plate", 768))
+            .inputItems(Registries.getItemStack("gtceu:fine_heavy_quark_degenerate_matter_wire", 64))
+            .inputItems(nanoswarm, CosmicNeutronium, 64)
+            .inputItems(Registries.getItemStack("kubejs:diffractor_grating_mirror", 16))
+            .inputItems(Registries.getItemStack("kubejs:hyper_stable_self_healing_adhesive", 128))
+            .inputFluids(Periodicium.getFluid(5760))
+            .outputItems(GTItems.NAN_CERTIFICATE.asItem())
+            .duration(3600)
             .EUt(GTValues.VA[GTValues.MAX].toLong())
             .save(provider)
     }

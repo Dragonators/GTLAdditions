@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import net.minecraft.data.recipes.FinishedRecipe
+import net.minecraft.world.item.Items
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix
 import org.gtlcore.gtlcore.api.machine.multiblock.GTLCleanroomType.LAW_CLEANROOM
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
@@ -173,5 +174,41 @@ object Distort {
             .inputFluids(Oxygen.getFluid(180000))
             .EUt(VA[11].toLong()).duration(480).blastFurnaceTemp(18000)
             .cleanroom(LAW_CLEANROOM).save(provider)
+        DISTORT_RECIPES.recipeBuilder(id("polycyclic_aromatic_mixture_dust"))
+            .notConsumable(GTLTagPrefix.nanoswarm, Vibranium)
+            .inputItems(dust, Magnesium, 16)
+            .inputItems(dust, Carbon, 144)
+            .inputItems(dust, Quicklime, 120)
+            .inputFluids(Oxygen.getFluid(8000))
+            .inputFluids(Chlorine.getFluid(68000))
+            .inputFluids(Methanol.getFluid(16000))
+            .inputFluids(Naphthalene.getFluid(12000))
+            .inputFluids(Propene.getFluid(4000))
+            .inputFluids(Water.getFluid(24000))
+            .outputItems(dust, PolycyclicAromaticMixture, 12)
+            .outputFluids(Hydrogen.getFluid(4000))
+            .outputFluids(Acetone.getFluid(4000))
+            .EUt(VA[6].toLong()).duration(720).blastFurnaceTemp(20000)
+            .cleanroom(STERILE_CLEANROOM).save(provider)
+        DISTORT_RECIPES.recipeBuilder(id("iodine_dust"))
+            .notConsumable(GTLTagPrefix.nanoswarm, Gold)
+            .inputItems(Items.KELP, 4096)
+            .inputFluids(Chlorine.getFluid(64000))
+            .inputFluids(Water.getFluid(640000))
+            .outputItems(dust, Iodine, 64)
+            .outputItems(dust, Potassium, 64)
+            .outputFluids(Chlorine.getFluid(64000))
+            .EUt(VA[6].toLong()).duration(480).blastFurnaceTemp(7100)
+            .save(provider)
+        DISTORT_RECIPES.recipeBuilder(id("germanium_dust"))
+            .notConsumable(GTLTagPrefix.nanoswarm, Iron)
+            .inputItems(dust, Sulfur, 144)
+            .inputItems(Items.NETHER_WART, 18500)
+            .inputItems(dust, Ash, 1536)
+            .inputFluids(Oxygen.getFluid(768))
+            .inputFluids(Water.getFluid(512000))
+            .outputItems(dust, Germanium, 32)
+            .EUt(VA[8].toLong()).duration(320).blastFurnaceTemp(13000)
+            .cleanroom(CLEANROOM).save(provider)
     }
 }

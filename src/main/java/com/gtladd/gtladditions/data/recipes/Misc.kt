@@ -4,10 +4,12 @@ import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
+import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient
 import com.gregtechceu.gtceu.common.data.GCyMRecipeTypes.ALLOY_BLAST_RECIPES
 import com.gregtechceu.gtceu.common.data.GTItems.EMITTER_OpV
 import com.gregtechceu.gtceu.common.data.GTItems.FIELD_GENERATOR_OpV
 import com.gregtechceu.gtceu.common.data.GTItems.SENSOR_OpV
+import com.gregtechceu.gtceu.common.data.GTItems.SHAPE_MOLD_NUGGET
 import com.gregtechceu.gtceu.common.data.GTItems.TOOL_DATA_MODULE
 import com.gregtechceu.gtceu.common.data.GTItems.TOOL_DATA_STICK
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
@@ -34,6 +36,7 @@ import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE_BASE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.CHAOTIC_ALCHEMY
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.COMPRESSED_ASTRAL_ARRAY
+import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import dev.latvian.mods.kubejs.KubeJS
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.resources.ResourceLocation
@@ -56,6 +59,7 @@ import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getItem
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
 import java.util.function.Consumer
+import kotlin.math.pow
 
 object Misc {
     fun init(provider: Consumer<FinishedRecipe?>) {
@@ -87,11 +91,20 @@ object Misc {
             .dimension(KubeJS.id("create")).CWUt(Int.Companion.MAX_VALUE / 2)
             .EUt(V[14]).duration(20)
             .save(provider)
-        MAGIC_MANUFACTURER_RECIPES.recipeBuilder(id("mana_max"))
-            .notConsumable(FIELD_GENERATOR_MAX.asStack(64))
-            .circuitMeta(4)
-            .outputFluids(Mana.getFluid(256000000))
-            .EUt(VA[MAX].toLong()).duration(320)
+        for (i in 1..<5) {
+            MAGIC_MANUFACTURER_RECIPES.recipeBuilder(id(String.format("mana_%d", i - 1)))
+                .notConsumable(FIELD_GENERATOR_MAX.asStack(4.0.pow(i - 1).toInt()))
+                .circuitMeta(i)
+                .outputFluids(Mana.getFluid(10000000L * 4.0.pow(i - 1).toInt()))
+                .duration(20 * i).EUt(VA[MAX].toLong())
+                .save(provider)
+        }
+        LARGE_CHEMICAL_RECIPES.recipeBuilder(id("isopropyl_alcohol_to_hydrogen_peroxide"))
+            .inputFluids(IsopropylAlcohol.getFluid(2000))
+            .inputFluids(Oxygen.getFluid(1000))
+            .outputFluids(Acetone.getFluid(2000))
+            .outputFluids(HydrogenPeroxide.getFluid(2000))
+            .duration(600).EUt(VA[HV].toLong())
             .save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("astral_array"))
             .inputItems(EYE_OF_HARMONY, 64)
@@ -284,6 +297,22 @@ object Misc {
             .outputItems(GTLAddItems.BARNARDA_DATA.asStack(8))
             .EUt(2048).duration(4000)
             .dimension(KubeJS.id("barnarda"))
+            .save(provider)
+        WORLD_DATA_SCANNER_RECIPES.recipeBuilder(id("creative_data"))
+            .inputItems(TOOL_DATA_STICK.asStack(64))
+            .inputItems(block, Magmatter, 64)
+            .inputItems(PRIMARY_SOC_WAFER, 64)
+            .inputFluids(FluidIngredient.of(FluidStack.create(org.gtlcore.gtlcore.utils.Registries.getFluid("kubejs:gelid_cryotheum"), 800)))
+            .inputFluids(MagnetohydrodynamicallyConstrainedStarMatter.getFluid(64000))
+            .outputItems(GTLAddItems.CREATE_DATA.asStack())
+            .EUt(536870912).duration(4000)
+            .dimension(KubeJS.id("create"))
+            .save(provider)
+        ALLOY_SMELTER_RECIPES.recipeBuilder(id("magmatter_nugget"))
+            .inputItems(ingot, Magmatter)
+            .notConsumable(SHAPE_MOLD_NUGGET)
+            .outputItems(nugget, Magmatter, 9)
+            .duration(2000).EUt(VA[MAX].toLong())
             .save(provider)
         if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
             WORLD_DATA_SCANNER_RECIPES.recipeBuilder(id("barnarda_data_sky"))

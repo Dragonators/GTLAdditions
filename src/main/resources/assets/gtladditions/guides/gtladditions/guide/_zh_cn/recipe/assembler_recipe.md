@@ -7,6 +7,7 @@ categories:
   - 配方
 item_ids:
   - gtceu:uhv_assembler
+  - gtlcore:fast_infinity_cell
 ---
 
 # 组装机相关配方
@@ -23,6 +24,10 @@ item_ids:
 <Recipe id="gtladditions:assembler/naquadria_charge_more" />
 <Recipe id="gtladditions:assembler/leptonic_charge" />
 <Recipe id="gtladditions:assembler/quantum_chromodynamic_charge" />
+</Row>
+
+<Row>
+<Recipe id="gtladditions:assembler/fast_infinity_cell" />
 </Row>
 
 </Column>

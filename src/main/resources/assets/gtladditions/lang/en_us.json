@@ -83,6 +83,7 @@
   "config.screen.gtladditions": "GTLAdd Config",
   "gtladditions.guide_name": "GTLAdditions Guide",
   "item.gtladditions.barnarda_data": "Barnarda Data",
+  "item.gtladditions.create_data": "Create Data",
   "gtladditions.item.astral_array.tooltips.0": "§7This device can enhance the spacetime compression degree of Celestial Engine",
   "gtladditions.item.astral_array.tooltips.1": "§7Reaching to more distant worlds",
   "gtladditions.item.astral_array.tooltips.2": "Each provides §664§r base threads",
