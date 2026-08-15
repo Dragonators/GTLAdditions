@@ -38,6 +38,12 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
     override var astralArrayCount: Int = 0
     private var mam = 0
 
+    @Suppress("unused")
+    fun supportsBatchProcessing(): Boolean = false
+
+    @Suppress("unused")
+    fun canConfigureBatchProcessing(): Boolean = false
+
     private fun getMAM(): Int = mam.also {
         if (offsetTimer % 20 == 0L) mam = formedModuleCount
     }

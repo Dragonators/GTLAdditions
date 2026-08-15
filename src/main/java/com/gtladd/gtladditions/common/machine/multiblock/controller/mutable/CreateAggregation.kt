@@ -29,5 +29,11 @@ class CreateAggregation(holder: IMachineBlockEntity) :
 
     override fun getThreadPartMachine(): IThreadModifierPart? = this.threadPartMachine
 
+    @Suppress("unused")
+    fun supportsBatchProcessing(): Boolean = false
+
+    @Suppress("unused")
+    fun canConfigureBatchProcessing(): Boolean = false
+
     override fun getMaxParallel(): Int = Ints.saturatedCast(1L + getAdditionalThread())
 }

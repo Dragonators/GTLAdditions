@@ -63,6 +63,12 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
 
     private var boundMatrix: ApocalypticTorsionQuantumMatrix? = null
 
+    @Suppress("unused")
+    fun supportsBatchProcessing(): Boolean = false
+
+    @Suppress("unused")
+    fun canConfigureBatchProcessing(): Boolean = false
+
     // ========================================
     // Wireless binding
     // ========================================

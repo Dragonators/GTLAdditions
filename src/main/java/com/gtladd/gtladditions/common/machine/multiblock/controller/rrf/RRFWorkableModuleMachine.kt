@@ -27,6 +27,12 @@ abstract class RRFWorkableModuleMachine(holder: IMachineBlockEntity, vararg args
     private var host: RecursiveReverseArray? = null
     private var arrayTickSubscription: TickableSubscription? = null
 
+    @Suppress("unused")
+    fun supportsBatchProcessing(): Boolean = false
+
+    @Suppress("unused")
+    fun canConfigureBatchProcessing(): Boolean = false
+
     // ========================================
     // Recursive reverse buff
     // ========================================

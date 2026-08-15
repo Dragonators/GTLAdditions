@@ -27,6 +27,12 @@ class AdvancedInfiniteDrillMachine(holder: IMachineBlockEntity) :
 
     override fun createRecipeLogic(vararg args: Any?): RecipeLogic = AdvancedInfiniteDrillMachineLogic(this, 5)
 
+    @Suppress("unused")
+    fun supportsBatchProcessing(): Boolean = false
+
+    @Suppress("unused")
+    fun canConfigureBatchProcessing(): Boolean = false
+
     override fun onStructureInvalid() {
         super.onStructureInvalid()
         threadPartMachine = null

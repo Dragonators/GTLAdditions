@@ -105,6 +105,12 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) :
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = TaixuTurbidArrayLogic(this)
 
+    @Suppress("unused")
+    fun supportsBatchProcessing(): Boolean = false
+
+    @Suppress("unused")
+    fun canConfigureBatchProcessing(): Boolean = false
+
     override fun getMaxParallel(): Int = Ints.saturatedCast(maxParallel)
 
     fun getRealParallel(): Long = maxParallel

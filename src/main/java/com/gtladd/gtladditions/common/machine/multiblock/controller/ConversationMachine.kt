@@ -107,6 +107,12 @@ class ConversationMachine(holder: IMachineBlockEntity) :
 
     override fun createRecipeLogic(vararg args: Any) = ConversationRecipeLogic(this)
 
+    @Suppress("unused")
+    fun supportsBatchProcessing(): Boolean = false
+
+    @Suppress("unused")
+    fun canConfigureBatchProcessing(): Boolean = false
+
     override fun onStructureFormed() {
         super.onStructureFormed()
         refreshParallel()

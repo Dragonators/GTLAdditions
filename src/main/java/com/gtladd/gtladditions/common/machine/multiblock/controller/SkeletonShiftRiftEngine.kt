@@ -30,9 +30,12 @@ class SkeletonShiftRiftEngine(holder: IMachineBlockEntity) : MutableCoilElectric
     @field:Persisted
     private var parallel = 0
 
-    override fun createRecipeLogic(vararg args: Any?): RecipeLogic = object : MutableRecipesLogic<SkeletonShiftRiftEngine>(this) {
-        override val euMultiplier: Double
-            get() = super.euMultiplier * 1 / max(getMachine().casingTier, 1)
+    override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
+        val machine = this
+        return object : MutableRecipesLogic<SkeletonShiftRiftEngine>(machine) {
+            override val euMultiplier: Double
+                get() = super.euMultiplier * 1 / max(getMachine().casingTier, 1)
+        }
     }
 
     override fun onStructureFormed() {
