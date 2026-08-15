@@ -15,7 +15,7 @@ GTLAdditions 基于 Minecraft Forge 1.20.1 与 GregTech Leisure 生态开发。�
 
 | 需求 | 版本 / 范围 |
 | --- | --- |
-| GTLCore (`gtlcore`) | `>= 1.2.3.1-fix7` |
+| GTLCore (`gtlcore`) | `>= 1.2.3.1-fix9` |
 | Stargate Journey (`sgjourney`) | `>= 0.6.44` |
 | Oculus (`oculus`) | `>= 1.7.0`，客户端侧 |
 

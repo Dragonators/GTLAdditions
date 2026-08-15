@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
+import mezz.jei.api.gui.drawable.TilingDirection;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientTypeWithSubtypes;
 import mezz.jei.common.platform.IPlatformFluidHelperInternal;
@@ -22,7 +23,11 @@ public abstract class FluidTankRendererMixin<T> implements IIngredientRenderer<T
     private IPlatformFluidHelperInternal<T> fluidHelper;
 
     @Shadow(remap = false)
-    private static void drawTiledSprite(GuiGraphics guiGraphics, final int tiledWidth, final int tiledHeight, int color, long scaledAmount, TextureAtlasSprite sprite, int posX, int posY) {
+    @Final
+    private TilingDirection tilingDirection;
+
+    @Shadow(remap = false)
+    private static void drawTiledSprite(GuiGraphics guiGraphics, final int tiledWidth, final int tiledHeight, int color, long scaledAmount, TextureAtlasSprite sprite, TilingDirection tilingDirection, int posX, int posY) {
         throw new AssertionError();
     }
 
@@ -41,7 +46,7 @@ public abstract class FluidTankRendererMixin<T> implements IIngredientRenderer<T
         fluidHelper.getStillFluidSprite(fluidStack)
                 .ifPresent(fluidStillSprite -> {
                     int fluidColor = fluidHelper.getColorTint(fluidStack);
-                    drawTiledSprite(guiGraphics, width, height, fluidColor, height, fluidStillSprite, posX, posY);
+                    drawTiledSprite(guiGraphics, width, height, fluidColor, height, fluidStillSprite, tilingDirection, posX, posY);
                 });
     }
 }
