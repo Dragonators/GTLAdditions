@@ -2035,6 +2035,7 @@ object MultiBlockMachine {
                         "S",
                         blocks(getBlock("gtladditions:temporal_anchor_field_casing"))
                             .or(abilities(IMPORT_ITEMS))
+                            .or(abilities(IMPORT_FLUIDS))
                             .or(abilities(INPUT_LASER).setMaxGlobalLimited(1))
                             .or(abilities(EXPORT_ITEMS))
                             .or(abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1))

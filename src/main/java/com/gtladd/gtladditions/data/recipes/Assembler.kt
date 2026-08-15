@@ -20,6 +20,9 @@ import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
 import com.hepdd.gtmthings.GTMThings
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLBlocks.*
+import org.gtlcore.gtlcore.common.data.GTLItems.FAST_INFINITY_CELL
+import org.gtlcore.gtlcore.common.data.GTLItems.FLUID_INFINITY_CELL
+import org.gtlcore.gtlcore.common.data.GTLItems.ITEM_INFINITY_CELL
 import org.gtlcore.gtlcore.common.data.GTLMachines
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
@@ -56,6 +59,15 @@ object Assembler {
             .inputFluids(Antimatter.getFluid(100))
             .outputItems(getItemStack("kubejs:quantum_chromodynamic_charge", 16))
             .duration(200).EUt(4L * VA[MAX]).save(provider)
+        ASSEMBLER_RECIPES.recipeBuilder(id("fast_infinity_cell"))
+            .notConsumable(FAST_INFINITY_CELL.asStack())
+            .inputItems(getItemStack("kubejs:zero_point_module_fragments", 64))
+            .inputItems(ITEM_INFINITY_CELL)
+            .inputItems(FLUID_INFINITY_CELL)
+            .inputItems(getItemStack("kubejs:entangled_singularity", 12))
+            .inputFluids(GradePurifiedWater8.getFluid(1000))
+            .outputItems(FAST_INFINITY_CELL.asStack())
+            .duration(400).EUt(VA[UEV].toLong()).save(provider)
         ASSEMBLER_RECIPES.recipeBuilder(id("power_substation"))
             .circuitMeta(8)
             .inputItems(CASING_PALLADIUM_SUBSTATION.asStack())

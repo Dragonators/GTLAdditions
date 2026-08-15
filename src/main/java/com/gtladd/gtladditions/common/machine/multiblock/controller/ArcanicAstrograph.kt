@@ -199,7 +199,7 @@ class ArcanicAstrograph(holder: IMachineBlockEntity, vararg args: Any?) :
                 val recipe = COSMOS_SIMULATION_RECIPES.lookup.find(astrograph, this::checkRecipe) ?: return null
                 if (!astrograph.consumeCosmosStartup()) return null
 
-                val harmonyRecipe = recipe.copy().also {
+                val harmonyRecipe = astrograph.applyCreateDataOutput(recipe).also {
                     it.duration = astrograph.getHarmonyDuration()
                 }
 

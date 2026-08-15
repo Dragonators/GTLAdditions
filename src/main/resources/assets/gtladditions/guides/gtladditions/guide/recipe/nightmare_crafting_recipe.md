@@ -11,6 +11,7 @@ item_ids:
   - avaritia:cosmic_meatballs
   - avaritia:endest_pearl
   - avaritia:endless_cake
+  - gtceu:nan_certificate
 ---
 
 # Nightmare Crafting Recipes
@@ -39,6 +40,7 @@ These recipes are processed by the <ItemLink id="gtladditions:dimension_focus_in
 
 <Row>
 <Recipe id="gtladditions:nightmare_crafting/endless_cake" />
+<Recipe id="gtladditions:nightmare_crafting/nan_certificate" />
 </Row>
 
 </Column>

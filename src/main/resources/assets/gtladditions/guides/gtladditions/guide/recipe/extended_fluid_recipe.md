@@ -26,6 +26,11 @@ item_ids:
   - gtceu:rhenium_dust
   - gtceu:germanium_ingot
   - gtceu:germanium_dust
+  - gtceu:neptunium_block
+  - gtceu:neptunium_dust
+  - gtceu:neptunium_nugget
+  - gtceu:neptunium_rod
+  - gtceu:long_neptunium_rod
 ---
 
 # Extended Fluid Recipes
@@ -56,6 +61,7 @@ GTLAdditions adds <FluidLink id="gtladditions:molten_ruridit" /> and <FluidLink 
 
 * Ruridit can be converted directly into its molten form in the Blast Alloy Smelter, and can also be processed through Molecular Deconstruction and Chaotic Alchemy.
 * GTLAdditions also provides fluid forms for germanium, rhenium, and technetium for later fluid-based processing chains.
+* Neptunium now has an ingot property and the block, dust, nugget, rod, and long rod forms derived from it.
 
 </Column>
 

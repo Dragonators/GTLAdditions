@@ -42,6 +42,7 @@ object GTLAddItems {
     val PRIMARY_SOC: ItemEntry<Item?>
     val SPACETIME_LENS: ItemEntry<Item?>
     val BARNARDA_DATA: ItemEntry<Item?>
+    val CREATE_DATA: ItemEntry<Item?>
     val PHONONIC_SEED_CRYSTAL: ItemEntry<Item?>
     val THERMAL_SUPERCONDUCTOR: ItemEntry<Item?>
     val RELATIVISTIC_HEAT_CAPACITOR: ItemEntry<Item?>
@@ -97,6 +98,7 @@ object GTLAddItems {
         PRIMARY_SOC_WAFER = register("primary_soc_wafer", "Primary Soc Wafer")
         PRIMARY_SOC = register("primary_soc", "Primary Soc")
         BARNARDA_DATA = register("barnarda_data", "Barnarda Data")
+        CREATE_DATA = register("create_data", "Create Data")
         PHONONIC_SEED_CRYSTAL = register("phononic_seed_crystal", "Phononic Seed Crystal")
         THERMAL_SUPERCONDUCTOR = register("thermal_superconductor", "Thermal Superconductor")
         RELATIVISTIC_HEAT_CAPACITOR = register("relativistic_heat_capacitor", "Relativistic Heat Capacitor")
