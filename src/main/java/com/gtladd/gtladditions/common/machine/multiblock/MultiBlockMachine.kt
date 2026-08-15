@@ -46,8 +46,8 @@ import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographRender
 import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer
 import com.gtladd.gtladditions.client.render.machine.HeartOfTheUniverseRenderer
 import com.gtladd.gtladditions.client.render.machine.PartWorkableCasingMachineRenderer
-import com.gtladd.gtladditions.client.render.machine.SubspaceCorridorHubIndustrialArrayRenderer
 import com.gtladd.gtladditions.client.render.machine.SpaceElevatorMKIIRenderer
+import com.gtladd.gtladditions.client.render.machine.SubspaceCorridorHubIndustrialArrayRenderer
 import com.gtladd.gtladditions.client.render.machine.TimeSpaceDistorterRenderer
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_ENERGY_CASING
