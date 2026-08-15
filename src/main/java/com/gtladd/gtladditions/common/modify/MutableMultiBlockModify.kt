@@ -272,9 +272,12 @@ object MutableMultiBlockModify {
 
         MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = object : MutableRecipesLogic<MutableElectricParallelHatchMultiblockMachine>(this) {
-                    override val euMultiplier: Double
-                        get() = if (machine.recipeType == GTRecipeTypes.MIXER_RECIPES) super.euMultiplier * 0.2 else super.euMultiplier
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
+                    val machine = this
+                    return object : MutableRecipesLogic<MutableElectricParallelHatchMultiblockMachine>(machine) {
+                        override val euMultiplier: Double
+                            get() = if (machine.recipeType == GTRecipeTypes.MIXER_RECIPES) super.euMultiplier * 0.2 else super.euMultiplier
+                    }
                 }
             }
         }
@@ -309,30 +312,36 @@ object MutableMultiBlockModify {
 
         AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = object : MutableRecipesLogic<MutableElectricParallelHatchMultiblockMachine>(this) {
-                    override fun getRecipeEut(recipe: GTRecipe): Long = recipe.data.getInt("evt") * 2000L
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
+                    val machine = this
+                    return object : MutableRecipesLogic<MutableElectricParallelHatchMultiblockMachine>(machine) {
+                        override fun getRecipeEut(recipe: GTRecipe): Long = recipe.data.getInt("evt") * 2000L
+                    }
                 }
             }
         }
 
         MultiBlockMachineA.COMPONENT_ASSEMBLY_LINE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableTierCasingMachine(blockEntity, "CATier") {
-                override fun createRecipeLogic(vararg args: Any): RecipeLogic = object : MutableRecipesLogic<MutableTierCasingMachine>(this, TIER_CHECK) {
-                    override fun calculateParallel(
-                        machine: IRecipeLogicMachine,
-                        match: GTRecipe,
-                        remain: Long
-                    ): LongLongPair = if (RecipeHelper.getInputEUt(match) <= GTValues.V[GTValues.IV]) {
-                        LongLongPair.of(
-                            IParallelLogic.getMaxParallel(
-                                machine,
-                                match,
-                                Long.MAX_VALUE
-                            ),
-                            0
-                        )
-                    } else {
-                        super.calculateParallel(machine, match, remain)
+                override fun createRecipeLogic(vararg args: Any): RecipeLogic {
+                    val machine = this
+                    return object : MutableRecipesLogic<MutableTierCasingMachine>(machine, TIER_CHECK) {
+                        override fun calculateParallel(
+                            machine: IRecipeLogicMachine,
+                            match: GTRecipe,
+                            remain: Long
+                        ): LongLongPair = if (RecipeHelper.getInputEUt(match) <= GTValues.V[GTValues.IV]) {
+                            LongLongPair.of(
+                                IParallelLogic.getMaxParallel(
+                                    machine,
+                                    match,
+                                    Long.MAX_VALUE
+                                ),
+                                0
+                            )
+                        } else {
+                            super.calculateParallel(machine, match, remain)
+                        }
                     }
                 }
             }
@@ -340,25 +349,28 @@ object MutableMultiBlockModify {
 
         MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableCoilElectricParallelHatchMultiblockMachine(blockEntity) {
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = object : MutableRecipesLogic<MutableCoilElectricParallelHatchMultiblockMachine>(
-                    this,
-                    EBFChecks.ATOMIC_ENERGY_EXCITATION_PLANT_CHECK
-                ) {
-                    override fun calculateParallel(
-                        machine: IRecipeLogicMachine,
-                        match: GTRecipe,
-                        remain: Long
-                    ): LongLongPair = if (match.recipeType == GTLRecipeTypes.FUEL_REFINING_RECIPES) {
-                        LongLongPair.of(
-                            IParallelLogic.getMaxParallel(
-                                machine,
-                                match,
-                                Long.MAX_VALUE
-                            ),
-                            0
-                        )
-                    } else {
-                        super.calculateParallel(machine, match, remain)
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
+                    val machine = this
+                    return object : MutableRecipesLogic<MutableCoilElectricParallelHatchMultiblockMachine>(
+                        machine,
+                        EBFChecks.ATOMIC_ENERGY_EXCITATION_PLANT_CHECK
+                    ) {
+                        override fun calculateParallel(
+                            machine: IRecipeLogicMachine,
+                            match: GTRecipe,
+                            remain: Long
+                        ): LongLongPair = if (match.recipeType == GTLRecipeTypes.FUEL_REFINING_RECIPES) {
+                            LongLongPair.of(
+                                IParallelLogic.getMaxParallel(
+                                    machine,
+                                    match,
+                                    Long.MAX_VALUE
+                                ),
+                                0
+                            )
+                        } else {
+                            super.calculateParallel(machine, match, remain)
+                        }
                     }
                 }
             }

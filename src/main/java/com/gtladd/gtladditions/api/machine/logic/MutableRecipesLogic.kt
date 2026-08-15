@@ -12,6 +12,8 @@ import com.gtladd.gtladditions.api.recipe.IWirelessGTRecipe
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
+import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongLongPair
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import org.gtlcore.gtlcore.api.machine.ISuspendableMachine
@@ -38,6 +40,7 @@ open class MutableRecipesLogic<T> :
           T : IThreadModifierMachine,
           T : ParallelMachine {
 
+    @DescSynced
     private var useMultipleRecipes = false
     private val reductionRatio: Double
     protected val recipeCheck: BiPredicate<GTRecipe, IRecipeLogicMachine>?
@@ -268,4 +271,10 @@ open class MutableRecipesLogic<T> :
     }
 
     fun isMultipleRecipeMode(): Boolean = this.useMultipleRecipes
+
+    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
+
+    companion object {
+        val MANAGED_FIELD_HOLDER = ManagedFieldHolder(MutableRecipesLogic::class.java, RecipeLogic.MANAGED_FIELD_HOLDER)
+    }
 }

@@ -29,19 +29,22 @@ class MutablePCBFactoryMachine(holder: IMachineBlockEntity) :
             }
         }
 
-    override fun createRecipeLogic(vararg args: Any): RecipeLogic = object : MutableRecipesLogic<MutablePCBFactoryMachine>(this) {
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic {
+        val machine = this
+        return object : MutableRecipesLogic<MutablePCBFactoryMachine>(machine) {
 
-        override val euMultiplier: Double
-            get() = super.euMultiplier * getMachine().nanoSwarmMultiplier
+            override val euMultiplier: Double
+                get() = super.euMultiplier * getMachine().nanoSwarmMultiplier
 
-        override fun calculateParallel(
-            machine: IRecipeLogicMachine,
-            match: GTRecipe,
-            remain: Long
-        ): LongLongPair = if (RecipeHelper.getInputEUt(match) <= GTValues.V[GTValues.LuV]) {
-            LongLongPair.of(IParallelLogic.getMaxParallel(machine, match, Long.Companion.MAX_VALUE), 0)
-        } else {
-            super.calculateParallel(machine, match, remain)
+            override fun calculateParallel(
+                machine: IRecipeLogicMachine,
+                match: GTRecipe,
+                remain: Long
+            ): LongLongPair = if (RecipeHelper.getInputEUt(match) <= GTValues.V[GTValues.LuV]) {
+                LongLongPair.of(IParallelLogic.getMaxParallel(machine, match, Long.Companion.MAX_VALUE), 0)
+            } else {
+                super.calculateParallel(machine, match, remain)
+            }
         }
     }
 

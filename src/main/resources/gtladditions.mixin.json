@@ -42,6 +42,7 @@
     "gtlcore.machine.part.WirelessOpticalDataHatchMachineMixin",
     "gtlcore.machine.trait.MECraftHandlerMixin",
     "gtlcore.machine.trait.MultipleRecipesLogicMixin",
+    "gtlcore.recipe.BatchProcessingMixin",
     "gtmtings.WirelessEnergyManagerMixin",
     "gtmtings.WirelessEnergyMonitorMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMixin",
