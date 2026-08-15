@@ -73,6 +73,9 @@ object GTLAddRecipesTypes {
     @JvmField
     val COMPRESSED_ASTRAL_ARRAY: GTRecipeType
 
+    @JvmField
+    val EVOLUTION_OF_PRIMORDIAL: GTRecipeType
+
     fun init() {
         RecipesModify.init()
     }
@@ -262,6 +265,11 @@ object GTLAddRecipesTypes {
             .setMaxTooltips(1)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.SCIENCE)
+        EVOLUTION_OF_PRIMORDIAL = GTRecipeTypes.register("evolution_of_primordial", GTRecipeTypes.MULTIBLOCK)
+            .setEUIO(IO.IN)
+            .setMaxIOSize(1, 1, 2, 16)
+            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+            .setSound(GTSoundEntries.CHEMICAL)
         FORGE_OF_THE_ANTICHRIST = GTRecipeTypes.register("forge_of_the_antichrist", GTRecipeTypes.DUMMY)
             .setXEIVisible(false)
             .setSound(GTLAddSoundEntries.FORGE_OF_THE_ANTICHRIST)

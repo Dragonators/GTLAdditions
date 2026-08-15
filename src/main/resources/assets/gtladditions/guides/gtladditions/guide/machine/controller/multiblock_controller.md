@@ -22,6 +22,9 @@ categories:
 
 * [Quantum Syphon Matrix](quantum_syphon_matrix.md)
 * [Taixu Turbid Array](taixu_turbid_array.md)
+* [Primordial Evolution Nexus](primordial_evolution_nexus.md)
+* [Biosphere III](biosphere_iii.md)
+* [Garden of Hermes](biosphere_iii.md)
 
 ## <Color color="#00AA00">**UIV**</Color>
 
@@ -42,6 +45,7 @@ categories:
 * [Light Hunter Space Station](light_hunter_space_station.md)
 * [Nexus Satellite Factory](nexus_satellite_factory.md)
 * [Macro Atomic Resonant Fragment Stripper](macro_atomic_resonant_fragment_stripper.md)
+* [Space Elevator MKII](space_elevator_mkii.md)
 
 ## <Color color="#0000FF">**OpV**</Color>
 

@@ -102,7 +102,10 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
                 pos.offset(3, -2, 8),
                 pos.offset(-3, -2, 8),
                 pos.offset(3, -2, -8),
-                pos.offset(-3, -2, -8)
+                pos.offset(-3, -2, -8),
+                *SpaceElevatorMKII.MODULE_OFFSETS.map { offset ->
+                    pos.offset(offset[0], -2, offset[2])
+                }.toTypedArray()
             )
 
             for (i in coordinates) {
@@ -177,5 +180,9 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
         }
     }
 
-    override fun getMaxParallel(): Int = 8.0.pow((this.moduleTier - 1).toDouble()).toInt()
+    override fun getMaxParallel(): Int = if (host is SpaceElevatorMKII) {
+        12.0.pow((moduleTier - 1).toDouble()).toInt()
+    } else {
+        8.0.pow((moduleTier - 1).toDouble()).toInt()
+    }
 }

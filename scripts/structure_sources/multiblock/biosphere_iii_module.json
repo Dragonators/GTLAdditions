@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "type": "factory_pattern",
+  "id": "biosphere_iii_module",
+  "aisles": [
+    [
+      "CCC",
+      "AAA",
+      "ABA",
+      "AAA"
+    ]
+  ]
+}

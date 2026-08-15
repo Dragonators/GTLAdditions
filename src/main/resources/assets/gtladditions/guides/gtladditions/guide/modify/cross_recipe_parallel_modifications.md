@@ -50,8 +50,8 @@ These existing multiblocks can gain or enhance cross-recipe parallel processing 
 
 <Column gap="2" fullWidth={true}>
 
-* <ItemLink id="gtceu:fishing_ground" />: base multiplier 512.
-* <ItemLink id="gtceu:large_greenhouse" />: base multiplier 128.
+* <ItemLink id="gtceu:fishing_ground" />: base multiplier 4.
+* <ItemLink id="gtceu:large_greenhouse" />: base multiplier 4.
 * <ItemLink id="gtceu:a_mass_fabricator" />: base multiplier 16.
 * <ItemLink id="gtceu:huge_incubator" />: base multiplier 256.
 * <ItemLink id="gtceu:dimensionally_transcendent_mixer" />: base multiplier 1.

@@ -13,8 +13,8 @@ import kotlin.math.roundToInt
 
 object ThreadMultiplierStrategy {
     private val BLOCK_MULTIPLIER_MAP = mapOf<MultiblockMachineDefinition, Int>(
-        MultiBlockMachineA.FISHING_GROUND to 512,
-        MultiBlockMachineA.LARGE_GREENHOUSE to 128,
+        MultiBlockMachineA.FISHING_GROUND to 4,
+        MultiBlockMachineA.LARGE_GREENHOUSE to 4,
         MultiBlockMachineA.A_MASS_FABRICATOR to 16,
         AdditionalMultiBlockMachine.HUGE_INCUBATOR to 256,
         MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER to 1,
@@ -23,8 +23,8 @@ object ThreadMultiplierStrategy {
         AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV] to 2,
         MultiBlockMachineA.LARGE_RECYCLER to 2048,
         MultiBlockMachineA.ADVANCED_SPS_CRAFTING to 1,
-        MultiBlockMachineA.PETROCHEMICAL_PLANT to 32,
-        MultiBlockMachineB.WOOD_DISTILLATION to 128,
+        MultiBlockMachineA.PETROCHEMICAL_PLANT to 1,
+        MultiBlockMachineB.WOOD_DISTILLATION to 1,
         AdvancedMultiBlockMachine.PCB_FACTORY to 2048,
         AdditionalMultiBlockMachine.ADVANCED_RARE_EARTH_CENTRIFUGAL to 4,
         MultiBlockMachineB.GRAVITATION_SHOCKBURST to 512,
@@ -38,7 +38,9 @@ object ThreadMultiplierStrategy {
         AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER to 256,
         MultiBlockMachine.DRACONIC_COLLAPSE_CORE to 2,
         MultiBlockMachine.TITAN_CRIP_EARTHBORE to 2,
-        MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE to 2
+        MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE to 2,
+        MultiBlockMachine.PRIMORDIAL_EVOLUTION_NEXUS to 4,
+        MultiBlockMachine.BIOSPHERE_III to 1024
     )
 
     fun getAdditionalMultiplier(definition: MultiblockMachineDefinition?): Int {

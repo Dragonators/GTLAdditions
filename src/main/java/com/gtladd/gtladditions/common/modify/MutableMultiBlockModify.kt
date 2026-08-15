@@ -27,6 +27,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ARCAN
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ASTRAL_CONVERGENCE_NEXUS
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ATOMIC_TRANSMUTATIOON_CORE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.BIOLOGICAL_SIMULATION_LABORATORY
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.BIOSPHERE_III
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DRACONIC_COLLAPSE_CORE
@@ -38,6 +39,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.PRIMORDIAL_EVOLUTION_NEXUS
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.QUANTUM_SYPHON_MATRIX
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.TITAN_CRIP_EARTHBORE
@@ -126,7 +128,9 @@ object MutableMultiBlockModify {
             INFERNO_CLEFT_SMELTING_VAULT,
             SKELETON_SHIFT_RIFT_ENGINE,
             APOCALYPTIC_TORSION_QUANTUM_MATRIX,
-            DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY
+            DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY,
+            PRIMORDIAL_EVOLUTION_NEXUS,
+            BIOSPHERE_III
         )
 
         enableThreadModifier()
