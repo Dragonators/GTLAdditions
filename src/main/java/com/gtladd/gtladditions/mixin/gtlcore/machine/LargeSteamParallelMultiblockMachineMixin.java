@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.mixin.gtlcore.machine;
 
 import org.gtlcore.gtlcore.common.data.GTLMachines;
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA;
+import org.gtlcore.gtlcore.common.machine.multiblock.part.LargeSteamHatchPartMachine;
 import org.gtlcore.gtlcore.common.machine.multiblock.steam.LargeSteamParallelMultiblockMachine;
 
 import com.gregtechceu.gtceu.api.capability.recipe.*;
@@ -14,8 +15,8 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
-import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.SteamHatchPartMachine;
 
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
 
@@ -25,6 +26,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 
 import com.gtladd.gtladditions.common.machine.GTLAddMachines;
+import com.gtladd.gtladditions.common.machine.hatch.HugeSteamHatchPartMachine;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.jetbrains.annotations.NotNull;
@@ -89,9 +91,10 @@ public abstract class LargeSteamParallelMultiblockMachineMixin extends WorkableM
             while (itr.hasNext()) {
                 IRecipeHandler<?> handler = itr.next();
                 if (handler instanceof NotifiableFluidTank tank) {
-                    if (tank.getFluidInTank(0).isFluidEqual(GTMaterials.Steam.getFluid(1L))) {
-                        gtladditions$isLarge = tank.getMachine().getDefinition() == GTLMachines.LARGE_STEAM_HATCH;
-                        gtladditions$isHuge = tank.getMachine().getDefinition() == GTLAddMachines.HUGE_STEAM_HATCH;
+                    MetaMachine machine = tank.getMachine();
+                    if (machine instanceof SteamHatchPartMachine || machine instanceof LargeSteamHatchPartMachine || machine instanceof HugeSteamHatchPartMachine) {
+                        gtladditions$isLarge = machine.getDefinition() == GTLMachines.LARGE_STEAM_HATCH;
+                        gtladditions$isHuge = machine.getDefinition() == GTLAddMachines.HUGE_STEAM_HATCH;
                         this.isOC = gtladditions$isLarge || gtladditions$isHuge;
                         Object2IntMap<RecipeCapability<?>> recipeOutputLimits = new Object2IntOpenHashMap<>();
                         recipeOutputLimits.put(ItemRecipeCapability.CAP, gtladditions$isHuge ? 3 : 1);
