@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.events
 
 import com.gtladd.gtladditions.GTLAdditions.Companion.MOD_ID
+import com.gtladd.gtladditions.utils.CloudNetworkManager
 import com.gtladd.gtladditions.utils.antichrist.ServerMachineManager
 import net.minecraft.server.level.ServerLevel
 import net.minecraftforge.event.level.LevelEvent
@@ -17,6 +18,7 @@ object ServerLifecycleHandler {
     fun onLevelUnload(event: LevelEvent.Unload) {
         (event.level as? ServerLevel)?.let {
             ServerMachineManager.clearDimension(it.dimension())
+            CloudNetworkManager.clearLevel(it.dimension())
         }
     }
 
@@ -24,5 +26,6 @@ object ServerLifecycleHandler {
     @JvmStatic
     fun onServerStopping(event: ServerStoppingEvent) {
         ServerMachineManager.clearAll()
+        CloudNetworkManager.clearAll()
     }
 }

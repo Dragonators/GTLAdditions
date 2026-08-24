@@ -21,3 +21,4 @@ categories:
 * [超级并行控制仓](super_parallel_hatch.md)
 * [Ω-天球分歧引擎](thread_modifier_hatch.md)
 * [无线电网终端](wireless_energy_network_terminal.md)
+* [云端算力与研究数据系统](cloud_system.md)

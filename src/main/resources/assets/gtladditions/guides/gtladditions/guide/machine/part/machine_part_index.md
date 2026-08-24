@@ -21,3 +21,4 @@ categories:
 * [Super Parallel Hatch](super_parallel_hatch.md)
 * [Ω-Spheres Divergence Engine](thread_modifier_hatch.md)
 * [Wireless Energy Network Terminals](wireless_energy_network_terminal.md)
+* [Cloud Computation and Research Data](cloud_system.md)

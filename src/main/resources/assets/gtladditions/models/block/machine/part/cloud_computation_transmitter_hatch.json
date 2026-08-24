@@ -1,0 +1,19 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "overlay_screen": "gtladditions:block/machine/cloud_computation_transmitter_hatch",
+    "bottom": "gtceu:block/casings/voltage/uiv/bottom",
+    "top": "gtceu:block/casings/voltage/uiv/top",
+    "particle": "gtceu:block/casings/voltage/uiv/side",
+    "side": "gtceu:block/casings/voltage/uiv/side"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 0],
+      "faces": {
+        "north": { "texture": "#overlay_screen", "cullface": "north" }
+      }
+    }
+  ]
+}
