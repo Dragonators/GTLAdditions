@@ -8,7 +8,6 @@ import com.gtladd.gtladditions.utils.CommonUtils
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.hepdd.gtmthings.api.misc.WirelessEnergyManager
-import com.hepdd.gtmthings.utils.TeamUtil
 import net.minecraft.ChatFormatting.*
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
@@ -28,63 +27,51 @@ class WirelessEnergyNetworkTerminalProvider :
     IBlockComponentProvider,
     IServerDataProvider<BlockAccessor> {
     override fun appendTooltip(tooltip: ITooltip, blockAccessor: BlockAccessor, iPluginConfig: IPluginConfig) {
-        val blockEntity = blockAccessor.blockEntity
-        if (blockEntity is IMachineBlockEntity) {
-            if (blockEntity.metaMachine is WirelessEnergyNetworkTerminalPartMachineBase) {
-                val serverData = blockAccessor.serverData
-                if (!serverData.hasUUID("uuid")) {
-                    tooltip.add("gtmthings.machine.wireless_energy_hatch.tooltip.1".toComponent)
-                } else {
-                    val uuid = serverData.getUUID("uuid")
-                    if (TeamUtil.hasOwner(blockAccessor.level, uuid)) {
-                        tooltip.add(
-                            "gtmthings.machine.wireless_energy_hatch.tooltip.2".toComponent(TeamUtil.GetName(blockAccessor.level, uuid))
-                        )
-                    } else {
-                        tooltip.add("gtmthings.machine.wireless_energy_hatch.tooltip.3".toComponent(uuid))
-                    }
+        val blockEntity = blockAccessor.blockEntity as? IMachineBlockEntity ?: return
+        if (blockEntity.metaMachine !is WirelessEnergyNetworkTerminalPartMachineBase) return
 
-                    val totalEu = BigInteger(serverData.getByteArray("totalEu"))
-                    val abs = totalEu.abs()
-                    val longEu = NumberUtils.getLongValue(totalEu)
-                    val energyTier = if (longEu == Long.MAX_VALUE) GTValues.MAX_TRUE else NumberUtils.getFakeVoltageTier(longEu)
+        val serverData = blockAccessor.serverData
+        JadeTeamBindingHelper.appendTooltip(tooltip, blockAccessor.level, serverData)
+        if (JadeTeamBindingHelper.readBinding(serverData) == null) return
 
-                    val text = (CommonUtils.format2Double(abs.toDouble())).literal.withStyle(RED)
-                        .append(
-                            " EU".literal.withStyle(RESET)
-                                .append(
-                                    " (".literal.withStyle(GREEN)
-                                        .append(
-                                            "gtceu.top.electricity".toComponent(
-                                                String.format(
-                                                    "%.2e",
-                                                    BigDecimal(abs).divide(
-                                                        BigDecimal.valueOf(GTValues.VEX[energyTier]),
-                                                        3,
-                                                        RoundingMode.DOWN
-                                                    ).toDouble()
-                                                ),
-                                                NewGTValues.VNF[energyTier]
-                                            ).withStyle { style ->
-                                                style.withColor(
-                                                    TextUtil.`GTL_CORE$VC`[
-                                                        energyTier.coerceAtMost(
-                                                            14
-                                                        )
-                                                    ]
-                                                )
-                                            }
-                                        )
-                                        .append(")".literal.withStyle(GREEN))
-                                )
-                        )
+        val totalEu = BigInteger(serverData.getByteArray("totalEu"))
+        val abs = totalEu.abs()
+        val longEu = NumberUtils.getLongValue(totalEu)
+        val energyTier = if (longEu == Long.MAX_VALUE) GTValues.MAX_TRUE else NumberUtils.getFakeVoltageTier(longEu)
 
-                    tooltip.add(
-                        "gtladditions.machine.wireless_energy_network_terminal.tooltips.1".toComponent(text)
+        val text = (CommonUtils.format2Double(abs.toDouble())).literal.withStyle(RED)
+            .append(
+                " EU".literal.withStyle(RESET)
+                    .append(
+                        " (".literal.withStyle(GREEN)
+                            .append(
+                                "gtceu.top.electricity".toComponent(
+                                    String.format(
+                                        "%.2e",
+                                        BigDecimal(abs).divide(
+                                            BigDecimal.valueOf(GTValues.VEX[energyTier]),
+                                            3,
+                                            RoundingMode.DOWN
+                                        ).toDouble()
+                                    ),
+                                    NewGTValues.VNF[energyTier]
+                                ).withStyle { style ->
+                                    style.withColor(
+                                        TextUtil.`GTL_CORE$VC`[
+                                            energyTier.coerceAtMost(
+                                                14
+                                            )
+                                        ]
+                                    )
+                                }
+                            )
+                            .append(")".literal.withStyle(GREEN))
                     )
-                }
-            }
-        }
+            )
+
+        tooltip.add(
+            "gtladditions.machine.wireless_energy_network_terminal.tooltips.1".toComponent(text)
+        )
     }
 
     override fun appendServerData(compoundTag: CompoundTag, blockAccessor: BlockAccessor) {
@@ -93,7 +80,7 @@ class WirelessEnergyNetworkTerminalProvider :
             val machine = blockEntity.metaMachine
             if (machine is WirelessEnergyNetworkTerminalPartMachineBase) {
                 machine.uuid?.let {
-                    compoundTag.putUUID("uuid", it)
+                    JadeTeamBindingHelper.writeBinding(compoundTag, it)
                     compoundTag.putByteArray("totalEu", WirelessEnergyManager.getUserEU(it).toByteArray())
                 }
             }

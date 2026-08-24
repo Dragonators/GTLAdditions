@@ -3,6 +3,7 @@ package com.gtladd.gtladditions.common.modify
 import com.google.common.primitives.Ints
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
+import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
@@ -15,6 +16,7 @@ import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifierList
 import com.gregtechceu.gtceu.common.data.GTBlocks
 import com.gregtechceu.gtceu.common.data.GTMachines
 import com.gregtechceu.gtceu.common.data.GTRecipeModifiers
+import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.ActiveTransformerMachine
 import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
 import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
@@ -250,5 +252,32 @@ object MultiBlockModify {
         AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             AdvancedInfiniteDrillMachine(blockEntity)
         }
+
+        val networkSwitch = GTResearchMachines.NETWORK_SWITCH as MultiblockMachineDefinition
+        networkSwitch.replacePatternPredicates(
+            "cloud_computation_hatch_exclusion",
+            patternPredicateSelector({ GTBlocks.COMPUTER_CASING.get() }),
+            {
+                Predicates.blocks(GTBlocks.COMPUTER_CASING.get()).setMinGlobalLimited(7)
+                    .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMinGlobalLimited(1, 1))
+                    .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
+                    .or(
+                        Predicates.blocks(
+                            *PartAbility.COMPUTATION_DATA_RECEPTION.allBlocks.stream()
+                                .filter { it != GTLAddMachines.CLOUD_COMPUTATION_HATCH_RECEIVER.block }
+                                .toList()
+                                .toTypedArray()
+                        ).setMinGlobalLimited(1, 2)
+                    )
+                    .or(
+                        Predicates.blocks(
+                            *PartAbility.COMPUTATION_DATA_TRANSMISSION.allBlocks.stream()
+                                .filter { it != GTLAddMachines.CLOUD_COMPUTATION_HATCH_TRANSMITTER.block }
+                                .toList()
+                                .toTypedArray()
+                        ).setMinGlobalLimited(1, 1)
+                    )
+            }
+        )
     }
 }
