@@ -28,7 +28,6 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth
 import net.minecraft.world.item.ItemStack
-import org.gtlcore.gtlcore.api.machine.trait.ICheckPatternMachine
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeStatus
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.common.data.GTLMaterials.Hypogen
@@ -302,7 +301,6 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
                 listOf((if (it) "behaviour.soft_hammer.enabled" else "behaviour.soft_hammer.disabled").toComponent)
             }
         )
-        ICheckPatternMachine.attachConfigurators(configuratorPanel, self())
     }
 
     // ========================================

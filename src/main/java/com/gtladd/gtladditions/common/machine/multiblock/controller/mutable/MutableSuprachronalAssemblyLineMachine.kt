@@ -18,7 +18,7 @@ class MutableSuprachronalAssemblyLineMachine(holder: IMachineBlockEntity, vararg
     IWirelessThreadModifierParallelMachine {
     private var threadPartMachine: IThreadModifierPart? = null
 
-    override fun createRecipeLogic(vararg args: Any): RecipeLogic = MutableRecipesLogic(this, DATA_CHECK, 0.4)
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic = MutableRecipesLogic(this, DATA_CHECK, 1.0, 0.4)
 
     @Suppress("UNCHECKED_CAST")
     override fun getRecipeLogic(): MutableRecipesLogic<MutableSuprachronalAssemblyLineMachine> = super.getRecipeLogic() as MutableRecipesLogic<MutableSuprachronalAssemblyLineMachine>

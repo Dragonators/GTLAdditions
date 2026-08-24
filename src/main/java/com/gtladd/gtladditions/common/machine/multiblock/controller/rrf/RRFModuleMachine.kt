@@ -27,7 +27,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
-import org.gtlcore.gtlcore.api.machine.trait.ICheckPatternMachine
 import java.util.function.Consumer
 
 abstract class RRFModuleMachine(holder: IMachineBlockEntity) :
@@ -35,8 +34,7 @@ abstract class RRFModuleMachine(holder: IMachineBlockEntity) :
     IModularMachineModule<RecursiveReverseArray, RRFModuleMachine>,
     IFancyUIMachine,
     IDisplayUIMachine,
-    IMachineLife,
-    ICheckPatternMachine {
+    IMachineLife {
 
     @Persisted
     @DescSynced
@@ -194,10 +192,7 @@ abstract class RRFModuleMachine(holder: IMachineBlockEntity) :
                 { _, pressed -> enabled = pressed }
             ).setTooltipsSupplier { listOf((if (it) "behaviour.soft_hammer.enabled" else "behaviour.soft_hammer.disabled").toComponent) }
         )
-        ICheckPatternMachine.attachConfigurators(configuratorPanel, self())
     }
-
-    override fun hasButton(): Boolean = true
 
     override fun createUIWidget(): Widget {
         val group = WidgetGroup(0, 0, 190, 125)

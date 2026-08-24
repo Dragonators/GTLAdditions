@@ -23,6 +23,7 @@ import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeStatus
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
+import org.gtlcore.gtlcore.api.recipe.RecipeMultiplierTracker
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 import java.util.*
@@ -42,25 +43,29 @@ open class MutableRecipesLogic<T> :
 
     @DescSynced
     private var useMultipleRecipes = false
-    private val reductionRatio: Double
+    private val reductionEUt: Double
+    private val reductionDuration: Double
     protected val recipeCheck: BiPredicate<GTRecipe, IRecipeLogicMachine>?
 
-    constructor(machine: T) : this(machine, null, 1.0)
+    constructor(machine: T) : this(machine, null, 1.0, 1.0)
 
-    constructor(machine: T, reductionRatio: Double) : this(machine, null, reductionRatio)
+    constructor(machine: T, reductionEUt: Double, reductionDuration: Double) :
+        this(machine, null, reductionEUt, reductionDuration)
 
     constructor(
         machine: T,
         recipeCheck: BiPredicate<GTRecipe, IRecipeLogicMachine>?
-    ) : this(machine, recipeCheck, 1.0)
+    ) : this(machine, recipeCheck, 1.0, 1.0)
 
     constructor(
         machine: T,
         recipeCheck: BiPredicate<GTRecipe, IRecipeLogicMachine>?,
-        reductionRatio: Double
+        reductionEUt: Double,
+        reductionDuration: Double
     ) : super(machine) {
         this.recipeCheck = recipeCheck
-        this.reductionRatio = reductionRatio
+        this.reductionEUt = reductionEUt
+        this.reductionDuration = reductionDuration
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -190,7 +195,14 @@ open class MutableRecipesLogic<T> :
             return null
         }
 
-        return RecipeCalculationHelper.buildNormalRecipe(itemOutputs, fluidOutputs, totalEu, maxEUt, 20)
+        val recipe = RecipeCalculationHelper.buildNormalRecipe(itemOutputs, fluidOutputs, totalEu, maxEUt, 20)
+        RecipeMultiplierTracker.captureReduction(
+            getMachine(),
+            recipe,
+            energyReductionMultiplier,
+            durationReductionMultiplier
+        )
+        return recipe
     }
 
     protected open fun buildFinalWirelessRecipe(
@@ -212,12 +224,19 @@ open class MutableRecipesLogic<T> :
             return null
         }
 
-        return RecipeCalculationHelper.buildWirelessRecipe(
+        val recipe = RecipeCalculationHelper.buildWirelessRecipe(
             itemOutputs,
             fluidOutputs,
             20,
             totalEu
         )
+        RecipeMultiplierTracker.captureReduction(
+            getMachine(),
+            recipe,
+            energyReductionMultiplier,
+            durationReductionMultiplier
+        )
+        return recipe
     }
 
     protected open fun checkBeforeWorking(): Boolean {
@@ -240,8 +259,18 @@ open class MutableRecipesLogic<T> :
     protected open val euMultiplier: Double
         get() {
             val maintenanceMachine = (machine as IRecipeCapabilityMachine).maintenanceMachine
-            return if (maintenanceMachine != null) maintenanceMachine.durationMultiplier * this.reductionRatio else this.reductionRatio
+            return if (maintenanceMachine != null) {
+                maintenanceMachine.durationMultiplier * energyReductionMultiplier * durationReductionMultiplier
+            } else {
+                energyReductionMultiplier * durationReductionMultiplier
+            }
         }
+
+    protected open val energyReductionMultiplier: Double
+        get() = reductionEUt
+
+    protected open val durationReductionMultiplier: Double
+        get() = reductionDuration
 
     protected open fun getRecipeEut(recipe: GTRecipe): Long = RecipeHelper.getInputEUt(recipe)
 

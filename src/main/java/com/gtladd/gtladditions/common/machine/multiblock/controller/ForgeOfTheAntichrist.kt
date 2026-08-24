@@ -421,6 +421,10 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
             override fun getMachine(): ForgeOfTheAntichrist = super.getMachine() as ForgeOfTheAntichrist
 
+            override fun getReductionEUt(): Double = super.getReductionEUt() *
+                getEuReduction(getMachine()) *
+                getMachine().getRecursiveReverseBuffState().euMultiplier
+
             override fun getEuMultiplier(): Double = super.getEuMultiplier() *
                 getEuReduction(getMachine()) *
                 getMachine().getRecursiveReverseBuffState().euMultiplier

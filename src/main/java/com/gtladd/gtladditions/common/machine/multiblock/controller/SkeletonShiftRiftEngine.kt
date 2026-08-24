@@ -19,6 +19,7 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
+import org.gtlcore.gtlcore.api.recipe.RecipeMultiplierTracker
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -33,8 +34,8 @@ class SkeletonShiftRiftEngine(holder: IMachineBlockEntity) : MutableCoilElectric
     override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
         val machine = this
         return object : MutableRecipesLogic<SkeletonShiftRiftEngine>(machine) {
-            override val euMultiplier: Double
-                get() = super.euMultiplier * 1 / max(getMachine().casingTier, 1)
+            override val durationReductionMultiplier: Double
+                get() = super.durationReductionMultiplier / max(getMachine().casingTier, 1)
         }
     }
 
@@ -73,6 +74,12 @@ class SkeletonShiftRiftEngine(holder: IMachineBlockEntity) : MutableCoilElectric
                 val pair = ParallelLogic.applyParallel(machine, recipe, machine.parallel, false)
                 if (pair.getFirst() == null || pair.getSecond()!! <= 0) return null
                 val recipe1 = pair.getFirst()
+                RecipeMultiplierTracker.captureReduction(
+                    machine,
+                    recipe,
+                    1.0,
+                    1.0 / max(machine.casingTier, 1)
+                )
                 recipe1.duration = max(recipe1.duration / machine.casingTier, 1)
                 return RecipeHelper.applyOverclock(
                     OverclockingLogic.PERFECT_OVERCLOCK,

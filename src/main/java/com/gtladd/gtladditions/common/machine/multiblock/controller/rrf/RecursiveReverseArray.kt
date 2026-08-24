@@ -36,7 +36,6 @@ import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.player.Player
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
-import org.gtlcore.gtlcore.api.machine.trait.ICheckPatternMachine
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
 import java.util.function.Consumer
 
@@ -46,8 +45,7 @@ class RecursiveReverseArray(holder: IMachineBlockEntity) :
     IWirelessBindableTarget,
     IFancyUIMachine,
     IDisplayUIMachine,
-    IMachineLife,
-    ICheckPatternMachine {
+    IMachineLife {
 
     @field:DescSynced
     @field:Persisted
@@ -393,10 +391,7 @@ class RecursiveReverseArray(holder: IMachineBlockEntity) :
                 { _, pressed -> enabled = pressed }
             ).setTooltipsSupplier { listOf((if (it) "behaviour.soft_hammer.enabled" else "behaviour.soft_hammer.disabled").toComponent) }
         )
-        ICheckPatternMachine.attachConfigurators(configuratorPanel, self())
     }
-
-    override fun hasButton(): Boolean = true
 
     override fun createUI(entityPlayer: Player): ModularUI = ModularUI(198, 208, this, entityPlayer)
         .widget(FancyMachineUIWidget(this, 198, 208))
