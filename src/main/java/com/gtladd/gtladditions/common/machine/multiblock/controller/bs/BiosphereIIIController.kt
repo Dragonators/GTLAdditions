@@ -33,7 +33,6 @@ import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
-import org.gtlcore.gtlcore.api.machine.trait.ICheckPatternMachine
 import org.gtlcore.gtlcore.integration.gtmt.NewGTValues
 import org.gtlcore.gtlcore.utils.NumberUtils
 import org.gtlcore.gtlcore.utils.TextUtil
@@ -255,7 +254,6 @@ class BiosphereIIIController(holder: IMachineBlockEntity) :
                 )
             }
         )
-        ICheckPatternMachine.attachConfigurators(configuratorPanel, self())
     }
 
     override fun attachSideTabs(sideTabs: TabsWidget) {

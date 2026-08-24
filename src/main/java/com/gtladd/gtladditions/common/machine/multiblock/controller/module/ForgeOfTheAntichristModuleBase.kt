@@ -185,6 +185,11 @@ abstract class ForgeOfTheAntichristModuleBase(holder: IMachineBlockEntity, varar
             beforeWorking: Predicate<IRecipeLogicMachine>
         ) : GTLAddMultipleWirelessRecipesLogic(parallel, beforeWorking) {
             override fun getMachine(): ForgeOfTheAntichristModuleBase = machine as ForgeOfTheAntichristModuleBase
+
+            override fun getReductionEUt(): Double =
+                getMachine().host?.let { ForgeOfTheAntichrist.getEuReduction(it) * super.getReductionEUt() }
+                    ?: super.getReductionEUt()
+
             override fun getEuMultiplier(): Double =
                 getMachine().host?.let { ForgeOfTheAntichrist.getEuReduction(it) * super.getEuMultiplier() }
                     ?: super.getEuMultiplier()

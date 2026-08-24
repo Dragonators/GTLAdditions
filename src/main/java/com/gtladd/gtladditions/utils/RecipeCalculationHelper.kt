@@ -176,6 +176,7 @@ object RecipeCalculationHelper {
         recipe.tickInputs[EURecipeCapability.CAP] = listOf(Content(eut, 10000, 10000, 0, null, null))
         recipe.duration = maxOf(d, minDuration.toDouble()).roundToInt()
         IGTRecipe.of(recipe).setHasTick(true)
+        IGTRecipe.of(recipe).isBatchProcessed = true
         return recipe
     }
 
@@ -187,13 +188,15 @@ object RecipeCalculationHelper {
         recipeType: GTRecipeType = GTRecipeTypes.DUMMY_RECIPES
     ): WirelessGTRecipe {
         val eut = totalEu.divide(BigInteger.valueOf(duration.toLong())).negate()
-        return WirelessGTRecipeBuilder
+        val recipe = WirelessGTRecipeBuilder
             .ofRaw(recipeType)
             .output(ItemRecipeCapability.CAP, itemOutputs)
             .output(FluidRecipeCapability.CAP, fluidOutputs)
             .duration(duration)
             .setWirelessEut(eut)
             .buildRawRecipe()
+        IGTRecipe.of(recipe).isBatchProcessed = true
+        return recipe
     }
 
     fun collectOutputs(

@@ -33,8 +33,8 @@ class MutablePCBFactoryMachine(holder: IMachineBlockEntity) :
         val machine = this
         return object : MutableRecipesLogic<MutablePCBFactoryMachine>(machine) {
 
-            override val euMultiplier: Double
-                get() = super.euMultiplier * getMachine().nanoSwarmMultiplier
+            override val energyReductionMultiplier: Double
+                get() = super.energyReductionMultiplier * getMachine().nanoSwarmMultiplier
 
             override fun calculateParallel(
                 machine: IRecipeLogicMachine,

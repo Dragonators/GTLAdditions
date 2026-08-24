@@ -28,6 +28,7 @@ import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.modify.MultiBlockModify
 import com.gtladd.gtladditions.common.modify.MutableMultiBlockModify
 import com.gtladd.gtladditions.config.ConfigHolder
+import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
 import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ComponentExtensions.translatable
@@ -80,7 +81,8 @@ object GTLAddMachines {
             components!!.add(createRainbowComponent("gui.gtladditions.add".translatable))
         }
 
-    val GTLAdd_MODIFY: Component = createRainbowComponent("gui.gtladditions.modify".translatable)
+    val GTLAdd_MODIFY: Component
+        get() = createLanguageRainbowComponentOnServer("gui.gtladditions.modify".toComponent)
 
     init {
         LASER_INPUT_HATCH_16777216A = GTMachines.registerLaserHatch(IO.IN, 16777216, PartAbility.INPUT_LASER)

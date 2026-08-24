@@ -28,6 +28,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -117,8 +118,29 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
                 else if (componentData.equals("add")) this.incInternalMultiplier(multiplier);
             }
         }))).setBackground(GuiTextures.BACKGROUND_INVERSE);
-        group.addWidget((new SlotWidget(gtladditions$max.storage, 0, 120, 40, true, true))
-                .setBackground(GuiTextures.SLOT).setHoverTooltips(gtladditions$setMaxTooltips()));
+        var slot = new SlotWidget(gtladditions$max.storage, 0, 120, 40) {
+
+            @Override
+            public List<Component> getTooltipTexts() {
+                List<Component> tooltips = new ArrayList<>();
+                tooltips.addAll(gtladditions$setMaxTooltips());
+                return tooltips;
+            }
+
+            @Override
+            protected void drawTooltipTexts(int mouseX, int mouseY) {
+                if (isMouseOverElement(mouseX, mouseY) && getHoverElement(mouseX, mouseY) == this && gui != null &&
+                        gui.getModularUIGui() != null) {
+                    this.setHoverTooltips(gtladditions$setMaxTooltips());
+                    gui.getModularUIGui().setHoverTooltip(
+                            tooltipTexts,
+                            getRealStack(slotReference.getItem()),
+                            null,
+                            null);
+                }
+            }
+        }.setBackground(GuiTextures.SLOT);
+        group.addWidget(slot);
         return group;
     }
 

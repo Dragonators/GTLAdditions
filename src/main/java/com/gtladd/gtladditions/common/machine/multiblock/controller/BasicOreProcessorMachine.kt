@@ -15,8 +15,8 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic
 import com.gtladd.gtladditions.common.machine.hatch.OreProcessorHatch
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.OreProcessorRecipeHelper
-import org.gtlcore.gtlcore.api.machine.trait.ICheckPatternMachine
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
+import org.gtlcore.gtlcore.api.recipe.RecipeMultiplierTracker
 import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
 
 class BasicOreProcessorMachine(holder: IMachineBlockEntity) : WorkableElectricMultiblockMachine(holder) {
@@ -48,7 +48,6 @@ class BasicOreProcessorMachine(holder: IMachineBlockEntity) : WorkableElectricMu
             )
                 .setTooltipsSupplier { listOf((if (it) "behaviour.soft_hammer.enabled" else "behaviour.soft_hammer.disabled").toComponent) }
         )
-        ICheckPatternMachine.attachConfigurators(configuratorPanel, self())
         IRecipeCapabilityMachine.attachConfigurators(configuratorPanel, self() as WorkableElectricMultiblockMachine)
     }
 
@@ -64,10 +63,18 @@ class BasicOreProcessorMachine(holder: IMachineBlockEntity) : WorkableElectricMu
             val paralleledRecipe = parallelResult.first ?: return null
             if (parallelResult.getSecond()!! <= 0) return null
 
+            val durationMultiplier = hatch?.durationMultiplier ?: 1.0
+            RecipeMultiplierTracker.captureReduction(
+                oreProcessor,
+                recipe,
+                1.0,
+                durationMultiplier
+            )
+
             val modifiedRecipe = OreProcessorRecipeHelper.copyForOreProcessor(
                 paralleledRecipe,
                 itemChanceBoost = hatch?.itemChanceBoost ?: 1,
-                durationMultiplier = hatch?.durationMultiplier ?: 1.0
+                durationMultiplier = durationMultiplier
             )
             val overclock = if (hatch?.matchAll == true) {
                 OverclockingLogic.PERFECT_OVERCLOCK_SUBTICK

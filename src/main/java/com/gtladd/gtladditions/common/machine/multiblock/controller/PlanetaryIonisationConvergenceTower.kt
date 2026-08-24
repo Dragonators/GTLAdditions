@@ -29,7 +29,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import org.gtlcore.gtlcore.api.machine.trait.ICheckPatternMachine
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeStatus
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
@@ -128,7 +127,6 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
                 )
             }
         )
-        ICheckPatternMachine.attachConfigurators(configuratorPanel, this)
     }
 
     override fun addDisplayText(textList: MutableList<Component>) {

@@ -270,7 +270,7 @@ object MutableMultiBlockModify {
 
         MultiBlockMachineA.A_MASS_FABRICATOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = MutableRecipesLogic(this, 0.4)
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = MutableRecipesLogic(this, 0.8, 0.5)
             }
         }
 
@@ -279,8 +279,12 @@ object MutableMultiBlockModify {
                 override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
                     val machine = this
                     return object : MutableRecipesLogic<MutableElectricParallelHatchMultiblockMachine>(machine) {
-                        override val euMultiplier: Double
-                            get() = if (machine.recipeType == GTRecipeTypes.MIXER_RECIPES) super.euMultiplier * 0.2 else super.euMultiplier
+                        override val energyReductionMultiplier: Double
+                            get() = if (machine.recipeType == GTRecipeTypes.MIXER_RECIPES) {
+                                super.energyReductionMultiplier * 0.2
+                            } else {
+                                super.energyReductionMultiplier
+                            }
                     }
                 }
             }
@@ -294,7 +298,7 @@ object MutableMultiBlockModify {
             object : MutableElectricParallelHatchMultiblockMachine(blockEntity) {
                 override fun getMaxParallel(): Int = if (getRecipeLogic().isMultipleRecipeMode()) 67108864 else 8192
 
-                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = MutableRecipesLogic(this, 0.05)
+                override fun createRecipeLogic(vararg args: Any?): RecipeLogic = MutableRecipesLogic(this, 1.0, 0.05)
             }
         }
 

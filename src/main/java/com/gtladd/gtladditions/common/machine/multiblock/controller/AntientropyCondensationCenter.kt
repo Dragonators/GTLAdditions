@@ -145,6 +145,9 @@ class AntientropyCondensationCenter(holder: IMachineBlockEntity, vararg args: An
 
             override fun getMachine(): AntientropyCondensationCenter = super.getMachine() as AntientropyCondensationCenter
 
+            override fun getReductionEUt(): Double =
+                super.getReductionEUt() * if (getMachine().hasRelativisticHeatCapacitor()) 0.35 else 1.0
+
             override fun getEuMultiplier(): Double =
                 super.getEuMultiplier() * if (getMachine().hasRelativisticHeatCapacitor()) 0.35 else 1.0
 
