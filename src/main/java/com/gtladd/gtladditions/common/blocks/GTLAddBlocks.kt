@@ -111,13 +111,13 @@ object GTLAddBlocks {
         )
         POWER_MODULE_6 = GTLBlocks.createActiveTierCasing(
             "power_module_6",
-            "block/variant/power_module",
+            "block/variant/power_module_6",
             BlockMap.sepmMap,
             6
         )
         POWER_MODULE_7 = GTLBlocks.createActiveTierCasing(
             "power_module_7",
-            "block/variant/power_module",
+            "block/variant/power_module_7",
             BlockMap.sepmMap,
             9
         )
