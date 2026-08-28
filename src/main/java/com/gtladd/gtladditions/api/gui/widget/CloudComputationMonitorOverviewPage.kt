@@ -58,12 +58,15 @@ class CloudComputationMonitorOverviewPage(
 
 private class CloudOverviewWidget(
     private val teamId: UUID?
-) : WidgetGroup(0, 0, 280, 222) {
+) : WidgetGroup(0, 0, 280, calculateFittedHeight()) {
 
     companion object {
 
         private const val UPDATE_FULL_TOPOLOGY = 0
         private const val UPDATE_LIVE_VALUES = 1
+
+        private fun calculateFittedHeight(): Int =
+            maxOf(150, Minecraft.getInstance().window.guiScaledHeight - 126)
 
         private fun writeTopologySnapshot(
             buffer: FriendlyByteBuf,
@@ -131,9 +134,15 @@ private class CloudOverviewWidget(
         }
     }
 
-    private val providerScroll = DraggableScrollableWidgetGroup(4, 18, 272, 95)
+    private val scrollHeight = (size.height - 36) / 2
+    private val providerScroll = DraggableScrollableWidgetGroup(4, 18, 272, scrollHeight)
         .setBackground(GuiTextures.DISPLAY)
-    private val receiverScroll = DraggableScrollableWidgetGroup(4, 131, 272, 87)
+    private val receiverScroll = DraggableScrollableWidgetGroup(
+        4,
+        36 + scrollHeight,
+        272,
+        size.height - 36 - scrollHeight
+    )
         .setBackground(GuiTextures.DISPLAY)
     private val providerRows = mutableListOf<CloudMonitorRowWidget>()
     private val receiverRows = mutableListOf<CloudMonitorRowWidget>()
@@ -150,7 +159,11 @@ private class CloudOverviewWidget(
         addWidget(providerScroll)
 
         addWidget(
-            ExtendLabelWidget(6, 117, Component.translatable("gui.gtladditions.cloud_monitor.requesters"))
+            ExtendLabelWidget(
+                6,
+                22 + scrollHeight,
+                Component.translatable("gui.gtladditions.cloud_monitor.requesters")
+            )
         )
         receiverScroll.setYScrollBarWidth(4)
             .setYBarStyle(null, ColorPattern.T_WHITE.rectTexture().setRadius(1.0f))
@@ -312,6 +325,8 @@ private class CloudMonitorRowWidget(
             button.setActive(false)
             button.setVisible(false)
             setSizeHeight(26)
+            label.setSelfPosition(0, 4)
+            label.setMaxWidthLimit(252)
         } else {
             refreshButtonTooltip(button)
         }

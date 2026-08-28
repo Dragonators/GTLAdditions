@@ -108,6 +108,7 @@ These are registered Helio modules for Forge of the Antichrist.
 | Wireless Energy Network Input Terminal | Unlimited energy hatch / laser target hatch directly connected to the wireless energy network |
 | Wireless Energy Network Output Terminal | Unlimited dynamo hatch / laser source hatch directly connected to the wireless energy network |
 | Thread Modifier Hatch | Thread boost module, and parallel boost module for some machines |
+| Cloud Computation / Research Data System | Cross-dimensional, team-shared computation and research-data hatches, monitor, and storage machine |
 
 ### Other Modified Content
 

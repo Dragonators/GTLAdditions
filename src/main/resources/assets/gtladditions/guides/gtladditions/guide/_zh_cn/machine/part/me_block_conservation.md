@@ -14,6 +14,7 @@ item_ids:
 
 <BlockImage id="gtladditions:me_block_conservation" scale="4" />
 
+* 需要在<Color color="#00AA00">**UIV**</Color>阶段才能制作。
 * 作为 <ItemLink id="gtladditions:subatomic_transmutatioon_core" /> 的方块转换输入与输出总线
 * 内部槽位需要放入 AE 物品存储磁盘；转换后的输出会先写入该磁盘
 * 当可以写入 AE 网络时，嬗变总线会把内部磁盘中的输出返还到连接的 AE 网络

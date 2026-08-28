@@ -377,6 +377,7 @@
   "tooltip.gtladditions.cloud_data_machine.2": "§6最大输入：§r%s EU/t（§216A UIV§r）",
   "tooltip.gtladditions.cloud_data_machine.3": "§c能量缓存：§r%s §fEU§r",
   "tooltip.gtladditions.cloud_systems": "使用数据棒右击以绑定或切换所有者，左击以解除绑定",
+  "tooltip.gtladditions.research_station.cloud_upload": "研究完成后自动上传至同队伍中有空槽位的云端研究数据存储器",
   "tooltip.gtladditions.create_chest.0": "✦ 当散落于遥远时空的四件遗物再度重归一体",
   "tooltip.gtladditions.create_chest.1": "✦ 以群星的终焉铸成此物",
   "tooltip.gtladditions.create_chest.2": "✦ 你将拥有重构维度命运的力量",

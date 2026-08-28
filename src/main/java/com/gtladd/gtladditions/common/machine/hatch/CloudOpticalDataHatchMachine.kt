@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.part.MultiblockPartMachine
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.research.DataBankMachine
+import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition
 import com.gtladd.gtladditions.utils.CloudNetworkManager
 import com.gtladd.gtladditions.utils.CloudTeamUtil
 import com.hepdd.gtmthings.api.capability.IBindable
@@ -52,6 +53,7 @@ class CloudOpticalDataHatchMachine(holder: IMachineBlockEntity) :
     }
 
     override fun modifyRecipe(recipe: GTRecipe): GTRecipe? {
+        if (recipe.conditions.none { it is ResearchCondition }) return recipe
         if (CloudNetworkManager.isRecipeAvailableInCloud(recipe, teamId)) return recipe
         for (controller in controllers) {
             if (controller is DataBankMachine) continue

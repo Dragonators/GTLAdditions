@@ -377,6 +377,7 @@
   "tooltip.gtladditions.cloud_data_machine.2": "§6Maximum input: §r%s EU/t (§216A UIV§r)",
   "tooltip.gtladditions.cloud_data_machine.3": "§cEnergy buffer: §r%s §fEU§r",
   "tooltip.gtladditions.cloud_systems": "Right-click with a data stick to bind or change owner; left-click to unbind",
+  "tooltip.gtladditions.research_station.cloud_upload": "Uploads completed research to a same-team Cloud Research Data Storage Machine with an empty slot",
   "tooltip.gtladditions.create_chest.0": "✦ When four relics scattered across distant spacetime reunite as one",
   "tooltip.gtladditions.create_chest.1": "✦ Forged from the demise of stars",
   "tooltip.gtladditions.create_chest.2": "✦ You shall possess the power to reshape dimensional destiny",
