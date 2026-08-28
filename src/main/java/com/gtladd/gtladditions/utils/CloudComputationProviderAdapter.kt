@@ -48,6 +48,7 @@ internal fun IOpticalComputationProvider.requestCloudCWU(cwu: Long, simulate: Bo
 }
 
 internal fun IOpticalComputationProvider.getMaxCloudCWU(): Long {
+    if (this is ComputationProviderMachine && energyContainer.energyStored == 0L) return 0L
     if (isUnlimitedCloudProvider()) return Long.MAX_VALUE
     if (this is ComputationProviderMachine && !canProvideCloudCWU()) return 0L
     return getMaxCWUt(ignoredSeenProviders).toLong().coerceAtLeast(0L)

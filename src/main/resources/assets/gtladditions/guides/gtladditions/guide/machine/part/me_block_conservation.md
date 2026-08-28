@@ -14,6 +14,7 @@ item_ids:
 
 <BlockImage id="gtladditions:me_block_conservation" scale="4" />
 
+* It becomes craftable in the <Color color="#00AA00">**UIV**</Color> tier.
 * Serves as the block conversion input and output bus for <ItemLink id="gtladditions:subatomic_transmutatioon_core" />.
 * An AE item storage cell must be placed in the internal slot. Converted outputs are written to that cell first.
 * When it can write to an AE network, the Transmutation Bus Hatch returns outputs from the internal cell to the connected AE network.

@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.integration.jade.provider
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.common.machine.multiblock.electric.research.ResearchStationMachine
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.machine.CloudOpticalComputationMonitorMachine
 import com.gtladd.gtladditions.common.machine.CloudOpticalDataMachine
@@ -37,7 +38,8 @@ class CloudBindingProvider :
             is CloudOpticalComputationMonitorMachine,
             is CloudOpticalDataMachine,
             is CloudOpticalComputationHatchMachine,
-            is CloudOpticalDataHatchMachine -> machine as IBindable
+            is CloudOpticalDataHatchMachine,
+            is ResearchStationMachine -> machine as IBindable
             else -> null
         }
     }

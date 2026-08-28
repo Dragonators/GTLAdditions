@@ -12,28 +12,36 @@ import java.util.IdentityHashMap
 class PatternPredicateSelector private constructor(
     private val blocks: Set<() -> Block>,
     private val abilities: Set<PartAbility>,
-    private val skipController: Boolean
+    private val skipController: Boolean,
+    private val requirePureAir: Boolean
 ) {
     fun containsBlock(block: Block): PatternPredicateSelector = containsBlock { block }
 
-    fun containsBlock(block: () -> Block): PatternPredicateSelector = PatternPredicateSelector(blocks + block, abilities, skipController)
+    fun containsBlock(block: () -> Block): PatternPredicateSelector =
+        PatternPredicateSelector(blocks + block, abilities, skipController, requirePureAir)
 
-    fun containsAbility(ability: PartAbility): PatternPredicateSelector = PatternPredicateSelector(blocks, abilities + ability, skipController)
+    fun containsAbility(ability: PartAbility): PatternPredicateSelector =
+        PatternPredicateSelector(blocks, abilities + ability, skipController, requirePureAir)
 
     fun containsAbilities(vararg abilities: PartAbility): PatternPredicateSelector =
-        PatternPredicateSelector(blocks, this.abilities + abilities, skipController)
+        PatternPredicateSelector(blocks, this.abilities + abilities, skipController, requirePureAir)
 
-    fun notController(): PatternPredicateSelector = PatternPredicateSelector(blocks, abilities, true)
+    fun notController(): PatternPredicateSelector = PatternPredicateSelector(blocks, abilities, true, requirePureAir)
+
+    fun pureAir(): PatternPredicateSelector = PatternPredicateSelector(blocks, abilities, skipController, true)
 
     fun matches(predicate: TraceabilityPredicate): Boolean {
         if (skipController && predicate.isController) return false
+        if (requirePureAir && !predicate.isAir) return false
         val candidateBlocks = predicate.candidateBlocks()
         return blocks.map { it() }.all(candidateBlocks::contains) &&
             abilities.all { ability -> ability.getAllBlocks().any(candidateBlocks::contains) }
     }
 
     companion object {
-        fun any(): PatternPredicateSelector = PatternPredicateSelector(emptySet(), emptySet(), false)
+        fun any(): PatternPredicateSelector = PatternPredicateSelector(emptySet(), emptySet(), false, false)
+
+        fun pureAir(): PatternPredicateSelector = any().pureAir()
 
         fun containsBlock(block: Block): PatternPredicateSelector = any().containsBlock(block)
 

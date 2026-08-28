@@ -10,6 +10,7 @@ item_ids:
   - gtladditions:cloud_computation_receiver_hatch
   - gtladditions:cloud_data_machine
   - gtladditions:cloud_data_hatch
+  - gtceu:research_station
 ---
 
 # Cloud Computation and Research Data
@@ -26,22 +27,24 @@ item_ids:
 
 ### Binding and range
 
+* The complete cloud system requires the <Color color="#55FF55">**UEV**</Color> tier to craft.
 * Cloud devices bind to their placer automatically. Right-click them with a data stick to rebind them, or left-click to unbind them.
 * Devices are grouped by FTB Teams team, so members of the same team can share one cloud system.
 * Unbound devices do not join the network. Both computation and research data work across dimensions.
 
 ### Cloud computation
 
-* The cloud computation transmitter acts as a computation source hatch; the receiver acts as a computation target hatch.
+* The cloud computation transmitter is equivalent to the <ItemLink id="gtmthings:wireless_computation_transmitter_hatch" />; the receiver is equivalent to the <ItemLink id="gtmthings:wireless_computation_receiver_hatch" />.
 * A transmitter must be installed on a formed multiblock that can bridge computation. An HPCA requires an HPCA bridge component.
+* A <ItemLink id="gtceu:network_switch" /> cannot accept cloud computation transmitter or receiver hatches.
 * The monitor is optional for network operation. It displays providers, requesters, maximum computation, and remaining computation.
 * The highlight button outlines same-dimension targets and turns the player's view toward them. Cross-dimension targets are shown as coordinates with a teleport link that requires command permission.
 
 ### Cloud research data
 
-* The cloud research data storage machine has 90 research-data slots. The cloud research data hatch acts as an optical data receiver.
+* The cloud research data storage machine has 90 research-data slots. The cloud research data hatch is equivalent to the <ItemLink id="gtceu:wireless_data_receiver_hatch" />.
 * The storage machine consumes a base 393,216 EU/t plus 393,216 EU/t for each valid data module, data orb, or data stick.
-* A Creative Data Access Hatch makes every research entry available to all same-team receivers and fixes consumption at 393,216 EU/t.
+* A <ItemLink id="gtceu:creative_data_access_hatch" /> makes every research entry available to all same-team receivers and fixes consumption at 393,216 EU/t.
 * Normal research items drop when the storage machine is removed. The Creative Data Access Hatch is destroyed instead of dropping.
 * A storage machine with insufficient power stops serving research data.
 

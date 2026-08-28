@@ -176,9 +176,7 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
 
         val mutablePos = BlockPos.MutableBlockPos()
         val airState = Blocks.AIR.defaultBlockState()
-        val resistanceOffset = 0.3f
-        val resistanceFactor = 0.11f
-        val inversePower = 1.0f / explosionPower
+        val minResistanceToKeep = 3_600_000f
 
         for (encodedOffset in getSphereOffsets(radius)) {
             val dx = (encodedOffset shr 16 and 0xFF) - radius
@@ -189,10 +187,8 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
             val state = currentLevel.getBlockState(mutablePos)
             if (state.isAir) continue
 
-            val distanceSquared = dx * dx + dy * dy + dz * dz
             val resistance = state.block.getExplosionResistance(state, currentLevel, mutablePos, null)
-            val threshold = radius * (1.0 - (resistance + resistanceOffset) * resistanceFactor * inversePower)
-            if (threshold <= 0 || distanceSquared >= threshold * threshold) continue
+            if (resistance >= minResistanceToKeep) continue
 
             currentLevel.setBlock(mutablePos, airState, 2)
         }
@@ -229,12 +225,12 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
         val dischargePower: Long,
         val workTier: Int
     ) {
-        TITAN_STEEL(TitanSteel, 0x7fffffff00, 0x7fffffff, 1),
-        ADAMANTINE(Adamantine, 0x7fffffff000, 0x7fffffff0, 1),
-        NAQUADRIATIC_TARANIUM(NaquadriaticTaranium, 0x3fffffff8000, 0x7fffffff0, 2),
-        STAR_METAL(Starmetal, 0x3fffffff80000, 0x7fffffff00, 2),
-        INFINITY(Infinity, 0x7fffffff00000, 0xfffffffe00, 3),
-        HYPOGEN(Hypogen, 0x7fffffff000000, 0xfffffffe000, 3),
+        TITAN_STEEL(TitanSteel, 0x7fffffff000, 0x7fffffff0, 1),
+        ADAMANTINE(Adamantine, 0x3fffffff8000, 0x3fffffff80, 1),
+        NAQUADRIATIC_TARANIUM(NaquadriaticTaranium, 0x3fffffff80000, 0x7fffffff00, 2),
+        STAR_METAL(Starmetal, 0x1ffffffffc0000, 0x3fffffff800, 2),
+        INFINITY(Infinity, 0x3fffffff80000, 0x7fffffff000, 3),
+        HYPOGEN(Hypogen, 0x1ffffffffc00000, 0x3fffffff8000, 3),
         ETERNITY(Eternity, 0x7fffffff0000000, 0xfffffffe0000, 3)
     }
 

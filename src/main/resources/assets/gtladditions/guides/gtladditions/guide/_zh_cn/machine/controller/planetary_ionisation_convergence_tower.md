@@ -24,9 +24,16 @@ item_ids:
 > 高级：3,475,000,000,000,000 EU \
 > 终极：1,160,000,000,000,000,000 EU
 * 线圈等级影响消耗的流体种类、单周期消耗量以及发电量
-> 泰坦钢至精金：<FluidLink id="gtceu:rhenium" /> 73728 mB，<FluidLink id="gtceu:ice" /> 8 KB，<ItemLink id="kubejs:space_drone_mk2" /> 2×10⁻⁴ 个 \
-> 瞬时 - 4096A MAX，放电 - 16A MAX \
-> 超能硅岩至星辉：<FluidLink id="gtceu:promethium" /> 36864 mB，<FluidLink id="gtceu:liquid_helium" /> 4 KB，<ItemLink id="kubejs:space_drone_mk4" /> 1×10⁻⁴ 个 \
-> 瞬时 - 524288A MAX，放电 - 256A MAX \
-> 无尽至永恒：<FluidLink id="gtceu:crystalmatrix" /> 9216 mB，<FluidLink id="kubejs:gelid_cryotheum" /> 1 KB，<ItemLink id="kubejs:space_drone_mk6" /> 2.5×10⁻⁵ 个 \
-> 瞬时 - 268435456A MAX，放电 - 131072A MAX
+> 泰坦钢至精金：<FluidLink id="gtceu:rhenium" /> 73,728 mB，<FluidLink id="gtceu:ice" /> 8 KB，<ItemLink id="kubejs:space_drone_mk2" /> 2×10⁻⁴ 个 \
+> 超能硅岩-塔兰至星辉：<FluidLink id="gtceu:promethium" /> 36,864 mB，<FluidLink id="gtceu:liquid_helium" /> 4 KB，<ItemLink id="kubejs:space_drone_mk4" /> 1×10⁻⁴ 个 \
+> 无尽至永恒：<FluidLink id="gtceu:crystalmatrix" /> 9,216 mB，<FluidLink id="kubejs:gelid_cryotheum" /> 1 KB，<ItemLink id="kubejs:space_drone_mk6" /> 2.5×10⁻⁵ 个 \
+>
+> | 线圈种类 | 瞬时（A MAX） | 放电（A MAX） |
+> |---|---:|---:|
+> | 泰坦钢 | 4,096 | 16 |
+> | 精金 | 32,768 | 128 |
+> | 超能硅岩-塔兰 | 524,288 | 256 |
+> | 星辉 | 4,194,304 | 2,048 |
+> | 无尽 | 8,388,608 | 4,096 |
+> | 海珀珍 | 67,108,864 | 32,768 |
+> | 永恒 | 268,435,456 | 131,072 |

@@ -20,6 +20,7 @@ import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.ActiveTransformerMachine
 import com.gtladd.gtladditions.api.machine.GTLAddPartAbility
 import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
+import com.gtladd.gtladditions.api.pattern.PatternPredicateSelector
 import com.gtladd.gtladditions.api.pattern.patchPatternPredicates
 import com.gtladd.gtladditions.api.pattern.patternPredicateSelector
 import com.gtladd.gtladditions.api.pattern.replacePatternPredicates
@@ -279,5 +280,17 @@ object MultiBlockModify {
                     )
             }
         )
+
+        val researchStation = GTResearchMachines.RESEARCH_STATION as MultiblockMachineDefinition
+        researchStation.replacePatternPredicates(
+            "research_station_internal_air_relaxation",
+            PatternPredicateSelector.pureAir(),
+            { Predicates.any() }
+        )
+        researchStation.tooltipBuilder = researchStation.tooltipBuilder.andThen { _, components ->
+            components.add("tooltip.gtladditions.cloud_systems".toComponent)
+            components.add("tooltip.gtladditions.research_station.cloud_upload".toComponent)
+            components.add(GTLAddMachines.GTLAdd_MODIFY)
+        }
     }
 }

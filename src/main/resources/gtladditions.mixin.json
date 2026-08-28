@@ -14,6 +14,8 @@
     "gtceu.api.recipe.GTRecipeLookupMixin",
     "gtceu.api.recipe.MultiblockStateMixin",
     "gtceu.common.item.DataItemBehaviorMixin",
+    "gtceu.common.machine.ResearchStationMachineMixin",
+    "gtceu.common.machine.ResearchStationRecipeLogicMixin",
     "gtceu.integration.ElectricContainerBlockProviderMixin",
     "gtceu.integration.MachineModeProviderMixin",
     "gtceu.integration.ParallelProviderMixin",

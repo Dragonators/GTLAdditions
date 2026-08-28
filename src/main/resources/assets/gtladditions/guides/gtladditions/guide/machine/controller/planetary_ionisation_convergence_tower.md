@@ -24,9 +24,16 @@ item_ids:
 > Advanced: 3,475,000,000,000,000 EU \
 > Ultimate: 1,160,000,000,000,000,000 EU
 * Coil tier affects the consumed fluid type, consumption per cycle, and generated power.
-> Titansteel to Adamantium: <FluidLink id="gtceu:rhenium" /> 73728 mB, <FluidLink id="gtceu:ice" /> 8 KB, <ItemLink id="kubejs:space_drone_mk2" /> 2x10^-4 items \
-> Instant - 4096A MAX, discharge - 16A MAX \
-> Superpower Silicon Rock to Astralium: <FluidLink id="gtceu:promethium" /> 36864 mB, <FluidLink id="gtceu:liquid_helium" /> 4 KB, <ItemLink id="kubejs:space_drone_mk4" /> 1x10^-4 items \
-> Instant - 524288A MAX, discharge - 256A MAX \
-> Infinity to Eternity: <FluidLink id="gtceu:crystalmatrix" /> 9216 mB, <FluidLink id="kubejs:gelid_cryotheum" /> 1 KB, <ItemLink id="kubejs:space_drone_mk6" /> 2.5x10^-5 items \
-> Instant - 268435456A MAX, discharge - 131072A MAX
+> Titansteel to Adamantine: <FluidLink id="gtceu:rhenium" /> 73,728 mB, <FluidLink id="gtceu:ice" /> 8 KB, <ItemLink id="kubejs:space_drone_mk2" /> 2×10⁻⁴ items \
+> Naquadriatic Taranium to Star Metal: <FluidLink id="gtceu:promethium" /> 36,864 mB, <FluidLink id="gtceu:liquid_helium" /> 4 KB, <ItemLink id="kubejs:space_drone_mk4" /> 1×10⁻⁴ items \
+> Infinity to Eternity: <FluidLink id="gtceu:crystalmatrix" /> 9,216 mB, <FluidLink id="kubejs:gelid_cryotheum" /> 1 KB, <ItemLink id="kubejs:space_drone_mk6" /> 2.5×10⁻⁵ items \
+>
+> | Coil tier | Instantaneous (A MAX) | Discharge (A MAX) |
+> |---|---:|---:|
+> | Titansteel | 4,096 | 16 |
+> | Adamantine | 32,768 | 128 |
+> | Naquadriatic Taranium | 524,288 | 256 |
+> | Star Metal | 4,194,304 | 2,048 |
+> | Infinity | 8,388,608 | 4,096 |
+> | Hypogen | 67,108,864 | 32,768 |
+> | Eternity | 268,435,456 | 131,072 |

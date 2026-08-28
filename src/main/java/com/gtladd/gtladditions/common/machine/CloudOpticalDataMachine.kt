@@ -197,6 +197,23 @@ class CloudOpticalDataMachine(holder: IMachineBlockEntity) :
 
     fun providesRecipe(recipe: GTRecipe): Boolean = hasPower && (isCreate || recipe in getRecipes())
 
+    fun tryStoreResearchData(dataStack: ItemStack): Boolean {
+        if (
+            dataStack.isEmpty ||
+            !ResearchManager.isStackDataItem(dataStack, true) ||
+            !ResearchManager.hasResearchTag(dataStack)
+        ) {
+            return false
+        }
+
+        for (slot in 0 until importItems.slots) {
+            if (!importItems.getStackInSlot(slot).isEmpty) continue
+            if (!importItems.insertItem(slot, dataStack, true).isEmpty) continue
+            return importItems.insertItem(slot, dataStack.copy(), false).isEmpty
+        }
+        return false
+    }
+
     override fun createUIWidget(): Widget {
         val group = WidgetGroup(0, 0, 176, 145)
         group.addWidget(ComponentPanelWidget(5, 5, ::addDisplayText).setMaxWidthLimit(160))

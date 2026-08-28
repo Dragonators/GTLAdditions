@@ -16,6 +16,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.minecraft.core.GlobalPos
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import java.util.UUID
 
@@ -125,6 +126,16 @@ object CloudNetworkManager {
         for (machine in dataMachines.values) {
             if (normalizedTeamId != CloudTeamUtil.normalize(machine.getUUID())) continue
             if (machine.providesRecipe(recipe)) return true
+        }
+        return false
+    }
+
+    fun tryUploadResearchData(dataStack: ItemStack, teamId: UUID?): Boolean {
+        val normalizedTeamId = CloudTeamUtil.normalize(teamId) ?: return false
+        if (dataStack.isEmpty) return false
+        for (machine in dataMachines.values) {
+            if (normalizedTeamId != CloudTeamUtil.normalize(machine.uuid)) continue
+            if (machine.tryStoreResearchData(dataStack)) return true
         }
         return false
     }
