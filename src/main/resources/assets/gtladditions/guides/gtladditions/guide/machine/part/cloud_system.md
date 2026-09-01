@@ -28,7 +28,7 @@ item_ids:
 ### Binding and range
 
 * The complete cloud system requires the <Color color="#55FF55">**UEV**</Color> tier to craft.
-* Cloud devices bind to their placer automatically. Right-click them with a data stick to rebind them, or left-click to unbind them.
+* Cloud devices bind to their placer automatically. Right-click them with a <ItemLink id="gtceu:data_stick" /> to rebind them, or left-click to unbind them.
 * Devices are grouped by FTB Teams team, so members of the same team can share one cloud system.
 * Unbound devices do not join the network. Both computation and research data work across dimensions.
 
@@ -43,7 +43,7 @@ item_ids:
 ### Cloud research data
 
 * The cloud research data storage machine has 90 research-data slots. The cloud research data hatch is equivalent to the <ItemLink id="gtceu:wireless_data_receiver_hatch" />.
-* The storage machine consumes a base 393,216 EU/t plus 393,216 EU/t for each valid data module, data orb, or data stick.
+* The storage machine consumes a base 393,216 EU/t plus 393,216 EU/t for each valid data module, data orb, or <ItemLink id="gtceu:data_stick" />.
 * A <ItemLink id="gtceu:creative_data_access_hatch" /> makes every research entry available to all same-team receivers and fixes consumption at 393,216 EU/t.
 * Normal research items drop when the storage machine is removed. The Creative Data Access Hatch is destroyed instead of dropping.
 * A storage machine with insufficient power stops serving research data.

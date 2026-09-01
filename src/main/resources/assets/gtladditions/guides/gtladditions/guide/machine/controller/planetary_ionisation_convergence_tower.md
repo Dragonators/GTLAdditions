@@ -20,9 +20,9 @@ item_ids:
 * At the start of a work cycle, it generates an instant extremely high-power EU pulse for 1 tick into the internal energy buffer, then smoothly discharges lower power into the internal energy buffer during the remaining time.
 * After the pulse ends, the internal energy buffer outputs power to the outside through dynamo hatches or laser source hatches.
 * Stellar thermal containment tier affects internal energy buffer capacity.
-> Basic: 54,120,000,000,000 EU \
-> Advanced: 3,475,000,000,000,000 EU \
-> Ultimate: 1,160,000,000,000,000,000 EU
+> Basic: 890,000,000,000,000 EU \
+> Advanced: 132,000,000,000,000,000 EU \
+> Ultimate: 1,570,000,000,000,000,000 EU
 * Coil tier affects the consumed fluid type, consumption per cycle, and generated power.
 > Titansteel to Adamantine: <FluidLink id="gtceu:rhenium" /> 73,728 mB, <FluidLink id="gtceu:ice" /> 8 KB, <ItemLink id="kubejs:space_drone_mk2" /> 2×10⁻⁴ items \
 > Naquadriatic Taranium to Star Metal: <FluidLink id="gtceu:promethium" /> 36,864 mB, <FluidLink id="gtceu:liquid_helium" /> 4 KB, <ItemLink id="kubejs:space_drone_mk4" /> 1×10⁻⁴ items \

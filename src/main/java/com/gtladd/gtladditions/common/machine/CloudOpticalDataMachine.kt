@@ -216,7 +216,7 @@ class CloudOpticalDataMachine(holder: IMachineBlockEntity) :
 
     override fun createUIWidget(): Widget {
         val group = WidgetGroup(0, 0, 176, 145)
-        group.addWidget(ComponentPanelWidget(5, 5, ::addDisplayText).setMaxWidthLimit(160))
+        group.addWidget(ComponentPanelWidget(5, 5, ::addDisplayText).setMaxWidthLimit(136))
         val slotScroll = DraggableScrollableWidgetGroup(5, 84, 168, 54)
         for (row in 0 until 10) {
             for (column in 0 until 9) {
@@ -240,11 +240,22 @@ class CloudOpticalDataMachine(holder: IMachineBlockEntity) :
     private fun addDisplayText(textList: MutableList<Component>) {
         if (isRemote) return
         textList.add(self().blockState.block.name)
-        if (TeamUtil.hasOwner(level, teamId)) {
+        val boundTeamId = teamId
+        if (boundTeamId == null) {
+            textList.add(Component.translatable("gui.gtladditions.cloud.not_bound"))
+        } else {
+            if (TeamUtil.hasOwner(level, boundTeamId)) {
+                textList.add(
+                    Component.translatable(
+                        "gui.gtladditions.cloud.bind_success",
+                        TeamUtil.GetName(level, boundTeamId)
+                    )
+                )
+            }
             textList.add(
                 Component.translatable(
-                    "gui.gtladditions.cloud.bind_success",
-                    TeamUtil.GetName(level, teamId)
+                    "gui.gtladditions.cloud_data_machine.cloud_count",
+                    CloudNetworkManager.getLoadedDataMachineCount(boundTeamId)
                 )
             )
         }
@@ -281,12 +292,6 @@ class CloudOpticalDataMachine(holder: IMachineBlockEntity) :
                     "gui.gtladditions.cloud_data_machine.power_insufficient"
                 }
             ).withStyle { style -> style.withColor(if (hasPower) 0x55FF55 else 0xFF5555) }
-        )
-        textList.add(
-            Component.translatable(
-                "gui.gtladditions.cloud_data_machine.cloud_count",
-                CloudNetworkManager.getLoadedDataMachineCount()
-            )
         )
     }
 }

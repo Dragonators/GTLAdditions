@@ -9,6 +9,7 @@ import com.gtladd.gtladditions.common.data.ComputationLiveSnapshot
 import com.gtladd.gtladditions.common.data.ComputationTopologySnapshot
 import com.gtladd.gtladditions.events.ClientCloudHighlighter
 import com.gtladd.gtladditions.utils.CloudNetworkManager
+import com.lowdragmc.lowdraglib.LDLib
 import com.lowdragmc.lowdraglib.gui.editor.ColorPattern
 import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture
 import com.lowdragmc.lowdraglib.gui.texture.ItemStackTexture
@@ -65,8 +66,10 @@ private class CloudOverviewWidget(
         private const val UPDATE_FULL_TOPOLOGY = 0
         private const val UPDATE_LIVE_VALUES = 1
 
-        private fun calculateFittedHeight(): Int =
-            maxOf(150, Minecraft.getInstance().window.guiScaledHeight - 126)
+        private fun calculateFittedHeight(): Int {
+            if (!LDLib.isRemote()) return 150
+            return maxOf(150, Minecraft.getInstance().window.guiScaledHeight - 126)
+        }
 
         private fun writeTopologySnapshot(
             buffer: FriendlyByteBuf,
@@ -77,20 +80,24 @@ private class CloudOverviewWidget(
             snapshot.providers.forEach { writeMachineSnapshot(buffer, it) }
             buffer.writeInt(snapshot.receivers.size)
             snapshot.receivers.forEach { writeMachineSnapshot(buffer, it) }
-            buffer.writeInt(snapshot.otherProviderCount)
-            buffer.writeInt(snapshot.otherReceiverCount)
+            buffer.writeInt(snapshot.unboundProviders.size)
+            snapshot.unboundProviders.forEach { writeMachineSnapshot(buffer, it) }
+            buffer.writeInt(snapshot.unboundReceivers.size)
+            snapshot.unboundReceivers.forEach { writeMachineSnapshot(buffer, it) }
         }
 
         private fun readTopologySnapshot(buffer: FriendlyByteBuf): ComputationTopologySnapshot {
             val version = buffer.readLong()
             val providers = List(buffer.readInt()) { readMachineSnapshot(buffer) }
             val receivers = List(buffer.readInt()) { readMachineSnapshot(buffer) }
+            val unboundProviders = List(buffer.readInt()) { readMachineSnapshot(buffer) }
+            val unboundReceivers = List(buffer.readInt()) { readMachineSnapshot(buffer) }
             return ComputationTopologySnapshot(
                 version,
                 providers,
                 receivers,
-                buffer.readInt(),
-                buffer.readInt()
+                unboundProviders,
+                unboundReceivers
             )
         }
 
@@ -149,6 +156,8 @@ private class CloudOverviewWidget(
 
     private var topologyVersion = Long.MIN_VALUE
     private var tick = 0
+    private var providerSortDescending = true
+    private var receiverSortDescending = true
 
     init {
         addWidget(
@@ -157,6 +166,16 @@ private class CloudOverviewWidget(
         providerScroll.setYScrollBarWidth(4)
             .setYBarStyle(null, ColorPattern.T_WHITE.rectTexture().setRadius(1.0f))
         addWidget(providerScroll)
+        addWidget(
+            createSortButton(
+                3,
+                { providerSortDescending },
+                {
+                    providerSortDescending = !providerSortDescending
+                    applySort(providerScroll, providerRows, true, providerSortDescending)
+                }
+            )
+        )
 
         addWidget(
             ExtendLabelWidget(
@@ -168,6 +187,16 @@ private class CloudOverviewWidget(
         receiverScroll.setYScrollBarWidth(4)
             .setYBarStyle(null, ColorPattern.T_WHITE.rectTexture().setRadius(1.0f))
         addWidget(receiverScroll)
+        addWidget(
+            createSortButton(
+                21 + scrollHeight,
+                { receiverSortDescending },
+                {
+                    receiverSortDescending = !receiverSortDescending
+                    applySort(receiverScroll, receiverRows, false, receiverSortDescending)
+                }
+            )
+        )
     }
 
     override fun writeInitialData(buffer: FriendlyByteBuf) {
@@ -214,7 +243,7 @@ private class CloudOverviewWidget(
 
         var y = 0
         for (provider in snapshot.providers) {
-            val row = CloudMonitorRowWidget(y, true, CloudMonitorRowWidget.Kind.MACHINE, provider, 0)
+            val row = CloudMonitorRowWidget(y, true, CloudMonitorRowWidget.Kind.MACHINE, provider, emptyList())
             addClientRow(providerScroll, row)
             providerRows += row
             y += 20
@@ -222,26 +251,26 @@ private class CloudOverviewWidget(
         if (providerRows.isEmpty()) {
             addClientRow(
                 providerScroll,
-                CloudMonitorRowWidget(y, true, CloudMonitorRowWidget.Kind.NO_ENTRIES, null, 0)
+                CloudMonitorRowWidget(y, true, CloudMonitorRowWidget.Kind.NO_ENTRIES, null, emptyList())
             )
             y += 28
         }
-        if (snapshot.otherProviderCount > 0) {
+        if (snapshot.unboundProviders.isNotEmpty()) {
             addClientRow(
                 providerScroll,
                 CloudMonitorRowWidget(
                     y,
                     true,
-                    CloudMonitorRowWidget.Kind.OTHER_TEAM,
+                    CloudMonitorRowWidget.Kind.UNBOUND,
                     null,
-                    snapshot.otherProviderCount
+                    snapshot.unboundProviders
                 )
             )
         }
 
         y = 0
         for (receiver in snapshot.receivers) {
-            val row = CloudMonitorRowWidget(y, false, CloudMonitorRowWidget.Kind.MACHINE, receiver, 0)
+            val row = CloudMonitorRowWidget(y, false, CloudMonitorRowWidget.Kind.MACHINE, receiver, emptyList())
             addClientRow(receiverScroll, row)
             receiverRows += row
             y += 20
@@ -249,22 +278,59 @@ private class CloudOverviewWidget(
         if (receiverRows.isEmpty()) {
             addClientRow(
                 receiverScroll,
-                CloudMonitorRowWidget(y, false, CloudMonitorRowWidget.Kind.NO_ENTRIES, null, 0)
+                CloudMonitorRowWidget(y, false, CloudMonitorRowWidget.Kind.NO_ENTRIES, null, emptyList())
             )
             y += 28
         }
-        if (snapshot.otherReceiverCount > 0) {
+        if (snapshot.unboundReceivers.isNotEmpty()) {
             addClientRow(
                 receiverScroll,
                 CloudMonitorRowWidget(
                     y,
                     false,
-                    CloudMonitorRowWidget.Kind.OTHER_TEAM,
+                    CloudMonitorRowWidget.Kind.UNBOUND,
                     null,
-                    snapshot.otherReceiverCount
+                    snapshot.unboundReceivers
                 )
             )
         }
+
+        applySort(providerScroll, providerRows, true, providerSortDescending)
+        applySort(receiverScroll, receiverRows, false, receiverSortDescending)
+    }
+
+    private fun createSortButton(
+        y: Int,
+        descending: () -> Boolean,
+        onPress: () -> Unit
+    ): ButtonWidget = ButtonWidget(
+        234,
+        y,
+        42,
+        13,
+        TextTexture {
+            Component.translatable("gui.gtladditions.cloud_monitor.sort_quantity_short").string +
+                if (descending()) "▼" else "▲"
+        }.setColor(16777045),
+        { onPress() }
+    ).apply {
+        setClientSideWidget()
+        setHoverTooltips(Component.translatable("gui.gtladditions.cloud_monitor.sort"))
+    }
+
+    private fun applySort(
+        scroll: DraggableScrollableWidgetGroup,
+        rows: List<CloudMonitorRowWidget>,
+        byMax: Boolean,
+        descending: Boolean
+    ) {
+        scroll.setScrollYOffset(0)
+        val orderedRows = if (descending) {
+            rows.sortedByDescending { it.getSortValue(byMax) }
+        } else {
+            rows.sortedBy { it.getSortValue(byMax) }
+        }
+        orderedRows.forEachIndexed { index, row -> row.selfPositionY = index * 20 + 4 }
     }
 
     private fun addClientRow(scroll: DraggableScrollableWidgetGroup, row: CloudMonitorRowWidget) {
@@ -297,18 +363,20 @@ private class CloudMonitorRowWidget(
     private val provider: Boolean,
     private val kind: Kind,
     machine: CloudMachineSnapshot?,
-    private val otherCount: Int
+    unboundMachines: List<CloudMachineSnapshot>
 ) : WidgetGroup(4, y + 4, 260, 18) {
 
     enum class Kind {
         MACHINE,
         NO_ENTRIES,
-        OTHER_TEAM
+        UNBOUND
     }
 
-    private val dimensionId = machine?.dimensionId.orEmpty()
-    private val pos = machine?.pos
-    private val frontPos = machine?.frontPos
+    private val locations = when (kind) {
+        Kind.MACHINE -> listOfNotNull(machine)
+        Kind.UNBOUND -> unboundMachines.toList()
+        Kind.NO_ENTRIES -> emptyList()
+    }
     private val item = machine?.item ?: ItemStack.EMPTY
 
     private var current = machine?.currentCwu ?: 0L
@@ -321,14 +389,19 @@ private class CloudMonitorRowWidget(
         val label = ComponentPanelWidget(24, 4, ::buildText).setMaxWidthLimit(172)
         label.setClientSideWidget()
         val button = createHighlightButton()
-        if (kind != Kind.MACHINE) {
-            button.setActive(false)
-            button.setVisible(false)
-            setSizeHeight(26)
-            label.setSelfPosition(0, 4)
-            label.setMaxWidthLimit(252)
-        } else {
+        if (kind == Kind.MACHINE) {
             refreshButtonTooltip(button)
+        } else {
+            sizeHeight = 26
+            label.setSelfPosition(0, 4)
+            if (kind == Kind.UNBOUND) {
+                label.setMaxWidthLimit(196)
+                button.setHoverTooltips(Component.translatable("gui.gtladditions.cloud_monitor.highlight_all"))
+            } else {
+                label.setMaxWidthLimit(252)
+                button.isActive = false
+                button.isVisible = false
+            }
         }
         addWidget(icon)
         addWidget(label)
@@ -345,8 +418,10 @@ private class CloudMonitorRowWidget(
             16777045
         ),
         {
-            if (pos != null && dimensionId.isNotEmpty()) {
-                ClientCloudHighlighter.highlight(pos, dimensionId)
+            for (location in locations) {
+                if (location.dimensionId.isNotEmpty()) {
+                    ClientCloudHighlighter.highlight(location.pos, location.dimensionId)
+                }
             }
         }
     ) {
@@ -357,17 +432,20 @@ private class CloudMonitorRowWidget(
             onPressCallback?.accept(ClickData())
             val minecraft = Minecraft.getInstance()
             val level = minecraft.level
-            if (level != null && pos != null) {
+            val player = gui.entityPlayer
+            if (level != null && player != null) {
                 if (minecraft.screen != null) minecraft.setScreen(null)
-                val player = gui.entityPlayer
-                if (player != null) {
-                    if (dimensionId == level.dimension().location().toString()) {
+                if (kind == Kind.UNBOUND) {
+                    sendLocationMessages(player, locations)
+                } else {
+                    val location = locations.firstOrNull()
+                    if (location != null && location.dimensionId == level.dimension().location().toString()) {
                         player.lookAt(
                             EntityAnchorArgument.Anchor.EYES,
-                            Vec3(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5)
+                            Vec3(location.pos.x + 0.5, location.pos.y + 0.5, location.pos.z + 0.5)
                         )
-                    } else if (dimensionId.isNotEmpty()) {
-                        sendCrossDimensionMessage(player)
+                    } else if (location != null && location.dimensionId.isNotEmpty()) {
+                        sendLocationMessages(player, listOf(location))
                     }
                 }
             }
@@ -405,14 +483,14 @@ private class CloudMonitorRowWidget(
                     }
                 ).withStyle(ChatFormatting.GRAY)
             )
-            Kind.OTHER_TEAM -> list.add(
+            Kind.UNBOUND -> list.add(
                 Component.translatable(
                     if (provider) {
-                        "gui.gtladditions.cloud_monitor.other_team_providers"
+                        "gui.gtladditions.cloud_monitor.unbound_providers"
                     } else {
-                        "gui.gtladditions.cloud_monitor.other_team_receivers"
+                        "gui.gtladditions.cloud_monitor.unbound_receivers"
                     },
-                    otherCount
+                    locations.size
                 ).withStyle(ChatFormatting.YELLOW)
             )
         }
@@ -427,37 +505,46 @@ private class CloudMonitorRowWidget(
         this.cwu = cwu
     }
 
+    fun getSortValue(byMax: Boolean): Long = if (byMax) max else cwu.toLong()
+
     @OnlyIn(Dist.CLIENT)
-    private fun sendCrossDimensionMessage(player: Player) {
-        val targetPos = frontPos ?: pos ?: return
-        val sourcePos = pos ?: return
-        val command = "/execute in $dimensionId run tp @s ${targetPos.x + 0.5} ${targetPos.y} ${targetPos.z + 0.5}"
-        val coordinates = Component.literal("[${sourcePos.x}, ${sourcePos.y}, ${sourcePos.z}]")
-            .withStyle { style ->
-                style.withClickEvent(ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
-                    .withUnderlined(true)
-                    .withColor(ChatFormatting.GREEN)
+    private fun sendLocationMessages(player: Player, locations: List<CloudMachineSnapshot>) {
+        val canTeleport = player.hasPermissions(2)
+        for (location in locations) {
+            val targetPos = location.frontPos ?: location.pos
+            val command =
+                "/execute in ${location.dimensionId} run tp @s ${targetPos.x + 0.5} ${targetPos.y} ${targetPos.z + 0.5}"
+            val coordinates = Component.literal("[${location.pos.x}, ${location.pos.y}, ${location.pos.z}]")
+            if (canTeleport) {
+                coordinates.withStyle { style ->
+                    style.withClickEvent(ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
+                        .withUnderlined(true)
+                        .withColor(ChatFormatting.GREEN)
+                }
+            } else {
+                coordinates.withStyle(ChatFormatting.GREEN)
             }
-        player.displayClientMessage(
-            Component.translatable(
-                "gui.gtladditions.cloud_monitor.cross_dim",
-                Component.literal("[$dimensionId]")
-                    .withStyle { style -> style.withColor(ChatFormatting.GREEN) },
-                coordinates
-            ),
-            false
-        )
+            player.displayClientMessage(
+                Component.translatable(
+                    "gui.gtladditions.cloud_monitor.cross_dim",
+                    Component.literal("[${location.dimensionId}]")
+                        .withStyle { style -> style.withColor(ChatFormatting.GREEN) },
+                    coordinates
+                ),
+                false
+            )
+        }
     }
 
     private fun refreshButtonTooltip(button: ButtonWidget) {
-        val sourcePos = pos ?: return
+        val location = locations.firstOrNull() ?: return
         button.setHoverTooltips(
-            Component.translatable("gui.gtladditions.cloud_monitor.tooltip_dim", dimensionId),
+            Component.translatable("gui.gtladditions.cloud_monitor.tooltip_dim", location.dimensionId),
             Component.translatable(
                 "gui.gtladditions.cloud_monitor.tooltip_pos",
-                sourcePos.x,
-                sourcePos.y,
-                sourcePos.z
+                location.pos.x,
+                location.pos.y,
+                location.pos.z
             )
         )
     }
