@@ -20,9 +20,9 @@ item_ids:
 * 在工作周期开始时会产生一次瞬时极高功率 EU 脉冲（1 tick）至内部能量缓存中，然后在剩余时间内以较低功率平滑放电至内部能量缓存中
 * 在脉冲结束后，内部能量缓存会通过动力仓或激光源仓向外界输出电量
 * 恒星热力容器等级影响内部能量缓存量
-> 基础：54,120,000,000,000 EU \
-> 高级：3,475,000,000,000,000 EU \
-> 终极：1,160,000,000,000,000,000 EU
+> 基础：890,000,000,000,000 EU \
+> 高级：132,000,000,000,000,000 EU \
+> 终极：1,570,000,000,000,000,000 EU
 * 线圈等级影响消耗的流体种类、单周期消耗量以及发电量
 > 泰坦钢至精金：<FluidLink id="gtceu:rhenium" /> 73,728 mB，<FluidLink id="gtceu:ice" /> 8 KB，<ItemLink id="kubejs:space_drone_mk2" /> 2×10⁻⁴ 个 \
 > 超能硅岩-塔兰至星辉：<FluidLink id="gtceu:promethium" /> 36,864 mB，<FluidLink id="gtceu:liquid_helium" /> 4 KB，<ItemLink id="kubejs:space_drone_mk4" /> 1×10⁻⁴ 个 \

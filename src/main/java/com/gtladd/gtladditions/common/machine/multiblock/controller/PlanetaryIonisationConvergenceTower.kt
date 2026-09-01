@@ -76,9 +76,9 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
         stellarTier = context["SCTier"] as? Int ?: 0
         coilEnergy = findCoil(coilType.material)
         maxStorageEUt = when (stellarTier) {
-            1 -> 0x3138cb601000
-            2 -> 0xc587e7c983000
-            3 -> 0x101925daa3740000
+            1 -> 0x3297345d9a000
+            2 -> 0x1d4f54cf65a0000
+            3 -> 0x15c9c2ae895d0000
             else -> 0L
         }
         particlePos = pos.offset(

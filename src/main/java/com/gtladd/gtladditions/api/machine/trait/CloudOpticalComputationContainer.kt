@@ -17,6 +17,9 @@ class CloudOpticalComputationContainer(
     transmitter: Boolean
 ) : NotifiableComputationContainer(machine, handlerIO, transmitter) {
 
+    var lastResearchCwu: Int = 0
+        private set
+
     private fun getTeamId() = (machine as? CloudOpticalComputationHatchMachine)?.teamId
 
     override fun handleRecipeInner(
@@ -29,15 +32,18 @@ class CloudOpticalComputationContainer(
         var sum = left.sum()
         if (io == IO.IN) {
             val teamId = getTeamId()
+            val isTotalCwuRecipe = recipe.data.getBoolean("duration_is_total_cwu")
+            if (isTotalCwuRecipe && !simulate) lastResearchCwu = 0
             val availableCWU = CloudNetworkManager.requestCWU(teamId, Int.MAX_VALUE.toLong(), true).toInt()
             if (availableCWU >= sum) {
-                if (recipe.data.getBoolean("duration_is_total_cwu")) {
+                if (isTotalCwuRecipe) {
                     val drawn = if (simulate) {
                         availableCWU
                     } else {
                         CloudNetworkManager.requestCWU(teamId, availableCWU.toLong(), false).toInt()
                     }
                     if (!simulate) {
+                        lastResearchCwu = drawn
                         when (val targetMachine = machine) {
                             is IRecipeLogicMachine -> {
                                 val recipeLogic = targetMachine.recipeLogic

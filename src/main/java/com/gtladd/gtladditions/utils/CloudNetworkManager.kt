@@ -1,11 +1,13 @@
 package com.gtladd.gtladditions.utils
 
 import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider
+import com.gregtechceu.gtceu.api.capability.IOpticalComputationReceiver
 import com.gregtechceu.gtceu.api.capability.recipe.CWURecipeCapability
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.research.NetworkSwitchMachine
+import com.gtladd.gtladditions.api.machine.trait.CloudOpticalComputationContainer
 import com.gtladd.gtladditions.common.data.CloudMachineSnapshot
 import com.gtladd.gtladditions.common.data.ComputationLiveSnapshot
 import com.gtladd.gtladditions.common.data.ComputationTopologySnapshot
@@ -140,11 +142,22 @@ object CloudNetworkManager {
         return false
     }
 
-    fun getLoadedDataMachineCount(): Int = dataMachines.size
+    fun getLoadedDataMachineCount(teamId: UUID?): Int {
+        val normalizedTeamId = CloudTeamUtil.normalize(teamId) ?: return 0
+        return dataMachines.values.count { machine ->
+            normalizedTeamId == CloudTeamUtil.normalize(machine.uuid)
+        }
+    }
 
     fun getComputationTopologySnapshot(teamId: UUID?): ComputationTopologySnapshot {
         val normalizedTeamId = CloudTeamUtil.normalize(teamId)
-            ?: return ComputationTopologySnapshot(topologyVersion, emptyList(), emptyList(), 0, 0)
+            ?: return ComputationTopologySnapshot(
+                topologyVersion,
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                emptyList()
+            )
 
         ensureTopologyCache()
         val state = teamStates[normalizedTeamId] ?: emptyTeamState
@@ -175,18 +188,20 @@ object CloudNetworkManager {
         val receivers = sortedReceivers(state)
             .map { machineSnapshot(it, 0L, 0L, getRequestedCWU(it)) }
 
-        val otherProviderCount = computationProviders.values.count { hatch ->
-            hatch.getUUID() != null && !CloudTeamUtil.sameTeam(hatch.getUUID(), teamId)
-        }
-        val otherReceiverCount = computationReceivers.values.count { hatch ->
-            hatch.getUUID() != null && !CloudTeamUtil.sameTeam(hatch.getUUID(), teamId)
-        }
+        val unboundProviders = computationProviders.values
+            .filter { it.getUUID() == null }
+            .sortedWith(machineLocationOrder)
+            .map { machineSnapshot(it, 0L, 0L, 0) }
+        val unboundReceivers = computationReceivers.values
+            .filter { it.getUUID() == null }
+            .sortedWith(machineLocationOrder)
+            .map { machineSnapshot(it, 0L, 0L, 0) }
         return ComputationTopologySnapshot(
             topologyVersion,
             providers,
             receivers,
-            otherProviderCount,
-            otherReceiverCount
+            unboundProviders,
+            unboundReceivers
         )
     }
 
@@ -299,6 +314,14 @@ object CloudNetworkManager {
         val recipeLogic = recipeMachine.recipeLogic
         val recipe = recipeLogic.lastRecipe ?: return 0
         if (!recipeLogic.isWorking) return 0
+        if (recipe.data.getBoolean("duration_is_total_cwu")) {
+            val receiver = machine as? IOpticalComputationReceiver ?: return 0
+            val computationContainer = receiver.computationProvider as? CloudOpticalComputationContainer ?: return 0
+            return minOf(
+                computationContainer.lastResearchCwu,
+                maxOf(0, recipe.duration - recipeLogic.progress)
+            )
+        }
         val cwuInputs = recipe.tickInputs[CWURecipeCapability.CAP] ?: return 0
         return cwuInputs.sumOf { CWURecipeCapability.CAP.of(it.content) }
     }
