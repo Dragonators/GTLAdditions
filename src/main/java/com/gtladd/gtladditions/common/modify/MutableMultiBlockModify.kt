@@ -60,7 +60,8 @@ import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineB
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineB
 import java.util.function.BiConsumer
@@ -76,14 +77,14 @@ object MutableMultiBlockModify {
             MultiBlockMachineA.A_MASS_FABRICATOR,
             AdditionalMultiBlockMachine.HUGE_INCUBATOR,
             MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER,
-            AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE,
+            AdvancedMultiBlockMachineA.SUPRACHRONAL_ASSEMBLY_LINE,
             MultiBlockMachineA.NANO_CORE,
-            AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV],
+            AdvancedMultiBlockMachineB.COMPRESSED_FUSION_REACTOR[GTValues.UEV],
             MultiBlockMachineA.LARGE_RECYCLER,
             MultiBlockMachineA.ADVANCED_SPS_CRAFTING,
             MultiBlockMachineA.PETROCHEMICAL_PLANT,
             MultiBlockMachineB.WOOD_DISTILLATION,
-            AdvancedMultiBlockMachine.PCB_FACTORY,
+            AdvancedMultiBlockMachineA.PCB_FACTORY,
             AdditionalMultiBlockMachine.ADVANCED_RARE_EARTH_CENTRIFUGAL,
             MultiBlockMachineB.GRAVITATION_SHOCKBURST,
             AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR,
@@ -147,9 +148,9 @@ object MutableMultiBlockModify {
         setOtherMutable()
 
         val mutableWithExtra = mutableMachines + listOf(
-            AdvancedMultiBlockMachine.CREATE_AGGREGATION,
-            AdvancedMultiBlockMachine.DOOR_OF_CREATE,
-            AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER
+            AdvancedMultiBlockMachineA.CREATE_AGGREGATION,
+            AdvancedMultiBlockMachineA.DOOR_OF_CREATE,
+            AdvancedMultiBlockMachineB.ADVANCED_INFINITE_DRILLER
         )
         for (definition in mutableWithExtra) {
             addTooltips(
@@ -164,7 +165,7 @@ object MutableMultiBlockModify {
                         "gtladditions.multiblock.thread.below.tooltip.0".toComponent("IV")
                     MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT ->
                         "gtladditions.multiblock.thread.atomic_energy_excitation_plant.tooltip.0".toComponent
-                    AdvancedMultiBlockMachine.PCB_FACTORY ->
+                    AdvancedMultiBlockMachineA.PCB_FACTORY ->
                         "gtladditions.multiblock.thread.below.tooltip.0".toComponent("LuV")
                     else -> null
                 }
@@ -197,14 +198,14 @@ object MutableMultiBlockModify {
             MultiBlockMachineA.A_MASS_FABRICATOR to patternPredicateSelector({ GTBlocks.MACHINE_CASING_UXV.get() }, PartAbility.PARALLEL_HATCH),
             AdditionalMultiBlockMachine.HUGE_INCUBATOR to patternPredicateSelector({ GTBlocks.CASING_PTFE_INERT.get() }, PartAbility.INPUT_LASER),
             MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER to patternPredicateSelector({ GTLBlocks.DIMENSIONALLY_TRANSCENDENT_CASING.get() }, PartAbility.PARALLEL_HATCH),
-            AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE to patternPredicateSelector({ GTLBlocks.MOLECULAR_CASING.get() }, PartAbility.PARALLEL_HATCH),
+            AdvancedMultiBlockMachineA.SUPRACHRONAL_ASSEMBLY_LINE to patternPredicateSelector({ GTLBlocks.MOLECULAR_CASING.get() }, PartAbility.PARALLEL_HATCH),
             MultiBlockMachineA.NANO_CORE to patternPredicateSelector({ GTLBlocks.NAQUADAH_ALLOY_CASING.get() }, PartAbility.INPUT_LASER),
-            AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV] to patternPredicateSelector({ GTLFusionCasingBlock.getCasingState(GTValues.UEV) }, PartAbility.PARALLEL_HATCH),
+            AdvancedMultiBlockMachineB.COMPRESSED_FUSION_REACTOR[GTValues.UEV] to patternPredicateSelector({ GTLFusionCasingBlock.getCasingState(GTValues.UEV) }, PartAbility.PARALLEL_HATCH),
             MultiBlockMachineA.LARGE_RECYCLER to patternPredicateSelector({ GTBlocks.STEEL_HULL.get() }, PartAbility.MAINTENANCE),
             MultiBlockMachineA.ADVANCED_SPS_CRAFTING to patternPredicateSelector({ GTBlocks.FUSION_CASING_MK2.get() }, PartAbility.PARALLEL_HATCH),
             MultiBlockMachineA.PETROCHEMICAL_PLANT to patternPredicateSelector({ GTBlocks.CASING_STAINLESS_CLEAN.get() }, PartAbility.PARALLEL_HATCH),
             MultiBlockMachineB.WOOD_DISTILLATION to patternPredicateSelector({ GTBlocks.CASING_INVAR_HEATPROOF.get() }, PartAbility.PARALLEL_HATCH),
-            AdvancedMultiBlockMachine.PCB_FACTORY to patternPredicateSelector({ GCyMBlocks.CASING_WATERTIGHT.get() }, PartAbility.PARALLEL_HATCH),
+            AdvancedMultiBlockMachineA.PCB_FACTORY to patternPredicateSelector({ GCyMBlocks.CASING_WATERTIGHT.get() }, PartAbility.PARALLEL_HATCH),
             AdditionalMultiBlockMachine.ADVANCED_RARE_EARTH_CENTRIFUGAL to patternPredicateSelector({ GTLBlocks.SPS_CASING.get() }, PartAbility.PARALLEL_HATCH),
             MultiBlockMachineB.GRAVITATION_SHOCKBURST to patternPredicateSelector({ GTLBlocks.CREATE_CASING.get() }, PartAbility.PARALLEL_HATCH),
             AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR to patternPredicateSelector({ GTLBlocks.SPS_CASING.get() }, PartAbility.INPUT_LASER),
@@ -290,7 +291,7 @@ object MutableMultiBlockModify {
             }
         }
 
-        AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+        AdvancedMultiBlockMachineA.SUPRACHRONAL_ASSEMBLY_LINE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             MutableSuprachronalAssemblyLineMachine(blockEntity)
         }
 
@@ -302,7 +303,7 @@ object MutableMultiBlockModify {
             }
         }
 
-        AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV].setMachineSupplier { blockEntity: IMachineBlockEntity ->
+        AdvancedMultiBlockMachineB.COMPRESSED_FUSION_REACTOR[GTValues.UEV].setMachineSupplier { blockEntity: IMachineBlockEntity ->
             MutableFusionReactorMachine(blockEntity, GTValues.UEV)
         }
 
@@ -310,7 +311,7 @@ object MutableMultiBlockModify {
             MutableCoilElectricParallelHatchMultiblockMachine(blockEntity)
         }
 
-        AdvancedMultiBlockMachine.PCB_FACTORY.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+        AdvancedMultiBlockMachineA.PCB_FACTORY.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             MutablePCBFactoryMachine(blockEntity)
         }
 

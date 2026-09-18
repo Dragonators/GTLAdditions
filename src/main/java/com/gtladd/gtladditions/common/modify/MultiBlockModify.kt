@@ -43,7 +43,8 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.AABB
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineB
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 import org.gtlcore.gtlcore.utils.MachineIO
 import org.gtlcore.gtlcore.utils.MachineUtil
@@ -193,7 +194,7 @@ object MultiBlockModify {
         )
 
         val threadModifierPredicate = { Predicates.abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1) }
-        AdvancedMultiBlockMachine.DOOR_OF_CREATE.patchPatternPredicates(
+        AdvancedMultiBlockMachineA.DOOR_OF_CREATE.patchPatternPredicates(
             "thread_modifier",
             patternPredicateSelector(
                 { GTLBlocks.DIMENSION_CONNECTION_CASING.get() },
@@ -203,13 +204,13 @@ object MultiBlockModify {
             ),
             threadModifierPredicate
         )
-        AdvancedMultiBlockMachine.DOOR_OF_CREATE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+        AdvancedMultiBlockMachineA.DOOR_OF_CREATE.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             DoorOfCreate(blockEntity)
         }
-        AdvancedMultiBlockMachine.DOOR_OF_CREATE.onWorking = doorOfCreateOnWorking
-        AdvancedMultiBlockMachine.DOOR_OF_CREATE.recipeModifier = recipeModifierList
+        AdvancedMultiBlockMachineA.DOOR_OF_CREATE.onWorking = doorOfCreateOnWorking
+        AdvancedMultiBlockMachineA.DOOR_OF_CREATE.recipeModifier = recipeModifierList
 
-        AdvancedMultiBlockMachine.CREATE_AGGREGATION.patchPatternPredicates(
+        AdvancedMultiBlockMachineA.CREATE_AGGREGATION.patchPatternPredicates(
             "thread_modifier",
             patternPredicateSelector(
                 { GTLBlocks.DIMENSION_CONNECTION_CASING.get() },
@@ -220,11 +221,11 @@ object MultiBlockModify {
             ),
             threadModifierPredicate
         )
-        AdvancedMultiBlockMachine.CREATE_AGGREGATION.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+        AdvancedMultiBlockMachineA.CREATE_AGGREGATION.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             CreateAggregation(blockEntity)
         }
-        AdvancedMultiBlockMachine.CREATE_AGGREGATION.onWorking = createAggregationOnWorking
-        AdvancedMultiBlockMachine.CREATE_AGGREGATION.recipeModifier = recipeModifierList
+        AdvancedMultiBlockMachineA.CREATE_AGGREGATION.onWorking = createAggregationOnWorking
+        AdvancedMultiBlockMachineA.CREATE_AGGREGATION.recipeModifier = recipeModifierList
 
         GTMachines.ACTIVE_TRANSFORMER.replacePatternPredicates(
             "active_transformer_min_casing_limit",
@@ -239,7 +240,7 @@ object MultiBlockModify {
             MolecularAssemblerMultiblockMachine(blockEntity)
         }
 
-        AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.patchPatternPredicates(
+        AdvancedMultiBlockMachineB.ADVANCED_INFINITE_DRILLER.patchPatternPredicates(
             "thread_modifier",
             patternPredicateSelector(
                 { Registries.getBlock("gtlcore:iridium_casing") },
@@ -250,7 +251,7 @@ object MultiBlockModify {
             ),
             threadModifierPredicate
         )
-        AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
+        AdvancedMultiBlockMachineB.ADVANCED_INFINITE_DRILLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             AdvancedInfiniteDrillMachine(blockEntity)
         }
 

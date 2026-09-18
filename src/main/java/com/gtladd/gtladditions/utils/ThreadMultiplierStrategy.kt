@@ -4,7 +4,8 @@ import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineB
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineB
 import org.gtlcore.gtlcore.config.ConfigHolder
@@ -18,14 +19,14 @@ object ThreadMultiplierStrategy {
         MultiBlockMachineA.A_MASS_FABRICATOR to 16,
         AdditionalMultiBlockMachine.HUGE_INCUBATOR to 256,
         MultiBlockMachineA.DIMENSIONALLY_TRANSCENDENT_MIXER to 1,
-        AdvancedMultiBlockMachine.SUPRACHRONAL_ASSEMBLY_LINE to 1,
+        AdvancedMultiBlockMachineA.SUPRACHRONAL_ASSEMBLY_LINE to 1,
         MultiBlockMachineA.NANO_CORE to 1,
-        AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR[GTValues.UEV] to 2,
+        AdvancedMultiBlockMachineB.COMPRESSED_FUSION_REACTOR[GTValues.UEV] to 2,
         MultiBlockMachineA.LARGE_RECYCLER to 2048,
         MultiBlockMachineA.ADVANCED_SPS_CRAFTING to 1,
         MultiBlockMachineA.PETROCHEMICAL_PLANT to 1,
         MultiBlockMachineB.WOOD_DISTILLATION to 1,
-        AdvancedMultiBlockMachine.PCB_FACTORY to 2048,
+        AdvancedMultiBlockMachineA.PCB_FACTORY to 2048,
         AdditionalMultiBlockMachine.ADVANCED_RARE_EARTH_CENTRIFUGAL to 4,
         MultiBlockMachineB.GRAVITATION_SHOCKBURST to 512,
         AdditionalMultiBlockMachine.ADVANCED_NEUTRON_ACTIVATOR to 2,
@@ -33,9 +34,9 @@ object ThreadMultiplierStrategy {
         MultiBlockMachineA.ATOMIC_ENERGY_EXCITATION_PLANT to 1,
         MultiBlockMachineA.SUPER_PARTICLE_COLLIDER to 4,
         MultiBlockMachineA.MATTER_FABRICATOR to 3,
-        AdvancedMultiBlockMachine.CREATE_AGGREGATION to 1,
-        AdvancedMultiBlockMachine.DOOR_OF_CREATE to 1,
-        AdvancedMultiBlockMachine.ADVANCED_INFINITE_DRILLER to 256,
+        AdvancedMultiBlockMachineA.CREATE_AGGREGATION to 1,
+        AdvancedMultiBlockMachineA.DOOR_OF_CREATE to 1,
+        AdvancedMultiBlockMachineB.ADVANCED_INFINITE_DRILLER to 256,
         MultiBlockMachine.DRACONIC_COLLAPSE_CORE to 2,
         MultiBlockMachine.TITAN_CRIP_EARTHBORE to 2,
         MultiBlockMachine.SKELETON_SHIFT_RIFT_ENGINE to 2,

@@ -52,9 +52,9 @@ import org.gtlcore.gtlcore.common.data.GTLItems.SUPER_GLUE
 import org.gtlcore.gtlcore.common.data.GTLItems.WORLD_FRAGMENTS_BARNARDA
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.COMPRESSED_FUSION_REACTOR
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.CREATE_COMPUTATION
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.EYE_OF_HARMONY
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA.EYE_OF_HARMONY
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineB.COMPRESSED_FUSION_REACTOR
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineB.CREATE_COMPUTATION
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getItem
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
