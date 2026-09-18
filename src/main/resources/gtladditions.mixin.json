@@ -34,7 +34,6 @@
     "gtceu.xei.ItemEmiStackMixin",
     "gtlcore.data.recipe.GenerateDisassemblyMixin",
     "gtlcore.machine.CoilWorkableElectricMultipleRecipesMachineMixin",
-    "gtlcore.machine.ComputationProviderMachineAccessor",
     "gtlcore.machine.HarmonyMachineMixin",
     "gtlcore.machine.LargeSteamParallelMultiblockMachineMixin",
     "gtlcore.machine.SpaceElevatorModuleMachineMixin",

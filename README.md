@@ -15,8 +15,9 @@ GTLAdditions is developed for Minecraft Forge 1.20.1 and the GregTech Leisure ec
 
 | Requirement | Version / Scope |
 | --- | --- |
-| GTLCore (`gtlcore`) | `>= 1.2.3.1-fix12` |
-| Stargate Journey (`sgjourney`) | `>= 0.6.44` |
+| Java | `>= 21` |
+| GTLCore (`gtlcore`) | `>= 1.2.3.2-fix2` |
+| Stargate Journey (`sgjourney`) | `0.6.44` only |
 | Oculus (`oculus`) | `>= 1.7.0`, client side |
 
 ## Install

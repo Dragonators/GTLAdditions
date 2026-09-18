@@ -5,8 +5,8 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.world.level.Level
 import org.gtlcore.gtlcore.common.data.GTLBlocks
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.ASSEMBLER_MODULE
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine.RESOURCE_COLLECTION
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA.ASSEMBLER_MODULE
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA.RESOURCE_COLLECTION
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
 import org.gtlcore.gtlcore.utils.MachineUtil
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo

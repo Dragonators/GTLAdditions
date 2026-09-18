@@ -26,14 +26,14 @@ description = "添加了一些新机器和简化配方，结构与材质由疏�
 [[dependencies.${mod_id}]]
 modId = "gtlcore"
 mandatory = true
-versionRange = "[1.2.3.1-fix12,)"
+versionRange = "[1.2.3.2-fix2,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.${mod_id}]]
 modId = "sgjourney"
 mandatory = true
-versionRange = "[0.6.44,)"
+versionRange = "[0.6.44]"
 ordering = "AFTER"
 side = "BOTH"
 

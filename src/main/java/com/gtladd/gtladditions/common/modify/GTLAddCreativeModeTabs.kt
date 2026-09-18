@@ -7,7 +7,7 @@ import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.tterrag.registrate.util.entry.RegistryEntry
 import net.minecraft.world.item.CreativeModeTab
-import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachine
+import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA
 
 object GTLAddCreativeModeTabs {
     val GTLADD_ITEMS: RegistryEntry<CreativeModeTab?> = REGISTRATE.defaultCreativeTab("item") { builder: CreativeModeTab.Builder? ->
@@ -24,7 +24,7 @@ object GTLAddCreativeModeTabs {
             .title(
                 REGISTRATE.addLang("itemGroup", GTLAdditions.id("machine"), "GTLAdditions")
             )
-            .icon { AdvancedMultiBlockMachine.EYE_OF_HARMONY.asStack() }
+            .icon { AdvancedMultiBlockMachineA.EYE_OF_HARMONY.asStack() }
             .build()
     }
         .register()
