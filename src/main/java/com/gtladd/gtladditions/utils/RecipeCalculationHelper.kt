@@ -27,6 +27,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.crafting.Ingredient
+import org.gtlcore.gtlcore.api.recipe.IAdvancedContentModifier
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
@@ -63,7 +64,7 @@ object RecipeCalculationHelper {
     fun multipleRecipe(
         recipe: GTRecipe,
         parallel: Long
-    ): GTRecipe = multipleRecipe(recipe, parallel) { recipe -> recipe.copy(ContentModifier.multiplier(parallel.toDouble()), false) }
+    ): GTRecipe = multipleRecipe(recipe, parallel) { recipe -> recipe.copy(IAdvancedContentModifier.preciseMultiplier(parallel), false) }
 
     inline fun processParallelDataNormal(
         parallelData: ParallelData,
