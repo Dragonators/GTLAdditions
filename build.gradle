@@ -240,6 +240,31 @@ jar {
     }
 }
 
+def structurePython = providers.gradleProperty('structurePython').orElse(
+        System.getProperty('os.name').startsWith('Windows') ? 'python' : 'python3')
+def structureOptimizer = file('scripts/optimize_structure_jar.py')
+def structureRequirements = file('scripts/requirements-structure-tools.txt')
+
+// Run after Loom's asynchronous remapping, while still inside the remapJar task.
+// This ensures build, direct remapJar and Maven publication all use the same JAR.
+tasks.named('remapJar') {
+    inputs.files(structureOptimizer, structureRequirements).withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.property('structurePython', structurePython)
+    inputs.property('structureZopfliIterations', 15)
+    doLast {
+        getWorkerExecutor().await()
+        project.exec {
+            environment 'PYTHONIOENCODING', 'utf-8'
+            commandLine structurePython.get(), '-B', structureOptimizer.absolutePath,
+                    archiveFile.get().asFile.absolutePath,
+                    layout.buildDirectory.dir('structure-compression/cache').get().asFile.absolutePath,
+                    '--iterations', '15',
+                    '--dependency-dir', layout.buildDirectory.dir('structure-tools/python').get().asFile.absolutePath,
+                    '--pip-cache', layout.buildDirectory.dir('structure-tools/pip-cache').get().asFile.absolutePath
+        }
+    }
+}
+
 // configure the maven publication
 publishing {
     publications {

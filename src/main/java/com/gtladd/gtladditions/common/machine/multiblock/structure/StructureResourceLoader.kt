@@ -14,7 +14,16 @@ object StructureResourceLoader {
     private const val ROOT_PATH = "assets/gtladditions/structures"
     private const val KIND_FACTORY_PATTERN = 1
     private const val KIND_RING_SET = 2
-    private val MAGIC = "GTLASB2".toByteArray(StandardCharsets.US_ASCII)
+    private val MAGIC = "GTLASB3".toByteArray(StandardCharsets.US_ASCII)
+    private val LEGACY_MAGIC = "GTLASB2".toByteArray(StandardCharsets.US_ASCII)
+    private val AXIS_ORDERS = arrayOf(
+        intArrayOf(0, 1, 2),
+        intArrayOf(0, 2, 1),
+        intArrayOf(1, 0, 2),
+        intArrayOf(1, 2, 0),
+        intArrayOf(2, 0, 1),
+        intArrayOf(2, 1, 0)
+    )
     private val factoryPatternCache = Object2ReferenceOpenHashMap<String, Array<Array<String>>>(32)
     private val ringSetCache = Object2ReferenceOpenHashMap<String, Array<Array<Array<String>>>>(2)
 
@@ -50,10 +59,10 @@ object StructureResourceLoader {
 
     fun loadRings(resourcePath: String, expectedId: String): Array<Array<Array<String>>> =
         getOrLoad(ringSetCache, resourcePath) {
-            readResource(resourcePath, expectedId, KIND_RING_SET) { input, fullPath ->
+            readResource(resourcePath, expectedId, KIND_RING_SET) { input, fullPath, optimized ->
                 val ringCount = input.readPositiveUnsignedShort(fullPath, expectedId, "ring count")
                 Array(ringCount) { index ->
-                    input.readStringGrid(fullPath, expectedId, "rings[$index]")
+                    input.readStringGrid(fullPath, expectedId, "rings[$index]", optimized)
                 }
             }
         }
@@ -81,8 +90,8 @@ object StructureResourceLoader {
 
     private fun loadAisles(resourcePath: String, expectedId: String): Array<Array<String>> =
         getOrLoad(factoryPatternCache, resourcePath) {
-            readResource(resourcePath, expectedId, KIND_FACTORY_PATTERN) { input, fullPath ->
-                input.readStringGrid(fullPath, expectedId, "aisles")
+            readResource(resourcePath, expectedId, KIND_FACTORY_PATTERN) { input, fullPath, optimized ->
+                input.readStringGrid(fullPath, expectedId, "aisles", optimized)
             }
         }
 
@@ -103,7 +112,7 @@ object StructureResourceLoader {
         resourcePath: String,
         expectedId: String,
         expectedKind: Int,
-        reader: (DataInputStream, String) -> T
+        reader: (DataInputStream, String, Boolean) -> T
     ): T {
         val fullPath = "$ROOT_PATH/${resourcePath.trimStart('/')}"
         val stream = StructureResourceLoader::class.java.classLoader.getResourceAsStream(fullPath)
@@ -113,7 +122,8 @@ object StructureResourceLoader {
             DataInputStream(BufferedInputStream(stream)).use { input ->
                 val magic = ByteArray(MAGIC.size)
                 input.readFully(magic)
-                if (!magic.contentEquals(MAGIC)) {
+                val optimized = magic.contentEquals(MAGIC)
+                if (!optimized && !magic.contentEquals(LEGACY_MAGIC)) {
                     error(fullPath, expectedId, "invalid binary magic")
                 }
 
@@ -127,7 +137,7 @@ object StructureResourceLoader {
                     error(fullPath, expectedId, "expected id '$expectedId', got '$id'")
                 }
 
-                val result = reader(input, fullPath)
+                val result = reader(input, fullPath, optimized)
                 if (input.read() != -1) {
                     error(fullPath, expectedId, "trailing bytes after structure payload")
                 }
@@ -145,23 +155,58 @@ object StructureResourceLoader {
     private fun DataInputStream.readStringGrid(
         resourcePath: String,
         expectedId: String,
-        fieldName: String
+        fieldName: String,
+        optimized: Boolean
     ): Array<Array<String>> {
+        val axisOrder = if (optimized) readUnsignedByte() else 0
+        if (axisOrder >= AXIS_ORDERS.size) {
+            error(resourcePath, expectedId, "$fieldName has invalid axis order $axisOrder")
+        }
         val aisleCount = readPositiveUnsignedShort(resourcePath, expectedId, "$fieldName aisle count")
         val rowCount = readPositiveUnsignedShort(resourcePath, expectedId, "$fieldName row count")
         val width = readPositiveUnsignedShort(resourcePath, expectedId, "$fieldName row width")
         val dictionarySize = readPositiveUnsignedShort(resourcePath, expectedId, "$fieldName dictionary size")
+        if (dictionarySize.toLong() > aisleCount.toLong() * rowCount) {
+            error(resourcePath, expectedId, "$fieldName dictionary size exceeds row count")
+        }
         val dictionary = Array(dictionarySize) { index ->
             readAsciiRow(width, resourcePath, expectedId, "$fieldName dictionary row $index")
         }
 
-        return Array(aisleCount) { aisleIndex ->
+        val narrowIndexes = optimized && dictionarySize <= 256
+        val stored = Array(aisleCount) { aisleIndex ->
             Array(rowCount) { rowIndex ->
-                val index = readUnsignedShort()
+                val index = if (narrowIndexes) readUnsignedByte() else readUnsignedShort()
                 if (index >= dictionarySize) {
                     error(resourcePath, expectedId, "$fieldName[$aisleIndex][$rowIndex] index $index exceeds dictionary size $dictionarySize")
                 }
                 dictionary[index]
+            }
+        }
+        if (axisOrder == 0) return stored
+        if (axisOrder == 2) {
+            return Array(rowCount) { aisleIndex -> Array(aisleCount) { rowIndex -> stored[rowIndex][aisleIndex] } }
+        }
+
+        val order = AXIS_ORDERS[axisOrder]
+        val dimensions = IntArray(3)
+        dimensions[order[0]] = aisleCount
+        dimensions[order[1]] = rowCount
+        dimensions[order[2]] = width
+        // Intern only within this grid to retain the original loader's shared rows.
+        val rows = HashMap<String, String>()
+        val coordinates = IntArray(3)
+        return Array(dimensions[0]) { aisleIndex ->
+            coordinates[0] = aisleIndex
+            Array(dimensions[1]) { rowIndex ->
+                coordinates[1] = rowIndex
+                val row = buildString(dimensions[2]) {
+                    for (columnIndex in 0 until dimensions[2]) {
+                        coordinates[2] = columnIndex
+                        append(stored[coordinates[order[0]]][coordinates[order[1]]][coordinates[order[2]]])
+                    }
+                }
+                rows.getOrPut(row) { row }
             }
         }
     }

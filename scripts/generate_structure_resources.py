@@ -1,11 +1,13 @@
 import argparse
 import base64
+import itertools
 import json
 import re
 import shutil
 import struct
 import subprocess
 import sys
+import zlib
 from pathlib import Path
 
 
@@ -14,9 +16,15 @@ KOTLIN_STRUCTURE_ROOT = ROOT / "src/main/java/com/gtladd/gtladditions/common/mac
 SOURCE_ROOT = ROOT / "scripts/structure_sources"
 RESOURCE_ROOT = ROOT / "src/main/resources/assets/gtladditions/structures"
 GTLCORE_JAR = ROOT / "libs/gtlcore-1.2.2.9-fix3.jar"
-MAGIC = b"GTLASB2"
+MAGIC = b"GTLASB3"
+LEGACY_MAGIC = b"GTLASB2"
+AXIS_ORDERS = tuple(itertools.permutations(range(3)))
 KIND_FACTORY_PATTERN = 1
 KIND_RING_SET = 2
+
+
+class DictionaryLimitError(ValueError):
+    pass
 
 
 def fail(message: str) -> None:
@@ -379,36 +387,67 @@ def build_row_dictionary(rows: list[str], context: str) -> tuple[list[str], list
             dictionary.append(row)
         indexes.append(index)
     if len(dictionary) > 0xFFFF:
-        fail(f"{context}: unique row count {len(dictionary)} exceeds u16")
+        raise DictionaryLimitError(f"{context}: unique row count {len(dictionary)} exceeds u16")
     return dictionary, indexes
 
 
-def encode_grid(grid: list[list[str]], context: str) -> bytes:
+def permute_grid(grid: list[list[str]], order: tuple[int, int, int]) -> list[list[str]]:
+    if order == (0, 1, 2):
+        return grid
+    dimensions = (len(grid), len(grid[0]), len(grid[0][0]))
+    if order == (1, 0, 2):
+        return [[grid[aisle][row] for aisle in range(dimensions[0])] for row in range(dimensions[1])]
+    result = []
+    for first in range(dimensions[order[0]]):
+        rows = []
+        for second in range(dimensions[order[1]]):
+            coordinates = [0, 0, 0]
+            coordinates[order[0]] = first
+            coordinates[order[1]] = second
+            characters = []
+            for third in range(dimensions[order[2]]):
+                coordinates[order[2]] = third
+                characters.append(grid[coordinates[0]][coordinates[1]][coordinates[2]])
+            rows.append("".join(characters))
+        result.append(rows)
+    return result
+
+
+def encode_grid(grid: list[list[str]], context: str, axis_order: int = 0) -> bytes:
+    grid = permute_grid(grid, AXIS_ORDERS[axis_order])
     aisle_count = len(grid)
     row_count = len(grid[0])
     width = len(grid[0][0])
     rows = [row for aisle in grid for row in aisle]
     dictionary, indexes = build_row_dictionary(rows, context)
 
-    output = bytearray()
+    output = bytearray(pack_u8(axis_order, f"{context}: axis order"))
     output += pack_u16(aisle_count, f"{context}: aisle count")
     output += pack_u16(row_count, f"{context}: row count")
     output += pack_u16(width, f"{context}: row width")
     output += pack_u16(len(dictionary), f"{context}: dictionary size")
     for row_index, row in enumerate(dictionary):
         output += row_bytes(row, f"{context}: dictionary row {row_index}")
-    for row_index, index in enumerate(indexes):
-        output += pack_u16(index, f"{context}: row index {row_index}")
+    index_format = ">B" if len(dictionary) <= 256 else ">H"
+    for index in indexes:
+        output += struct.pack(index_format, index)
     return bytes(output)
 
 
-def decode_grid(data: bytes, offset: int, context: str) -> tuple[list[list[str]], int]:
+def decode_grid(data: bytes, offset: int, context: str, optimized: bool = True) -> tuple[list[list[str]], int]:
+    axis_order = 0
+    if optimized:
+        axis_order, offset = unpack_u8(data, offset, f"{context}: axis order")
+        if axis_order >= len(AXIS_ORDERS):
+            fail(f"{context}: invalid axis order {axis_order}")
     aisle_count, offset = unpack_u16(data, offset, f"{context}: aisle count")
     row_count, offset = unpack_u16(data, offset, f"{context}: row count")
     width, offset = unpack_u16(data, offset, f"{context}: row width")
     dictionary_size, offset = unpack_u16(data, offset, f"{context}: dictionary size")
     if aisle_count == 0 or row_count == 0 or width == 0 or dictionary_size == 0:
         fail(f"{context}: dimensions and dictionary size must be non-zero")
+    if dictionary_size > aisle_count * row_count:
+        fail(f"{context}: dictionary size exceeds row count")
 
     dictionary = []
     for row_index in range(dictionary_size):
@@ -416,47 +455,73 @@ def decode_grid(data: bytes, offset: int, context: str) -> tuple[list[list[str]]
         dictionary.append(row)
 
     grid = []
+    read_index = unpack_u8 if optimized and dictionary_size <= 256 else unpack_u16
     for aisle_index in range(aisle_count):
         aisle = []
         for row_index in range(row_count):
-            index, offset = unpack_u16(data, offset, f"{context}: row index")
+            index, offset = read_index(data, offset, f"{context}: row index")
             if index >= dictionary_size:
                 fail(f"{context}: row index {index} exceeds dictionary size {dictionary_size}")
             aisle.append(dictionary[index])
         grid.append(aisle)
-    return grid, offset
+    order = AXIS_ORDERS[axis_order]
+    inverse = tuple(order.index(axis) for axis in range(3))
+    return permute_grid(grid, inverse), offset
+
+
+def encode_binary(data: dict[str, object], context: str, axis_order: int) -> bytes:
+    output = bytearray(MAGIC)
+    output += pack_u8(KIND_FACTORY_PATTERN if data["type"] == "factory_pattern" else KIND_RING_SET, context)
+    output += encode_id(data["id"], context)
+
+    if data["type"] == "factory_pattern":
+        output += encode_grid(data["aisles"], context, axis_order)
+    elif data["type"] == "ring_set":
+        rings = data["rings"]
+        output += pack_u16(len(rings), f"{context}: ring count")
+        for ring_index, ring in enumerate(rings):
+            output += encode_grid(ring, f"{context}: ring {ring_index}", axis_order)
+    else:
+        fail(f"{context}: unsupported type {data['type']!r}")
+
+    return bytes(output)
+
+
+def deflate_size(data: bytes) -> int:
+    compressor = zlib.compressobj(level=6, wbits=-15)
+    return len(compressor.compress(data) + compressor.flush())
 
 
 def write_binary(path: Path, data: dict[str, object]) -> None:
+    # Compare the complete resource, including ring boundaries and metadata.
+    candidates = []
+    for axis_order in range(len(AXIS_ORDERS)):
+        try:
+            candidates.append(encode_binary(data, str(path), axis_order))
+        except DictionaryLimitError:
+            # A transposed grid may exceed u16 even though its original order fits.
+            continue
+    if not candidates:
+        fail(f"{path}: every axis order exceeds the u16 dictionary limit")
+    output = min(candidates, key=lambda candidate: (deflate_size(candidate), len(candidate)))
+    if decode_binary(output, str(path)) != data:
+        fail(f"{path}: optimized structure failed round-trip verification")
     path.parent.mkdir(parents=True, exist_ok=True)
-    output = bytearray(MAGIC)
-    output += pack_u8(KIND_FACTORY_PATTERN if data["type"] == "factory_pattern" else KIND_RING_SET, str(path))
-    output += encode_id(data["id"], str(path))
-
-    if data["type"] == "factory_pattern":
-        output += encode_grid(data["aisles"], str(path))
-    elif data["type"] == "ring_set":
-        rings = data["rings"]
-        output += pack_u16(len(rings), f"{path}: ring count")
-        for ring_index, ring in enumerate(rings):
-            output += encode_grid(ring, f"{path}: ring {ring_index}")
-    else:
-        fail(f"{path}: unsupported type {data['type']!r}")
-
-    path.write_bytes(bytes(output))
+    path.write_bytes(output)
 
 
-def read_binary(path: Path) -> dict[str, object]:
-    data = path.read_bytes()
+def decode_binary(data: bytes, context: str) -> dict[str, object]:
     offset = 0
-    if data[:len(MAGIC)] != MAGIC:
-        fail(f"{path}: invalid magic")
+    magic = data[:len(MAGIC)]
+    if magic not in (MAGIC, LEGACY_MAGIC):
+        fail(f"{context}: invalid magic")
+    optimized = magic == MAGIC
     offset += len(MAGIC)
-    kind, offset = unpack_u8(data, offset, str(path))
-    structure_id_value, offset = decode_id(data, offset, str(path))
+    kind, offset = unpack_u8(data, offset, context)
+    structure_id_value, offset = decode_id(data, offset, context)
 
     if kind == KIND_FACTORY_PATTERN:
-        aisles, offset = decode_grid(data, offset, str(path))
+        aisles, offset = decode_grid(data, offset, context, optimized)
         result = {
             "version": 1,
             "type": "factory_pattern",
@@ -464,12 +529,12 @@ def read_binary(path: Path) -> dict[str, object]:
             "aisles": aisles,
         }
     elif kind == KIND_RING_SET:
-        ring_count, offset = unpack_u16(data, offset, f"{path}: ring count")
+        ring_count, offset = unpack_u16(data, offset, f"{context}: ring count")
         if ring_count == 0:
-            fail(f"{path}: ring count must be non-zero")
+            fail(f"{context}: ring count must be non-zero")
         rings = []
         for ring_index in range(ring_count):
-            ring, offset = decode_grid(data, offset, f"{path}: ring {ring_index}")
+            ring, offset = decode_grid(data, offset, f"{context}: ring {ring_index}", optimized)
             rings.append(ring)
         result = {
             "version": 1,
@@ -478,11 +543,15 @@ def read_binary(path: Path) -> dict[str, object]:
             "rings": rings,
         }
     else:
-        fail(f"{path}: unknown kind {kind}")
+        fail(f"{context}: unknown kind {kind}")
 
     if offset != len(data):
-        fail(f"{path}: trailing {len(data) - offset} bytes")
+        fail(f"{context}: trailing {len(data) - offset} bytes")
     return result
+
+
+def read_binary(path: Path) -> dict[str, object]:
+    return decode_binary(path.read_bytes(), str(path))
 
 
 def light_hunter_arrays() -> dict[str, list[str]]:
@@ -677,6 +746,8 @@ def verify() -> int:
 
     for source_path in files:
         resource_path = resource_path_for(source_path)
+        if resource_path.read_bytes()[:len(MAGIC)] != MAGIC:
+            fail(f"{resource_path.relative_to(ROOT)} uses an old structure format; run generate")
         source_data = canonicalize(read_json(source_path), str(source_path.relative_to(ROOT)))
         resource_data = canonicalize(read_binary(resource_path), str(resource_path.relative_to(ROOT)))
         if source_data != resource_data:
