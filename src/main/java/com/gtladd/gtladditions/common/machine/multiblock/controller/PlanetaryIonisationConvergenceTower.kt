@@ -229,7 +229,7 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
         ADAMANTINE(Adamantine, 0x3fffffff8000, 0x3fffffff80, 1),
         NAQUADRIATIC_TARANIUM(NaquadriaticTaranium, 0x3fffffff80000, 0x7fffffff00, 2),
         STAR_METAL(Starmetal, 0x1ffffffffc0000, 0x3fffffff800, 2),
-        INFINITY(Infinity, 0x3fffffff80000, 0x7fffffff000, 3),
+        INFINITY(Infinity, 0x3fffffff800000, 0x7fffffff000, 3),
         HYPOGEN(Hypogen, 0x1ffffffffc00000, 0x3fffffff8000, 3),
         ETERNITY(Eternity, 0x7fffffff0000000, 0xfffffffe0000, 3)
     }
