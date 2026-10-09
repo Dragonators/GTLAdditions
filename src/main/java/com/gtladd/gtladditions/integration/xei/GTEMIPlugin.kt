@@ -13,6 +13,8 @@ import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 @EmiEntrypoint
 class GTEMIPlugin : EmiPlugin {
     override fun register(registry: EmiRegistry) {
+        registry.addGenericDragDropHandler(TerminalSearchBoxEmiHandler)
+
         if (LDLib.isReiLoaded() || LDLib.isJeiLoaded()) return
 
         registry.addWorkstation(VanillaEmiRecipeCategories.SMELTING, EmiStack.of(HELIOFLARE_POWER_FORGE.asStack()))

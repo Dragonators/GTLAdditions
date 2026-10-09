@@ -6,10 +6,12 @@ import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponent
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import committee.nova.mods.avaritia.init.registry.ModItems
 import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.Component
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.event.entity.player.ItemTooltipEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.registries.ForgeRegistries
 import net.povstalec.sgjourney.common.init.BlockInit
 
 @Suppress("unused")
@@ -19,6 +21,19 @@ object TooltipHandler {
     @JvmStatic
     fun onItemTooltip(event: ItemTooltipEvent) {
         val stack = event.itemStack
+
+        ForgeRegistries.ITEMS.getKey(stack.item)?.let { id ->
+            val radius = ChargeExplosionHandler.radiusForCharge(id)
+            if (radius > 0) {
+                event.toolTip.add(createLanguageRainbowComponent("gui.gtladditions.modify".toComponent))
+
+                val activationId = ChargeExplosionHandler.activationItemForCharge(id) ?: return@let
+                val activationName = ForgeRegistries.ITEMS.getValue(activationId)?.description
+                    ?: Component.literal(activationId.toString())
+
+                event.toolTip.add("tooltip.gtladditions.item.explosion".toComponent(activationName, radius))
+            }
+        }
 
         when {
             stack.`is`(ModItems.neutron_ring.get()) -> {

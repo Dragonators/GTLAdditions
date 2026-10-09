@@ -391,6 +391,7 @@
   "tooltip.gtladditions.dialog.3": "- §bLantea§r: -18-20-1-15-14-7-19-",
   "tooltip.gtladditions.dimension.forbidden": "§c§lThis dimension is forbidden to teleport to!!",
   "tooltip.gtladditions.discontinued": "§4§lDiscontinued; Cannot be crafted",
+  "tooltip.gtladditions.item.explosion": "Right-click with one %s to detonate; clears a sphere with a %s-block radius",
   "tooltip.gtladditions.industrial_array_max": "Unlocked Paradoxical Attainment",
   "tooltip.gtladditions.recursive_reverse_array_module": "Recursive Reverse Array buff module",
   "tooltip.gtladditions.stargate_structure.0": "Hold Shift to view structure",

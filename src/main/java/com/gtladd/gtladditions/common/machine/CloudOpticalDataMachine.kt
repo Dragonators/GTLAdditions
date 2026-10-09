@@ -164,7 +164,7 @@ class CloudOpticalDataMachine(holder: IMachineBlockEntity) :
             hasPower = true
             return
         }
-        hasPower = energyContainer.removeEnergy(demand) >= demand
+        hasPower = energyContainer.energyStored >= demand && energyContainer.removeEnergy(demand) >= demand
     }
 
     fun rebuildData() {

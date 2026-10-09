@@ -22,6 +22,7 @@ categories:
 * <ItemLink id="ae2:formation_plane" link={false} /> 的物品实体成型被强化后，一次操作可以向世界中丢出更多组物品。
 * ~~你不会想要知道这是为什么的~~
 * 单次成型轮数受配置控制，并仍会受到 AE2 成型面板实体数量限制影响。
+* 可以将 JEI 或 EMI 中的物品、流体拖入 AE2 终端搜索框，用其名称替换当前搜索文本。
 * <ItemLink id="ae2:annihilation_plane" link={false} /> 可以正常破坏并回收 <ItemLink id="minecraft:chain_command_block" link={false} /> 与 <ItemLink id="minecraft:repeating_command_block" link={false} />，用于承接创造聚合仪相关自动化。
 
 </Column>

@@ -20,3 +20,4 @@ categories:
 * [分子操纵者与无尽合成模块](molecular_assembler_matrix.md)
 * [无线能源显示与监控](wireless_energy_monitor.md)
 * [AE2 自动化](ae2_automation.md)
+* [高能爆弹](high_energy_bombs.md)
