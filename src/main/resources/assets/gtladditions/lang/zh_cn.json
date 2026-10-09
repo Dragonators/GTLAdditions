@@ -79,6 +79,7 @@
   "block.gtladditions.wireless_energy_network_input_terminal": "§d无线电网输入终端",
   "block.gtladditions.wireless_energy_network_output_terminal": "§d无线电网输出终端",
   "config.gtladditions.option.ae2": "AE2兼容配置",
+  "config.gtladditions.option.enableChargeExplosions": "使用高能爆弹",
   "config.gtladditions.option.formationPlaneItemEntityOutputRounds": "成型面板物品实体输出轮数",
   "config.gtladditions.option.maxPages": "最大页数",
   "config.gtladditions.option.patternsPerRow": "每行样板数量",

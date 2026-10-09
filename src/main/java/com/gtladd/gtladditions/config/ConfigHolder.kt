@@ -18,6 +18,11 @@ class ConfigHolder {
     @JvmField
     var ae2 = AE2Config()
 
+    @Configurable
+    @Configurable.Comment("允许引爆超能硅岩、轻子和量子色动力学爆弹")
+    @JvmField
+    var enableChargeExplosions = false
+
     companion object {
         @JvmStatic
         val INSTANCE: ConfigHolder by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {

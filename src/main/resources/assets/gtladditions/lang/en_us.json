@@ -79,6 +79,7 @@
   "block.gtladditions.wireless_energy_network_input_terminal": "§dWireless Energy Network Input Terminal",
   "block.gtladditions.wireless_energy_network_output_terminal": "§dWireless Energy Network Output Terminal",
   "config.gtladditions.option.ae2": "AE2 Compatibility",
+  "config.gtladditions.option.enableChargeExplosions": "Use High-Energy Charges",
   "config.gtladditions.option.formationPlaneItemEntityOutputRounds": "Formation Plane Item Entity Output Rounds",
   "config.gtladditions.option.maxPages": "Max Pages",
   "config.gtladditions.option.patternsPerRow": "Patterns Per Row",
