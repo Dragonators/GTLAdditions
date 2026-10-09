@@ -75,6 +75,10 @@
     "stargatejourney.stargate.StargateStructureMixin"
   ],
   "client": [
+    "ae2.client.AEBaseScreenAccessor",
+    "ae2.client.WidgetContainerAccessor",
+    "ae2.client.JeiGhostIngredientHandlerMixin",
+    "minecraft.client.EditBoxAccessor",
     "minecraft.client.ClientLevelChunkCacheMixin",
     "oculus.DepthColorStorageAccessor",
     "oculus.IrisRenderingPipelineMixin",

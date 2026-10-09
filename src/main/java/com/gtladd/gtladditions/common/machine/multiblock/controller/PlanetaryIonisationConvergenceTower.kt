@@ -18,6 +18,7 @@ import com.gtladd.gtladditions.api.machine.gui.MultiblockDisplayText
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ComponentExtensions.translatable
 import com.gtladd.gtladditions.utils.MachineUtil.input
+import com.gtladd.gtladditions.utils.SynchronousSphereExplosion
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -26,7 +27,6 @@ import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.Blocks
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeStatus
@@ -41,14 +41,17 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
     StorageMachine(holder, 64),
     IExplosionMachine {
 
-    @Persisted
+    @field:Persisted
     private var storageEUt = 0L
 
-    @Persisted
+    @field:Persisted
     private var cycleAmount = 0
 
-    @Persisted
+    @field:Persisted
     private var startCycle = false
+
+    @field:Persisted
+    private var fired = false
 
     private var coilEnergy: CoilToEnergy? = null
     private var stellarTier = 0
@@ -148,58 +151,37 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
-    private val sphereOffsetCache = mutableMapOf<Int, IntArray>()
-
-    private fun getSphereOffsets(radius: Int): IntArray = sphereOffsetCache.getOrPut(radius) {
-        val list = ArrayList<Int>((4.19 * radius * radius * radius).toInt() + 100)
-        val radiusSquared = radius * radius
-        for (dx in -radius..radius) {
-            val dxSquared = dx * dx
-            for (dy in -radius..radius) {
-                val dxDySquared = dxSquared + dy * dy
-                for (dz in -radius..radius) {
-                    if (dxDySquared + dz * dz <= radiusSquared) {
-                        list.add(((dx + radius) shl 16) or ((dy + radius) shl 8) or (dz + radius))
-                    }
-                }
-            }
-        }
-        list.toIntArray()
-    }
-
     override fun doExplosion(pos: BlockPos, explosionPower: Float) {
-        val currentLevel = level ?: return
-        currentLevel.removeBlock(this.pos, false)
+        if (fired) return
 
+        val currentLevel = level as? ServerLevel ?: return
         val radius = explosionPower.toInt()
         if (radius <= 0) return
 
-        val mutablePos = BlockPos.MutableBlockPos()
-        val airState = Blocks.AIR.defaultBlockState()
-        val minResistanceToKeep = 3_600_000f
+        fired = true
+        storageEUt = 0L
+        startCycle = false
+        isWorkingEnabled = false
 
-        for (encodedOffset in getSphereOffsets(radius)) {
-            val dx = (encodedOffset shr 16 and 0xFF) - radius
-            val dy = (encodedOffset shr 8 and 0xFF) - radius
-            val dz = (encodedOffset and 0xFF) - radius
-
-            mutablePos.set(pos.x + dx, pos.y + dy, pos.z + dz)
-            val state = currentLevel.getBlockState(mutablePos)
-            if (state.isAir) continue
-
-            val resistance = state.block.getExplosionResistance(state, currentLevel, mutablePos, null)
-            if (resistance >= minResistanceToKeep) continue
-
-            currentLevel.setBlock(mutablePos, airState, 2)
-        }
+        currentLevel.removeBlock(this.pos, false)
+        SynchronousSphereExplosion.explode(
+            currentLevel,
+            pos,
+            radius,
+            SynchronousSphereExplosion.Profile.PLANETARY_TOWER
+        )
     }
 
     private fun addStorageEUt(start: Boolean): Long {
+        if (fired) return 0L
+
         val addEUt = if (start) coilEnergy?.instantPower ?: 0 else coilEnergy?.dischargePower ?: 0
-        storageEUt += addEUt
-        if (storageEUt > maxStorageEUt) {
+        if (storageEUt > maxStorageEUt || addEUt > maxStorageEUt - storageEUt) {
             doExplosion(pos, 80f)
+            return 0L
         }
+
+        storageEUt += addEUt
         return addEUt
     }
 
@@ -265,6 +247,14 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
             }
 
             override fun serverTick() {
+                if (pictMachine.fired) {
+                    status = Status.IDLE
+                    progress = 0
+                    subscription?.unsubscribe()
+                    subscription = null
+                    return
+                }
+
                 if (!isSuspend) {
                     if (progress < DURATION) {
                         handleRecipeWorking()
@@ -357,12 +347,20 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
                     }
                 }
                 if (pictMachine.startCycle) {
+                    val generatedEUt = pictMachine.addStorageEUt(progress == 0)
+                    if (pictMachine.fired) {
+                        status = Status.IDLE
+                        progress = 0
+                        return
+                    }
+
                     val actualEUt = min(
                         pictMachine.energyContainer.energyCanBeInserted,
-                        pictMachine.addStorageEUt(progress == 0)
+                        generatedEUt
                     )
                     pictMachine.energyContainer.addEnergy(actualEUt)
                     pictMachine.storageEUt -= actualEUt
+
                     this.status = Status.WORKING
                     ++this.progress
                 } else {

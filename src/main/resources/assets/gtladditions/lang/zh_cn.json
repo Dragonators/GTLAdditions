@@ -389,6 +389,7 @@
   "tooltip.gtladditions.dialog.3": "- §bLantea§r: -18-20-1-15-14-7-19-",
   "tooltip.gtladditions.dimension.forbidden": "§c§l此维度禁止传送!!",
   "tooltip.gtladditions.discontinued": "§4§l已废弃，不可合成",
+  "tooltip.gtladditions.item.explosion": "消耗一个%s右键引爆，球形清除半径为%s格",
   "tooltip.gtladditions.industrial_array_max": "已解锁悖论实现理论",
   "tooltip.gtladditions.recursive_reverse_array_module": "递归反演阵列增益模块",
   "tooltip.gtladditions.stargate_structure.0": "按住Shift以查看具体结构",
