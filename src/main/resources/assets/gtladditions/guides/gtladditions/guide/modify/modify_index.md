@@ -21,3 +21,4 @@ This section lists confirmed local changes to existing machines and hatches.
 * [Wireless Energy Display and Monitoring](wireless_energy_monitor.md)
 * [AE2 Automation](ae2_automation.md)
 * [High-Energy Bombs](high_energy_bombs.md)
+* [Building Gadgets](building_gadgets.md)

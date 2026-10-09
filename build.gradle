@@ -153,6 +153,7 @@ dependencies {
     modImplementation("dev:gtmthings-1.3.5.a")
     modImplementation("dev:gtlcore-1.2.3.2-fix3")
     modImplementation("curse.maven:guideme-1173950:7127447")
+    modImplementation("curse.maven:building-gadgets-298187:6850495") { transitive = false }
 
     // Adds KFF as dependency and Kotlin libs (use the variant matching your mod loader)
     include(modImplementation("thedarkcolour:kotlinforforge:4.11.0"))
