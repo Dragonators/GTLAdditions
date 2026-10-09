@@ -50,6 +50,7 @@
     "gtmtings.WirelessEnergyMonitorMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMixin",
     "guide.DefaultExtensionsMixin",
+    "kjs.BasicBlockBuilderMixin",
     "ldlib.FluidHelperImplMixin",
     "ldlib.FluidStackMixin",
     "mc.RecipeManagerMixin",
