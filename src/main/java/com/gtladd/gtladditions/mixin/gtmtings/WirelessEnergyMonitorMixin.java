@@ -6,15 +6,23 @@ import org.gtlcore.gtlcore.utils.NumberUtils;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.feature.IInteractedMachine;
 
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
+import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.gtladd.gtladditions.common.data.MachineEnergyData;
+import com.gtladd.gtladditions.integration.buildinggadgets2.BuildingGadgetsWirelessEnergySupport;
 import com.gtladd.gtladditions.utils.CommonUtils;
 import com.hepdd.gtmthings.common.block.machine.electric.WirelessEnergyMonitor;
 import com.hepdd.gtmthings.utils.TeamUtil;
@@ -36,7 +44,7 @@ import static com.hepdd.gtmthings.api.misc.WirelessEnergyManager.getUserEU;
 import static com.hepdd.gtmthings.utils.TeamUtil.GetName;
 
 @Mixin(WirelessEnergyMonitor.class)
-public abstract class WirelessEnergyMonitorMixin extends MetaMachine {
+public abstract class WirelessEnergyMonitorMixin extends MetaMachine implements IInteractedMachine {
 
     @Unique
     private List<MachineEnergyData> gtladditions$cachedSortedBigEntries = null;
@@ -57,6 +65,16 @@ public abstract class WirelessEnergyMonitorMixin extends MetaMachine {
 
     public WirelessEnergyMonitorMixin(IMachineBlockEntity holder) {
         super(holder);
+    }
+
+    @Override
+    public boolean onLeftClick(Player player, Level level, InteractionHand hand, BlockPos pos, Direction direction) {
+        if (hand != InteractionHand.MAIN_HAND ||
+                !(player.getMainHandItem().getItem() instanceof BaseGadget)) {
+            return false;
+        }
+        BuildingGadgetsWirelessEnergySupport.toggleBinding(player, player.getMainHandItem());
+        return true;
     }
 
     @Unique

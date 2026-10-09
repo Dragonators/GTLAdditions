@@ -21,3 +21,4 @@ categories:
 * [无线能源显示与监控](wireless_energy_monitor.md)
 * [AE2 自动化](ae2_automation.md)
 * [高能爆弹](high_energy_bombs.md)
+* [建筑小帮手](building_gadgets.md)

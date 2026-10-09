@@ -8,6 +8,11 @@
     "ae2.FluidIngredientConverterMixin",
     "ae2.ItemPlacementStrategyMixin",
     "ae2.ItemPickupStrategyMixin",
+    "buildinggadgets2.BuildingUtilsMixin",
+    "buildinggadgets2.CopyMixin",
+    "buildinggadgets2.GadgetCutPasteMixin",
+    "buildinggadgets2.ServerTickHandlerMixin",
+    "buildinggadgets2.RenderBlockBEMixin",
     "gtceu.api.capability.CWURecipeCapabilityMixin",
     "gtceu.api.machine.IFancyUIMachineMixin",
     "gtceu.api.pattern.BlockPatternAccessor",
@@ -76,6 +81,7 @@
     "stargatejourney.stargate.StargateStructureMixin"
   ],
   "client": [
+    "buildinggadgets2.BaseGadgetMixin",
     "ae2.client.AEBaseScreenAccessor",
     "ae2.client.WidgetContainerAccessor",
     "ae2.client.JeiGhostIngredientHandlerMixin",
