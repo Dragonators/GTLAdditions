@@ -29,6 +29,7 @@
   "gtceu.machine.block_conversation.fail.0": "Missing AE Item Storage Cell",
   "gtceu.machine.block_conversation.fail.1": "The Storage Cell for AE Items is full",
   "gtceu.machine.block_conversation.fail.2": "Missing Conversion Card",
+  "gtceu.machine.block_conversation.fail.3": "The AE Item Storage Cell cannot accept the conversion result",
   "gtceu.machine.block_conversation.tooltip.0": "Input and output items for the MultiBlock Machine",
   "gtceu.machine.block_conversation.tooltip.1": "The capacity is determined by the internal Item cell",
   "gtceu.machine.magnetorheological_convergence_core.gui.tooltip.-1": "Item %s is correct",

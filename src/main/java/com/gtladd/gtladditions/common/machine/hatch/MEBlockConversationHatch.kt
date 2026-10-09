@@ -92,6 +92,18 @@ class MEBlockConversationHatch(holder: IMachineBlockEntity) :
 
     fun insertCell(what: AEItemKey, amount: Long, mode: Actionable) = this.getCellInventory()!!.insert(what, amount, mode, actionSource)
 
+    fun canInsertCell(what: AEItemKey, amount: Long): Boolean =
+        amount > 0 && (getCellInventory()?.insert(what, amount, Actionable.SIMULATE, actionSource) ?: 0) > 0
+
+    fun addConversionChangedListener(listener: Runnable): ISubscription {
+        val cellSubscription = machineStorage.addChangedListener(listener)
+        val inputSubscription = aeItemHandler.addChangedListener(listener)
+        return ISubscription {
+            cellSubscription.unsubscribe()
+            inputSubscription.unsubscribe()
+        }
+    }
+
     override fun createUIWidget(): Widget {
         val group = WidgetGroup(0, 0, 152, 80)
         val container = WidgetGroup(4, 4, 144, 72).also {
@@ -165,12 +177,16 @@ class MEBlockConversationHatch(holder: IMachineBlockEntity) :
     }
 
     private fun refundCell(inventory: MEStorage) = getCellInventory()?.let {
+        var changed = false
         val k = it.availableStacks.iterator()
         while (k.hasNext()) {
             val e = k.next()
             val n = inventory.insert(e.key, e.longValue, Actionable.MODULATE, actionSource)
-            if (n > 0) it.extract(e.key, n, Actionable.MODULATE, actionSource)
+            if (n > 0 && it.extract(e.key, n, Actionable.MODULATE, actionSource) > 0) {
+                changed = true
+            }
         }
+        if (changed) machineStorage.onContentsChanged()
     }
 
     private fun shouldSubscribe() = this.isWorkingEnabled() && this.isOnline()

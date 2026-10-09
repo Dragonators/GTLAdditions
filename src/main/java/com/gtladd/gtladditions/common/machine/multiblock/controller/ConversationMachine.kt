@@ -29,6 +29,7 @@ import com.lowdragmc.lowdraglib.gui.widget.SlotWidget
 import com.lowdragmc.lowdraglib.gui.widget.Widget
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
 import com.lowdragmc.lowdraglib.misc.ItemStackTransfer
+import com.lowdragmc.lowdraglib.syncdata.ISubscription
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.Hash
@@ -52,6 +53,7 @@ class ConversationMachine(holder: IMachineBlockEntity) :
     IMachineModifyDrops {
 
     private var bcHatch: MEBlockConversationHatch? = null
+    private var hatchSubscription: ISubscription? = null
 
     @Persisted
     private val machineStorage: NotifiableItemStackHandler = NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH) {
@@ -102,6 +104,60 @@ class ConversationMachine(holder: IMachineBlockEntity) :
         return false
     }
 
+    private fun beforeWork(): Boolean {
+        if (cardId == 0 || parallel <= 0) {
+            RecipeResult.ofWorking(this, fail("gtceu.machine.block_conversation.fail.2".toComponent))
+            return false
+        }
+
+        val hatch = bcHatch
+        val cell = hatch?.getCellInventory()
+
+        if (cell == null) {
+            RecipeResult.ofWorking(this, fail("gtceu.machine.block_conversation.fail.0".toComponent))
+            return false
+        }
+        if (cell.status == CellState.FULL || cell.status == CellState.TYPES_FULL) {
+            RecipeResult.ofWorking(this, fail("gtceu.machine.block_conversation.fail.1".toComponent))
+            return false
+        }
+
+        val amount = min(parallel, (cell as? BasicCellInventory)?.remainingItemCount ?: Long.MAX_VALUE)
+        var hasInput = false
+
+        for (slot in hatch.aeItemHandler.inventory) {
+            val stack = slot.getStackInSlot(0)
+            if (stack.isEmpty) continue
+            val output = blockMap[stack.item] ?: continue
+
+            hasInput = true
+            val available = (slot as IMETransfer).extractGenericStack(amount, true, false)?.amount ?: 0
+            if (hatch.canInsertCell(AEItemKey.of(output), available)) {
+                RecipeResult.ofWorking(this, null)
+                return true
+            }
+            // These cards finish after the first matching input slot.
+            if (cardId < 3) break
+        }
+
+        RecipeResult.ofWorking(
+            this,
+            if (hasInput) fail("gtceu.machine.block_conversation.fail.3".toComponent) else RecipeResult.FAIL_FIND
+        )
+        return false
+    }
+
+    private fun onConversionInputsChanged() {
+        if (!isRemote && isFormed() && recipeLogic.isIdle) {
+            recipeLogic.updateTickSubscription()
+        }
+    }
+
+    private fun unsubscribeHatch() {
+        hatchSubscription?.unsubscribe()
+        hatchSubscription = null
+    }
+
     override fun getRecipeLogic() = super.getRecipeLogic() as ConversationRecipeLogic
 
     override fun createRecipeLogic(vararg args: Any) = ConversationRecipeLogic(this)
@@ -114,18 +170,22 @@ class ConversationMachine(holder: IMachineBlockEntity) :
 
     override fun onStructureFormed() {
         super.onStructureFormed()
+        unsubscribeHatch()
+        bcHatch = null
         refreshParallel()
         parts.forEach {
             if (it is MEBlockConversationHatch) {
-                this.bcHatch = it
+                bcHatch = it
+                hatchSubscription = it.addConversionChangedListener(::onConversionInputsChanged)
                 return
             }
         }
     }
 
     override fun onStructureInvalid() {
+        unsubscribeHatch()
         super.onStructureInvalid()
-        this.bcHatch = null
+        bcHatch = null
     }
 
     override fun onDrops(drops: MutableList<ItemStack>) = this.clearInventory(this.machineStorage.storage)
@@ -230,6 +290,13 @@ class ConversationMachine(holder: IMachineBlockEntity) :
 
             override fun findAndHandleRecipe() {
                 lastRecipe = null
+                recipeDirty = false
+                if (!cMachine.beforeWork()) {
+                    status = Status.IDLE
+                    progress = 0
+                    duration = 0
+                    return
+                }
                 setupRecipe(RAW_RECIPE)
             }
 
@@ -261,7 +328,7 @@ class ConversationMachine(holder: IMachineBlockEntity) :
 
             override fun onRecipeFinish() {
                 cMachine.afterWorking()
-                setupRecipe(RAW_RECIPE)
+                findAndHandleRecipe()
             }
         }
     }

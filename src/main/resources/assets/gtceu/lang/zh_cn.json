@@ -29,6 +29,7 @@
   "gtceu.machine.block_conversation.fail.0": "缺少AE物品存储磁盘",
   "gtceu.machine.block_conversation.fail.1": "AE物品存储磁盘已满",
   "gtceu.machine.block_conversation.fail.2": "缺少转换卡",
+  "gtceu.machine.block_conversation.fail.3": "AE物品存储磁盘无法写入转换结果",
   "gtceu.machine.block_conversation.tooltip.0": "为多方块机器输入输出物品",
   "gtceu.machine.block_conversation.tooltip.1": "容量由内部物品磁盘决定",
   "gtceu.machine.magnetorheological_convergence_core.gui.tooltip.-1": "物品%s无误",
