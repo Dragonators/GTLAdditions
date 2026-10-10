@@ -9,8 +9,8 @@ import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.gui.widget.CloudComputationMonitorOverviewPage
-import com.gtladd.gtladditions.utils.CloudNetworkManager
-import com.gtladd.gtladditions.utils.CloudTeamUtil
+import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager
+import com.gtladd.gtladditions.utils.cloud.CloudTeamUtil
 import com.hepdd.gtmthings.api.capability.IBindable
 import com.hepdd.gtmthings.utils.TeamUtil
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget

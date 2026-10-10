@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.integration.ae2
+package com.gtladd.gtladditions.api.machine
 
 import appeng.api.stacks.AEFluidKey
 import appeng.api.stacks.AEItemKey
@@ -8,18 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import org.gtlcore.gtlcore.utils.datastructure.Int128
 
-interface WidePatternBufferAccess {
-    /** Live owned inventory; readers must not mutate or retain its amounts for temporary arithmetic. */
-    fun widePending(): Object2ObjectOpenHashMap<AEKey, Int128>?
-}
-
-interface WidePatternSlots {
-    fun wideSlot(index: Int): WidePatternSlot
-
-    fun wideSlotCount(): Int
-}
-
-interface WidePatternSlot {
+interface IWidePatternSlot {
     /** Live owned inventory; quantity writes belong to the buffer's input, refund and restore paths. */
     fun wideInputs(): Object2ObjectOpenHashMap<AEKey, Int128>
 

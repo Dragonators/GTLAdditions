@@ -15,17 +15,20 @@ import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient
 import com.gregtechceu.gtceu.common.data.GTItems
 import com.gregtechceu.gtceu.integration.ae2.gui.widget.AETextInputButtonWidget
 import com.gregtechceu.gtceu.utils.ResearchManager
+import com.gtladd.gtladditions.api.machine.IWidePatternBuffer
+import com.gtladd.gtladditions.api.machine.IWidePatternSlot
 import com.gtladd.gtladditions.api.machine.gui.FOAPatternConfigurator
 import com.gtladd.gtladditions.integration.ae2.*
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
-import com.gtladd.gtladditions.utils.Int128Accumulator
-import com.gtladd.gtladditions.utils.compareTo
-import com.gtladd.gtladditions.utils.getBestFluidMatch
-import com.gtladd.gtladditions.utils.getBestFluidMatchSimulate
-import com.gtladd.gtladditions.utils.getBestItemMatch
-import com.gtladd.gtladditions.utils.getBestItemMatchSimulate
-import com.gtladd.gtladditions.utils.longValue
-import com.gtladd.gtladditions.utils.saturatedAdd
+import com.gtladd.gtladditions.utils.wideBuffer.Int128Accumulator
+import com.gtladd.gtladditions.utils.wideBuffer.WideBufferTools
+import com.gtladd.gtladditions.utils.wideBuffer.compareTo
+import com.gtladd.gtladditions.utils.wideBuffer.getBestFluidMatch
+import com.gtladd.gtladditions.utils.wideBuffer.getBestFluidMatchSimulate
+import com.gtladd.gtladditions.utils.wideBuffer.getBestItemMatch
+import com.gtladd.gtladditions.utils.wideBuffer.getBestItemMatchSimulate
+import com.gtladd.gtladditions.utils.wideBuffer.longValue
+import com.gtladd.gtladditions.utils.wideBuffer.saturatedAdd
 import com.lowdragmc.lowdraglib.gui.util.ClickData
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget
 import com.lowdragmc.lowdraglib.gui.widget.Widget
@@ -60,8 +63,7 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
     rowsPerPage: Int = 6,
     maxPages: Int = 3
 ) : MEPatternBufferPartMachine(holder, patternsPerRow * rowsPerPage * maxPages, IO.BOTH),
-    WidePatternBufferAccess,
-    WidePatternSlots {
+    IWidePatternBuffer {
 
     private val paginationUIManager: PaginationUIManager
     private val pending = Object2ObjectOpenHashMap<AEKey, Int128>()
@@ -163,7 +165,7 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
     // BUFFER ACCESS AND REFUNDS
     // ========================================
 
-    override fun wideSlot(index: Int): WidePatternSlot = internalInventory[index] as SuperPatternBufferInternalSlot
+    override fun wideSlot(index: Int): IWidePatternSlot = internalInventory[index] as SuperPatternBufferInternalSlot
 
     override fun wideSlotCount(): Int = internalInventory.size
 
@@ -368,7 +370,7 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
 
     private inner class SuperPatternBufferInternalSlot(slotIndex: Int) :
         PatternBufferInternalSlot(slotIndex),
-        WidePatternSlot {
+        IWidePatternSlot {
         private val inputs = Object2ObjectOpenHashMap<AEKey, Int128>()
 
         override fun wideInputs() = inputs

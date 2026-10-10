@@ -8,7 +8,7 @@ import com.gtladd.gtladditions.common.data.CloudMachineSnapshot
 import com.gtladd.gtladditions.common.data.ComputationLiveSnapshot
 import com.gtladd.gtladditions.common.data.ComputationTopologySnapshot
 import com.gtladd.gtladditions.events.ClientCloudHighlighter
-import com.gtladd.gtladditions.utils.CloudNetworkManager
+import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager
 import com.lowdragmc.lowdraglib.LDLib
 import com.lowdragmc.lowdraglib.gui.editor.ColorPattern
 import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture

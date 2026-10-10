@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.integration.ae2
+package com.gtladd.gtladditions.utils.wideBuffer
 
 import appeng.api.networking.IGrid
 import appeng.api.networking.security.IActionSource
@@ -8,9 +8,6 @@ import appeng.api.stacks.AEKey
 import appeng.api.storage.StorageHelper
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient
 import com.gregtechceu.gtceu.api.recipe.ingredient.IntProviderIngredient
-import com.gtladd.gtladditions.utils.compareTo
-import com.gtladd.gtladditions.utils.longValue
-import com.gtladd.gtladditions.utils.saturatedAdd
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps

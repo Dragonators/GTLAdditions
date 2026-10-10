@@ -1,9 +1,11 @@
-package com.gtladd.gtladditions.integration.ae2
+package com.gtladd.gtladditions.utils.wideBuffer
 
 import appeng.api.stacks.AEFluidKey
 import appeng.api.stacks.AEItemKey
 import appeng.api.stacks.AEKey
 import com.gregtechceu.gtceu.integration.jade.GTElementHelper
+import com.gtladd.gtladditions.api.machine.IWidePatternBuffer
+import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import net.minecraft.ChatFormatting
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
@@ -36,7 +38,7 @@ object WideBufferDisplay {
 
         val items = linkedMapOf<Item, BigInteger>()
         val fluids = linkedMapOf<Fluid, BigInteger>()
-        val slots = machine as WidePatternSlots
+        val slots = machine as IWidePatternBuffer
 
         for (index in 0 until slots.wideSlotCount()) {
             val slot = slots.wideSlot(index)
@@ -59,7 +61,7 @@ object WideBufferDisplay {
             if (it is ItemStack && !it.isEmpty) items.merge(it.item, BigInteger.valueOf(it.count.toLong()), BigInteger::add)
         }
         machine.sharedCatalystTank.contents.forEach {
-            if (it is com.lowdragmc.lowdraglib.side.fluid.FluidStack && !it.isEmpty) fluids.merge(it.fluid, BigInteger.valueOf(it.amount), BigInteger::add)
+            if (it is FluidStack && !it.isEmpty) fluids.merge(it.fluid, BigInteger.valueOf(it.amount), BigInteger::add)
         }
 
         val itemTags = ListTag()

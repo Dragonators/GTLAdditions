@@ -10,8 +10,8 @@ import com.gregtechceu.gtceu.api.machine.multiblock.part.MultiblockPartMachine
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.research.DataBankMachine
 import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition
-import com.gtladd.gtladditions.utils.CloudNetworkManager
-import com.gtladd.gtladditions.utils.CloudTeamUtil
+import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager
+import com.gtladd.gtladditions.utils.cloud.CloudTeamUtil
 import com.hepdd.gtmthings.api.capability.IBindable
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted

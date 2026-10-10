@@ -5,7 +5,7 @@ import com.gregtechceu.gtceu.common.machine.multiblock.electric.research.Researc
 
 import net.minecraft.world.item.ItemStack;
 
-import com.gtladd.gtladditions.utils.CloudNetworkManager;
+import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager;
 import com.hepdd.gtmthings.api.capability.IBindable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

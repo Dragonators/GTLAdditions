@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.utils
+package com.gtladd.gtladditions.utils.wideBuffer
 
 import org.gtlcore.gtlcore.utils.datastructure.Int128
 

@@ -7,8 +7,8 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController
 import com.gregtechceu.gtceu.api.machine.multiblock.part.MultiblockPartMachine
 import com.gtladd.gtladditions.api.machine.trait.CloudOpticalComputationContainer
-import com.gtladd.gtladditions.utils.CloudNetworkManager
-import com.gtladd.gtladditions.utils.CloudTeamUtil
+import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager
+import com.gtladd.gtladditions.utils.cloud.CloudTeamUtil
 import com.hepdd.gtmthings.api.capability.IBindable
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted

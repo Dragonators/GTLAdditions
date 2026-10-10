@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.utils
+package com.gtladd.gtladditions.utils.cloud
 
 import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider
 import com.gregtechceu.gtceu.api.capability.IOpticalComputationReceiver
