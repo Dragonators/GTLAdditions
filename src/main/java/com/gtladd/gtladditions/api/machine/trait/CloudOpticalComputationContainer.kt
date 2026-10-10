@@ -8,8 +8,8 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableComputationContainer
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gtladd.gtladditions.common.machine.hatch.CloudOpticalComputationHatchMachine
-import com.gtladd.gtladditions.utils.CloudNetworkManager
-import com.gtladd.gtladditions.utils.canBridgeCloud
+import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager
+import com.gtladd.gtladditions.utils.cloud.canBridgeCloud
 
 class CloudOpticalComputationContainer(
     machine: MetaMachine,

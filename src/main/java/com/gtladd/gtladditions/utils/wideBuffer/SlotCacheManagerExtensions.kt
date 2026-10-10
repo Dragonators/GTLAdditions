@@ -1,6 +1,6 @@
 @file:JvmName("SlotCacheManagerExtensions")
 
-package com.gtladd.gtladditions.utils
+package com.gtladd.gtladditions.utils.wideBuffer
 
 import appeng.api.stacks.AEFluidKey
 import appeng.api.stacks.AEItemKey

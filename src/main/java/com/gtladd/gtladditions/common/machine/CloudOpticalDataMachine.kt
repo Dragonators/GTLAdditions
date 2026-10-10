@@ -16,8 +16,8 @@ import com.gregtechceu.gtceu.client.util.TooltipHelper
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gregtechceu.gtceu.utils.ResearchManager
-import com.gtladd.gtladditions.utils.CloudNetworkManager
-import com.gtladd.gtladditions.utils.CloudTeamUtil
+import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager
+import com.gtladd.gtladditions.utils.cloud.CloudTeamUtil
 import com.hepdd.gtmthings.api.capability.IBindable
 import com.hepdd.gtmthings.utils.TeamUtil
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget

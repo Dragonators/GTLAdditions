@@ -5,7 +5,7 @@ import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gtladd.gtladditions.common.machine.hatch.CloudOpticalComputationHatchMachine
-import com.gtladd.gtladditions.utils.CloudNetworkManager
+import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager
 import com.hepdd.gtmthings.api.capability.IBindable
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag

@@ -1,8 +1,8 @@
 package com.gtladd.gtladditions.events
 
 import com.gtladd.gtladditions.GTLAdditions.Companion.MOD_ID
-import com.gtladd.gtladditions.utils.CloudNetworkManager
 import com.gtladd.gtladditions.utils.antichrist.ServerMachineManager
+import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager
 import net.minecraft.server.level.ServerLevel
 import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.event.server.ServerStoppingEvent

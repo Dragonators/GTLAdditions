@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.utils
+package com.gtladd.gtladditions.utils.cloud
 
 import com.hepdd.gtmthings.api.capability.IBindable
 import com.hepdd.gtmthings.utils.TeamUtil
