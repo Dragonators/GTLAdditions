@@ -116,6 +116,7 @@
   "gtladditions.machine.magnetorheological_convergence_core.required_item": "所需物品%1$s：%2$s x%3$s",
   "gtladditions.machine.antientropy_condensation_center.heat_capacitor": "相对论级热容嵌入：[%s]",
   "gtladditions.machine.me_super_pattern_buffer.desc.0": "在配置文件中§6自定义§r行列数与样板页数",
+  "gtladditions.machine.me_super_pattern_buffer.desc.1": "内部缓存容量提升至 §6Int128§r",
   "gtladditions.machine.me_super_pattern_buffer.foa_config.title": "神锻样板模式",
   "gtladditions.machine.me_super_pattern_buffer.foa_config.tooltip.0": "遵循神锻§6配方倍增§r的规则，修改原始处理样板中的§b输入输出§r。",
   "gtladditions.machine.me_super_pattern_buffer.foa_config.tooltip.1": "§a样板需按照原始配方进行编写。§r",

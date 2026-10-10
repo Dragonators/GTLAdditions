@@ -225,6 +225,7 @@ object GTLAddMachines {
                 "gtceu.machine.me_pattern_buffer.desc.4".toComponent,
                 "gtceu.machine.me_pattern_buffer.desc.5".toComponent,
                 "gtladditions.machine.me_super_pattern_buffer.desc.0".toComponent,
+                "gtladditions.machine.me_super_pattern_buffer.desc.1".toComponent,
                 "block.gtceu.pattern_buffer.desc.2".toComponent,
                 "gtceu.universal.enabled".toComponent
             )

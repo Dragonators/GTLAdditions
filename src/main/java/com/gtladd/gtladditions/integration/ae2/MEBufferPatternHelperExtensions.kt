@@ -19,26 +19,12 @@ import com.gtladd.gtladditions.common.machine.multiblock.part.MESuperPatternBuff
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
-import org.gtlcore.gtlcore.integration.ae2.handler.MEBufferPatternHelper
 import org.gtlcore.gtlcore.utils.NumberUtils
 import org.gtlcore.gtlcore.utils.Registries
-import java.util.function.Consumer
 
-fun MEBufferPatternHelper.processForgeOfTheAntichristPattern(
-    stack: ItemStack,
-    circuitCacheSetter: Consumer<Int>,
-    level: Level?,
-    keepByProduct: Boolean,
-    multiplier: Int
-): IPatternDetails? {
-    val pattern = processPatternWithCircuit(stack, circuitCacheSetter, level, keepByProduct)
-    return rewriteForgeOfTheAntichristPattern(pattern, level, multiplier)
-}
-
-private fun rewriteForgeOfTheAntichristPattern(
+internal fun rewriteForgeOfTheAntichristPattern(
     pattern: IPatternDetails?,
     level: Level?,
     multiplier: Int
