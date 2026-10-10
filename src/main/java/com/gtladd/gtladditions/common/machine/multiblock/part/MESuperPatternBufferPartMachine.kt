@@ -18,6 +18,7 @@ import com.gregtechceu.gtceu.utils.ResearchManager
 import com.gtladd.gtladditions.api.machine.IWidePatternBuffer
 import com.gtladd.gtladditions.api.machine.IWidePatternSlot
 import com.gtladd.gtladditions.api.machine.gui.FOAPatternConfigurator
+import com.gtladd.gtladditions.api.machine.gui.OutputTransferConfigurator
 import com.gtladd.gtladditions.integration.ae2.*
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.wideBuffer.Int128Accumulator
@@ -67,6 +68,9 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
 
     private val paginationUIManager: PaginationUIManager
     private val pending = Object2ObjectOpenHashMap<AEKey, Int128>()
+
+    @field:Persisted
+    private var outputTransferLimit = WideBufferTools.DEFAULT_OUTPUT_TRANSFER_LIMIT
 
     @field:Persisted
     private var foaModeEnabled: Boolean = false
@@ -130,7 +134,7 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
             slot.clearVirtualSupply()
             removeSlotFromGTRecipeCache(index)
             WideBufferTools.refundSlot(pending, wideSlot(index).wideInputs())
-            WideBufferTools.flushToNetwork(pending, mainNode.grid, actionSource)
+            WideBufferTools.flushToNetwork(pending, mainNode.grid, actionSource, getOutputTransferLimit())
         }
 
         reCalculatePatternSlotMap()
@@ -179,7 +183,13 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
             internalInventory[index].clearVirtualSupply()
         }
 
-        WideBufferTools.flushToNetwork(pending, mainNode.grid, actionSource)
+        WideBufferTools.flushToNetwork(pending, mainNode.grid, actionSource, getOutputTransferLimit())
+    }
+
+    fun getOutputTransferLimit(): Int = WideBufferTools.clampOutputTransferLimit(outputTransferLimit)
+
+    fun setOutputTransferLimit(value: Int) {
+        outputTransferLimit = WideBufferTools.clampOutputTransferLimit(value)
     }
 
     // ========================================
@@ -266,6 +276,7 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
         super.attachConfigurators(configuratorPanel)
         configuratorPanel.attachConfigurators(FOAPatternConfigurator(this))
+        configuratorPanel.attachConfigurators(OutputTransferConfigurator(::getOutputTransferLimit, ::setOutputTransferLimit))
     }
 
     override fun createUIWidget(): Widget {
@@ -356,7 +367,7 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
                 }
             }
 
-            return if (WideBufferTools.flushToNetwork(pending, mainNode.grid, actionSource)) {
+            return if (WideBufferTools.flushToNetwork(pending, mainNode.grid, actionSource, getOutputTransferLimit())) {
                 TickRateModulation.URGENT
             } else {
                 TickRateModulation.SLOWER

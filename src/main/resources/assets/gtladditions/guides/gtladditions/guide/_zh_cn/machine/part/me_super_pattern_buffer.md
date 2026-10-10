@@ -27,6 +27,24 @@ item_ids:
 * 它提供 <ItemLink id="gtceu:me_extend_pattern_buffer" /> 拥有的所有能力。
 * GUI 中的分页由配置决定，适合集中管理大量终端样板。
 * 它也支持 GTLCore 的 <ItemLink id="gtlcore:me_pattern_buffer_copy" /> 与 <ItemLink id="gtlcore:me_pattern_buffer_cut" />。
+g
+</Column>
+
+<Column gap="2" fullWidth={true}>
+
+## 更大的内部缓存
+
+* 每个样板槽的实际输入缓存，以及自带的输出缓存，均升级至 **Int128** 容量。
+* 实际累计数量上限为 **2^127 − 1**。
+
+</Column>
+
+<Column gap="2" fullWidth={true}>
+
+## 输出循环上限
+
+* 允许调整每轮向 ME 网络尝试插入物料的轮数，范围为 **1～4096**，默认 **64**。
+* 每轮插入最多能处理单种 **long.max** 数量的物品或流体
 
 </Column>
 

@@ -21,6 +21,18 @@ import org.gtlcore.gtlcore.utils.datastructure.Int128.ZERO
 import java.util.function.Function
 
 object WideBufferTools {
+    const val DEFAULT_OUTPUT_TRANSFER_LIMIT = 64
+    const val MIN_OUTPUT_TRANSFER_LIMIT = 1
+    const val MAX_OUTPUT_TRANSFER_LIMIT = 4096
+    const val OUTPUT_TRANSFER_LIMIT_TAG = "outputTransferLimit"
+
+    fun clampOutputTransferLimit(value: Int): Int = value.coerceIn(MIN_OUTPUT_TRANSFER_LIMIT, MAX_OUTPUT_TRANSFER_LIMIT)
+
+    fun readOutputTransferLimit(tag: CompoundTag): Int = if (tag.contains(OUTPUT_TRANSFER_LIMIT_TAG)) {
+        clampOutputTransferLimit(tag.getInt(OUTPUT_TRANSFER_LIMIT_TAG))
+    } else {
+        DEFAULT_OUTPUT_TRANSFER_LIMIT
+    }
 
     // ========================================
     // Recipe and AE interface adapters
@@ -72,10 +84,12 @@ object WideBufferTools {
         return emptyList()
     }
 
+    @JvmOverloads
     fun flushToNetwork(
         pending: Object2ObjectOpenHashMap<AEKey, Int128>,
         network: IGrid?,
-        source: IActionSource
+        source: IActionSource,
+        maxOperations: Int = DEFAULT_OUTPUT_TRANSFER_LIMIT
     ): Boolean {
         if (pending.isEmpty() || network == null) return false
 
@@ -86,25 +100,24 @@ object WideBufferTools {
         var operations = 0
         val iterator = Object2ObjectMaps.fastIterator(pending)
 
-        while (iterator.hasNext() && operations < 64) {
+        val limit = clampOutputTransferLimit(maxOperations)
+        while (iterator.hasNext() && operations < limit && failures < 5) {
             val entry = iterator.next()
             val before = entry.value
-            if (before <= 0) {
-                iterator.remove()
-                continue
-            }
+            // Reuse this entry until drained, rejected, or the shared cycle budget is spent.
+            while (before > 0 && operations < limit) {
+                val inserted = StorageHelper.poweredInsert(energy, inventory, entry.key, before.longValue(), source)
+                operations++
+                if (inserted <= 0L) {
+                    failures++
+                    break
+                }
 
-            val inserted = StorageHelper.poweredInsert(energy, inventory, entry.key, before.longValue(), source)
-            operations++
-
-            if (inserted > 0L) {
                 before.add(-inserted)
-                if (before <= 0) iterator.remove()
                 changed = true
                 failures = 0
-            } else if (++failures >= 5) {
-                break
             }
+            if (before <= 0) iterator.remove()
         }
 
         return changed

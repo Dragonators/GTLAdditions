@@ -45,6 +45,7 @@
     "gtlcore.machine.WorkableElectricMultiblockMachineMixin",
     "gtlcore.machine.WorkableElectricMultipleRecipesMachineMixin",
     "gtlcore.machine.part.AutoConfigurationMaintenanceHatchPartMachineMixin",
+    "gtlcore.machine.part.MEOutputFilterHandlerAccessor",
     "gtlcore.machine.part.MEPatternBufferPartMachineBaseMixin",
     "gtlcore.machine.part.SlotCacheManagerAccessor",
     "gtlcore.machine.part.WidePatternBufferJadeMixin",

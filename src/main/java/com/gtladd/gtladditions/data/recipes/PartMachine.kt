@@ -22,11 +22,14 @@ import com.hepdd.gtmthings.data.WirelessMachines
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
+import org.gtlcore.gtlcore.common.data.GTLBlocks.DEGENERATE_RHENIUM_CONSTRAINED_CASING
 import org.gtlcore.gtlcore.common.data.GTLBlocks.QFT_COIL
 import org.gtlcore.gtlcore.common.data.GTLBlocks.SPACETIMEBENDINGCORE
 import org.gtlcore.gtlcore.common.data.GTLItems.*
 import org.gtlcore.gtlcore.common.data.GTLMachines
+import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.ME_EXTENDED_EXPORT_BUFFER
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
+import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.PRECISION_ASSEMBLER_RECIPES
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA.A_MASS_FABRICATOR
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR
@@ -96,7 +99,7 @@ object PartMachine {
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("transmutation_bus"))
             .inputItems(GTMachines.HULL[UIV])
             .inputItems(GTLMachines.BLOCK_BUS.asStack(8))
-            .inputItems(GTLMachines.GTAEMachines.ME_EXTENDED_EXPORT_BUFFER.asStack(8))
+            .inputItems(ME_EXTENDED_EXPORT_BUFFER.asStack(8))
             .inputItems(AEBlocks.CHEST.stack(8))
             .inputItems(CustomTags.UXV_CIRCUITS, 8)
             .inputItems(ROBOT_ARM_UXV, 16)
@@ -200,6 +203,19 @@ object PartMachine {
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[UXV]).CWUt(640)
             }
+            .save(provider)
+        PRECISION_ASSEMBLER_RECIPES.recipeBuilder(id("me_super_extended_export_buffer"))
+            .inputItems(ME_EXTENDED_EXPORT_BUFFER, 8)
+            .inputItems(DEGENERATE_RHENIUM_CONSTRAINED_CASING, 8)
+            .inputItems(getItemStack("kubejs:lepton_trap_crystal", 64))
+            .inputItems(getItemStack("kubejs:scintillator_crystal", 16))
+            .inputFluids(Legendarium.getFluid(1440))
+            .inputFluids(GradePurifiedWater16.getFluid(576))
+            .inputFluids(UUMatter.getFluid(576))
+            .inputFluids(HeavyLeptonMixture.getFluid(576))
+            .outputItems(GTLAddMachines.ME_SUPER_EXTENDED_EXPORT_BUFFER)
+            .EUt(VA[UIV].toLong())
+            .duration(200)
             .save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("wireless_energy_network_input_terminal"))
             .inputItems(GTLAddMachines.WIRELESS_LASER_INPUT_HATCH_67108864A[MAX]!!, 16)

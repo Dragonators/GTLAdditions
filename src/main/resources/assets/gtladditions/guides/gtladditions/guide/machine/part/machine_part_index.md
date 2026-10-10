@@ -13,6 +13,7 @@ categories:
 * [Super Input Dual Hatch](super_input_dual_hatch.md)
 * [Infinity Input Dual Hatch](infinity_input_dual_hatch.md)
 * [ME Super Pattern Buffer](me_super_pattern_buffer.md)
+* [Super Extended ME Export Buffer](me_super_extended_export_buffer.md)
 * [Vientiane Transcription Node](vientiane_transcription_node.md)
 * [Transmutation Bus Hatch](me_block_conservation.md)
 * [Spectral Analysis Hatch](spectral_analysis_hatch.md)
