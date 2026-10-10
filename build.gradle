@@ -151,7 +151,7 @@ dependencies {
     modImplementation("earth.terrarium.adastra:ad_astra-forge-${project.minecraft_version}:${ad_astra_version}") { transitive false }
 
     modImplementation("dev:gtmthings-1.3.5.a")
-    modImplementation("dev:gtlcore-1.2.3.2-fix3")
+    modRuntimeOnly("dev:gtlcore-1.2.3.2-fix3")
     modImplementation("curse.maven:guideme-1173950:7127447")
     modImplementation("curse.maven:building-gadgets-298187:6850495") { transitive = false }
 
@@ -193,6 +193,29 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation(include("org.scilab.forge:jlatexmath:1.0.7"))
     include(modImplementation("com.github.ben-manes.caffeine:caffeine:3.1.8"))
+}
+
+// Loom applies project ATs to Minecraft, but not to mod dependencies.
+// Use the same Forge AT rules for a compile-only copy; runtime still loads the original Core.
+def patternAccessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+def coreCompileInput = configurations.runtimeClasspath.filter { it.name.startsWith('gtlcore-') }
+def coreCompileJar = layout.buildDirectory.file('compile-only/gtlcore-pattern-access.jar')
+def prepareCoreCompileJar = tasks.register('prepareCoreCompileJar') {
+    inputs.files(coreCompileInput).withPathSensitivity(PathSensitivity.NONE)
+    inputs.file(patternAccessTransformer).withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.file(coreCompileJar)
+    doLast {
+        def output = coreCompileJar.get().asFile
+        output.parentFile.mkdirs()
+        net.fabricmc.loom.configuration.accesstransformer.AccessTransformerJarProcessor.executeAt(
+                project, coreCompileInput.singleFile.toPath(), output.toPath(),
+                { args -> args.addAll(['--atFile', patternAccessTransformer.absolutePath]) })
+    }
+}
+dependencies {
+    // Declare the generated copy as a dependency so IDE imports see the same API as Gradle.
+    compileOnly files(prepareCoreCompileJar)
+    testCompileOnly files(prepareCoreCompileJar)
 }
 
 processResources {
