@@ -1,4 +1,4 @@
-﻿---
+---
 navigation:
   title: Forge of the Antichrist
   icon: forge_of_the_antichrist
@@ -13,6 +13,8 @@ item_ids:
 # Forge of the Antichrist
 
 <BlockImage id="gtladditions:forge_of_the_antichrist" scale="8"/>
+
+The Forge of the Antichrist main structure cannot use the ME Recipe Type Integrated Pattern Buffer.
 
 <Column gap="20" fullWidth={true}>
 

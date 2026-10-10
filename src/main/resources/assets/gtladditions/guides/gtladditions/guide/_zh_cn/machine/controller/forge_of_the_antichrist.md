@@ -14,6 +14,8 @@ item_ids:
 
 <BlockImage id="gtladditions:forge_of_the_antichrist" scale="8"/>
 
+伪神之煅炉本体不支持ME配方类型统合样板总成。
+
 <Column gap="20" fullWidth={true}>
 
 <Column gap="2" fullWidth={true}>

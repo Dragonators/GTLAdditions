@@ -73,7 +73,6 @@ object GTLAddRecipesTypes {
     @JvmField
     val COMPRESSED_ASTRAL_ARRAY: GTRecipeType
 
-    @JvmField
     val EVOLUTION_OF_PRIMORDIAL: GTRecipeType
 
     fun init() {

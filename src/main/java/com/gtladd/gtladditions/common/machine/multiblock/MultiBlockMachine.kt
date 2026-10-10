@@ -68,6 +68,7 @@ import com.gtladd.gtladditions.common.machine.GTLAddMachines.ME_SUPER_PATTERN_BU
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.WIRELESS_LASER_INPUT_HATCH_67108864A
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.Wireless_Energy_Network_OUTPUT_Terminal
 import com.gtladd.gtladditions.common.machine.GTLAddPredicates
+import com.gtladd.gtladditions.common.machine.GTLAddPredicates.abilitiesExcept
 import com.gtladd.gtladditions.common.machine.multiblock.controller.*
 import com.gtladd.gtladditions.common.machine.multiblock.controller.bs.BiosphereIIIController
 import com.gtladd.gtladditions.common.machine.multiblock.controller.bs.BiosphereIIIModule
@@ -115,6 +116,7 @@ import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
 import org.gtlcore.gtlcore.common.data.GTLBlocks.*
 import org.gtlcore.gtlcore.common.data.GTLMachines
 import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.ME_EXTENDED_EXPORT_BUFFER
+import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.ME_RECIPE_PATTERN_BUFFER
 import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.STOCKING_IMPORT_BUS_ME
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
@@ -1387,6 +1389,7 @@ object MultiBlockMachine {
             .tooltipTextKey("gtladditions.multiblock.time_space_distorter.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.time_space_distorter.tooltip.1".toComponent)
             .tooltipTextRecipeTypes(GTLAddRecipesTypes.TIME_SPACE_DISTORTION)
+            .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(GTLAddRecipesTypes.TIME_SPACE_DISTORTION)
             .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
@@ -1397,8 +1400,8 @@ object MultiBlockMachine {
                     .where(
                         "B",
                         blocks(DIMENSION_INJECTION_CASING.get())
-                            .or(abilities(IMPORT_ITEMS))
-                            .or(abilities(IMPORT_FLUIDS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_ITEMS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_FLUIDS))
                             .or(abilities(INPUT_ENERGY))
                     )
                     .where("F", blocks(RHENIUM_REINFORCED_ENERGY_GLASS.get()))
@@ -1451,6 +1454,7 @@ object MultiBlockMachine {
             .tooltipTextKey("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.1".toComponent)
             .tooltipTextKey("tooltip.gtlcore.structure.source".toComponent("TST"))
             .tooltipTextRecipeTypes(QFT_RECIPES, DISTORT_RECIPES, NEUTRON_COMPRESSOR_RECIPES)
+            .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeTypes(QFT_RECIPES, DISTORT_RECIPES, NEUTRON_COMPRESSOR_RECIPES)
             .appearanceBlock(DIMENSIONALLY_TRANSCENDENT_CASING)
@@ -1465,10 +1469,10 @@ object MultiBlockMachine {
                     .where(
                         "F",
                         blocks(MANIPULATOR.get())
-                            .or(abilities(IMPORT_ITEMS))
-                            .or(abilities(IMPORT_FLUIDS))
-                            .or(abilities(EXPORT_ITEMS))
-                            .or(abilities(EXPORT_FLUIDS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_ITEMS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_FLUIDS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), EXPORT_ITEMS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), EXPORT_FLUIDS))
                             .or(abilities(MAINTENANCE).setExactLimit(1))
                             .or(abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
                             .or(abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1))
@@ -1514,6 +1518,7 @@ object MultiBlockMachine {
             .tooltipTextKey("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.1".toComponent)
             .tooltipTextKey("tooltip.gtlcore.structure.source".toComponent("GTNH"))
             .tooltipTextRecipeTypes(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES, STELLAR_FORGE_RECIPES, ULTIMATE_MATERIAL_FORGE_RECIPES)
+            .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(GOD_FORGE_INNER_CASING)
             .recipeTypes(DIMENSIONALLY_TRANSCENDENT_PLASMA_FORGE_RECIPES, STELLAR_FORGE_RECIPES, ULTIMATE_MATERIAL_FORGE_RECIPES)
@@ -1523,10 +1528,10 @@ object MultiBlockMachine {
                     .where(
                         "A",
                         blocks(GOD_FORGE_SUPPORT_CASING.get())
-                            .or(abilities(IMPORT_ITEMS))
-                            .or(abilities(IMPORT_FLUIDS))
-                            .or(abilities(EXPORT_ITEMS))
-                            .or(abilities(EXPORT_FLUIDS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_ITEMS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_FLUIDS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), EXPORT_ITEMS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), EXPORT_FLUIDS))
                     )
                     .where("B", blocks(GOD_FORGE_TRIM_CASING.get()))
                     .where("C", blocks(GOD_FORGE_INNER_CASING.get()))
@@ -1564,6 +1569,7 @@ object MultiBlockMachine {
             .noneRotation()
             .tooltipTextKey("gtladditions.multiblock.recursive_reverse_array.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.recursive_reverse_array.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(CREATE_CASING)
             .pattern {
@@ -1572,10 +1578,10 @@ object MultiBlockMachine {
                     .where(
                         "B",
                         blocks(DIMENSION_INJECTION_CASING.get())
-                            .or(abilities(EXPORT_ITEMS).setMaxGlobalLimited(2))
-                            .or(abilities(IMPORT_ITEMS).setMaxGlobalLimited(1))
-                            .or(abilities(EXPORT_FLUIDS).setMaxGlobalLimited(2))
-                            .or(abilities(IMPORT_FLUIDS).setMaxGlobalLimited(1))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), EXPORT_ITEMS).setMaxGlobalLimited(2))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_ITEMS).setMaxGlobalLimited(1))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), EXPORT_FLUIDS).setMaxGlobalLimited(2))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_FLUIDS).setMaxGlobalLimited(1))
                             .or(abilities(INPUT_LASER).setMaxGlobalLimited(1))
                     )
                     .where("D", blocks(DIMENSION_INJECTION_CASING.get()))
@@ -1609,6 +1615,7 @@ object MultiBlockMachine {
         CATALYTIC_CASCADE_ARRAY = REGISTRATE.multiblock("catalytic_cascade_array", Function { CatalyticCascadeArray(it) })
             .nonYAxisRotation()
             .tooltipTextKey("tooltip.gtladditions.recursive_reverse_array_module".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(DIMENSION_INJECTION_CASING)
             .pattern {
@@ -1632,6 +1639,7 @@ object MultiBlockMachine {
         MAGNETORHEOLOGICAL_CONVERGENCE_CORE = REGISTRATE.multiblock("magnetorheological_convergence_core", Function { MagnetorheologicalConvergenceCore(it) })
             .nonYAxisRotation()
             .tooltipTextKey("tooltip.gtladditions.recursive_reverse_array_module".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(DIMENSION_INJECTION_CASING)
             .pattern {
@@ -1642,7 +1650,7 @@ object MultiBlockMachine {
                         blocks(DIMENSION_INJECTION_CASING.get())
                             .or(blocks(CustomMachines.HUGE_ITEM_IMPORT_BUS[0].get()).setExactLimit(2))
                             .or(blocks(GTLMachines.HUGE_FLUID_IMPORT_HATCH[1].get()).setExactLimit(1))
-                            .or(abilities(IMPORT_ITEMS).setMaxGlobalLimited(3))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_ITEMS).setMaxGlobalLimited(3))
                     )
                     .where("C", blocks(DEGENERATE_RHENIUM_CONSTRAINED_CASING.get()))
                     .where("E", blocks(GRAVITON_FIELD_CONSTRAINT_CASING.get()))
@@ -1657,6 +1665,7 @@ object MultiBlockMachine {
             .nonYAxisRotation()
             .tooltipTextKey("tooltip.gtladditions.recursive_reverse_array_module".toComponent)
             .tooltipTextRecipeTypes(GTLAddRecipesTypes.SPACETIME_STASIS)
+            .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(GTLAddRecipesTypes.SPACETIME_STASIS)
             .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
@@ -1667,7 +1676,7 @@ object MultiBlockMachine {
                     .where(
                         "B",
                         blocks(DIMENSION_INJECTION_CASING.get())
-                            .or(abilities(IMPORT_FLUIDS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_FLUIDS))
                             .or(abilities(INPUT_ENERGY).setExactLimit(1))
                     )
                     .where("C", blocks(DEGENERATE_RHENIUM_CONSTRAINED_CASING.get()))
@@ -1683,6 +1692,7 @@ object MultiBlockMachine {
             .nonYAxisRotation()
             .tooltipTextKey("tooltip.gtladditions.recursive_reverse_array_module".toComponent)
             .tooltipTextRecipeTypes(GTLAddRecipesTypes.SUPRATEMPORAL_BOOSTING)
+            .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(GTLAddRecipesTypes.SUPRATEMPORAL_BOOSTING)
             .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
@@ -1693,8 +1703,8 @@ object MultiBlockMachine {
                     .where(
                         "B",
                         blocks(DIMENSION_INJECTION_CASING.get())
-                            .or(abilities(IMPORT_FLUIDS))
-                            .or(abilities(IMPORT_ITEMS).setMaxGlobalLimited(1))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_FLUIDS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_ITEMS).setMaxGlobalLimited(1))
                             .or(abilities(INPUT_ENERGY).setExactLimit(1))
                             .or(blocks(GTLAddMachines.VIENTIANE_TRANSCRIPTION_NODE.get()).setExactLimit(1))
                     )
