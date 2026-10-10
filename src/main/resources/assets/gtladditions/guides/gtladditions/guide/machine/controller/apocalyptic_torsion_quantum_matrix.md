@@ -1,4 +1,4 @@
-﻿---
+---
 navigation:
   title: Apocalyptic Torsion Quantum Matrix
   icon: apocalyptic_torsion_quantum_matrix
@@ -13,6 +13,8 @@ item_ids:
 # Apocalyptic Torsion Quantum Matrix
 
 <BlockImage id="gtladditions:apocalyptic_torsion_quantum_matrix" scale="8"/>
+
+This machine cannot use the ME Recipe Type Integrated Pattern Buffer.
 
 <Column gap="20" fullWidth={true}>
 

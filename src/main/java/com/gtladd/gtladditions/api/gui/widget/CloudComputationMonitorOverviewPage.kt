@@ -109,7 +109,7 @@ private class CloudOverviewWidget(
             buffer.writeItem(snapshot.item)
             buffer.writeLong(snapshot.currentCwu)
             buffer.writeLong(snapshot.maxCwu)
-            buffer.writeInt(snapshot.requestedCwu)
+            buffer.writeLong(snapshot.requestedCwu)
         }
 
         private fun readMachineSnapshot(buffer: FriendlyByteBuf): CloudMachineSnapshot {
@@ -124,7 +124,7 @@ private class CloudOverviewWidget(
                 item,
                 buffer.readLong(),
                 buffer.readLong(),
-                buffer.readInt()
+                buffer.readLong()
             )
         }
 
@@ -136,7 +136,7 @@ private class CloudOverviewWidget(
             }
             buffer.writeInt(snapshot.receiverCount)
             repeat(snapshot.receiverCount) { index ->
-                buffer.writeInt(snapshot.getReceiverRequestedCwu(index))
+                buffer.writeLong(snapshot.getReceiverRequestedCwu(index))
             }
         }
     }
@@ -347,7 +347,7 @@ private class CloudOverviewWidget(
             max[index] = buffer.readLong()
         }
         val receiverCount = buffer.readInt()
-        val requested = IntArray(receiverCount) { buffer.readInt() }
+        val requested = LongArray(receiverCount) { buffer.readLong() }
 
         if (providerCount == providerRows.size) {
             repeat(providerCount) { providerRows[it].setProviderValues(current[it], max[it]) }
@@ -381,7 +381,7 @@ private class CloudMonitorRowWidget(
 
     private var current = machine?.currentCwu ?: 0L
     private var max = machine?.maxCwu ?: 0L
-    private var cwu = machine?.requestedCwu ?: 0
+    private var cwu = machine?.requestedCwu ?: 0L
 
     init {
         val icon = ImageWidget(0, 0, 18, 18) { ItemStackTexture(item) }
@@ -501,7 +501,7 @@ private class CloudMonitorRowWidget(
         this.max = max
     }
 
-    fun setRequestedCwu(cwu: Int) {
+    fun setRequestedCwu(cwu: Long) {
         this.cwu = cwu
     }
 

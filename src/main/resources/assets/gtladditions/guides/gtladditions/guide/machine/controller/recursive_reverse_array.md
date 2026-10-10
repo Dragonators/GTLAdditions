@@ -19,6 +19,8 @@ item_ids:
 
 <BlockImage id="recursive_reverse_array" scale="8"/>
 
+The Recursive Reverse Array and all of its modules cannot use the ME Recipe Type Integrated Pattern Buffer.
+
 Recursive Reverse Array is not an independent production machine. It binds to one formed <ItemLink id="gtladditions:forge_of_the_antichrist" /> and reads the state of its own formed modules to provide buffs to the bound host.
 
 Use <ItemLink id="gtladditions:suprachronal_data_module" /> for binding:

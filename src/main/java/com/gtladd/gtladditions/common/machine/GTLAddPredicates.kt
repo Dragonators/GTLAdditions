@@ -1,7 +1,10 @@
 package com.gtladd.gtladditions.common.machine
 
 import com.gregtechceu.gtceu.api.GTCEuAPI
+import com.gregtechceu.gtceu.api.block.IMachineBlock
+import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
 import com.gregtechceu.gtceu.api.pattern.MultiblockState
+import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate
 import com.gregtechceu.gtceu.api.pattern.error.PatternStringError
 import com.gregtechceu.gtceu.api.pattern.predicates.PredicateBlocks
@@ -15,6 +18,11 @@ import net.minecraft.world.level.block.state.properties.SlabType
 import java.util.function.Predicate
 
 object GTLAddPredicates {
+    fun abilitiesExcept(excluded: IMachineBlock, vararg abilities: PartAbility): TraceabilityPredicate {
+        val excludedBlock = excluded.self()
+        return Predicates.blocks(*abilities.flatMap { it.allBlocks }.filter { it !== excludedBlock }.distinct().toTypedArray())
+    }
+
     fun slabBlock(slabType: SlabType, vararg block: Block): TraceabilityPredicate = TraceabilityPredicate(object : PredicateBlocks(*block) {
         override fun test(blockWorldState: MultiblockState): Boolean = super.test(blockWorldState) &&
             blockWorldState.blockState.getValue(SlabBlock.TYPE) == slabType

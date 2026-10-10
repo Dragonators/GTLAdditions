@@ -1,4 +1,5 @@
 {
+  "gtladditions.multiblock.recipe_pattern_buffer_unavailable": "Cannot use the ME Recipe Type Integrated Pattern Buffer",
   "block.gtladditions.antientropy_condensation_center": "Antientropy Condensation Center",
   "block.gtladditions.apocalyptic_torsion_quantum_matrix": "Apocalyptic Torsion Quantum Matrix",
   "block.gtladditions.arcane_cache_vault": "Arcane Cache Vault",

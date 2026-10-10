@@ -19,6 +19,8 @@ item_ids:
 
 <BlockImage id="recursive_reverse_array" scale="8"/>
 
+递归反演阵列及其全部模块不支持ME配方类型统合样板总成。
+
 递归反演阵列不是独立生产机器，而是与一台已成型的 <ItemLink id="gtladditions:forge_of_the_antichrist" /> 绑定，并读取自身已成型模块的状态，为绑定主机提供增益。
 
 使用 <ItemLink id="gtladditions:suprachronal_data_module" /> 进行绑定：

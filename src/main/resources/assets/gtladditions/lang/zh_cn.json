@@ -1,4 +1,5 @@
 {
+  "gtladditions.multiblock.recipe_pattern_buffer_unavailable": "不支持ME配方类型统合样板总成",
   "block.gtladditions.antientropy_condensation_center": "反熵冷凝中枢",
   "block.gtladditions.apocalyptic_torsion_quantum_matrix": "终焉曲折量子波动矩阵",
   "block.gtladditions.arcane_cache_vault": "密藏之匣",

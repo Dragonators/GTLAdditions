@@ -10,7 +10,7 @@ class CloudMachineSnapshot(
     item: ItemStack,
     val currentCwu: Long,
     val maxCwu: Long,
-    val requestedCwu: Int
+    val requestedCwu: Long
 ) {
 
     val pos: BlockPos = pos.immutable()

@@ -3,7 +3,7 @@ package com.gtladd.gtladditions.common.data
 class ComputationLiveSnapshot(
     providerCurrentCwu: LongArray,
     providerMaxCwu: LongArray,
-    receiverRequestedCwu: IntArray
+    receiverRequestedCwu: LongArray
 ) {
 
     private val providerCurrentCwu = providerCurrentCwu.copyOf()
@@ -24,5 +24,5 @@ class ComputationLiveSnapshot(
 
     fun getProviderMaxCwu(index: Int): Long = providerMaxCwu[index]
 
-    fun getReceiverRequestedCwu(index: Int): Int = receiverRequestedCwu[index]
+    fun getReceiverRequestedCwu(index: Int): Long = receiverRequestedCwu[index]
 }

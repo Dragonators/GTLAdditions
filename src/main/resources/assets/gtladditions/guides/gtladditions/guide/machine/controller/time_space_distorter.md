@@ -14,6 +14,8 @@ item_ids:
 
 <BlockImage id="gtladditions:time_space_distorter" scale="8"/>
 
+This machine cannot use the ME Recipe Type Integrated Pattern Buffer.
+
 <Column gap="20" fullWidth={true}>
 
 <Column gap="2" fullWidth={true}>

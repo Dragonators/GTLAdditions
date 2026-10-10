@@ -1,13 +1,10 @@
 package com.gtladd.gtladditions.utils.cloud
 
 import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider
-import com.gregtechceu.gtceu.api.capability.IOpticalComputationReceiver
-import com.gregtechceu.gtceu.api.capability.recipe.CWURecipeCapability
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.research.NetworkSwitchMachine
-import com.gtladd.gtladditions.api.machine.trait.CloudOpticalComputationContainer
 import com.gtladd.gtladditions.common.data.CloudMachineSnapshot
 import com.gtladd.gtladditions.common.data.ComputationLiveSnapshot
 import com.gtladd.gtladditions.common.data.ComputationTopologySnapshot
@@ -20,6 +17,8 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import org.gtlcore.gtlcore.api.machine.computation.ComputationNetwork
+import org.gtlcore.gtlcore.api.machine.computation.ComputationUsage
 import java.util.UUID
 
 object CloudNetworkManager {
@@ -83,45 +82,19 @@ object CloudNetworkManager {
     fun invalidateComputationTopology() {
         topologyDirty = true
         topologyVersion++
+        ComputationNetwork.invalidate()
     }
 
     fun getTopologyVersion(): Long = topologyVersion
 
     fun getProviderCount(teamId: UUID?): Int = getTeamState(teamId).providers.count { it.canBridgeCloud() }
 
-    fun getMaxCWU(teamId: UUID?): Long {
-        var total = 0L
-        for (provider in getTeamState(teamId).providers) {
-            if (!provider.canBridgeCloud()) continue
-            total = saturatedAdd(total, provider.getMaxCloudCWU())
-            if (total == Long.MAX_VALUE) return total
-        }
-        return total
-    }
+    fun getMaxCWU(teamId: UUID?): Long = ComputationNetwork.capacity(computationLinks(teamId))
 
-    fun getRemainingCWU(teamId: UUID?): Long {
-        var total = 0L
-        for (provider in getTeamState(teamId).providers) {
-            if (!provider.canBridgeCloud()) continue
-            total = saturatedAdd(total, provider.getRemainingCloudCWU())
-            if (total == Long.MAX_VALUE) return total
-        }
-        return total
-    }
+    fun getRemainingCWU(teamId: UUID?): Long = ComputationNetwork.request(computationLinks(teamId), Long.MAX_VALUE, true)
 
-    fun requestCWU(teamId: UUID?, cwu: Long, simulate: Boolean): Long {
-        if (cwu <= 0L || CloudTeamUtil.normalize(teamId) == null) return 0L
-        val providers = getTeamState(teamId).providers
-        if (providers.any { it.canBridgeCloud() && it.isUnlimitedCloudProvider() }) return cwu
-        var drawn = 0L
-        for (provider in providers) {
-            if (!provider.canBridgeCloud()) continue
-            val remaining = cwu - drawn
-            drawn += provider.requestCloudCWU(remaining, simulate).coerceIn(0L, remaining)
-            if (drawn >= cwu) break
-        }
-        return drawn
-    }
+    fun requestCWU(teamId: UUID?, cwu: Long, simulate: Boolean): Long =
+        ComputationNetwork.request(computationLinks(teamId), cwu, simulate)
 
     fun isRecipeAvailableInCloud(recipe: GTRecipe, teamId: UUID?): Boolean {
         val normalizedTeamId = CloudTeamUtil.normalize(teamId) ?: return false
@@ -164,24 +137,11 @@ object CloudNetworkManager {
         val providers = sortedProviders(state).map { provider ->
             val machine = provider as MetaMachine
             val canBridge = provider.canBridgeCloud()
-            val unlimited = canBridge && provider.isUnlimitedCloudProvider()
             machineSnapshot(
                 machine,
-                if (unlimited) {
-                    Long.MAX_VALUE
-                } else if (canBridge) {
-                    provider.getRemainingCloudCWU()
-                } else {
-                    0L
-                },
-                if (unlimited) {
-                    Long.MAX_VALUE
-                } else if (canBridge) {
-                    provider.getMaxCloudCWU()
-                } else {
-                    0L
-                },
-                0
+                if (canBridge) provider.getRemainingCloudCWU() else 0L,
+                if (canBridge) provider.getMaxCloudCWU() else 0L,
+                0L
             )
         }
 
@@ -207,7 +167,7 @@ object CloudNetworkManager {
 
     fun getComputationLiveSnapshot(teamId: UUID?): ComputationLiveSnapshot {
         val normalizedTeamId =
-            CloudTeamUtil.normalize(teamId) ?: return ComputationLiveSnapshot(LongArray(0), LongArray(0), IntArray(0))
+            CloudTeamUtil.normalize(teamId) ?: return ComputationLiveSnapshot(LongArray(0), LongArray(0), LongArray(0))
         ensureTopologyCache()
         val state = teamStates[normalizedTeamId] ?: emptyTeamState
         val providers = sortedProviders(state)
@@ -215,20 +175,11 @@ object CloudNetworkManager {
         val maxCwu = LongArray(providers.size)
         providers.forEachIndexed { index, provider ->
             val canBridge = provider.canBridgeCloud()
-            val unlimited = canBridge && provider.isUnlimitedCloudProvider()
-            currentCwu[index] = when {
-                unlimited -> Long.MAX_VALUE
-                canBridge -> provider.getRemainingCloudCWU()
-                else -> 0L
-            }
-            maxCwu[index] = when {
-                unlimited -> Long.MAX_VALUE
-                canBridge -> provider.getMaxCloudCWU()
-                else -> 0L
-            }
+            currentCwu[index] = if (canBridge) provider.getRemainingCloudCWU() else 0L
+            maxCwu[index] = if (canBridge) provider.getMaxCloudCWU() else 0L
         }
         val receivers = sortedReceivers(state)
-        val requestedCwu = IntArray(receivers.size) { getRequestedCWU(receivers[it]) }
+        val requestedCwu = LongArray(receivers.size) { getRequestedCWU(receivers[it]) }
         return ComputationLiveSnapshot(currentCwu, maxCwu, requestedCwu)
     }
 
@@ -246,7 +197,7 @@ object CloudNetworkManager {
         dataMachines.clear()
         teamStates.clear()
         topologyDirty = true
-        if (computationRemoved) topologyVersion++
+        if (computationRemoved) invalidateComputationTopology()
     }
 
     private fun ensureTopologyCache() {
@@ -277,8 +228,7 @@ object CloudNetworkManager {
         return teamStates[normalizedTeamId] ?: emptyTeamState
     }
 
-    private fun saturatedAdd(total: Long, value: Long): Long =
-        if (Long.MAX_VALUE - total < value) Long.MAX_VALUE else total + value
+    fun computationLinks(teamId: UUID?): List<IOpticalComputationProvider> = getTeamState(teamId).providers.toList()
 
     private fun sortedProviders(state: TeamState): List<IOpticalComputationProvider> =
         state.providers.filter { it is MetaMachine }.sortedWith(providerLocationOrder)
@@ -293,7 +243,7 @@ object CloudNetworkManager {
         machine: MetaMachine,
         currentCwu: Long,
         maxCwu: Long,
-        requestedCwu: Int
+        requestedCwu: Long
     ): CloudMachineSnapshot {
         val level = machine.level
         val dimensionId = getDimensionId(machine)
@@ -309,21 +259,11 @@ object CloudNetworkManager {
         )
     }
 
-    private fun getRequestedCWU(machine: MetaMachine): Int {
-        val recipeMachine = machine as? IRecipeLogicMachine ?: return 0
+    private fun getRequestedCWU(machine: MetaMachine): Long {
+        val recipeMachine = machine as? IRecipeLogicMachine ?: return 0L
         val recipeLogic = recipeMachine.recipeLogic
-        val recipe = recipeLogic.lastRecipe ?: return 0
-        if (!recipeLogic.isWorking) return 0
-        if (recipe.data.getBoolean("duration_is_total_cwu")) {
-            val receiver = machine as? IOpticalComputationReceiver ?: return 0
-            val computationContainer = receiver.computationProvider as? CloudOpticalComputationContainer ?: return 0
-            return minOf(
-                computationContainer.lastResearchCwu,
-                maxOf(0, recipe.duration - recipeLogic.progress)
-            )
-        }
-        val cwuInputs = recipe.tickInputs[CWURecipeCapability.CAP] ?: return 0
-        return cwuInputs.sumOf { CWURecipeCapability.CAP.of(it.content) }
+        if (!recipeLogic.isWorking) return 0L
+        return (recipeLogic as? ComputationUsage)?.`gtlcore$usedComputation`() ?: 0L
     }
 
     private fun keyOf(machine: MetaMachine): GlobalPos? {

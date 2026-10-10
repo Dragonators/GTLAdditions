@@ -118,6 +118,7 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
         if (isRemote) return
 
         val slot = internalInventory[index]
+        val oldCircuit = patternCircuitConfigs[index]
         val newPattern = getRealPattern(index, patternInventory.getStackInSlot(index))
         val oldPattern = slot2PatternMap.get(index)
 
@@ -129,12 +130,16 @@ class MESuperPatternBufferPartMachine @JvmOverloads constructor(
             hasPatternArray[index] = false
         }
 
-        if (oldPattern != null && oldPattern != newPattern) {
+        if (oldPattern != null && (oldPattern != newPattern || oldCircuit != patternCircuitConfigs[index])) {
             slot.cacheManager.clearAllCaches()
             slot.clearVirtualSupply()
             removeSlotFromGTRecipeCache(index)
             WideBufferTools.refundSlot(pending, wideSlot(index).wideInputs())
             WideBufferTools.flushToNetwork(pending, mainNode.grid, actionSource, getOutputTransferLimit())
+        }
+
+        if (patternCircuitConfigs[index] >= 0) {
+            slot.cacheManager.circuitCache = patternCircuitConfigs[index]
         }
 
         reCalculatePatternSlotMap()
