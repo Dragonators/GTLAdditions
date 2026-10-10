@@ -57,6 +57,7 @@ object GTLAddMachines {
     val ORE_PROCESSOR_HATCH: MachineDefinition
     val VIENTIANE_TRANSCRIPTION_NODE: MachineDefinition
     val ME_SUPER_PATTERN_BUFFER: MachineDefinition
+    val ME_SUPER_EXTENDED_EXPORT_BUFFER: MachineDefinition
     val ME_SUPER_PATTERN_BUFFER_PROXY: MachineDefinition
     val SUPER_PARALLEL_HATCH: MachineDefinition
     val Wireless_Energy_Network_OUTPUT_Terminal: MachineDefinition
@@ -226,8 +227,24 @@ object GTLAddMachines {
                 "gtceu.machine.me_pattern_buffer.desc.5".toComponent,
                 "gtladditions.machine.me_super_pattern_buffer.desc.0".toComponent,
                 "gtladditions.machine.me_super_pattern_buffer.desc.1".toComponent,
+                "gtladditions.machine.output_transfer.tooltip.0".toComponent,
                 "block.gtceu.pattern_buffer.desc.2".toComponent,
                 "gtceu.universal.enabled".toComponent
+            )
+            .tooltipBuilder(GTLAdd_ADD)
+            .register()
+        ME_SUPER_EXTENDED_EXPORT_BUFFER = REGISTRATE.machine("me_super_extended_export_buffer") { MESuperExtendedOutputPartMachine(it!!) }
+            .tier(9)
+            .rotationState(RotationState.ALL)
+            .abilities(PartAbility.EXPORT_ITEMS, PartAbility.EXPORT_FLUIDS)
+            .overlayHullRenderer(ResourceLocation(GTLAdditions.MOD_ID, "block/casings/infinity_input_dual_hatch_casing"), GTCEu.id("block/machine/part/me_extended_export_buffer"))
+            .langValue("Super Extended ME Export Buffer")
+            .tooltips(
+                "gtmthings.machine.me_export_buffer.tooltip".toComponent,
+                "gtceu.machine.me_extended_export_buffer.tooltip.0".toComponent,
+                "gtceu.machine.me.copy_paste.tooltip".toComponent,
+                "gtladditions.machine.me_super_extended_export_buffer.desc.0".toComponent,
+                "gtladditions.machine.output_transfer.tooltip.0".toComponent
             )
             .tooltipBuilder(GTLAdd_ADD)
             .register()

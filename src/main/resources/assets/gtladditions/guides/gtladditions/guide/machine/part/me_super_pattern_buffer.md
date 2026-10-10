@@ -32,10 +32,28 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
+## Larger Internal Buffers
+
+* Actual input buffers in each pattern slot and the built-in output buffer use **Int128** capacity.
+* Accumulated quantities can reach **2^127 − 1**.
+
+</Column>
+
+<Column gap="2" fullWidth={true}>
+
+## Output Transfer Limit
+
+* Set the maximum number of ME insertion attempts per cycle: **1–4096**, with a default of **64**.
+* Each insertion can transfer up to **Long.MAX_VALUE** units of a single item or fluid type.
+
+</Column>
+
+<Column gap="2" fullWidth={true}>
+
 ## Forge Pattern Mode
 
 * The Forge Pattern Mode page is disabled by default and only changes patterns exposed by this <ItemLink id="gtladditions:me_super_pattern_buffer" />.
-* The pattern output multiplier accepts values from 1 to 127. The default is 15, matching maximum <ItemLink id="gtladditions:forge_of_the_antichrist" /> efficiency.
+* The pattern output multiplier accepts values from 1 to 30. The default is 15, matching maximum <ItemLink id="gtladditions:forge_of_the_antichrist" /> efficiency.
 * When enabled, original pattern inputs and outputs are modified according to the recipe multiplication rules of <ItemLink id="gtladditions:forge_of_the_antichrist" />.
 
 </Column>

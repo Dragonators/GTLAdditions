@@ -13,6 +13,7 @@ categories:
 * [超级输入总成](super_input_dual_hatch.md)
 * [无尽输入总成](infinity_input_dual_hatch.md)
 * [超级样板总成](me_super_pattern_buffer.md)
+* [超级增广输出总成](me_super_extended_export_buffer.md)
 * [万象转录节点](vientiane_transcription_node.md)
 * [嬗变总线](me_block_conservation.md)
 * [物料谱解析仓](spectral_analysis_hatch.md)
