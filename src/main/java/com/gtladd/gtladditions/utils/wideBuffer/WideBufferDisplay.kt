@@ -15,11 +15,12 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.material.Fluid
 import org.gtlcore.gtlcore.common.machine.multiblock.part.ae.MEPatternBufferPartMachineBase
+import org.gtlcore.gtlcore.integration.ae2.MEFluidUnits
+import org.gtlcore.gtlcore.utils.NumberUtils
 import org.gtlcore.gtlcore.utils.Registries
 import org.gtlcore.gtlcore.utils.datastructure.Int128
 import snownee.jade.api.ITooltip
 import snownee.jade.api.fluid.JadeFluidObject
-import java.math.BigDecimal
 import java.math.BigInteger
 
 object WideBufferDisplay {
@@ -130,7 +131,12 @@ object WideBufferDisplay {
 
     private fun item(tooltip: ITooltip, stack: ItemStack, count: String) {
         tooltip.add(tooltip.elementHelper.smallItem(stack))
-        tooltip.append(Component.literal(" $count × ").withStyle(ChatFormatting.DARK_PURPLE).append(stack.hoverName.copy().withStyle(ChatFormatting.GOLD)))
+        tooltip.append(
+            Component.literal(" ")
+                .append(Component.literal(NumberUtils.formatDouble(BigInteger(count).toDouble())).withStyle(ChatFormatting.DARK_PURPLE))
+                .append(Component.literal(" × ").withStyle(ChatFormatting.WHITE))
+                .append(stack.hoverName.copy().withStyle(ChatFormatting.GOLD))
+        )
     }
 
     private fun fluid(tooltip: ITooltip, fluid: Fluid, count: String) {
@@ -141,9 +147,5 @@ object WideBufferDisplay {
         )
     }
 
-    fun formatFluid(amount: BigInteger): String = if (amount < BigInteger.valueOf(1000L)) {
-        "$amount mB"
-    } else {
-        "${BigDecimal(amount, 3).stripTrailingZeros().toPlainString()} B"
-    }
+    fun formatFluid(amount: BigInteger): String = MEFluidUnits.formatDisplayAmount(amount.toDouble())
 }
