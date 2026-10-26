@@ -12,7 +12,7 @@ public abstract class StargateNetworkMixin {
 
     @ModifyExpressionValue(method = "createConnection",
                            at = @At(value = "FIELD",
-                                    target = "Lnet/povstalec/sgjourney/common/data/StargateNetwork;requireEnergy:Z",
+                                    target = "Lnet/povstalec/sgjourney/common/data/StargateNetwork;REQUIRE_ENERGY:Z",
                                     opcode = Opcodes.GETSTATIC),
                            remap = false,
                            require = 1,

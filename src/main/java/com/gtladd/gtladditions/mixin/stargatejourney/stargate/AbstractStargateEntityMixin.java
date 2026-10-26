@@ -1,76 +1,52 @@
 package com.gtladd.gtladditions.mixin.stargatejourney.stargate;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.povstalec.sgjourney.common.block_entities.stargate.AbstractStargateEntity;
-import net.povstalec.sgjourney.common.block_entities.tech.EnergyBlockEntity;
 import net.povstalec.sgjourney.common.config.CommonStargateConfig;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractStargateEntity.class)
-public abstract class AbstractStargateEntityMixin extends EnergyBlockEntity {
+public abstract class AbstractStargateEntityMixin {
 
-    public AbstractStargateEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state, boolean canGenerateEnergy) {
-        super(type, pos, state, canGenerateEnergy);
+    @Shadow(remap = false)
+    @Final
+    @Mutable
+    private static boolean REQUIRE_ENERGY;
+
+    @Inject(method = "<clinit>", at = @At("TAIL"), remap = false)
+    private static void gtladditions$disableWormholeEnergy(CallbackInfo ci) {
+        REQUIRE_ENERGY = false;
     }
 
-    // ========================================
-    // Disable SG Energy
-    // ========================================
-
-    @Override
-    public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        var tempCap = super.getCapability(cap, side);
-        if (tempCap.isPresent() && tempCap.resolve().isPresent()) {
-            if (cap == ForgeCapabilities.ENERGY)
-                return LazyOptional.empty();
-        }
-        return tempCap;
+    @Inject(method = "getCapability", at = @At("HEAD"), cancellable = true, remap = false)
+    private <T> void gtladditions$hideEnergyCapability(Capability<T> cap, Direction side, CallbackInfoReturnable<LazyOptional<T>> cir) {
+        if (cap == ForgeCapabilities.ENERGY) cir.setReturnValue(LazyOptional.empty());
     }
 
-    @Override
-    public long getEnergyStored() {
-        return 0;
+    @Inject(method = { "getEnergyCapacity", "getMaxEnergyReceive", "getMaxEnergyExtract", "getMaxEnergyDeplete" },
+            at = @At("HEAD"),
+            cancellable = true,
+            remap = false)
+    private void gtladditions$disableEnergyStorage(CallbackInfoReturnable<Long> cir) {
+        cir.setReturnValue(0L);
     }
 
-    @Override
-    public long capacity() {
-        return 0;
-    }
-
-    @Override
-    public long maxReceive() {
-        return 0;
-    }
-
-    @Override
-    public long maxExtract() {
-        return 0;
-    }
-
-    @Override
-    protected boolean canReceiveZeroPointEnergy() {
-        return false;
-    }
-
-    @Override
-    public long receiveEnergy(long maxReceive, boolean simulate) {
-        return 0;
-    }
-
-    public long extractEnergy(long maxExtract, boolean simulate) {
-        return 0;
+    @Inject(method = "canReceiveZeroPointEnergy", at = @At("HEAD"), cancellable = true, remap = false)
+    private void gtladditions$disableZeroPointEnergy(CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(false);
     }
 
     @Redirect(method = "disconnectStargate", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeConfigSpec$BooleanValue;get()Ljava/lang/Object;"), remap = false)

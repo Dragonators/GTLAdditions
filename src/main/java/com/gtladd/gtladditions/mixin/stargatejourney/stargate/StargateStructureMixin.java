@@ -41,7 +41,7 @@ import static com.gtladd.gtladditions.utils.CommonUtils.selectDisplayItem;
 public abstract class StargateStructureMixin extends SGJourneyStructure {
 
     public StargateStructureMixin(StructureSettings config, Holder<StructureTemplatePool> startPool, Optional<ResourceLocation> startJigsawName, int size, HeightProvider startHeight, Optional<Heightmap.Types> projectStartToHeightmap, int maxDistanceFromCenter, Optional<Boolean> commonStargates) {
-        super(config, startPool, startJigsawName, size, startHeight, projectStartToHeightmap, maxDistanceFromCenter, commonStargates);
+        super(config, startPool, startJigsawName, size, startHeight, projectStartToHeightmap, maxDistanceFromCenter, Optional.empty(), commonStargates, Optional.empty(), Optional.empty());
     }
 
     /**

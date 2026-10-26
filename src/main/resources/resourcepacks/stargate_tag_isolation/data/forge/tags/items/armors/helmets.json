@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [],
+  "remove": [
+    "sgjourney:naquadah_helmet",
+    "sgjourney:trinium_helmet"
+  ]
+}

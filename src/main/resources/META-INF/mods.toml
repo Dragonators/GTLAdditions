@@ -33,7 +33,7 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "sgjourney"
 mandatory = true
-versionRange = "[0.6.44]"
+versionRange = "[0.6.52]"
 ordering = "AFTER"
 side = "BOTH"
 

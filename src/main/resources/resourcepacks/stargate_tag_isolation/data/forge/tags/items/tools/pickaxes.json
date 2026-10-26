@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [],
+  "remove": [
+    "sgjourney:naquadah_pickaxe",
+    "sgjourney:trinium_pickaxe"
+  ]
+}

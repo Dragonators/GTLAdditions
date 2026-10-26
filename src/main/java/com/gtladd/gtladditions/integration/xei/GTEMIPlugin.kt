@@ -6,6 +6,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ATOMI
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIOFLARE_POWER_FORGE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBATOMIC_TRANSMUTATIOON_CORE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD
+import com.gtladd.gtladditions.integration.stargate.StargateContent
 import com.lowdragmc.lowdraglib.LDLib
 import dev.emi.emi.api.EmiEntrypoint
 import dev.emi.emi.api.EmiPlugin
@@ -13,6 +14,7 @@ import dev.emi.emi.api.EmiRegistry
 import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories
 import dev.emi.emi.api.stack.EmiStack
 import net.minecraft.world.item.Item
+import net.minecraft.world.level.material.Fluid
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 
 @Suppress("unused")
@@ -21,8 +23,13 @@ class GTEMIPlugin : EmiPlugin {
     override fun register(registry: EmiRegistry) {
         registry.addGenericDragDropHandler(TerminalSearchBoxEmiHandler)
         registry.removeEmiStacks { stack ->
-            val key = stack.key
-            key is Item && (key == ATOMIC_TRANSMUTATIOON_CORE.item || key == APOCALYPTIC_TORSION_QUANTUM_MATRIX.item)
+            when (val key = stack.key) {
+                is Item -> StargateContent.isDisabledItem(key) ||
+                    key == ATOMIC_TRANSMUTATIOON_CORE.item ||
+                    key == APOCALYPTIC_TORSION_QUANTUM_MATRIX.item
+                is Fluid -> StargateContent.isDisabledFluid(key)
+                else -> false
+            }
         }
 
         // Conversion runs on a dummy recipe type; expose its actual block conversion recipes here.
