@@ -45,7 +45,7 @@ object ThreadMultiplierStrategy {
     )
 
     fun getAdditionalMultiplier(definition: MultiblockMachineDefinition?): Int {
-        val result = min((1 / ConfigHolder.INSTANCE.durationMultiplier), 4096.0) * BLOCK_MULTIPLIER_MAP.getOrDefault(definition, 2)
+        val result = min((1 / ConfigHolder.INSTANCE.content.durationMultiplier), 4096.0) * BLOCK_MULTIPLIER_MAP.getOrDefault(definition, 2)
         return result.roundToInt()
     }
 }

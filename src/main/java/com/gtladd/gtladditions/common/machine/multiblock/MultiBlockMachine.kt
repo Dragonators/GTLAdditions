@@ -2528,7 +2528,7 @@ object MultiBlockMachine {
             .tooltipTextKey("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.3".toComponent)
             .tooltipTextKey("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.4".toComponent)
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
                     tooltipTextKey("gtladditions.multiblock.forge_of_the_antichrist.tooltip.3".toComponent)
                     tooltipTextKey(
                         "gtladditions.multiblock.base_parallel".toComponent("1536".literal.withStyle(ChatFormatting.GOLD))
@@ -2544,7 +2544,7 @@ object MultiBlockMachine {
             .tooltipTextKey("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.10".toComponent)
             .tooltipTextKey("tooltip.gtlcore.structure.source".toComponent("TST"))
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
                     tooltipTextRecipeTypes(STAR_CORE_STRIPPER, ELEMENT_COPYING_RECIPES)
                 } else {
                     tooltipTextRecipeTypes(ELEMENT_COPYING_RECIPES)
@@ -2552,7 +2552,7 @@ object MultiBlockMachine {
             }
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
                     recipeTypes(STAR_CORE_STRIPPER, ELEMENT_COPYING_RECIPES)
                 } else {
                     recipeTypes(ELEMENT_COPYING_RECIPES)

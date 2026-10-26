@@ -1238,7 +1238,7 @@ object NewMultiBlockMachineController {
             .save(provider)
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("macro_atomic_resonant_fragment_stripper"))
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
                     inputItems(LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE, 768)
                 } else {
                     inputItems(ELEMENT_COPYING, 64)
@@ -1247,7 +1247,7 @@ object NewMultiBlockMachineController {
             .inputItems(CustomTags.OpV_CIRCUITS, 64)
             .inputItems(CustomTags.OpV_CIRCUITS, 64)
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
                     inputItems(ELEMENT_COPYING, 768)
                 } else {
                     inputItems(ELEMENT_COPYING, 64)
@@ -1273,7 +1273,7 @@ object NewMultiBlockMachineController {
             .EUt(VA[UXV].toLong()).duration(9600)
             .stationResearch { b: StationRecipeBuilder? ->
                 b!!.researchStack(
-                    if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                    if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
                         LARGE_FRAGMENT_WORLD_COLLECTION_MACHINE.asStack()
                     } else {
                         ELEMENT_COPYING.asStack()

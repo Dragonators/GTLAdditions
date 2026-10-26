@@ -43,7 +43,7 @@ object RecipesModify {
         initSpaceOreProcessor()
         initLeylineCrystallize()
         initForgeOfTheAntichristSlotNames()
-        if (ConfigHolder.INSTANCE.enableSkyBlokeMode) SkyTearsAndGregHeart.init()
+        if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) SkyTearsAndGregHeart.init()
     }
 
     private fun initAntientropyCondensation() {

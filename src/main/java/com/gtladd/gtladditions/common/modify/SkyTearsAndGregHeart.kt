@@ -63,7 +63,7 @@ object SkyTearsAndGregHeart {
         )
     }
 
-    private val itemModifier = ContentModifier.multiplier(min(4.0 / max(ConfigHolder.INSTANCE.durationMultiplier, 1.0), 4096.0))
+    private val itemModifier = ContentModifier.multiplier(min(4.0 / max(ConfigHolder.INSTANCE.content.durationMultiplier, 1.0), 4096.0))
 
     fun init() {
         GTLRecipeTypes.FRAGMENT_WORLD_COLLECTION.onRecipeBuild { recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe> ->
@@ -144,7 +144,7 @@ object SkyTearsAndGregHeart {
     }
 
     fun init(provider: Consumer<FinishedRecipe?>) {
-        if (!ConfigHolder.INSTANCE.enableSkyBlokeMode) return
+        if (!ConfigHolder.INSTANCE.content.enableSkyBlokeMode) return
         STAR_CORE_STRIPPER.recipeBuilder(id("for_stargate"))
             .notConsumable(WORLD_FRAGMENTS_OVERWORLD)
             .chancedOutput(WORLD_FRAGMENTS_OVERWORLD.asStack(), 5000, 0)

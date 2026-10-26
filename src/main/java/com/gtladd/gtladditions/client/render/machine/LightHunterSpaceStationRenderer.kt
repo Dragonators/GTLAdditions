@@ -31,7 +31,7 @@ class LightHunterSpaceStationRenderer :
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? LightHunterSpaceStation ?: return
         if ((!machine.isFormed && !machine.recipeLogic.isWorking) || ShadowRenderingState.areShadowsCurrentlyBeingRendered()) return
-        val tick = LightHunterVfxRenderer.sampleAnimationTick(ConfigHolder.INSTANCE.enableSmoothAnimations) {
+        val tick = LightHunterVfxRenderer.sampleAnimationTick(ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) {
             RenderUtil.getSmoothTick(machine, partialTicks)
         }
 

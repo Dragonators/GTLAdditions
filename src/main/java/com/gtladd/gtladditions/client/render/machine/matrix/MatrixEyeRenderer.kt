@@ -48,7 +48,7 @@ object MatrixEyeRenderer {
 
     fun sample(blockEntity: BlockEntity, seconds: Double, running: Boolean): MatrixEyeAnimation.Frame =
         animations.getOrPut(blockEntity) { MatrixEyeAnimation() }
-            .sample(seconds, running, ConfigHolder.INSTANCE.enableSmoothAnimations)
+            .sample(seconds, running, ConfigHolder.INSTANCE.graphics.enableSmoothAnimations)
 
     fun forget(blockEntity: BlockEntity) {
         animations.remove(blockEntity)

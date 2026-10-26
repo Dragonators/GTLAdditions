@@ -104,7 +104,7 @@ class MatrixEffectsTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTrait(m
 
     @OnlyIn(Dist.CLIENT)
     private fun clientTime(partialTicks: Float): Double {
-        val smooth = ConfigHolder.INSTANCE.enableSmoothAnimations
+        val smooth = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
         val now = RenderUtil.getSmoothTick(machine, partialTicks).toDouble()
         if (clientSmoothAnimations != null && clientSmoothAnimations != smooth) {
             // Both sources advance in ticks, but their origins are unrelated.

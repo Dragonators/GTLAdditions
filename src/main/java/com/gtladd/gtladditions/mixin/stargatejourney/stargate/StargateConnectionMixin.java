@@ -8,6 +8,7 @@ import net.povstalec.sgjourney.common.sgjourney.stargate.Stargate;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -43,8 +44,14 @@ public abstract class StargateConnectionMixin {
         return false;
     }
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/povstalec/sgjourney/common/sgjourney/stargate/Stargate;doWormhole(Lnet/minecraft/server/MinecraftServer;Lnet/povstalec/sgjourney/common/sgjourney/StargateConnection;ZLnet/povstalec/sgjourney/common/sgjourney/StargateInfo$WormholeTravel;)V", ordinal = 1), remap = false)
-    private void forceDialedSideWormholeTravel(Stargate stargate, MinecraftServer server, StargateConnection connection, boolean isDialedSide, StargateInfo.WormholeTravel travel) {
-        stargate.doWormhole(server, connection, isDialedSide, StargateInfo.WormholeTravel.ENABLED);
+    @ModifyArg(method = "tick",
+               at = @At(value = "INVOKE",
+                        target = "Lnet/povstalec/sgjourney/common/sgjourney/stargate/Stargate;doWormhole(Lnet/minecraft/server/MinecraftServer;Lnet/povstalec/sgjourney/common/sgjourney/StargateConnection;ZLnet/povstalec/sgjourney/common/sgjourney/StargateInfo$WormholeTravel;)V",
+                        ordinal = 1),
+               index = 3,
+               remap = false,
+               require = 1)
+    private StargateInfo.WormholeTravel gtladditions$enableDialedSideTravel(StargateInfo.WormholeTravel original) {
+        return StargateInfo.WormholeTravel.ENABLED;
     }
 }

@@ -314,7 +314,7 @@ object Misc {
             .outputItems(nugget, Magmatter, 9)
             .duration(2000).EUt(VA[MAX].toLong())
             .save(provider)
-        if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+        if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
             WORLD_DATA_SCANNER_RECIPES.recipeBuilder(id("barnarda_data_sky"))
                 .notConsumable(WORLD_FRAGMENTS_BARNARDA.asStack())
                 .inputItems(TOOL_DATA_STICK.asStack(8))
@@ -327,7 +327,7 @@ object Misc {
                 .save(provider)
         }
         initAdditionMaterial(provider)
-        if (!ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+        if (!ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
             GREENHOUSE_RECIPES.recipeBuilder(id("oak_sapling"))
                 .notConsumable(getItemStack("minecraft:oak_sapling"))
                 .inputFluids(Water.getFluid(1000))

@@ -72,7 +72,7 @@ internal object QFTForceFieldRenderer {
         private val bounds = QFTForceFieldGeometry.bounds(center)
 
         // A shared shader uniform is valid only when the machines share an animation clock.
-        override val batchKey: Any? = if (ConfigHolder.INSTANCE.enableSmoothAnimations) QFTForceFieldRenderer else null
+        override val batchKey: Any? = if (ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) QFTForceFieldRenderer else null
         override val renderOrder: Int = 20
 
         override fun isVisible(context: DeferredRenderContext): Boolean =

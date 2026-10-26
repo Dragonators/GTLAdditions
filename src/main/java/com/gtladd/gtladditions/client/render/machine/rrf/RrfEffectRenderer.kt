@@ -73,7 +73,7 @@ internal object RrfEffectRenderer {
         val array = first.kind == RrfEffectKind.ARRAY
         val currentShader = (if (array) arrayShader else shader)
             ?: return
-        val smoothAnimations = ConfigHolder.INSTANCE.enableSmoothAnimations
+        val smoothAnimations = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
         val sharedTicks = if (smoothAnimations) RenderUtil.getSmoothTick(first.machine, first.partialTicks) else 0f
         preparedKinds.clear()
         builder.begin(
