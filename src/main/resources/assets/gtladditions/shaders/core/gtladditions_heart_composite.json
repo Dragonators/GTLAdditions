@@ -24,9 +24,33 @@
     },
     {
       "name": "BlurredMaskSampler"
+    },
+    {
+      "name": "BloomSampler"
+    },
+    {
+      "name": "BloomSampler1"
+    },
+    {
+      "name": "BloomSampler2"
+    },
+    {
+      "name": "BloomSampler3"
+    },
+    {
+      "name": "BloomSampler4"
+    },
+    {
+      "name": "HandMaskSampler"
     }
   ],
   "uniforms": [
+    {
+      "name": "HandMaskEnabled",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
+    },
     {
       "name": "BlurInputScale",
       "type": "float",
@@ -35,6 +59,7 @@
         2.0,
         2.0
       ]
-    }
+    },
+    {"name": "CompositeOrigin", "type": "float", "count": 2, "values": [0, 0]}
   ]
 }

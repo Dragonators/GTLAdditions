@@ -27,17 +27,11 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.crafting.Ingredient
-import org.gtlcore.gtlcore.api.recipe.IAdvancedContentModifier
-import org.gtlcore.gtlcore.api.recipe.IGTRecipe
-import org.gtlcore.gtlcore.api.recipe.IParallelLogic
-import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
-import org.gtlcore.gtlcore.api.recipe.RecipeResult
-import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
+import org.gtlcore.gtlcore.api.recipe.*
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
 import org.gtlcore.gtlcore.utils.Registries
 import java.math.BigDecimal
 import java.math.BigInteger
-import kotlin.collections.get
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -448,16 +442,16 @@ object RecipeCalculationHelper {
     // Recipe Copy Boost Fix ( > 10000 max chance)
     // ===================================================
 
-    fun copyFixRecipe(origin: GTRecipe, modifier: ContentModifier, fixMultiplier: Int) =
+    fun copyFixRecipe(origin: GTRecipe, modifier: ContentModifier): GTRecipe =
         RecipeExtensionCopier.copy(
             origin,
             GTRecipe(
                 origin.recipeType,
                 origin.id,
-                copyFixContents(origin.inputs, modifier, fixMultiplier),
-                copyFixContents(origin.outputs, modifier, fixMultiplier),
-                copyFixContents(origin.tickInputs, modifier, fixMultiplier),
-                copyFixContents(origin.tickOutputs, modifier, fixMultiplier),
+                copyFixContents(origin.inputs, modifier),
+                copyFixContents(origin.outputs, modifier),
+                copyFixContents(origin.tickInputs, modifier),
+                copyFixContents(origin.tickOutputs, modifier),
                 Reference2ReferenceArrayMap(origin.inputChanceLogics),
                 Reference2ReferenceArrayMap(origin.outputChanceLogics),
                 Reference2ReferenceArrayMap(origin.tickInputChanceLogics),
@@ -472,8 +466,7 @@ object RecipeCalculationHelper {
 
     fun copyFixContents(
         contents: Map<RecipeCapability<*>, List<Content>>,
-        modifier: ContentModifier,
-        fixMultiplier: Int
+        modifier: ContentModifier
     ): Map<RecipeCapability<*>, List<Content>> =
         Reference2ReferenceArrayMap<RecipeCapability<*>, List<Content>>().apply {
             contents.forEach { (cap, contentList) ->
@@ -482,7 +475,7 @@ object RecipeCalculationHelper {
                         cap,
                         ObjectArrayList(
                             contentList.map { content ->
-                                copyFixBoost(content, cap, modifier, fixMultiplier)
+                                copyFixBoost(content, cap, modifier)
                             }
                         )
                     )
@@ -493,10 +486,9 @@ object RecipeCalculationHelper {
     fun copyFixBoost(
         content: Content,
         capability: RecipeCapability<*>,
-        modifier: ContentModifier,
-        fixMultiplier: Int
+        modifier: ContentModifier?
     ): Content {
-        val newContent = if (content.chance != 0) {
+        val newContent = if (content.chance != 0 && modifier != null) {
             capability.copyContent(content.content, modifier)
         } else {
             capability.copyContent(content.content)
@@ -506,10 +498,13 @@ object RecipeCalculationHelper {
             newContent,
             content.chance,
             content.maxChance,
-            content.tierChanceBoost / fixMultiplier,
+            0,
             content.slotName,
             content.uiName
-        )
+        ).also {
+            // Content's constructor rescales boosts for maxChance; copies must retain the actual field value.
+            it.tierChanceBoost = content.tierChanceBoost
+        }
     }
 
     // ===================================================

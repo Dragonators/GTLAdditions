@@ -1,0 +1,5 @@
+# Forge requires a material to bake OBJ faces. Rendering retains positions only.
+newmtl geometry
+Kd 1.0 1.0 1.0
+Ka 0.0 0.0 0.0
+map_Kd #surface

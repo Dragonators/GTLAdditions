@@ -1,4 +1,4 @@
-﻿---
+---
 navigation:
   title: GTLAdditions Multiblock Controllers
   parent: machine/machine_index.md
@@ -28,11 +28,10 @@ categories:
 
 ## <Color color="#00AA00">**UIV**</Color>
 
-* ~~[Atomic Transmutation Core](atomic_transmutation_core.md)~~
 * [Advanced Chemical Plant](dimensionally_transcendent_chemical_plant.md)
 * [Antientropy Condensation Center](antientropy_condensation_center.md)
 * [Inferno Cleft Smelting Vault](inferno_cleft_smelting_vault.md)
-* [Subatomic Transmutatioon Core](subatomic_transmutatioon_core.md)
+* [Subatomic Transmutation Core](subatomic_transmutatioon_core.md)
 * [Nebula Reaper](nebula_reaper.md)
 
 ## <Color color="#FFFF00">**UXV**</Color>
@@ -57,7 +56,7 @@ categories:
 * [Arcanic Astrograph](arcanic_astrograph.md)
 * [Recursive Reverse Array](recursive_reverse_array.md)
 * [Space Infinity Integrated Ore Processor](space_infinity_integrated_ore_processor.md)
-* [Apocalyptic Torsion Quantum Matrix](apocalyptic_torsion_quantum_matrix.md)
+* [Apocalyptic Quantum Warp Matrix](apocalyptic_quantum_warp_matrix.md)
 * [Time Space Distorter](time_space_distorter.md)
 * [Forge of the Antichrist](forge_of_the_antichrist.md)
 * [Helio Forge Modules](helio_forge_modules.md)

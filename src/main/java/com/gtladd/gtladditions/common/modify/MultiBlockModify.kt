@@ -24,6 +24,7 @@ import com.gtladd.gtladditions.api.pattern.PatternPredicateSelector
 import com.gtladd.gtladditions.api.pattern.patchPatternPredicates
 import com.gtladd.gtladditions.api.pattern.patternPredicateSelector
 import com.gtladd.gtladditions.api.pattern.replacePatternPredicates
+import com.gtladd.gtladditions.client.render.machine.QFTRenderer
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.multiblock.controller.BasicOreProcessorMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.MolecularAssemblerMultiblockMachine
@@ -31,6 +32,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.Adva
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.CreateAggregation
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.DoorOfCreate
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
+import com.lowdragmc.lowdraglib.LDLib
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -175,6 +177,10 @@ object MultiBlockModify {
     )
 
     fun init() {
+        if (LDLib.isClient()) {
+            MultiBlockMachineA.QFT.renderer = QFTRenderer()
+        }
+
         MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             BasicOreProcessorMachine(blockEntity)
         }

@@ -1,0 +1,23 @@
+GTNH Eye of Harmony planet textures
+
+Source: GTNewHorizons/GT5-Unofficial
+Commit: 45cc18c5be210232a767f470cd5870b02202f056
+Directory: src/main/resources/assets/gtneioreplugin/textures/blocks/
+https://github.com/GTNewHorizons/GT5-Unofficial/tree/45cc18c5be210232a767f470cd5870b02202f056/src/main/resources/assets/gtneioreplugin/textures/blocks
+License: GNU LGPL v3; see LGPL-3.0.txt and GPL-3.0.txt in
+assets/gtladditions/models/effect/condensation/.
+
+All 240 PNG files are byte-for-byte upstream copies, checked against the
+upstream Git blob hashes. The 40-planet pool follows DimensionHelper and
+TileEntityEyeOfHarmony.BLACKLISTED_PLANETS at this commit.
+
+Each lower-case subdirectory maps to the original dimension abbreviation:
+Ne, TF, Eg, Mo, De, Ma, Ph, As, Ca, Ce, Eu, Ga, Rb, Io, Me, Ve, En, Mi, Ob, Ti,
+Ra, Pr, Tr, Ha, KB, MM, Pl, BC, BE, BF, CB, TE, VB, An, Ho, Mh, MB, Np, Se, DD
+
+Mapping: <dimension>/<face>.png comes from <Dimension>_<face>.png.
+Minecraft 1.20 models map bottom/top/back/front/left/right to
+down/up/north/south/west/east respectively. Model JSON is authored locally.
+
+The shared planet_cube model flips the bottom-face V coordinate to match
+EOHRenderingUtils.emitBlock (GTNH with its bottom-face UV fix enabled).

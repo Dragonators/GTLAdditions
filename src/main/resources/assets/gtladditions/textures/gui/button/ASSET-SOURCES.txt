@@ -1,0 +1,24 @@
+Dimension Folding toggle icons
+==============================
+
+dimension_fold_off.png and dimension_fold_on.png are unmodified copies of
+GT New Horizons / GT5-Unofficial's TecTech safe_void_off.png and safe_void_on.png.
+These are the icons used by the Dimensional Convergence button in the
+Dimensionally Transcendent Plasma Forge (MTEPlasmaForgeGui).
+
+Source project: https://github.com/GTNewHorizons/GT5-Unofficial
+Source revision: fe405d6b5fbc1433315790d70251b73b7854599f
+Original directory: src/main/resources/assets/tectech/textures/gui/overlay_button/
+Button definition: src/main/java/gregtech/common/gui/modularui/multiblock/MTEPlasmaForgeGui.java
+Original contributors: GT New Horizons / GT5-Unofficial and TecTech contributors.
+
+Source license: GNU Lesser General Public License v3, as provided by the
+upstream LICENSE.txt, which is identical to
+assets/gtladditions/models/effect/condensation/LGPL-3.0.txt; the incorporated
+GNU General Public License v3 text is GPL-3.0.txt in the same directory.
+The upstream archive preserves TecTech's original MIT notice, copyright
+(c) 2017-2022 TecTech; it is included here as TECTECH-LICENSE.txt.
+
+SHA-256 (unmodified PNG files):
+dimension_fold_off.png: 1fdd1b8780f507b1093de5c6a9b232f0520e3b499c2905fbc68f04b2b33bec74
+dimension_fold_on.png: 87783532e843c1b39f2ae24c2c75412654165cc175beef539568b927227196b5

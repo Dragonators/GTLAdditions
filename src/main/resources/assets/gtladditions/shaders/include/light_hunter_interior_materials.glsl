@@ -1,0 +1,19 @@
+// Numeric contract shared with LightHunterInteriorGeometry.
+const int INTERIOR_HOUSING = 0;
+const int INTERIOR_FAN_FRAME = 16;
+const int INTERIOR_RECESS = 32;
+const int INTERIOR_WHITE = 64;
+const int INTERIOR_FAN_MARKING = 80;
+const int INTERIOR_FAN_MOUNT = 84;
+const int INTERIOR_FAN_TRIM = 88;
+const int INTERIOR_DIFFUSER = 96;
+const int INTERIOR_FAN_BLADE = 112;
+const int INTERIOR_FAN_HUB = 116;
+const int INTERIOR_FAN_GUARD = 128;
+const int INTERIOR_DISPLAY_HOUSING = 132;
+const int INTERIOR_DISPLAY_GLASS = 136;
+const int INTERIOR_DISPLAY_FACE = 140;
+const int INTERIOR_DISPLAY_OUTLINE = 144;
+const int INTERIOR_DISPLAY_LABEL = 148;
+const int INTERIOR_DISPLAY_MARKER = 152;
+const int INTERIOR_DISPLAY_TRIM = 156;

@@ -1,0 +1,32 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "1-srccolor", "srcalpha": "zero", "dstalpha": "one"},
+  "vertex": "gtladditions:gtladditions_matrix_iris_star",
+  "fragment": "gtladditions:gtladditions_matrix_iris_star",
+  "attributes": ["Position","iA","iB","iC","iD"],
+  "samplers": [],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "uZ", "type": "float", "count": 1, "values": [2.674]},
+    {"name": "ViewportHeight", "type": "float", "count": 1, "values": [1080]},
+    {"name": "uRot0", "type": "float", "count": 1, "values": [0]},
+    {"name": "uRot1", "type": "float", "count": 1, "values": [0]},
+    {"name": "uRot2", "type": "float", "count": 1, "values": [0]},
+    {"name": "uRot3", "type": "float", "count": 1, "values": [0]},
+    {"name": "uW0", "type": "float", "count": 3, "values": [0.03,0.06,0.11]},
+    {"name": "uW1", "type": "float", "count": 3, "values": [0.083,0.215,0.41]},
+    {"name": "uW2", "type": "float", "count": 3, "values": [0.12,0.32,0.6]},
+    {"name": "uPrimary", "type": "float", "count": 3, "values": [1,0.68,0.24]},
+    {"name": "uSecondary", "type": "float", "count": 3, "values": [1,0.88,0.66]},
+    {"name": "uGazeDir", "type": "float", "count": 2, "values": [1,0]},
+    {"name": "uTime", "type": "float", "count": 1, "values": [0]},
+    {"name": "uLight", "type": "float", "count": 1, "values": [1]},
+    {"name": "uIdle", "type": "float", "count": 1, "values": [0.16]},
+    {"name": "uReveal", "type": "float", "count": 1, "values": [45]},
+    {"name": "uFront", "type": "float", "count": 1, "values": [0]},
+    {"name": "uGazeAmt", "type": "float", "count": 1, "values": [0]},
+    {"name": "uOpen", "type": "float", "count": 1, "values": [1]},
+    {"name": "uBright", "type": "float", "count": 1, "values": [1]},
+    {"name": "uPhase", "type": "float", "count": 1, "values": [0]}
+  ]
+}

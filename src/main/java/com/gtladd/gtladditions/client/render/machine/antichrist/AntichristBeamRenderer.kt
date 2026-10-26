@@ -3,6 +3,7 @@ package com.gtladd.gtladditions.client.render.machine.antichrist
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
 import com.gtladd.gtladditions.client.render.withPose
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
@@ -38,7 +39,7 @@ object AntichristBeamRenderer {
     private const val BACK_PLATE_RADIUS = 13.0f
     private const val INTENSE_BEAM_TANGENT_FADE_DISTANCE = 3.75f
 
-    private val SPACE_LAYER = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/space_layer.png")
+    private val SPACE_LAYER = GTLAdditions.id("textures/effect/astrograph/space_layer.png")
 
     private val beamBuffer: VertexBuffer by lazy {
         VertexBuffer(VertexBuffer.Usage.DYNAMIC)
@@ -63,6 +64,7 @@ object AntichristBeamRenderer {
         }
     }
 
+    @JvmOverloads
     fun renderLinear(
         blockEntity: BlockEntity,
         poseStack: PoseStack,
@@ -76,7 +78,10 @@ object AntichristBeamRenderer {
         colorB: Float,
         outerAlpha: Float,
         innerRadiusScale: Float,
-        innerAlpha: Float
+        innerAlpha: Float,
+        innerColorR: Float = 1f,
+        innerColorG: Float = 1f,
+        innerColorB: Float = 1f
     ) {
         val beamX = to.x - from.x
         val beamY = to.y - from.y
@@ -105,7 +110,38 @@ object AntichristBeamRenderer {
         poseStack.withPose {
             translate(from.x, from.y, from.z)
             mulPose(rotation)
-            renderCurrentSegments(shader, tick, colorR, colorG, colorB, 1.0f, 1.0f, 1.0f)
+            renderCurrentSegments(shader, tick, colorR, colorG, colorB, innerColorR, innerColorG, innerColorB)
+        }
+    }
+
+    fun renderLinearLayer(
+        blockEntity: BlockEntity,
+        poseStack: PoseStack,
+        tick: Float,
+        from: Vec3,
+        to: Vec3,
+        radius: Float,
+        alpha: Float,
+        shader: ShaderInstance
+    ) {
+        val direction = Vector3f((to.x - from.x).toFloat(), (to.y - from.y).toFloat(), (to.z - from.z).toFloat())
+        val length = direction.length()
+        if (length <= 0.001f) return
+        direction.div(length)
+        val rotation = Quaternionf().rotationTo(0f, 0f, 1f, direction.x, direction.y, direction.z)
+        updateCameraPositionInLocalBeamSpace(blockEntity, from, rotation)
+        writeLinearBeamSegments(radius, radius, length, alpha, softBeam)
+        shader.getUniform("CameraPosition")?.set(cameraPosition)
+        RenderSystem.setShaderTexture(0, SPACE_LAYER)
+        uploadBeamBuffer(softBeam, tick)
+        poseStack.withPose {
+            translate(from.x, from.y, from.z)
+            mulPose(rotation)
+            DeferredOculusCompat.withDeferredShaderPass {
+                RenderUtils.withBoundBuffer(beamBuffer) {
+                    beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+                }
+            }
         }
     }
 
@@ -135,19 +171,20 @@ object AntichristBeamRenderer {
         shader.getUniform("Intensity")?.set(2.0f)
         uploadBeamBuffer(softBeam, tick)
         DeferredOculusCompat.withDeferredShaderPass {
-            beamBuffer.bind()
-            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            RenderUtils.withBoundBuffer(beamBuffer) {
+                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            }
         }
 
         shader.getUniform("BeamColor")?.set(intenseColorR, intenseColorG, intenseColorB)
         shader.getUniform("Intensity")?.set(4.0f)
         uploadBeamBuffer(intenseBeam, tick)
         DeferredOculusCompat.withDeferredShaderPass {
-            beamBuffer.bind()
-            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            RenderUtils.withBoundBuffer(beamBuffer) {
+                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            }
         }
 
-        VertexBuffer.unbind()
         RenderSystem.enableCull()
         RenderSystem.depthMask(true)
         RenderSystem.disableBlend()
@@ -344,13 +381,15 @@ object AntichristBeamRenderer {
         builder.begin(VertexFormat.Mode.TRIANGLES, AntichristShaders.BEAM_VERTEX_FORMAT)
         writeBeamVertices(builder, segments, tick)
 
-        beamBuffer.bind()
-        beamBuffer.upload(builder.end())
+        RenderUtils.withBoundBuffer(beamBuffer) {
+            beamBuffer.upload(builder.end())
+        }
     }
 
     private fun writeBeamVertices(builder: BufferBuilder, segments: SegmentBuffer, tick: Float) {
         val cameraAngle = atan2(cameraPosition.y, cameraPosition.x)
-        for (segmentId in 0 until MAX_SEGMENTS) {
+
+        for (segmentId in 0 until segments.segmentCount) {
             for (quadId in 0 until SEGMENT_QUADS) {
                 addBeamVertex(builder, segments, segmentId + 1, quadId, 0, cameraAngle, tick)
                 addBeamVertex(builder, segments, segmentId, quadId, 1, cameraAngle, tick)
@@ -399,6 +438,8 @@ object AntichristBeamRenderer {
     private class SegmentBuffer {
         val values = FloatArray(ENDPOINT_FLOATS)
         private var endpointCount = 0
+        val segmentCount: Int
+            get() = (endpointCount - 1).coerceAtLeast(0)
 
         fun clear() {
             endpointCount = 0

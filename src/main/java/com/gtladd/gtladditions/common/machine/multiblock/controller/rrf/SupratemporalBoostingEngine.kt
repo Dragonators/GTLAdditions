@@ -44,6 +44,8 @@ class SupratemporalBoostingEngine(holder: IMachineBlockEntity, vararg args: Any?
 
     fun isBoostWindowActive(): Boolean = isReadyForRecursiveReverseBuff() && !overheated
 
+    override fun isEffectReady(): Boolean = isBoostWindowActive()
+
     fun getEuMultiplierBuff(): Double = calculateEuMultiplier(getPerfectSupratemporalBoostParameter())
 
     // ========================================

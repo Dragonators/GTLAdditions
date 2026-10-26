@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.DataModuleBindingError
 import com.gtladd.gtladditions.api.machine.DataModuleBindingResult
+import com.gtladd.gtladditions.api.machine.ITimeSpaceDistorterSource
 import com.gtladd.gtladditions.api.machine.IWirelessBindableSource
 import com.gtladd.gtladditions.api.machine.IWirelessBindableTarget
 import com.gtladd.gtladditions.api.machine.gui.MultiblockDisplayText
@@ -34,6 +35,9 @@ import org.gtlcore.gtlcore.common.data.GTLMaterials.Hypogen
 import org.gtlcore.gtlcore.common.data.GTLMaterials.Infinity
 import org.gtlcore.gtlcore.common.data.GTLMaterials.SpaceTime
 import org.gtlcore.gtlcore.utils.Registries
+import org.gtlcore.gtlcore.utils.datastructure.Int128
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
     WorkableElectricMultiblockMachine(holder, *args),
@@ -50,17 +54,13 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
 
     @Persisted
     @DescSynced
-    private var lastConsumedDistortionLevel = 0
-
-    @Persisted
-    @DescSynced
-    private var lastConsumedParallels = 0L
+    private var lastConsumedAmounts = LongArray(0)
 
     @Persisted
     @DescSynced
     private var lastConsumptionSucceeded = false
 
-    private var boundMatrix: ApocalypticTorsionQuantumMatrix? = null
+    private var boundMatrix: ITimeSpaceDistorterSource? = null
 
     @Suppress("unused")
     fun supportsBatchProcessing(): Boolean = false
@@ -74,15 +74,16 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
 
     override val bindingTargetType: ResourceLocation = BINDING_TYPE
 
-    override fun acceptsBindingSource(type: ResourceLocation): Boolean = type == ApocalypticTorsionQuantumMatrix.BINDING_TYPE
+    override fun acceptsBindingSource(type: ResourceLocation): Boolean =
+        type == ApocalypticTorsionQuantumMatrix.BINDING_TYPE || type == ApocalypticWarpQuantumMatrix.BINDING_TYPE
 
     override fun bindResolvedSource(source: IWirelessBindableSource<*>): DataModuleBindingResult {
-        val matrix = source as? ApocalypticTorsionQuantumMatrix ?: return DataModuleBindingResult.Failure(
+        val matrix = source as? ITimeSpaceDistorterSource ?: return DataModuleBindingResult.Failure(
             DataModuleBindingError.TARGET_MISMATCH,
             "gtladditions.message.suprachronal_data_module.target_mismatch".toComponent
         )
 
-        if (matrix.level?.dimension() != level?.dimension()) {
+        if (matrix.getLevel()?.dimension() != level?.dimension()) {
             return DataModuleBindingResult.Failure(
                 DataModuleBindingError.DIMENSION_MISMATCH,
                 "gtladditions.message.suprachronal_data_module.dimension_mismatch".toComponent
@@ -99,10 +100,10 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
             boundMatrix?.onUnbound(this)
         }
         boundMatrix = matrix
-        boundMatrixPos = matrix.pos
+        boundMatrixPos = matrix.getPos()
 
         matrix.onBound(this)
-        return DataModuleBindingResult.BoundSuccess(source, matrix.pos, getBoundMessage(source, matrix.pos))
+        return DataModuleBindingResult.BoundSuccess(source, matrix.getPos(), getBoundMessage(source, matrix.getPos()))
     }
 
     override fun unbindSource() = disconnectATQM(clearBinding = true)
@@ -118,10 +119,9 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
         if (!isFormed) return false
         val matrixPos = boundMatrixPos ?: return false
         val machine = ((level as? ServerLevel)?.getBlockEntity(matrixPos) as? MetaMachineBlockEntity)
-            ?.metaMachine as? ApocalypticTorsionQuantumMatrix
+            ?.metaMachine as? ITimeSpaceDistorterSource
             ?: return false
-        if (!machine.isFormed()) return false
-        return bindResolvedSource(machine).isSuccess
+        return machine.isFormed() && bindResolvedSource(machine).isSuccess
     }
 
     // ========================================
@@ -154,49 +154,69 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
 
     fun tryConsumeAndGetOutputMultiplier(totalParallels: Long): Double {
         if (!isReady() || totalParallels <= 0L) return 1.0
-        return if (consumeResources(totalParallels)) outputMultiplier else 1.0
+        return if (consumeResources(Int128(totalParallels))) outputMultiplier else 1.0
     }
 
-    private fun isReady(): Boolean = isFormed && recipeLogic.isWorking
+    fun tryConsumeAndGetOutputMultiplier(parallels: Int128, coefficient: Double, folded: Boolean): Double {
+        if (!isReady() || !parallels.isPositive) return 1.0
+        return if (consumeResources(parallels, coefficient, folded)) outputMultiplier * (if (folded) 2 else 1) else 1.0
+    }
 
-    private fun consumeResources(parallels: Long): Boolean {
+    fun isReady(): Boolean = isFormed && recipeLogic.isWorking
+
+    private fun consumeResources(parallels: Int128, coefficient: Double = 1.0, folded: Boolean = false): Boolean {
+        val amounts = calculateRequiredAmounts(causalityDistortionLevel, parallels, coefficient, folded)
         val input = MachineUtil.input(this)
-
         forEachRequiredResource(
-            causalityDistortionLevel,
-            parallels,
+            amounts,
             addFluid = { input.fluid(it) },
             addItem = { stack, amount -> input.item(stack, amount) }
         )
-
         val consumed = input.execute()
         RecipeResult.of(this, null)
-        lastConsumedDistortionLevel = causalityDistortionLevel
-        lastConsumedParallels = parallels
+        lastConsumedAmounts = amounts
         lastConsumptionSucceeded = consumed
         return consumed
     }
 
-    private fun forEachRequiredResource(
+    private fun calculateRequiredAmounts(
         distortionLevel: Int,
-        parallels: Long,
+        parallels: Int128,
+        coefficient: Double = 1.0,
+        folded: Boolean = false
+    ): LongArray {
+        fun amount(level: Int, divisor: Long): Long = if (distortionLevel < level) {
+            0L
+        } else {
+            BigDecimal(parallels.toBigInteger())
+                .multiply(BigDecimal.valueOf(coefficient))
+                .multiply(BigDecimal.valueOf(if (folded) 6 else 1))
+                .divide(BigDecimal.valueOf(divisor), 0, RoundingMode.FLOOR)
+                .min(BigDecimal.valueOf(Long.MAX_VALUE))
+                .toLong()
+        }
+        // Infinity, Hypogen, SpaceTime, Quantum Anomaly, HyperCube.
+        return longArrayOf(amount(1, 17), amount(2, 28), amount(3, 44), amount(4, 730), amount(4, 873))
+    }
+
+    private fun forEachRequiredResource(
+        amounts: LongArray,
         addFluid: (FluidStack) -> Unit,
         addItem: (ItemStack, Long) -> Unit
     ) {
-        fun addResourceRequired(level: Int, divisor: Long, addInput: (Long) -> Unit) {
-            if (distortionLevel < level) return
-            val amount = parallels / divisor
+        fun addResourceRequired(index: Int, addInput: (Long) -> Unit) {
+            val amount = amounts[index]
             if (amount > 0L) addInput(amount)
         }
 
-        addResourceRequired(1, 17) { addFluid(Infinity.getFluid(it)) }
-        addResourceRequired(2, 28) { addFluid(Hypogen.getFluid(it)) }
-        addResourceRequired(3, 44) { addFluid(SpaceTime.getFluid(it)) }
-        addResourceRequired(4, 730) { addItem(QUANTUM_ANOMALY, it) }
-        addResourceRequired(4, 873) { addItem(HYPERCUBE, it) }
+        addResourceRequired(0) { addFluid(Infinity.getFluid(it)) }
+        addResourceRequired(1) { addFluid(Hypogen.getFluid(it)) }
+        addResourceRequired(2) { addFluid(SpaceTime.getFluid(it)) }
+        addResourceRequired(3) { addItem(QUANTUM_ANOMALY, it) }
+        addResourceRequired(4) { addItem(HYPERCUBE, it) }
     }
 
-    private val outputMultiplier: Double
+    val outputMultiplier: Double
         get() = when (causalityDistortionLevel) {
             1 -> 1.3
             2 -> 1.7
@@ -246,7 +266,7 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
     }
 
     private fun addLastConsumedDisplayText(textList: MutableList<Component>) {
-        if (!isFormed || lastConsumedParallels <= 0L) return
+        if (!isFormed || lastConsumedAmounts.isEmpty()) return
         textList.add(
             Component.translatable(
                 if (lastConsumptionSucceeded) {
@@ -258,8 +278,7 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
         )
 
         forEachRequiredResource(
-            lastConsumedDistortionLevel,
-            lastConsumedParallels,
+            lastConsumedAmounts,
             addFluid = { fluid ->
                 textList.add(
                     Component.translatable(

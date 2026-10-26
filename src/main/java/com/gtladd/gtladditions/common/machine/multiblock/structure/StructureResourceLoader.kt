@@ -88,7 +88,7 @@ object StructureResourceLoader {
         }
     }
 
-    private fun loadAisles(resourcePath: String, expectedId: String): Array<Array<String>> =
+    internal fun loadAisles(resourcePath: String, expectedId: String): Array<Array<String>> =
         getOrLoad(factoryPatternCache, resourcePath) {
             readResource(resourcePath, expectedId, KIND_FACTORY_PATTERN) { input, fullPath, optimized ->
                 input.readStringGrid(fullPath, expectedId, "aisles", optimized)

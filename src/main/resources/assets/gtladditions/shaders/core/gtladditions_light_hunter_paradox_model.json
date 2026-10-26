@@ -1,0 +1,14 @@
+{
+  "vertex": "gtladditions:gtladditions_light_hunter_paradox_model",
+  "fragment": "gtladditions:gtladditions_light_hunter_paradox_model",
+  "attributes": ["Position", "UV0", "Color", "Normal"],
+  "samplers": [{"name": "ModelMap"}],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ModelMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "Eye", "type": "float", "count": 3, "values": [0,0,5]},
+    {"name": "HasTexture", "type": "int", "count": 1, "values": [0]},
+    {"name": "Kind", "type": "int", "count": 1, "values": [0]}
+  ]
+}

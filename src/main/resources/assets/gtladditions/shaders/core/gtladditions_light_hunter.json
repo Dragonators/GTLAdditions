@@ -1,0 +1,18 @@
+{
+  "blend": {"func": "add", "srcrgb": "srcalpha", "dstrgb": "one"},
+  "vertex": "gtladditions:gtladditions_light_hunter",
+  "fragment": "gtladditions:gtladditions_light_hunter",
+  "attributes": ["Position", "UV0", "Color"],
+  "samplers": [{"name": "SceneDepth"}, {"name": "PlasmaNoise"}],
+  "uniforms": [
+    {"name": "ParadoxSignal", "type": "float", "count": 3, "values": [0,0,0]},
+    {"name": "ParadoxPlane", "type": "float", "count": 1, "values": [-18]},
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "SceneViewport", "type": "float", "count": 2, "values": [0,0]},
+    {"name": "PlasmaField", "type": "int", "count": 1, "values": [2]},
+    {"name": "UsePlasmaField", "type": "int", "count": 1, "values": [0]},
+    {"name": "Time", "type": "float", "count": 1, "values": [0]},
+    {"name": "Effect", "type": "int", "count": 1, "values": [0]}
+  ]
+}

@@ -156,8 +156,13 @@ object GTLAddMachines {
             .rotationState(RotationState.ALL)
             .abilities(*GTMachines.DUAL_INPUT_HATCH_ABILITIES)
             .langValue("Super Input Dual Hatch").overlayTieredHullRenderer("super_input_dual_hatch.import")
-            .tooltips("gtceu.universal.tooltip.item_storage_capacity".toComponent(37))
-            .tooltips("gtceu.universal.tooltip.fluid_storage_capacity_mult".toComponent(24, FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 12)))
+            .tooltips("gtceu.universal.tooltip.item_storage_capacity".toComponent(37)
+            )
+            .tooltips("gtceu.universal.tooltip.fluid_storage_capacity_mult".toComponent(
+                    24,
+                    FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 12)
+                )
+            )
             .tooltipBuilder(GTLAdd_ADD).tier(14).register()
         ORE_PROCESSOR_HATCH = REGISTRATE.machine("spectral_analysis_hatch") { OreProcessorHatch(it!!) }
             .rotationState(RotationState.ALL)

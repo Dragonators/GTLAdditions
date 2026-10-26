@@ -84,7 +84,8 @@ public abstract class ParallelProviderMixin {
                 compoundTag.putLong("parallel", parallelHatch.getCurrentParallel());
             } else if (blockEntity.getMetaMachine() instanceof WorkableMultiblockMachine workableElectricMultiblockMachine && workableElectricMultiblockMachine.isFormed()) {
                 if (workableElectricMultiblockMachine instanceof GTLAddWorkableElectricMultipleRecipesMachine addMachine) {
-                    if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist) {
+                    if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichrist ||
+                            workableElectricMultiblockMachine instanceof ApocalypticWarpQuantumMatrix matrix && matrix.getQuantumWarpTrait().getDisplayInfinite()) {
                         compoundTag.putLong("parallel", INFINITY_FEATURE);
                         compoundTag.putLong("threads", INFINITY_FEATURE);
                     } else if (workableElectricMultiblockMachine instanceof ForgeOfTheAntichristModuleBase) {

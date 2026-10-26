@@ -18,10 +18,13 @@ import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectr
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.data.RecursiveReverseBuffState
+import com.gtladd.gtladditions.common.data.StructureRenderType
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.RecursiveReverseArray
 import com.gtladd.gtladditions.common.machine.trait.StarRitualTrait
+import com.gtladd.gtladditions.common.machine.trait.StructureModifyTrait
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
+import com.gtladd.gtladditions.utils.AntichristPosHelper
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
 import com.gtladd.gtladditions.utils.CommonUtils.createObfuscatedRainbowComponent
 import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
@@ -30,8 +33,6 @@ import com.gtladd.gtladditions.utils.RecipeCalculationHelper
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper.appendSpecificInput
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper.isRecipeCycleContainerContent
 import com.gtladd.gtladditions.utils.StarGradient
-import com.gtladd.gtladditions.utils.antichrist.AntichristPosHelper
-import com.gtladd.gtladditions.utils.antichrist.ServerMachineManager
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -63,8 +64,8 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     ),
     IModularMachineHost<ForgeOfTheAntichrist>,
     IWirelessBindableSource<RecursiveReverseArray> {
-    private val modules: Set<IModularMachineModule<ForgeOfTheAntichrist, *>> =
-        ReferenceOpenHashSet<IModularMachineModule<ForgeOfTheAntichrist, *>>()
+    private val modules = ReferenceOpenHashSet<IModularMachineModule<ForgeOfTheAntichrist, *>>()
+    private val structureModify = StructureModifyTrait(this, StructureRenderType.ANTICHRIST)
 
     @field:Persisted
     @field:DescSynced
@@ -202,20 +203,22 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         recursiveReverseArray?.unbindForge(clearBinding = false)
         recursiveReverseArray = null
         safeClearModules()
-        unregisterFromServerManager()
+        structureModify.invalidate()
     }
 
     override fun onMachineRemoved() {
         recursiveReverseArray?.unbindSource()
         safeClearModules()
-        unregisterFromServerManager()
+        structureModify.restore()
     }
+
+    override fun checkPattern(): Boolean = structureModify.checkPattern()
 
     override fun onStructureFormed() {
         super.onStructureFormed()
         safeClearModules()
         scanAndConnectModules()
-        registerToServerManager()
+        structureModify.form()
         reconnectRecursiveReverseArray()
     }
 
@@ -256,7 +259,6 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         super.onUnload()
         recursiveReverseArray?.unbindForge(clearBinding = false)
         recursiveReverseArray = null
-        if (!isRemote) unregisterFromServerManager()
     }
 
     override fun onWorking(): Boolean {
@@ -301,18 +303,6 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     // ========================================
     // Utils
     // ========================================
-
-    private fun registerToServerManager() {
-        (level as? ServerLevel)?.let { serverLevel ->
-            ServerMachineManager.registerMachine(serverLevel, pos, frontFacing)
-        }
-    }
-
-    private fun unregisterFromServerManager() {
-        (level as? ServerLevel)?.let { serverLevel ->
-            ServerMachineManager.unregisterMachine(serverLevel, pos)
-        }
-    }
 
     private fun getMAM(): Int = mam.also {
         if (offsetTimer % 20 == 0L) mam = formedModuleCount
@@ -473,9 +463,8 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
             focus: Boolean
         ): Map<RecipeCapability<*>, List<Content>> {
             val after = Reference2ReferenceOpenHashMap<RecipeCapability<*>, List<Content>>()
-            for (entry in before) {
-                val cap = entry.key
-                val contentList = entry.value
+
+            for ((cap, contentList) in before) {
                 val copyList = ObjectArrayList<Content>(contentList.size)
 
                 if (cap == ItemRecipeCapability.CAP) {
@@ -512,10 +501,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
             if (!before.containsKey(ItemRecipeCapability.CAP)) return before
 
             val after = Reference2ReferenceOpenHashMap<RecipeCapability<*>, List<Content>>()
-            for (entry in before) {
-                val cap = entry.key
-                val contentList = entry.value
-
+            for ((cap, contentList) in before) {
                 if (cap == ItemRecipeCapability.CAP) {
                     val copyList = ObjectArrayList<Content>(contentList.size)
                     for (content in contentList) {

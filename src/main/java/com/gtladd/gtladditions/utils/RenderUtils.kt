@@ -1,15 +1,19 @@
 ﻿package com.gtladd.gtladditions.utils
 
-import com.gregtechceu.gtceu.client.renderer.GTRenderTypes
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
+import com.gtladd.gtladditions.mixin.minecraft.client.BlendModeAccessor
+import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.FastColor
 import net.minecraft.util.RandomSource
@@ -20,11 +24,149 @@ import org.gtlcore.gtlcore.client.ClientUtil
 import org.gtlcore.gtlcore.client.GlobalRenderClock
 import org.joml.Quaternionf
 import org.joml.Vector3f
+import org.lwjgl.opengl.GL11C
+import org.lwjgl.opengl.GL12C
+import org.lwjgl.opengl.GL14C
+import org.lwjgl.opengl.GL15C
+import org.lwjgl.opengl.GL20C
+import org.lwjgl.opengl.GL21C
 import kotlin.math.*
 
 @Suppress("DuplicatedCode", "unused", "SameParameterValue")
 @OnlyIn(Dist.CLIENT)
 object RenderUtils {
+
+    /** Draws an already transformed model at full brightness; only the RGB tint is applied. */
+    fun renderFullBrightModel(
+        pose: PoseStack.Pose,
+        consumer: VertexConsumer,
+        model: BakedModel,
+        type: RenderType,
+        argb32: Int = -1
+    ) {
+        ClientUtil.modelRenderer().renderModel(
+            pose,
+            consumer,
+            null,
+            model,
+            FastColor.ARGB32.red(argb32) / 255f,
+            FastColor.ARGB32.green(argb32) / 255f,
+            FastColor.ARGB32.blue(argb32) / 255f,
+            LightTexture.FULL_BRIGHT,
+            OverlayTexture.NO_OVERLAY,
+            ModelData.EMPTY,
+            type
+        )
+    }
+
+    fun renderFullBrightModel(
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        modelLocation: ResourceLocation?,
+        type: RenderType,
+        argb32: Int = -1
+    ) = renderFullBrightModel(poseStack.last(), buffer.getBuffer(type), ClientUtil.getBakedModel(modelLocation), type, argb32)
+
+    /** Framebuffer and shader bindings are not preserved. */
+    inline fun <T> withSavedRenderState(draw: () -> T): T {
+        val shaderBlendMode = BlendModeAccessor.getLastApplied()
+        val blend = GL11C.glIsEnabled(GL11C.GL_BLEND)
+        val cull = GL11C.glIsEnabled(GL11C.GL_CULL_FACE)
+        val depth = GL11C.glIsEnabled(GL11C.GL_DEPTH_TEST)
+        val depthMask = GL11C.glGetBoolean(GL11C.GL_DEPTH_WRITEMASK)
+        val depthFunc = GL11C.glGetInteger(GL11C.GL_DEPTH_FUNC)
+        val srcRgb = GL11C.glGetInteger(GL14C.GL_BLEND_SRC_RGB)
+        val dstRgb = GL11C.glGetInteger(GL14C.GL_BLEND_DST_RGB)
+        val srcAlpha = GL11C.glGetInteger(GL14C.GL_BLEND_SRC_ALPHA)
+        val dstAlpha = GL11C.glGetInteger(GL14C.GL_BLEND_DST_ALPHA)
+        val blendEquationRgb = GL11C.glGetInteger(GL20C.GL_BLEND_EQUATION_RGB)
+        val blendEquationAlpha = GL11C.glGetInteger(GL20C.GL_BLEND_EQUATION_ALPHA)
+        val texture = RenderSystem.getShaderTexture(0)
+
+        return try {
+            draw()
+        } finally {
+            RenderSystem.setShaderTexture(0, texture)
+            RenderSystem.depthMask(depthMask)
+            RenderSystem.depthFunc(depthFunc)
+            RenderSystem.blendFuncSeparate(srcRgb, dstRgb, srcAlpha, dstAlpha)
+            GL20C.glBlendEquationSeparate(blendEquationRgb, blendEquationAlpha)
+            // A stale shader cache can overwrite the next draw's explicit blend factors (e.g. the HUD vignette).
+            BlendModeAccessor.setLastApplied(shaderBlendMode)
+            if (blend) RenderSystem.enableBlend() else RenderSystem.disableBlend()
+            if (cull) RenderSystem.enableCull() else RenderSystem.disableCull()
+            if (depth) RenderSystem.enableDepthTest() else RenderSystem.disableDepthTest()
+        }
+    }
+
+    /** Also keeps null allocations independent of a bound PBO. */
+    inline fun <T> withTightlyPackedPixels(upload: () -> T): T {
+        val alignment = GL11C.glGetInteger(GL11C.GL_UNPACK_ALIGNMENT)
+        val rowLength = GL11C.glGetInteger(GL11C.GL_UNPACK_ROW_LENGTH)
+        val skipPixels = GL11C.glGetInteger(GL11C.GL_UNPACK_SKIP_PIXELS)
+        val skipRows = GL11C.glGetInteger(GL11C.GL_UNPACK_SKIP_ROWS)
+        val imageHeight = GL11C.glGetInteger(GL12C.GL_UNPACK_IMAGE_HEIGHT)
+        val skipImages = GL11C.glGetInteger(GL12C.GL_UNPACK_SKIP_IMAGES)
+        val swapBytes = GL11C.glGetInteger(GL11C.GL_UNPACK_SWAP_BYTES)
+        val unpackBuffer = GL11C.glGetInteger(GL21C.GL_PIXEL_UNPACK_BUFFER_BINDING)
+        try {
+            GL15C.glBindBuffer(GL21C.GL_PIXEL_UNPACK_BUFFER, 0)
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_ALIGNMENT, 1)
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_ROW_LENGTH, 0)
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_SKIP_PIXELS, 0)
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_SKIP_ROWS, 0)
+            GL11C.glPixelStorei(GL12C.GL_UNPACK_IMAGE_HEIGHT, 0)
+            GL11C.glPixelStorei(GL12C.GL_UNPACK_SKIP_IMAGES, 0)
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_SWAP_BYTES, GL11C.GL_FALSE)
+            return upload()
+        } finally {
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_ALIGNMENT, alignment)
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_ROW_LENGTH, rowLength)
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_SKIP_PIXELS, skipPixels)
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_SKIP_ROWS, skipRows)
+            GL11C.glPixelStorei(GL12C.GL_UNPACK_IMAGE_HEIGHT, imageHeight)
+            GL11C.glPixelStorei(GL12C.GL_UNPACK_SKIP_IMAGES, skipImages)
+            GL11C.glPixelStorei(GL11C.GL_UNPACK_SWAP_BYTES, swapBytes)
+            GL15C.glBindBuffer(GL21C.GL_PIXEL_UNPACK_BUFFER, unpackBuffer)
+        }
+    }
+
+    fun uploadStaticBuffer(builder: BufferBuilder): VertexBuffer {
+        val buffer = VertexBuffer(VertexBuffer.Usage.STATIC)
+        try {
+            withBoundBuffer(buffer) {
+                // upload releases the RenderedBuffer before the builder is reused.
+                buffer.upload(builder.end())
+            }
+            return buffer
+        } catch (error: Throwable) {
+            buffer.close()
+            throw error
+        }
+    }
+
+    fun releaseBuffers(buffers: Iterable<VertexBuffer>?) {
+        buffers?.forEach(VertexBuffer::close)
+    }
+
+    /** Unbinds rather than restoring an earlier VBO. */
+    inline fun <T> withBoundBuffer(buffer: VertexBuffer, draw: () -> T): T {
+        buffer.bind()
+        return try {
+            draw()
+        } finally {
+            VertexBuffer.unbind()
+        }
+    }
+
+    inline fun <T> withRenderType(type: RenderType, draw: () -> T): T {
+        type.setupRenderState()
+        return try {
+            draw()
+        } finally {
+            type.clearRenderState()
+        }
+    }
 
     /**
      * Generates random rotation parameters with uniformly distributed axis and speed
@@ -84,19 +226,7 @@ object RenderUtils {
                 )
             )
 
-            ClientUtil.modelRenderer().renderModel(
-                last(),
-                buffer.getBuffer(type),
-                null,
-                ClientUtil.getBakedModel(modelLocation),
-                FastColor.ARGB32.red(argb32) / 255f,
-                FastColor.ARGB32.green(argb32) / 255f,
-                FastColor.ARGB32.blue(argb32) / 255f,
-                LightTexture.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY,
-                ModelData.EMPTY,
-                type
-            )
+            renderFullBrightModel(this, buffer, modelLocation, type, argb32)
         }
     }
 
@@ -133,21 +263,7 @@ object RenderUtils {
 
             val renderType = RenderType.eyes(haloTexture)
 
-            val consumer = buffer.getBuffer(renderType)
-
-            val finalAlpha = 1.0f.coerceIn(0.0f, 1.0f)
-
-            ClientUtil.modelRenderer().renderModel(
-                last(),
-                consumer,
-                null,
-                ClientUtil.getBakedModel(modelLocation),
-                finalAlpha, finalAlpha, finalAlpha,
-                LightTexture.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY,
-                ModelData.EMPTY,
-                renderType
-            )
+            renderFullBrightModel(this, buffer, modelLocation, renderType)
         }
     }
 
@@ -170,7 +286,7 @@ object RenderUtils {
     fun renderCircularMotionModelDirect(
         poseStack: PoseStack,
         vertexConsumer: VertexConsumer,
-        bakedModel: net.minecraft.client.resources.model.BakedModel,
+        bakedModel: BakedModel,
         motionParams: CircularMotionParams,
         tick: Float,
         size: Float = 1.0f,
@@ -200,90 +316,7 @@ object RenderUtils {
                 translate(-0.5, -0.5, -0.5)
             }
 
-            ClientUtil.modelRenderer().renderModel(
-                last(),
-                vertexConsumer, // Use pre-obtained consumer
-                null,
-                bakedModel, // Use pre-obtained model
-                FastColor.ARGB32.red(argb32) / 255f,
-                FastColor.ARGB32.green(argb32) / 255f,
-                FastColor.ARGB32.blue(argb32) / 255f,
-                LightTexture.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY,
-                ModelData.EMPTY,
-                type
-            )
-        }
-    }
-
-    /**
-     * Renders an orbit ring directly using a pre-obtained VertexConsumer
-     * Use this for batch rendering multiple rings with the same RenderType
-     *
-     * @param poseStack Pose stack for transformations
-     * @param buffer Multi-buffer source for rendering
-     * @param motionParams Circular motion parameters defining the orbit
-     * @param segments Number of segments (default 128 for full quality, reduce for LOD)
-     */
-    fun renderOrbitRing(
-        poseStack: PoseStack,
-        buffer: MultiBufferSource,
-        motionParams: CircularMotionParams,
-        segments: Int = 128
-    ) {
-        poseStack.withPose {
-            val center = motionParams.centerPos
-            translate(center.x, center.y, center.z)
-
-            val tiltAngleRad = Math.toRadians(motionParams.tiltAngle.toDouble()).toFloat()
-            val tiltDir = motionParams.tiltDirection
-            mulPose(Quaternionf().fromAxisAngleRad(tiltDir.x, tiltDir.y, tiltDir.z, tiltAngleRad))
-
-            val vertexConsumer = buffer.getBuffer(GTRenderTypes.getLightRing())
-            val matrix = last().pose()
-
-            val radius = motionParams.radius
-            val lineWidth = 1.5f
-
-            for (i in 0..<segments) {
-                val angle1 = (2 * Math.PI * i / segments).toFloat()
-                val angle2 = (2 * Math.PI * (i + 1) / segments).toFloat()
-
-                val cos1 = MathCache.fastCos(angle1)
-                val sin1 = MathCache.fastSin(angle1)
-                val cos2 = MathCache.fastCos(angle2)
-                val sin2 = MathCache.fastSin(angle2)
-
-                val x1 = radius * cos1
-                val z1 = radius * sin1
-                val x2 = radius * cos2
-                val z2 = radius * sin2
-
-                val perpX1 = -sin1 * lineWidth
-                val perpZ1 = cos1 * lineWidth
-                val perpX2 = -sin2 * lineWidth
-                val perpZ2 = cos2 * lineWidth
-
-                vertexConsumer.vertex(matrix, x1 - perpX1, 0f, z1 - perpZ1)
-                    .color(255, 255, 255, 200)
-                    .uv(0f, 0f)
-                    .endVertex()
-
-                vertexConsumer.vertex(matrix, x1 + perpX1, 0f, z1 + perpZ1)
-                    .color(255, 255, 255, 200)
-                    .uv(1f, 0f)
-                    .endVertex()
-
-                vertexConsumer.vertex(matrix, x2 + perpX2, 0f, z2 + perpZ2)
-                    .color(255, 255, 255, 200)
-                    .uv(1f, 1f)
-                    .endVertex()
-
-                vertexConsumer.vertex(matrix, x2 - perpX2, 0f, z2 - perpZ2)
-                    .color(255, 255, 255, 200)
-                    .uv(0f, 1f)
-                    .endVertex()
-            }
+            renderFullBrightModel(last(), vertexConsumer, bakedModel, type, argb32)
         }
     }
 
@@ -302,33 +335,6 @@ object RenderUtils {
             val durationTicks = durationMillis / 50.0f // 1 tick = 50ms
             val elapsedTicks = GlobalRenderClock.getSmoothTick() - startTick
             return (elapsedTicks / durationTicks).coerceIn(0f, 1f)
-        }
-    }
-
-    private object MathCache {
-        private const val TABLE_SIZE = 4096
-        private const val TABLE_SIZE_MASK = TABLE_SIZE - 1
-        private const val ANGLE_TO_INDEX = TABLE_SIZE / (2.0 * Math.PI)
-
-        private val sinTable = FloatArray(TABLE_SIZE)
-        private val cosTable = FloatArray(TABLE_SIZE)
-
-        init {
-            for (i in 0 until TABLE_SIZE) {
-                val angle = i * 2.0 * Math.PI / TABLE_SIZE
-                sinTable[i] = sin(angle).toFloat()
-                cosTable[i] = cos(angle).toFloat()
-            }
-        }
-
-        fun fastSin(radians: Float): Float {
-            val index = (radians * ANGLE_TO_INDEX).toInt() and TABLE_SIZE_MASK
-            return sinTable[index]
-        }
-
-        fun fastCos(radians: Float): Float {
-            val index = (radians * ANGLE_TO_INDEX).toInt() and TABLE_SIZE_MASK
-            return cosTable[index]
         }
     }
 }

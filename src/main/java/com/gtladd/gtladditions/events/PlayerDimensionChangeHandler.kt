@@ -4,14 +4,9 @@ import com.gtladd.gtladditions.GTLAdditions.Companion.MOD_ID
 import com.gtladd.gtladditions.utils.CommonUtils.VALID_TAG
 import com.gtladd.gtladditions.utils.CommonUtils.isTargetDimension
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
-import com.gtladd.gtladditions.utils.antichrist.ClientRingBlockHelper
-import com.gtladd.gtladditions.utils.antichrist.ServerMachineManager
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.Level
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
@@ -24,28 +19,10 @@ object PlayerDimensionChangeHandler {
     @JvmStatic
     fun onPlayerChangedDimension(event: PlayerEvent.PlayerChangedDimensionEvent) {
         (event.entity as? ServerPlayer)?.let { player ->
-            if (canPlayerChangeDimension(event.to, player)) {
-                ServerMachineManager.syncAllToPlayer(player)
-            } else {
+            if (!canPlayerChangeDimension(event.to, player)) {
                 transportBackToOverWorld(player)
             }
         }
-    }
-
-    @SubscribeEvent
-    @JvmStatic
-    fun onPlayerLoggedIn(event: PlayerEvent.PlayerLoggedInEvent) {
-        val player = event.entity
-        if (player is ServerPlayer) {
-            ServerMachineManager.syncAllToPlayer(player)
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    @JvmStatic
-    fun onPlayerLoggedOut(event: ClientPlayerNetworkEvent.LoggingOut) {
-        ClientRingBlockHelper.clearAllData()
     }
 
     private fun canPlayerChangeDimension(toDim: ResourceKey<Level>, player: ServerPlayer): Boolean {

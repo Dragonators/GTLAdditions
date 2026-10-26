@@ -4,9 +4,9 @@ import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
 import com.gregtechceu.gtceu.common.data.GTMachines
 import com.gtladd.gtladditions.client.RenderMode
+import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
 import com.gtladd.gtladditions.utils.CommonUtils
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener

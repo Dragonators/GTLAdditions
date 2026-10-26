@@ -1,0 +1,13 @@
+{
+  "parent": "gtladditions:effect/astrograph/planet_cube",
+  "ambientocclusion": false,
+  "textures": {
+    "down": "gtladditions:effect/astrograph/planets/en/bottom",
+    "up": "gtladditions:effect/astrograph/planets/en/top",
+    "north": "gtladditions:effect/astrograph/planets/en/back",
+    "south": "gtladditions:effect/astrograph/planets/en/front",
+    "west": "gtladditions:effect/astrograph/planets/en/left",
+    "east": "gtladditions:effect/astrograph/planets/en/right",
+    "particle": "gtladditions:effect/astrograph/planets/en/back"
+  }
+}

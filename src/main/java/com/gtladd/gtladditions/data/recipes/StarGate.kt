@@ -19,7 +19,7 @@ import com.gtladd.gtladditions.common.items.GTLAddItems.STARGATE_CHEVRON_UPGRADE
 import com.gtladd.gtladditions.common.items.GTLAddItems.STARGATE_FRAME_PART
 import com.gtladd.gtladditions.common.items.GTLAddItems.STARGATE_SHIELDING_FOIL
 import com.gtladd.gtladditions.common.items.GTLAddItems.SUPER_DENSE_MAGMATTER_PLATE
-import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_QUANTUM_WARP_MATRIX
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.FORGE_OF_THE_ANTICHRIST
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIOPHASE_LEYLINE_CRYSTALLIZER
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.RECURSIVE_REVERSE_ARRAY
@@ -327,7 +327,7 @@ object StarGate {
             .inputItems(COMPRESSED_ASTRAL_ARRAY, 6)
             .inputItems(FORGE_OF_THE_ANTICHRIST, 4)
             .inputItems(getItemStack("sgjourney:classic_stargate_chevron_block", 8))
-            .inputItems(APOCALYPTIC_TORSION_QUANTUM_MATRIX, 2)
+            .inputItems(APOCALYPTIC_QUANTUM_WARP_MATRIX, 2)
             .inputItems(ItemInit.CRYSTAL_BASE.get())
             .inputItems(getItemStack("gtlcore:fluid_infinity_cell"))
             .outputItems(getItemStack("sgjourney:classic_stargate_base_block"))

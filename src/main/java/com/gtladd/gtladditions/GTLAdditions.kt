@@ -12,7 +12,6 @@ import com.gtladd.gtladditions.common.material.MaterialModify
 import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.config.ConfigHolder
-import com.gtladd.gtladditions.network.GTLAddNetworking
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -26,7 +25,6 @@ class GTLAdditions {
     init {
         GTLAddCreativeModeTabs.init()
         ConfigHolder.init()
-        GTLAddNetworking.init()
 
         val modEventBus = FMLJavaModLoadingContext.get().modEventBus
         MinecraftForge.EVENT_BUS.register(this)

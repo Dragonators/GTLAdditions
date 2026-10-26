@@ -10,5 +10,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface BlockPatternAccessor {
 
     @Accessor(value = "blockMatches", remap = false)
-    TraceabilityPredicate[][][] gtladd$getBlockMatches();
+    TraceabilityPredicate[][][] getBlockMatches();
+
+    @Accessor(value = "centerOffset", remap = false)
+    int[] getCenterOffset();
 }

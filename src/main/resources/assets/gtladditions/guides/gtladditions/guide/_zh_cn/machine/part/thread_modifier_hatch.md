@@ -28,7 +28,7 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-## 星规矩阵
+## 星阵
 
 * GUI 中只能放入普通 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} />。该槽位不接受 <ItemLink id="gtladditions:compressed_astral_array" link={false} linkColor={true} />。
 * 每个 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} /> 提供 64 基础线程。
@@ -44,7 +44,7 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-> 该仓室不可共享。移除机器时，内部星规矩阵会被清理掉落。
+> 该仓室不可共享。移除机器时，内部星阵会被清理掉落。
 
 </Column>
 

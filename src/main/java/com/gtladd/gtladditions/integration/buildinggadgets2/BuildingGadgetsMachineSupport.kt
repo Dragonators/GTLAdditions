@@ -4,15 +4,19 @@ import com.gregtechceu.gtceu.api.block.MetaMachineBlock
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
+import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine
 import com.gtladd.gtladditions.common.machine.hatch.CloudOpticalComputationHatchMachine
+import com.gtladd.gtladditions.common.machine.trait.StructureModifyTrait
 import com.gtladd.gtladditions.utils.cloud.CloudNetworkManager
 import com.hepdd.gtmthings.api.capability.IBindable
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import java.util.UUID
+import kotlin.concurrent.withLock
 
 object BuildingGadgetsMachineSupport {
     const val PLACER_KEY = "gtladditions:gadget_placer"
@@ -23,6 +27,22 @@ object BuildingGadgetsMachineSupport {
         return CompoundTag().apply {
             putUUID("uuid", player.uuid)
             putUUID(PLACER_KEY, player.uuid)
+        }
+    }
+
+    @JvmStatic
+    fun loadMachineData(blockEntity: BlockEntity, load: Runnable) {
+        val controller = (blockEntity as? MetaMachineBlockEntity)?.metaMachine as? MultiblockControllerMachine
+            ?: return load.run()
+        val structureModify = controller.traits.firstOrNull { it is StructureModifyTrait } as? StructureModifyTrait
+            ?: return load.run()
+        controller.patternLock.withLock {
+            try {
+                load.run()
+            } finally {
+                // Gadgets loads NBT after onLoad; initialize the loaded structure before asynchronous checks resume.
+                structureModify.onMachineLoad()
+            }
         }
     }
 

@@ -1,11 +1,12 @@
 package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.client.RenderMode
+import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper.getClientBeamAlpha
+import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper.getClientRenderColor
+import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper.getClientRenderRadius
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
+import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.AntichristBlockLayout
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientBeamAlpha
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderColor
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderRadius
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
@@ -38,10 +39,10 @@ data class AntichristRenderProfile(
         }
 
     companion object {
-        const val STAR_OFFSET_X = -122.0
+        const val STAR_OFFSET_X = AntichristBlockLayout.STAR_OFFSET_X
         const val BASE_STAR_RADIUS = 13.0f
         const val STAR_GAMMA = 3.0f
-        val BASE_DIRECTION: Direction = Direction.EAST
+        val BASE_DIRECTION: Direction = AntichristBlockLayout.BASE_DIRECTION
 
         fun create(
             machine: ForgeOfTheAntichrist,

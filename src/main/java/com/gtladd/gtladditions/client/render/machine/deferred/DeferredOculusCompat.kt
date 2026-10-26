@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.client.render.machine.deferred
 
-import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristIrisPipelineBridge
 import com.gtladd.gtladditions.mixin.oculus.DepthColorStorageAccessor
 import com.mojang.blaze3d.systems.RenderSystem
 import net.irisshaders.iris.Iris
@@ -13,6 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL20C
 
+/** Scoped target binding and Oculus state overrides used by all custom machine effects. */
 @OnlyIn(Dist.CLIENT)
 object DeferredOculusCompat {
     private const val IRIS_RENDER_TARGET_LIMIT = 16
@@ -36,8 +36,8 @@ object DeferredOculusCompat {
         }
 
         val pipeline = Iris.getPipelineManager().pipelineNullable
-        if (shouldUseShaderpackCompatPath() && pipeline is AntichristIrisPipelineBridge) {
-            pipeline.beginAntichristFallbackTarget()
+        if (shouldUseShaderpackCompatPath() && pipeline is DeferredIrisPipelineBridge) {
+            pipeline.beginDeferredTarget()
         } else {
             Minecraft.getInstance().mainRenderTarget.bindWrite(false)
         }
@@ -51,21 +51,36 @@ object DeferredOculusCompat {
         }
 
         val pipeline = Iris.getPipelineManager().pipelineNullable
-        if (shouldUseShaderpackCompatPath() && pipeline is AntichristIrisPipelineBridge) {
-            pipeline.endAntichristFallbackTarget()
+        if (shouldUseShaderpackCompatPath() && pipeline is DeferredIrisPipelineBridge) {
+            pipeline.endDeferredTarget()
         } else {
             Minecraft.getInstance().mainRenderTarget.bindWrite(false)
         }
     }
 
-    fun beginDirectMainTargetPass() {
+    fun withDirectMainTargetPass(draw: () -> Unit) {
+        beginDirectMainTargetPass()
+        try {
+            draw()
+        } finally {
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+            RenderSystem.colorMask(true, true, true, true)
+            RenderSystem.depthMask(true)
+            RenderSystem.disableBlend()
+            RenderSystem.defaultBlendFunc()
+            RenderSystem.enableCull()
+            endDirectMainTargetPass()
+        }
+    }
+
+    private fun beginDirectMainTargetPass() {
         directMainTargetDepth++
         Minecraft.getInstance().mainRenderTarget.bindWrite(false)
         resetIndependentBufferBlendState()
         unlockDepthColorForDeferredShader()
     }
 
-    fun endDirectMainTargetPass() {
+    private fun endDirectMainTargetPass() {
         if (directMainTargetDepth > 0) {
             directMainTargetDepth--
         }
@@ -103,7 +118,7 @@ object DeferredOculusCompat {
 
     private fun shouldUseShaderpackCompatPath(): Boolean {
         val pipeline = Iris.getPipelineManager().pipelineNullable
-        return pipeline is AntichristIrisPipelineBridge &&
+        return pipeline is DeferredIrisPipelineBridge &&
             pipeline is ShaderRenderingPipeline &&
             pipeline.shouldOverrideShaders()
     }

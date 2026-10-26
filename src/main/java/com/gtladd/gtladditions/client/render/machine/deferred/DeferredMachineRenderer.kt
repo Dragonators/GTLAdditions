@@ -27,6 +27,9 @@ internal interface DeferredRenderEntry {
 
     fun isVisible(context: DeferredRenderContext): Boolean = !blockEntity.isRemoved
 
+    /** Solid effect surfaces must establish depth before any machine's transparent effects. */
+    fun renderOpaque(context: DeferredRenderContext) {}
+
     fun render(context: DeferredRenderContext)
 
     fun renderBatch(context: DeferredRenderContext, entries: List<DeferredRenderEntry>) {
@@ -57,6 +60,10 @@ internal class DeferredRenderContext(
     }
 }
 
+/**
+ * Batches ordinary machine effects after translucent blocks, or after Oculus finishes its composites.
+ * Terrain geometry keeps its own stage; whole-scene black-hole composition belongs to [DeferredSceneRenderer].
+ */
 @OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(
     modid = GTLAdditions.MOD_ID,
@@ -114,30 +121,20 @@ object DeferredMachineRenderer {
         postFinalContext = null
 
         val previousProjection = Matrix4f(RenderSystem.getProjectionMatrix())
-        DeferredOculusCompat.beginDirectMainTargetPass()
-        try {
-            Minecraft.getInstance().mainRenderTarget.bindWrite(false)
-            RenderSystem.setProjectionMatrix(context.projectionMatrix, VertexSorting.DISTANCE_TO_ORIGIN)
+        DeferredOculusCompat.withDirectMainTargetPass {
+            try {
+                Minecraft.getInstance().mainRenderTarget.bindWrite(false)
+                RenderSystem.setProjectionMatrix(context.projectionMatrix, VertexSorting.DISTANCE_TO_ORIGIN)
 
-            val poseStack = PoseStack()
-            poseStack.mulPoseMatrix(context.poseMatrix)
-            renderEntries(
-                DeferredRenderContext(
-                    context.cameraPosition,
-                    poseStack,
-                    null
-                ),
-                context.entries
-            )
-        } finally {
-            RenderSystem.setProjectionMatrix(previousProjection, VertexSorting.ORTHOGRAPHIC_Z)
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
-            RenderSystem.colorMask(true, true, true, true)
-            RenderSystem.depthMask(true)
-            RenderSystem.disableBlend()
-            RenderSystem.defaultBlendFunc()
-            RenderSystem.enableCull()
-            DeferredOculusCompat.endDirectMainTargetPass()
+                val poseStack = PoseStack()
+                poseStack.mulPoseMatrix(context.poseMatrix)
+                renderEntries(
+                    DeferredRenderContext(context.cameraPosition, poseStack, null),
+                    context.entries
+                )
+            } finally {
+                RenderSystem.setProjectionMatrix(previousProjection, VertexSorting.ORTHOGRAPHIC_Z)
+            }
         }
     }
 
@@ -152,6 +149,7 @@ object DeferredMachineRenderer {
     }
 
     private fun renderEntries(context: DeferredRenderContext, frameEntries: List<DeferredRenderEntry>) {
+        frameEntries.forEach { entry -> entry.renderOpaque(context) }
         frameEntries.forEach { entry ->
             val batchKey = entry.batchKey
             if (batchKey == null) {

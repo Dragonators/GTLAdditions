@@ -1,0 +1,11 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "1-srccolor"},
+  "vertex": "gtladditions:gtladditions_rrf_array_glow",
+  "fragment": "gtladditions:gtladditions_rrf_array_glow",
+  "attributes": ["Position", "UV0", "Color", "Normal"],
+  "samplers": [],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]}
+  ]
+}

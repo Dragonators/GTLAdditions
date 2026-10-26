@@ -26,7 +26,7 @@ import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.SUPER_PARALLEL_HATCH
 import com.gtladd.gtladditions.common.machine.GTLAddMachines.THREAD_MODIFIER_HATCH
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine
-import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_QUANTUM_WARP_MATRIX
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ARCANE_CACHE_VAULT
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SPACE_SCALING_INSTRUMENT
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.CREON
@@ -780,7 +780,7 @@ object NewMultiBlockMachineController {
                     .EUt(VA[UXV]).CWUt(640)
             }
             .EUt(VA[UXV].toLong()).duration(1200).save(provider)
-        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("apocalyptic_torsion_quantum_matrix_suprachronal_assembly_line"))
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("apocalyptic_quantum_warp_matrix_suprachronal_assembly_line"))
             .inputItems(QFT, 1024)
             .inputItems(CREATIVE_LASER_INPUT_HATCH, 64)
             .inputItems(DOOR_OF_CREATE, 64)
@@ -801,7 +801,7 @@ object NewMultiBlockMachineController {
             .inputFluids(Eternity.getFluid(754974720))
             .inputFluids(Shirabon.getFluid(754974720))
             .inputFluids(SpaceTime.getFluid(601989888))
-            .outputItems(MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX)
+            .outputItems(APOCALYPTIC_QUANTUM_WARP_MATRIX)
             .EUt(VA[MAX].toLong()).duration(1152000)
             .stationResearch { b: StationRecipeBuilder? ->
                 b!!.researchStack(QFT.asStack())
@@ -810,7 +810,7 @@ object NewMultiBlockMachineController {
             }
             .save(provider)
         SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("time_space_distorter"))
-            .inputItems(APOCALYPTIC_TORSION_QUANTUM_MATRIX, 64)
+            .inputItems(APOCALYPTIC_QUANTUM_WARP_MATRIX, 64)
             .inputItems(GRAVITY_STABILIZATION_CASING, 1024)
             .inputItems(getItemStack("kubejs:hyperdimensional_drone", 1024))
             .inputItems(getItemStack("kubejs:stabilized_wormhole_generator", 1024))
@@ -833,7 +833,7 @@ object NewMultiBlockMachineController {
             .outputItems(MultiBlockMachine.TIME_SPACE_DISTORTER)
             .EUt(VA[MAX] * 16384L).duration(57600)
             .stationResearch { b: StationRecipeBuilder? ->
-                b!!.researchStack(APOCALYPTIC_TORSION_QUANTUM_MATRIX.asStack())
+                b!!.researchStack(APOCALYPTIC_QUANTUM_WARP_MATRIX.asStack())
                     .dataStack(TOOL_DATA_MODULE.asStack())
                     .EUt(VA[MAX]).CWUt(67108864, 2147483647)
             }

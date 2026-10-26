@@ -1,0 +1,34 @@
+Shared high-resolution stellar textures
+
+Used by ArcanicAstrographStarRenderer and AntichristStarRenderer.
+
+High-resolution source set:
+GTLAdditions commit b1a6068f361357ca857d4b58c91cf8967e8c4bd3
+Original migration: GTNH GodForge rendering.
+Restored from snapshot 0d451fda96a042a46d0d6845ad4e2a2cb67f241f:
+src/main/resources/assets/gtladditions/textures/block/multiblock/forge_of_antichrist/star_layer_0.png
+src/main/resources/assets/gtladditions/textures/block/multiblock/forge_of_antichrist/star_layer_1.png
+src/main/resources/assets/gtladditions/textures/block/multiblock/forge_of_antichrist/star_layer_2.png
+
+Dimensions retained:
+star_layer_0.png: 4096 x 2048
+star_layer_1.png: 4096 x 2048
+star_layer_2.png: 4096 x 2296
+
+Layer 0 is also byte-identical before optimization to GTNH StarLayer0.png:
+https://github.com/GTNewHorizons/GT5-Unofficial/blob/45cc18c5be210232a767f470cd5870b02202f056/src/main/resources/assets/tectech/models/StarLayer0.png
+Layers 1 and 2 use the existing high-resolution Antichrist assets rather
+than the lower-resolution EOH StarLayer1.png and StarLayer2.png.
+
+Lossless optimization (2026-10-26):
+Layer 0: jpegtran 3.2.0 -copy all -optimize -progressive.
+Layers 1 and 2: Oxipng 10.2.1 -o 6 --zopfli --fast --zi 10 --ziwi 3.
+Dimensions and every decoded RGBA pixel match the high-resolution sources,
+verified with both Pillow and Minecraft NativeImage/STB.
+No resampling or additional color quantization was performed.
+The upstream .png filename for layer 0 contains JPEG data.
+
+GTNH upstream license: LGPL-3.0.
+Complete license texts in this distribution:
+assets/gtladditions/models/effect/condensation/LGPL-3.0.txt
+assets/gtladditions/models/effect/condensation/GPL-3.0.txt

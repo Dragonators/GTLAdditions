@@ -54,6 +54,10 @@ class RecursiveReverseArray(holder: IMachineBlockEntity) :
     @Persisted
     var enabled: Boolean = true
 
+    @DescSynced
+    var effectsActive: Boolean = false
+        private set
+
     @Persisted
     private var buffRollCounter: Long = 0
 
@@ -101,6 +105,7 @@ class RecursiveReverseArray(holder: IMachineBlockEntity) :
     override fun unbindSource() = unbindForge(clearBinding = true)
 
     fun unbindForge(clearBinding: Boolean) {
+        effectsActive = false
         val oldForge = boundForge
         boundForge = null
         if (clearBinding) boundForgePos = null
@@ -303,11 +308,20 @@ class RecursiveReverseArray(holder: IMachineBlockEntity) :
 
     override fun onUnload() {
         super.onUnload()
+        effectsActive = false
         boundForge?.disconnectRecursiveReverseArray(this, clearBinding = false)
         boundForge = null
     }
 
+    private fun updateEffectsActive() {
+        if (level?.isClientSide == false) {
+            val context = createBuffContext()
+            effectsActive = context.machinesReady && context.boostReady && context.buffProbability > 0.0
+        }
+    }
+
     private fun updateTickSubscription() {
+        updateEffectsActive()
         if (isFormed) {
             tickSubscription = subscribeServerTick(tickSubscription, ::updateTickSubscription)
         } else {

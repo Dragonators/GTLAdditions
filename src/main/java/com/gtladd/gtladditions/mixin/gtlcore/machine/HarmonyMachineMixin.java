@@ -27,11 +27,11 @@ import com.lowdragmc.lowdraglib.misc.ItemStackTransfer;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import com.gtladd.gtladditions.api.machine.IHarmonyMachineAccessor;
+import com.gtladd.gtladditions.common.items.GTLAddItems;
 import com.gtladd.gtladditions.utils.CommonUtils;
 import com.hepdd.gtmthings.api.misc.WirelessEnergyManager;
 import com.hepdd.gtmthings.utils.TeamUtil;
@@ -114,8 +114,7 @@ public abstract class HarmonyMachineMixin extends NoEnergyMultiblockMachine {
         RecipeExtensionCopier.copy(instance, modified);
 
         ItemStack stack = gtladditions$machineStorage.storage.getStackInSlot(0);
-        if (stack.isEmpty() ||
-                !"gtladditions:create_data".equals(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())) {
+        if (stack.isEmpty() || !stack.is(GTLAddItems.INSTANCE.getCREATE_DATA().get())) {
             return modified;
         }
 

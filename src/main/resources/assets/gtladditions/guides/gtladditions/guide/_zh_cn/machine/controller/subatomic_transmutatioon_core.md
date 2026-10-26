@@ -14,6 +14,8 @@ item_ids:
 
 <BlockImage id="gtladditions:subatomic_transmutatioon_core" scale="8" />
 
+亚原子置换核心是原子置换核心的新版主机，通过转换卡与线圈控制方块嬗变。
+
 * 结构中需要安装 <ItemLink id="gtladditions:me_block_conservation" />
 * 只能使用泰坦钢或以上线圈
 * 需要能够提供 UHV 电压的能源输入仓；每个工作 tick 固定消耗 UHV 级功率

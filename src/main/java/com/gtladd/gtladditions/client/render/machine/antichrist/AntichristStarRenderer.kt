@@ -4,6 +4,7 @@ import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.RenderMode
 import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
 import com.gtladd.gtladditions.client.render.withPose
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
@@ -26,9 +27,9 @@ object AntichristStarRenderer {
     private const val SPHERE_SLICES = 128
     private const val SPHERE_STACKS = 128
 
-    private val STAR_LAYER_0 = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/star_layer_0.png")
-    private val STAR_LAYER_1 = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/star_layer_1.png")
-    private val STAR_LAYER_2 = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/star_layer_2.png")
+    private val STAR_LAYER_0 = GTLAdditions.id("textures/effect/star/star_layer_0.png")
+    private val STAR_LAYER_1 = GTLAdditions.id("textures/effect/star/star_layer_1.png")
+    private val STAR_LAYER_2 = GTLAdditions.id("textures/effect/star/star_layer_2.png")
 
     private val LAYER_0_AXIS = Vector3f(0.0f, 1.0f, 1.0f).normalize()
     private val LAYER_1_AXIS = Vector3f(1.0f, 1.0f, 0.0f).normalize()
@@ -73,6 +74,7 @@ object AntichristStarRenderer {
             RenderMode.COLLAPSING -> 2.6f
             else -> 1.0f
         }
+
         val rotationDegrees = baseRotation + (profile.tick * rotationSpeedMultiplier) % 360000f
 
         poseStack.withPose {
@@ -85,17 +87,16 @@ object AntichristStarRenderer {
             shader.getUniform("Color")?.set(profile.colorR, profile.colorG, profile.colorB, alpha)
             shader.getUniform("Gamma")?.set(AntichristRenderProfile.STAR_GAMMA)
 
-            sphereBuffer.bind()
-            DeferredOculusCompat.withDeferredShaderPass {
-                sphereBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+            RenderUtils.withBoundBuffer(sphereBuffer) {
+                DeferredOculusCompat.withDeferredShaderPass {
+                    sphereBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+                }
             }
-            VertexBuffer.unbind()
             RenderSystem.enableCull()
         }
     }
 
     private fun buildSphereBuffer(slices: Int, stacks: Int): VertexBuffer {
-        val buffer = VertexBuffer(VertexBuffer.Usage.STATIC)
         val builder = Tesselator.getInstance().builder
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX)
 
@@ -136,10 +137,7 @@ object AntichristStarRenderer {
             }
         }
 
-        buffer.bind()
-        buffer.upload(builder.end())
-        VertexBuffer.unbind()
-        return buffer
+        return RenderUtils.uploadStaticBuffer(builder)
     }
 
     private fun addVertex(builder: BufferBuilder, x: Double, y: Double, z: Double, u: Double, v: Double) {

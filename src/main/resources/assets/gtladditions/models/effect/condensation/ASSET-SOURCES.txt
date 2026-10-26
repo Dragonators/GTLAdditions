@@ -1,0 +1,25 @@
+GTNH GoodGenerator antimatter effect
+
+Upstream: https://github.com/GTNewHorizons/GT5-Unofficial
+Revision: fe405d6b5fbc1433315790d70251b73b7854599f
+License: GNU Lesser General Public License version 3 (LGPL-3.0.txt).
+The associated GNU General Public License is included as GPL-3.0.txt.
+
+Source meshes (renamed locally; vertex and face data unchanged):
+src/main/resources/assets/goodgenerator/models/Antimatter.obj -> antimatter.obj
+src/main/resources/assets/goodgenerator/models/SmoothSphere.obj -> smooth_sphere.obj
+Each OBJ adds a usemtl directive for Forge's standard OBJ loader. The model JSON
+overrides the original material library with geometry.mtl. Only baked positions
+are copied to the VBO; procedural shaders still provide all visible colors.
+
+Adapted source:
+src/main/java/goodgenerator/client/render/AntimatterRenderer.java
+src/main/java/goodgenerator/blocks/tileEntity/render/TileAntimatter.java
+src/main/resources/assets/goodgenerator/shaders/antimatter.vert.glsl
+
+GTLAdditions adaptation (2026-10-18):
+Minecraft 1.20.1 GLSL 150 and cached vertex buffers; ice-white/cyan core,
+dark blue inner shell; center and size fit the antientropy condensation center.
+The shell diameter is 11 blocks. Machine-owned rotation pauses while idle;
+surface color flow continues using the world's clock while formed.
+GlowRing and the protomatter particle beam are intentionally omitted.

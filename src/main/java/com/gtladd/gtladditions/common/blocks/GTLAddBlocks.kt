@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.GlassBlock
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.material.PushReaction
 import org.gtlcore.gtlcore.GTLCore
 import org.gtlcore.gtlcore.common.block.BlockMap
 import org.gtlcore.gtlcore.common.data.GTLBlocks
@@ -46,6 +47,7 @@ object GTLAddBlocks {
     val PHONON_CONDUIT: BlockEntry<Block>
     val EXTREME_DENSITY_CASING: BlockEntry<Block>
     val GRAVITY_STABILIZATION_CASING: BlockEntry<Block>
+    val LIGHT_HUNTER_INTERIOR_LIGHT: BlockEntry<LightHunterInteriorLightBlock>
     val POWER_MODULE_6: BlockEntry<ActiveBlock>
     val POWER_MODULE_7: BlockEntry<ActiveBlock>
 
@@ -109,6 +111,19 @@ object GTLAddBlocks {
             "gravity_stabilization_casing",
             GTLCore.id("block/casings/gravity_stabilization_casing")
         )
+        LIGHT_HUNTER_INTERIOR_LIGHT = GTLAddRegistration.REGISTRATE
+            .block("light_hunter_interior_light", ::LightHunterInteriorLightBlock)
+            .initialProperties { Blocks.LIGHT }
+            .properties {
+                it.noCollission()
+                    .noOcclusion()
+                    .replaceable()
+                    .strength(0f)
+                    .noLootTable()
+                    .pushReaction(PushReaction.DESTROY)
+                    .lightLevel(LightHunterInteriorLightBlock::lightLevel)
+            }
+            .register()
         POWER_MODULE_6 = GTLBlocks.createActiveTierCasing(
             "power_module_6",
             "block/variant/power_module_6",

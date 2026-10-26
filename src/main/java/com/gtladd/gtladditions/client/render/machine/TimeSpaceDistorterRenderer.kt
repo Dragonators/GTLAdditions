@@ -150,6 +150,6 @@ class TimeSpaceDistorterRenderer :
             (value.coerceIn(0.0f, 1.0f) * 255.0f).roundToInt().coerceIn(0, 255)
 
         private fun magicCircleTexture(name: String): ResourceLocation =
-            GTLAdditions.id("textures/block/multiblock/time_space_distorter/$name.png")
+            GTLAdditions.id("textures/effect/time_space_distorter/$name.png")
     }
 }

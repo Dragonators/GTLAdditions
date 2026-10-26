@@ -36,7 +36,7 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-### 星规矩阵
+### 星阵
 
 * 猎光号空间站可嵌入最多 64 个 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} />。
 * 1 个 <ItemLink id="gtladditions:compressed_astral_array" link={false} linkColor={true} /> 会超过该上限，因此会直接填充至 64 个星阵。

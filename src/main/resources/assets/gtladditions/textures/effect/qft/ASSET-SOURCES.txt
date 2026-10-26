@@ -1,0 +1,28 @@
+QFT force field
+
+force_field.png is derived from ForceField.png from Modernity-GTNH
+v1.5.6 (2026-06-01 resource pack), by the Modernity-GTNH contributors.
+Source path: assets/miscutils/textures/blocks/qft/ForceField.png
+Project: https://github.com/ModernityGTNH/Modernity-GTNH
+Source PNG SHA-256: e4daf5db4158048ab166d6b9c0fef4d7d2722ea850f872eccb4bc747bcf77cce
+Local PNG SHA-256: 801d04aec3612508dafd4d953c461e060fafedec6531144cd7a3bcff07fc84ef
+The local PNG is recompressed with minor RGB quantization (at most one
+8-bit level per channel); its alpha values and frame layout are unchanged.
+
+This texture retains its separate CC BY-NC-SA 4.0 license:
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode .
+It is not relicensed under the repository's code license. Attribution does
+not imply endorsement by Modernity-GTNH. The asset is supplied without warranty.
+License reference revision: 1b52340349b92a11676eefb149eaec3b934eafcf.
+
+The source strip contains 120 frames of 64x64 pixels; its metadata uses
+frametime=1 and interpolate=true. GTLAdditions loads the complete strip
+once with bilinear filtering and interpolates RGB
+and alpha on the GPU. Frame 119 repeats frame 0; the playback traverses the
+119 unique intervals over the same six-second cycle to avoid a repeated-frame
+pause. The shader adds soft borders and restrained emissive highlights.
+
+The octagonal geometry and placement were adapted from GTNewHorizons/
+GT5-Unofficial, MTEQuantumForceTransformer.java, revision
+fe405d6b5fbc1433315790d70251b73b7854599f, licensed LGPL-3.0.
+https://github.com/GTNewHorizons/GT5-Unofficial

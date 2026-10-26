@@ -1,0 +1,26 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "1-srcalpha",
+    "srcalpha": "zero",
+    "dstalpha": "one"
+  },
+  "vertex": "gtladditions:gtladditions_dimension_focus_pocket",
+  "fragment": "gtladditions:gtladditions_dimension_focus_pocket",
+  "attributes": ["Position"],
+  "samplers": [],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "NoiseTex", "type": "int", "count": 1, "values": [2]},
+    {"name": "GasNear", "type": "int", "count": 1, "values": [3]},
+    {"name": "GasDeep", "type": "int", "count": 1, "values": [4]},
+    {"name": "Time", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "Flow", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "Spin", "type": "float", "count": 1, "values": [1.0]},
+    {"name": "Level", "type": "float", "count": 1, "values": [1.0]},
+    {"name": "Align", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "CameraLocal", "type": "float", "count": 3, "values": [0.0, 0.0, 60.0]}
+  ]
+}

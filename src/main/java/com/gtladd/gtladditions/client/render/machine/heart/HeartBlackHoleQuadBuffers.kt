@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.Tesselator
@@ -22,7 +23,6 @@ internal object HeartBlackHoleQuadBuffers {
     }
 
     private fun buildSphereVolumeBuffer(): VertexBuffer {
-        val buffer = VertexBuffer(VertexBuffer.Usage.STATIC)
         val builder = Tesselator.getInstance().builder
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION)
 
@@ -48,10 +48,7 @@ internal object HeartBlackHoleQuadBuffers {
             }
         }
 
-        buffer.bind()
-        buffer.upload(builder.end())
-        VertexBuffer.unbind()
-        return buffer
+        return RenderUtils.uploadStaticBuffer(builder)
     }
 
     private fun spherePoint(latitude: Double, longitude: Double): SphereVertex {
@@ -69,7 +66,6 @@ internal object HeartBlackHoleQuadBuffers {
     }
 
     private fun buildScreenQuadBuffer(): VertexBuffer {
-        val buffer = VertexBuffer(VertexBuffer.Usage.STATIC)
         val builder = Tesselator.getInstance().builder
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX)
 
@@ -80,10 +76,7 @@ internal object HeartBlackHoleQuadBuffers {
         addScreenVertex(builder, 1.0f, 1.0f, 1.0f, 1.0f)
         addScreenVertex(builder, -1.0f, 1.0f, 0.0f, 1.0f)
 
-        buffer.bind()
-        buffer.upload(builder.end())
-        VertexBuffer.unbind()
-        return buffer
+        return RenderUtils.uploadStaticBuffer(builder)
     }
 
     private fun addScreenVertex(builder: BufferBuilder, x: Float, y: Float, u: Float, v: Float) {

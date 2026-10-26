@@ -111,14 +111,47 @@ class BiosphereIIIController(holder: IMachineBlockEntity) :
         BiosphereIIIPosHelper.calculateModulePositions(pos, frontFacing)
 
     override fun getModulesForRendering(): List<ModuleRenderInfo> = listOf(
-        ModuleRenderInfo(BlockPos(-6, 7, 0), Direction.UP, Direction.NORTH, Direction.NORTH, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(6, 7, 0), Direction.UP, Direction.NORTH, Direction.NORTH, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(8, 9, 0), Direction.UP, Direction.NORTH, Direction.EAST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(-8, 9, 0), Direction.UP, Direction.NORTH, Direction.WEST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(8, 15, 0), Direction.UP, Direction.NORTH, Direction.WEST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
+        ModuleRenderInfo(
+            BlockPos(-6, 7, 0),
+            Direction.UP,
+            Direction.NORTH,
+            Direction.NORTH,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(6, 7, 0),
+            Direction.UP,
+            Direction.NORTH, Direction.NORTH,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(8, 9, 0),
+            Direction.UP,
+            Direction.NORTH,
+            Direction.EAST,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(-8, 9, 0),
+            Direction.UP,
+            Direction.NORTH,
+            Direction.WEST,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(8, 15, 0),
+            Direction.UP,
+            Direction.NORTH, Direction.WEST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
         ModuleRenderInfo(BlockPos(-8, 15, 0), Direction.UP, Direction.NORTH, Direction.EAST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
         ModuleRenderInfo(BlockPos(6, 17, 0), Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(-6, 17, 0), Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE)
+        ModuleRenderInfo(BlockPos(-6, 17, 0), Direction.UP, Direction.NORTH, Direction.SOUTH,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        )
     )
 
     override fun isFormed(): Boolean = isFormed

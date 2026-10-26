@@ -4,6 +4,8 @@ import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import kotlin.math.max
+import kotlin.math.sin
 
 @OnlyIn(Dist.CLIENT)
 object HeartBlackHoleVisualConfig {
@@ -15,6 +17,18 @@ object HeartBlackHoleVisualConfig {
     const val SPACE_SOLID_RADIUS = 0.7f * 25.0f / 29.0f
     const val SPACE_FADE_RADIUS = 1.45f * 25.0f / 29.0f
 
+    private const val DISTORTION_RADIUS_SCALE = 1.13f
+    private const val HEARTBEAT_FREQUENCY = 0.14f
+    private const val SPACE_HEARTBEAT_RADIUS_AMPLITUDE = 0.045f
+
+    fun volumeProxyRadius(tick: Float): Float {
+        val radius = max(BLACK_HOLE_AND_DISK_RADIUS, 0.001f)
+        val pulse = sin(tick * HEARTBEAT_FREQUENCY)
+        val distortionRadius = radius * DISTORTION_RADIUS_SCALE *
+            (1.0f + pulse * pulse * SPACE_HEARTBEAT_RADIUS_AMPLITUDE)
+        return max(distortionRadius, radius * max(SPACE_FADE_RADIUS, 0.001f))
+    }
+
     // CPU-only conservative bounds for deferred pass culling.
     const val CPU_CULLING_MARGIN = 4.0f
     const val CPU_CULLING_RADIUS = BLACK_HOLE_AND_DISK_RADIUS * SPACE_FADE_RADIUS + CPU_CULLING_MARGIN
@@ -22,7 +36,6 @@ object HeartBlackHoleVisualConfig {
     // Matches Radiant Event Horizon's default ROTATION_SPEED parameter.
     const val RADIANT_ROTATION_SPEED = 0.3f
 
-    // Whole-body rotation independent from accretion-disk flow, with vertical tilt bounded.
     const val BLACK_HOLE_ROTATION_MIN_SPEED = 0.010f
     const val BLACK_HOLE_ROTATION_MAX_SPEED = 0.024f
     const val BLACK_HOLE_VERTICAL_ROTATION_LIMIT = 0.5235987f

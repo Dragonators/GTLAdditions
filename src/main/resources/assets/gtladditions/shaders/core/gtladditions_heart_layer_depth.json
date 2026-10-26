@@ -1,0 +1,26 @@
+{
+  "vertex": "gtladditions:gtladditions_heart_post",
+  "fragment": "gtladditions:gtladditions_heart_layer_depth",
+  "attributes": [
+    "Position",
+    "UV0"
+  ],
+  "samplers": [
+    {
+      "name": "Centers"
+    },
+    {
+      "name": "Previous"
+    }
+  ],
+  "uniforms": [
+    {"name":"HeartImages","type":"int","count":1,"values":[5]},
+    {"name":"InverseProjection","type":"matrix4x4","count":16,"values":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name":"FrameSize","type":"float","count":2,"values":[0,0]},
+    {"name":"Origin","type":"float","count":2,"values":[0,0]},
+    {"name":"Count","type":"int","count":1,"values":[0]},
+    {"name":"Rank","type":"int","count":1,"values":[0]},
+    {"name": "ImageRects", "type": "int", "count": 1, "values": [7]},
+    {"name": "ImageStorageSize", "type": "float", "count": 2, "values": [1, 1]}
+  ]
+}

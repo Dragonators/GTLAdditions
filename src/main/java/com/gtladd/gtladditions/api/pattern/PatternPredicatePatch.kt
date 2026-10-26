@@ -117,7 +117,7 @@ private fun BlockPattern.patchPredicates(
     transform: (TraceabilityPredicate) -> TraceabilityPredicate
 ): BlockPattern {
     val matches = IdentityHashMap<TraceabilityPredicate, TraceabilityPredicate>()
-    val blockMatches = (this as BlockPatternAccessor).`gtladd$getBlockMatches`()
+    val blockMatches = (this as BlockPatternAccessor).blockMatches
 
     for (aisle in blockMatches) {
         for (row in aisle) {

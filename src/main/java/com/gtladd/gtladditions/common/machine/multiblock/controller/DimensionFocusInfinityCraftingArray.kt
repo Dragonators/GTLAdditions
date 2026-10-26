@@ -3,6 +3,8 @@ package com.gtladd.gtladditions.common.machine.multiblock.controller
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
+import com.gtladd.gtladditions.common.data.StructureRenderType
+import com.gtladd.gtladditions.common.machine.trait.StructureModifyTrait
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -18,6 +20,7 @@ class DimensionFocusInfinityCraftingArray(holder: IMachineBlockEntity) :
     @field:Persisted
     private var hostPosition: BlockPos? = null
     private var host: MolecularAssemblerMultiblockMachine? = null
+    private val structureModify = StructureModifyTrait(this, StructureRenderType.DIMENSION_FOCUS)
 
     override fun getMaxParallel(): Int = 4096
     override fun getHost(): MolecularAssemblerMultiblockMachine? = host
@@ -50,8 +53,11 @@ class DimensionFocusInfinityCraftingArray(holder: IMachineBlockEntity) :
         super.removeFromHost(host)
     }
 
+    override fun checkPattern(): Boolean = structureModify.checkPattern()
+
     override fun onStructureFormed() {
         super.onStructureFormed()
+        structureModify.form()
         if (!findAndConnectToHost()) {
             removeFromHost(this.host)
         }
@@ -59,6 +65,7 @@ class DimensionFocusInfinityCraftingArray(holder: IMachineBlockEntity) :
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
+        structureModify.invalidate()
         removeFromHost(this.host)
     }
 
@@ -68,6 +75,7 @@ class DimensionFocusInfinityCraftingArray(holder: IMachineBlockEntity) :
     }
 
     override fun onMachineRemoved() {
+        structureModify.restore()
         removeFromHost(this.host)
     }
 

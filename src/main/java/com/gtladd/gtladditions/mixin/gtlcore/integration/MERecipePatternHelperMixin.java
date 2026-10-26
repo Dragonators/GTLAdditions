@@ -9,7 +9,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeRecipesLogic;
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeWirelessRecipesLogic;
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ApocalypticTorsionQuantumMatrix;
-import com.gtladd.gtladditions.common.machine.multiblock.controller.ArcanicAstrograph;
+import com.gtladd.gtladditions.common.machine.multiblock.controller.ApocalypticWarpQuantumMatrix;
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist;
 import com.gtladd.gtladditions.common.machine.multiblock.controller.TimeSpaceDistorter;
 import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.RRFModuleMachine;
@@ -36,7 +36,8 @@ public abstract class MERecipePatternHelperMixin {
             var machine = controller.self();
             if (machine instanceof TimeSpaceDistorter || machine instanceof RecursiveReverseArray ||
                     machine instanceof RRFModuleMachine || machine instanceof RRFWorkableModuleMachine ||
-                    machine instanceof ApocalypticTorsionQuantumMatrix || machine instanceof ForgeOfTheAntichrist) {
+                    machine instanceof ApocalypticTorsionQuantumMatrix || machine instanceof ApocalypticWarpQuantumMatrix ||
+                    machine instanceof ForgeOfTheAntichrist) {
                 cir.setReturnValue(Set.of());
                 return;
             }
@@ -51,8 +52,7 @@ public abstract class MERecipePatternHelperMixin {
     private static void gtladditions$expandRecipeTypes(Set<GTRecipeType> types, GTRecipeType type, Set<GTRecipeType> visited,
                                                        Operation<Void> original, @Local IRecipeLogicMachine machine) {
         var logic = machine.getRecipeLogic();
-        if (logic instanceof GTLAddMultipleTypeRecipesLogic || logic instanceof GTLAddMultipleTypeWirelessRecipesLogic ||
-                machine instanceof ArcanicAstrograph) {
+        if (logic instanceof GTLAddMultipleTypeRecipesLogic || logic instanceof GTLAddMultipleTypeWirelessRecipesLogic) {
             for (GTRecipeType recipeType : machine.getRecipeTypes()) {
                 original.call(types, recipeType, visited);
             }

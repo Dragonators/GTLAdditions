@@ -78,7 +78,7 @@
   "gtceu.machine.taixuturbidarray.tooltip.13": "电压等级达到MAX时解锁uu物质输出",
   "gtceu.machine.taixuturbidarray.tooltip.14": "固定耗时：%ss",
   "gtceu.machine.taixuturbidarray.tooltip.15": "固定耗能：当前电压耗能*524288安",
-  "gtceu.machine.taixuturbidarray.tooltip.16": "允许嵌入至多2048个§6星规矩阵§r，提高并行上限，并解锁跨配方并行",
+  "gtceu.machine.taixuturbidarray.tooltip.16": "允许嵌入至多2048个§6星阵§r，提高并行上限，并解锁跨配方并行",
   "gtceu.machine.taixuturbidarray.tooltip.17": "并行计算公式为: 3^16 * ⌊count^(1.392)⌋",
   "gtceu.machine.taixuturbidarray.tooltip.18": "固定拥有128跨配方线程",
   "gtceu.machine.taixuturbidarray.tooltip.2": "uu增幅液成功概率计算公式：1/(1+e^(-0.1*(α/50+β/100+高度/3))",

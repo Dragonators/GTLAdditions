@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
@@ -9,9 +10,11 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV
+import com.gtladd.gtladditions.common.machine.trait.LightHunterParadoxEffectsTrait
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
+import com.gtladd.gtladditions.utils.LightHunterInteriorLighting
 import com.gtladd.gtladditions.utils.LightHunterSpaceStationPosHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
@@ -30,13 +33,18 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
     IModularMachineHost<LightHunterSpaceStation>,
     IAstralArrayInteractionMachine,
     IMachineLife {
-    private val modules: MutableSet<IModularMachineModule<LightHunterSpaceStation, *>> =
+    private val modules =
         ReferenceOpenHashSet<IModularMachineModule<LightHunterSpaceStation, *>>()
 
     @field:Persisted
     @field:DescSynced
     override var astralArrayCount: Int = 0
+
+    @field:DescSynced
+    val paradoxEffects = LightHunterParadoxEffectsTrait(this)
     private var mam = 0
+    private var interiorLightSubscription: TickableSubscription? = null
+    private var interiorLightingPending = false
 
     @Suppress("unused")
     fun supportsBatchProcessing(): Boolean = false
@@ -54,6 +62,7 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
         val actualIncrease = minOf(amount, MAX_ASTRAL_ARRAY_COUNT - astralArrayCount)
         if (actualIncrease > 0) {
             astralArrayCount += actualIncrease
+            if (unlockParadoxical()) paradoxEffects.notifyParadoxUnlocked()
         }
         return actualIncrease
     }
@@ -246,10 +255,12 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
+        stopInteriorLighting()
         safeClearModules()
     }
 
     override fun onMachineRemoved() {
+        stopInteriorLighting()
         safeClearModules()
     }
 
@@ -257,6 +268,42 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
         super.onStructureFormed()
         safeClearModules()
         scanAndConnectModules()
+        startInteriorLighting()
+    }
+
+    override fun onLoad() {
+        super.onLoad()
+        paradoxEffects.initializeState(unlockParadoxical())
+        if (isFormed) startInteriorLighting()
+    }
+
+    override fun onUnload() {
+        interiorLightSubscription?.unsubscribe()
+        interiorLightSubscription = null
+        interiorLightingPending = false
+        super.onUnload()
+    }
+
+    private fun startInteriorLighting() {
+        if (level?.isClientSide != false) return
+        // onLoad also runs inside chunk post-loading. Reading another chunk there can wait
+        // on the unfinished load that called us; only register work for a regular server tick.
+        interiorLightingPending = true
+        interiorLightSubscription = subscribeServerTick(interiorLightSubscription) {
+            if (!isFormed) {
+                stopInteriorLighting()
+            } else if (interiorLightingPending || offsetTimer % 100L == 0L) {
+                interiorLightingPending = false
+                LightHunterInteriorLighting.update(this, true)
+            }
+        }
+    }
+
+    private fun stopInteriorLighting() {
+        interiorLightSubscription?.unsubscribe()
+        interiorLightSubscription = null
+        interiorLightingPending = false
+        LightHunterInteriorLighting.update(this, false)
     }
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER

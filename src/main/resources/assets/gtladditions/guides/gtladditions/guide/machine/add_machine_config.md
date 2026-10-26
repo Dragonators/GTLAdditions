@@ -41,7 +41,6 @@ GTLAdditions-owned machines:
 
 <Row>
     <BlockImage id="gtladditions:lucid_etchdreamer" scale="3" />
-    <BlockImage id="gtladditions:atomic_transmutation_core" scale="3" />
     <BlockImage id="gtladditions:astral_convergence_nexus" scale="3" />
     <BlockImage id="gtladditions:nebula_reaper" scale="3" />
     <BlockImage id="gtladditions:arcane_cache_vault" scale="3" />
@@ -85,7 +84,7 @@ GTLAdditions-owned machines:
     <BlockImage id="gtladditions:draconic_collapse_core" scale="3" />
     <BlockImage id="gtladditions:titan_crip_earthbore" scale="3" />
     <BlockImage id="gtladditions:skeleton_shift_rift_engine" scale="3" />
-    <BlockImage id="gtladditions:apocalyptic_torsion_quantum_matrix" scale="3" />
+    <BlockImage id="gtladditions:apocalyptic_quantum_warp_matrix" scale="3" />
 </Row>
 
 External machines changed by this mod to use the greedy setting:
@@ -173,6 +172,7 @@ GTLAdditions-owned machines:
     <BlockImage id="gtladditions:nexus_satellite_factory_mk4" scale="3" />
     <BlockImage id="gtladditions:space_infinity_integrated_ore_processor" scale="3" />
     <BlockImage id="gtladditions:macro_atomic_resonant_fragment_stripper" scale="3" />
+    <BlockImage id="gtladditions:subatomic_transmutatioon_core" scale="3" />
 </Row>
 
 External machines with special handling added by this mod:
@@ -187,6 +187,7 @@ External machines with special handling added by this mod:
 
 Notes:
 
+* <ItemLink id="gtladditions:subatomic_transmutatioon_core" /> converts blocks through the ME Transmutation Bus Hatch. Coil temperature and the installed card determine the conversion capacity per cycle; the card determines the cycle duration.
 * Light Hunter Space Station modules use even distribution before the special station state is unlocked; after that, they calculate each recipe independently and use special per-recipe parallel limits.
 * Forge of the Antichrist and its modules calculate runnable recipes separately, with behavior affected by the host's output multiplier, wireless energy, and module rules.
 * Space Scaling Instrument, Space Infinity Integrated Ore Processor, and Macro Atomic Resonant Fragment Stripper calculate parallel independently for each recipe.

@@ -14,7 +14,9 @@
     "buildinggadgets2.ServerTickHandlerMixin",
     "buildinggadgets2.RenderBlockBEMixin",
     "gtceu.api.machine.IFancyUIMachineMixin",
+    "gtceu.api.machine.MultiblockControllerMachineMixin",
     "gtceu.api.pattern.BlockPatternAccessor",
+    "gtceu.api.pattern.MultiblockWorldSavedDataMixin",
     "gtceu.api.recipe.GTRecipeLookupMixin",
     "gtceu.api.recipe.MultiblockStateMixin",
     "gtceu.common.item.DataItemBehaviorMixin",
@@ -38,6 +40,7 @@
     "gtceu.xei.ItemEmiStackMixin",
     "gtlcore.data.recipe.GenerateDisassemblyMixin",
     "gtlcore.integration.MERecipePatternHelperMixin",
+    "gtlcore.pattern.AdvancedBlockPatternMixin",
     "gtlcore.machine.CoilWorkableElectricMultipleRecipesMachineMixin",
     "gtlcore.machine.HarmonyMachineMixin",
     "gtlcore.machine.LargeSteamParallelMultiblockMachineMixin",
@@ -83,14 +86,18 @@
     "stargatejourney.stargate.StargateStructureMixin"
   ],
   "client": [
+    "gtceu.xei.EmiRegistryImplMixin",
+    "gtceu.xei.RecipeCatalystRegistrationMixin",
     "buildinggadgets2.BaseGadgetMixin",
     "ae2.client.AEBaseScreenAccessor",
     "ae2.client.WidgetContainerAccessor",
     "ae2.client.JeiGhostIngredientHandlerMixin",
+    "minecraft.client.BlendModeAccessor",
+    "minecraft.client.BufferSourceAccessor",
     "minecraft.client.EditBoxAccessor",
-    "minecraft.client.ClientLevelChunkCacheMixin",
     "oculus.DepthColorStorageAccessor",
     "oculus.IrisRenderingPipelineMixin",
+    "oculus.TransformPatcherMixin",
     "stargatejourney.InterfaceScreenMixin"
   ]
 }

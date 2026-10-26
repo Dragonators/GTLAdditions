@@ -4,12 +4,9 @@ import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.render.machine.deferred.DeferredMachineRenderer
 import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
 import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderEntry
-import com.gtladd.gtladditions.client.render.withPose
-import com.gtladd.gtladditions.utils.antichrist.RingStructureVertexBuffer
 import com.mojang.blaze3d.vertex.PoseStack
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.RenderLevelStageEvent
@@ -24,42 +21,56 @@ import net.minecraftforge.fml.common.Mod
 )
 object AntichristDeferredRenderer {
     private val ringEntries = Long2ObjectLinkedOpenHashMap<Entry>()
+    private val translucentDraws = ArrayList<RingTransparency.Instance>()
 
-    fun enqueue(blockEntity: BlockEntity, profile: AntichristRenderProfile) {
-        DeferredMachineRenderer.enqueue(Entry(blockEntity, profile))
-    }
-
-    fun enqueueRing(blockEntity: BlockEntity, profile: AntichristRenderProfile) {
-        ringEntries.put(blockEntity.blockPos.asLong(), Entry(blockEntity, profile))
+    fun enqueue(blockEntity: BlockEntity, profile: AntichristRenderProfile, renderRings: Boolean, renderEffects: Boolean) {
+        val entry = Entry(blockEntity, profile)
+        if (renderRings) ringEntries.put(blockEntity.blockPos.asLong(), entry)
+        if (renderEffects) DeferredMachineRenderer.enqueue(entry)
     }
 
     @SubscribeEvent
     @JvmStatic
     fun onRenderLevelStage(event: RenderLevelStageEvent) {
-        if (event.stage != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES || ringEntries.isEmpty()) return
-
-        val cameraPosition = event.camera.position
-        ringEntries.values.forEach { entry ->
-            renderRingEntryRelativeToCamera(entry, cameraPosition, event.poseStack)
+        if (event.stage == RenderLevelStageEvent.Stage.AFTER_SKY || event.stage == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+            ringEntries.clear()
+            return
         }
-        ringEntries.clear()
+
+        val translucent = when (event.stage) {
+            RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES -> false
+            RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS -> true
+            else -> return
+        }
+
+        if (ringEntries.isEmpty()) return
+
+        val context = DeferredRenderContext(event.camera.position, event.poseStack, event.frustum)
+        try {
+            ringEntries.values.forEach { entry ->
+                renderRings(entry, context, translucent)
+            }
+            // Oculus has now copied opaque depth and finished deferred. All FOA solids are present.
+            if (translucent) RingTransparency.render(translucentDraws)
+        } finally {
+            if (translucent) {
+                ringEntries.clear()
+                translucentDraws.clear()
+            }
+        }
     }
 
-    private fun renderRingEntryRelativeToCamera(
+    private fun renderRings(
         entry: Entry,
-        cameraPosition: Vec3,
-        poseStack: PoseStack
+        context: DeferredRenderContext,
+        translucent: Boolean
     ) {
-        val blockEntity = entry.blockEntity
-        if (blockEntity.isRemoved) return
-
-        poseStack.withPose {
-            translate(
-                blockEntity.blockPos.x - cameraPosition.x,
-                blockEntity.blockPos.y - cameraPosition.y,
-                blockEntity.blockPos.z - cameraPosition.z
-            )
-            RingStructureVertexBuffer.renderTerrainBatched(entry.profile, this)
+        context.renderRelativeToCamera(entry.blockEntity) {
+            if (translucent) {
+                RingStructureVertexBuffer.collectTranslucent(entry.profile, this, translucentDraws)
+            } else {
+                RingStructureVertexBuffer.renderTerrainBatched(entry.profile, this)
+            }
         }
     }
 

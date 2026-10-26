@@ -270,10 +270,7 @@ object ChanceParallelLogic {
         }
 
         // For chanced inputs, calculate maximum parallel based on roll simulation
-        for (entry in Object2ReferenceMaps.fastIterable(chanceMap)) {
-            val chanceNeeded = entry.value
-            val ingredient = entry.key
-
+        for ((ingredient, chanceNeeded) in Object2ReferenceMaps.fastIterable(chanceMap)) {
             val available = findAvailable(ingredient, ingredientStacks)
             if (available < chanceNeeded.amount) return 0
 

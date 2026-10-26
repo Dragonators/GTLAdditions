@@ -5,18 +5,13 @@ in vec3 Position;
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
 uniform vec3 Center;
-uniform float Time;
-uniform float BlackHoleAndDiskRadius;
-uniform float SpaceFadeRadius;
-
-#moj_import <gtladditions:heart_volume_common.glsl>
+uniform float VolumeProxyRadius;
 
 out vec3 volumeSurfacePosition;
-out vec3 volumeModelPosition;
 
 void main() {
-    float proxyRadius = getVolumeProxyRadius(Time);
-    volumeModelPosition = Position * proxyRadius;
+    float proxyRadius = max(VolumeProxyRadius, 0.001);
+    vec3 volumeModelPosition = Position * proxyRadius;
     volumeSurfacePosition = Center + volumeModelPosition;
     gl_Position = ProjMat * ModelViewMat * vec4(volumeSurfacePosition, 1.0);
 }

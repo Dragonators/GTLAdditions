@@ -28,7 +28,6 @@ categories:
 
 ## <Color color="#00AA00">**UIV**</Color>
 
-* ~~[原子置换核心](atomic_transmutation_core.md)~~
 * [超维度化工厂](dimensionally_transcendent_chemical_plant.md)
 * [反熵冷凝中枢](antientropy_condensation_center.md)
 * [炽隙裂炼穹](inferno_cleft_smelting_vault.md)
@@ -57,7 +56,7 @@ categories:
 * [奥术星图](arcanic_astrograph.md)
 * [递归反演阵列](recursive_reverse_array.md)
 * [天基无尽集成矿石处理厂](space_infinity_integrated_ore_processor.md)
-* [终焉曲折量子波动矩阵](apocalyptic_torsion_quantum_matrix.md)
+* [终焉曲折量子波动矩阵](apocalyptic_quantum_warp_matrix.md)
 * [时空扭曲者](time_space_distorter.md)
 * [伪神之煅炉](forge_of_the_antichrist.md)
 * [Helio 系列煅炉模块](helio_forge_modules.md)

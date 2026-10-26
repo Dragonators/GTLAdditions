@@ -75,6 +75,16 @@ object MultiBlockStructure {
         )
     }
 
+    val APOCALYPTIC_QUANTUM_WARP_MATRIX: FactoryBlockPattern by lazy(LazyThreadSafetyMode.NONE) {
+        StructureResourceLoader.loadFactoryPattern(
+            "multiblock/apocalyptic_quantum_warp_matrix.bin",
+            "apocalyptic_quantum_warp_matrix",
+            RelativeDirection.LEFT,
+            RelativeDirection.BACK,
+            RelativeDirection.DOWN
+        )
+    }
+
     val FORGE_OF_THE_ANTICHRIST: FactoryBlockPattern? by lazy(LazyThreadSafetyMode.NONE) {
         StructureResourceLoader.loadFactoryPattern(
             "multiblock/forge_of_the_antichrist.bin",

@@ -1,0 +1,167 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "1-srcalpha",
+    "srcalpha": "one",
+    "dstalpha": "1-srcalpha"
+  },
+  "vertex": "gtladditions:gtladditions_matrix_energy_core",
+  "fragment": "gtladditions:gtladditions_matrix_energy_core_layers",
+  "attributes": [
+    "Position"
+  ],
+  "samplers": [
+    {
+      "name": "Sampler0"
+    },
+    {
+      "name": "SceneDepth"
+    }
+  ],
+  "uniforms": [
+    {
+      "name": "ModelViewMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "ProjMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "CameraPosition",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0,
+        0,
+        3
+      ]
+    },
+    {
+      "name": "Phase",
+      "type": "float",
+      "count": 1,
+      "values": [
+        3.5
+      ]
+    },
+    {
+      "name": "SurfaceCoverage",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.85
+      ]
+    },
+    {
+      "name": "InteriorStrength",
+      "type": "float",
+      "count": 1,
+      "values": [
+        2.0
+      ]
+    },
+    {
+      "name": "SceneViewport",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "LayerDepths",
+      "type": "int",
+      "count": 1,
+      "values": [
+        3
+      ]
+    },
+    {
+      "name": "LayerCount",
+      "type": "int",
+      "count": 1,
+      "values": [
+        0
+      ]
+    },
+    {
+      "name": "LayerBase",
+      "type": "int",
+      "count": 1,
+      "values": [
+        0
+      ]
+    },
+    {
+      "name": "LayerMode",
+      "type": "int",
+      "count": 1,
+      "values": [
+        0
+      ]
+    },
+    {
+      "name": "LayerOrigin",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "LayerRect",
+      "type": "float",
+      "count": 4,
+      "values": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {"name": "SceneHandMask", "type": "int", "count": 1, "values": [4]},
+    {"name": "SceneHandMaskEnabled", "type": "int", "count": 1, "values": [0]}
+  ]
+}

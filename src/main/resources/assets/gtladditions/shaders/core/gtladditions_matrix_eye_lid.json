@@ -1,0 +1,27 @@
+{
+  "vertex": "gtladditions:gtladditions_matrix_eye_lid",
+  "fragment": "gtladditions:gtladditions_matrix_eye_lid",
+  "attributes": ["Position"],
+  "samplers": [{"name": "uBase"}],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "uScale", "type": "float", "count": 3, "values": [7.55,7.55,2.8]},
+    {"name": "uSeat", "type": "float", "count": 1, "values": [1.49]},
+    {"name": "cameraPosition", "type": "float", "count": 3, "values": [0,-20,20]},
+    {"name": "uEyeScale", "type": "float", "count": 3, "values": [7.55,7.55,2.8]},
+    {"name": "uTint", "type": "float", "count": 3, "values": [1,0.68,0.24]},
+    {"name": "uSkin", "type": "float", "count": 3, "values": [0.012,0.0075,0.004]},
+    {"name": "uGaze", "type": "float", "count": 2, "values": [0,0]},
+    {"name": "uIrisScale", "type": "float", "count": 1, "values": [0.8]},
+    {"name": "uDilate", "type": "float", "count": 1, "values": [1]},
+    {"name": "uTime", "type": "float", "count": 1, "values": [0]},
+    {"name": "uGlow", "type": "float", "count": 1, "values": [1]},
+    {"name": "uSeam", "type": "float", "count": 1, "values": [0]},
+    {"name": "uCamLight", "type": "float", "count": 3, "values": [0,0,1]},
+    {"name": "uLidU", "type": "float", "count": 1, "values": [-0.08]},
+    {"name": "uLidL", "type": "float", "count": 1, "values": [-0.08]},
+    {"name": "uEnvGlow", "type": "float", "count": 1, "values": [0]}
+  ],
+  "blend": {"func": "add", "srcrgb": "srcalpha", "dstrgb": "1-srcalpha", "srcalpha": "one", "dstalpha": "1-srcalpha"}
+}

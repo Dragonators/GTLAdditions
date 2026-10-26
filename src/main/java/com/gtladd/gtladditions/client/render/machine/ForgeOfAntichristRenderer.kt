@@ -30,22 +30,18 @@ class ForgeOfAntichristRenderer(
         combinedLight: Int,
         combinedOverlay: Int
     ) {
-        if (blockEntity !is IMachineBlockEntity) return
-
-        val machine = blockEntity.metaMachine as? ForgeOfTheAntichrist ?: return
+        val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? ForgeOfTheAntichrist ?: return
         val isWorking = machine.isActiveOrStasisAnchored()
         if (!machine.isFormed && !isWorking) return
 
         val tick = if (isWorking) RenderUtil.getSmoothTick(machine, partialTicks) else 0f
         val profile = AntichristRenderProfile.create(machine, tick, isWorking)
-
-        if (machine.isFormed) {
-            AntichristDeferredRenderer.enqueueRing(blockEntity, profile)
-        }
-
-        if (isWorking) {
-            AntichristDeferredRenderer.enqueue(blockEntity, profile)
-        }
+        AntichristDeferredRenderer.enqueue(
+            blockEntity,
+            profile,
+            renderRings = machine.isFormed,
+            renderEffects = isWorking
+        )
     }
 
     @OnlyIn(Dist.CLIENT)
