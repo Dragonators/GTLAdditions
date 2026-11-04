@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Matrix4f
+import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL30C
 import kotlin.math.sin
 
@@ -57,11 +58,17 @@ object HeartBlackHoleRenderer {
         cameraPosition: Vec3
     ) {
         try {
-            if (!prepareDrawCommands(entries, cameraPosition)) return
+            if (!prepareDrawCommands(entries, cameraPosition)) {
+                pendingComposite = null
+                return
+            }
 
-            val volumeShader = HeartBlackHoleShaders.volumeShader ?: return
-            val blurShader = HeartBlackHoleShaders.blurShader ?: return
-            HeartBlackHoleShaders.compositeShader ?: return
+            val volumeShader = HeartBlackHoleShaders.volumeShader
+            val blurShader = HeartBlackHoleShaders.blurShader
+            if (volumeShader == null || blurShader == null || HeartBlackHoleShaders.compositeShader == null) {
+                pendingComposite = null
+                return
+            }
 
             DeferredOculusCompat.withDeferredShaderPass {
                 renderPostProcessed(
@@ -174,13 +181,10 @@ object HeartBlackHoleRenderer {
         val sharedDepth = HeartBlackHoleFramebuffer.queryDepthAttachments(outputFramebuffer)
 
         targets.clearVolumeTargets()
-        if (sharedDepth == null) {
-            HeartBlackHoleFramebuffer.prepareFramebufferWrite(true)
-            HeartBlackHoleFramebuffer.copyDepthFromFramebuffer(outputFramebuffer, width, height, targets.effect)
-            HeartBlackHoleFramebuffer.copyDepthFromFramebuffer(outputFramebuffer, width, height, targets.mask)
-        }
-
+        val depthTexture = resolveDepthTexture(sharedDepth, outputFramebuffer, width, height, targets)
+        val depthClipEnabled = depthTexture != 0
         val volumeUniforms = HeartVolumeUniforms(volumeShader)
+        volumeUniforms.applyDepthClip(depthClipEnabled)
         renderHeartTarget(
             targets.effect,
             commands,
@@ -188,7 +192,7 @@ object HeartBlackHoleRenderer {
             volumeShader,
             volumeUniforms,
             VOLUME_PASS_EFFECT,
-            sharedDepth
+            depthTexture
         )
         renderHeartTarget(
             targets.mask,
@@ -197,18 +201,39 @@ object HeartBlackHoleRenderer {
             volumeShader,
             volumeUniforms,
             VOLUME_PASS_MASK,
-            sharedDepth
+            depthTexture
         )
 
         val blurWidth = targets.effectBlurA.viewWidth.coerceAtLeast(1)
         val blurHeight = targets.effectBlurA.viewHeight.coerceAtLeast(1)
-        renderBlur(targets.effect, targets.effectBlurA, blurShader, 1.0f / width.toFloat(), 0.0f)
+        renderBlur(targets.effect, targets.effectBlurA, blurShader, 1.0f / blurWidth.toFloat(), 0.0f)
         renderBlur(targets.effectBlurA, targets.effectBlurB, blurShader, 0.0f, 1.0f / blurHeight.toFloat())
-        renderBlur(targets.mask, targets.maskBlurA, blurShader, 1.0f / width.toFloat(), 0.0f)
+        renderBlur(targets.mask, targets.maskBlurA, blurShader, 1.0f / blurWidth.toFloat(), 0.0f)
         renderBlur(targets.maskBlurA, targets.maskBlurB, blurShader, 0.0f, 1.0f / blurHeight.toFloat())
 
         pendingComposite = PendingHeartComposite(targets, width, height, blurWidth, blurHeight)
         HeartBlackHoleFramebuffer.restoreFramebuffer(outputFramebuffer, width, height)
+    }
+
+    private fun resolveDepthTexture(
+        sharedDepth: HeartBlackHoleFramebuffer.DepthAttachments?,
+        outputFramebuffer: Int,
+        width: Int,
+        height: Int,
+        targets: HeartBlackHoleTargets
+    ): Int {
+        if (sharedDepth == null) {
+            return 0
+        }
+        val depthTexture = sharedDepth.depth.takeIf { it.hasAttachment && it.type == GL11C.GL_TEXTURE }
+            ?: sharedDepth.depthStencil.takeIf { it.hasAttachment && it.type == GL11C.GL_TEXTURE }
+        if (depthTexture != null) {
+            return depthTexture.name
+        }
+        HeartBlackHoleFramebuffer.copyDepthFromFramebuffer(outputFramebuffer, width, height, targets.depthCopy)
+        val copiedDepth = HeartBlackHoleFramebuffer.queryDepthAttachments(targets.depthCopy.frameBufferId)
+            ?.depth
+        return copiedDepth?.takeIf { it.hasAttachment && it.type == GL11C.GL_TEXTURE }?.name ?: 0
     }
 
     @JvmStatic
@@ -225,19 +250,17 @@ object HeartBlackHoleRenderer {
         shader: ShaderInstance,
         uniforms: HeartVolumeUniforms,
         volumePass: Float,
-        sharedDepth: HeartBlackHoleFramebuffer.DepthAttachments?
+        depthTexture: Int
     ) {
         target.bindWrite(true)
-        val originalDepth = if (sharedDepth != null) {
-            HeartBlackHoleFramebuffer.replaceDepthAttachments(target.frameBufferId, sharedDepth)
-        } else {
-            null
-        }
-        HeartBlackHoleFramebuffer.prepareFramebufferWrite(true)
+        HeartBlackHoleFramebuffer.prepareFramebufferWrite(false)
         RenderSystem.disableBlend()
-        RenderSystem.enableDepthTest()
+        RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.disableCull()
+        if (depthTexture != 0) {
+            shader.setSampler("DepthSampler", depthTexture)
+        }
 
         HeartBlackHoleQuadBuffers.heartVolumeBuffer.bind()
         try {
@@ -266,9 +289,6 @@ object HeartBlackHoleRenderer {
             shader.clear()
         }
 
-        if (originalDepth != null) {
-            HeartBlackHoleFramebuffer.restoreDepthAttachments(target.frameBufferId, originalDepth)
-        }
         RenderSystem.enableCull()
         RenderSystem.depthMask(true)
     }
@@ -298,6 +318,7 @@ object HeartBlackHoleRenderer {
 
     private class HeartVolumeUniforms(shader: ShaderInstance) {
         private val passMode = shader.getUniform("PassMode")
+        private val depthClipEnabled = shader.getUniform("DepthClipEnabled")
         private val time = shader.getUniform("Time")
         private val center = shader.getUniform("Center")
         private val cameraPosition = shader.getUniform("CameraPosition")
@@ -307,6 +328,10 @@ object HeartBlackHoleRenderer {
         private val spaceFadeRadius = shader.getUniform("SpaceFadeRadius")
         private val rotationSpeed = shader.getUniform("RotationSpeed")
         private val blackHoleRotation = shader.getUniform("BlackHoleRotation")
+
+        fun applyDepthClip(enabled: Boolean) {
+            depthClipEnabled?.set(if (enabled) 1.0f else 0.0f)
+        }
 
         fun applyVolumePass(volumePass: Float) {
             passMode?.set(volumePass)

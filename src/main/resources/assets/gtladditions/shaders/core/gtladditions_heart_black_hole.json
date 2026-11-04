@@ -4,7 +4,11 @@
   "attributes": [
     "Position"
   ],
-  "samplers": [],
+  "samplers": [
+    {
+      "name": "DepthSampler"
+    }
+  ],
   "uniforms": [
     {
       "name": "ModelViewMat",
@@ -118,6 +122,14 @@
       "count": 1,
       "values": [
         0.0
+      ]
+    },
+    {
+      "name": "DepthClipEnabled",
+      "type": "float",
+      "count": 1,
+      "values": [
+        1.0
       ]
     },
     {

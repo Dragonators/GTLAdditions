@@ -10,6 +10,9 @@ uniform float SpaceFadeRadius;
 uniform float RotationSpeed;
 uniform vec3 BlackHoleRotation;
 uniform float PassMode;
+uniform sampler2D DepthSampler;
+uniform float DepthClipEnabled;
+uniform mat4 ProjMat;
 
 #moj_import <gtladditions:heart_volume_common.glsl>
 
@@ -226,12 +229,47 @@ vec3 toneMap(vec3 color) {
     return pow(max(color, vec3(0.0)), vec3(0.92));
 }
 
+const float OCCLUSION_FADE_WIDTH = 1.5;
+
+float sampleSceneDistance() {
+    if (DepthClipEnabled < 0.5) {
+        return 1e20;
+    }
+    vec2 depthSize = vec2(textureSize(DepthSampler, 0));
+    float depth = texelFetch(DepthSampler, ivec2(gl_FragCoord.xy), 0).r;
+    if (depth >= 0.999999) {
+        return 1e20;
+    }
+    vec2 ndc = (gl_FragCoord.xy / depthSize) * 2.0 - 1.0;
+    float ndcZ = depth * 2.0 - 1.0;
+    float m22 = ProjMat[2][2];
+    float m23 = ProjMat[3][2];
+    float denominator = m22 - 1.0;
+    if (abs(denominator) < 0.000001) {
+        return 1e20;
+    }
+    float nearPlane = m23 / denominator;
+    float farPlane = m23 / (m22 + 1.0);
+    float viewZ = (2.0 * nearPlane * farPlane) /
+        ((farPlane + nearPlane) - ndcZ * (farPlane - nearPlane));
+    vec3 viewPosition = vec3(
+        ndc.x * viewZ / ProjMat[0][0],
+        ndc.y * viewZ / ProjMat[1][1],
+        -viewZ
+    );
+    return length(viewPosition);
+}
+
 void main() {
     float blackHoleAndDiskRadius = max(BlackHoleAndDiskRadius, 0.001);
     float spaceSolidRadius = max(SpaceSolidRadius, 0.0);
     float spaceFadeRadius = max(SpaceFadeRadius, spaceSolidRadius + 0.001);
     float diskAnimationTime = Time * SMOOTH_TICK_SECONDS * RotationSpeed;
     float volumeRadius = getVolumeProxyRadius(Time, blackHoleAndDiskRadius, spaceFadeRadius);
+    bool cameraInside = length(CameraPosition - Center) < volumeRadius;
+    if (gl_FrontFacing == cameraInside) {
+        discard;
+    }
     float fadeRadius = blackHoleAndDiskRadius * spaceFadeRadius;
     vec3 baseModelForward = getModelForward();
     vec3 baseModelRight = getModelRight(baseModelForward);
@@ -262,25 +300,32 @@ void main() {
     }
 
     float traceEntryT = max(entryT, 0.0);
+    float sceneT = sampleSceneDistance();
+    if (traceEntryT >= sceneT) {
+        discard;
+    }
+    float traceEndT = min(exitT, sceneT);
     float effectFade = getSpaceVolumeAlpha(
         CameraPosition,
         worldRay,
         Center,
         entryT,
-        exitT,
+        traceEndT,
         solidRadius,
         fadeRadius
     );
     if (effectFade < 0.0005) {
         discard;
     }
+    vec3 cameraToCenter = Center - CameraPosition;
+    float closestT = clamp(dot(cameraToCenter, worldRay), traceEntryT, exitT);
+    float centerOcclusion = 1.0 - smoothstep(sceneT - OCCLUSION_FADE_WIDTH, sceneT, closestT);
     if (PassMode > 0.5) {
-        fragColor = vec4(effectFade, effectFade, effectFade, effectFade);
+        float maskValue = effectFade * centerOcclusion;
+        fragColor = vec4(maskValue, maskValue, maskValue, maskValue);
         return;
     }
 
-    vec3 cameraToCenter = Center - CameraPosition;
-    float closestT = clamp(dot(cameraToCenter, worldRay), traceEntryT, exitT);
     vec3 closestPoint = CameraPosition + worldRay * closestT;
     float impactDistance = length(closestPoint - Center);
     float impactRatio = impactDistance / blackHoleAndDiskRadius;
@@ -319,18 +364,35 @@ void main() {
         if (pos.y * nextPos.y < 0.0 && diskAccum.a < 0.97) {
             float t = pos.y / (pos.y - nextPos.y);
             vec3 hit = mix(pos, nextPos, t);
-            vec4 disk = shadeDisk(hit, vel, diskAnimationTime, crossings, spin);
-            diskAccum.rgb += disk.rgb * disk.a * (1.0 - diskAccum.a);
-            diskAccum.a += disk.a * (1.0 - diskAccum.a);
-            float bright = dot(disk.rgb, vec3(0.30, 0.50, 0.20)) * disk.a;
-            glow += disk.rgb * 0.025 * max(bright - 0.22, 0.0);
-            crossings++;
+            vec3 hitWorld = Center + fromModelSpace(hit / worldToModel, modelRight, modelUp, modelForward);
+            float hitOcclusion = 1.0 - smoothstep(
+                sceneT - OCCLUSION_FADE_WIDTH,
+                sceneT,
+                length(hitWorld - CameraPosition)
+            );
+            if (hitOcclusion > 0.0005) {
+                vec4 disk = shadeDisk(hit, vel, diskAnimationTime, crossings, spin);
+                disk.a *= hitOcclusion;
+                diskAccum.rgb += disk.rgb * disk.a * (1.0 - diskAccum.a);
+                diskAccum.a += disk.a * (1.0 - diskAccum.a);
+                float bright = dot(disk.rgb, vec3(0.30, 0.50, 0.20)) * disk.a;
+                glow += disk.rgb * 0.025 * max(bright - 0.22, 0.0);
+                crossings++;
+            }
         }
 
         if (nextR < 6.0) {
-            float photonDist = abs(nextR - 1.5 * RS);
-            glow += vec3(0.75, 0.48, 0.22) * (1.0 / (1.0 + photonDist * photonDist * 22.0)) * h * 0.0009 / max(nextR * nextR, 0.2);
-            glow += vec3(0.55, 0.24, 0.08) * max(exp(-(nextR - RS) * 3.5) * h * 0.002, 0.0);
+            vec3 nextWorld = Center + fromModelSpace(nextPos / worldToModel, modelRight, modelUp, modelForward);
+            float glowOcclusion = 1.0 - smoothstep(
+                sceneT - OCCLUSION_FADE_WIDTH,
+                sceneT,
+                length(nextWorld - CameraPosition)
+            );
+            if (glowOcclusion > 0.0005) {
+                float photonDist = abs(nextR - 1.5 * RS);
+                glow += vec3(0.75, 0.48, 0.22) * (1.0 / (1.0 + photonDist * photonDist * 22.0)) * h * 0.0009 / max(nextR * nextR, 0.2) * glowOcclusion;
+                glow += vec3(0.55, 0.24, 0.08) * max(exp(-(nextR - RS) * 3.5) * h * 0.002, 0.0) * glowOcclusion;
+            }
         }
 
         if (nextR < RS * 0.35) {
@@ -350,7 +412,7 @@ void main() {
 
     float photonLens = exp(-abs(minR - 1.5 * RS) * 5.0);
     float nearLens = 1.0 - smoothstep(2.4, 7.2, minR);
-    float lensAlpha = clamp(nearLens * 0.34 + photonLens * 0.18, 0.0, 0.58) * effectFade * LENS_ALPHA_SCALE;
+    float lensAlpha = clamp(nearLens * 0.34 + photonLens * 0.18, 0.0, 0.58) * effectFade * LENS_ALPHA_SCALE * centerOcclusion;
     float spaceShellAlpha = effectFade;
     vec3 escapedDirection = normalize(vel);
     vec3 escapedWorldDirection = fromModelSpace(escapedDirection, modelRight, modelUp, modelForward);
@@ -365,7 +427,7 @@ void main() {
     float shadowAlphaRaw = absorbed ? 1.0 : 0.0;
     float shadowCoreRadius = max(PROJECTED_SHADOW_CONTACT_RADIUS * SHADOW_CORE_RADIUS_SCALE, PROJECTED_SHADOW_RADIUS);
     float shadowCoreAlpha = 1.0 - smoothstep(shadowCoreRadius * 0.82, shadowCoreRadius, impactProjectedRadius);
-    float shadowAlpha = max(shadowAlphaRaw, shadowCoreAlpha) * effectFade;
+    float shadowAlpha = max(shadowAlphaRaw, shadowCoreAlpha) * effectFade * centerOcclusion;
 
     float ringDist = abs(minR - 1.5 * RS);
     float tracedPhotonRing = exp(-ringDist * ringDist * 34.0);
@@ -374,7 +436,7 @@ void main() {
         -(contactRingDist * contactRingDist) /
         max(SHADOW_CONTACT_RING_WIDTH * SHADOW_CONTACT_RING_WIDTH, 0.000001)
     );
-    float photonRing = max(tracedPhotonRing, contactPhotonRing * 0.85) * effectFade;
+    float photonRing = max(tracedPhotonRing, contactPhotonRing * 0.85) * effectFade * centerOcclusion;
     vec3 ringColor = vec3(1.0, 0.72, 0.28) * photonRing * 0.22;
 
     float diskAlpha = diskAccum.a * effectFade;
