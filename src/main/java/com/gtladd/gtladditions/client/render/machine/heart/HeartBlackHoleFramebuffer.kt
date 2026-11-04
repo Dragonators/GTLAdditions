@@ -33,36 +33,6 @@ internal object HeartBlackHoleFramebuffer {
         return attachments.takeIf { it.hasAttachment }
     }
 
-    fun replaceDepthAttachments(framebuffer: Int, sharedDepth: DepthAttachments): DepthAttachments {
-        val previousReadFramebuffer = GlStateManager._getInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING)
-        val previousDrawFramebuffer = GlStateManager._getInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING)
-        GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, framebuffer)
-
-        val originalDepth = queryBoundDepthAttachments()
-        detachDepthAttachment(GL30C.GL_DEPTH_ATTACHMENT)
-        detachDepthAttachment(GL30C.GL_DEPTH_STENCIL_ATTACHMENT)
-        attachDepthAttachment(GL30C.GL_DEPTH_ATTACHMENT, sharedDepth.depth)
-        attachDepthAttachment(GL30C.GL_DEPTH_STENCIL_ATTACHMENT, sharedDepth.depthStencil)
-
-        GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, previousReadFramebuffer)
-        GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, previousDrawFramebuffer)
-        return originalDepth
-    }
-
-    fun restoreDepthAttachments(framebuffer: Int, depthAttachments: DepthAttachments) {
-        val previousReadFramebuffer = GlStateManager._getInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING)
-        val previousDrawFramebuffer = GlStateManager._getInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING)
-        GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, framebuffer)
-
-        detachDepthAttachment(GL30C.GL_DEPTH_ATTACHMENT)
-        detachDepthAttachment(GL30C.GL_DEPTH_STENCIL_ATTACHMENT)
-        attachDepthAttachment(GL30C.GL_DEPTH_ATTACHMENT, depthAttachments.depth)
-        attachDepthAttachment(GL30C.GL_DEPTH_STENCIL_ATTACHMENT, depthAttachments.depthStencil)
-
-        GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, previousReadFramebuffer)
-        GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, previousDrawFramebuffer)
-    }
-
     fun copyDepthFromFramebuffer(sourceFramebuffer: Int, width: Int, height: Int, target: RenderTarget) {
         GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, sourceFramebuffer)
         GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, target.frameBufferId)
@@ -99,30 +69,6 @@ internal object HeartBlackHoleFramebuffer {
                 GL30C.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME
             )
         )
-
-    private fun attachDepthAttachment(attachment: Int, depthAttachment: DepthAttachment) {
-        when (depthAttachment.type) {
-            GL11C.GL_TEXTURE -> GL30C.glFramebufferTexture2D(
-                GL30C.GL_FRAMEBUFFER,
-                attachment,
-                GL11C.GL_TEXTURE_2D,
-                depthAttachment.name,
-                0
-            )
-
-            GL30C.GL_RENDERBUFFER -> GL30C.glFramebufferRenderbuffer(
-                GL30C.GL_FRAMEBUFFER,
-                attachment,
-                GL30C.GL_RENDERBUFFER,
-                depthAttachment.name
-            )
-        }
-    }
-
-    private fun detachDepthAttachment(attachment: Int) {
-        GL30C.glFramebufferTexture2D(GL30C.GL_FRAMEBUFFER, attachment, GL11C.GL_TEXTURE_2D, 0, 0)
-        GL30C.glFramebufferRenderbuffer(GL30C.GL_FRAMEBUFFER, attachment, GL30C.GL_RENDERBUFFER, 0)
-    }
 
     internal data class DepthAttachment(
         val type: Int,

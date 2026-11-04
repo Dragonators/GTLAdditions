@@ -25,12 +25,13 @@ internal object HeartBlackHolePostTargets {
         }
 
         val next = HeartBlackHoleTargets(
-            createTarget(width, height, true),
-            createTarget(width, height, true),
+            createTarget(width, height, false),
+            createTarget(width, height, false),
             createTarget(blurWidth, blurHeight, false),
             createTarget(blurWidth, blurHeight, false),
             createTarget(blurWidth, blurHeight, false),
-            createTarget(blurWidth, blurHeight, false)
+            createTarget(blurWidth, blurHeight, false),
+            createDepthCopyTarget(width, height)
         )
         targets?.destroy()
         targets = next
@@ -42,6 +43,12 @@ internal object HeartBlackHolePostTargets {
             setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
             setFilterMode(GL11C.GL_LINEAR)
         }
+
+    private fun createDepthCopyTarget(width: Int, height: Int): TextureTarget =
+        TextureTarget(width, height, true, Minecraft.ON_OSX).apply {
+            setClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+            setFilterMode(GL11C.GL_NEAREST)
+        }
 }
 
 internal data class HeartBlackHoleTargets(
@@ -50,7 +57,8 @@ internal data class HeartBlackHoleTargets(
     val effectBlurA: TextureTarget,
     val effectBlurB: TextureTarget,
     val maskBlurA: TextureTarget,
-    val maskBlurB: TextureTarget
+    val maskBlurB: TextureTarget,
+    val depthCopy: TextureTarget
 ) {
     fun clearVolumeTargets() {
         clearColorOnly(effect)
@@ -64,6 +72,7 @@ internal data class HeartBlackHoleTargets(
         effectBlurB.destroyBuffers()
         maskBlurA.destroyBuffers()
         maskBlurB.destroyBuffers()
+        depthCopy.destroyBuffers()
     }
 }
 
