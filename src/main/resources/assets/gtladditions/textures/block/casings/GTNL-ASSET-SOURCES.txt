@@ -1,0 +1,15 @@
+wireless_terminate_casing.png and wireless_terminate_casing.png.mcmeta
+
+Source: GT-Not-Leisure, gravitational focusing casing (引力聚焦方块).
+Repository: https://github.com/ABKQPO/GT-Not-Leisure
+Revision: 0822fe7ea3d7757e26d398ecb5635c5de4ebab97
+Original paths:
+  src/main/resources/assets/sciencenotleisure/textures/blocks/MetaCasing/16.png
+  src/main/resources/assets/sciencenotleisure/textures/blocks/MetaCasing/16.png.mcmeta
+PNG SHA-256: 442a50f30d5a1e7dce14aca0f35fe9c9ba9b490c2fb7962047fb133bfbe9b605
+
+Copied without pixel or animation changes; renamed for the existing wireless
+energy network terminal casing. The input and output terminal registrations
+share this casing texture. The front overlay remains separately referenced.
+The upstream repository license is GPL-3.0; its full text is
+assets/gtladditions/models/effect/condensation/GPL-3.0.txt.

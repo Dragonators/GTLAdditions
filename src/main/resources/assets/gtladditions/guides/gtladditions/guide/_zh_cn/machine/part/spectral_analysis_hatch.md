@@ -61,3 +61,14 @@ item_ids:
 * 对 <ItemLink id="gtceu:integrated_ore_processor" />，完美调频会把超频逻辑从有损超频切换为无损超频。
 * 对 <ItemLink id="gtceu:advanced_integrated_ore_processor" />，完美调频会在基础跨配方线程、<ItemLink id="gtladditions:thread_modifier_hatch" /> 线程和频段 1 线程已经生效后，把跨配方总线程乘以 2。
 * 对 <ItemLink id="gtladditions:space_infinity_integrated_ore_processor" />，完美调频会让配方输出翻倍。
+
+## 进阶无尽流体钻机
+
+* 当安装在进阶无尽流体钻机上时
+* 频段1: 产量加成
+> 等级0(即默认加成): 1.5倍, 等级1: 2.3倍, 等级2: 3.2倍, 等级3: 4倍
+* 频段2: 耗能减免
+> 等级0(即默认加成): 0.8, 等级1: 0.6, 等级2: 0.2, 等级3: 0.05
+* 频段3: 范围加成
+> 等级0(即默认加成): 7x7, 等级1: 9x9, 等级2: 11x11, 等级3: 13x13。最低档沿用上游参数6，Core实际扫描7x7；拆仓恢复5x5并刷新流体缓存。
+* 产量加成与本地线程倍率叠加，并受可用电力限制。完美调频免除冷却液并保持最高温度；额外超频最多15级，每级按四倍功率判档，实际产量与耗电各翻倍。

@@ -541,7 +541,7 @@ object MultiBlockMachine {
                     .where(
                         "d",
                         blocks(LAFIUM_MECHANICAL_CASING.get())
-                            .or(blocks(GTLAddMachines.ME_BLOCK_CONVERSATION.block).setMaxGlobalLimited(1))
+                            .or(blocks(GTLAddMachines.ME_BLOCK_CONVERSATION.block).setExactLimit(1))
                             .or(abilities(INPUT_ENERGY).setMaxGlobalLimited(1))
                     )
                     .where("E", blocks(DRAGON_STRENGTH_TRITANIUM_CASING.get()))
@@ -2356,7 +2356,7 @@ object MultiBlockMachine {
                     .where("N", blocks(getBlock("minecraft:mangrove_roots")))
                     .where("-", blocks(getBlock("minecraft:sponge")))
                     .where("e", blocks(getBlock("kubejs:gelid_cryotheum")))
-                    .where("Q", blocks(getBlock("minecraft:grass_block")))
+                    .where("Q", blocks(getBlock("minecraft:grass_block"), getBlock("minecraft:dirt")))
                     .where("D", blocks(getBlock("gtceu:fusion_glass")))
                     .where("V", blocks(getBlock("kubejs:hollow_casing")))
                     .where("C", blocks(getBlock("kubejs:high_strength_concrete")))

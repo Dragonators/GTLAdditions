@@ -53,19 +53,6 @@ object LightHunterSpaceStationPosHelper {
         }
     }
 
-    fun calculatePossibleHostPositions(modulePos: BlockPos): Array<BlockPos> {
-        val result = mutableListOf<BlockPos>()
-
-        for ((_, offsets) in offsetsByDirection) {
-            for (offset in offsets) {
-                val hostPos = modulePos.offset(-offset[0], -offset[1], -offset[2])
-                result.add(hostPos)
-            }
-        }
-
-        return result.toTypedArray()
-    }
-
     /** Existing callers share the cached, persistent slot layout. */
     fun interiorLightOffset(slot: Int, facing: Direction): BlockPos = LightHunterInteriorLayout.lightOffset(slot, facing)
 

@@ -11,33 +11,27 @@ import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.machine.multiblock.controller.LightHunterSpaceStation
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
-import com.gtladd.gtladditions.utils.LightHunterSpaceStationPosHelper
 import com.gtladd.gtladditions.utils.RecipeCalculationHelper
-import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
-import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 
 class LightHunterSpaceStationModuleBase(holder: IMachineBlockEntity) :
     GTLAddWorkableElectricMultipleRecipesMachine(holder),
     IModularMachineModule<LightHunterSpaceStation, LightHunterSpaceStationModuleBase>,
     IMachineLife {
-    @field:Persisted
-    private var hostPosition: BlockPos? = null
     private var host: LightHunterSpaceStation? = null
 
-    override fun getHostPosition(): BlockPos? = hostPosition
-    override fun setHostPosition(pos: BlockPos?) {
-        hostPosition = pos
-    }
+    override fun getHostPosition(): BlockPos? = host?.pos
+    override fun setHostPosition(pos: BlockPos?) = Unit
     override fun getHost(): LightHunterSpaceStation? = host
     override fun setHost(host: LightHunterSpaceStation?) {
         this.host = host
     }
     override fun getHostType(): Class<LightHunterSpaceStation> = LightHunterSpaceStation::class.java
-    override fun getHostScanPositions(): Array<BlockPos> = LightHunterSpaceStationPosHelper.calculatePossibleHostPositions(pos)
+    override fun getHostScanPositions(): Array<BlockPos> = emptyArray()
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = LightHunterSpaceStationModuleBaseLogic(this)
 
@@ -74,12 +68,27 @@ class LightHunterSpaceStationModuleBase(holder: IMachineBlockEntity) :
     // LightHunterSpaceStation connection
     // ===============================================
 
+    override fun findAndConnectToHost(): Boolean {
+        val world = level as? ServerLevel ?: return false
+        return LightHunterSpaceStation.MODULE_CONNECTIONS.slotsAt(world.dimension(), pos).any {
+            it.host.tryConnectModule(it.index, this)
+        }
+    }
+
+    private fun unregisterModule() {
+        (level as? ServerLevel)?.let {
+            LightHunterSpaceStation.MODULE_CONNECTIONS.removeModule(it.dimension(), pos, this)
+        }
+        removeFromHost(host)
+    }
+
     override fun onConnected(host: LightHunterSpaceStation) {
         recipeLogic.updateTickSubscription()
     }
 
     override fun onStructureFormed() {
         super.onStructureFormed()
+        (level as? ServerLevel)?.let { LightHunterSpaceStation.MODULE_CONNECTIONS.addModule(it.dimension(), pos, this) }
         if (!findAndConnectToHost()) {
             removeFromHost(this.host)
         }
@@ -87,30 +96,28 @@ class LightHunterSpaceStationModuleBase(holder: IMachineBlockEntity) :
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
-        removeFromHost(this.host)
+        unregisterModule()
     }
 
     override fun onPartUnload() {
         super.onPartUnload()
-        removeFromHost(this.host)
+        unregisterModule()
     }
 
     override fun onMachineRemoved() {
-        removeFromHost(this.host)
+        unregisterModule()
+    }
+
+    override fun onUnload() {
+        unregisterModule()
+        super.onUnload()
     }
 
     override fun needConfirmMEStock(): Boolean = true
 
-    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
-
     companion object {
-        val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
-            LightHunterSpaceStationModuleBase::class.java,
-            GTLAddWorkableElectricMultipleRecipesMachine.Companion.MANAGED_FIELD_HOLDER
-        )
-
         val BEFORE_WORKING = Predicate { machine: IRecipeLogicMachine ->
-            (machine as LightHunterSpaceStationModuleBase).host?.let { it -> return@let it.isActive } ?: false
+            (machine as LightHunterSpaceStationModuleBase).host?.isActive == true
         }
 
         open class LightHunterSpaceStationModuleBaseLogic(

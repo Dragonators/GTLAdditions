@@ -16,7 +16,6 @@ import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.content.Content
-import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import com.gregtechceu.gtceu.common.block.CoilBlock
 import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
@@ -47,6 +46,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.pattern.util.IValueContainer
+import org.gtlcore.gtlcore.api.recipe.IAdvancedContentModifier
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
@@ -414,7 +414,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) :
             if (minParallel <= 0) return null
 
             // Apply parallel multiplier, duration and eut
-            val parallelRecipe = modifiedRecipe.copy(ContentModifier.multiplier(minParallel.toDouble()), false)
+            val parallelRecipe = modifiedRecipe.copy(IAdvancedContentModifier.preciseMultiplier(minParallel), false)
             parallelRecipe.duration = RECIPE_DURATION
             parallelRecipe.tickInputs[EURecipeCapability.CAP] =
                 listOf(Content(RECIPE_EU_MULTIPLIER * GTValues.V[machine.tier], 10000, 10000, 0, null, null))

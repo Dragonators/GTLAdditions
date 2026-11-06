@@ -28,6 +28,7 @@ import com.gtladd.gtladditions.client.render.machine.QFTRenderer
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.multiblock.controller.BasicOreProcessorMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.MolecularAssemblerMultiblockMachine
+import com.gtladd.gtladditions.common.machine.multiblock.controller.WeatherControlMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.AdvancedInfiniteDrillMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.CreateAggregation
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.DoorOfCreate
@@ -257,9 +258,29 @@ object MultiBlockModify {
             ),
             threadModifierPredicate
         )
+        AdvancedMultiBlockMachineB.ADVANCED_INFINITE_DRILLER.patchPatternPredicates(
+            "spectral_analysis_hatch",
+            patternPredicateSelector({ Registries.getBlock("gtlcore:iridium_casing") }, PartAbility.IMPORT_FLUIDS),
+            { Predicates.blocks(GTLAddMachines.ORE_PROCESSOR_HATCH.get()).setMaxGlobalLimited(1) }
+        )
         AdvancedMultiBlockMachineB.ADVANCED_INFINITE_DRILLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             AdvancedInfiniteDrillMachine(blockEntity)
         }
+
+        val weatherControl = AdvancedMultiBlockMachineB.WEATHER_CONTROL
+        weatherControl.setMachineSupplier(::WeatherControlMachine)
+        weatherControl.patchPatternPredicates(
+            "weather_radon_input",
+            patternPredicateSelector({ GTBlocks.STEEL_HULL.get() }, PartAbility.IMPORT_ITEMS, PartAbility.INPUT_ENERGY),
+            { Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1) }
+        )
+        weatherControl.replacePatternPredicates(
+            "weather_iron_bars",
+            patternPredicateSelector(Blocks.LIGHTNING_ROD),
+            { Predicates.blocks(Blocks.IRON_BARS) }
+        )
+        // Generate the preview from the updated predicates, including the optional fluid hatch.
+        weatherControl.setShapes { emptyList() }
 
         val networkSwitch = GTResearchMachines.NETWORK_SWITCH as MultiblockMachineDefinition
         networkSwitch.replacePatternPredicates(

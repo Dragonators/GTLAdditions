@@ -10,12 +10,14 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIV
+import com.gtladd.gtladditions.common.machine.multiblock.controller.module.LightHunterSpaceStationModuleBase
 import com.gtladd.gtladditions.common.machine.trait.LightHunterParadoxEffectsTrait
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.LightHunterInteriorLighting
 import com.gtladd.gtladditions.utils.LightHunterSpaceStationPosHelper
+import com.gtladd.gtladditions.utils.ModuleConnectionRegistry
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -24,6 +26,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
@@ -35,6 +38,8 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
     IMachineLife {
     private val modules =
         ReferenceOpenHashSet<IModularMachineModule<LightHunterSpaceStation, *>>()
+
+    private var registeredSlots: Array<BlockPos>? = null
 
     @field:Persisted
     @field:DescSynced
@@ -88,7 +93,34 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
 
     override fun getModuleSet(): Set<IModularMachineModule<LightHunterSpaceStation, *>> = modules
 
-    override fun getModuleScanPositions(): Array<out BlockPos> = LightHunterSpaceStationPosHelper.calculateModulePositions(pos, frontFacing)
+    override fun getModuleScanPositions(): Array<BlockPos> = LightHunterSpaceStationPosHelper.calculateModulePositions(pos, frontFacing)
+
+    fun tryConnectModule(slot: Int, module: LightHunterSpaceStationModuleBase): Boolean {
+        if (!isFormed || !module.isFormed || !module.isRecipeLogicAvailable || registeredSlots?.getOrNull(slot) != module.pos) return false
+        val previous = module.getHost()
+        if (previous != null && previous !== this && previous.isFormed) return false
+        if (previous !== this) module.connectToHost(this)
+        return true
+    }
+
+    override fun scanAndConnectModules() {
+        val world = level as? ServerLevel ?: return
+        registeredSlots?.forEachIndexed { slot, pos ->
+            MODULE_CONNECTIONS.moduleAt(world.dimension(), pos)?.let { tryConnectModule(slot, it) }
+        }
+    }
+
+    private fun releaseSlots() {
+        val world = level as? ServerLevel
+        val slots = registeredSlots
+        if (world != null && slots != null) MODULE_CONNECTIONS.unregister(world.dimension(), this, slots)
+        registeredSlots = null
+        val previous = modules.toList()
+        safeClearModules()
+        previous.filterIsInstance<LightHunterSpaceStationModuleBase>().forEach {
+            if (it.isRecipeLogicAvailable) it.findAndConnectToHost()
+        }
+    }
 
     override fun getModulesForRendering(): List<ModuleRenderInfo> = listOf(
         ModuleRenderInfo(
@@ -256,17 +288,21 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
     override fun onStructureInvalid() {
         super.onStructureInvalid()
         stopInteriorLighting()
-        safeClearModules()
+        releaseSlots()
     }
 
     override fun onMachineRemoved() {
         stopInteriorLighting()
-        safeClearModules()
+        releaseSlots()
     }
 
     override fun onStructureFormed() {
         super.onStructureFormed()
-        safeClearModules()
+        val world = level as? ServerLevel ?: return
+        if (registeredSlots == null) {
+            registeredSlots = moduleScanPositions.also { MODULE_CONNECTIONS.register(world.dimension(), this, it) }
+        }
+
         scanAndConnectModules()
         startInteriorLighting()
     }
@@ -278,6 +314,7 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
     }
 
     override fun onUnload() {
+        releaseSlots()
         interiorLightSubscription?.unsubscribe()
         interiorLightSubscription = null
         interiorLightingPending = false
@@ -309,6 +346,8 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     companion object {
+        val MODULE_CONNECTIONS = ModuleConnectionRegistry<LightHunterSpaceStation, LightHunterSpaceStationModuleBase>()
+
         private const val MAX_ASTRAL_ARRAY_COUNT = 64
         private val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
             LightHunterSpaceStation::class.java,

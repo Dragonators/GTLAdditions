@@ -22,3 +22,4 @@ This section lists confirmed local changes to existing machines and hatches.
 * [AE2 Automation](ae2_automation.md)
 * [High-Energy Bombs](high_energy_bombs.md)
 * [Building Gadgets](building_gadgets.md)
+* [Weather Controller](weather_control.md)

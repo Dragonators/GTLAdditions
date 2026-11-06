@@ -112,43 +112,66 @@ class BiosphereIIIController(holder: IMachineBlockEntity) :
 
     override fun getModulesForRendering(): List<ModuleRenderInfo> = listOf(
         ModuleRenderInfo(
-            BlockPos(-6, 7, 0),
-            Direction.UP,
+            BlockPos(6, 0, -7),
             Direction.NORTH,
+            Direction.UP,
             Direction.NORTH,
             Direction.UP,
             MultiBlockMachine.BIOSPHERE_III_MODULE
         ),
         ModuleRenderInfo(
-            BlockPos(6, 7, 0),
+            BlockPos(-6, 0, -7),
+            Direction.NORTH,
             Direction.UP,
-            Direction.NORTH, Direction.NORTH,
+            Direction.NORTH,
             Direction.UP,
             MultiBlockMachine.BIOSPHERE_III_MODULE
         ),
         ModuleRenderInfo(
-            BlockPos(8, 9, 0),
-            Direction.UP,
+            BlockPos(6, 0, -17),
             Direction.NORTH,
+            Direction.UP,
+            Direction.SOUTH,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(-6, 0, -17),
+            Direction.NORTH,
+            Direction.UP,
+            Direction.SOUTH,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(-8, 0, -9),
+            Direction.NORTH,
+            Direction.UP,
             Direction.EAST,
             Direction.UP,
             MultiBlockMachine.BIOSPHERE_III_MODULE
         ),
         ModuleRenderInfo(
-            BlockPos(-8, 9, 0),
-            Direction.UP,
+            BlockPos(-8, 0, -15),
             Direction.NORTH,
+            Direction.UP,
+            Direction.EAST,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(8, 0, -9),
+            Direction.NORTH,
+            Direction.UP,
             Direction.WEST,
             Direction.UP,
             MultiBlockMachine.BIOSPHERE_III_MODULE
         ),
         ModuleRenderInfo(
-            BlockPos(8, 15, 0),
+            BlockPos(8, 0, -15),
+            Direction.NORTH,
             Direction.UP,
-            Direction.NORTH, Direction.WEST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(-8, 15, 0), Direction.UP, Direction.NORTH, Direction.EAST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(6, 17, 0), Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(-6, 17, 0), Direction.UP, Direction.NORTH, Direction.SOUTH,
+            Direction.WEST,
             Direction.UP,
             MultiBlockMachine.BIOSPHERE_III_MODULE
         )

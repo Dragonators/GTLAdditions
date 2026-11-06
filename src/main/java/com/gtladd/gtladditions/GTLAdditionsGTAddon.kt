@@ -54,6 +54,7 @@ class GTLAdditionsGTAddon : IGTAddon {
         RuriditExtend.init(provider)
         SocProcess.init(provider)
         Misc.init(provider)
+        WeatherControlRecipes.init(provider)
         StarGate.init(provider)
         SkyTearsAndGregHeart.init(provider)
     }

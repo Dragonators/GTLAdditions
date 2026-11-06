@@ -25,6 +25,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
+import org.gtlcore.gtlcore.api.recipe.IAdvancedContentModifier
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
@@ -185,7 +186,7 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
                         RecipeCalculationHelper.multipleRecipe(modified, p) { recipe ->
                             RecipeCalculationHelper.copyFixRecipe(
                                 recipe,
-                                ContentModifier.multiplier(p.toDouble())
+                                IAdvancedContentModifier.preciseMultiplier(p)
                             )
                         }
                     )

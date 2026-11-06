@@ -156,11 +156,13 @@ object GTLAddMachines {
             .rotationState(RotationState.ALL)
             .abilities(*GTMachines.DUAL_INPUT_HATCH_ABILITIES)
             .langValue("Super Input Dual Hatch").overlayTieredHullRenderer("super_input_dual_hatch.import")
-            .tooltips("gtceu.universal.tooltip.item_storage_capacity".toComponent(37)
+            .tooltips(
+                "gtladditions.machine.super_input_dual_hatch.item_capacity".toComponent(37, FormattingUtil.formatNumbers(Int.MAX_VALUE))
             )
-            .tooltips("gtceu.universal.tooltip.fluid_storage_capacity_mult".toComponent(
+            .tooltips(
+                "gtladditions.machine.super_input_dual_hatch.fluid_capacity".toComponent(
                     24,
-                    FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 12)
+                    FormattingUtil.formatNumbers(Long.MAX_VALUE shr 12)
                 )
             )
             .tooltipBuilder(GTLAdd_ADD).tier(14).register()
