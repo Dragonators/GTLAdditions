@@ -5,7 +5,6 @@ import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.pipeline.TextureTarget
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
@@ -140,32 +139,33 @@ class LightHunterParadoxModels(private val resources: ResourceProvider) : AutoCl
                         DynamicTexture(NativeImage.read(stream)).also { it.setFilter(true, false) }
                     }
                 }
-                val builder = BufferBuilder(vertices * 32)
                 try {
-                    builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL)
-                    repeat(vertices) {
-                        val x = data.readFloat()
-                        val y = data.readFloat()
-                        val z = data.readFloat()
-                        val u = data.readFloat()
-                        val v = data.readFloat()
-                        val nx = data.readFloat()
-                        val ny = data.readFloat()
-                        val nz = data.readFloat()
-                        require(
-                            x.isFinite() &&
-                                y.isFinite() &&
-                                z.isFinite() &&
-                                u.isFinite() &&
-                                v.isFinite() &&
-                                nx.isFinite() &&
-                                ny.isFinite() &&
-                                nz.isFinite()
-                        ) { "Non-finite vertex in $location" }
-                        builder.vertex(x.toDouble(), y.toDouble(), z.toDouble()).uv(u, v)
-                            .color(color[0], color[1], color[2], color[3]).normal(nx, ny, nz).endVertex()
-                    }
-                    Part(RenderUtils.uploadStaticBuffer(builder), texture).also {
+                    RenderUtils.withStagingBuilder { builder ->
+                        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL)
+                        repeat(vertices) {
+                            val x = data.readFloat()
+                            val y = data.readFloat()
+                            val z = data.readFloat()
+                            val u = data.readFloat()
+                            val v = data.readFloat()
+                            val nx = data.readFloat()
+                            val ny = data.readFloat()
+                            val nz = data.readFloat()
+                            require(
+                                x.isFinite() &&
+                                    y.isFinite() &&
+                                    z.isFinite() &&
+                                    u.isFinite() &&
+                                    v.isFinite() &&
+                                    nx.isFinite() &&
+                                    ny.isFinite() &&
+                                    nz.isFinite()
+                            ) { "Non-finite vertex in $location" }
+                            builder.vertex(x.toDouble(), y.toDouble(), z.toDouble()).uv(u, v)
+                                .color(color[0], color[1], color[2], color[3]).normal(nx, ny, nz).endVertex()
+                        }
+                        Part(RenderUtils.uploadStaticBuffer(builder), texture)
+                    }.also {
                         result.add(it)
                         parts.add(it)
                     }

@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.client.render.machine.lighthunter
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
@@ -36,58 +37,51 @@ object LightHunterShaders {
     @JvmStatic
     fun register(event: RegisterShadersEvent) {
         LightHunterVfxRenderer.setResources(event.resourceProvider)
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_light_hunter_paradox"),
             DefaultVertexFormat.POSITION_TEX_COLOR
-        )
         ) { paradox = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_light_hunter_paradox_model"),
             DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL
-        )
         ) { paradoxModel = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_light_hunter_fusion"),
             DefaultVertexFormat.POSITION_TEX_COLOR
-        )
         ) { fusion = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_light_hunter_interior"),
             DefaultVertexFormat.POSITION_TEX_COLOR
-        )
         ) { interior = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_light_hunter"),
             DefaultVertexFormat.POSITION_TEX_COLOR
-        )
         ) { material = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_light_hunter_chart_field"),
-            DefaultVertexFormat.POSITION_TEX_COLOR)
+            DefaultVertexFormat.POSITION_TEX_COLOR
         ) { chartField = it }
         if (GL.getCapabilities().OpenGL33) {
-            event.registerShader(
-                ShaderInstance(event.resourceProvider,
+            RenderUtils.registerShader(
+                event,
                 GTLAdditions.id("gtladditions_light_hunter_fusion_layers"),
                 DefaultVertexFormat.POSITION_TEX_COLOR
-            )
             ) { fusionLayers = it }
-            event.registerShader(
-                ShaderInstance(event.resourceProvider,
+            RenderUtils.registerShader(
+                event,
                 GTLAdditions.id("gtladditions_light_hunter_paradox_layers"),
                 DefaultVertexFormat.POSITION_TEX_COLOR
-            )
             ) { paradoxLayers = it }
-            event.registerShader(
-                ShaderInstance(event.resourceProvider,
+            RenderUtils.registerShader(
+                event,
                 GTLAdditions.id("gtladditions_light_hunter_layers"),
-                DefaultVertexFormat.POSITION_TEX_COLOR)
+                DefaultVertexFormat.POSITION_TEX_COLOR
             ) { layers = it }
         }
     }

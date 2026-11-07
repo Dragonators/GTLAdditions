@@ -1,13 +1,13 @@
 #version 150
 
-uniform float Time;
+// CPU-reduced sky angle and 12-second material flow phase.
+uniform vec2 AnimationPhase;
 uniform vec3 Center;
 uniform vec3 CameraPosition;
 uniform vec3 FacingAxis;
 uniform float BlackHoleAndDiskRadius;
 uniform float SpaceSolidRadius;
 uniform float SpaceFadeRadius;
-uniform float RotationSpeed;
 uniform vec2 BlackHoleRotation;
 uniform float PassMode;
 uniform float VolumeProxyRadius;
@@ -22,6 +22,7 @@ uniform vec2 MaterialPixelScale;
 #moj_import <gtladditions:heart_volume_common.glsl>
 #moj_import <gtladditions:heart_black_hole_lut.glsl>
 #moj_import <gtladditions:heart_accretion_volume.glsl>
+#moj_import <gtladditions:heart_scene_depth.glsl>
 
 in vec3 volumeSurfacePosition;
 out vec4 fragColor;
@@ -83,11 +84,10 @@ float hash(vec2 p) {
 }
 
 vec3 starField(vec3 direction, float footprint) {
-    float seconds = Time * SMOOTH_TICK_SECONDS;
     vec3 sky = rotateAroundAxis(direction, vec3(0.0, 0.0, 1.0), GALAXY_ROLL);
     sky = rotateAroundAxis(sky, vec3(1.0, 0.0, 0.0), 0.22);
     // Drift around galactic north after setting the plane, so the band stays upright.
-    sky = rotateAroundAxis(sky, vec3(0.0, 1.0, 0.0), -1.2 + seconds * 0.002);
+    sky = rotateAroundAxis(sky, vec3(0.0, 1.0, 0.0), -1.2 + AnimationPhase.x);
     float galaxyFootprintScale;
     vec3 galaxySky = scaledGalaxyDirection(sky, galaxyFootprintScale);
     float latitudeScale = max(sqrt(max(1.0 - galaxySky.y * galaxySky.y, 0.0)), 0.02);
@@ -104,6 +104,20 @@ vec3 starField(vec3 direction, float footprint) {
     color += mix(vec3(1.0, 0.72, 0.43), vec3(0.65, 0.8, 1.0), center.y) *
         pow(center.x, 16.0) * exp(-starRadius * starRadius * 850.0) * visibility * 1.6;
     return color;
+}
+
+vec4 traceSceneMaterial(vec3 worldRay, vec3 modelRay, vec3 right, vec3 up, vec3 forward,
+                       float discRadius, bool captured, float footprint, float sceneT) {
+    float entryT, exitT;
+    if (!intersectSphere(CameraPosition, worldRay, Center, discRadius, entryT, exitT) || sceneT <= max(entryT, 0.0))
+        return vec4(0.0);
+    vec3 origin = toModelSpace(CameraPosition + worldRay * max(entryT, 0.0) - Center, right, up, forward) / discRadius;
+    // The reference volume's disc is in XY; this renderer's disc is in XZ.
+    origin = vec3(origin.x, -origin.z, origin.y);
+    vec3 direction = vec3(modelRay.x, -modelRay.z, modelRay.y);
+    float sceneLimit = sceneT >= 1e19 ? 1e20 : (sceneT - max(entryT, 0.0)) / discRadius;
+    HeartAccretionVolume volume = traceHeartAccretionVolume(origin, direction, AnimationPhase.y, captured, footprint, sceneLimit);
+    return vec4(volume.color, volume.opacity);
 }
 
 void main() {
@@ -128,13 +142,11 @@ void main() {
         ? rayToSurface * inversesqrt(rayLengthSquared) : vec3(0.0, 0.0, 1.0);
     float entryT, exitT;
     bool intersects = intersectSphere(CameraPosition, worldRay, Center, volumeRadius, entryT, exitT);
-    float effectFade = getSpaceVolumeAlpha(CameraPosition, worldRay, Center, entryT, exitT, solidRadius, fadeRadius);
-    bool visible = intersects && effectFade >= 0.0005 && rayLengthSquared > 0.000001;
-    if (PassMode > 0.5 && PassMode < 1.5) {
-        if (!visible) discard;
-        fragColor = vec4(effectFade);
-        return;
-    }
+    vec2 screenUv = gl_FragCoord.xy / PassSize;
+    float sceneDepth = heartSceneDepthAt(screenUv);
+    float sceneT = heartSceneDistance(screenUv, sceneDepth);
+    float effectFade = getSpaceVolumeAlpha(CameraPosition, worldRay, Center, entryT, min(exitT, sceneT), solidRadius, fadeRadius);
+    bool visible = intersects && sceneT > max(entryT, 0.0) && effectFade >= 0.0005 && rayLengthSquared > 0.000001;
 
     vec3 traceEntry = CameraPosition + worldRay * max(entryT, 0.0) - Center;
     vec3 traceEye = toModelSpace(traceEntry, right, up, forward) * (DISK_OUT / discRadius);
@@ -143,40 +155,42 @@ void main() {
     // Derivative-dependent sky filtering must run before any lane leaves its pixel quad.
     float skyFootprint = max(length(dFdx(trace.escapedDirection)), length(dFdy(trace.escapedDirection)));
     // The material target has fewer pixels; retain the full-resolution noise footprint.
-    float materialFootprint = max(length(dFdx(modelRay)) * MaterialPixelScale.x, length(dFdy(modelRay)) * MaterialPixelScale.y) *
+    vec2 pixelScale = PassMode > 1.5 ? MaterialPixelScale : vec2(1.0);
+    float materialFootprint = max(length(dFdx(modelRay)) * pixelScale.x, length(dFdy(modelRay)) * pixelScale.y) *
         max(length(CameraPosition - Center) / discRadius, 1.0);
     if (!visible) discard;
 
+    // Geometry within the outer shell needs physical core coverage, even when
+    // it lies beyond the smaller material sphere. Beyond the shell, retain the
+    // complete lensed background appearance.
+    float materialSceneT = sceneT < exitT ? sceneT : 1e20;
     if (PassMode > 1.5) {
-        HeartAccretionVolume material = HeartAccretionVolume(vec3(0.0), 0.0);
-        float materialEntry, materialExit;
-        if (intersectSphere(CameraPosition, worldRay, Center, discRadius, materialEntry, materialExit)) {
-            vec3 origin = toModelSpace(CameraPosition + worldRay * max(materialEntry, 0.0) - Center, right, up, forward) / discRadius;
-            vec3 direction = modelRay;
-            // The reference volume's disc is in XY; this renderer's disc is in XZ.
-            origin = vec3(origin.x, -origin.z, origin.y);
-            direction = vec3(direction.x, -direction.z, direction.y);
-            float materialSeconds = Time * SMOOTH_TICK_SECONDS * (RotationSpeed / 0.3);
-            material = traceHeartAccretionVolume(origin, direction, materialSeconds, trace.absorbed, materialFootprint);
-        }
-
-        fragColor = vec4(material.color, material.opacity);
+        fragColor = traceSceneMaterial(worldRay, modelRay, right, up, forward, discRadius, trace.absorbed, materialFootprint, materialSceneT);
         return;
     }
-    vec4 material = texture(MaterialSampler, gl_FragCoord.xy * MaterialUvScale);
+    // Keep the material pass uniform. The full-resolution branch only repairs a depth
+    // discontinuity; its explicit LOD remains defined when neighbouring lanes diverge.
+    vec4 material = textureLod(MaterialSampler, gl_FragCoord.xy * MaterialUvScale, 0.0);
+    if (heartMaterialDepthEdge(screenUv, sceneDepth, sceneT, exitT))
+        material = traceSceneMaterial(worldRay, modelRay, right, up, forward, discRadius, trace.absorbed, materialFootprint, materialSceneT);
 
     vec3 escapedWorld = fromModelSpace(trace.escapedDirection, right, up, forward);
     vec3 backgroundDirection = normalize(toModelSpace(escapedWorld, baseRight, baseUp, baseForward));
     vec3 background = trace.absorbed ? vec3(0.0) : starField(backgroundDirection, skyFootprint);
     vec3 discEmission = material.rgb;
-    vec3 color = discEmission + background * (1.0 - material.a);
 
     float closestT = clamp(dot(Center - CameraPosition, worldRay), max(entryT, 0.0), max(exitT, max(entryT, 0.0)));
+    // The sky image belongs to the far shell. The closest point to the centre is
+    // only an impact parameter: inside the sphere it can lie at the eye and would
+    // put an opaque starfield in front of nearby blocks when looking sideways.
+    float backgroundVisibility = sceneT >= 1e19 ? 1.0 : 1.0 - smoothstep(sceneT - 0.05, sceneT, exitT);
+    vec3 color = discEmission + background * (1.0 - material.a) * backgroundVisibility;
     float impact = length(CameraPosition + worldRay * closestT - Center) / discRadius * PROJECTED_DISK_RADIUS;
     float rimRadius = max(PROJECTED_SHADOW_CONTACT_RADIUS, PROJECTED_SHADOW_RADIUS);
     float rimDistance = impact - rimRadius;
     float rim = exp(-rimDistance * rimDistance / (SHADOW_CONTACT_RING_WIDTH * SHADOW_CONTACT_RING_WIDTH));
-    color += vec3(1.0, 0.72, 0.28) * rim * 0.045;
+    color += vec3(1.0, 0.72, 0.28) * rim * 0.045 * backgroundVisibility;
     // Keep emission above 1.0 until bloom and tone mapping in the final composite.
-    fragColor = vec4(max(color, vec3(0.0)) * effectFade, effectFade);
+    float coverage = backgroundVisibility + material.a * (1.0 - backgroundVisibility);
+    fragColor = vec4(max(color, vec3(0.0)) * effectFade, coverage * effectFade);
 }

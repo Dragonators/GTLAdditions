@@ -99,12 +99,33 @@ vec3 heartVolumeSteer(vec3 position, vec3 direction, float halfStep) {
     return steered * inversesqrt(max(dot(steered, steered), 0.000001));
 }
 
+// Resolve the material ray's optical core hit continuously, not at its sample.
+// Return the entry relative to the midpoint; distant segments skip the quadratic.
+float heartVolumeCoreEntry(vec3 midpoint, vec3 rayDirection, float halfStep) {
+    float radiusSquared = dot(midpoint, midpoint);
+    float bound = HEART_VOLUME_CORE_RADIUS + halfStep;
+    if (radiusSquared > bound * bound) return 1e20;
+    float b = dot(midpoint, rayDirection);
+    float discriminant = b * b - radiusSquared + HEART_VOLUME_CORE_RADIUS * HEART_VOLUME_CORE_RADIUS;
+    if (discriminant < 0.0) return 1e20;
+    float root = sqrt(discriminant);
+    float entry = max(-b - root, -halfStep);
+    if (entry > halfStep || -b + root < -halfStep) return 1e20;
+    return entry;
+}
+
+void accumulateHeartVolume(inout HeartAccretionVolume accumulated, HeartAccretionVolume local) {
+    float weight = (1.0 - accumulated.opacity) * local.opacity;
+    accumulated.color = mix(accumulated.color, local.color, weight);
+    accumulated.opacity = mix(accumulated.opacity, 1.0, local.opacity);
+}
+
 vec3 heartVolumeToLinear(vec3 color) {
     color = max(color, vec3(0.0));
     return mix(color / 12.92, pow((color + 0.055) / 1.055, vec3(2.4)), step(vec3(0.04045), color));
 }
 
-HeartAccretionVolume traceHeartAccretionVolume(vec3 origin, vec3 direction, float seconds, bool captured, float footprint) {
+HeartAccretionVolume traceHeartAccretionVolume(vec3 origin, vec3 direction, float seconds, bool captured, float footprint, float sceneLimit) {
     float noiseLod = clamp(log2(max(footprint * 2048.0, 1.0)), 0.0, 6.0);
     // One stable per-pixel seed offsets every integration interval. Independent complete
     // volume estimates remove coherent camera-centred shells without changing the density.
@@ -124,32 +145,58 @@ HeartAccretionVolume traceHeartAccretionVolume(vec3 origin, vec3 direction, floa
     // Normalise the pair so the blend keeps a single layer's noise variance throughout the fade.
     vec2 layerWeights = vec2(fade, 1.0 - fade) * inversesqrt(fade * fade + (1.0 - fade) * (1.0 - fade));
     vec2 layerSeconds = vec2(cycle, fract(cycle + 0.5)) * HEART_VOLUME_FLOW_PERIOD;
+    // The scene supplies a plane perpendicular to this pixel's original camera ray.
+    // A volume sample may bend off that ray, but cannot contribute beyond the blocker.
+    bool clipped = sceneLimit < 2.001;
+    // World geometry follows the original camera ray, not the bent material ray.
+    bool sceneCore = sceneLimit < 1e19;
+    float closest = clamp(-dot(origin, direction), 0.0, max(sceneLimit, 0.0));
+    vec3 closestPoint = origin + direction * closest;
+    bool opaqueCore = sceneCore && dot(closestPoint, closestPoint) < HEART_VOLUME_CORE_RADIUS * HEART_VOLUME_CORE_RADIUS;
 
     for (int stepIndex = 0; stepIndex < HEART_VOLUME_STEPS; ++stepIndex) {
+        if (clipped && dot(rayPosition - origin, direction) >= sceneLimit) break;
         // End the last empty segment at the disc slab before starting regular samples.
         // This anchors their phase to the material instead of the camera or proxy sphere;
         // otherwise the fixed step shells sweep visible rings across the disc as the eye moves.
+        bool slabCoreHit = false;
         float slabGap = abs(rayPosition.z) - 2.0 * HEART_VOLUME_HALF_WIDTH;
         if (slabGap > 0.00001 && slabGap < 2.0 * HEART_VOLUME_STEP_SIZE * abs(rayDirection.z) && rayPosition.z * rayDirection.z < 0.0) {
             float entryHalfStep = 0.5 * slabGap / abs(rayDirection.z);
             vec3 entryDirection = heartVolumeSteer(rayPosition, rayDirection, entryHalfStep);
+            float entry = heartVolumeCoreEntry(rayPosition + rayDirection * entryHalfStep, rayDirection, entryHalfStep);
+            slabCoreHit = entry <= entryHalfStep;
             rayPosition += rayDirection * (2.0 * entryHalfStep);
             rayDirection = entryDirection;
         }
-        vec3 steered = heartVolumeSteer(rayPosition, rayDirection, HEART_VOLUME_STEP_SIZE);
+        vec3 intervalStart = rayPosition;
         rayPosition += rayDirection * HEART_VOLUME_STEP_SIZE;
-        float radius = length(rayPosition);
-
-        if (radius < HEART_VOLUME_CORE_RADIUS) {
-            if (captured) {
+        float coreEntry = heartVolumeCoreEntry(rayPosition, rayDirection, HEART_VOLUME_STEP_SIZE);
+        if (coreEntry <= HEART_VOLUME_STEP_SIZE || slabCoreHit) {
+            // Integrate the luminous prefix before stopping at the optical core. Dropping
+            // this interval would quantise its emission into concentric bright bands.
+            float fraction = slabCoreHit ? 0.0 :
+                clamp((coreEntry + HEART_VOLUME_STEP_SIZE) / (2.0 * HEART_VOLUME_STEP_SIZE), 0.0, 1.0);
+            if (fraction > 0.0 && abs(rayPosition.z) < HEART_VOLUME_ACTIVE_HALF_WIDTH + HEART_VOLUME_STEP_SIZE * abs(rayDirection.z)) {
+                float phase = fract(sampleSeed + float(stepIndex) * 0.61803398875);
                 for (int sampleIndex = 0; sampleIndex < HEART_VOLUME_SAMPLES; ++sampleIndex) {
-                    samples[sampleIndex].color *= samples[sampleIndex].opacity;
-                    samples[sampleIndex].opacity = 1.0;
+                    if (samples[sampleIndex].opacity < HEART_VOLUME_OPAQUE) {
+                        float offset = fract(phase + float(sampleIndex) / float(HEART_VOLUME_SAMPLES)) * fraction - 0.5;
+                        vec3 position = rayPosition + rayDirection * (offset * 2.0 * HEART_VOLUME_STEP_SIZE);
+                        if (clipped && dot(position - origin, direction) >= sceneLimit) continue;
+                        HeartAccretionVolume local = sampleHeartVolume(position, noiseLod, layerWeights, layerSeconds);
+                        local.opacity *= fraction;
+                        accumulateHeartVolume(samples[sampleIndex], local);
+                    }
                 }
             }
+            // Preserve the optical horizon against the far background. In front
+            // of scene geometry, only the straight physical core can cover it.
+            if (!sceneCore) opaqueCore = captured;
             break;
         }
 
+        vec3 steered = heartVolumeSteer(intervalStart, rayDirection, HEART_VOLUME_STEP_SIZE);
         float minimumOpacity = 0.0;
         if (abs(rayPosition.z) < HEART_VOLUME_ACTIVE_HALF_WIDTH + HEART_VOLUME_STEP_SIZE * abs(rayDirection.z)) {
             minimumOpacity = 1.0;
@@ -158,10 +205,12 @@ HeartAccretionVolume traceHeartAccretionVolume(vec3 origin, vec3 direction, floa
                 if (samples[sampleIndex].opacity < HEART_VOLUME_OPAQUE) {
                     float offset = fract(phase + float(sampleIndex) / float(HEART_VOLUME_SAMPLES)) - 0.5;
                     vec3 position = rayPosition + rayDirection * (offset * 2.0 * HEART_VOLUME_STEP_SIZE);
+                    if (clipped && dot(position - origin, direction) >= sceneLimit) {
+                        minimumOpacity = min(minimumOpacity, samples[sampleIndex].opacity);
+                        continue;
+                    }
                     HeartAccretionVolume local = sampleHeartVolume(position, noiseLod, layerWeights, layerSeconds);
-                    float weight = (1.0 - samples[sampleIndex].opacity) * local.opacity;
-                    samples[sampleIndex].color = mix(samples[sampleIndex].color, local.color, weight);
-                    samples[sampleIndex].opacity = mix(samples[sampleIndex].opacity, 1.0, local.opacity);
+                    accumulateHeartVolume(samples[sampleIndex], local);
                 }
                 minimumOpacity = min(minimumOpacity, samples[sampleIndex].opacity);
             }
@@ -172,6 +221,10 @@ HeartAccretionVolume traceHeartAccretionVolume(vec3 origin, vec3 direction, floa
         if (dot(rayPosition, rayPosition) > 1.0001 && dot(rayPosition, rayDirection) > 0.0) break;
     }
     for (int sampleIndex = 0; sampleIndex < HEART_VOLUME_SAMPLES; ++sampleIndex) {
+        if (opaqueCore) {
+            samples[sampleIndex].color *= samples[sampleIndex].opacity;
+            samples[sampleIndex].opacity = 1.0;
+        }
         float opacity = samples[sampleIndex].opacity;
         result.color += heartVolumeToLinear(samples[sampleIndex].color / max(opacity, 0.0001)) * opacity / float(HEART_VOLUME_SAMPLES);
         result.opacity += opacity / float(HEART_VOLUME_SAMPLES);

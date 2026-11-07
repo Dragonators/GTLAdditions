@@ -7,6 +7,7 @@ import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.machine.multiblock.controller.TimeSpaceDistorter
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
@@ -21,7 +22,6 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
-import org.gtlcore.gtlcore.utils.RenderUtil
 import org.joml.Matrix3f
 import org.joml.Matrix4f
 import kotlin.math.roundToInt
@@ -46,7 +46,7 @@ class TimeSpaceDistorterRenderer :
         val machine = blockEntity.metaMachine as? TimeSpaceDistorter ?: return
         if (!machine.shouldRenderMagicCircleEffect()) return
 
-        val tick = RenderUtil.getSmoothTick(machine, partialTicks)
+        val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         val center = getRotatedRenderPosition(Direction.SOUTH, machine.frontFacing, 0.0, -9.0, -5.0)
 
         renderMagicCircle(tick, center, machine.renderCausalityDistortionLevel, poseStack, buffer)
@@ -72,7 +72,7 @@ class TimeSpaceDistorterRenderer :
         private val LEVEL_BLUE = IntArray(4) { 255 }
 
         private fun renderMagicCircle(
-            tick: Float,
+            tick: Double,
             center: Vec3,
             distortionLevel: Int,
             poseStack: PoseStack,
@@ -80,7 +80,7 @@ class TimeSpaceDistorterRenderer :
         ) {
             val levelIndex = distortionLevel.coerceIn(1, 4) - 1
             val levelProgress = levelIndex / 3.0f
-            val rotationDegrees = tick * (0.62f + 0.08f * levelProgress)
+            val rotationDegrees = ((tick * (0.62f + 0.08f * levelProgress)) % 360.0).toFloat()
 
             poseStack.withPose {
                 translate(center.x, center.y, center.z)

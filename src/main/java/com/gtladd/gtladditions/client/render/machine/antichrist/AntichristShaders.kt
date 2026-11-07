@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.google.common.collect.ImmutableMap
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexFormat
@@ -42,13 +43,10 @@ object AntichristShaders {
         } catch (error: Exception) {
             GTLAdditions.LOGGER.warn("FOA vanilla batch shader could not be created; using cached material groups", error)
         }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, STAR_SHADER_ID, DefaultVertexFormat.POSITION_TEX)
-        ) { shader -> starShader = shader }
 
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, BEAM_SHADER_ID, BEAM_VERTEX_FORMAT)
-        ) { shader -> beamShader = shader }
+        RenderUtils.registerShader(event, STAR_SHADER_ID, DefaultVertexFormat.POSITION_TEX) { shader -> starShader = shader }
+
+        RenderUtils.registerShader(event, BEAM_SHADER_ID, BEAM_VERTEX_FORMAT) { shader -> beamShader = shader }
     }
 }
 

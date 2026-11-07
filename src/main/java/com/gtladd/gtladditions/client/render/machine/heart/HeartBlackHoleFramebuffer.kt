@@ -1,19 +1,42 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneDepth
 import com.mojang.blaze3d.pipeline.RenderTarget
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.client.renderer.ShaderInstance
+import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL30C
-import org.lwjgl.opengl.GL32C
 
 internal object HeartBlackHoleFramebuffer {
     private val reportedProblems = HashSet<String>()
 
+    fun bindSceneDepth(
+        shader: ShaderInstance,
+        depth: DepthAttachment,
+        framebuffer: Int,
+        width: Int,
+        height: Int,
+        fallback: DeferredSceneDepth
+    ): Boolean {
+        shader.getUniform("InverseProjection")?.set(Matrix4f(RenderSystem.getProjectionMatrix()).invert())
+        shader.getUniform("SceneSize")?.set(width.toFloat(), height.toFloat())
+        if (depth is DepthAttachment.Texture && depth.level == 0) {
+            // All Heart passes draw to color-only targets: sampling the scene image
+            // is safe and avoids a full-frame depth copy on the normal path.
+            shader.setSampler("SceneDepth", depth.name)
+            return true
+        }
+        GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, framebuffer)
+        RenderSystem.viewport(0, 0, width, height)
+        return fallback.capture(shader)
+    }
+
     fun querySceneDepth(framebuffer: Int): DepthAttachment? {
         if (framebuffer == 0) {
-            reportProblem("the scene uses the default framebuffer, whose depth attachment cannot be shared")
+            reportProblem("the scene uses the default framebuffer, whose depth attachment cannot be inspected")
             return null
         }
 
@@ -44,23 +67,6 @@ internal object HeartBlackHoleFramebuffer {
             }
         } finally {
             GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, previousFramebuffer)
-        }
-    }
-
-    fun withSceneDepth(target: RenderTarget, sceneDepth: DepthAttachment, draw: () -> Unit): Boolean {
-        check(!target.useDepth) { "Heart effect targets must not own a depth attachment" }
-        if (!bindForDraw(target)) return false
-
-        try {
-            sceneDepth.attach()
-            if (!isComplete("effect framebuffer with scene depth")) return false
-            draw()
-            return true
-        } finally {
-            // The target owns only its color image. Always release the borrowed depth,
-            // including when validation or rendering fails, without touching scene stencil.
-            GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, target.frameBufferId)
-            GL32C.glFramebufferTexture(GL30C.GL_DRAW_FRAMEBUFFER, GL30C.GL_DEPTH_ATTACHMENT, 0, 0)
         }
     }
 
@@ -101,23 +107,8 @@ internal object HeartBlackHoleFramebuffer {
     }
 
     sealed interface DepthAttachment {
-        fun attach()
+        data class Texture(val name: Int, val level: Int) : DepthAttachment
 
-        data class Texture(val name: Int, val level: Int) : DepthAttachment {
-            override fun attach() {
-                GL32C.glFramebufferTexture(GL30C.GL_DRAW_FRAMEBUFFER, GL30C.GL_DEPTH_ATTACHMENT, name, level)
-            }
-        }
-
-        data class Renderbuffer(val name: Int) : DepthAttachment {
-            override fun attach() {
-                GL30C.glFramebufferRenderbuffer(
-                    GL30C.GL_DRAW_FRAMEBUFFER,
-                    GL30C.GL_DEPTH_ATTACHMENT,
-                    GL30C.GL_RENDERBUFFER,
-                    name
-                )
-            }
-        }
+        data class Renderbuffer(val name: Int) : DepthAttachment
     }
 }

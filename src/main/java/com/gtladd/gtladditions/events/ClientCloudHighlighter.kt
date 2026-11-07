@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.RenderType
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent
 import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
@@ -69,12 +68,7 @@ object ClientCloudHighlighter {
         entries += Entry(pos.immutable(), dimensionId, expireTick)
     }
 
-    @Suppress("unused")
-    @JvmStatic
-    @SubscribeEvent
-    fun onLoggingOut(event: ClientPlayerNetworkEvent.LoggingOut) {
-        entries.clear()
-    }
+    fun clear() = entries.clear()
 
     @JvmStatic
     @SubscribeEvent

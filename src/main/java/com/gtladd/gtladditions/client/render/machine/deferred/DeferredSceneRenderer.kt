@@ -29,6 +29,8 @@ import org.joml.Matrix4f
 object DeferredSceneRenderer {
     private val entries = Long2ObjectLinkedOpenHashMap<HeartBlackHoleSceneEntry>()
     private var prepared: Frame? = null
+    internal var frameId = 0L
+        private set
 
     fun enqueueBlackHole(blockEntity: BlockEntity, profile: HeartBlackHoleRenderProfile) {
         if (!ShadowRenderingState.areShadowsCurrentlyBeingRendered()) {
@@ -37,6 +39,7 @@ object DeferredSceneRenderer {
     }
 
     fun beginFrame() {
+        frameId++
         entries.clear()
         prepared = null
         HeartHandDepthMask.beginFrame()
@@ -45,21 +48,52 @@ object DeferredSceneRenderer {
 
     internal fun tryDeferEffect(entry: HeartSceneEffect): Boolean {
         val frame = prepared ?: return false
-        if (entry.blockEntity.level !== frame.level || !entry.supportsLayeredRendering) return false
+        if (entry.blockEntity.level !== frame.level || !entry.supportsOrderedRendering) return false
+
         val target = Minecraft.getInstance().mainRenderTarget
-        if (HeartSceneCompositor.overlap(
-                listOf(entry),
+        val rect = HeartSceneCompositor.overlap(
+            listOf(entry),
+            frame.entries,
+            frame.pose,
+            frame.projection,
+            frame.camera,
+            target.viewWidth,
+            target.viewHeight
+        ) ?: return false
+
+        // Admission computes the exact order used later by the same frame's compositor.
+        frame.effects.add(entry)
+        if (frame.effects.any { !it.supportsLayeredRendering }) {
+            val order = HeartSceneCompositor.order(
                 frame.entries,
+                frame.effects,
                 frame.pose,
                 frame.projection,
                 frame.camera,
                 target.viewWidth,
                 target.viewHeight
-            ) == null
-        ) {
-            return false
+            )
+            if (order == null) {
+                frame.effects.removeAt(frame.effects.lastIndex)
+                return false
+            }
+            frame.order = order
         }
-        frame.effects.add(entry)
+
+        val previous = frame.overlap
+        if (previous == null) {
+            frame.overlap = rect
+        } else {
+            val x0 = minOf(previous[0], rect[0])
+            val y0 = minOf(previous[1], rect[1])
+            val x1 = maxOf(previous[0] + previous[2], rect[0] + rect[2])
+            val y1 = maxOf(previous[1] + previous[3], rect[1] + rect[3])
+            previous[0] = x0
+            previous[1] = y0
+            previous[2] = x1 - x0
+            previous[3] = y1 - y0
+        }
+
         return true
     }
 
@@ -108,7 +142,18 @@ object DeferredSceneRenderer {
             return
         }
         val handMask = if (frame.shaderpack) HeartHandDepthMask.textureId() else 0
-        if (HeartSceneCompositor.render(context, frame.entries, frame.effects, frame.projection, handMask)) return
+        if (HeartSceneCompositor.render(
+                context,
+                frame.entries,
+                frame.effects,
+                frame.projection,
+                handMask,
+                frame.overlap,
+                frame.order
+            )
+        ) {
+            return
+        }
 
         // No overlap or unavailable compositor: retain the independent draw path and its ordering.
         frame.effects.forEach { it.renderDirect(context) }
@@ -125,6 +170,8 @@ object DeferredSceneRenderer {
         val pose: Matrix4f,
         val projection: Matrix4f,
         val shaderpack: Boolean,
-        val effects: MutableList<HeartSceneEffect> = ArrayList()
+        val effects: MutableList<HeartSceneEffect> = ArrayList(),
+        var overlap: IntArray? = null,
+        var order: IntArray? = null
     )
 }

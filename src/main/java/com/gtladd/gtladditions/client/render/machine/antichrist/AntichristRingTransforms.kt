@@ -24,7 +24,7 @@ object AntichristRingTransforms {
             val direction = if (ringIndex == 1) -1.0f else 1.0f
             val speedMultiplier = 0.4f + ringIndex * 0.4f
             val angleOffset = ringIndex * 120f
-            val rotationAngle = (profile.tick * speedMultiplier * 2.0f * direction + angleOffset) % 360.0f
+            val rotationAngle = ((profile.tick * speedMultiplier * 2.0 * direction + angleOffset) % 360.0).toFloat()
 
             poseStack.mulPose(Quaternionf().fromAxisAngleDeg(1.0f, 0.0f, 0.0f, rotationAngle))
         }

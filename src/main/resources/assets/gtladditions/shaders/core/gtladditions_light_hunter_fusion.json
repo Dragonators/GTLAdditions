@@ -89,6 +89,14 @@
       ]
     },
     {
+      "name": "Effect",
+      "type": "int",
+      "count": 1,
+      "values": [
+        0
+      ]
+    },
+    {
       "name": "FusionField",
       "type": "int",
       "count": 1,

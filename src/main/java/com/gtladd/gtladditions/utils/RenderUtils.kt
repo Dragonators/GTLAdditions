@@ -1,17 +1,22 @@
 ﻿package com.gtladd.gtladditions.utils
 
+import com.gregtechceu.gtceu.api.machine.MetaMachine
+import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
+import com.gtladd.gtladditions.mixin.gtlcore.client.GlobalRenderClockAccessor
 import com.gtladd.gtladditions.mixin.minecraft.client.BlendModeAccessor
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.resources.ResourceLocation
@@ -19,9 +24,10 @@ import net.minecraft.util.FastColor
 import net.minecraft.util.RandomSource
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.event.RegisterShadersEvent
 import net.minecraftforge.client.model.data.ModelData
 import org.gtlcore.gtlcore.client.ClientUtil
-import org.gtlcore.gtlcore.client.GlobalRenderClock
+import org.gtlcore.gtlcore.config.ConfigHolder
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import org.lwjgl.opengl.GL11C
@@ -36,7 +42,16 @@ import kotlin.math.*
 @OnlyIn(Dist.CLIENT)
 object RenderUtils {
 
-    /** Draws an already transformed model at full brightness; only the RGB tint is applied. */
+    /** Uses Core's pause-aware nanosecond clock. */
+    fun getSmoothTickDouble(): Double = GlobalRenderClockAccessor.getElapsedNanos() / 50_000_000.0
+
+    fun getSmoothTickDouble(machine: MetaMachine, partialTick: Float): Double =
+        if (ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) getSmoothTickDouble() else machine.offsetTimer.toDouble() + partialTick
+
+    // Narrow only a bounded final angle, so float matrices retain sub-frame motion in old worlds.
+    fun rotationRadians(angle: Double): Float = Math.IEEEremainder(angle, 2 * PI).toFloat()
+
+    /** Only the RGB tint is applied. */
     fun renderFullBrightModel(
         pose: PoseStack.Pose,
         consumer: VertexConsumer,
@@ -145,6 +160,42 @@ object RenderUtils {
         }
     }
 
+    /** GameRenderer.reloadShaders only catches IOException; a failing program reaches [onLoad] as null instead of aborting the reload. */
+    fun registerShader(event: RegisterShadersEvent, id: ResourceLocation, format: VertexFormat, onLoad: (ShaderInstance?) -> Unit) =
+        registerShader(event, id, { ShaderInstance(event.resourceProvider, id, format) }, onLoad)
+
+    fun registerShader(event: RegisterShadersEvent, id: ResourceLocation, create: () -> ShaderInstance, onLoad: (ShaderInstance?) -> Unit) {
+        val shader = try {
+            create()
+        } catch (error: Exception) {
+            GTLAdditions.LOGGER.error("Unable to load shader {}", id, error)
+            onLoad(null)
+            return
+        }
+
+        event.registerShader(shader) { loaded ->
+            try {
+                onLoad(loaded)
+            } catch (error: Exception) {
+                GTLAdditions.LOGGER.error("Unable to apply shader {}", id, error)
+                onLoad(null)
+            }
+        }
+    }
+
+    private val stagingBuilders = ArrayDeque<BufferBuilder>()
+
+    /** 1.20.1 never frees a BufferBuilder's native memory; one-off meshes borrow builders that live for the process. */
+    fun <T> withStagingBuilder(build: (BufferBuilder) -> T): T {
+        val builder = stagingBuilders.removeLastOrNull() ?: BufferBuilder(256)
+        try {
+            return build(builder).also { stagingBuilders.addLast(builder) }
+        } catch (error: Throwable) {
+            if (!builder.building() || runCatching { builder.end().release() }.isSuccess) stagingBuilders.addLast(builder)
+            throw error
+        }
+    }
+
     fun releaseBuffers(buffers: Iterable<VertexBuffer>?) {
         buffers?.forEach(VertexBuffer::close)
     }
@@ -158,6 +209,24 @@ object RenderUtils {
             VertexBuffer.unbind()
         }
     }
+
+    private var batchedShader: ShaderInstance? = null
+
+    internal inline fun <T> withShaderBatch(shader: ShaderInstance, enabled: Boolean, draw: () -> T): T {
+        if (!enabled || batchedShader === shader) return draw()
+        RenderSystem.assertOnRenderThread()
+        val previous = batchedShader
+        batchedShader = shader
+        return try {
+            draw()
+        } finally {
+            batchedShader = previous
+            shader.clear()
+        }
+    }
+
+    @JvmStatic
+    fun shouldDeferShaderClear(shader: ShaderInstance): Boolean = batchedShader === shader
 
     inline fun <T> withRenderType(type: RenderType, draw: () -> T): T {
         type.setupRenderState()
@@ -288,7 +357,7 @@ object RenderUtils {
         vertexConsumer: VertexConsumer,
         bakedModel: BakedModel,
         motionParams: CircularMotionParams,
-        tick: Float,
+        tick: Double,
         size: Float = 1.0f,
         argb32: Int = 0xFFFFFFFF.toInt(),
         type: RenderType,
@@ -321,10 +390,10 @@ object RenderUtils {
     }
 
     class SmoothAnimationTimer {
-        private var startTick: Float = GlobalRenderClock.getSmoothTick()
+        private var startTick: Double = RenderUtils.getSmoothTickDouble()
 
         fun reset() {
-            startTick = GlobalRenderClock.getSmoothTick()
+            startTick = RenderUtils.getSmoothTickDouble()
         }
 
         /**
@@ -332,9 +401,9 @@ object RenderUtils {
          * @return Current progress, range 0.0 to 1.0
          */
         fun getProgress(durationMillis: Long): Float {
-            val durationTicks = durationMillis / 50.0f // 1 tick = 50ms
-            val elapsedTicks = GlobalRenderClock.getSmoothTick() - startTick
-            return (elapsedTicks / durationTicks).coerceIn(0f, 1f)
+            val durationTicks = durationMillis / 50.0 // 1 tick = 50ms
+            val elapsedTicks = RenderUtils.getSmoothTickDouble() - startTick
+            return (elapsedTicks / durationTicks).coerceIn(0.0, 1.0).toFloat()
         }
     }
 }

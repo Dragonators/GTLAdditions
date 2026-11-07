@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
+import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneDepth
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.pipeline.RenderTarget
 import com.mojang.blaze3d.platform.GlStateManager
@@ -26,7 +27,7 @@ internal object HeartBlackHolePostTargets {
             return existing
         }
 
-        val allocated = ArrayList<RenderTarget>(17)
+        val allocated = ArrayList<RenderTarget>(16)
         val next = try {
             HeartBlackHoleTargets(
                 createTarget(
@@ -36,7 +37,6 @@ internal object HeartBlackHolePostTargets {
                     hdr = true
                 ),
                 createTarget(width, height, allocated, hdr = true),
-                createTarget(width, height, allocated),
                 createTarget(blurWidth, blurHeight, allocated, hdr = true),
                 createTarget(blurWidth, blurHeight, allocated, hdr = true),
                 createTarget(blurWidth, blurHeight, allocated),
@@ -81,23 +81,23 @@ internal object HeartBlackHolePostTargets {
 internal data class HeartBlackHoleTargets(
     val material: RenderTarget,
     val effect: RenderTarget,
-    val mask: RenderTarget,
     val effectBlurred: RenderTarget,
     val effectBlurScratch: RenderTarget,
     val maskBlurred: RenderTarget,
     val maskBlurScratch: RenderTarget,
     val bloomLevels: List<HeartBlackHoleBloomLevel>
 ) {
+    val depthCopy = DeferredSceneDepth()
     val bloom: RenderTarget get() = bloomLevels[0].blurred
     val bloomScratch: RenderTarget get() = bloomLevels[0].scratch
 
     fun clearVolumeTargets(): Boolean =
-        HeartBlackHoleFramebuffer.clearColor(effect) && HeartBlackHoleFramebuffer.clearColor(mask)
+        HeartBlackHoleFramebuffer.clearColor(effect)
 
     fun destroy() {
         material.destroyBuffers()
         effect.destroyBuffers()
-        mask.destroyBuffers()
+        depthCopy.close()
         effectBlurred.destroyBuffers()
         effectBlurScratch.destroyBuffers()
         maskBlurred.destroyBuffers()

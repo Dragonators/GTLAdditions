@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRender
 import com.lowdragmc.lowdraglib.client.model.ModelFactory
 import com.tterrag.registrate.util.entry.BlockEntry
 import net.minecraft.client.renderer.block.model.BakedQuad
+import net.minecraft.client.renderer.texture.TextureAtlas
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.resources.model.ModelState
 import net.minecraft.core.Direction
@@ -16,7 +17,8 @@ import net.minecraft.util.RandomSource
 import net.minecraft.world.level.block.Block
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.function.Consumer
 
 open class PartWorkableCasingMachineRenderer(
     baseCasing: ResourceLocation,
@@ -26,7 +28,13 @@ open class PartWorkableCasingMachineRenderer(
 ) : WorkableCasingMachineRenderer(baseCasing, workableModel),
     IControllerRenderer {
 
-    protected val partCasingModels: MutableMap<Direction, BakedModel> = EnumMap(Direction::class.java)
+    protected val partCasingModels: MutableMap<Direction, BakedModel> = ConcurrentHashMap()
+
+    @OnlyIn(Dist.CLIENT)
+    override fun onPrepareTextureAtlas(atlasName: ResourceLocation, register: Consumer<ResourceLocation>) {
+        super.onPrepareTextureAtlas(atlasName, register)
+        if (atlasName == TextureAtlas.LOCATION_BLOCKS) partCasingModels.clear()
+    }
 
     @Suppress("DEPRECATION")
     @OnlyIn(Dist.CLIENT)

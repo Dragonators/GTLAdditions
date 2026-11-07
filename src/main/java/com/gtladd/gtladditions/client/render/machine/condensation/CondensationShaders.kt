@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.client.render.machine.condensation
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.client.renderer.ShaderInstance
@@ -19,9 +20,7 @@ object CondensationShaders {
     @SubscribeEvent
     @JvmStatic
     fun register(event: RegisterShadersEvent) {
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_condensation_core"), DefaultVertexFormat.POSITION)
-        ) { core = it }
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_condensation_core"), DefaultVertexFormat.POSITION) { core = it }
     }
 
     @SubscribeEvent

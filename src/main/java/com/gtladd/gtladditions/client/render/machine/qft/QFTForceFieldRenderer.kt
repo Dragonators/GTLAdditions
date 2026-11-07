@@ -19,7 +19,6 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.config.ConfigHolder
-import org.gtlcore.gtlcore.utils.RenderUtil
 import org.lwjgl.opengl.GL11C
 
 @OnlyIn(Dist.CLIENT)
@@ -36,7 +35,7 @@ internal object QFTForceFieldRenderer {
     private fun renderBatch(context: DeferredRenderContext, entries: List<DeferredRenderEntry>) {
         val currentShader = shader ?: return
         val first = entries.firstOrNull() as? Entry ?: return
-        val ticks = RenderUtil.getSmoothTick(first.machine, first.partialTicks)
+        val ticks = RenderUtils.getSmoothTickDouble(first.machine, first.partialTicks)
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
         for (entry in entries) {
             val field = entry as Entry

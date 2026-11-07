@@ -8,11 +8,14 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.AABB
 import org.lwjgl.opengl.GL13C
 
-/** Transparent effects that can be placed on either side of a Heart at each pixel. */
+/** Transparent effects ordered around Hearts; optional layers also handle intersecting bounds. */
 internal interface HeartSceneEffect {
     val blockEntity: BlockEntity
     val bounds: AABB
     val supportsLayeredRendering: Boolean
+
+    val supportsOrderedRendering: Boolean
+        get() = supportsLayeredRendering
 
     /** Entries from the same renderer share one opaque depth snapshot per composition. */
     val depthCaptureKey: Any

@@ -21,12 +21,12 @@ object HeartBlackHoleVisualConfig {
     private const val HEARTBEAT_FREQUENCY = 0.14f
     private const val SPACE_HEARTBEAT_RADIUS_AMPLITUDE = 0.045f
 
-    fun volumeProxyRadius(tick: Float): Float {
+    fun volumeProxyRadius(tick: Double): Float {
         val radius = max(BLACK_HOLE_AND_DISK_RADIUS, 0.001f)
         val pulse = sin(tick * HEARTBEAT_FREQUENCY)
         val distortionRadius = radius * DISTORTION_RADIUS_SCALE *
             (1.0f + pulse * pulse * SPACE_HEARTBEAT_RADIUS_AMPLITUDE)
-        return max(distortionRadius, radius * max(SPACE_FADE_RADIUS, 0.001f))
+        return max(distortionRadius, (radius * max(SPACE_FADE_RADIUS, 0.001f)).toDouble()).toFloat()
     }
 
     // CPU-only conservative bounds for deferred pass culling.
@@ -43,7 +43,7 @@ object HeartBlackHoleVisualConfig {
 
 @OnlyIn(Dist.CLIENT)
 data class HeartBlackHoleRenderProfile(
-    val tick: Float,
+    val tick: Double,
     val center: Vec3,
     val facingX: Float,
     val facingY: Float,
@@ -52,7 +52,7 @@ data class HeartBlackHoleRenderProfile(
 ) {
     companion object {
         fun create(
-            tick: Float,
+            tick: Double,
             facing: Direction,
             center: Vec3,
             rotationSpeed: Float = HeartBlackHoleVisualConfig.RADIANT_ROTATION_SPEED

@@ -9,7 +9,6 @@ import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.machine.multiblock.controller.AntientropyCondensationCenter
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
@@ -40,11 +39,10 @@ object CondensationCoreRenderer {
         DeferredMachineRenderer.enqueue(Entry(blockEntity, machine, rotationTicks, flowPhase))
     }
 
-    private fun model(location: ResourceLocation): VertexBuffer {
-        val builder = BufferBuilder(32768)
+    private fun model(location: ResourceLocation): VertexBuffer = RenderUtils.withStagingBuilder { builder ->
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION)
         CondensationCoreMesh.writeModel(builder, Minecraft.getInstance().modelManager.getModel(location))
-        return RenderUtils.uploadStaticBuffer(builder)
+        RenderUtils.uploadStaticBuffer(builder)
     }
 
     private fun draw(buffer: VertexBuffer, pose: PoseStack, shader: ShaderInstance) {

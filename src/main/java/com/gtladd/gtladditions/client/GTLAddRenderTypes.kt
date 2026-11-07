@@ -46,6 +46,27 @@ class GTLAddRenderTypes(
             )
         }
 
+        /** Frame bases already own depth. Decals are composed before glass/water, including Fabulous. */
+        fun createFrameOverlayLayer(): RenderType = create(
+            "gtladditions_frame_overlay",
+            DefaultVertexFormat.BLOCK,
+            VertexFormat.Mode.QUADS,
+            32768,
+            false,
+            false,
+            CompositeState.builder()
+                .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+                .setTextureState(BLOCK_SHEET_MIPPED)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setDepthTestState(LEQUAL_DEPTH_TEST)
+                .setWriteMaskState(COLOR_WRITE)
+                .setCullState(CULL)
+                .setLightmapState(LIGHTMAP)
+                .setLayeringState(POLYGON_OFFSET_LAYERING)
+                .setOutputState(MAIN_TARGET)
+                .createCompositeState(false)
+        )
+
         fun createGlowLayer(texture: ResourceLocation): RenderType {
             val state = CompositeState.builder()
                 .setShaderState(RENDERTYPE_EYES_SHADER)

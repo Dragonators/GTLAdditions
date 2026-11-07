@@ -152,7 +152,7 @@ object MatrixFrameTerrainRenderer {
                 for (group in FaceGroup.entries) shades[group.ordinal] = group.shade(level, worldNormal)
                 poseStack.withPose {
                     MatrixFrameTransforms.apply(this, index, entry.ticks, yaw, entry.machine.isFlipped)
-                    frameBuffers[index].draw(last(), shades)
+                    frameBuffers[index].draw(last(), shades, batchShader = true)
                 }
             }
         }

@@ -18,12 +18,15 @@ import net.minecraftforge.api.distmarker.OnlyIn
 /** Shared terrain builders; callers retain their own geometry, vertex order and transforms. */
 @OnlyIn(Dist.CLIENT)
 object StructureRenderBuffers {
+    // 1.20.1 never frees BufferBuilder memory; builder sets live for the process and serve one batch at a time.
+    private val idleShaderBuilders = ArrayDeque<TerrainBuilders>()
+    private val idleVanillaBuilders = ArrayDeque<TerrainBuilders>()
+
     fun terrainLayers(
         count: Int,
         shaderCompatible: Boolean,
         write: (Int, TerrainBatch) -> Unit
-    ): List<Map<RenderType, VertexBuffer>> {
-        val batch = TerrainBatch(shaderCompatible)
+    ): List<Map<RenderType, VertexBuffer>> = TerrainBatch(shaderCompatible).use { batch ->
         val layers = ArrayList<Map<RenderType, VertexBuffer>>(count)
         try {
             repeat(count) { index ->
@@ -79,7 +82,7 @@ object StructureRenderBuffers {
             flushOpaque()
         }
 
-        fun draw(pose: PoseStack.Pose, shades: FloatArray) {
+        fun draw(pose: PoseStack.Pose, shades: FloatArray, batchShader: Boolean = false) {
             val color = RenderSystem.getShaderColor()
             val red = color[0]
             val green = color[1]
@@ -89,11 +92,13 @@ object StructureRenderBuffers {
                 for ((type, buffers) in batches) {
                     RenderUtils.withRenderType(type) {
                         val shader = RenderSystem.getShader() ?: return@withRenderType
-                        for ((group, buffer) in buffers) {
-                            val shade = shades[group]
-                            RenderSystem.setShaderColor(red * shade, green * shade, blue * shade, alpha)
-                            RenderUtils.withBoundBuffer(buffer) {
-                                buffer.drawWithShader(pose.pose(), RenderSystem.getProjectionMatrix(), shader)
+                        RenderUtils.withShaderBatch(shader, batchShader && buffers.size > 1) {
+                            for ((group, buffer) in buffers) {
+                                val shade = shades[group]
+                                RenderSystem.setShaderColor(red * shade, green * shade, blue * shade, alpha)
+                                RenderUtils.withBoundBuffer(buffer) {
+                                    buffer.drawWithShader(pose.pose(), RenderSystem.getProjectionMatrix(), shader)
+                                }
                             }
                         }
                     }
@@ -112,15 +117,13 @@ object StructureRenderBuffers {
         private data class DrawBatch(val type: RenderType, val buffers: List<GroupBuffer>)
     }
 
-    class TerrainBatch internal constructor(shaderCompatible: Boolean) {
-        // Iris extends builders created by this pack. Keep that construction path intact.
-        private val pack = if (shaderCompatible) ChunkBufferBuilderPack() else null
-        private val builders = linkedMapOf<RenderType, BufferBuilder>()
+    class TerrainBatch internal constructor(private val shaderCompatible: Boolean) : AutoCloseable {
+        private val builders = idleBuilders(shaderCompatible).removeLastOrNull() ?: TerrainBuilders(shaderCompatible)
         private val started = linkedSetOf<RenderType>()
         private val materialIds = HashMap<BlockState, Short>()
 
         fun builder(type: RenderType): BufferBuilder {
-            val builder = builders.getOrPut(type) { pack?.builder(type) ?: BufferBuilder(type.bufferSize()) }
+            val builder = builders[type]
             if (started.add(type)) builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK)
             return builder
         }
@@ -147,7 +150,7 @@ object StructureRenderBuffers {
         internal fun uploadLayer(upload: (BufferBuilder) -> VertexBuffer): Map<RenderType, VertexBuffer> {
             val uploaded = linkedMapOf<RenderType, VertexBuffer>()
             try {
-                for (type in started) uploaded[type] = upload(builders.getValue(type))
+                for (type in started) uploaded[type] = upload(builders[type])
                 return uploaded
             } catch (error: Throwable) {
                 RenderUtils.releaseBuffers(uploaded.values)
@@ -155,6 +158,26 @@ object StructureRenderBuffers {
             } finally {
                 started.clear()
             }
+        }
+
+        override fun close() {
+            builders.abandonUnfinished()
+            idleBuilders(shaderCompatible).addLast(builders)
+        }
+    }
+
+    private fun idleBuilders(shaderCompatible: Boolean) = if (shaderCompatible) idleShaderBuilders else idleVanillaBuilders
+
+    private class TerrainBuilders(shaderCompatible: Boolean) {
+        // Iris extends builders created by this pack. Keep that construction path intact.
+        private val pack = if (shaderCompatible) ChunkBufferBuilderPack() else null
+        private val builders = HashMap<RenderType, BufferBuilder>()
+
+        operator fun get(type: RenderType): BufferBuilder =
+            builders.getOrPut(type) { pack?.builder(type) ?: BufferBuilder(type.bufferSize()) }
+
+        fun abandonUnfinished() {
+            for (builder in builders.values) if (builder.building()) builder.end().release()
         }
     }
 }

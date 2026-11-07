@@ -12,7 +12,6 @@ import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
@@ -177,8 +176,7 @@ object MatrixEnergyCoreRenderer {
         }
     }
 
-    private fun cubeBuffer(): VertexBuffer = cube ?: run {
-        val builder = BufferBuilder(512)
+    private fun cubeBuffer(): VertexBuffer = cube ?: RenderUtils.withStagingBuilder { builder ->
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION)
 
         for (axis in 0..2) {

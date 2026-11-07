@@ -47,8 +47,11 @@ vec3 hit(float radius) {
     return normalize(ro + rd * (-rb + sqrt(max(h, 0.0))));
 }
 
+// Fade along the forward ray, as in the Heart volume: space behind the eye must not form a second opaque half.
+// Clamping the closest point to the eye keeps the same soft boundary when looking out from inside the rim.
 float softEdge() {
-    float rc2 = max(rc0 - rb * rb, 0.0);
+    vec3 closest = ro + rd * max(-rb, 0.0);
+    float rc2 = dot(closest, closest);
     return smoothstep(0.04, 0.42, sqrt(max(1.0 - rc2 / (POCKET_RADIUS * POCKET_RADIUS), 0.0)));
 }
 

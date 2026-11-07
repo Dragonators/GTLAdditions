@@ -100,16 +100,15 @@ object ArcanicAstrographStarRenderer {
     @SubscribeEvent
     @JvmStatic
     fun registerShaders(event: RegisterShadersEvent) {
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_astrograph_surface"),
             DefaultVertexFormat.POSITION_COLOR_TEX
-        )
         ) { surfaceShader = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_astrograph_glow"),
-            DefaultVertexFormat.POSITION_COLOR_TEX)
+            DefaultVertexFormat.POSITION_COLOR_TEX
         ) { glowShader = it }
     }
 
@@ -129,7 +128,7 @@ object ArcanicAstrographStarRenderer {
     }
 
     /** One immutable unit-sphere upload, reused by the sky and all three stellar surfaces. */
-    fun renderCached(poseStack: PoseStack, tick: Float) {
+    fun renderCached(poseStack: PoseStack, tick: Double) {
         if (surfaceShader == null || glowShader == null) return
         val buffer = getSphereBuffer()
         RenderUtils.withSavedRenderState {
@@ -186,7 +185,7 @@ object ArcanicAstrographStarRenderer {
     }
 
     /** Resolve each layer separately: breaking overlays forward stellar layers without modifying their vertices. */
-    fun render(poseStack: PoseStack, buffer: MultiBufferSource, tick: Float) {
+    fun render(poseStack: PoseStack, buffer: MultiBufferSource, tick: Double) {
         if (surfaceShader == null || glowShader == null) return
         forEachStarLayer(poseStack, tick) { pose, material ->
             renderSurface(pose, buffer, material)
@@ -229,7 +228,7 @@ object ArcanicAstrographStarRenderer {
 
     private inline fun forEachStarLayer(
         poseStack: PoseStack,
-        tick: Float, draw: (PoseStack, Material) -> Unit
+        tick: Double, draw: (PoseStack, Material) -> Unit
     ) {
         poseStack.withPose {
             mulPose(modelRotation)

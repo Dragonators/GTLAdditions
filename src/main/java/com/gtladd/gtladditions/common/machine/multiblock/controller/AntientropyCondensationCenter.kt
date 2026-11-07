@@ -10,8 +10,8 @@ import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricPara
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.data.StructureRenderType
 import com.gtladd.gtladditions.common.items.GTLAddItems
-import com.gtladd.gtladditions.common.machine.trait.CondensationEffectsTrait
 import com.gtladd.gtladditions.common.machine.trait.StructureModifyTrait
+import com.gtladd.gtladditions.common.machine.trait.WorkingClockEffectsTrait
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.Constants.INT_MAX_BIG
@@ -51,7 +51,7 @@ class AntientropyCondensationCenter(holder: IMachineBlockEntity, vararg args: An
     private var lastCryotheumDustCost = 0
 
     @field:DescSynced
-    val condensationEffects = CondensationEffectsTrait(this)
+    val condensationEffects = WorkingClockEffectsTrait(this)
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = AntientropyCondensationCenterLogic(this)
 

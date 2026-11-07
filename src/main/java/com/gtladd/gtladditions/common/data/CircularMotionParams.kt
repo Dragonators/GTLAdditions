@@ -24,8 +24,10 @@ data class CircularMotionParams(
     val tiltAngle: Float = 0f,
     val tiltDirection: Vector3f = Vector3f(1f, 0f, 0f)
 ) {
-    fun getPosition(tick: Float): Vec3 {
-        val angle = Math.toRadians((angleOffset + tick * speed).toDouble())
+    fun getPosition(tick: Float): Vec3 = getPosition(tick.toDouble())
+
+    fun getPosition(tick: Double): Vec3 {
+        val angle = Math.toRadians((angleOffset + tick * speed) % 360.0)
 
         val localX = radius * cos(angle)
         val localY = 0.0
@@ -44,5 +46,7 @@ data class CircularMotionParams(
         return centerPos.add(worldPos)
     }
 
-    fun getFacingAngle(tick: Float): Float = (angleOffset + tick * speed) % 360f
+    fun getFacingAngle(tick: Float): Float = getFacingAngle(tick.toDouble())
+
+    fun getFacingAngle(tick: Double): Float = ((angleOffset + tick * speed) % 360.0).toFloat()
 }

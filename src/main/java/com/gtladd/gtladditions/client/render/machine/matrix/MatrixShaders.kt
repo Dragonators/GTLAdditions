@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.client.render.machine.matrix
 
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristShaders
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.client.renderer.ShaderInstance
@@ -14,8 +15,6 @@ import net.minecraftforge.fml.common.Mod
 
 @Mod.EventBusSubscriber(modid = GTLAdditions.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT])
 object MatrixShaders {
-    var magicCircle: ShaderInstance? = null
-        private set
     var seal: ShaderInstance? = null
         private set
     var energyCore: ShaderInstance? = null
@@ -36,40 +35,25 @@ object MatrixShaders {
     @SubscribeEvent
     @JvmStatic
     fun register(event: RegisterShadersEvent) {
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_matrix_magic_circle"), DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL)
-        ) { magicCircle = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_matrix_seal"), DefaultVertexFormat.POSITION_COLOR)
-        ) { seal = it
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_seal"), DefaultVertexFormat.POSITION_COLOR) { seal = it
         }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_matrix_energy_core"), DefaultVertexFormat.POSITION)
-        ) {
+
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_energy_core"), DefaultVertexFormat.POSITION) {
             energyCore = it
         }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_matrix_energy_core_layers"), DefaultVertexFormat.POSITION)
-        ) {
+
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_energy_core_layers"), DefaultVertexFormat.POSITION) {
             energyCoreLayers = it
         }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_matrix_eye"), DefaultVertexFormat.POSITION)
-        ) { eye = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_matrix_eye_lid"), DefaultVertexFormat.POSITION)
-        ) { eyeLid = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_matrix_eye_mist"), DefaultVertexFormat.POSITION)
-        ) { eyeMist = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_matrix_iris_star"), MatrixIrisStarRenderer.CIRCLE_FORMAT)
-        ) {
+
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_eye"), DefaultVertexFormat.POSITION) { eye = it }
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_eye_lid"), DefaultVertexFormat.POSITION) { eyeLid = it }
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_eye_mist"), DefaultVertexFormat.POSITION) { eyeMist = it }
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_iris_star"), MatrixIrisStarRenderer.CIRCLE_FORMAT) {
             irisStar = it
         }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, GTLAdditions.id("gtladditions_matrix_beam_glow"), AntichristShaders.BEAM_VERTEX_FORMAT)
-        ) {
+
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_beam_glow"), AntichristShaders.BEAM_VERTEX_FORMAT) {
             irisBeamGlow = it
         }
     }

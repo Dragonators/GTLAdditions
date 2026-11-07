@@ -15,7 +15,7 @@ import java.awt.Color
 
 @OnlyIn(Dist.CLIENT)
 data class AntichristRenderProfile(
-    val tick: Float,
+    val tick: Double,
     val isWorking: Boolean,
     val facing: Direction,
     val renderMode: RenderMode,
@@ -46,7 +46,7 @@ data class AntichristRenderProfile(
 
         fun create(
             machine: ForgeOfTheAntichrist,
-            tick: Float,
+            tick: Double,
             isWorking: Boolean
         ): AntichristRenderProfile {
             val renderMode = machine.starRitual.renderMode
@@ -70,7 +70,7 @@ data class AntichristRenderProfile(
         private fun getRenderColorAndRadius(
             renderMode: RenderMode,
             machine: ForgeOfTheAntichrist,
-            tick: Float
+            tick: Double
         ): Pair<Int, Float> = when (renderMode) {
             RenderMode.NORMAL -> machine.rgbFromTime to machine.radiusMultiplier
             RenderMode.RAINBOW -> getRainbowColor(tick) to machine.radiusMultiplier
@@ -84,8 +84,8 @@ data class AntichristRenderProfile(
             }
         }
 
-        private fun getRainbowColor(tick: Float): Int {
-            val hue = (tick % 60) / 60.0f
+        private fun getRainbowColor(tick: Double): Int {
+            val hue = ((tick % 60.0) / 60.0).toFloat()
             val color = Color.getHSBColor(hue, 1.0f, 1.0f)
             return (0xFF shl 24) or (color.red shl 16) or (color.green shl 8) or color.blue
         }

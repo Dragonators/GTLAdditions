@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.client.render.machine.rrf
 
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.render.IndexedEffectVertexBuffer
 import com.gtladd.gtladditions.client.render.machine.deferred.DeferredMachineRenderer
 import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
 import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
@@ -25,7 +26,6 @@ import net.minecraftforge.client.event.RegisterShadersEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import org.gtlcore.gtlcore.config.ConfigHolder
-import org.gtlcore.gtlcore.utils.RenderUtil
 import org.lwjgl.opengl.GL11C
 import java.util.EnumMap
 import java.util.EnumSet
@@ -39,7 +39,9 @@ internal object RrfEffectRenderer {
     private val arrayMesh = RrfArrayMesh()
     private val arrayBatchKey = Any()
     private var vertexBuffer: VertexBuffer? = null
-    private var arrayBuffer: VertexBuffer? = null
+    private var arrayBuffer: IndexedEffectVertexBuffer? = null
+    private val arrayIndices = it.unimi.dsi.fastutil.ints.IntArrayList()
+    private var arrayVertices = 0
     private var shader: ShaderInstance? = null
     private var arrayShader: ShaderInstance? = null
 
@@ -55,14 +57,14 @@ internal object RrfEffectRenderer {
         DeferredMachineRenderer.enqueue(Entry(blockEntity, machine, kind, partialTicks))
     }
 
-    fun replaceShader(replacement: ShaderInstance) {
+    fun replaceShader(replacement: ShaderInstance?) {
         vertexWriter.close()
         vertexBuffer?.close()
         vertexBuffer = null
         shader = replacement
     }
 
-    fun replaceArrayShader(replacement: ShaderInstance) {
+    fun replaceArrayShader(replacement: ShaderInstance?) {
         arrayBuffer?.close()
         arrayBuffer = null
         arrayShader = replacement
@@ -74,8 +76,10 @@ internal object RrfEffectRenderer {
         val currentShader = (if (array) arrayShader else shader)
             ?: return
         val smoothAnimations = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
-        val sharedTicks = if (smoothAnimations) RenderUtil.getSmoothTick(first.machine, first.partialTicks) else 0f
+        val sharedTicks = if (smoothAnimations) RenderUtils.getSmoothTickDouble(first.machine, first.partialTicks) else 0.0
         preparedKinds.clear()
+        arrayIndices.clear()
+        arrayVertices = 0
         builder.begin(
             VertexFormat.Mode.TRIANGLES,
             if (array) DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL else DefaultVertexFormat.POSITION_TEX_COLOR
@@ -86,7 +90,8 @@ internal object RrfEffectRenderer {
             // A deferred pass can outlive the state that queued it. Disabled machines draw nothing.
             if (!isActive(entry.machine) || entry.blockEntity.isRemoved) continue
             val relative = entry.center.subtract(context.cameraPosition)
-            val seconds = (if (smoothAnimations) sharedTicks else RenderUtil.getSmoothTick(entry.machine, entry.partialTicks)).toDouble() / 20.0
+            val seconds = (if (smoothAnimations) sharedTicks else RenderUtils.getSmoothTickDouble(entry.machine, entry.partialTicks))
+                .toDouble() / 20.0
             if (array) {
                 if (!smoothAnimations || preparedKinds.add(RrfEffectKind.ARRAY)) RrfArrayGeometry.build(seconds, arrayMesh)
                 appendArray(arrayMesh, relative)
@@ -98,14 +103,18 @@ internal object RrfEffectRenderer {
         }
 
         val vbo = if (array) {
-            arrayBuffer ?: VertexBuffer(VertexBuffer.Usage.DYNAMIC).also { arrayBuffer = it }
+            arrayBuffer ?: IndexedEffectVertexBuffer().also { arrayBuffer = it }
         } else {
             vertexBuffer ?: VertexBuffer(VertexBuffer.Usage.DYNAMIC).also { vertexBuffer = it }
         }
 
         RenderUtils.withSavedRenderState {
             RenderUtils.withBoundBuffer(vbo) {
-                vbo.upload(builder.end())
+                if (vbo is IndexedEffectVertexBuffer) {
+                    vbo.uploadIndexed(builder.end(), arrayIndices.elements(), arrayIndices.size)
+                } else {
+                    vbo.upload(builder.end())
+                }
                 RenderSystem.enableBlend()
                 if (array) {
                     RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR)
@@ -135,6 +144,8 @@ internal object RrfEffectRenderer {
 
     private fun appendArray(mesh: RrfArrayMesh, relative: Vec3) {
         vertexWriter.appendArray(builder, mesh, relative)
+        for (i in 0 until mesh.indexCount) arrayIndices.add(arrayVertices + mesh.indices[i])
+        arrayVertices += mesh.vertexCount
     }
 
     private class Entry(
@@ -166,16 +177,16 @@ internal object RrfEffectRenderEvents {
     @SubscribeEvent
     @JvmStatic
     fun onRegisterShaders(event: RegisterShadersEvent) {
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_recursive_reverse_effect"),
-            DefaultVertexFormat.POSITION_TEX_COLOR),
+            DefaultVertexFormat.POSITION_TEX_COLOR,
             RrfEffectRenderer::replaceShader
         )
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_rrf_array_glow"),
-            DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL),
+            DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL,
             RrfEffectRenderer::replaceArrayShader
         )
     }

@@ -6,13 +6,13 @@ import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRender
 import com.gtladd.gtladditions.client.render.machine.dimensionfocus.DimensionFocusOrbitRenderer
 import com.gtladd.gtladditions.client.render.machine.dimensionfocus.DimensionFocusPocketRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.DimensionFocusInfinityCraftingArray
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
-import org.gtlcore.gtlcore.utils.RenderUtil
 
 class DimensionFocusInfinityCraftingArrayRenderer :
     WorkableCasingMachineRenderer(
@@ -35,7 +35,7 @@ class DimensionFocusInfinityCraftingArrayRenderer :
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? DimensionFocusInfinityCraftingArray ?: return
         if (!machine.isFormed) return
-        val ticks = RenderUtil.getSmoothTick(machine, partialTicks).toDouble()
+        val ticks = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         DimensionFocusOrbitRenderer.enqueue(blockEntity, machine, ticks)
         DimensionFocusPocketRenderer.enqueue(blockEntity, machine, ticks)
     }

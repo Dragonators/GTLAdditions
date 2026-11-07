@@ -10,7 +10,6 @@ import com.gtladd.gtladditions.common.machine.multiblock.controller.ApocalypticW
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
@@ -47,20 +46,23 @@ object MatrixEffectRenderer {
 
     private fun frameLightBuffers(): List<VertexBuffer> =
         frameLights ?: (0 until MatrixEffectGeometry.ENERGY_CORE_LAYER_INDEX).map { index ->
-        val builder = BufferBuilder(65536)
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR)
-        for (quad in MatrixFrameDetails.layer(index).lights) {
-            for (i in 0..3) {
-                builder.vertex(
+            RenderUtils.withStagingBuilder { builder ->
+                builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR)
+
+                for (quad in MatrixFrameDetails.layer(index).lights) {
+                    for (i in 0..3) {
+                        builder.vertex(
                             quad.vertices[i * 3].toDouble(),
                             quad.vertices[i * 3 + 1].toDouble(),
                             quad.vertices[i * 3 + 2].toDouble()
                         )
-                    .color(quad.color[0], quad.color[1], quad.color[2], quad.alpha).endVertex()
+                            .color(quad.color[0], quad.color[1], quad.color[2], quad.alpha).endVertex()
+                    }
+                }
+
+                RenderUtils.uploadStaticBuffer(builder)
             }
-        }
-        RenderUtils.uploadStaticBuffer(builder)
-    }.also { frameLights = it }
+        }.also { frameLights = it }
 
     private fun renderFrameLights(entry: Entry, poseStack: PoseStack, yaw: Float) {
         val shader = MatrixShaders.seal ?: return
@@ -135,9 +137,9 @@ object MatrixEffectRenderer {
                             }
                         }
                     }
-                    MatrixIrisStarRenderer.renderBeams(blockEntity, this, eye, yaw, machine.isFlipped)
                 }
             }
+            MatrixBeamRenderer.render(context, blockEntity, eye, yaw, machine.isFlipped)
             val core = MatrixEnergyCoreRenderer.Entry(blockEntity, ticks, yaw, machine.isFlipped)
             if (!DeferredSceneRenderer.tryDeferEffect(core)) core.renderDirect(context)
         }

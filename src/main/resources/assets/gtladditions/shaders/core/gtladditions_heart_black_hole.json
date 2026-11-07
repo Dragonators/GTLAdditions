@@ -16,9 +16,20 @@
     {"name": "RayInverseRadiusSampler"},
     {"name": "DiscNoiseSampler"},
     {"name": "GalaxySampler"},
-    {"name": "MaterialSampler"}
+    {"name": "MaterialSampler"},
+    {"name": "SceneDepth"}
   ],
   "uniforms": [
+    {
+      "name": "SceneSize", "type": "float", "count": 2, "values": [1.0, 1.0]
+    },
+    {
+      "name": "PassSize", "type": "float", "count": 2, "values": [1.0, 1.0]
+    },
+    {
+      "name": "InverseProjection", "type": "matrix4x4", "count": 16,
+      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    },
     {
       "name": "MaterialUvScale",
       "type": "float",
@@ -84,12 +95,10 @@
       ]
     },
     {
-      "name": "Time",
+      "name": "AnimationPhase",
       "type": "float",
-      "count": 1,
-      "values": [
-        0.0
-      ]
+      "count": 2,
+      "values": [0.0, 0.0]
     },
     {
       "name": "Center",
@@ -123,14 +132,6 @@
       "count": 1,
       "values": [
         1.65
-      ]
-    },
-    {
-      "name": "RotationSpeed",
-      "type": "float",
-      "count": 1,
-      "values": [
-        0.3
       ]
     },
     {

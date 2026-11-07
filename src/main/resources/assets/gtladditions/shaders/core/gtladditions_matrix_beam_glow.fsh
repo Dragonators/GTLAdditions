@@ -1,7 +1,8 @@
 #version 150
+#moj_import <gtladditions:heart_scene_hand.glsl>
 
 uniform sampler2D Sampler0;
-uniform vec3 CameraPosition;
+flat in vec2 beamCameraPosition;
 uniform vec3 BeamColor;
 uniform vec3 CoreColor;
 uniform vec3 HaloColor;
@@ -14,7 +15,8 @@ in float transparency;
 out vec4 fragColor;
 
 void main() {
-    vec2 toCamera = CameraPosition.xy;
+    if (sceneHandOccluded(gl_FragCoord.xy)) discard;
+    vec2 toCamera = beamCameraPosition;
     float cameraLength = length(toCamera);
     vec2 direction = cameraLength > 1e-5 ? toCamera / cameraLength : vec2(1.0, 0.0);
     vec2 side = vec2(-direction.y, direction.x);

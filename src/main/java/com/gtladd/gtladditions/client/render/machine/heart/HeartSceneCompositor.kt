@@ -93,27 +93,45 @@ internal object HeartSceneCompositor : AutoCloseable {
         return intArrayOf(x0, y0, x1 - x0, y1 - y0)
     }
 
-    fun render(
-        context: DeferredRenderContext,
+    fun order(
         hearts: List<HeartBlackHoleRenderEntry>,
         effects: List<HeartSceneEffect>,
+        pose: Matrix4f,
         projection: Matrix4f,
-        handMask: Int
-    ): Boolean {
-        if (hearts.any { it.blockEntity.isRemoved } || effects.any { it.blockEntity.isRemoved }) {
-            return render(context, hearts.filterNot { it.blockEntity.isRemoved }, effects.filterNot { it.blockEntity.isRemoved }, projection, handMask)
-        }
-        if (hearts.isEmpty() || effects.isEmpty() || effects.any { !it.supportsLayeredRendering }) return false
-        val output = Minecraft.getInstance().mainRenderTarget
-        val width = output.viewWidth
-        val height = output.viewHeight
-        val rect = overlap(effects, hearts, context.poseStack.last().pose(), projection, context.cameraPosition, width, height) ?: return false
+        camera: Vec3,
+        width: Int,
+        height: Int
+    ): IntArray? {
         val bounds = hearts.map { heart ->
             val center = heart.profile.center.add(Vec3.atLowerCornerOf(heart.blockEntity.blockPos))
             val radius = HeartBlackHoleVisualConfig.volumeProxyRadius(heart.profile.tick).toDouble()
             HeartSceneOrder.Bounds(AABB.ofSize(center, radius * 2, radius * 2, radius * 2), center, radius)
         } + effects.map { HeartSceneOrder.Bounds(it.bounds) }
-        val order = HeartSceneOrder.sort(bounds, context.poseStack.last().pose(), projection, context.cameraPosition, width, height)
+        return HeartSceneOrder.sort(bounds, pose, projection, camera, width, height)
+    }
+
+    fun render(
+        context: DeferredRenderContext,
+        hearts: List<HeartBlackHoleRenderEntry>,
+        effects: List<HeartSceneEffect>,
+        projection: Matrix4f,
+        handMask: Int,
+        preparedRegion: IntArray? = null,
+        preparedOrder: IntArray? = null
+    ): Boolean {
+        if (hearts.any { it.blockEntity.isRemoved } || effects.any { it.blockEntity.isRemoved }) {
+            return render(context, hearts.filterNot { it.blockEntity.isRemoved }, effects.filterNot { it.blockEntity.isRemoved }, projection, handMask)
+        }
+        if (hearts.isEmpty() || effects.isEmpty()) return false
+        val output = Minecraft.getInstance().mainRenderTarget
+        val width = output.viewWidth
+        val height = output.viewHeight
+        val rect = preparedRegion
+            ?: overlap(effects, hearts, context.poseStack.last().pose(), projection, context.cameraPosition, width, height)
+            ?: return false
+        val order = preparedOrder
+            ?: order(hearts, effects, context.poseStack.last().pose(), projection, context.cameraPosition, width, height)
+        if (order == null && effects.any { !it.supportsLayeredRendering }) return false
         return HeartBlackHoleRenderState.withSavedState {
             HeartLayerImages.withArrayState {
                 output.bindWrite(true)

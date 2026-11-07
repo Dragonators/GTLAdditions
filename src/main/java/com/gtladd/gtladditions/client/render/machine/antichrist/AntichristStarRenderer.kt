@@ -75,7 +75,7 @@ object AntichristStarRenderer {
             else -> 1.0f
         }
 
-        val rotationDegrees = baseRotation + (profile.tick * rotationSpeedMultiplier) % 360000f
+        val rotationDegrees = ((baseRotation + profile.tick * rotationSpeedMultiplier) % 360.0).toFloat()
 
         poseStack.withPose {
             translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)

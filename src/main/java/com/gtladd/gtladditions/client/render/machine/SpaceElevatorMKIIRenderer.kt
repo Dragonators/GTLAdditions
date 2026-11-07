@@ -17,7 +17,6 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
 import org.gtlcore.gtlcore.client.renderer.RenderBufferHelper
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
-import org.gtlcore.gtlcore.utils.RenderUtil
 import java.util.function.Consumer
 import kotlin.math.sin
 
@@ -40,7 +39,7 @@ class SpaceElevatorMKIIRenderer :
         val machine = blockEntity.metaMachine as? SpaceElevatorMachine ?: return
         if (!machine.isFormed) return
 
-        val tick = RenderUtil.getSmoothTick(machine, partialTicks)
+        val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         var x = 0.5
         val y = 1.0
         var z = 0.5

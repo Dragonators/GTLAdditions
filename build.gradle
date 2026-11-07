@@ -177,6 +177,7 @@ dependencies {
 
     modRuntimeOnly("mezz.jei:jei-$project.minecraft_version-forge:$project.jei_version") { transitive = false }
 
+    modCompileOnly("maven.modrinth:embeddium:0.3.30+mc1.20.1") { transitive = false }
     modRuntimeOnly("maven.modrinth:embeddium:0.3.30+mc1.20.1")
     modCompileOnly("maven.modrinth:oculus:1.20.1-1.7.0") { transitive = false }
 

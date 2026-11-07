@@ -1,10 +1,8 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
-import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
@@ -16,9 +14,6 @@ import net.minecraft.server.packs.resources.ResourceProvider
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.event.level.LevelEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -29,7 +24,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(modid = GTLAdditions.MOD_ID, value = [Dist.CLIENT])
 object MatrixEyeRenderer {
     const val RADIUS = 7.55f
     const val HEIGHT = 2.8f
@@ -53,6 +47,8 @@ object MatrixEyeRenderer {
     fun forget(blockEntity: BlockEntity) {
         animations.remove(blockEntity)
     }
+
+    fun clearAnimations() = animations.clear()
 
     /** Approved model coordinates (x,y,z), Z-up, to controller-relative Minecraft coordinates. */
     fun applyTransform(pose: PoseStack, yaw: Float, flipped: Boolean) {
@@ -91,7 +87,7 @@ object MatrixEyeRenderer {
                     shader.getUniform("uCamLight")?.set(light)
                     shader.getUniform("uTint")?.set(tint)
                     shader.getUniform("uGaze")?.set(frame.gazeX, frame.gazeY)
-                    shader.getUniform("uTime")?.set(frame.time)
+                    shader.getUniform("uTime")?.set(frame.time.toFloat())
                     shader.getUniform("uDilate")?.set(frame.dilate)
                     shader.getUniform("uLidU")?.set(frame.upperLid)
                     shader.getUniform("uLidL")?.set(frame.lowerLid)
@@ -151,11 +147,9 @@ object MatrixEyeRenderer {
         RenderUtils.withBoundBuffer(buffer) { buffer.drawWithShader(view, RenderSystem.getProjectionMatrix(), shader) }
     }
 
-    private fun domeBuffer(): VertexBuffer = dome ?: run {
-        // Smooth silhouette with shared static geometry; refraction and pupil depth stay per-pixel.
+    private fun domeBuffer(): VertexBuffer = dome ?: RenderUtils.withStagingBuilder { builder ->
         val rings = 48
         val segments = 192
-        val builder = BufferBuilder(rings * segments * 6 * 12)
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION)
         fun vertex(ring: Int, segment: Int) {
             val phi = Math.PI * 0.5 * ring / rings
@@ -177,8 +171,7 @@ object MatrixEyeRenderer {
         RenderUtils.uploadStaticBuffer(builder)
     }.also { dome = it }
 
-    private fun screenBuffer(): VertexBuffer = screen ?: run {
-        val builder = BufferBuilder(64)
+    private fun screenBuffer(): VertexBuffer = screen ?: RenderUtils.withStagingBuilder { builder ->
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION)
         builder.vertex(-1.0, -1.0, 0.0).endVertex()
         builder.vertex(1.0, -1.0, 0.0).endVertex()
@@ -215,18 +208,5 @@ object MatrixEyeRenderer {
         textures.close()
         scene.close()
         texturesReady = false
-    }
-
-    @SubscribeEvent
-    @JvmStatic
-    fun onLevelUnload(event: LevelEvent.Unload) {
-        if (event.level.isClientSide) {
-            animations.clear()
-            val release = {
-                releaseBuffers()
-                MatrixIrisStarRenderer.releaseBuffers()
-            }
-            if (RenderSystem.isOnRenderThread()) release() else RenderSystem.recordRenderCall { release() }
-        }
     }
 }

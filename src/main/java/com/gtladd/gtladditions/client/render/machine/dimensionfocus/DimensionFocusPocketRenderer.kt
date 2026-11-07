@@ -12,7 +12,6 @@ import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.Dimens
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
@@ -31,7 +30,6 @@ import org.lwjgl.opengl.GL12C
 import org.lwjgl.opengl.GL13C
 import org.lwjgl.opengl.GL32C
 import org.lwjgl.opengl.GL33C
-import java.io.IOException
 import java.util.WeakHashMap
 import kotlin.math.PI
 import kotlin.math.cos
@@ -64,7 +62,7 @@ internal object DimensionFocusPocketRenderer {
         DeferredMachineRenderer.enqueue(Entry(blockEntity, machine, ticks))
     }
 
-    private fun draw(context: DeferredRenderContext, entry: Entry) {
+    private fun draw(context: DeferredRenderContext, entry: Entry, opaque: Boolean) {
         val pocket = pocketShader ?: return
         val needle = needleShader ?: return
         val textures = DimensionFocusPocketTextures.current ?: return
@@ -91,6 +89,8 @@ internal object DimensionFocusPocketRenderer {
             shader.getUniform("CameraLocal")?.set(cameraLocal.x, cameraLocal.y, cameraLocal.z)
         }
 
+        pocket.getUniform("OpaquePass")?.set(if (opaque) 1 else 0)
+
         RenderUtils.withSavedRenderState {
             textures.bind {
                 RenderSystem.enableBlend()
@@ -102,7 +102,7 @@ internal object DimensionFocusPocketRenderer {
                 )
                 RenderSystem.enableDepthTest()
                 RenderSystem.depthFunc(GL11C.GL_LEQUAL)
-                RenderSystem.depthMask(false)
+                RenderSystem.depthMask(opaque)
                 context.renderRelativeToCamera(entry.blockEntity) {
                     translate(0.5, 0.5, 0.5)
                     mulPose(facing)
@@ -111,6 +111,7 @@ internal object DimensionFocusPocketRenderer {
                         // Inward-wound triangles: back-face culling keeps the far half of the sphere, so every ray enters the pocket once.
                         RenderSystem.enableCull()
                         RenderUtils.withBoundBuffer(sphere) { sphere.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), pocket) }
+                        if (opaque) return@withDeferredShaderPass
                         // The needle faces lie exactly on the terrain's; hidden ones fail the depth test, so culling can stay off.
                         RenderSystem.disableCull()
                         RenderSystem.enablePolygonOffset()
@@ -155,8 +156,7 @@ internal object DimensionFocusPocketRenderer {
     private fun ease(current: Float, target: Float, seconds: Double, rise: Double, fall: Double): Float =
         current + (target - current) * (1.0 - exp(-seconds / if (target > current) rise else fall)).toFloat()
 
-    private fun buildSphere(): VertexBuffer {
-        val builder = BufferBuilder(SPHERE_SEGMENTS * SPHERE_RINGS * 6 * 12)
+    private fun buildSphere(): VertexBuffer = RenderUtils.withStagingBuilder { builder ->
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION)
         fun point(i: Int, j: Int): Vector3f {
             val theta = PI * j / SPHERE_RINGS
@@ -184,42 +184,47 @@ internal object DimensionFocusPocketRenderer {
                 triangle(a, c, d)
             }
         }
-        return RenderUtils.uploadStaticBuffer(builder)
+
+        RenderUtils.uploadStaticBuffer(builder)
     }
 
     /** In each rotating layer's own frame. */
     private fun buildNeedles(): List<VertexBuffer> = DimensionFocusBlockLayout.layers.map { cells ->
         val occupied = cells.mapTo(HashSet()) { it.position }
-        val builder = BufferBuilder(16384)
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL)
-        for (cell in cells) {
-            if (cell.symbol !in NEEDLE_SYMBOLS) continue
-            for (face in Direction.entries) {
-                if (cell.position.relative(face) in occupied) continue
-                val normal = face.normal
-                val (u, v) = when (face.axis) {
-                    Direction.Axis.X -> Vector3f(0f, 0.5f, 0f) to Vector3f(0f, 0f, 0.5f)
-                    Direction.Axis.Y -> Vector3f(0.5f, 0f, 0f) to Vector3f(0f, 0f, 0.5f)
-                    else -> Vector3f(0.5f, 0f, 0f) to Vector3f(0f, 0.5f, 0f)
-                }
-                val centre = Vector3f(
+        RenderUtils.withStagingBuilder { builder ->
+            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL)
+
+            for (cell in cells) {
+                if (cell.symbol !in NEEDLE_SYMBOLS) continue
+                for (face in Direction.entries) {
+                    if (cell.position.relative(face) in occupied) continue
+                    val normal = face.normal
+                    val (u, v) = when (face.axis) {
+                        Direction.Axis.X -> Vector3f(0f, 0.5f, 0f) to Vector3f(0f, 0f, 0.5f)
+                        Direction.Axis.Y -> Vector3f(0.5f, 0f, 0f) to Vector3f(0f, 0f, 0.5f)
+                        else -> Vector3f(0.5f, 0f, 0f) to Vector3f(0f, 0.5f, 0f)
+                    }
+
+                    val centre = Vector3f(
                         cell.position.x + normal.x * 0.5f,
                         cell.position.y + normal.y * 0.5f,
                         cell.position.z + normal.z * 0.5f
                     )
-                for ((a, b) in CORNERS) {
-                    builder.vertex(
+                    for ((a, b) in CORNERS) {
+                        builder.vertex(
                             (centre.x + u.x * a + v.x * b).toDouble(),
                             (centre.y + u.y * a + v.y * b).toDouble(),
                             (centre.z + u.z * a + v.z * b).toDouble()
                         )
-                        .color(1f, 1f, 1f, 1f)
-                        .normal(normal.x.toFloat(), normal.y.toFloat(), normal.z.toFloat())
-                        .endVertex()
+                            .color(1f, 1f, 1f, 1f)
+                            .normal(normal.x.toFloat(), normal.y.toFloat(), normal.z.toFloat())
+                            .endVertex()
+                    }
                 }
             }
+
+            RenderUtils.uploadStaticBuffer(builder)
         }
-        RenderUtils.uploadStaticBuffer(builder)
     }
 
     private val CORNERS = arrayOf(-1f to -1f, 1f to -1f, 1f to 1f, -1f to 1f)
@@ -238,8 +243,14 @@ internal object DimensionFocusPocketRenderer {
                 machine.isFormed &&
                 (context.frustum?.isVisible(DimensionFocusOrbitGeometry.bounds(machine.pos, machine.frontFacing)) != false)
 
+        override fun renderOpaque(context: DeferredRenderContext) {
+            // The pocket's solid interior occludes all later VFX, including black holes.
+            draw(context, this, true)
+        }
+
         override fun render(context: DeferredRenderContext) {
-            draw(context, this)
+            // Only the soft rim and needle tint remain in the transparent pass.
+            draw(context, this, false)
         }
     }
 
@@ -291,25 +302,23 @@ internal object DimensionFocusPocketShaderEvents {
     fun onRegisterShaders(event: RegisterShadersEvent) {
         val textures = try {
             DimensionFocusPocketTextures.read(event.resourceProvider)
-        } catch (exception: IOException) {
+        } catch (exception: Exception) {
             // Without its maps the pocket is skipped; the blocks and their rotation are unaffected.
             GTLAdditions.LOGGER.warn("Unable to read Dimension Focus pocket textures", exception)
             null
         }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_dimension_focus_pocket"),
             DefaultVertexFormat.POSITION
-        )
         ) { shader ->
-            if (textures != null) DimensionFocusPocketTextures.upload(textures)
+            if (shader != null && textures != null) DimensionFocusPocketTextures.upload(textures)
             DimensionFocusPocketRenderer.pocketShader = shader
         }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_dimension_focus_pocket_needles"),
             DefaultVertexFormat.POSITION_COLOR_NORMAL
-        )
         ) { DimensionFocusPocketRenderer.needleShader = it }
     }
 }

@@ -2,16 +2,11 @@ package com.gtladd.gtladditions.client.render.machine
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.gtladd.gtladditions.GTLAdditions
-import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.RandomSource
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent
-import net.minecraftforge.event.level.LevelEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
 import org.joml.Quaternionf
 import java.util.function.Consumer
 import kotlin.math.cos
@@ -55,7 +50,7 @@ internal object ArcanicAstrographOrbits {
         private val tilt = rotation(zAngle.toDouble(), 0f, 0f, 1f)
             .mul(rotation(xAngle.toDouble(), 1f, 0f, 0f))
 
-        fun applyTransform(pose: PoseStack, tick: Float, scratch: Quaternionf) {
+        fun applyTransform(pose: PoseStack, tick: Double, scratch: Quaternionf) {
             val orbitAngle = (tick.toDouble() * orbitSpeed * SPEED_SCALE + phaseDegrees) % 360.0
             val spinAngle = tick.toDouble() * rotationSpeed * SPEED_SCALE % 360.0
             pose.mulPose(tilt)
@@ -124,28 +119,5 @@ internal object ArcanicAstrographOrbits {
     private fun yRotation(degrees: Double, result: Quaternionf): Quaternionf {
         val halfAngle = Math.toRadians(degrees) * 0.5
         return result.set(0f, sin(halfAngle).toFloat(), 0f, cos(halfAngle).toFloat())
-    }
-}
-
-@Suppress("unused")
-@Mod.EventBusSubscriber(modid = GTLAdditions.MOD_ID, value = [Dist.CLIENT])
-object ArcanicAstrographClientEvents {
-    @SubscribeEvent
-    @JvmStatic
-    fun onLevelUnload(event: LevelEvent.Unload) {
-        if (event.level.isClientSide) clear()
-    }
-
-    @SubscribeEvent
-    @JvmStatic
-    fun onLogout(event: ClientPlayerNetworkEvent.LoggingOut) = clear()
-
-    private fun clear() {
-        if (RenderSystem.isOnRenderThread()) {
-            ArcanicAstrographOrbits.clearCache()
-            ArcanicAstrographStarRenderer.releaseBuffers()
-        } else {
-            RenderSystem.recordRenderCall { clear() }
-        }
     }
 }

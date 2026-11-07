@@ -7,13 +7,13 @@ import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneRende
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleRenderProfile
 import com.gtladd.gtladditions.common.machine.multiblock.controller.HeartOfTheUniverse
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import org.gtlcore.gtlcore.utils.RenderUtil
 
 class HeartOfTheUniverseRenderer :
     WorkableCasingMachineRenderer(
@@ -33,7 +33,7 @@ class HeartOfTheUniverseRenderer :
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? HeartOfTheUniverse ?: return
         if (!machine.recipeLogic.isWorking) return
 
-        val tick = RenderUtil.getSmoothTick(machine, partialTicks)
+        val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         val starPos = getRotatedRenderPosition(Direction.SOUTH, machine.frontFacing, 0.0, 36.0, -39.0)
         val profile = HeartBlackHoleRenderProfile.create(tick, machine.frontFacing, starPos)
         DeferredSceneRenderer.enqueueBlackHole(blockEntity, profile)

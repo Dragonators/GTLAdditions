@@ -26,7 +26,6 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent
 import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.client.model.data.ModelData
-import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.registries.ForgeRegistries
@@ -68,12 +67,6 @@ object DimensionFocusOrbitRenderer {
 
     @SubscribeEvent
     @JvmStatic
-    fun onLevelUnload(event: LevelEvent.Unload) {
-        if (event.level.isClientSide) entries.clear()
-    }
-
-    @SubscribeEvent
-    @JvmStatic
     fun onRenderLevelStage(event: RenderLevelStageEvent) {
         if (event.stage != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES || entries.isEmpty()) return
         try {
@@ -109,7 +102,7 @@ object DimensionFocusOrbitRenderer {
                 for (group in FaceGroup.entries) shades[group.ordinal] = group.shade(level, facingYaw + orbitYaw)
                 withPose {
                     mulPose(Axis.YP.rotationDegrees(orbitYaw))
-                    uploaded[layer].draw(last(), shades)
+                    uploaded[layer].draw(last(), shades, batchShader = true)
                 }
             }
         }

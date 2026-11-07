@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristDeferredRenderer
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRenderProfile
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import com.tterrag.registrate.util.entry.BlockEntry
 import net.minecraft.client.renderer.MultiBufferSource
@@ -12,7 +13,6 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import org.gtlcore.gtlcore.utils.RenderUtil
 
 class ForgeOfAntichristRenderer(
     baseCasing: ResourceLocation,
@@ -34,7 +34,7 @@ class ForgeOfAntichristRenderer(
         val isWorking = machine.isActiveOrStasisAnchored()
         if (!machine.isFormed && !isWorking) return
 
-        val tick = if (isWorking) RenderUtil.getSmoothTick(machine, partialTicks) else 0f
+        val tick = if (isWorking) RenderUtils.getSmoothTickDouble(machine, partialTicks) else 0.0
         val profile = AntichristRenderProfile.create(machine, tick, isWorking)
         AntichristDeferredRenderer.enqueue(
             blockEntity,

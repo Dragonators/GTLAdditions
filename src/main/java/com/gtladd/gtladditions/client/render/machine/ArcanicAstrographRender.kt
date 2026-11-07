@@ -16,7 +16,6 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
 import org.gtlcore.gtlcore.client.ClientUtil
-import org.gtlcore.gtlcore.utils.RenderUtil
 import org.joml.Quaternionf
 import java.util.function.Consumer
 
@@ -38,7 +37,7 @@ class ArcanicAstrographRender :
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? ArcanicAstrograph ?: return
         if (!machine.isActive) return
 
-        val tick = RenderUtil.getSmoothTick(machine, partialTicks)
+        val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         val facing = machine.frontFacing
         poseStack.withPose {
             translate(0.5 - facing.stepX * 16.0, 0.5, 0.5 - facing.stepZ * 16.0)
@@ -56,7 +55,7 @@ class ArcanicAstrographRender :
     }
 
     @OnlyIn(Dist.CLIENT)
-    private fun PoseStack.renderOrbitObjects(tick: Float, buffer: MultiBufferSource, parallelAmount: Int, seed: Long) {
+    private fun PoseStack.renderOrbitObjects(tick: Double, buffer: MultiBufferSource, parallelAmount: Int, seed: Long) {
         val orbits = ArcanicAstrographOrbits.get(seed)
         val count = ArcanicAstrographOrbits.visibleCount(parallelAmount)
         val renderType = RenderType.solid()

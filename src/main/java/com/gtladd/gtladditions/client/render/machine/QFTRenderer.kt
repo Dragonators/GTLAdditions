@@ -7,10 +7,10 @@ import com.gregtechceu.gtceu.client.renderer.GTRendererProvider
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.render.machine.qft.QFTForceFieldRenderer
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -64,11 +64,10 @@ internal object QFTRenderEvents {
     @SubscribeEvent
     @JvmStatic
     fun onRegisterShaders(event: RegisterShadersEvent) {
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_qft_force_field"),
             DefaultVertexFormat.POSITION_TEX
-        )
         ) { QFTForceFieldRenderer.shader = it }
     }
 }

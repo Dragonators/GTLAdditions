@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
@@ -51,12 +50,6 @@ object MatrixSealRenderer {
         for (circle in MatrixEffectGeometry.sealRings) mesh.torus(circle)
         mesh.upload()
     }.also { seal = it }
-
-    fun render(poseStack: PoseStack, shader: ShaderInstance, ticks: Double) {
-        DeferredOculusCompat.withDeferredShaderPass {
-            renderLocal(poseStack, shader, ticks)
-        }
-    }
 
     private fun renderLocal(poseStack: PoseStack, shader: ShaderInstance, ticks: Double) {
         RenderSystem.enableDepthTest()

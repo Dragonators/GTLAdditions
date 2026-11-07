@@ -5,13 +5,13 @@ import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRender
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixEffectRenderer
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixEyeRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ApocalypticWarpQuantumMatrix
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import org.gtlcore.gtlcore.utils.RenderUtil
 
 class ApocalypticMatrixRenderer(
     baseCasing: ResourceLocation,
@@ -33,7 +33,7 @@ class ApocalypticMatrixRenderer(
             return
         }
 
-        val eyeSeconds = RenderUtil.getSmoothTick(machine, partialTicks).toDouble() / 20.0
+        val eyeSeconds = RenderUtils.getSmoothTickDouble(machine, partialTicks) / 20.0
         MatrixEffectRenderer.enqueue(blockEntity, machine, machine.matrixEffects.animationTicks(partialTicks), eyeSeconds)
     }
 

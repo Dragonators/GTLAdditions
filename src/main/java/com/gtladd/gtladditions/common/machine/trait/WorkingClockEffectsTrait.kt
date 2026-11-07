@@ -1,8 +1,10 @@
 package com.gtladd.gtladditions.common.machine.trait
 
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
-import com.gtladd.gtladditions.common.machine.multiblock.controller.AntientropyCondensationCenter
+import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
+import com.gtladd.gtladditions.utils.ClientAnimationClock
 import com.gtladd.gtladditions.utils.ContinuousAnimationClock
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -10,20 +12,18 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.config.ConfigHolder
-import org.gtlcore.gtlcore.utils.RenderUtil
 
-class CondensationEffectsTrait(machine: AntientropyCondensationCenter) : MachineTrait(machine) {
+class WorkingClockEffectsTrait(machine: GTLAddWorkableElectricMultipleRecipesMachine) : MachineTrait(machine) {
 
     @field:DescSynced
     @field:UpdateListener(methodName = "onAnimationStateChanged")
     private var effectAnimation = CompoundTag()
 
     private val serverClock = ContinuousAnimationClock()
-    private var clientClock: ContinuousAnimationClock? = null
-    private var lastSampledTick = Double.NEGATIVE_INFINITY
-    private var clientSmoothAnimations: Boolean? = null
+    private val clientClock = ClientAnimationClock()
 
-    override fun getMachine(): AntientropyCondensationCenter = super.getMachine() as AntientropyCondensationCenter
+    override fun getMachine(): GTLAddWorkableElectricMultipleRecipesMachine =
+        super.getMachine() as GTLAddWorkableElectricMultipleRecipesMachine
 
     fun isRunning(): Boolean = getMachine().isFormed && effectAnimation.getBoolean("running")
 
@@ -39,9 +39,7 @@ class CondensationEffectsTrait(machine: AntientropyCondensationCenter) : Machine
 
     override fun onMachineUnLoad() {
         if (machine.isRemote) {
-            clientClock = null
-            lastSampledTick = Double.NEGATIVE_INFINITY
-            clientSmoothAnimations = null
+            clientClock.clear()
             effectAnimation = CompoundTag()
         } else {
             updateAnimation(false)
@@ -68,56 +66,37 @@ class CondensationEffectsTrait(machine: AntientropyCondensationCenter) : Machine
         if (!machine.isRemote) return
 
         if (newState.isEmpty) {
-            clientClock = null
-            lastSampledTick = Double.NEGATIVE_INFINITY
-            clientSmoothAnimations = null
+            clientClock.clear()
             return
         }
 
-        // A state change must not rewind a fractional frame already displayed.
-        val now = clientTime(0f)
+        val renderTick = RenderUtils.getSmoothTickDouble(machine, 0f)
+        val smooth = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
 
-        // Formation is already part of the server's running flag, regardless of field sync order.
+        // The server state already includes formation state. Do not depend on field sync order.
         val running = newState.getBoolean("running")
-        val clock = clientClock
 
-        if (clock == null) {
+        if (clientClock.sample(renderTick, smooth) == null) {
             // Server timestamps use world time; the render clock has a different origin.
             val elapsed = newState.getDouble("ticks") +
                 if (running) maxOf(0.0, worldTime() - newState.getDouble("time")) else 0.0
-
-            clientClock = ContinuousAnimationClock().also {
-                it.restore(elapsed, now, running)
-            }
+            clientClock.start(elapsed, renderTick, smooth, running)
         } else {
-            // Stop/resume at receipt time, preserving the phase already displayed to the player.
-            clock.setRunning(running, now)
+            // Preserve the local phase on subsequent notifications instead of seeking backwards
+            // to an older server stop timestamp after network latency.
+            clientClock.setRunning(running, renderTick, smooth)
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    fun animationTicks(partialTicks: Float): Double {
-        val clock = clientClock ?: return 0.0
-        return clock.sample(clientTime(partialTicks))
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private fun clientTime(partialTicks: Float): Double {
-        val smooth = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
-        val now = RenderUtil.getSmoothTick(machine, partialTicks).toDouble()
-        if (clientSmoothAnimations != null && clientSmoothAnimations != smooth) {
-            // Both sources advance in ticks, but their origins are unrelated.
-            clientClock?.rebase(lastSampledTick, now)
-            lastSampledTick = now
-        }
-        clientSmoothAnimations = smooth
-        lastSampledTick = maxOf(lastSampledTick, now)
-        return lastSampledTick
-    }
+    fun animationTicks(partialTicks: Float): Double = clientClock.sample(
+        RenderUtils.getSmoothTickDouble(machine, partialTicks),
+        ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
+    ) ?: 0.0
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     companion object {
-        private val MANAGED_FIELD_HOLDER = ManagedFieldHolder(CondensationEffectsTrait::class.java)
+        private val MANAGED_FIELD_HOLDER = ManagedFieldHolder(WorkingClockEffectsTrait::class.java)
     }
 }

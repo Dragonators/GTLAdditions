@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexFormat
 import net.irisshaders.iris.gl.blending.DepthColorStorage
@@ -46,48 +47,52 @@ internal object HeartBlackHoleShaders {
         private set
 
     fun register(event: RegisterShadersEvent) {
-        val lookupTables = HeartBlackHoleLookupTextures.readResources(event.resourceProvider)
-        val appearance = HeartBlackHoleAppearanceTextures.readResources(event.resourceProvider)
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, VOLUME_SHADER_ID, DefaultVertexFormat.POSITION)
-        ) { shader ->
-            HeartBlackHoleLookupTextures.upload(lookupTables)
-            HeartBlackHoleAppearanceTextures.upload(appearance)
-            volumeShader = shader
+        val textures = try {
+            HeartBlackHoleLookupTextures.readResources(event.resourceProvider) to HeartBlackHoleAppearanceTextures.readResources(event.resourceProvider)
+        } catch (error: Exception) {
+            GTLAdditions.LOGGER.error("Unable to read black-hole textures", error)
+            null
+        }
+        if (textures == null) {
+            volumeShader = null
+        } else {
+            RenderUtils.registerShader(event, VOLUME_SHADER_ID, DefaultVertexFormat.POSITION) { shader ->
+                if (shader != null) {
+                    HeartBlackHoleLookupTextures.upload(textures.first)
+                    HeartBlackHoleAppearanceTextures.upload(textures.second)
+                }
+                volumeShader = shader
+            }
         }
 
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, DOWNSAMPLE_SHADER_ID, DefaultVertexFormat.POSITION_TEX)
-        ) { shader -> downsampleShader = shader }
+        RenderUtils.registerShader(event, DOWNSAMPLE_SHADER_ID, DefaultVertexFormat.POSITION_TEX) { shader -> downsampleShader = shader }
 
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, BLUR_SHADER_ID, DefaultVertexFormat.POSITION_TEX)
-        ) { shader -> blurShader = shader }
+        RenderUtils.registerShader(event, BLUR_SHADER_ID, DefaultVertexFormat.POSITION_TEX) { shader -> blurShader = shader }
 
-        event.registerShader(
-            ShaderInstance(event.resourceProvider, COMPOSITE_SHADER_ID, DefaultVertexFormat.POSITION_TEX)
-        ) { shader -> compositeShader = shader }
+        RenderUtils.registerShader(event, COMPOSITE_SHADER_ID, DefaultVertexFormat.POSITION_TEX) { shader -> compositeShader = shader }
 
-        event.registerShader(
-            OffscreenShader(event.resourceProvider, HAND_MASK_SHADER_ID, DefaultVertexFormat.POSITION_TEX)
-        ) { shader -> handMaskShader = shader }
+        RenderUtils.registerShader(
+            event,
+            HAND_MASK_SHADER_ID,
+            { OffscreenShader(event.resourceProvider, HAND_MASK_SHADER_ID, DefaultVertexFormat.POSITION_TEX) }
+        ) { shader ->
+            handMaskShader = shader
+        }
 
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_heart_layer_copy"),
             DefaultVertexFormat.POSITION_TEX
-        )
         ) { layerCopyShader = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_heart_layer_depth"),
             DefaultVertexFormat.POSITION_TEX
-        )
         ) { layerDepthShader = it }
-        event.registerShader(
-            ShaderInstance(event.resourceProvider,
+        RenderUtils.registerShader(
+            event,
             GTLAdditions.id("gtladditions_heart_layer_resolve"),
-            DefaultVertexFormat.POSITION_TEX)
+            DefaultVertexFormat.POSITION_TEX
         ) { layerResolveShader = it }
     }
 

@@ -248,23 +248,27 @@ object RingTransparency {
             indexCapacity = vertexCount / 4 * 6
             val meta = MemoryUtil.memAllocFloat(vertexCount * 2)
             try {
-                val builder = BufferBuilder(vertexCount * format.vertexSize)
-                builder.begin(VertexFormat.Mode.QUADS, format)
-                repeat(instances) { slot ->
-                    for (source in sources) {
-                        builder.putBulkData(source.vertices())
-                        repeat(source.centers.size * 4) {
-                            meta.put(((slot % instancesPerBatch) * 3 + source.ring).toFloat()).put(source.group.toFloat())
+                RenderUtils.withStagingBuilder { builder ->
+                    builder.begin(VertexFormat.Mode.QUADS, format)
+
+                    repeat(instances) { slot ->
+                        for (source in sources) {
+                            builder.putBulkData(source.vertices())
+
+                            repeat(source.centers.size * 4) {
+                                meta.put(((slot % instancesPerBatch) * 3 + source.ring).toFloat()).put(source.group.toFloat())
+                            }
                         }
                     }
-                }
-                // The shared sequential index buffer must never be changed.
-                builder.setQuadSorting(VertexSorting.DISTANCE_TO_ORIGIN)
-                RenderUtils.withBoundBuffer(this) {
-                    upload(builder.end())
-                    meta.flip()
-                    GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, metadata)
-                    GL15C.glBufferData(GL15C.GL_ARRAY_BUFFER, meta, GL15C.GL_STATIC_DRAW)
+
+                    // The shared sequential index buffer must never be changed.
+                    builder.setQuadSorting(VertexSorting.DISTANCE_TO_ORIGIN)
+                    RenderUtils.withBoundBuffer(this) {
+                        upload(builder.end())
+                        meta.flip()
+                        GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, metadata)
+                        GL15C.glBufferData(GL15C.GL_ARRAY_BUFFER, meta, GL15C.GL_STATIC_DRAW)
+                    }
                 }
                 indices = MemoryUtil.memAllocInt(indexCapacity)
             } catch (error: Throwable) {

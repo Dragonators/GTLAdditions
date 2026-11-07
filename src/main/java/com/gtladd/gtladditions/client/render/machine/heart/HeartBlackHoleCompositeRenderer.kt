@@ -52,9 +52,9 @@ internal object HeartBlackHoleCompositeRenderer {
     ) {
         compositeShader.setSampler("EffectSampler", pending.targets.effect.colorTextureId)
         compositeShader.setSampler("BlurredEffectSampler", pending.targets.effectBlurred.colorTextureId)
-        compositeShader.setSampler("MaskSampler", pending.targets.mask.colorTextureId)
+        compositeShader.setSampler("MaskSampler", pending.targets.effect.colorTextureId)
         compositeShader.setSampler("BlurredMaskSampler", pending.targets.maskBlurred.colorTextureId)
-        compositeShader.setSampler("HandMaskSampler", if (handMask != 0) handMask else pending.targets.mask.colorTextureId)
+        compositeShader.setSampler("HandMaskSampler", if (handMask != 0) handMask else pending.targets.effect.colorTextureId)
         compositeShader.getUniform("HandMaskEnabled")?.set(if (handMask != 0) 1f else 0f)
         pending.targets.bloomLevels.forEachIndexed { index, level ->
             compositeShader.setSampler(BLOOM_SAMPLERS[index], level.blurred.colorTextureId)

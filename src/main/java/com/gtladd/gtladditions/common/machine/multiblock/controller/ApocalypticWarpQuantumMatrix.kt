@@ -11,10 +11,10 @@ import com.gtladd.gtladditions.api.machine.logic.ApocalypticMatrixRecipeLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine
 import com.gtladd.gtladditions.common.data.StructureRenderType
-import com.gtladd.gtladditions.common.machine.trait.MatrixEffectsTrait
 import com.gtladd.gtladditions.common.machine.trait.MatrixQuantumWarpTrait
 import com.gtladd.gtladditions.common.machine.trait.MatrixQuantumWarpTrait.Companion.MAX_ARRAYS
 import com.gtladd.gtladditions.common.machine.trait.StructureModifyTrait
+import com.gtladd.gtladditions.common.machine.trait.WorkingClockEffectsTrait
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
@@ -46,7 +46,7 @@ class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any
         private set
 
     @field:DescSynced
-    val matrixEffects = MatrixEffectsTrait(this)
+    val matrixEffects = WorkingClockEffectsTrait(this)
 
     @field:Persisted
     @field:DescSynced

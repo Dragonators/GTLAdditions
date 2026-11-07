@@ -16,6 +16,7 @@
     {"name": "NoiseTex", "type": "int", "count": 1, "values": [2]},
     {"name": "GasNear", "type": "int", "count": 1, "values": [3]},
     {"name": "GasDeep", "type": "int", "count": 1, "values": [4]},
+    {"name": "OpaquePass", "type": "int", "count": 1, "values": [0]},
     {"name": "Time", "type": "float", "count": 1, "values": [0.0]},
     {"name": "Flow", "type": "float", "count": 1, "values": [0.0]},
     {"name": "Spin", "type": "float", "count": 1, "values": [1.0]},

@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL14C
@@ -25,9 +26,8 @@ internal interface HeartBlackHoleRenderEntry {
 
 @OnlyIn(Dist.CLIENT)
 object HeartBlackHoleRenderer {
-    private val EMPTY_PROFILE = HeartBlackHoleRenderProfile(0.0f, Vec3.ZERO, 0.0f, 0.0f, 1.0f)
+    private val EMPTY_PROFILE = HeartBlackHoleRenderProfile(0.0, Vec3.ZERO, 0.0f, 0.0f, 1.0f)
     private const val VOLUME_PASS_EFFECT = 0.0f
-    private const val VOLUME_PASS_MASK = 1.0f
     private const val VOLUME_PASS_MATERIAL = 2.0f
     private const val SMOOTH_TICK_SECONDS = 0.05f
     private const val TAU = 6.2831855f
@@ -119,9 +119,10 @@ object HeartBlackHoleRenderer {
 
             images.ensure(width, height, drawCommands.size, rects)
             val targets = HeartBlackHolePostTargets.ensure(width, height)
+            if (!HeartBlackHoleFramebuffer.bindSceneDepth(volume, sceneDepth, framebuffer, width, height, targets.depthCopy)) return false
             drawCommands.forEachIndexed { index, command ->
                 if (!HeartBlackHoleFramebuffer.clearColor(targets.effect)) return false
-                if (!HeartVolumePass(listOf(command), poseStack, volume, sceneDepth).renderEffect(targets.effect, targets.material)) return false
+                if (!HeartVolumePass(listOf(command), poseStack, volume).renderEffect(targets.effect, targets.material)) return false
                 images.capture(targets.effect, index)
                 val center = centers[index]
                 images.setSource(index, command.sourceKey)
@@ -131,13 +132,43 @@ object HeartBlackHoleRenderer {
             images.uploadCenters()
             if (!HeartBlackHoleFramebuffer.clearColor(targets.effect)) return false
             drawCommands.indices.forEach { index -> images.copyTo(targets.effect, index, blend = true) }
-            if (!HeartBlackHoleBlurRenderer.renderBloom(targets.effect, targets.bloomLevels, downsample, blur)) return false
+            if (!HeartBlackHoleBlurRenderer.renderBloom(
+                    targets.effect,
+                    targets.bloomLevels,
+                    downsample,
+                    blur,
+                    filterBounds(drawCommands, poseStack, width, height)
+                )
+            ) {
+                return false
+            }
             val pending = PendingHeartComposite(targets, width, height, targets.effectBlurred.viewWidth, targets.effectBlurred.viewHeight)
             drawCommands.indices.forEach { index ->
                 images.copyTo(targets.effect, index)
-                images.copyTo(targets.mask, index, alphaOnly = true)
-                if (!HeartBlackHoleBlurRenderer.render(targets.effect, targets.effectBlurred, targets.effectBlurScratch, downsample, blur)) return false
-                if (!HeartBlackHoleBlurRenderer.render(targets.mask, targets.maskBlurred, targets.maskBlurScratch, downsample, blur)) return false
+                if (!HeartBlackHoleBlurRenderer.render(
+                        targets.effect,
+                        targets.effectBlurred,
+                        targets.effectBlurScratch,
+                        downsample,
+                        blur,
+                        inputBounds = rects[index]
+                    )
+                ) {
+                    return false
+                }
+
+                if (!HeartBlackHoleBlurRenderer.render(
+                        targets.effect,
+                        targets.maskBlurred,
+                        targets.maskBlurScratch,
+                        downsample,
+                        blur,
+                        inputBounds = rects[index]
+                    )
+                ) {
+                    return false
+                }
+
                 images.bindLayer(index)
                 HeartBlackHoleCompositeRenderer.renderPendingComposite(
                     width,
@@ -213,7 +244,7 @@ object HeartBlackHoleRenderer {
         return drawCommandPool[index]
     }
 
-    private fun getBlackHoleRotation(seed: Long, tick: Float, axis: Int): Float {
+    private fun getBlackHoleRotation(seed: Long, tick: Double, axis: Int): Float {
         val axisSalt = ROTATION_AXIS_SALT_STEP * axis.toLong()
         val phase = hashUnit(seed, ROTATION_PHASE_SALT + axisSalt) * TAU
         val speedRandom = hashUnit(seed, ROTATION_SPEED_SALT + axisSalt)
@@ -224,9 +255,9 @@ object HeartBlackHoleRenderer {
             speedRange * speedRandom
         val angle = phase + tick * SMOOTH_TICK_SECONDS * speed * direction
         return if (axis == PITCH_AXIS) {
-            sin(angle) * HeartBlackHoleVisualConfig.BLACK_HOLE_VERTICAL_ROTATION_LIMIT
+            (sin(angle) * HeartBlackHoleVisualConfig.BLACK_HOLE_VERTICAL_ROTATION_LIMIT).toFloat()
         } else {
-            angle
+            Math.IEEEremainder(angle, 2 * Math.PI).toFloat()
         }
     }
 
@@ -260,25 +291,87 @@ object HeartBlackHoleRenderer {
         val outputFramebuffer = GlStateManager._getInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING)
         val sceneDepth = HeartBlackHoleFramebuffer.querySceneDepth(outputFramebuffer) ?: return null
         val targets = HeartBlackHolePostTargets.ensure(width, height)
+        if (!HeartBlackHoleFramebuffer.bindSceneDepth(volumeShader, sceneDepth, outputFramebuffer, width, height, targets.depthCopy)) return null
         if (!targets.clearVolumeTargets()) return null
 
-        val volumePass = HeartVolumePass(commands, poseStack, volumeShader, sceneDepth)
+        val filterBounds = filterBounds(commands, poseStack, width, height)
+        val volumePass = HeartVolumePass(commands, poseStack, volumeShader)
         if (!volumePass.renderEffect(targets.effect, targets.material)) return null
-        if (!volumePass.render(targets.mask, VOLUME_PASS_MASK)) return null
-        if (!HeartBlackHoleBlurRenderer.render(targets.effect, targets.effectBlurred, targets.effectBlurScratch, downsampleShader, blurShader)) return null
-        if (!HeartBlackHoleBlurRenderer.render(targets.mask, targets.maskBlurred, targets.maskBlurScratch, downsampleShader, blurShader)) return null
-        if (!HeartBlackHoleBlurRenderer.renderBloom(targets.effect, targets.bloomLevels, downsampleShader, blurShader)) return null
+        if (!HeartBlackHoleBlurRenderer.render(
+                targets.effect,
+                targets.effectBlurred,
+                targets.effectBlurScratch,
+                downsampleShader,
+                blurShader,
+                inputBounds = filterBounds
+            )
+        ) {
+            return null
+        }
+
+        if (!HeartBlackHoleBlurRenderer.render(
+                targets.effect,
+                targets.maskBlurred,
+                targets.maskBlurScratch,
+                downsampleShader,
+                blurShader,
+                inputBounds = filterBounds
+            )
+        ) {
+            return null
+        }
+
+        if (!HeartBlackHoleBlurRenderer.renderBloom(
+                targets.effect,
+                targets.bloomLevels,
+                downsampleShader,
+                blurShader,
+                filterBounds
+            )
+        ) {
+            return null
+        }
 
         val blurWidth = targets.effectBlurred.viewWidth.coerceAtLeast(1)
         val blurHeight = targets.effectBlurred.viewHeight.coerceAtLeast(1)
         return PendingHeartComposite(targets, width, height, blurWidth, blurHeight)
     }
 
+    private fun filterBounds(commands: List<HeartDrawCommand>, pose: PoseStack, width: Int, height: Int): IntArray {
+        val vp = Matrix4f(RenderSystem.getProjectionMatrix()).mul(pose.last().pose())
+        var x0 = width
+        var y0 = height
+        var x1 = 0
+        var y1 = 0
+
+        for (command in commands) {
+            val center = command.profile.center
+            val x = command.translateX + center.x
+            val y = command.translateY + center.y
+            val z = command.translateZ + center.z
+            val r = command.volumeProxyRadius.toDouble()
+            val rect = HeartSceneCompositor.screenBounds(
+                vp,
+                net.minecraft.world.phys.AABB(x - r, y - r, z - r, x + r, y + r, z + r),
+                width,
+                height,
+                2
+            )
+            if (rect[2] <= 0 || rect[3] <= 0) continue
+
+            x0 = minOf(x0, rect[0])
+            y0 = minOf(y0, rect[1])
+            x1 = maxOf(x1, rect[0] + rect[2])
+            y1 = maxOf(y1, rect[1] + rect[3])
+        }
+
+        return if (x1 <= x0 || y1 <= y0) intArrayOf(0, 0, 0, 0) else intArrayOf(x0, y0, x1 - x0, y1 - y0)
+    }
+
     private class HeartVolumePass(
         private val commands: List<HeartDrawCommand>,
         private val poseStack: PoseStack,
-        private val shader: ShaderInstance,
-        private val sceneDepth: HeartBlackHoleFramebuffer.DepthAttachment
+        private val shader: ShaderInstance
     ) {
         private val uniforms = HeartVolumeUniforms(shader)
         private val nearPlaneMargin = maximumNearPlaneDistance()
@@ -303,24 +396,18 @@ object HeartBlackHoleRenderer {
         }
 
         fun render(target: RenderTarget, passMode: Float, only: HeartDrawCommand? = null): Boolean {
-            if (passMode == VOLUME_PASS_MATERIAL) {
-                if (!HeartBlackHoleFramebuffer.bindForDraw(target)) return false
-                draw(passMode, only)
-                return true
-            }
-            return HeartBlackHoleFramebuffer.withSceneDepth(target, sceneDepth) {
-                draw(passMode, only)
-            }
+            if (!HeartBlackHoleFramebuffer.bindForDraw(target)) return false
+            shader.getUniform("PassSize")?.set(target.viewWidth.toFloat(), target.viewHeight.toFloat())
+            draw(passMode, only)
+            return true
         }
 
         private fun draw(passMode: Float, only: HeartDrawCommand?) {
-            val materialPass = passMode == VOLUME_PASS_MATERIAL
             RenderSystem.colorMask(true, true, true, true)
             RenderSystem.enableBlend()
             RenderSystem.blendEquation(GL14C.GL_FUNC_ADD)
             RenderSystem.blendFuncSeparate(GL11C.GL_ONE, GL11C.GL_ONE_MINUS_SRC_ALPHA, GL11C.GL_ONE, GL11C.GL_ONE_MINUS_SRC_ALPHA)
-            if (materialPass) RenderSystem.disableDepthTest() else RenderSystem.enableDepthTest()
-            RenderSystem.depthFunc(GL11C.GL_LEQUAL)
+            RenderSystem.disableDepthTest()
             RenderSystem.depthMask(false)
             RenderSystem.enableCull()
             GL11C.glFrontFace(GL11C.GL_CCW)
@@ -331,11 +418,8 @@ object HeartBlackHoleRenderer {
                     commands.forEach { command ->
                         if (only != null && command !== only) return@forEach
                         // Shade one proxy surface even when the eye enters the volume.
-                        // Scene occlusion is applied by the full-resolution effect pass.
+                        // Scene occlusion clips the volume integral, never this proxy surface.
                         val insideDistance = command.volumeProxyRadius + nearPlaneMargin
-                        if (!materialPass) {
-                            RenderSystem.depthFunc(if (command.distanceToCameraSqr <= insideDistance * insideDistance) GL11C.GL_ALWAYS else GL11C.GL_LEQUAL)
-                        }
                         GL11C.glCullFace(
                             if (command.distanceToCameraSqr <= insideDistance * insideDistance) GL11C.GL_FRONT else GL11C.GL_BACK
                         )
@@ -362,14 +446,13 @@ object HeartBlackHoleRenderer {
     private class HeartVolumeUniforms(shader: ShaderInstance) {
         private val passMode = shader.getUniform("PassMode")
         private val volumeProxyRadius = shader.getUniform("VolumeProxyRadius")
-        private val time = shader.getUniform("Time")
+        private val animationPhase = shader.getUniform("AnimationPhase")
         private val center = shader.getUniform("Center")
         private val cameraPosition = shader.getUniform("CameraPosition")
         private val facingAxis = shader.getUniform("FacingAxis")
         private val blackHoleAndDiskRadius = shader.getUniform("BlackHoleAndDiskRadius")
         private val spaceSolidRadius = shader.getUniform("SpaceSolidRadius")
         private val spaceFadeRadius = shader.getUniform("SpaceFadeRadius")
-        private val rotationSpeed = shader.getUniform("RotationSpeed")
         private val blackHoleRotation = shader.getUniform("BlackHoleRotation")
 
         fun applyVolumePass(volumePass: Float) {
@@ -382,7 +465,10 @@ object HeartBlackHoleRenderer {
         fun applyEntry(command: HeartDrawCommand) {
             val profile = command.profile
             volumeProxyRadius?.set(command.volumeProxyRadius)
-            time?.set(profile.tick)
+            animationPhase?.set(
+                Math.IEEEremainder(profile.tick / 20.0 * 0.002, 2 * Math.PI).toFloat(),
+                ((profile.tick / 20.0 * (profile.rotationSpeed / 0.3f)) % 12.0).toFloat()
+            )
             center?.set(
                 profile.center.x.toFloat(),
                 profile.center.y.toFloat(),
@@ -390,7 +476,6 @@ object HeartBlackHoleRenderer {
             )
             cameraPosition?.set(command.cameraX, command.cameraY, command.cameraZ)
             facingAxis?.set(profile.facingX, profile.facingY, profile.facingZ)
-            rotationSpeed?.set(profile.rotationSpeed)
             blackHoleRotation?.set(command.blackHoleRotationX, command.blackHoleRotationY)
         }
     }

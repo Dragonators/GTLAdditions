@@ -71,7 +71,7 @@ object RingStructureVertexBuffer {
                 for (group in FaceGroup.entries) shades[group.ordinal] = group.shade(level, worldNormal)
                 poseStack.withPose {
                     AntichristRingTransforms.apply(profile, index, this)
-                    uploadedRing.draw(last(), shades)
+                    uploadedRing.draw(last(), shades, batchShader = true)
                 }
             }
         }
@@ -195,14 +195,16 @@ object RingStructureVertexBuffer {
 
         val translucent = ArrayList<Map<Int, RingTransparency.Buffer>>()
         try {
-            val batch = StructureRenderBuffers.TerrainBatch(useShaderCompatibleTerrainUpload)
-            for ((index, ring) in preparedRings.withIndex()) {
-                val groups = linkedMapOf<Int, RingTransparency.Buffer>()
-                translucent.add(groups)
-                for (group in FaceGroup.entries.indices) {
-                    writeTerrainRing(ring, batch, group, true)
-                    val uploaded = batch.uploadLayer { builder -> RingTransparency.Buffer.upload(builder, index, group) }
-                    uploaded[RenderType.translucent()]?.let { groups[group] = it as RingTransparency.Buffer }
+            StructureRenderBuffers.TerrainBatch(useShaderCompatibleTerrainUpload).use { batch ->
+                for ((index, ring) in preparedRings.withIndex()) {
+                    val groups = linkedMapOf<Int, RingTransparency.Buffer>()
+                    translucent.add(groups)
+
+                    for (group in FaceGroup.entries.indices) {
+                        writeTerrainRing(ring, batch, group, true)
+                        val uploaded = batch.uploadLayer { builder -> RingTransparency.Buffer.upload(builder, index, group) }
+                        uploaded[RenderType.translucent()]?.let { groups[group] = it as RingTransparency.Buffer }
+                    }
                 }
             }
 

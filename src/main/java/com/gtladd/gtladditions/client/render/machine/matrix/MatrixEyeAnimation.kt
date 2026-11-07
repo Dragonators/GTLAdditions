@@ -9,7 +9,7 @@ import kotlin.math.sqrt
 
 class MatrixEyeAnimation {
     data class Frame(
-        val time: Float,
+        val time: Double,
         val open: Float,
         val dilate: Float,
         val light: Float,
@@ -92,7 +92,7 @@ class MatrixEyeAnimation {
         rise += dt * (0.10 + 0.60 * c.stir)
         val gaze = gaze(elapsed)
         return Frame(
-            elapsed.toFloat(),
+            elapsed,
             c.open.toFloat(),
             (c.dilate * (1.0 + 0.08 * sin(elapsed * 0.53))).toFloat(),
             c.light.toFloat(),

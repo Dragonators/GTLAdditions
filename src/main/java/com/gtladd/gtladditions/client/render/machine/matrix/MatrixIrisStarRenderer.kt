@@ -1,19 +1,15 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
 import com.google.common.collect.ImmutableMap
-import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristBeamRenderer
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.blaze3d.vertex.VertexFormatElement
 import net.minecraft.client.renderer.ShaderInstance
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Matrix4f
@@ -35,6 +31,11 @@ object MatrixIrisStarRenderer {
     private val goldBeamHalo = Vector3f(1f, 0.52f, 0.12f)
     private val viewport = IntArray(4)
     private var circle: VertexBuffer? = null
+    private class RotationUniforms(val shader: ShaderInstance) {
+        val groups = Array(4) { shader.getUniform("uRot$it") }
+    }
+
+    private var rotationUniforms: RotationUniforms? = null
 
     private fun format(vararg attributes: String): VertexFormat {
         val elements = ImmutableMap.builder<String, VertexFormatElement>().put("Position", DefaultVertexFormat.ELEMENT_POSITION)
@@ -48,6 +49,8 @@ object MatrixIrisStarRenderer {
     /** Pose is the same Z-up local model transform as the eye; caller selects the deferred target. */
     fun render(pose: PoseStack, frame: MatrixEyeAnimation.Frame) {
         val shader = MatrixShaders.irisStar ?: return
+        val rotations = rotationUniforms?.takeIf { it.shader === shader }
+            ?: RotationUniforms(shader).also { rotationUniforms = it }
         RenderUtils.withSavedRenderState {
             RenderSystem.enableDepthTest()
             RenderSystem.depthFunc(GL11C.GL_LEQUAL)
@@ -63,12 +66,12 @@ object MatrixIrisStarRenderer {
             GL11C.glGetIntegerv(GL11C.GL_VIEWPORT, viewport)
             val view = pose.last().pose()
             shader.getUniform("uZ")?.set(MatrixIrisStarGeometry.PLANE_Z)
-            for (group in 0..3) shader.getUniform("uRot$group")?.set(MatrixIrisStarGeometry.rotation(group, frame.time.toDouble()))
+            for (group in 0..3) rotations.groups[group]?.set(MatrixIrisStarGeometry.rotation(group, frame.time))
             shader.getUniform("uPrimary")?.set(MatrixEyeRenderer.tint)
             shader.getUniform("uReveal")?.set(frame.sealReveal)
             shader.getUniform("ViewportHeight")?.set(viewport[3].toFloat())
             shader.getUniform("uSecondary")?.set(goldSecondary)
-            shader.getUniform("uTime")?.set(frame.time)
+            shader.getUniform("uTime")?.set(frame.time.toFloat())
             shader.getUniform("uLight")?.set(frame.light)
             shader.getUniform("uOpen")?.set(frame.open)
             shader.getUniform("uFront")?.set(frame.sealFront)
@@ -105,45 +108,6 @@ object MatrixIrisStarRenderer {
         shader.getUniform("BeamRadius")?.set(MatrixEffectGeometry.BEAM_RADIUS * BEAM_HALO_RADIUS_SCALE)
     }
 
-    /** Pose remains controller-relative; FOA derives its camera ray from these transformed endpoints. */
-    fun renderBeams(
-        blockEntity: BlockEntity,
-        pose: PoseStack,
-        frame: MatrixEyeAnimation.Frame,
-        yaw: Float,
-        flipped: Boolean
-    ) {
-        val shader = MatrixShaders.irisBeamGlow ?: return
-        val alpha = beamAlpha(frame)
-        RenderUtils.withSavedRenderState {
-            RenderSystem.enableDepthTest()
-            RenderSystem.depthFunc(GL11C.GL_LEQUAL)
-            RenderSystem.depthMask(false)
-            RenderSystem.disableCull()
-            RenderSystem.enableBlend()
-            RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
-                GlStateManager.SourceFactor.ZERO,
-                GlStateManager.DestFactor.ONE
-            )
-            configureBeamShader(shader)
-            for (origin in beamOrigins(frame.time.toDouble(), yaw, flipped)) {
-                val from = Vec3(origin.x.toDouble(), origin.y.toDouble(), origin.z.toDouble())
-                AntichristBeamRenderer.renderLinearLayer(
-                    blockEntity,
-                    pose,
-                    frame.time * 20f,
-                    from,
-                    from.add(0.0, MatrixEffectGeometry.BEAM_HEIGHT.toDouble(), 0.0),
-                    MatrixEffectGeometry.BEAM_RADIUS * BEAM_HALO_RADIUS_SCALE,
-                    alpha,
-                    shader
-                )
-            }
-        }
-    }
-
     private fun draw(buffer: VertexBuffer, view: Matrix4f, shader: ShaderInstance) = RenderUtils.withBoundBuffer(buffer) {
         buffer.drawWithShader(view, RenderSystem.getProjectionMatrix(), shader)
     }
@@ -166,10 +130,11 @@ object MatrixIrisStarRenderer {
             }
 
             bytes.flip()
-            val builder = BufferBuilder(bytes.remaining())
-            builder.begin(VertexFormat.Mode.QUADS, format)
-            builder.putBulkData(bytes)
-            return RenderUtils.uploadStaticBuffer(builder)
+            return RenderUtils.withStagingBuilder { builder ->
+                builder.begin(VertexFormat.Mode.QUADS, format)
+                builder.putBulkData(bytes)
+                RenderUtils.uploadStaticBuffer(builder)
+            }
         } finally {
             MemoryUtil.memFree(bytes)
         }
@@ -178,5 +143,6 @@ object MatrixIrisStarRenderer {
     fun releaseBuffers() {
         circle?.close()
         circle = null
+        rotationUniforms = null
     }
 }

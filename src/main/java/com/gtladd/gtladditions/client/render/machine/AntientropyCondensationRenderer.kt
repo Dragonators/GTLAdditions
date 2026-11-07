@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRender
 import com.gtladd.gtladditions.client.render.machine.condensation.CondensationCoreMesh
 import com.gtladd.gtladditions.client.render.machine.condensation.CondensationCoreRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.AntientropyCondensationCenter
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.resources.ResourceLocation
@@ -13,7 +14,6 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
-import org.gtlcore.gtlcore.utils.RenderUtil
 import java.util.function.Consumer
 
 @OnlyIn(Dist.CLIENT)
@@ -38,7 +38,7 @@ class AntientropyCondensationRenderer :
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? AntientropyCondensationCenter ?: return
         if (!machine.isFormed) return
-        val flowPhase = (RenderUtil.getSmoothTick(machine, partialTicks) % 80f) / 20f
+        val flowPhase = ((RenderUtils.getSmoothTickDouble(machine, partialTicks) % 80.0) / 20.0).toFloat()
         CondensationCoreRenderer.enqueue(blockEntity, machine, machine.condensationEffects.animationTicks(partialTicks), flowPhase)
     }
 
