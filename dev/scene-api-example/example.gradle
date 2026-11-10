@@ -1,0 +1,28 @@
+// The scene API example: `check` compiles it, the JAR tasks run only on request, and nothing of it enters the mod's JAR.
+sourceSets {
+    sceneApiExample {
+        java.srcDirs = ['dev/scene-api-example/src/main/java']
+        kotlin.srcDirs = ['dev/scene-api-example/src/main/java']
+        resources.srcDirs = ['dev/scene-api-example/src/main/resources']
+        compileClasspath = sourceSets.main.output + sourceSets.main.compileClasspath
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('sceneApiExampleClasses')
+}
+
+def sceneApiExampleJar = tasks.register('sceneApiExampleJar', Jar) {
+    from sourceSets.sceneApiExample.output
+    archiveBaseName = 'gtladditions-scene-api-example'
+    archiveClassifier = 'dev'
+    destinationDirectory = layout.buildDirectory.dir('devlibs')
+}
+
+// A script applied with `apply from` does not see the plugin's classes by name.
+tasks.register('remapSceneApiExampleJar', project.buildscript.classLoader.loadClass('net.fabricmc.loom.task.RemapJarTask')) {
+    inputFile = sceneApiExampleJar.flatMap { it.archiveFile }
+    archiveBaseName = 'gtladditions-scene-api-example'
+    classpath.from(sourceSets.sceneApiExample.compileClasspath)
+    addNestedDependencies = false
+}

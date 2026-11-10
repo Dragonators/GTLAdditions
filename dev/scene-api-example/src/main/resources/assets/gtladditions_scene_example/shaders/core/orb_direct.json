@@ -1,0 +1,13 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "1-srcalpha"},
+  "vertex": "gtladditions_scene_example:mesh",
+  "fragment": "gtladditions_scene_example:orb_direct",
+  "attributes": ["Position"],
+  "samplers": [],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "OrbColor", "type": "float", "count": 4, "values": [0.35, 0.8, 1.0, 0.9]},
+    {"name": "Phase", "type": "float", "count": 1, "values": [0.0]}
+  ]
+}

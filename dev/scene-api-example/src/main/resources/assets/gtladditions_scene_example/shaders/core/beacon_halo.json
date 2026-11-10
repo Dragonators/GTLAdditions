@@ -1,0 +1,12 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "one"},
+  "vertex": "gtladditions_scene_example:mesh",
+  "fragment": "gtladditions_scene_example:beacon_halo",
+  "attributes": ["Position"],
+  "samplers": [],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "HaloColor", "type": "float", "count": 4, "values": [1.0, 0.6, 0.2, 0.8]}
+  ]
+}

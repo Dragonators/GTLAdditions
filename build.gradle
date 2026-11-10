@@ -311,7 +311,7 @@ spotless {
     encoding 'UTF-8'
 
     java {
-        target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+        target 'src/main/java/**/*.java', 'src/test/java/**/*.java', 'dev/scene-api-example/src/main/java/**/*.java'
 
         def orderFile = file("$rootDir/spotless/spotless.importorder")
         def formatFile = file("$rootDir/spotless/spotless.eclipseformat.xml")
@@ -324,7 +324,7 @@ spotless {
     }
 
     kotlin {
-        target 'src/main/java/**/*.kt', 'src/test/java/**/*.kt'
+        target 'src/main/java/**/*.kt', 'src/test/java/**/*.kt', 'dev/scene-api-example/src/main/java/**/*.kt'
         ktlint('1.3.1').editorConfigOverride([
                 'ktlint_standard_no-wildcard-imports': 'disabled',
                 'ktlint_standard_max-line-length': 'disabled',
@@ -341,3 +341,5 @@ kotlin {
         freeCompilerArgs.add("-Xjvm-default=all")
     }
 }
+
+apply from: 'dev/scene-api-example/example.gradle'

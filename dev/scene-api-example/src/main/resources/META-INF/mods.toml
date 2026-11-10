@@ -1,0 +1,24 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "LGPLv3.0"
+
+[[mods]]
+modId = "gtladditions_scene_example"
+version = "1"
+displayName = "GTL Additions Scene API Example"
+description = "A Java and a Kotlin provider of the GTL Additions scene API. Runs without GTL Additions."
+displayTest = "IGNORE_ALL_VERSION"
+
+[[dependencies.gtladditions_scene_example]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.gtladditions_scene_example]]
+modId = "gtladditions"
+mandatory = false
+versionRange = "[3.3.1Custom,)"
+ordering = "AFTER"
+side = "CLIENT"
