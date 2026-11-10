@@ -3,6 +3,7 @@ package com.gtladd.gtladditions.client.render.machine.lighthunter
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
 import net.minecraftforge.api.distmarker.Dist
@@ -39,7 +40,9 @@ object LightHunterShaders {
     @SubscribeEvent
     @JvmStatic
     fun register(event: RegisterShadersEvent) {
-        LightHunterVfxRenderer.setResources(event.resourceProvider)
+        // The live manager rather than this reload's shader cache: the compute files are read only when first used.
+        LightHunterVfxRenderer.setResources(Minecraft.getInstance().resourceManager)
+        LightHunterParadoxAssets.invalidate()
         RenderUtils.registerShader(
             event,
             GTLAdditions.id("gtladditions_light_hunter_paradox"),
@@ -97,6 +100,7 @@ object LightHunterShaders {
     @SubscribeEvent
     @JvmStatic
     fun registerReload(event: RegisterClientReloadListenersEvent) {
+        event.registerReloadListener(LightHunterParadoxAssets.Reload)
         event.registerReloadListener(ResourceManagerReloadListener { LightHunterVfxRenderer.releaseBuffers() })
     }
 }

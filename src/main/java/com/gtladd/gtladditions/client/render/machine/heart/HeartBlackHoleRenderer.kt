@@ -56,8 +56,7 @@ object HeartBlackHoleRenderer {
             val downsampleShader = HeartBlackHoleShaders.downsampleShader ?: return null
             val blurShader = HeartBlackHoleShaders.blurShader ?: return null
             HeartBlackHoleShaders.compositeShader ?: return null
-            if (!HeartBlackHoleLookupTextures.setSamplers(volumeShader)) return null
-            if (!HeartBlackHoleAppearanceTextures.setSamplers(volumeShader)) return null
+            if (!HeartBlackHoleTextures.setSamplers(volumeShader)) return null
 
             return HeartBlackHoleRenderState.withSavedState {
                 renderPostProcessed(drawCommands, poseStack, volumeShader, downsampleShader, blurShader, depth)
@@ -84,7 +83,7 @@ object HeartBlackHoleRenderer {
             val blur = HeartBlackHoleShaders.blurShader ?: return false
             HeartBlackHoleShaders.compositeShader ?: return false
             HeartBlackHoleShaders.layerCopyShader ?: return false
-            if (!HeartBlackHoleLookupTextures.setSamplers(volume) || !HeartBlackHoleAppearanceTextures.setSamplers(volume)) return false
+            if (!HeartBlackHoleTextures.setSamplers(volume)) return false
             val centers = drawCommands.map { viewCenter(it, poseStack) }
             val rects = centers.mapIndexed { index, center ->
                 HeartSceneCompositor.projectHeart(

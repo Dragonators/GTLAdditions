@@ -47,11 +47,12 @@ internal object LightHunterVfxParts : LayeredPartRenderer<LightHunterVfx>, Compo
 
     override fun draw(context: PartDrawContext, parts: List<ScenePart<LightHunterVfx>>) {
         for (part in parts) {
-            if (layersCover(part.payload)) {
+            val outcome = if (layersCover(part.payload)) {
                 drawLayers(context, part.payload, 0, 0, 0, fullView, false)
-            } else if (!drawMaterial(context, part.payload)) {
-                context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+            } else {
+                drawMaterial(context, part.payload)
             }
+            if (outcome != null) context.report(part, outcome)
         }
     }
 
@@ -63,10 +64,10 @@ internal object LightHunterVfxParts : LayeredPartRenderer<LightHunterVfx>, Compo
         base: Int,
         rect: IntArray,
         local: Boolean
-    ) =
-        drawLayers(context, part.payload, depth, count, base, rect, local)
+    ) {
+        drawLayers(context, part.payload, depth, count, base, rect, local)?.let { context.report(part, it) }
+    }
 
-    /** The layered programs cover everything the part draws this frame; shaders fail to load one by one. */
     private fun layersCover(vfx: LightHunterVfx): Boolean {
         if (LightHunterShaders.layers == null) return false
         val seconds = vfx.entry.paradoxSeconds
@@ -84,7 +85,6 @@ internal object LightHunterVfxParts : LayeredPartRenderer<LightHunterVfx>, Compo
                 )
     }
 
-    /** An ordered draw over the full view, or one pass of a Heart bin. Every call sets the layer uniforms of the shared programs. */
     private fun drawLayers(
         context: PartDrawContext,
         vfx: LightHunterVfx,
@@ -93,11 +93,12 @@ internal object LightHunterVfxParts : LayeredPartRenderer<LightHunterVfx>, Compo
         base: Int,
         rect: IntArray,
         local: Boolean
-    ) {
-        val shader = LightHunterShaders.layers ?: return
+    ): PartOutcome? {
+        val shader = LightHunterShaders.layers ?: return null
         val scene = context.sceneDepth!!
         val handMask = context.handMaskTexture
         val entry = vfx.entry
+        var outcome: PartOutcome? = null
         scene.bind(shader)
         HeartHandDepthMask.bind(shader, handMask)
         withModelView(context, entry) { modelView, projection ->
@@ -147,7 +148,7 @@ internal object LightHunterVfxParts : LayeredPartRenderer<LightHunterVfx>, Compo
                     paradox.getUniform("LayerMode")?.set(if (local) 1 else 0)
                     paradox.getUniform("LayerOrigin")?.set(if (local) rect[0].toFloat() else 0f, if (local) rect[1].toFloat() else 0f)
                     paradox.getUniform("LayerRect")?.set(rect[0].toFloat(), rect[1].toFloat(), rect[2].toFloat(), rect[3].toFloat())
-                    LightHunterParadoxRenderer.draw(
+                    val drawn = LightHunterParadoxRenderer.draw(
                         LightHunterParadoxRenderer.meshes,
                         paradox,
                         model,
@@ -160,18 +161,20 @@ internal object LightHunterVfxParts : LayeredPartRenderer<LightHunterVfx>, Compo
                         local,
                         entry.windowPass
                     )
+                    outcome = LightHunterParadoxRenderer.windowOutcome(drawn, seconds)
                 }
             }
         }
+
+        return outcome
     }
 
-    /** The material programs at the ordered position, colour only; false when a program the part needs is missing. */
-    private fun drawMaterial(context: PartDrawContext, vfx: LightHunterVfx): Boolean {
-        val material = LightHunterShaders.material ?: return false
-        // The exhaust has no film.
-        val field = if (vfx.section == Section.EXHAUST) null else LightHunterShaders.chartField ?: return false
+    private fun drawMaterial(context: PartDrawContext, vfx: LightHunterVfx): PartOutcome? {
+        val material = LightHunterShaders.material ?: return PartOutcome.RESOURCE_UNAVAILABLE
+        val field = if (vfx.section == Section.EXHAUST) null else LightHunterShaders.chartField ?: return PartOutcome.RESOURCE_UNAVAILABLE
         val scene = context.sceneDepth!!
         val entry = vfx.entry
+        var outcome: PartOutcome? = null
         scene.bind(material)
         withModelView(context, entry) { modelView, projection ->
             LightHunterVfxRenderer.draw(
@@ -194,7 +197,7 @@ internal object LightHunterVfxParts : LayeredPartRenderer<LightHunterVfx>, Compo
                 val paradox = LightHunterShaders.paradox
                 val model = LightHunterShaders.paradoxModel
                 if (paradox != null && model != null) {
-                    LightHunterParadoxRenderer.draw(
+                    val drawn = LightHunterParadoxRenderer.draw(
                         LightHunterParadoxRenderer.meshes,
                         paradox,
                         model,
@@ -207,11 +210,12 @@ internal object LightHunterVfxParts : LayeredPartRenderer<LightHunterVfx>, Compo
                         false,
                         entry.windowPass
                     )
+                    outcome = LightHunterParadoxRenderer.windowOutcome(drawn, seconds)
                 }
             }
         }
 
-        return true
+        return outcome
     }
 
     /** The ship's model-view relative to the frame camera, and the frame projection. */

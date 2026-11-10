@@ -203,14 +203,14 @@ object MatrixEffectRenderer {
             for (part in parts) {
                 val entry = part.payload
                 val pos = entry.blockEntity.blockPos
-                val drawn = context.poseStack.withPose {
+                val outcome = context.poseStack.withPose {
                     translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
                     MatrixEyeRenderer.applyTransform(this, entry.yaw, entry.machine.isFlipped)
                     val mist = MatrixEyeRenderer.renderMist(this, entry.eye, context.sceneDepth!!)
-                    MatrixIrisStarRenderer.render(this, entry.eye, true) && mist
+                    if (MatrixIrisStarRenderer.render(this, entry.eye, true)) mist else PartOutcome.RESOURCE_UNAVAILABLE
                 }
 
-                if (!drawn) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+                if (outcome != null) context.report(part, outcome)
             }
         }
     }

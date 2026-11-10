@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceProvider
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent
 import net.minecraftforge.client.event.RegisterShadersEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
@@ -47,23 +48,9 @@ internal object HeartBlackHoleShaders {
         private set
 
     fun register(event: RegisterShadersEvent) {
-        val textures = try {
-            HeartBlackHoleLookupTextures.readResources(event.resourceProvider) to HeartBlackHoleAppearanceTextures.readResources(event.resourceProvider)
-        } catch (error: Exception) {
-            GTLAdditions.LOGGER.error("Unable to read black-hole textures", error)
-            null
-        }
-        if (textures == null) {
-            volumeShader = null
-        } else {
-            RenderUtils.registerShader(event, VOLUME_SHADER_ID, DefaultVertexFormat.POSITION) { shader ->
-                if (shader != null) {
-                    HeartBlackHoleLookupTextures.upload(textures.first)
-                    HeartBlackHoleAppearanceTextures.upload(textures.second)
-                }
-                volumeShader = shader
-            }
-        }
+        // The textures follow in this reload's own listener, after every shader consumer.
+        HeartBlackHoleTextures.invalidate()
+        RenderUtils.registerShader(event, VOLUME_SHADER_ID, DefaultVertexFormat.POSITION) { shader -> volumeShader = shader }
 
         RenderUtils.registerShader(event, DOWNSAMPLE_SHADER_ID, DefaultVertexFormat.POSITION_TEX) { shader -> downsampleShader = shader }
 
@@ -120,5 +107,11 @@ internal object HeartBlackHoleShaderEvents {
     @JvmStatic
     fun onRegisterShaders(event: RegisterShadersEvent) {
         HeartBlackHoleShaders.register(event)
+    }
+
+    @SubscribeEvent
+    @JvmStatic
+    fun onRegisterReloadListeners(event: RegisterClientReloadListenersEvent) {
+        event.registerReloadListener(HeartBlackHoleTextures.Reload)
     }
 }

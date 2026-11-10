@@ -10,6 +10,7 @@ import com.gtladd.gtladditions.api.client.scene.SceneCapabilities
 import com.gtladd.gtladditions.api.client.scene.SceneFrame
 import com.gtladd.gtladditions.api.client.scene.ScenePart
 import com.gtladd.gtladditions.api.client.scene.SceneProvider
+import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHolePostTargets
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleSceneEntry
 import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask
 import com.gtladd.gtladditions.client.render.machine.heart.HeartSceneCompositor
@@ -80,6 +81,7 @@ internal object SceneScheduler {
         frame = null
         HeartHandDepthMask.beginFrame()
         HeartSceneCompositor.beginFrame()
+        HeartBlackHolePostTargets.beginFrame()
         SceneTargets.beginTick()
         if (resourcesChanged) {
             resourcesChanged = false

@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent
 import net.minecraftforge.client.event.RegisterShadersEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
@@ -96,14 +97,12 @@ internal object DimensionFocusPocketRenderer {
             .add(0.5f, 0.5f, 0.5f)
     }
 
-    /**
-     * The pocket on [pose], which stands at the controller block, seen from [camera]: the solid interior, or the soft rim and the
-     * needle tint; false without its programs or maps.
-     */
-    private fun drawPocket(pose: PoseStack, camera: Vec3, entry: Entry, opaque: Boolean): Boolean {
-        val pocket = (if (opaque) pocketOpaqueShader else pocketShader) ?: return false
-        val needle = needleShader ?: return false
-        val textures = DimensionFocusPocketTextures.current ?: return false
+    /** [pose] stands at the controller block. */
+    private fun drawPocket(pose: PoseStack, camera: Vec3, entry: Entry, opaque: Boolean): PartOutcome? {
+        val pocket = (if (opaque) pocketOpaqueShader else pocketShader) ?: return PartOutcome.RESOURCE_UNAVAILABLE
+        val needle = needleShader ?: return PartOutcome.RESOURCE_UNAVAILABLE
+        val textures = DimensionFocusPocketTextures.current
+            ?: return if (DimensionFocusPocketTextures.pending) PartOutcome.PENDING else PartOutcome.RESOURCE_UNAVAILABLE
         val sample = entry.sample
         val ticks = entry.ticks
         val pos = entry.blockEntity.blockPos
@@ -146,7 +145,7 @@ internal object DimensionFocusPocketRenderer {
             }
         }
 
-        return true
+        return null
     }
 
     private fun drawNeedles(pose: PoseStack, needle: ShaderInstance, ticks: Double) {
@@ -282,7 +281,7 @@ internal object DimensionFocusPocketRenderer {
             val pos = part.payload.blockEntity.blockPos
             context.poseStack.withPose {
                 translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
-                if (!drawPocket(this, camera, part.payload, opaque)) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+                drawPocket(this, camera, part.payload, opaque)?.let { context.report(part, it) }
             }
         }
     }
@@ -341,21 +340,13 @@ internal object DimensionFocusPocketShaderEvents {
     @SubscribeEvent
     @JvmStatic
     fun onRegisterShaders(event: RegisterShadersEvent) {
-        val textures = try {
-            DimensionFocusPocketTextures.read(event.resourceProvider)
-        } catch (exception: Exception) {
-            // Without its maps the pocket is skipped; the blocks and their rotation are unaffected.
-            GTLAdditions.LOGGER.warn("Unable to read Dimension Focus pocket textures", exception)
-            null
-        }
+        // The maps follow in this reload's own listener, after every shader consumer.
+        DimensionFocusPocketTextures.invalidate()
         RenderUtils.registerShader(
             event,
             GTLAdditions.id("gtladditions_dimension_focus_pocket"),
             DefaultVertexFormat.POSITION
-        ) { shader ->
-            if (shader != null && textures != null) DimensionFocusPocketTextures.upload(textures)
-            DimensionFocusPocketRenderer.pocketShader = shader
-        }
+        ) { DimensionFocusPocketRenderer.pocketShader = it }
         RenderUtils.registerShader(
             event,
             GTLAdditions.id("gtladditions_dimension_focus_pocket_opaque"),
@@ -366,5 +357,11 @@ internal object DimensionFocusPocketShaderEvents {
             GTLAdditions.id("gtladditions_dimension_focus_pocket_needles"),
             DefaultVertexFormat.POSITION_COLOR_NORMAL
         ) { DimensionFocusPocketRenderer.needleShader = it }
+    }
+
+    @SubscribeEvent
+    @JvmStatic
+    fun onRegisterReloadListeners(event: RegisterClientReloadListenersEvent) {
+        event.registerReloadListener(DimensionFocusPocketTextures.Reload)
     }
 }

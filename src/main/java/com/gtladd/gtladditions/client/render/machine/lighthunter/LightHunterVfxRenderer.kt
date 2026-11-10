@@ -3,7 +3,6 @@ package com.gtladd.gtladditions.client.render.machine.lighthunter
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.client.render.machine.heart.HeartLayerImages
-import com.gtladd.gtladditions.client.render.machine.heart.HeartSceneCompositor
 import com.gtladd.gtladditions.common.machine.multiblock.controller.LightHunterSpaceStation
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
@@ -66,7 +65,6 @@ object LightHunterVfxRenderer {
     internal fun setResources(resources: ResourceProvider) {
         meshes.setResources(resources)
         LightHunterFusionRenderer.meshes.setResources(resources)
-        LightHunterParadoxRenderer.meshes.setResources(resources)
     }
 
     fun releaseBuffers() {
@@ -76,7 +74,6 @@ object LightHunterVfxRenderer {
             LightHunterFusionRenderer.meshes.close()
             LightHunterParadoxRenderer.meshes.close()
             LightHunterInteriorRenderer.close()
-            HeartSceneCompositor.close()
         }
         if (RenderSystem.isOnRenderThread()) release() else RenderSystem.recordRenderCall { release() }
     }

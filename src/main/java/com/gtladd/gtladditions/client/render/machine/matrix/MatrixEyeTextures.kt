@@ -1,71 +1,87 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.render.scene.ResourceSlot
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.renderer.ShaderInstance
+import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceProvider
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener
+import net.minecraft.util.profiling.ProfilerFiller
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL12C
 import org.lwjgl.opengl.GL13C
 import org.lwjgl.opengl.GL30C
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
+import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-/** RGBA8 keeps data/normal maps linear; the base map is decoded explicitly by the eye shader. */
-internal class MatrixEyeTextures : AutoCloseable {
-    private val textures = HashMap<String, Int>()
-    private var attempted = false
+internal object MatrixEyeTextures {
+    private val slot = ResourceSlot<Loaded>("Matrix eye textures")
 
-    fun prepare(resources: ResourceProvider): Boolean {
-        if (attempted) return textures.isNotEmpty()
-        attempted = true
-        try {
-            for (name in listOf("gold_base", "data", "normal", "mist_noise")
-        ) {
-                val id = GTLAdditions.id("textures/effect/matrix/eye/$name.png")
-                resources.getResourceOrThrow(id).open().use { input ->
-                    NativeImage.read(NativeImage.Format.RGBA, input).use { image ->
-                        val pixels = MemoryUtil.memAlloc(image.width * image.height * 4).order(ByteOrder.LITTLE_ENDIAN)
-                        try {
-                            for (y in 0 until image.height) {
-                                for (x in 0 until image.width) {
-                                    pixels.putInt(image.getPixelRGBA(x, y))
-                                }
-                            }
-                            pixels.flip()
-                            textures[name] = upload(image.width, image.height, pixels, name != "mist_noise")
-                        } finally {
-                            MemoryUtil.memFree(pixels)
-                        }
-                    }
-                }
-            }
-            return true
-        } catch (exception: Exception) {
-            textures.values.forEach(GlStateManager::_deleteTexture)
-            textures.clear()
-            GTLAdditions.LOGGER.warn("Unable to load matrix eye textures; retrying on resource reload", exception)
-            return false
+    val current: Loaded?
+        get() = slot.value
+
+    val pending: Boolean
+        get() = slot.state == ResourceSlot.State.EMPTY || slot.state == ResourceSlot.State.PENDING
+
+    fun invalidate() = slot.invalidate()
+
+    @Throws(IOException::class)
+    fun read(resources: ResourceProvider) =
+        Prepared(
+            readImage(resources, "gold_base"),
+            readImage(resources, "data"),
+            readImage(resources, "normal"),
+            readImage(resources, "mist_noise")
+        )
+
+    fun load(prepared: Prepared) {
+        val created = ArrayList<Int>(4)
+        val next = try {
+            Loaded(
+                upload(prepared.base, true).also(created::add),
+                upload(prepared.data, true).also(created::add),
+                upload(prepared.normal, true).also(created::add),
+                upload(prepared.mistNoise, false).also(created::add)
+            )
+        } catch (error: Exception) {
+            created.forEach(GlStateManager::_deleteTexture)
+            throw error
         }
+
+        slot.publish(next)
     }
 
-    operator fun get(name: String): Int = textures.getValue(name)
+    @Throws(IOException::class)
+    private fun readImage(resources: ResourceProvider, name: String): Image =
+        resources.getResourceOrThrow(GTLAdditions.id("textures/effect/matrix/eye/$name.png")).open().use { input ->
+            NativeImage.read(NativeImage.Format.RGBA, input).use { image ->
+                val pixels = ByteBuffer.allocate(image.width * image.height * 4).order(ByteOrder.LITTLE_ENDIAN)
+                image.pixelsRGBA.forEach(pixels::putInt)
+                Image(image.width, image.height, pixels.array())
+            }
+        }
 
-    private fun upload(width: Int, height: Int, pixels: ByteBuffer, mipmap: Boolean): Int {
+    private fun upload(image: Image, mipmap: Boolean): Int {
+        val pixels = MemoryUtil.memAlloc(image.width * image.height * 4)
         val texture = GlStateManager._genTexture()
         try {
+            pixels.put(image.pixels).flip()
             GlStateManager._bindTexture(texture)
             RenderUtils.withTightlyPackedPixels {
                 // RGBA8 keeps data/normal maps linear; the base map is decoded explicitly by the eye shader.
                 GL11C.glTexImage2D(
                     GL11C.GL_TEXTURE_2D,
                     0,
-                    GL11C.GL_RGBA8, width, height,
+                    GL11C.GL_RGBA8,
+                    image.width,
+                    image.height,
                     0,
                     GL11C.GL_RGBA,
                     GL11C.GL_UNSIGNED_BYTE,
@@ -86,13 +102,39 @@ internal class MatrixEyeTextures : AutoCloseable {
         } catch (exception: Exception) {
             GlStateManager._deleteTexture(texture)
             throw exception
+        } finally {
+            MemoryUtil.memFree(pixels)
         }
     }
 
-    override fun close() {
-        textures.values.forEach(GlStateManager::_deleteTexture)
-        textures.clear()
-        attempted = false
+    /** Tightly packed RGBA8 rows. */
+    class Image(val width: Int, val height: Int, val pixels: ByteArray)
+
+    class Prepared(val base: Image, val data: Image, val normal: Image, val mistNoise: Image)
+
+    class Loaded(val base: Int, val data: Int, val normal: Int, val mistNoise: Int) : AutoCloseable {
+        override fun close() {
+            for (texture in intArrayOf(base, data, normal, mistNoise)) GlStateManager._deleteTexture(texture)
+        }
+    }
+
+    object Reload : SimplePreparableReloadListener<() -> Unit>() {
+        override fun prepare(resources: ResourceManager, profiler: ProfilerFiller): () -> Unit {
+            val prepared = try {
+                read(resources)
+            } catch (error: Exception) {
+                return { throw error }
+            }
+            return { load(prepared) }
+        }
+
+        override fun apply(upload: () -> Unit, resources: ResourceManager, profiler: ProfilerFiller) {
+            try {
+                upload()
+            } catch (error: Exception) {
+                slot.fail(error)
+            }
+        }
     }
 }
 

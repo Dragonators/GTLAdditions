@@ -43,6 +43,7 @@ class LightHunterPlasmaFieldCache(private var resources: ResourceProvider? = nul
     fun setResources(provider: ResourceProvider) {
         close()
         resources = provider
+        unavailable = false
     }
 
     fun prepare(noiseTexture: Int, tick: Float): Int {
@@ -172,7 +173,6 @@ class LightHunterPlasmaFieldCache(private var resources: ResourceProvider? = nul
         program = 0
         frame = 0
         useSequence = 0
-        unavailable = false
     }
 
     private class Field(val texture: Int) {

@@ -10,9 +10,12 @@ import org.lwjgl.opengl.GL30C
 internal object HeartBlackHolePostTargets {
     private const val BLUR_SCALE = 4
     private const val MATERIAL_SCALE = 2
+    private const val RETENTION_NANOS = 2_000_000_000L
     private var targets: HeartBlackHoleTargets? = null
+    private var lastUse = 0L
 
     fun ensure(width: Int, height: Int): HeartBlackHoleTargets {
+        lastUse = System.nanoTime()
         val existing = targets
         val blurWidth = (width / BLUR_SCALE).coerceAtLeast(1)
         val blurHeight = (height / BLUR_SCALE).coerceAtLeast(1)
@@ -56,6 +59,16 @@ internal object HeartBlackHolePostTargets {
         targets?.destroy()
         targets = next
         return next
+    }
+
+    /** Minecraft has already bound main when this runs. */
+    fun beginFrame() {
+        if (targets != null && System.nanoTime() - lastUse > RETENTION_NANOS) RenderUtils.withTargetBindings(::close)
+    }
+
+    fun close() {
+        targets?.destroy()
+        targets = null
     }
 
     private fun createTarget(width: Int, height: Int, allocated: MutableList<RenderTarget>, hdr: Boolean = false): RenderTarget =

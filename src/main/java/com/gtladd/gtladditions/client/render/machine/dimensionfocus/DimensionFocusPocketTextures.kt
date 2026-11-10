@@ -1,10 +1,14 @@
 package com.gtladd.gtladditions.client.render.machine.dimensionfocus
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.render.scene.ResourceSlot
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.platform.NativeImage
+import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceProvider
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener
+import net.minecraft.util.profiling.ProfilerFiller
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic
@@ -19,10 +23,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.zip.GZIPInputStream
 
-/**
- * The pocket's gas maps (two cube maps, +X -X +Y -Y +Z -Z in GL face orientation) and its tileable 3D noise.
- * Read with the shaders and uploaded when they load; a reload replaces them only after every upload succeeds.
- */
 @OnlyIn(Dist.CLIENT)
 internal object DimensionFocusPocketTextures {
     private const val GAS_SIZE = 512
@@ -32,31 +32,32 @@ internal object DimensionFocusPocketTextures {
     // +X -X +Y -Y +Z -Z in GL face orientation.
     private val FACES = listOf("px", "nx", "py", "ny", "pz", "nz")
     private val NOISE = GTLAdditions.id("shaders/lookup/dimension_focus_noise.dat")
+    private val slot = ResourceSlot<Loaded>("Dimension Focus pocket textures")
 
-    var current: Loaded? = null
-        private set
+    val current: Loaded?
+        get() = slot.value
+
+    val pending: Boolean
+        get() = slot.state == ResourceSlot.State.EMPTY || slot.state == ResourceSlot.State.PENDING
+
+    fun invalidate() = slot.invalidate()
 
     @Throws(IOException::class)
     fun read(resources: ResourceProvider): Prepared =
         Prepared(readCube(resources, "veil_near"), readCube(resources, "veil_deep"), readNoise(resources))
 
-    fun upload(prepared: Prepared) {
-        val near = uploadCube(prepared.gasNear)
+    fun load(prepared: Prepared) {
+        val created = ArrayList<Int>(3)
         val next = try {
-            val deep = uploadCube(prepared.gasDeep)
-            try {
-                Loaded(uploadNoise(prepared.noise), near, deep)
-            } catch (exception: Exception) {
-                GlStateManager._deleteTexture(deep)
-                throw exception
-            }
-        } catch (exception: Exception) {
-            GlStateManager._deleteTexture(near)
-            GTLAdditions.LOGGER.warn("Unable to upload Dimension Focus pocket textures", exception)
-            return
+            val near = uploadCube(prepared.gasNear).also(created::add)
+            val deep = uploadCube(prepared.gasDeep).also(created::add)
+            Loaded(uploadNoise(prepared.noise).also(created::add), near, deep)
+        } catch (error: Exception) {
+            created.forEach(GlStateManager::_deleteTexture)
+            throw error
         }
-        current?.close()
-        current = next
+
+        slot.publish(next)
     }
 
     @Throws(IOException::class)
@@ -174,6 +175,25 @@ internal object DimensionFocusPocketTextures {
             GlStateManager._deleteTexture(noise)
             GlStateManager._deleteTexture(gasNear)
             GlStateManager._deleteTexture(gasDeep)
+        }
+    }
+
+    object Reload : SimplePreparableReloadListener<() -> Unit>() {
+        override fun prepare(resources: ResourceManager, profiler: ProfilerFiller): () -> Unit {
+            val prepared = try {
+                read(resources)
+            } catch (error: Exception) {
+                return { throw error }
+            }
+            return { load(prepared) }
+        }
+
+        override fun apply(upload: () -> Unit, resources: ResourceManager, profiler: ProfilerFiller) {
+            try {
+                upload()
+            } catch (error: Exception) {
+                slot.fail(error)
+            }
         }
     }
 }

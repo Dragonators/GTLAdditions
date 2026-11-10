@@ -11,7 +11,6 @@ import com.gtladd.gtladditions.api.client.scene.SceneFrame
 import com.gtladd.gtladditions.api.client.scene.ScenePart
 import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask
 import com.gtladd.gtladditions.client.render.machine.heart.HeartLayerImages
-import com.gtladd.gtladditions.client.render.machine.heart.HeartSceneCompositor
 import com.gtladd.gtladditions.client.render.scene.LayeredPartRenderer
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.utils.RenderUtils
@@ -117,7 +116,6 @@ internal object MatrixEnergyCoreRenderer : LayeredPartRenderer<MatrixEnergyCore>
     }
 
     fun releaseBuffers() {
-        HeartSceneCompositor.close()
         cube?.close()
         cube = null
         if (circuitTexture >= 0) GlStateManager._deleteTexture(circuitTexture)

@@ -20,10 +20,8 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
-import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.core.BlockPos
-import net.minecraft.server.packs.resources.ResourceProvider
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
@@ -43,9 +41,7 @@ object MatrixEyeRenderer {
     const val HEIGHT = 2.8f
     const val SEAT = 1.49f
     private val animations = WeakHashMap<BlockEntity, MatrixEyeAnimation>()
-    private val textures = MatrixEyeTextures()
     private val scene = MatrixEyeScene()
-    private var texturesReady = false
     private var dome: VertexBuffer? = null
     private var screen: VertexBuffer? = null
 
@@ -89,18 +85,14 @@ object MatrixEyeRenderer {
         pose.mulPose(Axis.XP.rotationDegrees(-90f))
     }
 
-    fun prepareTextures(resources: ResourceProvider): Boolean = withTextureBindings {
-        textures.prepare(resources).also { texturesReady = it }
-    }
+    private fun texturesOutcome() = if (MatrixEyeTextures.pending) PartOutcome.PENDING else PartOutcome.RESOURCE_UNAVAILABLE
 
-    private fun ensureTextures(): Boolean = texturesReady || prepareTextures(Minecraft.getInstance().resourceManager)
-
-    /** Drawn in the opaque phase so every mist pass sees all eyes in its depth snapshot; false without programs or textures. */
-    fun renderSurfaces(pose: PoseStack, frame: MatrixEyeAnimation.Frame): Boolean {
-        val eye = MatrixShaders.eye ?: return false
-        val lid = MatrixShaders.eyeLid ?: return false
-        return withTextureBindings {
-            if (!ensureTextures()) return@withTextureBindings false
+    /** Drawn in the opaque phase so every mist pass sees all eyes in its depth snapshot. */
+    fun renderSurfaces(pose: PoseStack, frame: MatrixEyeAnimation.Frame): PartOutcome? {
+        val eye = MatrixShaders.eye ?: return PartOutcome.RESOURCE_UNAVAILABLE
+        val lid = MatrixShaders.eyeLid ?: return PartOutcome.RESOURCE_UNAVAILABLE
+        val textures = MatrixEyeTextures.current ?: return texturesOutcome()
+        withTextureBindings {
             RenderUtils.withSavedRenderState {
                 RenderSystem.enableDepthTest()
                 RenderSystem.depthFunc(GL11C.GL_LEQUAL)
@@ -114,7 +106,7 @@ object MatrixEyeRenderer {
                 val right = inverse.transformDirection(Vector3f(1f, 0f, 0f)).normalize()
                 val light = Vector3f(-toCamera.x, -toCamera.y, toCamera.z).fma(-0.12f, right).normalize()
                 fun setup(shader: ShaderInstance) {
-                    shader.setSampler("uBase", textures["gold_base"])
+                    shader.setSampler("uBase", textures.base)
                     shader.getUniform("cameraPosition")?.set(camera)
                     shader.getUniform("uCamLight")?.set(light)
                     shader.getUniform("uTint")?.set(tint)
@@ -131,8 +123,8 @@ object MatrixEyeRenderer {
                 eye.getUniform("uScale")?.set(RADIUS, RADIUS, HEIGHT)
                 eye.getUniform("uSclera")?.set(sclera)
                 eye.getUniform("uAbyss")?.set(abyss)
-                eye.setSampler("uData", textures["data"])
-                eye.setSampler("uNormal", textures["normal"])
+                eye.setSampler("uData", textures.data)
+                eye.setSampler("uNormal", textures.normal)
                 draw(domeBuffer(), view, eye)
                 if (frame.open < 1f) {
                     setup(lid)
@@ -142,20 +134,18 @@ object MatrixEyeRenderer {
                     draw(domeBuffer(), view, lid)
                 }
             }
-            true
         }
+
+        return null
     }
 
-    /**
-     * Replaces the bound target with a capture of its colour under the mist, clipped by [depth]; false without the program,
-     * the textures or a capture.
-     */
-    fun renderMist(pose: PoseStack, frame: MatrixEyeAnimation.Frame, depth: SceneDepth): Boolean {
-        val shader = MatrixShaders.eyeMist ?: return false
+    /** Replaces the bound target with a capture of its colour under the mist, clipped by [depth]. */
+    fun renderMist(pose: PoseStack, frame: MatrixEyeAnimation.Frame, depth: SceneDepth): PartOutcome? {
+        val shader = MatrixShaders.eyeMist ?: return PartOutcome.RESOURCE_UNAVAILABLE
+        val textures = MatrixEyeTextures.current ?: return texturesOutcome()
         return withTextureBindings {
-            if (!ensureTextures()) return@withTextureBindings false
             RenderUtils.withSavedRenderState {
-                if (!scene.capture(shader, depth.texture)) return@withSavedRenderState false
+                if (!scene.capture(shader, depth.texture)) return@withSavedRenderState PartOutcome.RESOURCE_UNAVAILABLE
                 val inverse = Matrix4f(pose.last().pose()).invert()
                 shader.getUniform("uInvProj")?.set(Matrix4f(RenderSystem.getProjectionMatrix()).invert())
                 shader.getUniform("uCamWorld")?.set(inverse)
@@ -166,13 +156,13 @@ object MatrixEyeRenderer {
                 shader.getUniform("uSwirl")?.set(frame.swirl)
                 shader.getUniform("uRise")?.set(frame.rise)
                 shader.getUniform("uLight")?.set(frame.light * 0.9f + frame.seam * 0.12f)
-                shader.setSampler("tNoise", textures["mist_noise"])
+                shader.setSampler("tNoise", textures.mistNoise)
                 RenderSystem.disableDepthTest()
                 RenderSystem.depthMask(false)
                 RenderSystem.disableCull()
                 RenderSystem.disableBlend()
                 draw(screenBuffer(), Matrix4f(), shader)
-                true
+                null
             }
         }
     }
@@ -190,7 +180,7 @@ object MatrixEyeRenderer {
                     translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
                     applyTransform(this, surface.yaw, surface.flipped)
                     MatrixFrameTransforms.withWinding(surface.flipped) {
-                        if (!renderSurfaces(this, surface.eye)) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+                        renderSurfaces(this, surface.eye)?.let { context.report(part, it) }
                     }
                 }
             }
@@ -254,13 +244,12 @@ object MatrixEyeRenderer {
         }
     }
 
+    /** The maps stay with [MatrixEyeTextures] until the next reload. */
     fun releaseBuffers() {
         dome?.close()
         screen?.close()
         dome = null
         screen = null
-        textures.close()
         scene.close()
-        texturesReady = false
     }
 }

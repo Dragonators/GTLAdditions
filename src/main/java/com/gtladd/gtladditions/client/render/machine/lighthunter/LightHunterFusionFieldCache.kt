@@ -44,16 +44,7 @@ class LightHunterFusionFieldCache(private var resources: ResourceProvider? = nul
     fun setResources(provider: ResourceProvider) {
         close()
         resources = provider
-        // Compile with the other resources, before the entrance animation reaches its corona phase.
-        if (GL.getCapabilities().OpenGL43) {
-            try {
-                initialize(provider)
-            } catch (error: Exception) {
-                close()
-                unavailable = true
-                GTLAdditions.LOGGER.warn("Light Hunter fusion cache unavailable; using procedural sampling until resources reload.", error)
-            }
-        }
+        unavailable = false
     }
 
     fun prepare(tick: Float): Field? {
@@ -181,7 +172,6 @@ class LightHunterFusionFieldCache(private var resources: ResourceProvider? = nul
         program = 0
         frame = 0
         useSequence = 0
-        unavailable = false
     }
 
     class Field internal constructor(val texture: Int) {

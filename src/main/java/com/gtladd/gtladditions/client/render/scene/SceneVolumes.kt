@@ -17,6 +17,7 @@ import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleRenderS
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleRenderer
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleSceneEntry
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleShaders
+import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleTextures
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleVisualConfig
 import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask
 import com.gtladd.gtladditions.client.render.machine.heart.HeartSceneCompositor
@@ -79,8 +80,9 @@ internal object SceneVolumes : PartRenderer<HeartBlackHoleSceneEntry> {
         handMask: Int
     ) {
         if (hearts.isEmpty()) return
+        if (HeartBlackHoleTextures.pending) return report(frame, hearts, PartOutcome.PENDING)
         // Without the completed mask a Heart would cover the first-person hand.
-        if (frame.shaderpackActive && !HeartHandDepthMask.isReady()) return unavailable(frame, hearts)
+        if (frame.shaderpackActive && !HeartHandDepthMask.isReady()) return report(frame, hearts, PartOutcome.RESOURCE_UNAVAILABLE)
         val entries = hearts.map { it.payload }
         val combined = combined(plan, hearts.size)
         val camera = Vec3(frame.cameraX, frame.cameraY, frame.cameraZ)
@@ -93,7 +95,7 @@ internal object SceneVolumes : PartRenderer<HeartBlackHoleSceneEntry> {
             }
         } ?: return
 
-        if (!ready) return unavailable(frame, hearts)
+        if (!ready) return report(frame, hearts, PartOutcome.RESOURCE_UNAVAILABLE)
         mode = if (combined) Mode.COMBINED else Mode.LAYERS
         // Intersecting Hearts keep the centre-distance blend instead of depth bins.
         if (combined) {
@@ -114,8 +116,8 @@ internal object SceneVolumes : PartRenderer<HeartBlackHoleSceneEntry> {
         return (first..last).all { index -> plan.steps[index].items.all { it < count } }
     }
 
-    private fun unavailable(frame: SceneFrameState, hearts: List<ScenePart<HeartBlackHoleSceneEntry>>) {
-        for (part in hearts) frame.outcomes[part.key] = PartOutcome.RESOURCE_UNAVAILABLE
+    private fun report(frame: SceneFrameState, hearts: List<ScenePart<HeartBlackHoleSceneEntry>>, outcome: PartOutcome) {
+        for (part in hearts) frame.outcomes[part.key] = outcome
     }
 
     /** [parts] are the Hearts followed by the native parts. */

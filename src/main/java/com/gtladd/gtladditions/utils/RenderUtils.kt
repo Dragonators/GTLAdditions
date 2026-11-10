@@ -7,6 +7,7 @@ import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
 import com.gtladd.gtladditions.mixin.gtlcore.client.GlobalRenderClockAccessor
 import com.gtladd.gtladditions.mixin.minecraft.client.BlendModeAccessor
+import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.PoseStack
@@ -36,6 +37,7 @@ import org.lwjgl.opengl.GL14C
 import org.lwjgl.opengl.GL15C
 import org.lwjgl.opengl.GL20C
 import org.lwjgl.opengl.GL21C
+import org.lwjgl.opengl.GL30C
 import kotlin.math.*
 
 @Suppress("DuplicatedCode", "unused", "SameParameterValue")
@@ -111,6 +113,20 @@ object RenderUtils {
             if (blend) RenderSystem.enableBlend() else RenderSystem.disableBlend()
             if (cull) RenderSystem.enableCull() else RenderSystem.disableCull()
             if (depth) RenderSystem.enableDepthTest() else RenderSystem.disableDepthTest()
+        }
+    }
+
+    /** `RenderTarget.destroyBuffers` binds framebuffer 0 and the active unit's texture 0; this keeps the caller's three bindings. */
+    inline fun withTargetBindings(release: () -> Unit) {
+        val read = GL11C.glGetInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING)
+        val draw = GL11C.glGetInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING)
+        val texture = GL11C.glGetInteger(GL11C.GL_TEXTURE_BINDING_2D)
+        try {
+            release()
+        } finally {
+            GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, read)
+            GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, draw)
+            GlStateManager._bindTexture(texture)
         }
     }
 

@@ -37,6 +37,7 @@ object MatrixShaders {
     @SubscribeEvent
     @JvmStatic
     fun register(event: RegisterShadersEvent) {
+        MatrixEyeTextures.invalidate()
         RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_seal"), DefaultVertexFormat.POSITION_COLOR) { seal = it }
         RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_seal_layers"), DefaultVertexFormat.POSITION_COLOR) {
             sealLayers = it
@@ -65,6 +66,7 @@ object MatrixShaders {
     @SubscribeEvent
     @JvmStatic
     fun registerReload(event: RegisterClientReloadListenersEvent) {
+        event.registerReloadListener(MatrixEyeTextures.Reload)
         event.registerReloadListener(
             ResourceManagerReloadListener {
                 if (RenderSystem.isOnRenderThread()) {

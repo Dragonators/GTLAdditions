@@ -3,7 +3,6 @@ package com.gtladd.gtladditions.client.render.machine.heart
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
-import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.server.packs.resources.ResourceProvider
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL12C
@@ -17,7 +16,6 @@ import java.nio.ByteOrder
 internal object HeartBlackHoleLookupTextures {
     private val DEFLECTION_RESOURCE = GTLAdditions.id("shaders/lookup/heart_ray_deflection.dat")
     private val INVERSE_RADIUS_RESOURCE = GTLAdditions.id("shaders/lookup/heart_ray_inverse_radius.dat")
-    private var textures: TexturePair? = null
 
     @Throws(IOException::class)
     fun readResources(resources: ResourceProvider): PreparedTables {
@@ -30,28 +28,6 @@ internal object HeartBlackHoleLookupTextures {
         }
 
         return PreparedTables(deflection, inverseRadius)
-    }
-
-    fun upload(tables: PreparedTables) {
-        val next = HeartBlackHoleRenderState.withSavedState {
-            val deflection = uploadTable(tables.deflection)
-            try {
-                TexturePair(deflection, uploadTable(tables.inverseRadius))
-            } catch (exception: Exception) {
-                GlStateManager._deleteTexture(deflection)
-                throw exception
-            }
-        }
-        val previous = textures
-        textures = next
-        previous?.close()
-    }
-
-    fun setSamplers(shader: ShaderInstance): Boolean {
-        val current = textures ?: return false
-        shader.setSampler("RayDeflectionSampler", current.deflection)
-        shader.setSampler("RayInverseRadiusSampler", current.inverseRadius)
-        return true
     }
 
     @Throws(IOException::class)
@@ -71,7 +47,7 @@ internal object HeartBlackHoleLookupTextures {
         return LookupTable(width, height, values)
     }
 
-    private fun uploadTable(table: LookupTable): Int {
+    fun uploadTable(table: LookupTable): Int {
         val pixels = MemoryUtil.memAllocFloat(table.values.size)
         val texture = GL11C.glGenTextures()
         try {
@@ -113,11 +89,4 @@ internal object HeartBlackHoleLookupTextures {
     class LookupTable(val width: Int, val height: Int, val values: FloatArray)
 
     class PreparedTables(val deflection: LookupTable, val inverseRadius: LookupTable)
-
-    private class TexturePair(val deflection: Int, val inverseRadius: Int) : AutoCloseable {
-        override fun close() {
-            GlStateManager._deleteTexture(deflection)
-            GlStateManager._deleteTexture(inverseRadius)
-        }
-    }
 }

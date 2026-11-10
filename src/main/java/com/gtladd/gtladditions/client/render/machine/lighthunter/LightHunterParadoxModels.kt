@@ -3,27 +3,16 @@ package com.gtladd.gtladditions.client.render.machine.lighthunter
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleRenderState
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.pipeline.TextureTarget
-import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import com.mojang.blaze3d.vertex.VertexBuffer
-import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.renderer.ShaderInstance
-import net.minecraft.client.renderer.texture.DynamicTexture
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.packs.resources.ResourceProvider
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.lwjgl.opengl.GL11C
-import java.io.DataInputStream
 import java.util.IdentityHashMap
-import java.util.zip.GZIPInputStream
 import kotlin.math.PI
 import kotlin.math.abs
 
-/** Shared mesh/texture assets; per-visible-ship images are reused across the compositor's passes. */
-class LightHunterParadoxModels(private val resources: ResourceProvider) : AutoCloseable {
-    private data class Part(val buffer: VertexBuffer, val texture: DynamicTexture?)
+class LightHunterParadoxModels : AutoCloseable {
     private class Frame {
         val target = TextureTarget(512, 512, true, false)
         var used = -1L
@@ -31,20 +20,22 @@ class LightHunterParadoxModels(private val resources: ResourceProvider) : AutoCl
         val eye = Vector3f(Float.NaN)
     }
 
-    private val deathStar by lazy { read("death_star") }
-    private val kamino by lazy { read("kamino") }
-    private val parts = ArrayList<Part>()
     private val frames = IdentityHashMap<Any, Frame>()
     private var serial = 0L
 
+    /** Minecraft has already bound main when this runs. */
     fun beginFrame() {
         serial++
-        val iterator = frames.values.iterator()
-        while (iterator.hasNext()) {
-            val frame = iterator.next()
-            if (serial - frame.used > 2) {
-                frame.target.destroyBuffers()
-                iterator.remove()
+        if (frames.values.none { serial - it.used > 2 }) return
+        RenderUtils.withTargetBindings {
+            val iterator = frames.values.iterator()
+
+            while (iterator.hasNext()) {
+                val frame = iterator.next()
+                if (serial - frame.used > 2) {
+                    frame.target.destroyBuffers()
+                    iterator.remove()
+                }
             }
         }
     }
@@ -53,9 +44,10 @@ class LightHunterParadoxModels(private val resources: ResourceProvider) : AutoCl
         frames[key]?.used = serial
     }
 
-    fun prepare(
+    internal fun prepare(
         key: Any,
         shader: ShaderInstance,
+        assets: LightHunterParadoxAssets.Loaded,
         eye: Vector3f,
         angle: Float
     ): Int = HeartBlackHoleRenderState.withSavedState {
@@ -85,9 +77,10 @@ class LightHunterParadoxModels(private val resources: ResourceProvider) : AutoCl
             )
             val view = Matrix4f().translation(-eye.x, -eye.y, -z)
             shader.getUniform("Eye")?.set(eye.x, eye.y, z)
-            draw(shader, kamino, Matrix4f().translation(-1.8f, 1f, -7.5f).scale(2.5f), view, projection, 1)
+            draw(shader, assets.kamino, Matrix4f().translation(-1.8f, 1f, -7.5f).scale(2.5f), view, projection, 1)
             draw(
-                shader, deathStar,
+                shader,
+                assets.deathStar,
                 Matrix4f().translation(0.30f, -0.16f, -2.7f).rotateY(-PI.toFloat() / 2f + angle).scale(0.73f),
                 view,
                 projection,
@@ -102,7 +95,7 @@ class LightHunterParadoxModels(private val resources: ResourceProvider) : AutoCl
 
     private fun draw(
         shader: ShaderInstance,
-        model: List<Part>,
+        model: List<LightHunterParadoxAssets.Part>,
         transform: Matrix4f,
         view: Matrix4f,
         projection: Matrix4f,
@@ -120,72 +113,9 @@ class LightHunterParadoxModels(private val resources: ResourceProvider) : AutoCl
         shader.clear()
     }
 
-    private fun read(name: String): List<Part> {
-        val result = ArrayList<Part>()
-        val location = ResourceLocation("gtladditions", "models/effect/lighthunter/$name.bin.gz")
-        DataInputStream(GZIPInputStream(resources.getResourceOrThrow(location).open())).use { data ->
-            check(data.readInt() == 0x4c485031) { "Invalid Light Hunter model: $location" }
-            val count = data.readInt()
-            require(count in 1..32)
-            repeat(count) {
-                val textureName = data.readUTF()
-                val color = IntArray(4) { data.readUnsignedByte() }
-                val vertices = data.readInt()
-                require(vertices in 3..500000 && vertices % 3 == 0)
-                val texture = if (textureName.isEmpty()) {
-                    null
-                } else {
-                    resources.getResourceOrThrow(ResourceLocation(textureName)).open().use { stream ->
-                        DynamicTexture(NativeImage.read(stream)).also { it.setFilter(true, false) }
-                    }
-                }
-                try {
-                    RenderUtils.withStagingBuilder { builder ->
-                        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL)
-                        repeat(vertices) {
-                            val x = data.readFloat()
-                            val y = data.readFloat()
-                            val z = data.readFloat()
-                            val u = data.readFloat()
-                            val v = data.readFloat()
-                            val nx = data.readFloat()
-                            val ny = data.readFloat()
-                            val nz = data.readFloat()
-                            require(
-                                x.isFinite() &&
-                                    y.isFinite() &&
-                                    z.isFinite() &&
-                                    u.isFinite() &&
-                                    v.isFinite() &&
-                                    nx.isFinite() &&
-                                    ny.isFinite() &&
-                                    nz.isFinite()
-                            ) { "Non-finite vertex in $location" }
-                            builder.vertex(x.toDouble(), y.toDouble(), z.toDouble()).uv(u, v)
-                                .color(color[0], color[1], color[2], color[3]).normal(nx, ny, nz).endVertex()
-                        }
-                        Part(RenderUtils.uploadStaticBuffer(builder), texture)
-                    }.also {
-                        result.add(it)
-                        parts.add(it)
-                    }
-                } catch (error: Throwable) {
-                    texture?.close()
-                    throw error
-                }
-            }
-        }
-        return result
-    }
-
     override fun close() {
         frames.values.forEach { it.target.destroyBuffers() }
         frames.clear()
-        parts.forEach {
-            it.buffer.close()
-            it.texture?.close()
-        }
-        parts.clear()
     }
 
     data class WindowView(val eye: Vector3f, val depthBias: Float)

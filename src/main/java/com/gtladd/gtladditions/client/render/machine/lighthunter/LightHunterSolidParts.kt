@@ -52,27 +52,34 @@ internal object LightHunterSolidParts : PartRenderer<LightHunterSolidParts.Solid
                 translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
                 val modelView = Matrix4f(last().pose()).mul(LightHunterVfxGeometry.transform(entry.machine.frontFacing))
                 val projection = RenderSystem.getProjectionMatrix()
-                val drawn = if (part.payload.kind == CABIN) LightHunterInteriorRenderer.draw(modelView, projection, entry.tick) else drawWindow(entry, modelView, projection)
-                if (!drawn) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+                val outcome = when {
+                    part.payload.kind != CABIN -> drawWindow(entry, modelView, projection)
+                    LightHunterInteriorRenderer.draw(modelView, projection, entry.tick) -> null
+                    else -> PartOutcome.RESOURCE_UNAVAILABLE
+                }
+
+                if (outcome != null) context.report(part, outcome)
             }
         }
     }
 
-    private fun drawWindow(entry: LightHunterVfxRenderer.Entry, modelView: Matrix4f, projection: Matrix4f): Boolean {
-        val shader = LightHunterShaders.paradoxOpaque ?: return false
-        val model = LightHunterShaders.paradoxModel ?: return false
+    private fun drawWindow(entry: LightHunterVfxRenderer.Entry, modelView: Matrix4f, projection: Matrix4f): PartOutcome? {
+        val shader = LightHunterShaders.paradoxOpaque ?: return PartOutcome.RESOURCE_UNAVAILABLE
+        val model = LightHunterShaders.paradoxModel ?: return PartOutcome.RESOURCE_UNAVAILABLE
         val meshes = LightHunterParadoxRenderer.meshes
+        val seconds = entry.paradoxSeconds!!
         entry.opaqueWindowDrawn = LightHunterParadoxRenderer.drawOpaque(
             meshes,
             shader,
             model,
             modelView,
-            projection, entry.paradoxSeconds!!,
+            projection,
+            seconds,
             entry.tick,
             entry.blockEntity
         )
 
-        return entry.opaqueWindowDrawn
+        return LightHunterParadoxRenderer.windowOutcome(entry.opaqueWindowDrawn, seconds)
     }
 
     internal class Solid(val entry: LightHunterVfxRenderer.Entry, val kind: Int)

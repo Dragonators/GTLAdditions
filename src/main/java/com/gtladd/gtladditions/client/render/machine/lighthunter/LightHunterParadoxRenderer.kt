@@ -1,7 +1,8 @@
 package com.gtladd.gtladditions.client.render.machine.lighthunter
 
-import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleAppearanceTextures
+import com.gtladd.gtladditions.api.client.scene.PartOutcome
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleRenderState
+import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleTextures
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
@@ -25,23 +26,15 @@ object LightHunterParadoxRenderer {
     const val WINDOW_TRANSLUCENT = 2
     internal val meshes = Meshes()
 
-    class Meshes @JvmOverloads constructor(private var resources: ResourceProvider? = null) : AutoCloseable {
+    class Meshes @JvmOverloads constructor(private val resources: ResourceProvider? = null) : AutoCloseable {
         private val builder by lazy { BufferBuilder(256) }
         private var window: VertexBuffer? = null
-        private var models: LightHunterParadoxModels? = null
+        private val models = LightHunterParadoxModels()
+        private var own: LightHunterParadoxAssets.Loaded? = null
 
-        fun setResources(provider: ResourceProvider) {
-            close()
-            resources = provider
-        }
+        fun beginFrame() = models.beginFrame()
 
-        fun beginFrame() {
-            models?.beginFrame()
-        }
-
-        fun touch(key: Any) {
-            models?.touch(key)
-        }
+        fun touch(key: Any) = models.touch(key)
 
         fun buffer(): VertexBuffer = window ?: run {
             builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR)
@@ -49,13 +42,21 @@ object LightHunterParadoxRenderer {
             RenderUtils.uploadStaticBuffer(builder).also { window = it }
         }
 
-        fun models(): LightHunterParadoxModels = models ?: LightHunterParadoxModels(requireNotNull(resources)).also { models = it }
+        fun models(): LightHunterParadoxModels = models
+
+        internal fun assets(): LightHunterParadoxAssets.Loaded? =
+            if (resources == null) {
+                LightHunterParadoxAssets.current
+            } else {
+                own ?: LightHunterParadoxAssets.upload(LightHunterParadoxAssets.read(resources)).also { own = it }
+            }
 
         override fun close() {
             window?.close()
             window = null
-            models?.close()
-            models = null
+            models.close()
+            own?.close()
+            own = null
         }
     }
 
@@ -75,7 +76,13 @@ object LightHunterParadoxRenderer {
 
     internal fun windowDrawn(seconds: Float) = seconds >= 4.3f
 
-    /** The game and the GL validation harness share this draw path and all model resources; true when the window was drawn. */
+    internal fun windowOutcome(drawn: Boolean, seconds: Float): PartOutcome? = when {
+        drawn || !windowDrawn(seconds) -> null
+        HeartBlackHoleTextures.pending -> PartOutcome.PENDING
+        LightHunterParadoxTiming.window(seconds).reveal > 0f && LightHunterParadoxAssets.pending -> PartOutcome.PENDING
+        else -> PartOutcome.RESOURCE_UNAVAILABLE
+    }
+
     @JvmOverloads
     fun draw(
         meshes: Meshes,
@@ -90,20 +97,22 @@ object LightHunterParadoxRenderer {
         writeAlpha: Boolean,
         windowPass: Int = WINDOW_COMPLETE
     ): Boolean {
-        if (!windowDrawn(seconds) || !HeartBlackHoleAppearanceTextures.setGalaxySampler(shader)) return false
+        if (!windowDrawn(seconds)) return false
+        val state = LightHunterParadoxTiming.window(seconds)
+        val assets = if (state.reveal > 0f) meshes.assets() ?: return false else null
+        if (!HeartBlackHoleTextures.setGalaxySampler(shader)) return false
         val samplerObjects = GL.getCapabilities().OpenGL33
         val samplers = if (samplerObjects) IntArray(3) { GL33C.glGetIntegeri(GL33C.GL_SAMPLER_BINDING, it) } else IntArray(0)
         HeartBlackHoleRenderState.withSavedState {
             try {
                 samplers.indices.forEach { GL33C.glBindSampler(it, 0) }
-                val state = LightHunterParadoxTiming.window(seconds)
                 // A dropout hides the signal, not the visible ship's cached render target.
                 meshes.touch(key)
                 val windowView = LightHunterParadoxModels.windowView(modelView)
                 val eye = windowView.eye
                 val angle = ((animationTick.toDouble() / 20.0 * LightHunterParadoxTiming.ROTATION_DEGREES_PER_SECOND) % 360.0 * PI / 180.0)
                     .toFloat()
-                val texture = if (state.reveal > 0f) meshes.models().prepare(key, modelShader, eye, angle) else 0
+                val texture = if (assets != null) meshes.models().prepare(key, modelShader, assets, eye, angle) else 0
                 shader.setSampler("PortalMap", texture)
                 shader.getUniform("WindowEye")?.set(eye.x, eye.y, eye.z)
                 shader.getUniform("WindowPlane")?.set(LightHunterParadoxTiming.WINDOW_X)

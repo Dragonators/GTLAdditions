@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.client.render.machine.heart
 
 import com.gtladd.gtladditions.api.client.scene.SceneDepth
 import com.gtladd.gtladditions.client.render.scene.SceneOrder
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.pipeline.RenderTarget
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
@@ -26,11 +27,17 @@ internal object HeartSceneCompositor : AutoCloseable {
     private var lastImagesUse = 0L
     private var lastSubsetUse = 0L
 
+    /** Minecraft has already bound main when this runs. */
     fun beginFrame() {
         val now = System.nanoTime()
-        targets.values.removeIf { target -> (now - target.lastUse > RETENTION_NANOS).also { idle -> if (idle) target.close() } }
-        if (images.count > 0 && now - lastImagesUse > RETENTION_NANOS) images.close()
-        if (subset.count > 0 && now - lastSubsetUse > RETENTION_NANOS) subset.close()
+        val idleImages = images.count > 0 && now - lastImagesUse > RETENTION_NANOS
+        val idleSubset = subset.count > 0 && now - lastSubsetUse > RETENTION_NANOS
+        if (!idleImages && !idleSubset && targets.values.none { now - it.lastUse > RETENTION_NANOS }) return
+        RenderUtils.withTargetBindings {
+            targets.values.removeIf { target -> (now - target.lastUse > RETENTION_NANOS).also { idle -> if (idle) target.close() } }
+            if (idleImages) images.close()
+            if (idleSubset) subset.close()
+        }
     }
 
     fun prepareLayers(

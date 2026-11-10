@@ -4,7 +4,6 @@ import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.platform.NativeImage
-import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.server.packs.resources.ResourceProvider
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL12C
@@ -15,13 +14,11 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-/** Shared material textures, prepared before reload and replaced only after both uploads succeed. */
 internal object HeartBlackHoleAppearanceTextures {
     private val NOISE_RESOURCE = GTLAdditions.id("textures/effect/heart_noise_deep.png")
     private val GALAXY_RESOURCE = GTLAdditions.id("shaders/lookup/heart_galaxy.dat")
     private const val GALAXY_WIDTH = 2048
     private const val GALAXY_HEIGHT = 1024
-    private var textures: TexturePair? = null
 
     @Throws(IOException::class)
     fun readResources(resources: ResourceProvider): PreparedTextures {
@@ -60,36 +57,7 @@ internal object HeartBlackHoleAppearanceTextures {
         )
     }
 
-    fun upload(prepared: PreparedTextures) {
-        val next = HeartBlackHoleRenderState.withSavedState {
-            val noise = uploadTexture(prepared.noise)
-            try {
-                TexturePair(noise, uploadTexture(prepared.galaxy))
-            } catch (exception: Exception) {
-                GlStateManager._deleteTexture(noise)
-                throw exception
-            }
-        }
-        val previous = textures
-        textures = next
-        previous?.close()
-    }
-
-    fun setSamplers(shader: ShaderInstance): Boolean {
-        val current = textures ?: return false
-        shader.setSampler("DiscNoiseSampler", current.noise)
-        shader.setSampler("GalaxySampler", current.galaxy)
-        return true
-    }
-
-    /** Share the loaded galaxy with sky-only renderers without binding the accretion-disc material. */
-    fun setGalaxySampler(shader: ShaderInstance): Boolean {
-        val current = textures ?: return false
-        shader.setSampler("GalaxySampler", current.galaxy)
-        return true
-    }
-
-    private fun uploadTexture(data: TextureData): Int {
+    fun uploadTexture(data: TextureData): Int {
         val pixels = MemoryUtil.memAlloc(data.pixels.size)
         val texture = GL11C.glGenTextures()
         try {
@@ -132,11 +100,4 @@ internal object HeartBlackHoleAppearanceTextures {
     )
 
     class PreparedTextures(val noise: TextureData, val galaxy: TextureData)
-
-    private class TexturePair(val noise: Int, val galaxy: Int) : AutoCloseable {
-        override fun close() {
-            GlStateManager._deleteTexture(noise)
-            GlStateManager._deleteTexture(galaxy)
-        }
-    }
 }
