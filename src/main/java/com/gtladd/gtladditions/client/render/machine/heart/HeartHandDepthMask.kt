@@ -1,15 +1,17 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneRenderer
+import com.gtladd.gtladditions.client.render.scene.SceneScheduler
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.pipeline.RenderTarget
+import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.irisshaders.iris.targets.RenderTargets
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.ShaderInstance
 import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11C
+import org.lwjgl.opengl.GL13C
 
-/** Reuses Iris's solid-hand depth snapshots and captures only an actual translucent-hand pass. */
 object HeartHandDepthMask {
     private val identity = Matrix4f()
     private var beforeTranslucent: RenderTarget? = null
@@ -30,14 +32,23 @@ object HeartHandDepthMask {
 
     fun textureId(): Int = if (ready && (solidHand || translucentHand)) mask?.colorTextureId ?: 0 else 0
 
+    fun bind(shader: ShaderInstance, texture: Int) {
+        shader.getUniform("SceneHandMaskEnabled")?.set(if (texture != 0) 1 else 0)
+        shader.getUniform("SceneHandMask")?.set(4)
+        if (texture != 0) {
+            RenderSystem.activeTexture(GL13C.GL_TEXTURE4)
+            GlStateManager._bindTexture(texture)
+        }
+    }
+
     @JvmStatic
     fun beginSolidHand() {
-        if (DeferredSceneRenderer.needsHandMask()) solidHand = true
+        if (SceneScheduler.needsHandMask()) solidHand = true
     }
 
     @JvmStatic
     fun beginTranslucentHand() {
-        if (!DeferredSceneRenderer.needsHandMask()) return
+        if (!SceneScheduler.needsHandMask()) return
         translucentHand = true
         translucentCaptured = false
         if (HeartBlackHoleShaders.handMaskShader == null) return
@@ -51,7 +62,7 @@ object HeartHandDepthMask {
 
     @JvmStatic
     fun finishFrame(renderTargets: RenderTargets) {
-        if (!DeferredSceneRenderer.needsHandMask()) return
+        if (!SceneScheduler.needsHandMask()) return
         if (!solidHand && !translucentHand) {
             ready = true
             return

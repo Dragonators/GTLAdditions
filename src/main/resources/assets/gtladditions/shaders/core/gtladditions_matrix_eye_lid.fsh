@@ -88,7 +88,6 @@ void main() {
     float cover = max(aU - phi, phi - aL);
     if (cover <= 0.)
         discard;
-    float aa = clamp(cover / max(fwidth(phi), 1e-4), 0., 1.);
     bool up = phi < aU;
     float s = up ? aU - phi : phi - aL;
     // 1 = shut, 0 = parted; continuity prevents a twitch from stepping along x.
@@ -125,5 +124,5 @@ void main() {
     float F = .03 + .97 * pow(1. - NV, 5.);
     vec3 R = reflect(-V, N);
     col = col * (1. - F) + env(R, 3.) * F * .4 * tuck + emis;
-    fragColor = vec4(srgb(col), aa);
+    fragColor = vec4(srgb(col), 1.);
 }

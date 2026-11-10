@@ -6,11 +6,12 @@ uniform vec2 SceneViewport;
 void main() {
     layer0=vec4(0.0); layer1=vec4(0.0); layer2=vec4(0.0); layer3=vec4(0.0);
     vec2 pixel=effectScreenPixel();
-    if (sceneHandOccluded(pixel)) discard;
     if (LayerMode==0 && all(greaterThanEqual(pixel,LayerRect.xy)) &&
         all(lessThan(pixel,LayerRect.xy+LayerRect.zw))) discard;
-    if (gl_FragCoord.z>texelFetch(SceneDepth,ivec2(pixel-SceneViewport),0).r) discard;
+    // Window anti-aliasing takes derivatives across the quad: per-pixel discards come after it.
     paradoxMain();
+    if (sceneHandOccluded(pixel)) discard;
+    if (gl_FragCoord.z>texelFetch(SceneDepth,ivec2(pixel-SceneViewport),0).r) discard;
     vec4 color=vec4(paradoxColor.rgb*paradoxColor.a,paradoxColor.a);
     if (LayerMode==0) {
         layer0=color;

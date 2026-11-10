@@ -141,7 +141,23 @@ internal class HeartLayerImages : AutoCloseable {
         GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, source.frameBufferId)
         bindArray(5, colors)
         val rect = imageRects[index]
-        if (rect[2] > 0 && rect[3] > 0) GL12C.glCopyTexSubImage3D(GL30C.GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, rect[0], rect[1], rect[2], rect[3])
+        if (rect[2] > 0 && rect[3] > 0) {
+            GL12C.glCopyTexSubImage3D(GL30C.GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, rect[0], rect[1], rect[2], rect[3])
+        }
+    }
+
+    /**
+     * [ensure] gave layer [index] the source layer's rect size. The source layer is only attached for reading: [bindLayer]
+     * would clear it.
+     */
+    fun copyLayer(source: HeartLayerImages, sourceIndex: Int, index: Int) {
+        val rect = imageRects[index]
+        GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, source.layerFramebuffer)
+        GL30C.glFramebufferTextureLayer(GL30C.GL_READ_FRAMEBUFFER, GL30C.GL_COLOR_ATTACHMENT0, source.colors, 0, sourceIndex)
+        bindArray(5, colors)
+        if (rect[2] > 0 && rect[3] > 0) GL12C.glCopyTexSubImage3D(GL30C.GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, 0, 0, rect[2], rect[3])
+        sourceKeys[index] = source.sourceKeys[sourceIndex]
+        System.arraycopy(source.centerValues, sourceIndex * 4, centerValues, index * 4, 4)
     }
 
     fun bindLayer(index: Int) {

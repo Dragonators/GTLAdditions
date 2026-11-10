@@ -2,16 +2,19 @@ package com.gtladd.gtladditions.client.render.machine.rrf
 
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.api.client.scene.PartBlend
+import com.gtladd.gtladditions.api.client.scene.PartBounds
+import com.gtladd.gtladditions.api.client.scene.PartDrawContext
+import com.gtladd.gtladditions.api.client.scene.PartKey
+import com.gtladd.gtladditions.api.client.scene.PartOutcome
+import com.gtladd.gtladditions.api.client.scene.PartRenderer
+import com.gtladd.gtladditions.api.client.scene.ScenePart
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.client.render.IndexedEffectVertexBuffer
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredMachineRenderer
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderEntry
 import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.RRFModuleMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.RRFWorkableModuleMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.RecursiveReverseArray
 import com.gtladd.gtladditions.utils.RenderUtils
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
@@ -26,24 +29,24 @@ import net.minecraftforge.client.event.RegisterShadersEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import org.gtlcore.gtlcore.config.ConfigHolder
-import org.lwjgl.opengl.GL11C
 import java.util.EnumMap
-import java.util.EnumSet
 
 @OnlyIn(Dist.CLIENT)
 internal object RrfEffectRenderer {
     private val builder = BufferBuilder(1 shl 20)
     private val vertexWriter = RrfVertexWriter()
     private val moduleMeshes = EnumMap<RrfEffectKind, RrfEffectMesh>(RrfEffectKind::class.java)
-    private val preparedKinds = EnumSet.noneOf(RrfEffectKind::class.java)
+
+    private val moduleMeshTicks = EnumMap<RrfEffectKind, Double>(RrfEffectKind::class.java)
     private val arrayMesh = RrfArrayMesh()
-    private val arrayBatchKey = Any()
+    private var arrayMeshTicks = Double.NaN
     private var vertexBuffer: VertexBuffer? = null
     private var arrayBuffer: IndexedEffectVertexBuffer? = null
     private val arrayIndices = it.unimi.dsi.fastutil.ints.IntArrayList()
     private var arrayVertices = 0
     private var shader: ShaderInstance? = null
     private var arrayShader: ShaderInstance? = null
+    private val provider = SceneRendering.register(GTLAdditions.id("rrf"))
 
     fun isActive(machine: MultiblockControllerMachine): Boolean = machine.isFormed &&
         when (machine) {
@@ -53,8 +56,28 @@ internal object RrfEffectRenderer {
             else -> false
         }
 
-    fun enqueue(blockEntity: BlockEntity, machine: MultiblockControllerMachine, kind: RrfEffectKind, partialTicks: Float) {
-        DeferredMachineRenderer.enqueue(Entry(blockEntity, machine, kind, partialTicks))
+    fun submit(blockEntity: BlockEntity, machine: MultiblockControllerMachine, kind: RrfEffectKind, partialTicks: Float) {
+        val frame = SceneRendering.frame() ?: return
+        val array = kind == RrfEffectKind.ARRAY
+        val ticks = if (ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) {
+            frame.renderTicks
+        } else {
+            RenderUtils.getSmoothTickDouble(machine, partialTicks)
+        }
+
+        val placement = RrfEffectPlacement(machine.frontFacing, machine.upwardsFacing, machine.isFlipped, array)
+        val renderer = if (array) ArrayParts else ModuleParts
+        frame.submit(
+            ScenePart.builder(
+                PartKey.block(provider, blockEntity.blockPos, 0),
+                renderer,
+                Rrf(Vec3.atCenterOf(blockEntity.blockPos), placement, kind, ticks)
+            )
+                .blend(if (array) PartBlend.SCREEN else PartBlend.ADDITIVE)
+                .bounds(PartBounds.box(placement.bounds(blockEntity.blockPos, array)))
+                .batchKey(renderer)
+                .build()
+        )
     }
 
     fun replaceShader(replacement: ShaderInstance?) {
@@ -70,14 +93,11 @@ internal object RrfEffectRenderer {
         arrayShader = replacement
     }
 
-    private fun renderBatch(context: DeferredRenderContext, entries: List<DeferredRenderEntry>) {
-        val first = entries.firstOrNull() as? Entry ?: return
-        val array = first.kind == RrfEffectKind.ARRAY
+    /** The blend is the program's own. */
+    private fun drawBatch(context: PartDrawContext, parts: List<ScenePart<Rrf>>, array: Boolean) {
         val currentShader = (if (array) arrayShader else shader)
-            ?: return
-        val smoothAnimations = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
-        val sharedTicks = if (smoothAnimations) RenderUtils.getSmoothTickDouble(first.machine, first.partialTicks) else 0.0
-        preparedKinds.clear()
+            ?: return parts.forEach { context.report(it, PartOutcome.RESOURCE_UNAVAILABLE) }
+        val frame = context.frame
         arrayIndices.clear()
         arrayVertices = 0
         builder.begin(
@@ -85,20 +105,23 @@ internal object RrfEffectRenderer {
             if (array) DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL else DefaultVertexFormat.POSITION_TEX_COLOR
         )
 
-        for (candidate in entries) {
-            val entry = candidate as Entry
-            // A deferred pass can outlive the state that queued it. Disabled machines draw nothing.
-            if (!isActive(entry.machine) || entry.blockEntity.isRemoved) continue
-            val relative = entry.center.subtract(context.cameraPosition)
-            val seconds = (if (smoothAnimations) sharedTicks else RenderUtils.getSmoothTickDouble(entry.machine, entry.partialTicks))
-                .toDouble() / 20.0
+        for (part in parts) {
+            val rrf = part.payload
+            val relative = rrf.center.subtract(frame.cameraX, frame.cameraY, frame.cameraZ)
             if (array) {
-                if (!smoothAnimations || preparedKinds.add(RrfEffectKind.ARRAY)) RrfArrayGeometry.build(seconds, arrayMesh)
+                if (arrayMeshTicks != rrf.ticks) {
+                    RrfArrayGeometry.build(rrf.ticks / 20.0, arrayMesh)
+                    arrayMeshTicks = rrf.ticks
+                }
                 appendArray(arrayMesh, relative)
             } else {
-                val cached = moduleMeshes.getOrPut(entry.kind) { RrfEffectMesh() }
-                if (!smoothAnimations || preparedKinds.add(entry.kind)) RrfEffectGeometry.module(entry.kind, seconds, cached)
-                append(cached, entry.placement, relative)
+                val mesh = moduleMeshes.getOrPut(rrf.kind) { RrfEffectMesh() }
+                if (moduleMeshTicks[rrf.kind] != rrf.ticks) {
+                    RrfEffectGeometry.module(rrf.kind, rrf.ticks / 20.0, mesh)
+                    moduleMeshTicks[rrf.kind] = rrf.ticks
+                }
+
+                vertexWriter.append(builder, mesh, rrf.placement, relative)
             }
         }
 
@@ -115,31 +138,12 @@ internal object RrfEffectRenderer {
                 } else {
                     vbo.upload(builder.end())
                 }
-                RenderSystem.enableBlend()
-                if (array) {
-                    RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR)
-                    RenderSystem.enableCull()
-                } else {
-                    RenderSystem.blendFuncSeparate(
-                        GlStateManager.SourceFactor.ONE,
-                        GlStateManager.DestFactor.ONE,
-                        GlStateManager.SourceFactor.ONE,
-                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
-                    )
-                    RenderSystem.disableCull()
-                }
-                RenderSystem.enableDepthTest()
-                RenderSystem.depthFunc(GL11C.GL_LEQUAL)
-                RenderSystem.depthMask(false)
-                DeferredOculusCompat.withDeferredShaderPass {
-                    vbo.drawWithShader(context.poseStack.last().pose(), RenderSystem.getProjectionMatrix(), currentShader)
-                }
+
+                // The array tubes show their front faces only; the flat module glyphs face either way.
+                if (array) RenderSystem.enableCull() else RenderSystem.disableCull()
+                vbo.drawWithShader(context.poseStack.last().pose(), RenderSystem.getProjectionMatrix(), currentShader)
             }
         }
-    }
-
-    private fun append(mesh: RrfEffectMesh, placement: RrfEffectPlacement, relative: Vec3) {
-        vertexWriter.append(builder, mesh, placement, relative)
     }
 
     private fun appendArray(mesh: RrfArrayMesh, relative: Vec3) {
@@ -148,26 +152,14 @@ internal object RrfEffectRenderer {
         arrayVertices += mesh.vertexCount
     }
 
-    private class Entry(
-        override val blockEntity: BlockEntity,
-        val machine: MultiblockControllerMachine,
-        val kind: RrfEffectKind,
-        val partialTicks: Float
-    ) : DeferredRenderEntry {
-        val center: Vec3 = Vec3.atCenterOf(blockEntity.blockPos)
-        val placement = RrfEffectPlacement(machine.frontFacing, machine.upwardsFacing, machine.isFlipped, kind == RrfEffectKind.ARRAY)
-        private val bounds = placement.bounds(blockEntity.blockPos, kind == RrfEffectKind.ARRAY)
-        override val batchKey: Any = if (kind == RrfEffectKind.ARRAY) arrayBatchKey else RrfEffectRenderer
-        override val renderOrder: Int = 25
+    private class Rrf(val center: Vec3, val placement: RrfEffectPlacement, val kind: RrfEffectKind, val ticks: Double)
 
-        override fun isVisible(context: DeferredRenderContext): Boolean =
-            !blockEntity.isRemoved &&
-                isActive(machine) &&
-                center.distanceToSqr(context.cameraPosition) <= 128.0 * 128.0 &&
-                context.frustum?.isVisible(bounds) != false
+    private object ArrayParts : PartRenderer<Rrf> {
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Rrf>>) = drawBatch(context, parts, true)
+    }
 
-        override fun render(context: DeferredRenderContext) = renderBatch(context, listOf(this))
-        override fun renderBatch(context: DeferredRenderContext, entries: List<DeferredRenderEntry>) = RrfEffectRenderer.renderBatch(context, entries)
+    private object ModuleParts : PartRenderer<Rrf> {
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Rrf>>) = drawBatch(context, parts, false)
     }
 }
 

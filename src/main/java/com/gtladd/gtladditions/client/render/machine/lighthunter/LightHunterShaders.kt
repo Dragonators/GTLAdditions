@@ -24,6 +24,9 @@ object LightHunterShaders {
         private set
     var paradox: ShaderInstance? = null
         private set
+
+    var paradoxOpaque: ShaderInstance? = null
+        private set
     var paradoxLayers: ShaderInstance? = null
         private set
     var paradoxModel: ShaderInstance? = null
@@ -42,6 +45,11 @@ object LightHunterShaders {
             GTLAdditions.id("gtladditions_light_hunter_paradox"),
             DefaultVertexFormat.POSITION_TEX_COLOR
         ) { paradox = it }
+        RenderUtils.registerShader(
+            event,
+            GTLAdditions.id("gtladditions_light_hunter_paradox_opaque"),
+            DefaultVertexFormat.POSITION_TEX_COLOR
+        ) { paradoxOpaque = it }
         RenderUtils.registerShader(
             event,
             GTLAdditions.id("gtladditions_light_hunter_paradox_model"),

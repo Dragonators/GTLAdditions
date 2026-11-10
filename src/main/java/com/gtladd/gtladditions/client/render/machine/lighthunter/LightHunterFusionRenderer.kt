@@ -63,31 +63,16 @@ object LightHunterFusionRenderer {
         }
     }
 
-    @JvmOverloads
-    fun draw(
-        meshes: Meshes,
-        scene: LightHunterVfxRenderer.Meshes,
-        shader: ShaderInstance,
-        modelView: Matrix4f,
-        projection: Matrix4f,
-        seconds: Float,
-        tick: Float,
-        captureDepth: Boolean = true
-    ) {
-        if (seconds <= 0f || !visible(modelView, projection)) return
-        HeartBlackHoleRenderState.withSavedState {
-            if (captureDepth) {
-                if (!scene.captureSceneDepth(shader)) return@withSavedState
-            } else {
-                scene.bindSceneDepth(shader)
-            }
-            render(meshes, shader, modelView, projection, seconds, tick, true)
-        }
+    internal fun drawn(seconds: Float) = seconds > 0f
+
+    /** For a colour-only target; the caller binds the scene depth to [shader]. */
+    fun draw(meshes: Meshes, shader: ShaderInstance, modelView: Matrix4f, projection: Matrix4f, seconds: Float, tick: Float) {
+        if (!drawn(seconds) || !visible(modelView, projection)) return
+        HeartBlackHoleRenderState.withSavedState { render(meshes, shader, modelView, projection, seconds, tick, false) }
     }
 
     fun drawLayered(
         meshes: Meshes,
-        scene: LightHunterVfxRenderer.Meshes,
         shader: ShaderInstance,
         modelView: Matrix4f,
         projection: Matrix4f,
@@ -99,9 +84,8 @@ object LightHunterFusionRenderer {
         rect: IntArray,
         local: Boolean
     ) {
-        if (seconds <= 0f || !visible(modelView, projection)) return
+        if (!drawn(seconds) || !visible(modelView, projection)) return
         HeartBlackHoleRenderState.withSavedState {
-            scene.bindSceneDepth(shader)
             HeartLayerImages.bindArray(3, depth)
             shader.getUniform("LayerDepths")?.set(3)
             shader.getUniform("LayerCount")?.set(count)

@@ -4,10 +4,13 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.IControllerRenderer
 import com.gregtechceu.gtceu.common.data.GTBlocks.HIGH_POWER_CASING
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
+import com.gtladd.gtladditions.client.render.BlockEntityDispatch
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ArcanicAstrograph
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
+import net.irisshaders.iris.shadows.ShadowRenderingState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.resources.ResourceLocation
@@ -39,13 +42,13 @@ class ArcanicAstrographRender :
 
         val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         val facing = machine.frontFacing
+        // The level's own source, wrapped by Iris under a shaderpack; shadows, breaking overlays and custom sources are not.
+        val mainView = !ShadowRenderingState.areShadowsCurrentlyBeingRendered() && BlockEntityDispatch.isMainView(blockEntity)
         poseStack.withPose {
             translate(0.5 - facing.stepX * 16.0, 0.5, 0.5 - facing.stepZ * 16.0)
-            if (buffer is MultiBufferSource.BufferSource) {
+            if (mainView) {
                 renderOrbitObjects(tick, buffer, machine.parallelAmount, blockEntity.blockPos.asLong())
-                // Establish opaque depth before the immediate sky/star draws and additive shells.
-                buffer.endBatch(RenderType.solid())
-                ArcanicAstrographStarRenderer.renderCached(this, tick)
+                SceneRendering.frame()?.let { ArcanicAstrographStarRenderer.submit(it, blockEntity, facing, tick) }
             } else {
                 ArcanicAstrographStarRenderer.renderSpaceShell(this, buffer)
                 renderOrbitObjects(tick, buffer, machine.parallelAmount, blockEntity.blockPos.asLong())

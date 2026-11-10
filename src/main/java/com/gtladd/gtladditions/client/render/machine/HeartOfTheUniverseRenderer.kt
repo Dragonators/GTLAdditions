@@ -3,8 +3,9 @@ package com.gtladd.gtladditions.client.render.machine
 import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneRenderer
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleRenderProfile
+import com.gtladd.gtladditions.client.render.scene.SceneVolumes
 import com.gtladd.gtladditions.common.machine.multiblock.controller.HeartOfTheUniverse
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
 import com.gtladd.gtladditions.utils.RenderUtils
@@ -32,11 +33,12 @@ class HeartOfTheUniverseRenderer :
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? HeartOfTheUniverse ?: return
         if (!machine.recipeLogic.isWorking) return
+        val frame = SceneRendering.frame() ?: return
 
         val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         val starPos = getRotatedRenderPosition(Direction.SOUTH, machine.frontFacing, 0.0, 36.0, -39.0)
         val profile = HeartBlackHoleRenderProfile.create(tick, machine.frontFacing, starPos)
-        DeferredSceneRenderer.enqueueBlackHole(blockEntity, profile)
+        SceneVolumes.submit(frame, blockEntity, profile)
     }
 
     @OnlyIn(Dist.CLIENT)

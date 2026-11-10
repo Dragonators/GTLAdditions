@@ -96,14 +96,14 @@ internal class MatrixEyeTextures : AutoCloseable {
     }
 }
 
-/** Copies from the bound draw target, including the eye depth, without framebuffer feedback. */
+/** Sampling a copy avoids framebuffer feedback on the bound draw target. */
 internal class MatrixEyeScene : AutoCloseable {
     private var color = 0
-    private var depth = 0
     private var width = 0
     private var height = 0
 
-    fun capture(shader: ShaderInstance): Boolean = MemoryStack.stackPush().use { stack ->
+    /** [depth] is this frame's R32F scene depth, which matches the composition target's depth bit for bit. */
+    fun capture(shader: ShaderInstance, depth: Int): Boolean = MemoryStack.stackPush().use { stack ->
         val viewport = stack.mallocInt(4)
         GL11C.glGetIntegerv(GL11C.GL_VIEWPORT, viewport)
         if (viewport[2] <= 0 || viewport[3] <= 0) return@use false
@@ -111,7 +111,6 @@ internal class MatrixEyeScene : AutoCloseable {
         width = viewport[2]
         height = viewport[3]
         if (color == 0) color = GlStateManager._genTexture()
-        if (depth == 0) depth = GlStateManager._genTexture()
         RenderSystem.activeTexture(GL13C.GL_TEXTURE0)
         val read = GL11C.glGetInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING)
         val draw = GL11C.glGetInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING)
@@ -121,29 +120,29 @@ internal class MatrixEyeScene : AutoCloseable {
             val drawReadBuffer = GL11C.glGetInteger(GL11C.GL_READ_BUFFER)
             try {
                 GL11C.glReadBuffer(GL11C.glGetInteger(GL30C.GL_DRAW_BUFFER0))
-                for (isDepth in listOf(false, true)) {
-                    GlStateManager._bindTexture(if (isDepth) depth else color)
-                    if (resize) {
-                        RenderUtils.withTightlyPackedPixels {
-                            GL11C.glTexImage2D(
-                                GL11C.GL_TEXTURE_2D,
-                                0,
-                                if (isDepth) GL30C.GL_DEPTH_COMPONENT32F else GL11C.GL_RGBA8,
-                                width,
-                                height,
-                                0,
-                                if (isDepth) GL11C.GL_DEPTH_COMPONENT else GL11C.GL_RGBA,
-                                if (isDepth) GL11C.GL_FLOAT else GL11C.GL_UNSIGNED_BYTE,
-                                null as ByteBuffer?
-                            )
-                        }
-                        GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_MIN_FILTER, GL11C.GL_NEAREST)
-                        GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_MAG_FILTER, GL11C.GL_NEAREST)
-                        GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_WRAP_S, GL12C.GL_CLAMP_TO_EDGE)
-                        GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_WRAP_T, GL12C.GL_CLAMP_TO_EDGE)
+                GlStateManager._bindTexture(color)
+                if (resize) {
+                    RenderUtils.withTightlyPackedPixels {
+                        GL11C.glTexImage2D(
+                            GL11C.GL_TEXTURE_2D,
+                            0,
+                            GL11C.GL_RGBA8,
+                            width,
+                            height,
+                            0,
+                            GL11C.GL_RGBA,
+                            GL11C.GL_UNSIGNED_BYTE,
+                            null as ByteBuffer?
+                        )
                     }
-                    GL11C.glCopyTexSubImage2D(GL11C.GL_TEXTURE_2D, 0, 0, 0, viewport[0], viewport[1], width, height)
+
+                    GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_MIN_FILTER, GL11C.GL_NEAREST)
+                    GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_MAG_FILTER, GL11C.GL_NEAREST)
+                    GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_WRAP_S, GL12C.GL_CLAMP_TO_EDGE)
+                    GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_WRAP_T, GL12C.GL_CLAMP_TO_EDGE)
                 }
+
+                GL11C.glCopyTexSubImage2D(GL11C.GL_TEXTURE_2D, 0, 0, 0, viewport[0], viewport[1], width, height)
             } finally {
                 GL11C.glReadBuffer(drawReadBuffer)
             }
@@ -161,9 +160,7 @@ internal class MatrixEyeScene : AutoCloseable {
 
     override fun close() {
         if (color != 0) GlStateManager._deleteTexture(color)
-        if (depth != 0) GlStateManager._deleteTexture(depth)
         color = 0
-        depth = 0
         width = 0
         height = 0
     }

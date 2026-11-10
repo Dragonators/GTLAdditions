@@ -1,7 +1,19 @@
 package com.gtladd.gtladditions.client.render.machine
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.api.client.scene.PartBlend
+import com.gtladd.gtladditions.api.client.scene.PartBounds
+import com.gtladd.gtladditions.api.client.scene.PartDrawContext
+import com.gtladd.gtladditions.api.client.scene.PartFeature
+import com.gtladd.gtladditions.api.client.scene.PartKey
+import com.gtladd.gtladditions.api.client.scene.PartOutcome
+import com.gtladd.gtladditions.api.client.scene.PartPass
+import com.gtladd.gtladditions.api.client.scene.PartRenderer
+import com.gtladd.gtladditions.api.client.scene.SceneFrame
+import com.gtladd.gtladditions.api.client.scene.ScenePart
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.client.GTLAddRenderTypes
+import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.mixin.minecraft.client.BufferSourceAccessor
 import com.gtladd.gtladditions.utils.RenderUtils
@@ -16,7 +28,9 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.ShaderInstance
+import net.minecraft.core.Direction
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent
@@ -26,6 +40,7 @@ import net.minecraftforge.fml.common.Mod
 import org.joml.Matrix4f
 import org.joml.Quaternionf
 import org.joml.Vector3f
+import org.lwjgl.opengl.GL13C
 import java.util.function.Supplier
 import kotlin.math.PI
 import kotlin.math.cos
@@ -90,12 +105,15 @@ object ArcanicAstrographStarRenderer {
         )
     )
     private val spaceMaterial = Material("textures/effect/astrograph/space_layer.png", false, -1)
+    private val solidLayers = 0..0
+    private val glowLayers = 1..2
     private val modelRotation = Quaternionf(0f, 1f, 0f, 0f)
     private val layerRotation = Quaternionf()
     private val modelView = Matrix4f()
     private val sphere = buildSphere()
     private val meshBuilder by lazy { BufferBuilder(524288) }
     private var sphereBuffer: VertexBuffer? = null
+    private val provider = SceneRendering.register(GTLAdditions.id("astrograph_star"))
 
     @SubscribeEvent
     @JvmStatic
@@ -127,18 +145,56 @@ object ArcanicAstrographStarRenderer {
         }
     }
 
-    /** One immutable unit-sphere upload, reused by the sky and all three stellar surfaces. */
-    fun renderCached(poseStack: PoseStack, tick: Double) {
-        if (surfaceShader == null || glowShader == null) return
+    /**
+     * Under a shaderpack the OPAQUE part draws after the first-person hand, and a camera against the shell or the core puts
+     * them in front of it, so the solid part discards the hand's pixels itself.
+     */
+    fun submit(frame: SceneFrame, blockEntity: BlockEntity, facing: Direction, tick: Double) {
+        val pos = blockEntity.blockPos
+        val star = Star(pos.x + 0.5 - facing.stepX * 16.0, pos.y + 0.5, pos.z + 0.5 - facing.stepZ * 16.0, tick)
+        frame.submit(
+            ScenePart.builder(PartKey.block(provider, pos, 0), Solid, star)
+                .pass(PartPass.OPAQUE)
+                .bounds(PartBounds.sphere(star.x, star.y, star.z, SPACE_RADIUS.toDouble()))
+                .features(PartFeature.OWN_HAND_MASK)
+                .build()
+        )
+        frame.submit(
+            ScenePart.builder(PartKey.block(provider, pos, 1), Glow, star)
+                .blend(PartBlend.ADDITIVE)
+                .bounds(PartBounds.sphere(star.x, star.y, star.z, RADIUS.toDouble()))
+                .build()
+        )
+    }
+
+    private fun drawParts(context: PartDrawContext, parts: List<ScenePart<Star>>, solid: Boolean) {
+        if ((if (solid) surfaceShader else glowShader) == null) {
+            for (part in parts) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+            return
+        }
+
+        val frame = context.frame
         val buffer = getSphereBuffer()
+        val handMask = context.handMaskTexture
         RenderUtils.withSavedRenderState {
+            // Back-face culling shows the mirrored shell from inside and each glow layer's near half.
+            RenderSystem.enableCull()
             RenderUtils.withBoundBuffer(buffer) {
-                poseStack.withPose {
-                    scale(-SPACE_RADIUS, SPACE_RADIUS, SPACE_RADIUS)
-                    drawCachedSurface(buffer, this, spaceMaterial)
-                }
-                forEachStarLayer(poseStack, tick) { pose, material ->
-                    drawCachedSurface(buffer, pose, material)
+                for (part in parts) {
+                    val star = part.payload
+                    context.poseStack.withPose {
+                        translate(star.x - frame.cameraX, star.y - frame.cameraY, star.z - frame.cameraZ)
+                        if (solid) {
+                            withPose {
+                                scale(-SPACE_RADIUS, SPACE_RADIUS, SPACE_RADIUS)
+                                drawCachedSurface(buffer, this, spaceMaterial, handMask)
+                            }
+                        }
+
+                        forEachStarLayer(this, star.tick, if (solid) solidLayers else glowLayers) { pose, material ->
+                            drawCachedSurface(buffer, pose, material, handMask)
+                        }
+                    }
                 }
             }
         }
@@ -160,7 +216,11 @@ object ArcanicAstrographStarRenderer {
         RenderUtils.uploadStaticBuffer(builder).also { sphereBuffer = it }
     }
 
-    private fun drawCachedSurface(buffer: VertexBuffer, pose: PoseStack, material: Material) {
+    /**
+     * [handMask] holds only for this draw: the reset to 0 means a later flush of vertices queued through the same program, as
+     * the wrapped consumers do, never discards.
+     */
+    private fun drawCachedSurface(buffer: VertexBuffer, pose: PoseStack, material: Material, handMask: Int) {
         val shader = material.shader() ?: return
         val color = RenderSystem.getShaderColor()
         val red = color[0]
@@ -175,11 +235,15 @@ object ArcanicAstrographStarRenderer {
                 alpha * (material.alpha / 255f)
             )
             RenderUtils.withRenderType(material.renderType) {
+                // After the render type's setup, whose texture filter call binds on the active unit; unit 0 is active again.
+                HeartHandDepthMask.bind(shader, handMask)
+                if (handMask != 0) RenderSystem.activeTexture(GL13C.GL_TEXTURE0)
                 // Buffered vertices already contain PoseStack; BufferUploader applies this global matrix afterward.
                 modelView.set(RenderSystem.getModelViewMatrix()).mul(pose.last().pose())
                 buffer.drawWithShader(modelView, RenderSystem.getProjectionMatrix(), shader)
             }
         } finally {
+            HeartHandDepthMask.bind(shader, 0)
             RenderSystem.setShaderColor(red, green, blue, alpha)
         }
     }
@@ -215,7 +279,7 @@ object ArcanicAstrographStarRenderer {
         val mesh = getSphereBuffer()
         RenderUtils.withSavedRenderState {
             RenderUtils.withBoundBuffer(mesh) {
-                drawCachedSurface(mesh, pose, material)
+                drawCachedSurface(mesh, pose, material, 0)
             }
         }
     }
@@ -228,12 +292,15 @@ object ArcanicAstrographStarRenderer {
 
     private inline fun forEachStarLayer(
         poseStack: PoseStack,
-        tick: Double, draw: (PoseStack, Material) -> Unit
+        tick: Double,
+        layers: IntRange = starLayers.indices,
+        draw: (PoseStack, Material) -> Unit
     ) {
         poseStack.withPose {
             mulPose(modelRotation)
 
-            for ((material, radius, phaseDegrees, degreesPerTick, axis) in starLayers) {
+            for (index in layers) {
+                val (material, radius, phaseDegrees, degreesPerTick, axis) = starLayers[index]
                 withPose {
                     val angle = Math.toRadians((phaseDegrees + tick.toDouble() * degreesPerTick) % 360.0).toFloat()
                     mulPose(layerRotation.rotationAxis(angle, axis))
@@ -255,6 +322,16 @@ object ArcanicAstrographStarRenderer {
                 .endVertex()
             vertex += VERTEX_STRIDE
         }
+    }
+
+    private class Star(val x: Double, val y: Double, val z: Double, val tick: Double)
+
+    private object Solid : PartRenderer<Star> {
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Star>>) = drawParts(context, parts, true)
+    }
+
+    private object Glow : PartRenderer<Star> {
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Star>>) = drawParts(context, parts, false)
     }
 
     private fun buildSphere(): FloatArray {

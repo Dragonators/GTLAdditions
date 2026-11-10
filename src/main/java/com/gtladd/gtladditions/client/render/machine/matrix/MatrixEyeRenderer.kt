@@ -1,5 +1,17 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
+import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.api.client.scene.PartBounds
+import com.gtladd.gtladditions.api.client.scene.PartDrawContext
+import com.gtladd.gtladditions.api.client.scene.PartKey
+import com.gtladd.gtladditions.api.client.scene.PartOutcome
+import com.gtladd.gtladditions.api.client.scene.PartPass
+import com.gtladd.gtladditions.api.client.scene.PartRenderer
+import com.gtladd.gtladditions.api.client.scene.SceneDepth
+import com.gtladd.gtladditions.api.client.scene.SceneFrame
+import com.gtladd.gtladditions.api.client.scene.ScenePart
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
+import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
@@ -10,8 +22,10 @@ import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.ShaderInstance
+import net.minecraft.core.BlockPos
 import net.minecraft.server.packs.resources.ResourceProvider
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.config.ConfigHolder
@@ -39,6 +53,7 @@ object MatrixEyeRenderer {
     private val sclera = Vector3f(0.020f, 0.012f, 0.004f)
     private val abyss = Vector3f(0.55f, 0.28f, 0.05f)
     private val skin = Vector3f(0.012f, 0.0075f, 0.004f)
+    private val provider = SceneRendering.register(GTLAdditions.id("matrix_eye"))
 
     fun sample(blockEntity: BlockEntity, seconds: Double, running: Boolean): MatrixEyeAnimation.Frame =
         animations.getOrPut(blockEntity) { MatrixEyeAnimation() }
@@ -50,7 +65,24 @@ object MatrixEyeRenderer {
 
     fun clearAnimations() = animations.clear()
 
-    /** Approved model coordinates (x,y,z), Z-up, to controller-relative Minecraft coordinates. */
+    /** Centred 15 blocks along the facing; mirroring keeps it on the axis. */
+    fun bounds(pos: BlockPos, yaw: Float): AABB {
+        val angle = Math.toRadians(yaw.toDouble())
+        val x = pos.x + 0.5 - 15.0 * sin(angle)
+        val z = pos.z + 0.5 - 15.0 * cos(angle)
+        return AABB(x - 11.5, pos.y + 0.9, z - 11.5, x + 11.5, pos.y + 7.0, z + 11.5)
+    }
+
+    fun submit(frame: SceneFrame, blockEntity: BlockEntity, eye: MatrixEyeAnimation.Frame, yaw: Float, flipped: Boolean) {
+        frame.submit(
+            ScenePart.builder(PartKey.block(provider, blockEntity.blockPos, 0), Surfaces, Surface(blockEntity, eye, yaw, flipped))
+                .pass(PartPass.OPAQUE)
+                .bounds(PartBounds.box(bounds(blockEntity.blockPos, yaw)))
+                .build()
+        )
+    }
+
+    /** Model coordinates (x,y,z), Z-up, to controller-relative Minecraft coordinates. */
     fun applyTransform(pose: PoseStack, yaw: Float, flipped: Boolean) {
         MatrixFrameTransforms.applyStructure(pose, yaw, flipped)
         pose.translate(0.5, -0.5, 0.5)
@@ -63,12 +95,12 @@ object MatrixEyeRenderer {
 
     private fun ensureTextures(): Boolean = texturesReady || prepareTextures(Minecraft.getInstance().resourceManager)
 
-    /** Called in the shared opaque phase so every mist pass sees all eyes in its depth snapshot. */
-    fun renderSurfaces(pose: PoseStack, frame: MatrixEyeAnimation.Frame) {
-        val eye = MatrixShaders.eye ?: return
-        val lid = MatrixShaders.eyeLid ?: return
-        withTextureBindings {
-            if (!ensureTextures()) return@withTextureBindings
+    /** Drawn in the opaque phase so every mist pass sees all eyes in its depth snapshot; false without programs or textures. */
+    fun renderSurfaces(pose: PoseStack, frame: MatrixEyeAnimation.Frame): Boolean {
+        val eye = MatrixShaders.eye ?: return false
+        val lid = MatrixShaders.eyeLid ?: return false
+        return withTextureBindings {
+            if (!ensureTextures()) return@withTextureBindings false
             RenderUtils.withSavedRenderState {
                 RenderSystem.enableDepthTest()
                 RenderSystem.depthFunc(GL11C.GL_LEQUAL)
@@ -107,22 +139,23 @@ object MatrixEyeRenderer {
                     lid.getUniform("uScale")?.set(RADIUS * 1.03f, RADIUS * 1.03f, HEIGHT * 1.06f)
                     lid.getUniform("uSkin")?.set(skin)
                     lid.getUniform("uSeam")?.set(frame.seam)
-                    // One-sided derivative coverage works on Minecraft's single-sample target.
-                    // The covered membrane still writes depth and is opaque away from its free edge.
-                    RenderSystem.enableBlend()
-                    RenderSystem.defaultBlendFunc()
                     draw(domeBuffer(), view, lid)
                 }
             }
+            true
         }
     }
 
-    fun renderMist(pose: PoseStack, frame: MatrixEyeAnimation.Frame) {
-        val shader = MatrixShaders.eyeMist ?: return
-        withTextureBindings {
-            if (!ensureTextures()) return@withTextureBindings
+    /**
+     * Replaces the bound target with a capture of its colour under the mist, clipped by [depth]; false without the program,
+     * the textures or a capture.
+     */
+    fun renderMist(pose: PoseStack, frame: MatrixEyeAnimation.Frame, depth: SceneDepth): Boolean {
+        val shader = MatrixShaders.eyeMist ?: return false
+        return withTextureBindings {
+            if (!ensureTextures()) return@withTextureBindings false
             RenderUtils.withSavedRenderState {
-                if (!scene.capture(shader)) return@withSavedRenderState
+                if (!scene.capture(shader, depth.texture)) return@withSavedRenderState false
                 val inverse = Matrix4f(pose.last().pose()).invert()
                 shader.getUniform("uInvProj")?.set(Matrix4f(RenderSystem.getProjectionMatrix()).invert())
                 shader.getUniform("uCamWorld")?.set(inverse)
@@ -139,6 +172,27 @@ object MatrixEyeRenderer {
                 RenderSystem.disableCull()
                 RenderSystem.disableBlend()
                 draw(screenBuffer(), Matrix4f(), shader)
+                true
+            }
+        }
+    }
+
+    internal class Surface(val blockEntity: BlockEntity, val eye: MatrixEyeAnimation.Frame, val yaw: Float, val flipped: Boolean)
+
+    private object Surfaces : PartRenderer<Surface> {
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Surface>>) {
+            val frame = context.frame
+
+            for (part in parts) {
+                val surface = part.payload
+                val pos = surface.blockEntity.blockPos
+                context.poseStack.withPose {
+                    translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
+                    applyTransform(this, surface.yaw, surface.flipped)
+                    MatrixFrameTransforms.withWinding(surface.flipped) {
+                        if (!renderSurfaces(this, surface.eye)) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+                    }
+                }
             }
         }
     }

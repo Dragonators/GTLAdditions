@@ -61,11 +61,25 @@ object LightHunterVfxGeometry {
         return Matrix4f().translation(0.5f, 0.5f, 0.5f).rotateY(angle)
     }
 
-    fun bounds(facing: Direction): AABB {
+    fun bounds(facing: Direction): AABB = bounds(facing, NOZZLE_X - MAIN_LENGTH - 2, 7f, 38f)
+
+    fun bounds(facing: Direction, section: Section): AABB = bounds(facing, section.minX, section.maxX, section.extent)
+
+    private fun bounds(facing: Direction, minX: Float, maxX: Float, extent: Float): AABB {
         val matrix = transform(facing)
-        val a = matrix.transformPosition(Vector3f(NOZZLE_X - MAIN_LENGTH - 2, -38f, -38f))
-        val b = matrix.transformPosition(Vector3f(7f, 38f, 38f))
+        val a = matrix.transformPosition(Vector3f(minX, -extent, -extent))
+        val b = matrix.transformPosition(Vector3f(maxX, extent, extent))
         return AABB(a.x.toDouble(), a.y.toDouble(), a.z.toDouble(), b.x.toDouble(), b.y.toDouble(), b.z.toDouble())
+    }
+
+    /** [extent] is the y/z half extent. */
+    enum class Section(val layers: Int, val minX: Float, val maxX: Float, val extent: Float) {
+        // The chart plane also carries the fusion volume and the paradox window.
+        FRONT(CHART_LAYERS, LightHunterFusionGeometry.MIN_X, LightHunterFusionGeometry.MAX_X, LightHunterFusionGeometry.EXTENT),
+
+        SHIELD(1 shl SHIELDS, -164f, -32f, 34f),
+
+        EXHAUST((1 shl PLUMES) or (1 shl RINGS) or (1 shl ROOTS), NOZZLE_X - MAIN_LENGTH - 2, NOZZLE_X + 0.05f, 15f)
     }
 
     fun write(out: VertexConsumer, layer: Int) {

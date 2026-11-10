@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
+import com.gtladd.gtladditions.api.client.scene.SceneDepth
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.renderer.ShaderInstance
@@ -56,6 +57,8 @@ internal object HeartBlackHoleCompositeRenderer {
         compositeShader.setSampler("BlurredMaskSampler", pending.targets.maskBlurred.colorTextureId)
         compositeShader.setSampler("HandMaskSampler", if (handMask != 0) handMask else pending.targets.effect.colorTextureId)
         compositeShader.getUniform("HandMaskEnabled")?.set(if (handMask != 0) 1f else 0f)
+        HeartBlackHoleFramebuffer.bindSceneDepth(compositeShader, pending.depth)
+        compositeShader.getUniform("HeartSpheres")?.set(pending.spheres)
         pending.targets.bloomLevels.forEachIndexed { index, level ->
             compositeShader.setSampler(BLOOM_SAMPLERS[index], level.blurred.colorTextureId)
         }
@@ -76,5 +79,8 @@ internal data class PendingHeartComposite(
     val width: Int,
     val height: Int,
     val blurWidth: Int,
-    val blurHeight: Int
+    val blurHeight: Int,
+    val depth: SceneDepth,
+    /** One proxy sphere per column, view-space centre and radius; a zero radius ends the list. */
+    val spheres: Matrix4f
 )

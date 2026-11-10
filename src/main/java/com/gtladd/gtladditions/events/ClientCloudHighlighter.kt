@@ -1,23 +1,23 @@
 ﻿package com.gtladd.gtladditions.events
 
-import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.Minecraft
+import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.LevelRenderer
 import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.AABB
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.client.event.RenderLevelStageEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.minecraft.world.phys.Vec3
+import org.lwjgl.opengl.GL11C
+import org.lwjgl.system.MemoryStack
 import java.awt.Color
 
-@Mod.EventBusSubscriber(modid = GTLAdditions.MOD_ID, value = [Dist.CLIENT])
 object ClientCloudHighlighter {
 
     private data class Entry(val pos: BlockPos, val dimensionId: String, val expireTick: Long)
@@ -52,10 +52,11 @@ object ClientCloudHighlighter {
                 )
             )
             .setTextureState(RenderStateShard.EmptyTextureStateShard({}, {}))
+            // 519 leaves the depth test alone; [render] turns it off.
             .setDepthTestState(RenderStateShard.DepthTestStateShard("gtl_no_depth_test", 519))
             .setCullState(RenderStateShard.CullStateShard(false))
             .setLightmapState(RenderStateShard.LightmapStateShard(false))
-            .setWriteMaskState(RenderStateShard.WriteMaskStateShard(true, true))
+            .setWriteMaskState(RenderStateShard.WriteMaskStateShard(true, false))
             .setShaderState(RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeLinesShader))
             .createCompositeState(false)
     )
@@ -70,29 +71,25 @@ object ClientCloudHighlighter {
 
     fun clear() = entries.clear()
 
-    @JvmStatic
-    @SubscribeEvent
-    fun onRenderLevel(event: RenderLevelStageEvent) {
-        if (event.stage != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return
-        val minecraft = Minecraft.getInstance()
-        val level = minecraft.level ?: return
-
+    /** Also drops expired entries. */
+    fun hasEntries(level: ClientLevel): Boolean {
         entries.removeIf { it.expireTick < level.gameTime }
-        if (entries.isEmpty()) return
+        return entries.any { it.dimensionId == level.dimension().location().toString() }
+    }
 
+    /** Into the target the scheduler binds, with the frame's [pose]. */
+    fun render(pose: PoseStack, level: ClientLevel, camera: Vec3) {
+        val minecraft = Minecraft.getInstance()
         val hue = (System.currentTimeMillis() % COLOR_CYCLE_MS) / COLOR_CYCLE_MS.toFloat()
         val color = Color.getHSBColor(hue, 1.0f, 1.0f)
         val bufferSource = minecraft.renderBuffers().bufferSource()
         val consumer = bufferSource.getBuffer(highlightLines)
-        val cameraPosition = event.camera.position
-        val poseStack = event.poseStack
 
-        poseStack.pushPose()
         for (entry in entries) {
             if (entry.dimensionId != level.dimension().location().toString()) continue
-            val box = AABB(entry.pos).move(-cameraPosition.x, -cameraPosition.y, -cameraPosition.z)
+            val box = AABB(entry.pos).move(-camera.x, -camera.y, -camera.z)
             LevelRenderer.renderLineBox(
-                poseStack,
+                pose,
                 consumer,
                 box,
                 color.red / 255.0f,
@@ -101,9 +98,29 @@ object ClientCloudHighlighter {
                 0.95f
             )
         }
-        poseStack.popPose()
-        RenderSystem.lineWidth(LINE_WIDTH)
-        bufferSource.endBatch(highlightLines)
-        RenderSystem.lineWidth(1.0f)
+
+        val lineWidth = RenderSystem.getShaderLineWidth()
+        val shaderColor = RenderSystem.getShaderColor().copyOf()
+        MemoryStack.stackPush().use { stack ->
+            val colorMask = stack.malloc(4)
+            GL11C.glGetBooleanv(GL11C.GL_COLOR_WRITEMASK, colorMask)
+            RenderUtils.withSavedRenderState {
+                try {
+                    RenderSystem.disableDepthTest()
+                    RenderSystem.colorMask(true, true, true, false)
+                    RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+                    bufferSource.endBatch(highlightLines)
+                } finally {
+                    RenderSystem.colorMask(
+                        colorMask[0] != 0.toByte(),
+                        colorMask[1] != 0.toByte(),
+                        colorMask[2] != 0.toByte(),
+                        colorMask[3] != 0.toByte()
+                    )
+                    RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3])
+                    RenderSystem.lineWidth(lineWidth)
+                }
+            }
+        }
     }
 }

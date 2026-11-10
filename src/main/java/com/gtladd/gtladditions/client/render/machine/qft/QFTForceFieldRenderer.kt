@@ -1,13 +1,17 @@
 package com.gtladd.gtladditions.client.render.machine.qft
 
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredMachineRenderer
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderEntry
+import com.gtladd.gtladditions.api.client.scene.PartBlend
+import com.gtladd.gtladditions.api.client.scene.PartBounds
+import com.gtladd.gtladditions.api.client.scene.PartDrawContext
+import com.gtladd.gtladditions.api.client.scene.PartFeature
+import com.gtladd.gtladditions.api.client.scene.PartKey
+import com.gtladd.gtladditions.api.client.scene.PartOutcome
+import com.gtladd.gtladditions.api.client.scene.PartRenderer
+import com.gtladd.gtladditions.api.client.scene.SceneFrame
+import com.gtladd.gtladditions.api.client.scene.ScenePart
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.utils.RenderUtils
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
@@ -15,78 +19,50 @@ import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.blaze3d.vertex.VertexSorting
 import net.minecraft.client.renderer.ShaderInstance
-import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.config.ConfigHolder
-import org.lwjgl.opengl.GL11C
 
 @OnlyIn(Dist.CLIENT)
-internal object QFTForceFieldRenderer {
+internal object QFTForceFieldRenderer : PartRenderer<QFTForceField> {
     private val texture = GTLAdditions.id("textures/effect/qft/force_field.png")
+    private val provider = SceneRendering.register(GTLAdditions.id("qft"))
     private val builder = BufferBuilder(4096)
     private val vertexBuffer by lazy { VertexBuffer(VertexBuffer.Usage.DYNAMIC) }
     var shader: ShaderInstance? = null
 
-    fun enqueue(blockEntity: BlockEntity, machine: WorkableMultiblockMachine, partialTicks: Float) {
-        DeferredMachineRenderer.enqueue(Entry(blockEntity, machine, partialTicks))
+    fun submit(frame: SceneFrame, pos: BlockPos, facing: Direction, machineTicks: Double) {
+        val center = QFTForceFieldGeometry.center(pos, facing)
+        // A shared AnimationFrame is valid only when the machines share the frame's animation clock.
+        val smooth = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
+        val ticks = if (smooth) frame.renderTicks else machineTicks
+        val part = ScenePart.builder(PartKey.block(provider, pos, 0), this, QFTForceField(center, ticks))
+            .blend(PartBlend.PREMULTIPLIED)
+            .bounds(PartBounds.box(QFTForceFieldGeometry.bounds(center)))
+            .features(PartFeature.INTERNAL_SORT)
+        if (smooth) part.batchKey(this)
+        frame.submit(part.build())
     }
 
-    private fun renderBatch(context: DeferredRenderContext, entries: List<DeferredRenderEntry>) {
-        val currentShader = shader ?: return
-        val first = entries.firstOrNull() as? Entry ?: return
-        val ticks = RenderUtils.getSmoothTickDouble(first.machine, first.partialTicks)
+    override fun draw(context: PartDrawContext, parts: List<ScenePart<QFTForceField>>) {
+        val shader = shader ?: return parts.forEach { context.report(it, PartOutcome.RESOURCE_UNAVAILABLE) }
+        val frame = context.frame
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
-        for (entry in entries) {
-            val field = entry as Entry
-            QFTForceFieldGeometry.write(builder, field.center.subtract(context.cameraPosition))
-        }
-        // Sort every face in this batch, including the back faces seen through the field.
+        for (part in parts) QFTForceFieldGeometry.write(builder, part.payload.center.subtract(frame.cameraX, frame.cameraY, frame.cameraZ))
         builder.setQuadSorting(VertexSorting.DISTANCE_TO_ORIGIN)
         RenderUtils.withSavedRenderState {
             RenderUtils.withBoundBuffer(vertexBuffer) {
                 vertexBuffer.upload(builder.end())
-                RenderSystem.enableBlend()
-                RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA)
                 RenderSystem.disableCull()
-                RenderSystem.enableDepthTest()
-                RenderSystem.depthFunc(GL11C.GL_LEQUAL)
-                RenderSystem.depthMask(false)
                 RenderSystem.setShaderTexture(0, texture)
-                currentShader.getUniform("AnimationFrame")?.set(QFTForceFieldGeometry.animationFrame((ticks.toDouble() * 50.0).toLong()))
-
-                DeferredOculusCompat.withDeferredShaderPass {
-                    vertexBuffer.drawWithShader(context.poseStack.last().pose(), RenderSystem.getProjectionMatrix(), currentShader)
-                }
+                shader.getUniform("AnimationFrame")?.set(QFTForceFieldGeometry.animationFrame((parts[0].payload.ticks * 50.0).toLong()))
+                vertexBuffer.drawWithShader(context.poseStack.last().pose(), RenderSystem.getProjectionMatrix(), shader)
             }
         }
     }
-
-    private class Entry(
-        override val blockEntity: BlockEntity,
-        val machine: WorkableMultiblockMachine,
-        val partialTicks: Float
-    ) : DeferredRenderEntry {
-        val center = QFTForceFieldGeometry.center(blockEntity.blockPos, machine.frontFacing)
-        private val bounds = QFTForceFieldGeometry.bounds(center)
-
-        // A shared shader uniform is valid only when the machines share an animation clock.
-        override val batchKey: Any? = if (ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) QFTForceFieldRenderer else null
-        override val renderOrder: Int = 20
-
-        override fun isVisible(context: DeferredRenderContext): Boolean =
-            !blockEntity.isRemoved &&
-                machine.isFormed &&
-                machine.isActive &&
-                machine.isWorkingEnabled &&
-                (context.frustum?.isVisible(bounds) != false)
-
-        override fun render(context: DeferredRenderContext) {
-            renderBatch(context, listOf(this))
-        }
-
-        override fun renderBatch(context: DeferredRenderContext, entries: List<DeferredRenderEntry>) {
-            QFTForceFieldRenderer.renderBatch(context, entries)
-        }
-    }
 }
+
+internal class QFTForceField(val center: Vec3, val ticks: Double)

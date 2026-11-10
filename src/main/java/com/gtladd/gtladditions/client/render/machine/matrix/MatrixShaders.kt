@@ -17,6 +17,8 @@ import net.minecraftforge.fml.common.Mod
 object MatrixShaders {
     var seal: ShaderInstance? = null
         private set
+    var sealLayers: ShaderInstance? = null
+        private set
     var energyCore: ShaderInstance? = null
         private set
     var energyCoreLayers: ShaderInstance? = null
@@ -35,7 +37,9 @@ object MatrixShaders {
     @SubscribeEvent
     @JvmStatic
     fun register(event: RegisterShadersEvent) {
-        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_seal"), DefaultVertexFormat.POSITION_COLOR) { seal = it
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_seal"), DefaultVertexFormat.POSITION_COLOR) { seal = it }
+        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_seal_layers"), DefaultVertexFormat.POSITION_COLOR) {
+            sealLayers = it
         }
 
         RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_energy_core"), DefaultVertexFormat.POSITION) {

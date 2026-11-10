@@ -1,44 +1,105 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredMachineRenderer
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderEntry
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneRenderer
+import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.api.client.scene.PartBlend
+import com.gtladd.gtladditions.api.client.scene.PartBounds
+import com.gtladd.gtladditions.api.client.scene.PartDrawContext
+import com.gtladd.gtladditions.api.client.scene.PartFeature
+import com.gtladd.gtladditions.api.client.scene.PartKey
+import com.gtladd.gtladditions.api.client.scene.PartOutcome
+import com.gtladd.gtladditions.api.client.scene.PartRenderer
+import com.gtladd.gtladditions.api.client.scene.ScenePart
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
+import com.gtladd.gtladditions.client.render.machine.heart.HeartLayerImages
+import com.gtladd.gtladditions.client.render.scene.CompositePartRenderer
+import com.gtladd.gtladditions.client.render.scene.LayeredPartRenderer
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ApocalypticWarpQuantumMatrix
 import com.gtladd.gtladditions.utils.RenderUtils
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
-import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import kotlin.math.cos
+import org.joml.Vector3f
 import kotlin.math.sin
 
-/** Shared frame geometry and the eye-linked iris-star seal, ordered after eye/mist composition. */
 @OnlyIn(Dist.CLIENT)
 object MatrixEffectRenderer {
+    // After the six beams and the core.
+    private const val FRAME_LIGHTS = 7
+    private const val IRIS_STAR = 8
+    private const val EYE_MIST = 9
     private var frameLights: List<VertexBuffer>? = null
+    internal val provider = SceneRendering.register(GTLAdditions.id("matrix"))
+
+    /** From the cube centre, which every layer turns about rigidly. */
+    private val frameLightReach by lazy {
+        (0 until MatrixEffectGeometry.ENERGY_CORE_LAYER_INDEX).maxOf { index ->
+            MatrixFrameDetails.layer(index).lights.maxOf { quad ->
+                val v = quad.vertices
+                (0..9 step 3).maxOf { Vector3f(v[it], v[it + 1], v[it + 2]).length() }
+            }
+        }.toDouble()
+    }
 
     fun enqueue(blockEntity: BlockEntity, machine: ApocalypticWarpQuantumMatrix, ticks: Double, eyeSeconds: Double) {
         MatrixFrameTerrainRenderer.enqueue(blockEntity, machine, ticks)
+        // No frame during the shaderpack shadow pass, and no eye sample either.
+        val frame = SceneRendering.frame() ?: return
         val eye = MatrixEyeRenderer.sample(blockEntity, eyeSeconds, machine.matrixEffects.isRunning())
-        DeferredMachineRenderer.enqueue(Entry(blockEntity, machine, ticks, eye))
+        val entry = Entry(blockEntity, machine, ticks, eye)
+        val yaw = facingYaw(machine.frontFacing)
+        val pos = blockEntity.blockPos
+        MatrixEyeRenderer.submit(frame, blockEntity, eye, yaw, machine.isFlipped)
+        frame.submit(
+            ScenePart.builder(PartKey.block(provider, pos, EYE_MIST), EyeMist, entry)
+                .blend(PartBlend.STRAIGHT)
+                .bounds(
+                    PartBounds.union(
+                        PartBounds.box(MatrixEyeRenderer.bounds(pos, yaw)),
+                        MatrixIrisStarRenderer.bounds(frame, pos, yaw, machine.isFlipped, true)
+                    )
+                )
+                .features(PartFeature.SCENE_DEPTH)
+                .build()
+        )
+        // The seal's outer group touches every beam on its plane; both SCREEN, they need no order between them.
+        frame.submit(
+            ScenePart.builder(PartKey.block(provider, pos, IRIS_STAR), IrisStar, entry)
+                .blend(PartBlend.SCREEN)
+                .bounds(MatrixIrisStarRenderer.bounds(frame, pos, yaw, machine.isFlipped, false))
+                .build()
+        )
+        MatrixBeamRenderer.submit(frame, blockEntity, eye, yaw, machine.isFlipped)
+        // The lights' sphere holds the core's around the same centre: an unordered pair whose tie goes by part number, the core first.
+        val center = MatrixFrameTransforms.cubeCenter(pos, yaw)
+        frame.submit(
+            ScenePart.builder(PartKey.block(provider, pos, FRAME_LIGHTS), FrameLights, entry)
+                .blend(PartBlend.ADDITIVE)
+                .bounds(PartBounds.sphere(center.x, center.y, center.z, frameLightReach))
+                // In the Heart bins the lights test their own depth against the scene.
+                .features(PartFeature.SCENE_DEPTH)
+                .build()
+        )
+        MatrixEnergyCoreRenderer.submit(frame, blockEntity, ticks, yaw, machine.isFlipped)
+    }
+
+    private fun facingYaw(facing: Direction): Float = when (facing) {
+        Direction.WEST -> -90f
+        Direction.NORTH -> 180f
+        Direction.EAST -> 90f
+        else -> 0f
     }
 
     fun releaseBuffers() {
         MatrixEnergyCoreRenderer.releaseBuffers()
         MatrixEyeRenderer.releaseBuffers()
         MatrixIrisStarRenderer.releaseBuffers()
-        MatrixSealRenderer.releaseBuffers()
         MatrixFrameTerrainRenderer.releaseBuffers()
         RenderUtils.releaseBuffers(frameLights)
         frameLights = null
@@ -64,84 +125,103 @@ object MatrixEffectRenderer {
             }
         }.also { frameLights = it }
 
-    private fun renderFrameLights(entry: Entry, poseStack: PoseStack, yaw: Float) {
-        val shader = MatrixShaders.seal ?: return
-        RenderSystem.enableBlend()
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE)
-        RenderSystem.enableDepthTest()
-        RenderSystem.depthMask(false)
-        RenderSystem.disableCull()
-        frameLightBuffers().forEachIndexed { index, buffer ->
-            val intensity = if (entry.machine.matrixEffects.isRunning()) 0.9f + 0.1f * sin(entry.ticks * 0.045 + index).toFloat() else 0.35f
-            shader.getUniform("Intensity")?.set(intensity)
-            poseStack.withPose {
-                MatrixFrameTransforms.apply(this, index, entry.ticks, yaw, entry.machine.isFlipped)
-                RenderUtils.withBoundBuffer(buffer) {
-                    DeferredOculusCompat.withDeferredShaderPass {
-                        buffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+    /** The program's SRC_ALPHA / ONE, or in the Heart bins premultiplied colour that covers nothing. */
+    private object FrameLights : LayeredPartRenderer<Entry> {
+        override fun layered(part: ScenePart<Entry>): Boolean = MatrixShaders.sealLayers != null
+
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Entry>>) {
+            val shader = MatrixShaders.seal ?: return parts.forEach { context.report(it, PartOutcome.RESOURCE_UNAVAILABLE) }
+            for (part in parts) drawLights(context, part.payload, shader)
+        }
+
+        override fun drawLayered(
+            context: PartDrawContext,
+            part: ScenePart<Entry>,
+            depth: Int,
+            count: Int,
+            base: Int,
+            rect: IntArray,
+            local: Boolean
+        ) {
+            val shader = MatrixShaders.sealLayers ?: return
+            context.sceneDepth!!.bind(shader)
+            HeartLayerImages.bindArray(3, depth)
+            shader.getUniform("LayerDepths")?.set(3)
+            shader.getUniform("LayerCount")?.set(count)
+            shader.getUniform("LayerBase")?.set(base)
+            shader.getUniform("LayerMode")?.set(if (local) 1 else 0)
+            shader.getUniform("LayerOrigin")?.set(if (local) rect[0].toFloat() else 0f, if (local) rect[1].toFloat() else 0f)
+            shader.getUniform("LayerRect")?.set(rect[0].toFloat(), rect[1].toFloat(), rect[2].toFloat(), rect[3].toFloat())
+            RenderSystem.colorMask(true, true, true, local)
+            drawLights(context, part.payload, shader)
+        }
+
+        private fun drawLights(context: PartDrawContext, entry: Entry, shader: ShaderInstance) {
+            val frame = context.frame
+            val pos = entry.blockEntity.blockPos
+            val running = entry.machine.matrixEffects.isRunning()
+            RenderUtils.withSavedRenderState {
+                RenderSystem.disableCull()
+                frameLightBuffers().forEachIndexed { index, buffer ->
+                    shader.getUniform("Intensity")?.set(
+                        if (running) 0.9f + 0.1f * sin(entry.ticks * 0.045 + index).toFloat() else 0.35f
+                    )
+                    context.poseStack.withPose {
+                        translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
+                        MatrixFrameTransforms.apply(this, index, entry.ticks, entry.yaw, entry.machine.isFlipped)
+                        RenderUtils.withBoundBuffer(buffer) {
+                            buffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+                        }
                     }
                 }
             }
         }
     }
 
+    private object IrisStar : PartRenderer<Entry> {
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Entry>>) {
+            val frame = context.frame
+
+            for (part in parts) {
+                val entry = part.payload
+                val pos = entry.blockEntity.blockPos
+                context.poseStack.withPose {
+                    translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
+                    MatrixEyeRenderer.applyTransform(this, entry.yaw, entry.machine.isFlipped)
+                    if (!MatrixIrisStarRenderer.render(this, entry.eye, false)) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+                }
+            }
+        }
+    }
+
+    private object EyeMist : CompositePartRenderer<Entry> {
+        override fun composite(part: ScenePart<Entry>): Boolean = true
+
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Entry>>) {
+            val frame = context.frame
+
+            for (part in parts) {
+                val entry = part.payload
+                val pos = entry.blockEntity.blockPos
+                val drawn = context.poseStack.withPose {
+                    translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
+                    MatrixEyeRenderer.applyTransform(this, entry.yaw, entry.machine.isFlipped)
+                    val mist = MatrixEyeRenderer.renderMist(this, entry.eye, context.sceneDepth!!)
+                    MatrixIrisStarRenderer.render(this, entry.eye, true) && mist
+                }
+
+                if (!drawn) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+            }
+        }
+    }
+
     private class Entry(
-        override val blockEntity: BlockEntity,
+        val blockEntity: BlockEntity,
         val machine: ApocalypticWarpQuantumMatrix,
         val ticks: Double,
         val eye: MatrixEyeAnimation.Frame
-    ) : DeferredRenderEntry {
-        override fun isVisible(context: DeferredRenderContext): Boolean =
-            !blockEntity.isRemoved && machine.isFormed && blockEntity.level === Minecraft.getInstance().level
-
-        private val yaw: Float
-            get() = when (machine.frontFacing) {
-                Direction.WEST -> -90f
-                Direction.NORTH -> 180f
-                Direction.EAST -> 90f
-                else -> 0f
-            }
-
-        private fun renderEye(context: DeferredRenderContext, opaque: Boolean) {
-            val angle = Math.toRadians(yaw.toDouble())
-            val pos = blockEntity.blockPos
-            val x = pos.x + 0.5 - 15.0 * sin(angle)
-            val z = pos.z + 0.5 - 15.0 * cos(angle)
-            if (context.frustum?.isVisible(AABB(x - 11.5, pos.y + 0.9, z - 11.5, x + 11.5, pos.y + 7.0, z + 11.5)) == false) return
-            context.renderRelativeToCamera(blockEntity) {
-                MatrixEyeRenderer.applyTransform(this, yaw, machine.isFlipped)
-                MatrixFrameTransforms.withWinding(machine.isFlipped) {
-                    DeferredOculusCompat.withDeferredShaderPass {
-                        if (opaque) {
-                            MatrixEyeRenderer.renderSurfaces(this, eye)
-                        } else {
-                            MatrixEyeRenderer.renderMist(this, eye)
-                        }
-                    }
-                }
-            }
-        }
-
-        override fun renderOpaque(context: DeferredRenderContext) = renderEye(context, true)
-
-        override fun render(context: DeferredRenderContext) {
-            RenderUtils.withSavedRenderState {
-                renderEye(context, false)
-                context.renderRelativeToCamera(blockEntity) {
-                    MatrixFrameTransforms.withWinding(machine.isFlipped) {
-                        renderFrameLights(this@Entry, this, yaw)
-                        withPose {
-                            MatrixEyeRenderer.applyTransform(this, yaw, machine.isFlipped)
-                            DeferredOculusCompat.withDeferredShaderPass {
-                                MatrixIrisStarRenderer.render(this, eye)
-                            }
-                        }
-                    }
-                }
-            }
-            MatrixBeamRenderer.render(context, blockEntity, eye, yaw, machine.isFlipped)
-            val core = MatrixEnergyCoreRenderer.Entry(blockEntity, ticks, yaw, machine.isFlipped)
-            if (!DeferredSceneRenderer.tryDeferEffect(core)) core.renderDirect(context)
-        }
+    ) {
+        val yaw: Float
+            get() = facingYaw(machine.frontFacing)
     }
 }

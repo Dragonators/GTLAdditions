@@ -29,7 +29,7 @@ class RecursiveReverseRenderer(private val kind: RrfEffectKind) :
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? MultiblockControllerMachine ?: return
         if (!RrfEffectRenderer.isActive(machine)) return
-        RrfEffectRenderer.enqueue(blockEntity, machine, kind, partialTicks)
+        RrfEffectRenderer.submit(blockEntity, machine, kind, partialTicks)
     }
 
     override fun hasTESR(blockEntity: BlockEntity): Boolean = true

@@ -42,9 +42,23 @@
     },
     {
       "name": "HandMaskSampler"
+    },
+    {
+      "name": "SceneDepth"
     }
   ],
   "uniforms": [
+    {
+      "name": "SceneSize", "type": "float", "count": 2, "values": [1.0, 1.0]
+    },
+    {
+      "name": "InverseProjection", "type": "matrix4x4", "count": 16,
+      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "name": "HeartSpheres", "type": "matrix4x4", "count": 16,
+      "values": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    },
     {
       "name": "HandMaskEnabled",
       "type": "float",

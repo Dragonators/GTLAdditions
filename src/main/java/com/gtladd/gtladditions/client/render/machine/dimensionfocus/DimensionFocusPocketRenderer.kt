@@ -1,24 +1,30 @@
 package com.gtladd.gtladditions.client.render.machine.dimensionfocus
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.api.client.scene.PartBlend
+import com.gtladd.gtladditions.api.client.scene.PartBounds
+import com.gtladd.gtladditions.api.client.scene.PartDrawContext
+import com.gtladd.gtladditions.api.client.scene.PartKey
+import com.gtladd.gtladditions.api.client.scene.PartOutcome
+import com.gtladd.gtladditions.api.client.scene.PartPass
+import com.gtladd.gtladditions.api.client.scene.PartRenderer
+import com.gtladd.gtladditions.api.client.scene.ScenePart
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.client.render.machine.DimensionFocusInfinityCraftingArrayRenderer.Companion.ORBIT_PERIOD_SECONDS
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredMachineRenderer
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderEntry
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.machine.multiblock.controller.DimensionFocusInfinityCraftingArray
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.DimensionFocusBlockLayout
 import com.gtladd.gtladditions.utils.RenderUtils
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
 import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.RegisterShadersEvent
@@ -52,39 +58,70 @@ internal object DimensionFocusPocketRenderer {
     private const val GAS_DEEP_UNIT = 4
 
     var pocketShader: ShaderInstance? = null
+    var pocketOpaqueShader: ShaderInstance? = null
     var needleShader: ShaderInstance? = null
+    private val provider = SceneRendering.register(GTLAdditions.id("dimension_focus_pocket"))
     private val states = WeakHashMap<BlockEntity, State>()
     private val sphere by lazy(::buildSphere)
     private val needles by lazy(::buildNeedles)
     private val cameraLocal = Vector3f()
 
     fun enqueue(blockEntity: BlockEntity, machine: DimensionFocusInfinityCraftingArray, ticks: Double) {
-        DeferredMachineRenderer.enqueue(Entry(blockEntity, machine, ticks))
+        // The state advances here once per frame, so the solid interior and the rim read the same values.
+        val frame = SceneRendering.frame() ?: return
+        val entry = Entry(blockEntity, machine, ticks, update(blockEntity, machine, ticks))
+        val pos = blockEntity.blockPos
+        val center = origin(machine.frontFacing)
+        val sphere = PartBounds.sphere(
+            pos.x + center.x.toDouble(),
+            pos.y + center.y.toDouble(),
+            pos.z + center.z.toDouble(),
+            RADIUS.toDouble()
+        )
+        frame.submit(ScenePart.builder(PartKey.block(provider, pos, 0), Interior, entry).pass(PartPass.OPAQUE).bounds(sphere).build())
+        // The rim lies on the sphere, a little beyond the orbit box at the poles; the needles ride the petals inside that box.
+        frame.submit(
+            ScenePart.builder(PartKey.block(provider, pos, 1), Rim, entry)
+                .blend(PartBlend.PREMULTIPLIED)
+                .bounds(PartBounds.union(sphere, PartBounds.box(DimensionFocusOrbitGeometry.bounds(pos, machine.frontFacing))))
+                .build()
+        )
     }
 
-    private fun draw(context: DeferredRenderContext, entry: Entry, opaque: Boolean) {
-        val pocket = pocketShader ?: return
-        val needle = needleShader ?: return
-        val textures = DimensionFocusPocketTextures.current ?: return
-        val state = update(entry)
+    /** Relative to the controller block. */
+    private fun origin(facing: Direction): Vector3f {
+        val offset = DimensionFocusBlockLayout.centerOffset
+        return Axis.YP.rotationDegrees(DimensionFocusOrbitGeometry.yaw(facing))
+            .transform(Vector3f(offset.x.toFloat(), offset.y.toFloat(), offset.z.toFloat()))
+            .add(0.5f, 0.5f, 0.5f)
+    }
+
+    /**
+     * The pocket on [pose], which stands at the controller block, seen from [camera]: the solid interior, or the soft rim and the
+     * needle tint; false without its programs or maps.
+     */
+    private fun drawPocket(pose: PoseStack, camera: Vec3, entry: Entry, opaque: Boolean): Boolean {
+        val pocket = (if (opaque) pocketOpaqueShader else pocketShader) ?: return false
+        val needle = needleShader ?: return false
+        val textures = DimensionFocusPocketTextures.current ?: return false
+        val sample = entry.sample
         val ticks = entry.ticks
         val pos = entry.blockEntity.blockPos
         val facing = Axis.YP.rotationDegrees(DimensionFocusOrbitGeometry.yaw(entry.machine.frontFacing))
         val offset = DimensionFocusBlockLayout.centerOffset
-        // Same transform chain as DimensionFocusOrbitRenderer: block centre, facing, structure centre.
-        val origin = facing.transform(Vector3f(offset.x.toFloat(), offset.y.toFloat(), offset.z.toFloat())).add(0.5f, 0.5f, 0.5f)
+        val origin = origin(entry.machine.frontFacing)
         cameraLocal.set(
-            (context.cameraPosition.x - pos.x).toFloat() - origin.x,
-            (context.cameraPosition.y - pos.y).toFloat() - origin.y,
-            (context.cameraPosition.z - pos.z).toFloat() - origin.z
+            (camera.x - pos.x).toFloat() - origin.x,
+            (camera.y - pos.y).toFloat() - origin.y,
+            (camera.z - pos.z).toFloat() - origin.z
         )
         facing.transformInverse(cameraLocal)
 
         for (shader in arrayOf(pocket, needle)) {
             shader.getUniform("Time")?.set((ticks / 20.0).toFloat())
-            shader.getUniform("Flow")?.set(state.flow.toFloat())
-            shader.getUniform("Spin")?.set(state.spin)
-            shader.getUniform("Level")?.set(state.level)
+            shader.getUniform("Flow")?.set(sample.flow.toFloat())
+            shader.getUniform("Spin")?.set(sample.spin)
+            shader.getUniform("Level")?.set(sample.level)
             shader.getUniform("Align")?.set(DimensionFocusOrbitGeometry.alignment(ticks))
             shader.getUniform("CameraLocal")?.set(cameraLocal.x, cameraLocal.y, cameraLocal.z)
         }
@@ -93,64 +130,61 @@ internal object DimensionFocusPocketRenderer {
 
         RenderUtils.withSavedRenderState {
             textures.bind {
-                RenderSystem.enableBlend()
-                RenderSystem.blendFuncSeparate(
-                    GlStateManager.SourceFactor.ONE,
-                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                    GlStateManager.SourceFactor.ZERO,
-                    GlStateManager.DestFactor.ONE
-                )
+                // Blending is each program's own: none for the solid interior, premultiplied for the rim and needles.
                 RenderSystem.enableDepthTest()
                 RenderSystem.depthFunc(GL11C.GL_LEQUAL)
                 RenderSystem.depthMask(opaque)
-                context.renderRelativeToCamera(entry.blockEntity) {
+                pose.withPose {
                     translate(0.5, 0.5, 0.5)
                     mulPose(facing)
                     translate(offset.x.toDouble(), offset.y.toDouble(), offset.z.toDouble())
-                    DeferredOculusCompat.withDeferredShaderPass {
-                        // Inward-wound triangles: back-face culling keeps the far half of the sphere, so every ray enters the pocket once.
-                        RenderSystem.enableCull()
-                        RenderUtils.withBoundBuffer(sphere) { sphere.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), pocket) }
-                        if (opaque) return@withDeferredShaderPass
-                        // The needle faces lie exactly on the terrain's; hidden ones fail the depth test, so culling can stay off.
-                        RenderSystem.disableCull()
-                        RenderSystem.enablePolygonOffset()
-                        RenderSystem.polygonOffset(-1f, -1f)
-                        try {
-                            needles.forEachIndexed { layer, buffer ->
-                                val angle = DimensionFocusOrbitGeometry.angleDegrees(layer, ticks)
-                                needle.getUniform("LayerAngle")?.set(Math.toRadians(angle.toDouble()).toFloat())
-                                withPose {
-                                    mulPose(Axis.YP.rotationDegrees(angle))
-                                    RenderUtils.withBoundBuffer(buffer) { buffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), needle) }
-                                }
-                            }
-                        } finally {
-                            RenderSystem.polygonOffset(0f, 0f)
-                            RenderSystem.disablePolygonOffset()
-                        }
-                    }
+                    // Inward-wound triangles: back-face culling keeps the far half of the sphere, so every ray enters the pocket once.
+                    RenderSystem.enableCull()
+                    RenderUtils.withBoundBuffer(sphere) { sphere.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), pocket) }
+                    if (!opaque) drawNeedles(this, needle, ticks)
                 }
             }
+        }
+
+        return true
+    }
+
+    private fun drawNeedles(pose: PoseStack, needle: ShaderInstance, ticks: Double) {
+        // The needle faces lie exactly on the terrain's; hidden ones fail the depth test, so culling can stay off.
+        RenderSystem.disableCull()
+        RenderSystem.enablePolygonOffset()
+        RenderSystem.polygonOffset(-1f, -1f)
+        try {
+            needles.forEachIndexed { layer, buffer ->
+                val angle = DimensionFocusOrbitGeometry.angleDegrees(layer, ticks)
+                needle.getUniform("LayerAngle")?.set(Math.toRadians(angle.toDouble()).toFloat())
+                pose.withPose {
+                    mulPose(Axis.YP.rotationDegrees(angle))
+                    RenderUtils.withBoundBuffer(buffer) { buffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), needle) }
+                }
+            }
+        } finally {
+            RenderSystem.polygonOffset(0f, 0f)
+            RenderSystem.disablePolygonOffset()
         }
     }
 
     /**
-     * Working machines glow fully and their pocket flows; idle ones dim and the flow nearly stops. Eased over game time, so a pause freezes it with the blocks
-     * and one-tick recipes do not flicker. The flow is integrated rather than derived from the tick, so a state change bends the motion instead of jumping it.
+     * Eased over game time, so a pause freezes it with the blocks and one-tick recipes do not flicker. The flow is integrated
+     * rather than derived from the tick, so a state change bends the motion instead of jumping it.
      */
-    private fun update(entry: Entry): State {
-        val working = entry.machine.isActive && entry.machine.isWorkingEnabled
+    private fun update(blockEntity: BlockEntity, machine: DimensionFocusInfinityCraftingArray, ticks: Double): Sample {
+        val working = machine.isActive && machine.isWorkingEnabled
         val level = if (working) 1f else IDLE_LEVEL
         val spin = if (working) 1f else 0f
-        val state = states.getOrPut(entry.blockEntity) { State(entry.ticks, level, spin) }
-        val seconds = ((entry.ticks - state.ticks) / 20.0).coerceIn(0.0, 1.0)
-        state.ticks = entry.ticks
+        val state = states.getOrPut(blockEntity) { State(ticks, level, spin) }
+        val seconds = ((ticks - state.ticks) / 20.0).coerceIn(0.0, 1.0)
+        state.ticks = ticks
         state.level = ease(state.level, level, seconds, LEVEL_RISE_SECONDS, LEVEL_FALL_SECONDS)
         state.spin = ease(state.spin, spin, seconds, SPIN_RISE_SECONDS, SPIN_FALL_SECONDS)
         state.flow += seconds * (0.22 + 1.38 * state.spin) * 2.0 * PI / ORBIT_PERIOD_SECONDS
 
-        return state
+        return Sample(state.level, state.spin, state.flow)
     }
 
     private fun ease(current: Float, target: Float, seconds: Double, rise: Double, fall: Double): Float =
@@ -231,27 +265,34 @@ internal object DimensionFocusPocketRenderer {
 
     private class State(var ticks: Double, var level: Float, var spin: Float, var flow: Double = 0.0)
 
+    private class Sample(val level: Float, val spin: Float, val flow: Double)
+
     private class Entry(
-        override val blockEntity: BlockEntity,
+        val blockEntity: BlockEntity,
         val machine: DimensionFocusInfinityCraftingArray,
-        val ticks: Double
-    ) : DeferredRenderEntry {
-        override val renderOrder: Int = 20
+        val ticks: Double,
+        val sample: Sample
+    )
 
-        override fun isVisible(context: DeferredRenderContext): Boolean =
-            !blockEntity.isRemoved &&
-                machine.isFormed &&
-                (context.frustum?.isVisible(DimensionFocusOrbitGeometry.bounds(machine.pos, machine.frontFacing)) != false)
+    private fun drawParts(context: PartDrawContext, parts: List<ScenePart<Entry>>, opaque: Boolean) {
+        val frame = context.frame
+        val camera = Vec3(frame.cameraX, frame.cameraY, frame.cameraZ)
 
-        override fun renderOpaque(context: DeferredRenderContext) {
-            // The pocket's solid interior occludes all later VFX, including black holes.
-            draw(context, this, true)
+        for (part in parts) {
+            val pos = part.payload.blockEntity.blockPos
+            context.poseStack.withPose {
+                translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
+                if (!drawPocket(this, camera, part.payload, opaque)) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
+            }
         }
+    }
 
-        override fun render(context: DeferredRenderContext) {
-            // Only the soft rim and needle tint remain in the transparent pass.
-            draw(context, this, false)
-        }
+    private object Interior : PartRenderer<Entry> {
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Entry>>) = drawParts(context, parts, true)
+    }
+
+    private object Rim : PartRenderer<Entry> {
+        override fun draw(context: PartDrawContext, parts: List<ScenePart<Entry>>) = drawParts(context, parts, false)
     }
 
     private fun DimensionFocusPocketTextures.Loaded.bind(draw: () -> Unit) {
@@ -315,6 +356,11 @@ internal object DimensionFocusPocketShaderEvents {
             if (shader != null && textures != null) DimensionFocusPocketTextures.upload(textures)
             DimensionFocusPocketRenderer.pocketShader = shader
         }
+        RenderUtils.registerShader(
+            event,
+            GTLAdditions.id("gtladditions_dimension_focus_pocket_opaque"),
+            DefaultVertexFormat.POSITION
+        ) { DimensionFocusPocketRenderer.pocketOpaqueShader = it }
         RenderUtils.registerShader(
             event,
             GTLAdditions.id("gtladditions_dimension_focus_pocket_needles"),

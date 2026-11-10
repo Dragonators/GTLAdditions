@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gregtechceu.gtceu.client.renderer.GTRendererProvider
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.client.render.machine.qft.QFTForceFieldRenderer
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
@@ -37,7 +38,8 @@ class QFTRenderer :
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? WorkableMultiblockMachine ?: return
         if (!machine.isFormed || !machine.isActive || !machine.isWorkingEnabled) return
-        QFTForceFieldRenderer.enqueue(blockEntity, machine, partialTicks)
+        val frame = SceneRendering.frame() ?: return
+        QFTForceFieldRenderer.submit(frame, blockEntity.blockPos, machine.frontFacing, machine.offsetTimer.toDouble() + partialTicks)
     }
 
     override fun hasTESR(blockEntity: BlockEntity): Boolean = true

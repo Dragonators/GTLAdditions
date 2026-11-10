@@ -2,7 +2,7 @@ package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.google.gson.JsonParser
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredIrisPipelineBridge
+import com.gtladd.gtladditions.client.render.scene.IrisPipelineBridge
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.irisshaders.iris.Iris
 import net.irisshaders.iris.pipeline.ShaderRenderingPipeline
@@ -32,7 +32,7 @@ object RingBatchShaders {
     fun current(): ShaderInstance? {
         val pipeline = Iris.getPipelineManager().pipelineNullable
         if (pipeline is ShaderRenderingPipeline && pipeline.shouldOverrideShaders()) {
-            return (pipeline as? DeferredIrisPipelineBridge)?.foaBatchShader
+            return (pipeline as? IrisPipelineBridge)?.foaBatchShader
         }
 
         return vanilla

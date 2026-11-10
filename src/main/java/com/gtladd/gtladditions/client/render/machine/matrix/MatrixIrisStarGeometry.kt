@@ -5,11 +5,13 @@ import kotlin.math.PI
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.floor
+import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import kotlin.math.sqrt
 
-/** Approved E iris-star design from finale-eye-volume-20261024/circle.js, in Z-up model coordinates. */
+/** Z-up model coordinates. */
 object MatrixIrisStarGeometry {
     const val PLANE_Z = 2.674f
     const val BEAM_RING_RADIUS = 41.2f
@@ -19,9 +21,28 @@ object MatrixIrisStarGeometry {
     data class Primitive(val a: FloatArray, val b: FloatArray, val c: FloatArray, val d: FloatArray)
 
     data class Beam(val x: Float, val y: Float, val group: Int)
-    data class Design(val primitives: List<Primitive>, val beams: List<Beam>)
+
+    /** Primitives before [inner] are the inner group. */
+    data class Design(val primitives: List<Primitive>, val beams: List<Beam>, val inner: Int) {
+        fun group(inner: Boolean): List<Primitive> =
+            if (inner) primitives.subList(0, this.inner) else primitives.subList(this.inner, primitives.size)
+    }
 
     val design: Design by lazy { build() }
+
+    private val reaches by lazy { floatArrayOf(reach(design.group(true)), reach(design.group(false))) }
+
+    /** From the centre, before the vertex shader pads its quad. */
+    fun reach(inner: Boolean): Float = reaches[if (inner) 0 else 1]
+
+    private fun reach(primitives: List<Primitive>): Float = primitives.maxOf { p ->
+        when (p.d[2].roundToInt()) {
+            0 -> maxOf(hypot(p.a[0], p.a[1]), hypot(p.a[2], p.a[3]))
+            // An arc piece's outer corners lie r * sqrt(1 + sin(h)^2) from its circle's centre, h being half its span.
+            1 -> hypot(p.a[0], p.a[1]) + p.a[2] * sqrt(1 + sin(p.b[3] / 2).pow(2))
+            else -> hypot(p.a[0], p.a[1]) + hypot(p.a[3], p.b[0])
+        }
+    }
 
     /** Group 0 (inner fibres) stays fixed; group 1 (rune band) and group 2 (star and beam nodes) counter-rotate. */
     fun rotation(group: Int, seconds: Double): Float = Math.toRadians(
@@ -212,6 +233,7 @@ object MatrixIrisStarGeometry {
             },
             Style(intensity = 0.85f)
         )
+        val inner = b.items.size
         b.runeBand(26.6, 30.6, Style(0, true, 1, intensity = 0.95f), Style(0, group = 1, intensity = 0.8f), 900)
 
         for (offset in listOf(90, 30)) {
@@ -241,7 +263,7 @@ object MatrixIrisStarGeometry {
         }
 
         b.ring(0.0, 0.0, 42.4, Style(0, true, 2, intensity = 0.7f))
-        return Design(b.items.toList(), b.beams.toList())
+        return Design(b.items.toList(), b.beams.toList(), inner)
     }
 
     private class Random(private var state: Int) {

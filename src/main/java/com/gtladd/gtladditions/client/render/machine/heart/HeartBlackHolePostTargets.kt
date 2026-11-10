@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneDepth
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.pipeline.RenderTarget
 import com.mojang.blaze3d.platform.GlStateManager
@@ -87,7 +86,6 @@ internal data class HeartBlackHoleTargets(
     val maskBlurScratch: RenderTarget,
     val bloomLevels: List<HeartBlackHoleBloomLevel>
 ) {
-    val depthCopy = DeferredSceneDepth()
     val bloom: RenderTarget get() = bloomLevels[0].blurred
     val bloomScratch: RenderTarget get() = bloomLevels[0].scratch
 
@@ -97,7 +95,6 @@ internal data class HeartBlackHoleTargets(
     fun destroy() {
         material.destroyBuffers()
         effect.destroyBuffers()
-        depthCopy.close()
         effectBlurred.destroyBuffers()
         effectBlurScratch.destroyBuffers()
         maskBlurred.destroyBuffers()

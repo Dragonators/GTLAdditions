@@ -1,14 +1,9 @@
 package com.gtladd.gtladditions.client.render.machine.lighthunter
 
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredMachineRenderer
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderEntry
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneDepth
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneRenderer
+import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.client.render.machine.heart.HeartLayerImages
 import com.gtladd.gtladditions.client.render.machine.heart.HeartSceneCompositor
-import com.gtladd.gtladditions.client.render.machine.heart.HeartSceneEffect
 import com.gtladd.gtladditions.common.machine.multiblock.controller.LightHunterSpaceStation
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
@@ -41,11 +36,8 @@ import kotlin.math.floor
 object LightHunterVfxRenderer {
     // Shader-only material selector; the body reuses the existing SHIELDS mesh.
     private const val SHIELD_FIELD_EFFECT = 7
-    private val meshes = Meshes()
+    internal val meshes = Meshes()
     private var smoothFrameTick: Float? = null
-
-    internal val supportsLayeredRendering: Boolean
-        get() = LightHunterShaders.layers != null
 
     fun sampleAnimationTick(smoothAnimations: Boolean, sample: () -> Float): Float {
         if (!smoothAnimations) return sample()
@@ -60,14 +52,15 @@ object LightHunterVfxRenderer {
     }
 
     fun enqueue(blockEntity: BlockEntity, machine: LightHunterSpaceStation, tick: Float) {
-        DeferredMachineRenderer.enqueue(
-            Entry(
-                blockEntity,
-                machine,
-                tick,
-                if (machine.unlockParadoxical()) LightHunterParadoxAnimation.seconds(machine) else null
-            )
+        val frame = SceneRendering.frame() ?: return
+        val entry = Entry(
+            blockEntity,
+            machine,
+            tick,
+            if (machine.unlockParadoxical()) LightHunterParadoxAnimation.seconds(machine) else null
         )
+        LightHunterSolidParts.submit(frame, entry)
+        if (machine.recipeLogic.isWorking) LightHunterVfxParts.submit(frame, entry)
     }
 
     internal fun setResources(resources: ResourceProvider) {
@@ -89,115 +82,19 @@ object LightHunterVfxRenderer {
     }
 
     internal data class Entry(
-        override val blockEntity: BlockEntity,
+        val blockEntity: BlockEntity,
         val machine: LightHunterSpaceStation,
         val tick: Float,
         val paradoxSeconds: Float? = null
-    ) : DeferredRenderEntry,
-        HeartSceneEffect {
-        override val bounds
-            get() = LightHunterVfxGeometry.bounds(machine.frontFacing).move(blockEntity.blockPos)
-        override val supportsLayeredRendering: Boolean
-            get() = LightHunterVfxRenderer.supportsLayeredRendering
+    ) {
+        // Set by this frame's OPAQUE pass, which runs before the composition draws the window.
+        internal var opaqueWindowDrawn = false
 
-        override val depthCaptureKey: Any
-            get() = LightHunterVfxRenderer
-
-        override fun captureSceneDepth(): Boolean = captureLayeredSceneDepth()
-
-        private var opaqueWindowPrepared = false
-
-        override fun isVisible(context: DeferredRenderContext): Boolean =
-            !blockEntity.isRemoved &&
-                (
-                    (machine.recipeLogic.isWorking && context.frustum?.isVisible(LightHunterVfxGeometry.bounds(machine.frontFacing).move(blockEntity.blockPos)) != false) ||
-                        (machine.isFormed && context.frustum?.isVisible(LightHunterInteriorGeometry.bounds(machine.frontFacing).move(blockEntity.blockPos)) != false)
-                    )
-
-        override fun render(context: DeferredRenderContext) {
-            // DeferredMachineRenderer has one entry per controller position; submit both effects here.
-            LightHunterInteriorRenderer.render(context, blockEntity, machine, tick)
-            if (machine.recipeLogic.isWorking && !DeferredSceneRenderer.tryDeferEffect(this)) renderDirect(context)
-        }
-
-        override fun renderOpaque(context: DeferredRenderContext) {
-            val seconds = paradoxSeconds ?: return
-            if (!machine.recipeLogic.isWorking) return
-            val shader = LightHunterShaders.paradox ?: return
-            val model = LightHunterShaders.paradoxModel ?: return
-            context.renderRelativeToCamera(blockEntity) {
-                val modelView = Matrix4f(last().pose()).mul(LightHunterVfxGeometry.transform(machine.frontFacing))
-                LightHunterParadoxRenderer.drawOpaque(
-                    LightHunterParadoxRenderer.meshes,
-                    shader,
-                    model,
-                    modelView,
-                    RenderSystem.getProjectionMatrix(),
-                    seconds,
-                    tick,
-                    blockEntity
-                )
-            }
-            opaqueWindowPrepared = true
-        }
-
-        override fun renderDirect(context: DeferredRenderContext) {
-            val activeShader = LightHunterShaders.material ?: return
-            val activeFieldShader = LightHunterShaders.chartField ?: return
-            context.renderRelativeToCamera(blockEntity) {
-                val modelView = Matrix4f(last().pose()).mul(LightHunterVfxGeometry.transform(machine.frontFacing))
-                draw(meshes, activeShader, activeFieldShader, modelView, RenderSystem.getProjectionMatrix(), tick, paradoxSeconds = paradoxSeconds ?: -1f)
-                LightHunterShaders.fusion?.let { fusion ->
-                    // The exterior volume pass has just captured this frame's unchanged opaque depth.
-                    paradoxSeconds?.let { seconds -> LightHunterFusionRenderer.draw(LightHunterFusionRenderer.meshes, meshes, fusion, modelView, RenderSystem.getProjectionMatrix(), seconds, tick, false) }
-                }
-                val paradox = LightHunterShaders.paradox
-                val model = LightHunterShaders.paradoxModel
-                if (paradoxSeconds != null && paradox != null && model != null) {
-                    LightHunterParadoxRenderer.draw(
-                        LightHunterParadoxRenderer.meshes, paradox, model, modelView,
-                        RenderSystem.getProjectionMatrix(), paradoxSeconds, tick, blockEntity, false, true,
-                        if (opaqueWindowPrepared) LightHunterParadoxRenderer.WINDOW_TRANSLUCENT else LightHunterParadoxRenderer.WINDOW_COMPLETE
-                    )
-                }
-            }
-        }
-
-        override fun renderLayered(context: DeferredRenderContext, depth: Int, count: Int, base: Int, rect: IntArray, local: Boolean, handMask: Int) {
-            val active = LightHunterShaders.layers ?: return
-            HeartSceneEffect.bindHandMask(active, handMask)
-            context.renderRelativeToCamera(blockEntity) {
-                val modelView = Matrix4f(last().pose()).mul(LightHunterVfxGeometry.transform(machine.frontFacing))
-                drawLayered(meshes, active, modelView, RenderSystem.getProjectionMatrix(), tick, depth, count, base, rect, local, paradoxSeconds = paradoxSeconds ?: -1f)
-                LightHunterShaders.fusionLayers?.let { fusion ->
-                    HeartSceneEffect.bindHandMask(fusion, handMask)
-                    paradoxSeconds?.let { seconds -> LightHunterFusionRenderer.drawLayered(LightHunterFusionRenderer.meshes, meshes, fusion, modelView, RenderSystem.getProjectionMatrix(), seconds, tick, depth, count, base, rect, local) }
-                }
-                val paradox = LightHunterShaders.paradoxLayers
-                val model = LightHunterShaders.paradoxModel
-                if (paradoxSeconds != null && paradox != null && model != null) {
-                    HeartSceneEffect.bindHandMask(paradox, handMask)
-                    meshes.bindSceneDepth(paradox)
-                    HeartLayerImages.bindArray(3, depth)
-                    paradox.getUniform("LayerDepths")?.set(3)
-                    paradox.getUniform("LayerCount")?.set(count)
-                    paradox.getUniform("LayerBase")?.set(base)
-                    paradox.getUniform("LayerMode")?.set(if (local) 1 else 0)
-                    paradox.getUniform("LayerOrigin")?.set(if (local) rect[0].toFloat() else 0f, if (local) rect[1].toFloat() else 0f)
-                    paradox.getUniform("LayerRect")?.set(rect[0].toFloat(), rect[1].toFloat(), rect[2].toFloat(), rect[3].toFloat())
-                    LightHunterParadoxRenderer.draw(
-                        LightHunterParadoxRenderer.meshes, paradox, model, modelView,
-                        RenderSystem.getProjectionMatrix(), paradoxSeconds, tick, blockEntity, true, local,
-                        if (opaqueWindowPrepared) LightHunterParadoxRenderer.WINDOW_TRANSLUCENT else LightHunterParadoxRenderer.WINDOW_COMPLETE
-                    )
-                }
-            }
-        }
+        val windowPass: Int
+            get() = if (opaqueWindowDrawn) LightHunterParadoxRenderer.WINDOW_TRANSLUCENT else LightHunterParadoxRenderer.WINDOW_COMPLETE
     }
 
-    internal fun captureLayeredSceneDepth(): Boolean = LightHunterShaders.layers?.let { meshes.captureSceneDepth(it) } == true
-
-    /** One integration per four adjacent depth bins; the field cache is shared by every group. */
+    /** One integration per four adjacent depth bins. The caller binds the scene depth. */
     @JvmOverloads
     fun drawLayered(
         meshes: Meshes,
@@ -267,12 +164,15 @@ object LightHunterVfxRenderer {
         }
     }
 
-    /** The offline harness invokes this exact game draw path, including material and depth state. */
+    /**
+     * The plumes and rings clip their rays against the scene depth the caller bound to [shader]; [fieldShader] draws the
+     * chart film and the shield body.
+     */
     @JvmOverloads
     fun draw(
         meshes: Meshes,
         shader: ShaderInstance,
-        fieldShader: ShaderInstance,
+        fieldShader: ShaderInstance?,
         modelView: Matrix4f,
         projection: Matrix4f,
         tick: Float,
@@ -290,7 +190,7 @@ object LightHunterVfxRenderer {
         val samplerTwo = if (hasSamplers) GL11C.glGetInteger(GL33C.GL_SAMPLER_BINDING) else 0
         try {
             setParadoxMask(shader, modelView, paradoxSeconds)
-            setParadoxMask(fieldShader, modelView, paradoxSeconds)
+            fieldShader?.let { setParadoxMask(it, modelView, paradoxSeconds) }
             RenderUtils.withSavedRenderState {
                 RenderSystem.enableDepthTest()
                 RenderSystem.depthFunc(GL11C.GL_LEQUAL)
@@ -298,39 +198,39 @@ object LightHunterVfxRenderer {
                 RenderSystem.disableCull()
                 RenderSystem.enableBlend()
                 RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
-                val volumeMask = (1 shl LightHunterVfxGeometry.PLUMES) or (1 shl LightHunterVfxGeometry.RINGS)
-                val depthCaptured = layerMask and volumeMask != 0 && meshes.captureSceneDepth(shader)
-                val drawPlumes = layerMask and (1 shl LightHunterVfxGeometry.PLUMES) != 0 && depthCaptured
-                if (drawPlumes) {
+                if (layerMask and (1 shl LightHunterVfxGeometry.PLUMES) != 0) {
                     val field = meshes.preparePlasmaField(shader, tick)
                     RenderSystem.activeTexture(GL13C.GL_TEXTURE2)
                     GL11C.glBindTexture(GL12C.GL_TEXTURE_3D, field)
                     if (hasSamplers) GL33C.glBindSampler(2, 0)
                 }
-                // Transmitting blue film first; emissive chart marks then remain legible over its tint.
-                if (layerMask and (1 shl LightHunterVfxGeometry.CHART_FIELD) != 0) {
-                    RenderSystem.defaultBlendFunc()
-                    fieldShader.getUniform("Time")?.set(tick / 20f)
-                    fieldShader.getUniform("Effect")?.set(LightHunterVfxGeometry.CHART_FIELD)
-                    val film = meshes.buffer(LightHunterVfxGeometry.CHART_FIELD)
-                    RenderUtils.withBoundBuffer(film) { film.drawWithShader(modelView, projection, fieldShader) }
+
+                if (fieldShader != null) {
+                    // Transmitting blue film first; emissive chart marks then remain legible over its tint.
+                    if (layerMask and (1 shl LightHunterVfxGeometry.CHART_FIELD) != 0) {
+                        RenderSystem.defaultBlendFunc()
+                        fieldShader.getUniform("Time")?.set(tick / 20f)
+                        fieldShader.getUniform("Effect")?.set(LightHunterVfxGeometry.CHART_FIELD)
+                        val film = meshes.buffer(LightHunterVfxGeometry.CHART_FIELD)
+                        RenderUtils.withBoundBuffer(film) { film.drawWithShader(modelView, projection, fieldShader) }
+                    }
+
+                    if (layerMask and (1 shl LightHunterVfxGeometry.SHIELDS) != 0) {
+                        RenderSystem.defaultBlendFunc()
+                        fieldShader.getUniform("Time")?.set(tick / 20f)
+                        fieldShader.getUniform("Effect")?.set(SHIELD_FIELD_EFFECT)
+                        val shields = meshes.buffer(LightHunterVfxGeometry.SHIELDS)
+                        RenderUtils.withBoundBuffer(shields) { shields.drawWithShader(modelView, projection, fieldShader) }
+                    }
                 }
-                // Reuse the transmitting material for a blue shield body below the emissive lattice.
-                if (layerMask and (1 shl LightHunterVfxGeometry.SHIELDS) != 0) {
-                    RenderSystem.defaultBlendFunc()
-                    fieldShader.getUniform("Time")?.set(tick / 20f)
-                    fieldShader.getUniform("Effect")?.set(SHIELD_FIELD_EFFECT)
-                    val shields = meshes.buffer(LightHunterVfxGeometry.SHIELDS)
-                    RenderUtils.withBoundBuffer(shields) { shields.drawWithShader(modelView, projection, fieldShader) }
-                }
+
                 RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE)
                 shader.getUniform("Time")?.set(tick / 20f)
 
                 for (layer in 0 until LightHunterVfxGeometry.LAYERS) {
                     if (layer == LightHunterVfxGeometry.CHART_FIELD || layerMask and (1 shl layer) == 0) continue
                     if (layer == LightHunterVfxGeometry.PLUMES || layer == LightHunterVfxGeometry.RINGS) {
-                        if (!depthCaptured) continue
-                        // The ray is clipped against copied scene depth in the shader. Testing the
+                        // The ray is clipped against the scene depth in the shader. Testing the
                         // proxy's exit surface here would erase gas in front of an opaque object.
                         RenderSystem.disableDepthTest()
                     } else {
@@ -363,17 +263,12 @@ object LightHunterVfxRenderer {
     class Meshes @JvmOverloads constructor(resources: ResourceProvider? = null) : AutoCloseable {
         private val builder by lazy { BufferBuilder(262144) }
         private val buffers = arrayOfNulls<VertexBuffer>(LightHunterVfxGeometry.LAYERS)
-        private val sceneDepth = DeferredSceneDepth()
         private val plasmaNoise = PlasmaNoise()
         private val plasmaField = LightHunterPlasmaFieldCache(resources)
 
         fun setResources(resources: ResourceProvider) = plasmaField.setResources(resources)
 
         fun beginFrame() = plasmaField.beginFrame()
-
-        fun captureSceneDepth(shader: ShaderInstance): Boolean = sceneDepth.capture(shader)
-
-        fun bindSceneDepth(shader: ShaderInstance) = sceneDepth.bind(shader)
 
         fun bindPlasmaNoise(shader: ShaderInstance) {
             plasmaNoise.bind(shader)
@@ -397,7 +292,6 @@ object LightHunterVfxRenderer {
         }
 
         override fun close() {
-            sceneDepth.close()
             plasmaField.close()
             plasmaNoise.close()
 

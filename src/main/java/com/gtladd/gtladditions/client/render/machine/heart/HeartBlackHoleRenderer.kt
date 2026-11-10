@@ -1,11 +1,11 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
+import com.gtladd.gtladditions.api.client.scene.SceneDepth
+import com.gtladd.gtladditions.client.render.scene.SceneOrder
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.pipeline.RenderTarget
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
@@ -13,9 +13,9 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Matrix4f
 import org.joml.Vector3f
+import org.joml.Vector4f
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL14C
-import org.lwjgl.opengl.GL30C
 import kotlin.math.sin
 
 @OnlyIn(Dist.CLIENT)
@@ -43,36 +43,25 @@ object HeartBlackHoleRenderer {
     private val drawCommandPool = ArrayList<HeartDrawCommand>()
     private val drawCommands = ArrayList<HeartDrawCommand>()
 
-    fun render(
-        profile: HeartBlackHoleRenderProfile,
-        poseStack: PoseStack,
-        blockEntity: BlockEntity,
-        cameraPosition: Vec3
-    ) {
-        render(listOf(SingleHeartBlackHoleRenderEntry(blockEntity, profile)), poseStack, cameraPosition)
-    }
-
-    internal fun render(
+    internal fun prepare(
         entries: List<HeartBlackHoleRenderEntry>,
         poseStack: PoseStack,
         cameraPosition: Vec3,
-        handMask: Int = 0
-    ) {
+        depth: SceneDepth
+    ): PendingHeartComposite? {
         try {
-            if (!prepareDrawCommands(entries, cameraPosition)) return
+            if (!prepareDrawCommands(entries, cameraPosition)) return null
 
-            val volumeShader = HeartBlackHoleShaders.volumeShader ?: return
-            val downsampleShader = HeartBlackHoleShaders.downsampleShader ?: return
-            val blurShader = HeartBlackHoleShaders.blurShader ?: return
-            HeartBlackHoleShaders.compositeShader ?: return
-            if (!HeartBlackHoleLookupTextures.setSamplers(volumeShader)) return
-            if (!HeartBlackHoleAppearanceTextures.setSamplers(volumeShader)) return
+            val volumeShader = HeartBlackHoleShaders.volumeShader ?: return null
+            val downsampleShader = HeartBlackHoleShaders.downsampleShader ?: return null
+            val blurShader = HeartBlackHoleShaders.blurShader ?: return null
+            HeartBlackHoleShaders.compositeShader ?: return null
+            if (!HeartBlackHoleLookupTextures.setSamplers(volumeShader)) return null
+            if (!HeartBlackHoleAppearanceTextures.setSamplers(volumeShader)) return null
 
-            val completed = HeartBlackHoleRenderState.withSavedState {
-                renderPostProcessed(drawCommands, poseStack, volumeShader, downsampleShader, blurShader)
-            } ?: return
-            // The same world stage owns production and consumption; no HUD callback can reuse it.
-            HeartBlackHoleCompositeRenderer.renderPendingComposite(completed.width, completed.height, completed, handMask)
+            return HeartBlackHoleRenderState.withSavedState {
+                renderPostProcessed(drawCommands, poseStack, volumeShader, downsampleShader, blurShader, depth)
+            }
         } finally {
             releaseDrawCommands()
         }
@@ -82,11 +71,12 @@ object HeartBlackHoleRenderer {
         entries: List<HeartBlackHoleRenderEntry>,
         poseStack: PoseStack,
         cameraPosition: Vec3,
-        width: Int,
-        height: Int,
         images: HeartLayerImages,
-        handMask: Int
+        handMask: Int,
+        depth: SceneDepth
     ): Boolean {
+        val width = depth.width
+        val height = depth.height
         try {
             if (!prepareDrawCommands(entries, cameraPosition)) return false
             val volume = HeartBlackHoleShaders.volumeShader ?: return false
@@ -95,18 +85,7 @@ object HeartBlackHoleRenderer {
             HeartBlackHoleShaders.compositeShader ?: return false
             HeartBlackHoleShaders.layerCopyShader ?: return false
             if (!HeartBlackHoleLookupTextures.setSamplers(volume) || !HeartBlackHoleAppearanceTextures.setSamplers(volume)) return false
-            val framebuffer = GL11C.glGetInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING)
-            val sceneDepth = HeartBlackHoleFramebuffer.querySceneDepth(framebuffer) ?: return false
-            val centers = drawCommands.map { command ->
-                val center = command.profile.center
-                poseStack.last().pose().transformPosition(
-                    Vector3f(
-                        (command.translateX + center.x).toFloat(),
-                        (command.translateY + center.y).toFloat(),
-                        (command.translateZ + center.z).toFloat()
-                    )
-                )
-            }
+            val centers = drawCommands.map { viewCenter(it, poseStack) }
             val rects = centers.mapIndexed { index, center ->
                 HeartSceneCompositor.projectHeart(
                     RenderSystem.getProjectionMatrix(),
@@ -119,7 +98,7 @@ object HeartBlackHoleRenderer {
 
             images.ensure(width, height, drawCommands.size, rects)
             val targets = HeartBlackHolePostTargets.ensure(width, height)
-            if (!HeartBlackHoleFramebuffer.bindSceneDepth(volume, sceneDepth, framebuffer, width, height, targets.depthCopy)) return false
+            HeartBlackHoleFramebuffer.bindSceneDepth(volume, depth)
             drawCommands.forEachIndexed { index, command ->
                 if (!HeartBlackHoleFramebuffer.clearColor(targets.effect)) return false
                 if (!HeartVolumePass(listOf(command), poseStack, volume).renderEffect(targets.effect, targets.material)) return false
@@ -142,7 +121,7 @@ object HeartBlackHoleRenderer {
             ) {
                 return false
             }
-            val pending = PendingHeartComposite(targets, width, height, targets.effectBlurred.viewWidth, targets.effectBlurred.viewHeight)
+
             drawCommands.indices.forEach { index ->
                 images.copyTo(targets.effect, index)
                 if (!HeartBlackHoleBlurRenderer.render(
@@ -170,6 +149,15 @@ object HeartBlackHoleRenderer {
                 }
 
                 images.bindLayer(index)
+                val pending = PendingHeartComposite(
+                    targets,
+                    width,
+                    height,
+                    targets.effectBlurred.viewWidth,
+                    targets.effectBlurred.viewHeight,
+                    depth,
+                    spheres(listOf(drawCommands[index]), poseStack)
+                )
                 HeartBlackHoleCompositeRenderer.renderPendingComposite(
                     width,
                     height,
@@ -283,15 +271,13 @@ object HeartBlackHoleRenderer {
         poseStack: PoseStack,
         volumeShader: ShaderInstance,
         downsampleShader: ShaderInstance,
-        blurShader: ShaderInstance
+        blurShader: ShaderInstance,
+        depth: SceneDepth
     ): PendingHeartComposite? {
-        val mainTarget = Minecraft.getInstance().mainRenderTarget
-        val width = mainTarget.viewWidth.coerceAtLeast(1)
-        val height = mainTarget.viewHeight.coerceAtLeast(1)
-        val outputFramebuffer = GlStateManager._getInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING)
-        val sceneDepth = HeartBlackHoleFramebuffer.querySceneDepth(outputFramebuffer) ?: return null
+        val width = depth.width
+        val height = depth.height
         val targets = HeartBlackHolePostTargets.ensure(width, height)
-        if (!HeartBlackHoleFramebuffer.bindSceneDepth(volumeShader, sceneDepth, outputFramebuffer, width, height, targets.depthCopy)) return null
+        HeartBlackHoleFramebuffer.bindSceneDepth(volumeShader, depth)
         if (!targets.clearVolumeTargets()) return null
 
         val filterBounds = filterBounds(commands, poseStack, width, height)
@@ -334,7 +320,33 @@ object HeartBlackHoleRenderer {
 
         val blurWidth = targets.effectBlurred.viewWidth.coerceAtLeast(1)
         val blurHeight = targets.effectBlurred.viewHeight.coerceAtLeast(1)
-        return PendingHeartComposite(targets, width, height, blurWidth, blurHeight)
+        return PendingHeartComposite(targets, width, height, blurWidth, blurHeight, depth, spheres(commands, poseStack))
+    }
+
+    private fun viewCenter(command: HeartDrawCommand, poseStack: PoseStack): Vector3f {
+        val center = command.profile.center
+        return poseStack.last().pose().transformPosition(
+            Vector3f(
+                (command.translateX + center.x).toFloat(),
+                (command.translateY + center.y).toFloat(),
+                (command.translateZ + center.z).toFloat()
+            )
+        )
+    }
+
+    /**
+     * View space. The uniform holds four; with more Hearts in one composite it stays empty and the occluder test is off, since a
+     * sphere left out could be one the scene stands inside.
+     */
+    private fun spheres(commands: List<HeartDrawCommand>, poseStack: PoseStack): Matrix4f {
+        val result = Matrix4f().zero()
+        if (commands.size > 4) return result
+        commands.forEachIndexed { column, command ->
+            val center = viewCenter(command, poseStack)
+            result.setColumn(column, Vector4f(center.x, center.y, center.z, command.volumeProxyRadius))
+        }
+
+        return result
     }
 
     private fun filterBounds(commands: List<HeartDrawCommand>, pose: PoseStack, width: Int, height: Int): IntArray {
@@ -350,7 +362,7 @@ object HeartBlackHoleRenderer {
             val y = command.translateY + center.y
             val z = command.translateZ + center.z
             val r = command.volumeProxyRadius.toDouble()
-            val rect = HeartSceneCompositor.screenBounds(
+            val rect = SceneOrder.screenBounds(
                 vp,
                 net.minecraft.world.phys.AABB(x - r, y - r, z - r, x + r, y + r, z + r),
                 width,
@@ -525,8 +537,3 @@ object HeartBlackHoleRenderer {
         }
     }
 }
-
-private data class SingleHeartBlackHoleRenderEntry(
-    override val blockEntity: BlockEntity,
-    override val profile: HeartBlackHoleRenderProfile
-) : HeartBlackHoleRenderEntry

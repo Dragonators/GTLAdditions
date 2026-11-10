@@ -5,13 +5,16 @@
 void main() {
     layer0=vec4(0.0); layer1=vec4(0.0); layer2=vec4(0.0); layer3=vec4(0.0);
     vec2 pixel=effectScreenPixel();
-    if (sceneHandOccluded(pixel)) discard;
+    // The bin rect is aligned to whole derivative quads.
     if (LayerMode==0 && all(greaterThanEqual(pixel,LayerRect.xy)) &&
         all(lessThan(pixel,LayerRect.xy+LayerRect.zw))) discard;
+    if (LayerMode==1) loadLayers();
+    // Shield and chart anti-aliasing take derivatives across the quad, so per-pixel depth and hand tests come after the
+    // material, as the hardware depth test does on the direct path.
+    materialMain();
+    if (sceneHandOccluded(pixel)) discard;
     // Copied opaque depth also supports depth-stencil attachments.
     if (Effect!=0 && Effect!=1 && gl_FragCoord.z>texelFetch(SceneDepth,ivec2(pixel-SceneViewport),0).r) discard;
-    if (LayerMode==1) loadLayers();
-    materialMain();
     materialColor.rgb=clamp(materialColor.rgb,0.0,1.0);
     bool film=Effect==6 || Effect==7;
     if (LayerMode==0) {

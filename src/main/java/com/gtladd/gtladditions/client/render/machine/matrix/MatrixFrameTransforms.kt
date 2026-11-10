@@ -2,10 +2,14 @@ package com.gtladd.gtladditions.client.render.machine.matrix
 
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Quaternionf
 import org.lwjgl.opengl.GL11C
+import kotlin.math.cos
+import kotlin.math.sin
 
 @OnlyIn(Dist.CLIENT)
 internal object MatrixFrameTransforms {
@@ -14,6 +18,16 @@ internal object MatrixFrameTransforms {
         pose.mulPose(Axis.YP.rotationDegrees(yaw))
         if (flipped) pose.scale(-1f, 1f, 1f)
         pose.translate(-0.5, 0.0, MatrixEffectGeometry.CENTER_OFFSET_Z - 0.5)
+    }
+
+    /** In world space; the mirror leaves it in place. */
+    fun cubeCenter(pos: BlockPos, yaw: Float): Vec3 {
+        val angle = Math.toRadians(yaw.toDouble())
+        return Vec3(
+            pos.x + 0.5 + MatrixEffectGeometry.CENTER_OFFSET_Z * sin(angle),
+            pos.y + MatrixEffectGeometry.CUBE_CENTER_Y.toDouble(),
+            pos.z + 0.5 + MatrixEffectGeometry.CENTER_OFFSET_Z * cos(angle)
+        )
     }
 
     fun withWinding(flipped: Boolean, render: () -> Unit) {

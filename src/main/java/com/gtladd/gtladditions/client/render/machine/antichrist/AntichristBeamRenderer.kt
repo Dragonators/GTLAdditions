@@ -2,19 +2,18 @@ package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.render.IndexedEffectVertexBuffer
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.utils.RenderUtils
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
-import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.ShaderInstance
+import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -72,24 +71,66 @@ object AntichristBeamRenderer {
 
     private val softBeam = SegmentBuffer()
     private val intenseBeam = SegmentBuffer()
+    private val boundsBeam = SegmentBuffer()
     private val cameraPosition = Vector3f()
 
-    fun render(profile: AntichristRenderProfile, poseStack: PoseStack, blockEntity: BlockEntity) {
-        if (!profile.shouldRenderBeam) return
-        val shader = AntichristShaders.beamShader ?: return
-
-        updateCameraPositionInBeamSpace(profile, blockEntity)
+    fun draw(profile: AntichristRenderProfile, poseStack: PoseStack, blockPos: BlockPos, camera: Vec3): Boolean {
+        val shader = AntichristShaders.beamShader ?: return false
+        updateCameraPositionInBeamSpace(profile, blockPos, camera)
         writeSoftBeamSegments(profile.starRadius, profile.beamAlpha, softBeam)
         writeIntenseBeamSegments(profile.starRadius, profile.beamAlpha, intenseBeam)
 
         poseStack.withPose {
             translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
             mulPose(Axis.YP.rotationDegrees(profile.beamYawDegrees))
-            renderCurrentSegments(shader, profile.tick, profile.colorR, profile.colorG, profile.colorB, 1.0f, 1.0f, 1.0f)
+            RenderUtils.withSavedRenderState {
+                renderCurrentSegments(shader, profile.tick, profile.colorR, profile.colorG, profile.colorB, 1.0f, 1.0f, 1.0f)
+            }
         }
+
+        return true
     }
 
-    /** Parallel vertical beams keep their original local vertices and per-beam view matrices. */
+    fun bounds(profile: AntichristRenderProfile, blockPos: BlockPos): AABB {
+        var radius = 0f
+        var near = Float.MAX_VALUE
+        var far = -Float.MAX_VALUE
+
+        for (intense in booleanArrayOf(false, true)) {
+            if (intense) {
+                writeIntenseBeamSegments(profile.starRadius, profile.beamAlpha, boundsBeam)
+            } else {
+                writeSoftBeamSegments(profile.starRadius, profile.beamAlpha, boundsBeam)
+            }
+
+            for (endpoint in 0..boundsBeam.segmentCount) {
+                radius = max(radius, boundsBeam.radius(endpoint))
+                near = minOf(near, boundsBeam.offset(endpoint))
+                far = max(far, boundsBeam.offset(endpoint))
+            }
+        }
+
+        val turn = Axis.YP.rotationDegrees(profile.beamYawDegrees)
+        val corner = Vector3f()
+        var bounds: AABB? = null
+
+        for (i in 0..7) {
+            turn.transform(
+                corner.set(
+                    if (i and 1 == 0) -radius else radius,
+                    if (i and 2 == 0) -radius else radius,
+                    if (i and 4 == 0) near else far
+                )
+            )
+            val x = blockPos.x + profile.starPos.x + corner.x
+            val y = blockPos.y + profile.starPos.y + corner.y
+            val z = blockPos.z + profile.starPos.z + corner.z
+            bounds = bounds?.minmax(AABB(x, y, z, x, y, z)) ?: AABB(x, y, z, x, y, z)
+        }
+
+        return requireNotNull(bounds)
+    }
+
     fun renderVerticalLayers(
         blockEntity: BlockEntity,
         pose: PoseStack,
@@ -98,7 +139,8 @@ object AntichristBeamRenderer {
         height: Float,
         radius: Float,
         alpha: Float,
-        shader: ShaderInstance
+        shader: ShaderInstance,
+        camera: Vec3
     ) {
         require(origins.size <= 6)
         if (origins.isEmpty() || height <= 0.001f) return
@@ -109,7 +151,7 @@ object AntichristBeamRenderer {
 
         for ((layer, origin) in origins.withIndex()) {
             val from = Vec3(origin.x.toDouble(), origin.y.toDouble(), origin.z.toDouble())
-            updateCameraPositionInLocalBeamSpace(blockEntity, from, rotation)
+            updateCameraPositionInLocalBeamSpace(blockEntity, from, rotation, camera)
             writeLinearBeamSegments(radius, radius, height, alpha, softBeam)
             writeBeamVertices(builder, softBeam, tick, layer)
             beamCameraX[layer] = cameraPosition.x
@@ -127,12 +169,10 @@ object AntichristBeamRenderer {
         shader.getUniform("BeamCameraY")?.set(beamCameraY)
         RenderSystem.setShaderTexture(0, SPACE_LAYER)
 
-        DeferredOculusCompat.withDeferredShaderPass {
-            RenderUtils.withBoundBuffer(beamLayerBuffer) {
-                beamLayerBuffer.uploadIndexed(builder.end(), beamLayerIndices)
-                beamLayerBuffer.drawCount = origins.size * SEGMENT_QUADS * 6
-                beamLayerBuffer.drawWithShader(pose.last().pose(), RenderSystem.getProjectionMatrix(), shader)
-            }
+        RenderUtils.withBoundBuffer(beamLayerBuffer) {
+            beamLayerBuffer.uploadIndexed(builder.end(), beamLayerIndices)
+            beamLayerBuffer.drawCount = origins.size * SEGMENT_QUADS * 6
+            beamLayerBuffer.drawWithShader(pose.last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
     }
 
@@ -146,13 +186,7 @@ object AntichristBeamRenderer {
         intenseColorG: Float,
         intenseColorB: Float
     ) {
-        RenderSystem.enableBlend()
-        RenderSystem.blendFunc(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
-        )
-        RenderSystem.enableDepthTest()
-        RenderSystem.depthMask(false)
+        // The tube shows its inside too; blending is the program's own, depth comes from the composition baseline.
         RenderSystem.disableCull()
         RenderSystem.setShaderTexture(0, SPACE_LAYER)
 
@@ -161,24 +195,16 @@ object AntichristBeamRenderer {
         shader.getUniform("BeamColor")?.set(colorR, colorG, colorB)
         shader.getUniform("Intensity")?.set(2.0f)
         uploadBeamBuffer(softBeam, tick)
-        DeferredOculusCompat.withDeferredShaderPass {
-            RenderUtils.withBoundBuffer(beamBuffer) {
-                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
-            }
+        RenderUtils.withBoundBuffer(beamBuffer) {
+            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
 
         shader.getUniform("BeamColor")?.set(intenseColorR, intenseColorG, intenseColorB)
         shader.getUniform("Intensity")?.set(4.0f)
         uploadBeamBuffer(intenseBeam, tick)
-        DeferredOculusCompat.withDeferredShaderPass {
-            RenderUtils.withBoundBuffer(beamBuffer) {
-                beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
-            }
+        RenderUtils.withBoundBuffer(beamBuffer) {
+            beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
-
-        RenderSystem.enableCull()
-        RenderSystem.depthMask(true)
-        RenderSystem.disableBlend()
     }
 
     @Suppress("SameParameterValue")
@@ -249,13 +275,12 @@ object AntichristBeamRenderer {
 
     private fun updateCameraPositionInBeamSpace(
         profile: AntichristRenderProfile,
-        blockEntity: BlockEntity
+        blockPos: BlockPos,
+        camera: Vec3
     ) {
-        val cameraWorldPos = Minecraft.getInstance().gameRenderer.mainCamera.position
-        val blockPos = blockEntity.blockPos
-        val cameraRelativeX = cameraWorldPos.x - blockPos.x.toDouble() - profile.starPos.x
-        val cameraRelativeY = cameraWorldPos.y - blockPos.y.toDouble() - profile.starPos.y
-        val cameraRelativeZ = cameraWorldPos.z - blockPos.z.toDouble() - profile.starPos.z
+        val cameraRelativeX = camera.x - blockPos.x.toDouble() - profile.starPos.x
+        val cameraRelativeY = camera.y - blockPos.y.toDouble() - profile.starPos.y
+        val cameraRelativeZ = camera.z - blockPos.z.toDouble() - profile.starPos.z
         val yawRadians = Math.toRadians((-profile.beamYawDegrees).toDouble())
         val cosYaw = cos(yawRadians).toFloat()
         val sinYaw = sin(yawRadians).toFloat()
@@ -272,14 +297,14 @@ object AntichristBeamRenderer {
     private fun updateCameraPositionInLocalBeamSpace(
         blockEntity: BlockEntity,
         origin: Vec3,
-        rotation: Quaternionf
+        rotation: Quaternionf,
+        camera: Vec3
     ) {
-        val cameraWorldPos = Minecraft.getInstance().gameRenderer.mainCamera.position
         val blockPos = blockEntity.blockPos
         val relative = Vector3f(
-            (cameraWorldPos.x - blockPos.x.toDouble() - origin.x).toFloat(),
-            (cameraWorldPos.y - blockPos.y.toDouble() - origin.y).toFloat(),
-            (cameraWorldPos.z - blockPos.z.toDouble() - origin.z).toFloat()
+            (camera.x - blockPos.x.toDouble() - origin.x).toFloat(),
+            (camera.y - blockPos.y.toDouble() - origin.y).toFloat(),
+            (camera.z - blockPos.z.toDouble() - origin.z).toFloat()
         )
 
         Quaternionf(rotation).conjugate().transform(relative)

@@ -1,7 +1,5 @@
 package com.gtladd.gtladditions.client.render.machine.lighthunter
 
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
-import com.gtladd.gtladditions.common.machine.multiblock.controller.LightHunterSpaceStation
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
@@ -9,7 +7,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.renderer.ShaderInstance
-import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Matrix4f
@@ -24,13 +21,10 @@ object LightHunterInteriorRenderer {
     const val DISPLAY_SCAN_TICKS = 160f
     private val meshes = Meshes()
 
-    internal fun render(context: DeferredRenderContext, blockEntity: BlockEntity, machine: LightHunterSpaceStation, tick: Float) {
-        if (!machine.isFormed || context.frustum?.isVisible(LightHunterInteriorGeometry.bounds(machine.frontFacing).move(blockEntity.blockPos)) == false) return
-        val shader = LightHunterShaders.interior ?: return
-        context.renderRelativeToCamera(blockEntity) {
-            val modelView = Matrix4f(last().pose()).mul(LightHunterVfxGeometry.transform(machine.frontFacing))
-            draw(meshes, shader, modelView, RenderSystem.getProjectionMatrix(), tick)
-        }
+    internal fun draw(modelView: Matrix4f, projection: Matrix4f, tick: Float): Boolean {
+        val shader = LightHunterShaders.interior ?: return false
+        draw(meshes, shader, modelView, projection, tick)
+        return true
     }
 
     fun draw(meshes: Meshes, shader: ShaderInstance, modelView: Matrix4f, projection: Matrix4f, tick: Float) {

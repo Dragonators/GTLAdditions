@@ -1,55 +1,60 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
+import com.gtladd.gtladditions.api.client.scene.SceneDepth
+import com.gtladd.gtladditions.client.render.scene.SceneOrder
 import com.mojang.blaze3d.pipeline.RenderTarget
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.Minecraft
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
-import org.joml.Vector4f
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL12C
 import org.lwjgl.opengl.GL13C
 import org.lwjgl.opengl.GL20C
 import org.lwjgl.opengl.GL30C
-import kotlin.math.ceil
-import kotlin.math.floor
 
-/** Local depth bins shared by transparent machine effects overlapping black holes. */
 internal object HeartSceneCompositor : AutoCloseable {
-    private val images = HeartLayerImages()
-    private var targets: Targets? = null
     private const val RETENTION_NANOS = 2_000_000_000L
+    private val images = HeartLayerImages()
+
+    private val subset = HeartLayerImages()
+
+    /** Keyed by Heart count. */
+    private val targets = HashMap<Int, Targets>()
     private var lastImagesUse = 0L
-    private var lastTargetsUse = 0L
+    private var lastSubsetUse = 0L
 
     fun beginFrame() {
         val now = System.nanoTime()
-        if (targets != null && now - lastTargetsUse > RETENTION_NANOS) {
-            targets?.close()
-            targets = null
-        }
+        targets.values.removeIf { target -> (now - target.lastUse > RETENTION_NANOS).also { idle -> if (idle) target.close() } }
         if (images.count > 0 && now - lastImagesUse > RETENTION_NANOS) images.close()
+        if (subset.count > 0 && now - lastSubsetUse > RETENTION_NANOS) subset.close()
     }
 
-    fun overlap(
-        effects: List<HeartSceneEffect>,
-        hearts: List<HeartBlackHoleRenderEntry>,
-        pose: Matrix4f,
-        projection: Matrix4f,
-        camera: Vec3,
-        width: Int,
-        height: Int
-    ): IntArray? {
-        val effectBounds = effects.map { it.bounds }
-        val heartBounds = hearts.map { heart ->
-            val center = heart.profile.center.add(Vec3.atLowerCornerOf(heart.blockEntity.blockPos))
-            val radius = HeartBlackHoleVisualConfig.volumeProxyRadius(heart.profile.tick).toDouble()
-            AABB.ofSize(center, radius * 2, radius * 2, radius * 2)
-        }
-        return region(effectBounds, heartBounds, pose, projection, camera, width, height)
+    fun prepareLayers(
+        entries: List<HeartBlackHoleRenderEntry>,
+        poseStack: PoseStack,
+        cameraPosition: Vec3,
+        handMask: Int,
+        depth: SceneDepth
+    ): Boolean {
+        lastImagesUse = System.nanoTime()
+        return HeartBlackHoleRenderer.renderLayers(entries, poseStack, cameraPosition, images, handMask, depth)
+    }
+
+    fun copyLayer(sourceKey: Long) = images.copy(images.layerFor(sourceKey), blend = true, writeAlpha = false)
+
+    fun layers(sourceKeys: List<Long>): HeartLayerImages {
+        if (sourceKeys.size == images.count) return images
+        val sources = sourceKeys.map(images::layerFor).sorted()
+        subset.ensure(images.width, images.height, sources.size, sources.map(images::rect))
+        sources.forEachIndexed { index, source -> subset.copyLayer(images, source, index) }
+        subset.uploadCenters()
+        lastSubsetUse = System.nanoTime()
+
+        return subset
     }
 
     internal fun region(
@@ -62,25 +67,28 @@ internal object HeartSceneCompositor : AutoCloseable {
         height: Int
     ): IntArray? {
         val vp = Matrix4f(projection).mul(pose)
-        val shipRects = shipBounds.map { screenBounds(vp, it.move(-camera.x, -camera.y, -camera.z), width, height, 2) }
+        val hearts = heartBounds.map { SceneOrder.screenBounds(vp, it.move(-camera.x, -camera.y, -camera.z), width, height, 12) }
+        val ships = shipBounds.map { SceneOrder.screenBounds(vp, it.move(-camera.x, -camera.y, -camera.z), width, height, 2) }
         var x0 = width
         var y0 = height
         var x1 = 0
         var y1 = 0
-        for (bounds in heartBounds) {
-            val rect = screenBounds(vp, bounds.move(-camera.x, -camera.y, -camera.z), width, height, 12)
-            for (ship in shipRects) {
-                val left = maxOf(rect[0], ship[0])
-                val bottom = maxOf(rect[1], ship[1])
-                val right = minOf(rect[0] + rect[2], ship[0] + ship[2])
-                val top = minOf(rect[1] + rect[3], ship[1] + ship[3])
-                if (right > left && top > bottom) {
-                    x0 = minOf(x0, left)
-                    y0 = minOf(y0, bottom)
-                    x1 = maxOf(x1, right)
-                    y1 = maxOf(y1, top)
-                }
+        fun meet(rect: IntArray, other: IntArray) {
+            val left = maxOf(rect[0], other[0])
+            val bottom = maxOf(rect[1], other[1])
+            val right = minOf(rect[0] + rect[2], other[0] + other[2])
+            val top = minOf(rect[1] + rect[3], other[1] + other[3])
+            if (right > left && top > bottom) {
+                x0 = minOf(x0, left)
+                y0 = minOf(y0, bottom)
+                x1 = maxOf(x1, right)
+                y1 = maxOf(y1, top)
             }
+        }
+
+        for ((index, heart) in hearts.withIndex()) {
+            ships.forEach { meet(heart, it) }
+            for (other in index + 1 until hearts.size) meet(heart, hearts[other])
         }
 
         if (x1 <= x0 || y1 <= y0) return null
@@ -91,95 +99,6 @@ internal object HeartSceneCompositor : AutoCloseable {
         y1 = minOf(height, (y1 + 15) / 16 * 16)
 
         return intArrayOf(x0, y0, x1 - x0, y1 - y0)
-    }
-
-    fun order(
-        hearts: List<HeartBlackHoleRenderEntry>,
-        effects: List<HeartSceneEffect>,
-        pose: Matrix4f,
-        projection: Matrix4f,
-        camera: Vec3,
-        width: Int,
-        height: Int
-    ): IntArray? {
-        val bounds = hearts.map { heart ->
-            val center = heart.profile.center.add(Vec3.atLowerCornerOf(heart.blockEntity.blockPos))
-            val radius = HeartBlackHoleVisualConfig.volumeProxyRadius(heart.profile.tick).toDouble()
-            HeartSceneOrder.Bounds(AABB.ofSize(center, radius * 2, radius * 2, radius * 2), center, radius)
-        } + effects.map { HeartSceneOrder.Bounds(it.bounds) }
-        return HeartSceneOrder.sort(bounds, pose, projection, camera, width, height)
-    }
-
-    fun render(
-        context: DeferredRenderContext,
-        hearts: List<HeartBlackHoleRenderEntry>,
-        effects: List<HeartSceneEffect>,
-        projection: Matrix4f,
-        handMask: Int,
-        preparedRegion: IntArray? = null,
-        preparedOrder: IntArray? = null
-    ): Boolean {
-        if (hearts.any { it.blockEntity.isRemoved } || effects.any { it.blockEntity.isRemoved }) {
-            return render(context, hearts.filterNot { it.blockEntity.isRemoved }, effects.filterNot { it.blockEntity.isRemoved }, projection, handMask)
-        }
-        if (hearts.isEmpty() || effects.isEmpty()) return false
-        val output = Minecraft.getInstance().mainRenderTarget
-        val width = output.viewWidth
-        val height = output.viewHeight
-        val rect = preparedRegion
-            ?: overlap(effects, hearts, context.poseStack.last().pose(), projection, context.cameraPosition, width, height)
-            ?: return false
-        val order = preparedOrder
-            ?: order(hearts, effects, context.poseStack.last().pose(), projection, context.cameraPosition, width, height)
-        if (order == null && effects.any { !it.supportsLayeredRendering }) return false
-        return HeartBlackHoleRenderState.withSavedState {
-            HeartLayerImages.withArrayState {
-                output.bindWrite(true)
-                if (order != null) return@withArrayState renderOrdered(context, hearts, effects, order, output, handMask)
-                if (HeartBlackHoleShaders.layerDepthShader == null || HeartBlackHoleShaders.layerResolveShader == null) return@withArrayState false
-                if (hearts.size > GL11C.glGetInteger(GL30C.GL_MAX_ARRAY_TEXTURE_LAYERS)) return@withArrayState false
-                if (!HeartBlackHoleRenderer.renderLayers(hearts, context.poseStack, context.cameraPosition, width, height, images, handMask)) return@withArrayState false
-                lastImagesUse = System.nanoTime()
-                val local = ensureTargets(rect[2], rect[3], images.count)
-                output.bindWrite(true)
-                if (effects.distinctBy { it.depthCaptureKey }.any { !it.captureSceneDepth() }) return@withArrayState false
-                compose(output, images, local, projection, rect) { base, cropped ->
-                    effects.forEach { entry -> entry.renderLayered(context, local.depths, images.count, base, rect, cropped, handMask) }
-                }
-                true
-            }
-        }
-    }
-
-    private fun renderOrdered(
-        context: DeferredRenderContext,
-        hearts: List<HeartBlackHoleRenderEntry>,
-        effects: List<HeartSceneEffect>,
-        order: IntArray,
-        output: RenderTarget,
-        handMask: Int
-    ): Boolean {
-        if (effects.filter { it.orderedNeedsSceneDepth }.distinctBy { it.depthCaptureKey }.any { !it.captureSceneDepth() }) return false
-        if (hearts.size > 1) {
-            if (hearts.size > GL11C.glGetInteger(GL30C.GL_MAX_ARRAY_TEXTURE_LAYERS)) return false
-            if (!HeartBlackHoleRenderer.renderLayers(hearts, context.poseStack, context.cameraPosition, output.viewWidth, output.viewHeight, images, handMask)) return false
-            lastImagesUse = System.nanoTime()
-        }
-        output.bindWrite(true)
-        RenderSystem.colorMask(true, true, true, false)
-        GL11C.glFrontFace(GL11C.GL_CCW)
-        for (index in order) {
-            if (index < hearts.size) {
-                if (hearts.size == 1) {
-                    HeartBlackHoleRenderer.render(hearts, context.poseStack, context.cameraPosition, handMask)
-                } else {
-                    images.copy(images.layerFor(hearts[index].blockEntity.blockPos.asLong()), blend = true, writeAlpha = false)
-                }
-            } else {
-                effects[index - hearts.size].renderOrdered(context, handMask)
-            }
-        }
-        return true
     }
 
     internal fun compose(
@@ -209,36 +128,42 @@ internal object HeartSceneCompositor : AutoCloseable {
         }
     }
 
-    private fun ensureTargets(width: Int, height: Int, count: Int): Targets {
-        lastTargetsUse = System.nanoTime()
-        val old = targets
-        val output = Minecraft.getInstance().mainRenderTarget
+    /** [width] x [height] is the rect; [images] spans the whole frame. */
+    fun ensureTargets(width: Int, height: Int, images: HeartLayerImages): Targets {
+        val now = System.nanoTime()
+        val count = images.count
+        val old = targets[count]
         if (old != null &&
             old.width >= width &&
             old.height >= height &&
-            old.count == count &&
-            old.width <= output.viewWidth &&
-            old.height <= output.viewHeight
+            old.width <= images.width &&
+            old.height <= images.height
         ) {
+            old.lastUse = now
             return old
         }
 
-        val capacityWidth = minOf(output.viewWidth, (maxOf(width, old?.width ?: 0) + 255) / 256 * 256)
-        val capacityHeight = minOf(output.viewHeight, (maxOf(height, old?.height ?: 0) + 255) / 256 * 256)
+        val capacityWidth = minOf(images.width, (maxOf(width, old?.width ?: 0) + 255) / 256 * 256)
+        val capacityHeight = minOf(images.height, (maxOf(height, old?.height ?: 0) + 255) / 256 * 256)
         old?.close()
-        targets = null
-        return Targets(capacityWidth, capacityHeight, count).also { targets = it }
+        targets.remove(count)
+        return Targets(capacityWidth, capacityHeight, count).also {
+            it.lastUse = now
+            targets[count] = it
+        }
     }
 
     override fun close() {
-        targets?.close()
-        targets = null
+        targets.values.forEach(Targets::close)
+        targets.clear()
         images.close()
+        subset.close()
         lastImagesUse = 0L
-        lastTargetsUse = 0L
+        lastSubsetUse = 0L
     }
 
     internal class Targets(val width: Int, val height: Int, val count: Int) : AutoCloseable {
+        var lastUse = 0L
         val depths: Int
         private val sorting: List<RenderTarget>
         private val background: RenderTarget
@@ -395,41 +320,11 @@ internal object HeartSceneCompositor : AutoCloseable {
     }
 
     internal fun projectHeart(projection: Matrix4f, center: org.joml.Vector3f, radius: Float, width: Int, height: Int): IntArray =
-        screenBounds(
+        SceneOrder.screenBounds(
             projection,
             AABB.ofSize(Vec3(center.x.toDouble(), center.y.toDouble(), center.z.toDouble()), radius * 2.0, radius * 2.0, radius * 2.0),
             width,
             height,
             32
         )
-
-    internal fun screenBounds(vp: Matrix4f, bounds: AABB, width: Int, height: Int, pad: Int): IntArray {
-        var x0 = width.toFloat()
-        var y0 = height.toFloat()
-        var x1 = 0f
-        var y1 = 0f
-        val point = Vector4f()
-        for (corner in 0..7) {
-            vp.transform(
-                point.set(
-                    (if (corner and 1 == 0) bounds.minX else bounds.maxX).toFloat(),
-                    (if (corner and 2 == 0) bounds.minY else bounds.maxY).toFloat(),
-                    (if (corner and 4 == 0) bounds.minZ else bounds.maxZ).toFloat(),
-                    1f
-                )
-            )
-            if (point.w <= 0f) return intArrayOf(0, 0, width, height)
-            val x = (point.x / point.w * 0.5f + 0.5f) * width
-            val y = (point.y / point.w * 0.5f + 0.5f) * height
-            x0 = minOf(x0, x)
-            y0 = minOf(y0, y)
-            x1 = maxOf(x1, x)
-            y1 = maxOf(y1, y)
-        }
-        val left = maxOf(0, floor(x0).toInt() - pad)
-        val bottom = maxOf(0, floor(y0).toInt() - pad)
-        val right = minOf(width, ceil(x1).toInt() + pad)
-        val top = minOf(height, ceil(y1).toInt() + pad)
-        return intArrayOf(left, bottom, maxOf(0, right - left), maxOf(0, top - bottom))
-    }
 }

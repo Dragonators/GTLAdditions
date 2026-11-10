@@ -22,6 +22,5 @@
     {"name": "uLidU", "type": "float", "count": 1, "values": [-0.08]},
     {"name": "uLidL", "type": "float", "count": 1, "values": [-0.08]},
     {"name": "uEnvGlow", "type": "float", "count": 1, "values": [0]}
-  ],
-  "blend": {"func": "add", "srcrgb": "srcalpha", "dstrgb": "1-srcalpha", "srcalpha": "one", "dstalpha": "1-srcalpha"}
+  ]
 }

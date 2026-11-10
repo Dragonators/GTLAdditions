@@ -68,12 +68,14 @@ object LightHunterParadoxRenderer {
         seconds: Float,
         animationTick: Float,
         key: Any
-    ) {
-        if (LightHunterParadoxTiming.window(seconds).reveal < 1f) return
-        draw(meshes, shader, modelShader, modelView, projection, seconds, animationTick, key, false, true, WINDOW_OPAQUE)
+    ): Boolean {
+        if (LightHunterParadoxTiming.window(seconds).reveal < 1f) return false
+        return draw(meshes, shader, modelShader, modelView, projection, seconds, animationTick, key, false, true, WINDOW_OPAQUE)
     }
 
-    /** The game and the GL validation harness share this draw path and all model resources. */
+    internal fun windowDrawn(seconds: Float) = seconds >= 4.3f
+
+    /** The game and the GL validation harness share this draw path and all model resources; true when the window was drawn. */
     @JvmOverloads
     fun draw(
         meshes: Meshes,
@@ -87,8 +89,8 @@ object LightHunterParadoxRenderer {
         layered: Boolean,
         writeAlpha: Boolean,
         windowPass: Int = WINDOW_COMPLETE
-    ) {
-        if (seconds < 4.3f || !HeartBlackHoleAppearanceTextures.setGalaxySampler(shader)) return
+    ): Boolean {
+        if (!windowDrawn(seconds) || !HeartBlackHoleAppearanceTextures.setGalaxySampler(shader)) return false
         val samplerObjects = GL.getCapabilities().OpenGL33
         val samplers = if (samplerObjects) IntArray(3) { GL33C.glGetIntegeri(GL33C.GL_SAMPLER_BINDING, it) } else IntArray(0)
         HeartBlackHoleRenderState.withSavedState {
@@ -117,10 +119,16 @@ object LightHunterParadoxRenderer {
                 RenderSystem.depthFunc(GL11C.GL_LEQUAL)
                 RenderSystem.depthMask(windowPass == WINDOW_OPAQUE)
                 RenderSystem.disableCull()
-                RenderSystem.enableBlend()
+                // The solid pass keeps only fragments with alpha >= 0.999 and draws them unblended.
+                if (windowPass == WINDOW_OPAQUE) {
+                    RenderSystem.disableBlend()
+                } else {
+                    RenderSystem.enableBlend()
+                    RenderSystem.blendFuncSeparate(GL11C.GL_ONE, GL11C.GL_ONE_MINUS_SRC_ALPHA, GL11C.GL_ONE, GL11C.GL_ONE_MINUS_SRC_ALPHA)
+                }
+
                 RenderSystem.colorMask(true, true, true, writeAlpha)
                 RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
-                RenderSystem.blendFuncSeparate(GL11C.GL_ONE, GL11C.GL_ONE_MINUS_SRC_ALPHA, GL11C.GL_ONE, GL11C.GL_ONE_MINUS_SRC_ALPHA)
                 val buffer = meshes.buffer()
                 RenderUtils.withBoundBuffer(buffer) { buffer.drawWithShader(modelView, projection, shader) }
                 shader.clear()
@@ -128,5 +136,7 @@ object LightHunterParadoxRenderer {
                 samplers.forEachIndexed { unit, sampler -> GL33C.glBindSampler(unit, sampler) }
             }
         }
+
+        return true
     }
 }

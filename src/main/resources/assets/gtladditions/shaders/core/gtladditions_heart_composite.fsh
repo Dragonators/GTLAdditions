@@ -13,6 +13,11 @@ uniform vec2 BlurInputScale;
 uniform vec2 CompositeOrigin;
 uniform sampler2D HandMaskSampler;
 uniform float HandMaskEnabled;
+uniform sampler2D SceneDepth;
+uniform mat4 InverseProjection;
+uniform vec2 SceneSize;
+// One proxy sphere per column, view-space centre and radius; a zero radius ends the list.
+uniform mat4 HeartSpheres;
 
 #moj_import <gtladditions:heart_color_transform.glsl>
 
@@ -22,6 +27,25 @@ out vec4 fragColor;
 
 const float SOFT_EDGE_ALPHA_SCALE = 1.0;
 const float BLOOM_INTENSITY = 0.217;
+
+bool sceneCoversHearts(ivec2 pixel) {
+    float depth = texelFetch(SceneDepth, pixel, 0).r;
+    if (depth >= 1.0) return false;
+    vec4 view = InverseProjection * vec4((vec2(pixel) + 0.5) / SceneSize * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
+    vec3 point = view.xyz / view.w;
+    float scene = length(point);
+    vec3 ray = point / scene;
+    float nearest = -1.0;
+    for (int i = 0; i < 4; ++i) {
+        vec4 sphere = HeartSpheres[i];
+        if (sphere.w <= 0.0) break;
+        float along = dot(sphere.xyz, ray);
+        float reach = sphere.w * sphere.w - dot(sphere.xyz, sphere.xyz) + along * along;
+        float entry = reach > 0.0 ? along - sqrt(reach) : along;
+        nearest = i == 0 ? entry : min(nearest, entry);
+    }
+    return scene < nearest;
+}
 
 void main() {
     if (HandMaskEnabled > 0.5 && texelFetch(HandMaskSampler, ivec2(gl_FragCoord.xy+CompositeOrigin), 0).r > 0.5) discard;
@@ -40,6 +64,8 @@ void main() {
     if (presence < 0.0005 || color.a < 0.0005) {
         discard;
     }
+    // The soft edge spreads past the volume's own pixels; on an occluder it would show the Heart through it.
+    if (hardMask < 0.0005 && sceneCoversHearts(ivec2(gl_FragCoord.xy + CompositeOrigin))) discard;
     float alpha = clamp(color.a, 0.0, 1.0);
     vec3 radiance = color.rgb / max(alpha, 0.0005);
     vec3 bloom = texture(BloomSampler, texCoord).rgb;

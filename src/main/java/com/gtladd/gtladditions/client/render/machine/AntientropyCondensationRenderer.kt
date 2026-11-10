@@ -39,7 +39,7 @@ class AntientropyCondensationRenderer :
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? AntientropyCondensationCenter ?: return
         if (!machine.isFormed) return
         val flowPhase = ((RenderUtils.getSmoothTickDouble(machine, partialTicks) % 80.0) / 20.0).toFloat()
-        CondensationCoreRenderer.enqueue(blockEntity, machine, machine.condensationEffects.animationTicks(partialTicks), flowPhase)
+        CondensationCoreRenderer.submit(blockEntity, machine, machine.condensationEffects.animationTicks(partialTicks), flowPhase)
     }
 
     override fun hasTESR(blockEntity: BlockEntity): Boolean = true

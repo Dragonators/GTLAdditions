@@ -1,18 +1,13 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
-import kotlin.math.cos
 import kotlin.math.roundToInt
-import kotlin.math.sin
 
 object MatrixEffectGeometry {
-    const val CIRCLE_RADIUS = 42.0f
-    const val CIRCLE_Y = 2.03f // Above model Y=2, relative to the Q2-B controller at (0, 1, 15).
     const val CUBE_CENTER_Y = 58.5f
     const val CENTER_OFFSET_Z = -15.0
 
     // Keep all four layers in the transform/hide-mask data; only the first three are solid frames.
     const val ENERGY_CORE_LAYER_INDEX = 3
-    const val CIRCLE_DEGREES_PER_SECOND = 3.0
     const val BEAM_RADIUS = 1.25f
     const val BEAM_HEIGHT = 1024.0f
     const val IDLE_BEAM_ALPHA = 0.18f
@@ -75,22 +70,8 @@ object MatrixEffectGeometry {
     data class Face(val axis: Int, val sign: Int)
 
     data class UnitBlock(val x: Int, val y: Int, val z: Int, val material: String, val faces: List<Face>)
-    data class Line(val x0: Float, val z0: Float, val x1: Float, val z1: Float, val purple: Boolean = false, val fine: Boolean = false)
-    data class SealRing(val x: Float, val z: Float, val radius: Float, val purple: Boolean = false, val fine: Boolean = false, val flowing: Boolean = false)
 
-    // Centreline circles shared by the seal geometry and its volume renderer.
-    val sealRings = buildList {
-        add(SealRing(0f, 0f, 0.83f, flowing = true))
-        add(SealRing(0f, 0f, 0.79f, flowing = true))
-        add(SealRing(0f, 0f, 0.25f, flowing = true))
-        for (i in 0 until 6) {
-            val angle = i * Math.PI / 3
-            add(SealRing((cos(angle) * 0.98).toFloat(), (sin(angle) * 0.98).toFloat(), 0.055f, true))
-            add(SealRing((cos(angle) * 0.81).toFloat(), (sin(angle) * 0.81).toFloat(), 0.006f, fine = true))
-        }
-    }
-
-    // Rune strokes in local tangent/radial coordinates; no font or glyph atlas needed.
+    // Rune strokes in local tangent/radial coordinates.
     private val runes = listOf(
         floatArrayOf(-0.4f, -1f, -0.4f, 1f, -0.4f, 0.3f, 0.5f, 0.85f, -0.4f, -0.3f, 0.5f, 0.25f), // ᚠ
         floatArrayOf(-0.5f, -1f, -0.5f, 1f, -0.5f, 1f, 0.5f, 0.6f, 0.5f, 0.6f, 0.5f, -1f), // ᚢ
@@ -169,78 +150,5 @@ object MatrixEffectGeometry {
         }
 
         return blocks
-    }
-
-    /** Straight strokes only; circular strokes are described by [sealRings]. */
-    fun circle(): List<Line> {
-        val lines = ArrayList<Line>()
-        fun line(x0: Double, z0: Double, x1: Double, z1: Double, purple: Boolean = false, fine: Boolean = false) {
-            lines.add(Line(x0.toFloat(), z0.toFloat(), x1.toFloat(), z1.toFloat(), purple, fine))
-        }
-        fun polygon(radius: Double, count: Int, offset: Double = 0.0, purple: Boolean = false) {
-            for (i in 0 until count) {
-                val a = offset + i * Math.PI * 2 / count
-                val b = offset + (i + 1) * Math.PI * 2 / count
-                line(cos(a) * radius, sin(a) * radius, cos(b) * radius, sin(b) * radius, purple)
-            }
-        }
-        fun diamond(angle: Double, tangentHalfWidth: Double, radialHalfHeight: Double, purple: Boolean) {
-            val cosine = cos(angle)
-            val sine = sin(angle)
-            val vertices = arrayOf(
-                0.0 to radialHalfHeight,
-                tangentHalfWidth to 0.0,
-                0.0 to -radialHalfHeight,
-                -tangentHalfWidth to 0.0
-            ).map { (tangent, radial) ->
-                (cosine * (0.81 + radial) - sine * tangent) to
-                    (sine * (0.81 + radial) + cosine * tangent)
-            }
-            for (i in vertices.indices) {
-                val (x0, z0) = vertices[i]
-                val (x1, z1) = vertices[(i + 1) % vertices.size]
-                line(x0, z0, x1, z1, purple, fine = true)
-            }
-        }
-        polygon(1.0, 6)
-        polygon(0.967, 6)
-        polygon(0.74, 3, purple = true)
-        polygon(0.74, 3, Math.PI, true)
-        polygon(0.30, 6)
-        // Six principal seals align with the star, leaving the intervals undecorated.
-        for (i in 0 until 6) {
-            val a = i * Math.PI / 3
-            diamond(a, 0.019, 0.028, purple = true)
-        }
-        for (i in 0 until 6) {
-            val a = i * Math.PI / 3
-            line(cos(a) * 0.3, sin(a) * 0.3, cos(a) * 0.68, sin(a) * 0.68)
-            // Three runes share one outward orientation and a straight baseline along each edge.
-            val b = a + Math.PI / 6
-            val cosine = cos(b)
-            val sine = sin(b)
-            for (j in -1..1) {
-                // Retain the former arc layout's tangential spacing without rotating each glyph.
-                val tangentOffset = j * 0.895 * sin(0.15)
-                val cx = cosine * 0.895 - sine * tangentOffset
-                val cz = sine * 0.895 + cosine * tangentOffset
-                val rune = runes[i * 3 + j + 1]
-                for (stroke in rune.indices step 4) {
-                    val x0 = rune[stroke] * 0.025
-                    val y0 = rune[stroke + 1] * 0.025
-                    val x1 = rune[stroke + 2] * 0.025
-                    val y1 = rune[stroke + 3] * 0.025
-                    line(
-                        cx - sine * x0 + cosine * y0,
-                        cz + cosine * x0 + sine * y0,
-                        cx - sine * x1 + cosine * y1,
-                        cz + cosine * x1 + sine * y1,
-                        purple = true,
-                        fine = true
-                    )
-                }
-            }
-        }
-        return lines
     }
 }

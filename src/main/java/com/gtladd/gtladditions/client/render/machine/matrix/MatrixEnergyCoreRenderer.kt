@@ -1,12 +1,18 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredRenderContext
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredSceneDepth
+import com.gtladd.gtladditions.api.client.scene.PartBlend
+import com.gtladd.gtladditions.api.client.scene.PartBounds
+import com.gtladd.gtladditions.api.client.scene.PartDrawContext
+import com.gtladd.gtladditions.api.client.scene.PartFeature
+import com.gtladd.gtladditions.api.client.scene.PartKey
+import com.gtladd.gtladditions.api.client.scene.PartOutcome
+import com.gtladd.gtladditions.api.client.scene.SceneFrame
+import com.gtladd.gtladditions.api.client.scene.ScenePart
+import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask
 import com.gtladd.gtladditions.client.render.machine.heart.HeartLayerImages
 import com.gtladd.gtladditions.client.render.machine.heart.HeartSceneCompositor
-import com.gtladd.gtladditions.client.render.machine.heart.HeartSceneEffect
+import com.gtladd.gtladditions.client.render.scene.LayeredPartRenderer
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
@@ -21,8 +27,6 @@ import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceProvider
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.phys.AABB
-import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Matrix4f
@@ -33,110 +37,91 @@ import org.lwjgl.opengl.GL13C
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.ArrayDeque
-import kotlin.math.cos
 import kotlin.math.round
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 @OnlyIn(Dist.CLIENT)
-object MatrixEnergyCoreRenderer {
+internal object MatrixEnergyCoreRenderer : LayeredPartRenderer<MatrixEnergyCore> {
     const val SURFACE_COVERAGE = 0.85f
     const val INTERIOR_STRENGTH = 2.0f
     const val PHASE_OFFSET = 3.5f
     private const val CIRCUIT_SIZE = 16
+
+    // After the six beams.
+    private const val PART = 6
     private val controllerLights = ResourceLocation("ae2", "textures/block/controller_lights.png")
     private var cube: VertexBuffer? = null
     private var circuitTexture = -1
-    private val sceneDepth = DeferredSceneDepth()
 
-    internal data class Entry(
-        override val blockEntity: BlockEntity,
-        val ticks: Double,
-        val yaw: Float,
-        val flipped: Boolean
-    ) : HeartSceneEffect {
-        override val bounds: AABB
-            get() {
-                val angle = Math.toRadians(yaw.toDouble())
-                val pos = blockEntity.blockPos
-                val center = Vec3(pos.x + 0.5 + MatrixEffectGeometry.CENTER_OFFSET_Z * sin(angle), pos.y + MatrixEffectGeometry.CUBE_CENTER_Y.toDouble(), pos.z + 0.5 + MatrixEffectGeometry.CENTER_OFFSET_Z * cos(angle))
-                val diameter = MatrixEffectGeometry.layers[MatrixEffectGeometry.ENERGY_CORE_LAYER_INDEX].side * sqrt(3.0)
-                return AABB.ofSize(center, diameter, diameter, diameter)
-            }
-        override val supportsLayeredRendering: Boolean
-            get() = MatrixShaders.energyCoreLayers != null
+    fun submit(frame: SceneFrame, blockEntity: BlockEntity, ticks: Double, yaw: Float, flipped: Boolean) {
+        val pos = blockEntity.blockPos
+        val center = MatrixFrameTransforms.cubeCenter(pos, yaw)
+        // The cube only turns about its centre.
+        val radius = MatrixEffectGeometry.layers[MatrixEffectGeometry.ENERGY_CORE_LAYER_INDEX].side * sqrt(3.0) / 2
+        frame.submit(
+            ScenePart.builder(
+                PartKey.block(MatrixEffectRenderer.provider, pos, PART),
+                this,
+                MatrixEnergyCore(blockEntity, ticks, yaw, flipped)
+            )
+                .blend(PartBlend.STRAIGHT)
+                .bounds(PartBounds.sphere(center.x, center.y, center.z, radius))
+                .features(PartFeature.SCENE_DEPTH, PartFeature.OWN_HAND_MASK)
+                .build()
+        )
+    }
 
-        override val depthCaptureKey: Any
-            get() = MatrixEnergyCoreRenderer
+    override fun layered(part: ScenePart<MatrixEnergyCore>): Boolean = MatrixShaders.energyCoreLayers != null
 
-        override val orderedNeedsSceneDepth: Boolean
-            get() = false
-
-        override fun renderOrdered(context: DeferredRenderContext, handMask: Int) {
-            val shader = MatrixShaders.energyCore ?: return
+    override fun draw(context: PartDrawContext, parts: List<ScenePart<MatrixEnergyCore>>) {
+        val shader = MatrixShaders.energyCore ?: return parts.forEach { context.report(it, PartOutcome.RESOURCE_UNAVAILABLE) }
+        for (part in parts) {
+            val core = part.payload
             RenderUtils.withSavedRenderState {
-                HeartSceneEffect.bindHandMask(shader, handMask)
-                context.renderRelativeToCamera(blockEntity) {
-                    MatrixFrameTransforms.withWinding(flipped) {
-                        withCorePose(this, ticks, yaw, flipped) { renderLocal(this, shader, circuitTexture(), ticks) }
-                    }
-                }
-            }
-        }
-
-        override fun captureSceneDepth(): Boolean = MatrixShaders.energyCoreLayers?.let { sceneDepth.capture(it) } == true
-
-        override fun renderDirect(context: DeferredRenderContext) {
-            RenderUtils.withSavedRenderState {
-                context.renderRelativeToCamera(blockEntity) {
-                    MatrixFrameTransforms.withWinding(flipped) { render(this, ticks, yaw, flipped) }
-                }
-            }
-        }
-
-        override fun renderLayered(
-        context: DeferredRenderContext,
-        depth: Int,
-        count: Int,
-        base: Int,
-        rect: IntArray,
-        local: Boolean, handMask: Int) {
-            val shader = MatrixShaders.energyCoreLayers ?: return
-            sceneDepth.bind(shader)
-            HeartSceneEffect.bindHandMask(shader, handMask)
-            HeartLayerImages.bindArray(3, depth)
-            shader.getUniform("LayerDepths")?.set(3)
-            shader.getUniform("LayerCount")?.set(count)
-            shader.getUniform("LayerBase")?.set(base)
-            shader.getUniform("LayerMode")?.set(if (local) 1 else 0)
-            shader.getUniform("LayerOrigin")?.set(if (local) rect[0].toFloat() else 0f, if (local) rect[1].toFloat() else 0f)
-            shader.getUniform("LayerRect")?.set(rect[0].toFloat(), rect[1].toFloat(), rect[2].toFloat(), rect[3].toFloat())
-            RenderSystem.colorMask(true, true, true, local)
-            context.renderRelativeToCamera(blockEntity) {
-                MatrixFrameTransforms.withWinding(flipped) {
-                    withCorePose(this, ticks, yaw, flipped) { renderLocal(this, shader, circuitTexture(), ticks, true) }
-                }
+                HeartHandDepthMask.bind(shader, context.handMaskTexture)
+                relativeToCamera(context, core) { renderLocal(this, shader, circuitTexture(), core.ticks) }
             }
         }
     }
 
+    override fun drawLayered(
+        context: PartDrawContext,
+        part: ScenePart<MatrixEnergyCore>,
+        depth: Int,
+        count: Int,
+        base: Int,
+        rect: IntArray,
+        local: Boolean
+    ) {
+        val shader = MatrixShaders.energyCoreLayers ?: return
+        context.sceneDepth!!.bind(shader)
+        HeartHandDepthMask.bind(shader, context.handMaskTexture)
+        HeartLayerImages.bindArray(3, depth)
+        shader.getUniform("LayerDepths")?.set(3)
+        shader.getUniform("LayerCount")?.set(count)
+        shader.getUniform("LayerBase")?.set(base)
+        shader.getUniform("LayerMode")?.set(if (local) 1 else 0)
+        shader.getUniform("LayerOrigin")?.set(if (local) rect[0].toFloat() else 0f, if (local) rect[1].toFloat() else 0f)
+        shader.getUniform("LayerRect")?.set(rect[0].toFloat(), rect[1].toFloat(), rect[2].toFloat(), rect[3].toFloat())
+        RenderSystem.colorMask(true, true, true, local)
+        relativeToCamera(context, part.payload) { renderLocal(this, shader, circuitTexture(), part.payload.ticks, true) }
+    }
+
+    private fun relativeToCamera(context: PartDrawContext, core: MatrixEnergyCore, draw: PoseStack.() -> Unit) {
+        val pos = core.blockEntity.blockPos
+        val frame = context.frame
+        context.poseStack.withPose {
+            translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
+            MatrixFrameTransforms.withWinding(core.flipped) { withCorePose(this, core.ticks, core.yaw, core.flipped, draw) }
+        }
+    }
+
     fun releaseBuffers() {
-        sceneDepth.close()
         HeartSceneCompositor.close()
         cube?.close()
         cube = null
         if (circuitTexture >= 0) GlStateManager._deleteTexture(circuitTexture)
         circuitTexture = -1
-    }
-
-    @JvmOverloads
-    fun render(pose: PoseStack, ticks: Double, yaw: Float, flipped: Boolean = false) {
-        val shader = MatrixShaders.energyCore ?: return
-        HeartSceneEffect.bindHandMask(shader, 0)
-        val texture = circuitTexture()
-        withCorePose(pose, ticks, yaw, flipped) {
-            DeferredOculusCompat.withDeferredShaderPass { renderLocal(this, shader, texture, ticks) }
-        }
     }
 
     private fun withCorePose(pose: PoseStack, ticks: Double, yaw: Float, flipped: Boolean, draw: PoseStack.() -> Unit) {
@@ -293,3 +278,5 @@ object MatrixEnergyCoreRenderer {
         }
     }
 }
+
+internal class MatrixEnergyCore(val blockEntity: BlockEntity, val ticks: Double, val yaw: Float, val flipped: Boolean)

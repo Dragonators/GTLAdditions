@@ -58,7 +58,6 @@ internal class HeartBlackHoleRenderState private constructor() {
         disableScissor()
         RenderSystem.disableColorLogicOp()
         GL11C.glDisable(GL11C.GL_COLOR_LOGIC_OP)
-        GL11C.glDisable(GL11C.GL_STENCIL_TEST)
     }
 
     private fun restore() {
