@@ -1,6 +1,5 @@
-package com.gtladd.gtladditions.utils
+package com.gtladd.gtladditions.utils.animation
 
-/** Follows the selected render clock: switching source keeps the displayed phase, and time never rewinds. */
 class ClientAnimationClock {
     private var clock: ContinuousAnimationClock? = null
     private var lastTick = Double.NEGATIVE_INFINITY

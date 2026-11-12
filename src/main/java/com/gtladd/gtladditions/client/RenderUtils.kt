@@ -1,4 +1,4 @@
-﻿package com.gtladd.gtladditions.utils
+﻿package com.gtladd.gtladditions.client
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gtladd.gtladditions.GTLAdditions

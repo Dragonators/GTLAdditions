@@ -1,6 +1,6 @@
 package com.gtladd.gtladditions.client.render.machine.antichrist
 
-import com.gtladd.gtladditions.utils.RenderUtils
+import com.gtladd.gtladditions.client.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder

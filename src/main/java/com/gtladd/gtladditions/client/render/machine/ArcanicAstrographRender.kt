@@ -5,10 +5,10 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.IControllerRenderer
 import com.gregtechceu.gtceu.common.data.GTBlocks.HIGH_POWER_CASING
 import com.gtladd.gtladditions.api.client.scene.SceneRendering
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.BlockEntityDispatch
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ArcanicAstrograph
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import net.irisshaders.iris.shadows.ShadowRenderingState
 import net.minecraft.client.renderer.MultiBufferSource

@@ -1,9 +1,9 @@
 ﻿package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.client.RenderMode
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.common.machine.trait.StarRitualTrait.Companion.CLIENT_COLLAPSE_DURATION_TICKS
 import com.gtladd.gtladditions.common.machine.trait.StarRitualTrait.Companion.CLIENT_RECOVER_DURATION_TICKS
-import com.gtladd.gtladditions.utils.RenderUtils
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import kotlin.math.pow

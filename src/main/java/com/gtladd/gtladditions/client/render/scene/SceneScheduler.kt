@@ -10,12 +10,12 @@ import com.gtladd.gtladditions.api.client.scene.SceneCapabilities
 import com.gtladd.gtladditions.api.client.scene.SceneFrame
 import com.gtladd.gtladditions.api.client.scene.ScenePart
 import com.gtladd.gtladditions.api.client.scene.SceneProvider
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHolePostTargets
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleSceneEntry
 import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask
 import com.gtladd.gtladditions.client.render.machine.heart.HeartSceneCompositor
 import com.gtladd.gtladditions.events.ClientCloudHighlighter
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack

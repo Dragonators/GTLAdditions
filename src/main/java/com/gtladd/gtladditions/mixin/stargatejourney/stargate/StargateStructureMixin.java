@@ -33,8 +33,8 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.List;
 import java.util.Optional;
 
-import static com.gtladd.gtladditions.utils.CommonUtils.isTargetDimension;
-import static com.gtladd.gtladditions.utils.CommonUtils.selectDisplayItem;
+import static com.gtladd.gtladditions.integration.stargate.StargateDimensions.isTargetDimension;
+import static com.gtladd.gtladditions.integration.stargate.StargateDimensions.selectDisplayItem;
 
 @SuppressWarnings("all")
 @Mixin(StargateStructure.class)

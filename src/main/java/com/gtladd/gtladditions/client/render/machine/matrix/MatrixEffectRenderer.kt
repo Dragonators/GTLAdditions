@@ -10,12 +10,12 @@ import com.gtladd.gtladditions.api.client.scene.PartOutcome
 import com.gtladd.gtladditions.api.client.scene.PartRenderer
 import com.gtladd.gtladditions.api.client.scene.ScenePart
 import com.gtladd.gtladditions.api.client.scene.SceneRendering
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.heart.HeartLayerImages
 import com.gtladd.gtladditions.client.render.scene.CompositePartRenderer
 import com.gtladd.gtladditions.client.render.scene.LayeredPartRenderer
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ApocalypticWarpQuantumMatrix
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexBuffer

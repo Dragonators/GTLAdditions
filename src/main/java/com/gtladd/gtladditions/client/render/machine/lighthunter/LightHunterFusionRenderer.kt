@@ -1,8 +1,8 @@
 package com.gtladd.gtladditions.client.render.machine.lighthunter
 
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleRenderState
 import com.gtladd.gtladditions.client.render.machine.heart.HeartLayerImages
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat

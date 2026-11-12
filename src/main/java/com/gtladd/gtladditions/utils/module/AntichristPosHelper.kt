@@ -1,4 +1,4 @@
-﻿package com.gtladd.gtladditions.utils
+﻿package com.gtladd.gtladditions.utils.module
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction

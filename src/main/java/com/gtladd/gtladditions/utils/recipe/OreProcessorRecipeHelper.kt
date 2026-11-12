@@ -1,4 +1,4 @@
-package com.gtladd.gtladditions.utils
+package com.gtladd.gtladditions.utils.recipe
 
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability
@@ -9,6 +9,7 @@ import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
 import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
+import kotlin.collections.iterator
 import kotlin.math.max
 
 object OreProcessorRecipeHelper {

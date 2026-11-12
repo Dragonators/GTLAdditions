@@ -2,9 +2,9 @@ package com.gtladd.gtladditions.common.machine.trait
 
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
-import com.gtladd.gtladditions.utils.ClientAnimationClock
-import com.gtladd.gtladditions.utils.ContinuousAnimationClock
-import com.gtladd.gtladditions.utils.RenderUtils
+import com.gtladd.gtladditions.client.RenderUtils
+import com.gtladd.gtladditions.utils.animation.ClientAnimationClock
+import com.gtladd.gtladditions.utils.animation.ContinuousAnimationClock
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder

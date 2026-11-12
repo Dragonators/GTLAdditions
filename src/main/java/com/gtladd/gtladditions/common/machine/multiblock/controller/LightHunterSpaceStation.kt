@@ -16,8 +16,8 @@ import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentO
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.LightHunterInteriorLighting
-import com.gtladd.gtladditions.utils.LightHunterSpaceStationPosHelper
-import com.gtladd.gtladditions.utils.ModuleConnectionRegistry
+import com.gtladd.gtladditions.utils.module.LightHunterSpaceStationPosHelper
+import com.gtladd.gtladditions.utils.module.ModuleConnectionRegistry
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder

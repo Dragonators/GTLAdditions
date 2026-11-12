@@ -1,8 +1,8 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.scene.ResourceSlot
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem

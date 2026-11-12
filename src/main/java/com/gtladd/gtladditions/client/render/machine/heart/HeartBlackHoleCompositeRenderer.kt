@@ -1,7 +1,7 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
 import com.gtladd.gtladditions.api.client.scene.SceneDepth
-import com.gtladd.gtladditions.utils.RenderUtils
+import com.gtladd.gtladditions.client.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.renderer.ShaderInstance
 import org.joml.Matrix4f

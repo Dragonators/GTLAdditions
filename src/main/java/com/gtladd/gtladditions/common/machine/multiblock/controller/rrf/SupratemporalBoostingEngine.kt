@@ -4,7 +4,7 @@ import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gtladd.gtladditions.common.machine.hatch.VientianeTranscriptionNode
-import com.gtladd.gtladditions.utils.MachineUtil.inputFluid
+import com.gtladd.gtladditions.utils.recipe.MachineUtil.inputFluid
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted

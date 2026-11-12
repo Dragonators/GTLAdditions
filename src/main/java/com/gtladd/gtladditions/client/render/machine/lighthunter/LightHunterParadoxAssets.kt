@@ -1,7 +1,7 @@
 package com.gtladd.gtladditions.client.render.machine.lighthunter
 
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.scene.ResourceSlot
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexBuffer

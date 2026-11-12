@@ -9,8 +9,8 @@ import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.machine.hatch.OreProcessorHatch
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
-import com.gtladd.gtladditions.utils.OreProcessorRecipeHelper
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import com.gtladd.gtladditions.utils.recipe.OreProcessorRecipeHelper
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import org.gtlcore.gtlcore.common.data.GTLMaterials

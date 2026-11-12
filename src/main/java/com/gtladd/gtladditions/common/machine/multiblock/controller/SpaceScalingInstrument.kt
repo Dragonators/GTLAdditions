@@ -7,7 +7,7 @@ import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectric
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 

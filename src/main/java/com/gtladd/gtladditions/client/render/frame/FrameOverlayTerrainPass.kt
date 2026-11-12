@@ -1,8 +1,8 @@
 package com.gtladd.gtladditions.client.render.frame
 
 import com.gtladd.gtladditions.client.GTLAddRenderTypes
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.mixin.embeddium.FrameOverlayWorldRendererAccessor
-import com.gtladd.gtladditions.utils.RenderUtils
 import me.jellysquid.mods.sodium.client.gl.device.RenderDevice
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderMatrices

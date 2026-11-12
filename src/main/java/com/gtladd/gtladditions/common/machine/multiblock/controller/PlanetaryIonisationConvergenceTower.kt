@@ -17,8 +17,8 @@ import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.gui.MultiblockDisplayText
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ComponentExtensions.translatable
-import com.gtladd.gtladditions.utils.MachineUtil.input
 import com.gtladd.gtladditions.utils.SynchronousSphereExplosion
+import com.gtladd.gtladditions.utils.recipe.MachineUtil.input
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder

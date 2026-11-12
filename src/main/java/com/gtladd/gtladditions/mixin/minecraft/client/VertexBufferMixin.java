@@ -2,7 +2,7 @@ package com.gtladd.gtladditions.mixin.minecraft.client;
 
 import net.minecraft.client.renderer.ShaderInstance;
 
-import com.gtladd.gtladditions.utils.RenderUtils;
+import com.gtladd.gtladditions.client.RenderUtils;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.VertexBuffer;

@@ -2,7 +2,7 @@ package com.gtladd.gtladditions.client.render.machine.lighthunter
 
 import com.gtladd.gtladditions.common.machine.multiblock.structure.StructureResourceLoader
 import com.gtladd.gtladditions.utils.LightHunterInteriorLayout
-import com.gtladd.gtladditions.utils.LightHunterSpaceStationPosHelper
+import com.gtladd.gtladditions.utils.module.LightHunterSpaceStationPosHelper
 import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction

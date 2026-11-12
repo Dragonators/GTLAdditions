@@ -11,8 +11,8 @@ import com.gtladd.gtladditions.api.client.scene.SceneDepth
 import com.gtladd.gtladditions.api.client.scene.SceneFrame
 import com.gtladd.gtladditions.api.client.scene.ScenePart
 import com.gtladd.gtladditions.api.client.scene.SceneRendering
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.withPose
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat

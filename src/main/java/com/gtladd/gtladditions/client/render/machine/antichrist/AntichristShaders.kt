@@ -2,7 +2,7 @@ package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.google.common.collect.ImmutableMap
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.utils.RenderUtils
+import com.gtladd.gtladditions.client.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexFormat

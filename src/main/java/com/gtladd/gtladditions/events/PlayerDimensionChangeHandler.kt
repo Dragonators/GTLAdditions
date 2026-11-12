@@ -1,8 +1,8 @@
 package com.gtladd.gtladditions.events
 
 import com.gtladd.gtladditions.GTLAdditions.Companion.MOD_ID
-import com.gtladd.gtladditions.utils.CommonUtils.VALID_TAG
-import com.gtladd.gtladditions.utils.CommonUtils.isTargetDimension
+import com.gtladd.gtladditions.integration.stargate.StargateDimensions.VALID_TAG
+import com.gtladd.gtladditions.integration.stargate.StargateDimensions.isTargetDimension
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer

@@ -2,9 +2,9 @@ package com.gtladd.gtladditions.client.render.frame
 
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.client.GTLAddRenderTypes
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.StructureBlockLighting
 import com.gtladd.gtladditions.client.render.withPose
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat

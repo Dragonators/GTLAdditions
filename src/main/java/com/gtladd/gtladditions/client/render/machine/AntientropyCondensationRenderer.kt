@@ -3,10 +3,10 @@ package com.gtladd.gtladditions.client.render.machine
 import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.condensation.CondensationCoreMesh
 import com.gtladd.gtladditions.client.render.machine.condensation.CondensationCoreRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.AntientropyCondensationCenter
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.resources.ResourceLocation

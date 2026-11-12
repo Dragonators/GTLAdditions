@@ -14,7 +14,7 @@ import com.gregtechceu.gtceu.api.recipe.logic.OCResult
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic
 import com.gtladd.gtladditions.common.machine.hatch.OreProcessorHatch
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
-import com.gtladd.gtladditions.utils.OreProcessorRecipeHelper
+import com.gtladd.gtladditions.utils.recipe.OreProcessorRecipeHelper
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 import org.gtlcore.gtlcore.api.recipe.RecipeMultiplierTracker
 import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers

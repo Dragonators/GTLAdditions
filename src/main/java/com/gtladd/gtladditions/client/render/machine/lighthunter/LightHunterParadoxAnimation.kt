@@ -1,8 +1,8 @@
 package com.gtladd.gtladditions.client.render.machine.lighthunter
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.common.machine.multiblock.controller.LightHunterSpaceStation
-import com.gtladd.gtladditions.utils.RenderUtils
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 

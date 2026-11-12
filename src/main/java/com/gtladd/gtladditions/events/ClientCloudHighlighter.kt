@@ -1,6 +1,6 @@
 ﻿package com.gtladd.gtladditions.events
 
-import com.gtladd.gtladditions.utils.RenderUtils
+import com.gtladd.gtladditions.client.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack

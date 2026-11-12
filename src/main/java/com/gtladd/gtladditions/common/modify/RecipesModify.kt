@@ -21,8 +21,8 @@ import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.CHAOTIC_ALCHEMY
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.LEYLINE_CRYSTALLIZE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.PHOTON_MATRIX_ETCH
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.SPACE_ORE_PROCESSOR
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
-import com.gtladd.gtladditions.utils.TempChemicalHelper
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
+import com.gtladd.gtladditions.utils.recipe.TempChemicalHelper
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.common.data.GTLMaterials.EuvPhotoresist
 import org.gtlcore.gtlcore.common.data.GTLMaterials.Photoresist

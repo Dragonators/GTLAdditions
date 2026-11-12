@@ -1,8 +1,8 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristShaders
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.client.renderer.ShaderInstance

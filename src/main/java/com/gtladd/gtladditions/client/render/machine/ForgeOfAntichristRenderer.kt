@@ -1,10 +1,10 @@
 package com.gtladd.gtladditions.client.render.machine
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristDeferredRenderer
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRenderProfile
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import com.tterrag.registrate.util.entry.BlockEntry
 import net.minecraft.client.renderer.MultiBufferSource

@@ -1,7 +1,7 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.utils.RenderUtils
+import com.gtladd.gtladditions.client.RenderUtils
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.server.packs.resources.ResourceProvider
 import org.lwjgl.opengl.GL11C

@@ -15,7 +15,7 @@ import com.gtladd.gtladditions.api.machine.IWirelessBindableSource
 import com.gtladd.gtladditions.api.machine.IWirelessBindableTarget
 import com.gtladd.gtladditions.api.machine.gui.MultiblockDisplayText
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
-import com.gtladd.gtladditions.utils.MachineUtil
+import com.gtladd.gtladditions.utils.recipe.MachineUtil
 import com.lowdragmc.lowdraglib.gui.util.ClickData
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget.withButton
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack

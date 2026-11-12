@@ -1,9 +1,9 @@
 package com.gtladd.gtladditions.client.render.scene
 
 import com.gtladd.gtladditions.api.client.scene.SceneDepth
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.heart.HeartBlackHoleRenderState
 import com.gtladd.gtladditions.client.render.machine.heart.HeartLayerImages
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.pipeline.RenderTarget
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem

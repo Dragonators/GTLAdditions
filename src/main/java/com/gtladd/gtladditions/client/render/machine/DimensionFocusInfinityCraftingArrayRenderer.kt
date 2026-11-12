@@ -3,10 +3,10 @@ package com.gtladd.gtladditions.client.render.machine
 import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.dimensionfocus.DimensionFocusOrbitRenderer
 import com.gtladd.gtladditions.client.render.machine.dimensionfocus.DimensionFocusPocketRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.DimensionFocusInfinityCraftingArray
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.world.level.block.entity.BlockEntity

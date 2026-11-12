@@ -1,11 +1,9 @@
-package com.gtladd.gtladditions.utils
+package com.gtladd.gtladditions.utils.module
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 
 object LightHunterSpaceStationPosHelper {
-
-    const val INTERIOR_LIGHT_COUNT = LightHunterInteriorLayout.LIGHT_COUNT
 
     private val BASE_OFFSETS = arrayOf(
         intArrayOf(-41, 0, -9),
@@ -52,9 +50,6 @@ object LightHunterSpaceStationPosHelper {
             hostPos.offset(offset[0], offset[1], offset[2])
         }
     }
-
-    /** Existing callers share the cached, persistent slot layout. */
-    fun interiorLightOffset(slot: Int, facing: Direction): BlockPos = LightHunterInteriorLayout.lightOffset(slot, facing)
 
     @Suppress("SameParameterValue")
     private fun rotateOffsets(offsets: Array<IntArray>, rotation: Int): Array<IntArray> = Array(offsets.size) { i ->

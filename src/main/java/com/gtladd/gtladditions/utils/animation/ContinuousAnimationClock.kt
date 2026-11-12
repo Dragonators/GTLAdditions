@@ -1,6 +1,5 @@
-package com.gtladd.gtladditions.utils
+package com.gtladd.gtladditions.utils.animation
 
-/** State changes commit elapsed time; sampling is read-only and independent of render frequency. */
 class ContinuousAnimationClock {
     private var elapsed = 0.0
     private var lastTime = 0.0
