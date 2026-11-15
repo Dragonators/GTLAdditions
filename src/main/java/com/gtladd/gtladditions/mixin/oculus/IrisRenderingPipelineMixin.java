@@ -13,6 +13,7 @@ import com.gtladd.gtladditions.client.render.machine.antichrist.RingBatchShaderP
 import com.gtladd.gtladditions.client.render.machine.antichrist.RingStructureVertexBuffer;
 import com.gtladd.gtladditions.client.render.machine.dimensionfocus.DimensionFocusOrbitRenderer;
 import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask;
+import com.gtladd.gtladditions.client.render.machine.heart.HeartShellRenderer;
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixFrameTerrainRenderer;
 import com.gtladd.gtladditions.client.render.scene.IrisPipelineBridge;
 import com.gtladd.gtladditions.client.render.scene.SceneScheduler;
@@ -63,6 +64,7 @@ public abstract class IrisRenderingPipelineMixin {
         RingStructureVertexBuffer.useShaderCompatibleTerrainUploadMode();
         MatrixFrameTerrainRenderer.useShaderCompatibleTerrainUploadMode();
         DimensionFocusOrbitRenderer.useShaderCompatibleTerrainUploadMode();
+        HeartShellRenderer.useShaderCompatibleTerrainUploadMode();
         SceneScheduler.INSTANCE.pipelineChanged();
     }
 
@@ -71,6 +73,7 @@ public abstract class IrisRenderingPipelineMixin {
         RingStructureVertexBuffer.useVanillaCompatibleTerrainUploadMode();
         MatrixFrameTerrainRenderer.useVanillaCompatibleTerrainUploadMode();
         DimensionFocusOrbitRenderer.useVanillaCompatibleTerrainUploadMode();
+        HeartShellRenderer.useVanillaCompatibleTerrainUploadMode();
         HeartHandDepthMask.destroy();
         SceneScheduler.INSTANCE.pipelineChanged();
     }

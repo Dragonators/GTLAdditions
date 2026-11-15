@@ -1002,7 +1002,7 @@ object NewMultiBlockMachineController {
                     .CWUt(16384)
             }
             .save(provider)
-        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("heart_of_the_universe_assembly_line"))
+        SUPRACHRONAL_ASSEMBLY_LINE_RECIPES.recipeBuilder(id("heart_of_the_cosmos_assembly_line"))
             .inputItems(ANNIHILATE_GENERATOR, 128)
             .inputItems(DYSON_SPHERE, 256)
             .inputItems(ADVANCED_HYPER_REACTOR, 256)
@@ -1021,7 +1021,7 @@ object NewMultiBlockMachineController {
             .inputFluids(UUMatter.getFluid(921600000000))
             .inputFluids(Hypogen.getFluid(754974720))
             .inputFluids(TranscendentMetal.getFluid(460800000))
-            .outputItems(MultiBlockMachine.HEART_OF_THE_UNIVERSE)
+            .outputItems(MultiBlockMachine.HEART_OF_THE_COSMOS)
             .EUt(VA[MAX].toLong()).duration(2304000)
             .stationResearch { b: StationRecipeBuilder? ->
                 b!!.researchStack(ANNIHILATE_GENERATOR.asStack())

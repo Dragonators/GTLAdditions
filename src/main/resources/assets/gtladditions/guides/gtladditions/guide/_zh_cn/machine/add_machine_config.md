@@ -57,7 +57,7 @@ GTLAdditions 自有机器：
 <Row>
     <BlockImage id="gtladditions:taixu_turbid_array" scale="3" />
     <BlockImage id="gtladditions:inferno_cleft_smelting_vault" scale="3" />
-    <BlockImage id="gtladditions:heart_of_the_universe" scale="3" />
+    <BlockImage id="gtladditions:heart_of_the_cosmos" scale="3" />
     <BlockImage id="gtladditions:dimension_focus_infinity_crafting_array" scale="3" />
 </Row>
 

@@ -7,17 +7,26 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
+import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
+import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
+import it.unimi.dsi.fastutil.longs.LongLongPair
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
+import net.minecraft.resources.ResourceLocation
+import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 import org.gtlcore.gtlcore.integration.gtmt.NewGTValues
 
-class HeartOfTheUniverse(holder: IMachineBlockEntity, vararg args: Any?) : GTLAddWorkableElectricMultipleRecipesMachine(holder, *args) {
+open class HeartOfTheUniverse(
+    holder: IMachineBlockEntity,
+    vararg args: Any?
+) : GTLAddWorkableElectricMultipleRecipesMachine(holder, *args) {
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = HeartOfTheUniverseLogic(this)
 
     override fun getMaxParallel(): Int = 1
@@ -54,7 +63,12 @@ class HeartOfTheUniverse(holder: IMachineBlockEntity, vararg args: Any?) : GTLAd
     }
 
     companion object {
-        class HeartOfTheUniverseLogic(parallel: HeartOfTheUniverse) : GTLAddMultipleRecipesLogic(parallel) {
+        const val ANNIHILATION_RECIPE_NAME = "strange_annihilation"
+
+        /** GT saves recipe ids under the recipe type's path. */
+        val ANNIHILATION_RECIPE: ResourceLocation = GTLAdditions.id("genesis_engine/$ANNIHILATION_RECIPE_NAME")
+
+        open class HeartOfTheUniverseLogic(parallel: HeartOfTheUniverse) : GTLAddMultipleRecipesLogic(parallel) {
             override fun getGTRecipe(): GTRecipe? {
                 if (!checkBeforeWorking()) return null
 
@@ -65,13 +79,27 @@ class HeartOfTheUniverse(holder: IMachineBlockEntity, vararg args: Any?) : GTLAd
                 return buildFinalWirelessRecipe(parallelData, wirelessTrait)
             }
 
+            override fun calculateParallels(): ParallelData? = RecipeCalculationHelper.calculateParallelsWithGreedyAllocation(
+                lookupRecipeIterator(),
+                parallel.maxParallel.toLong() * getMultipleThreads(),
+                machine,
+                { recipe, remaining -> getMaxParallel(recipe, remaining).let { LongLongPair.of(it, it) } },
+                ::paralleledRecipe
+            )
+
+            protected open fun paralleledRecipe(recipe: GTRecipe, parallel: Long): GTRecipe =
+                IParallelLogic.getRecipeOutputChance(machine, RecipeCalculationHelper.multipleRecipe(recipe, parallel))
+
             override fun getWirelessRecipeEut(recipe: GTRecipe): Long = RecipeHelper.getOutputEUt(recipe)
 
             override fun isEnergyConsumer(): Boolean = false
 
             override fun checkRecipe(recipe: GTRecipe): Boolean = RecipeRunnerHelper.matchRecipe(machine, recipe) &&
                 recipe.tickOutputs.isNotEmpty() &&
-                recipe.tickInputs.isEmpty()
+                recipe.tickInputs.isEmpty() &&
+                allows(recipe)
+
+            protected open fun allows(recipe: GTRecipe): Boolean = recipe.id == ANNIHILATION_RECIPE
 
             override fun getMultipleThreads(): Int = Ints.saturatedCast(1L + getMachine().getAdditionalThread())
         }

@@ -60,5 +60,5 @@ categories:
 * [时空扭曲者](time_space_distorter.md)
 * [伪神之煅炉](forge_of_the_antichrist.md)
 * [Helio 系列煅炉模块](helio_forge_modules.md)
-* [宇宙之心](heart_of_the_universe.md)
+* [宇宙之心](heart_of_the_cosmos.md)
 * [维度聚焦无尽合成阵列](dimension_focus_infinity_crafting_array.md)

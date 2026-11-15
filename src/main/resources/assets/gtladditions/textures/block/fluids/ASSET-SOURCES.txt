@@ -1,0 +1,19 @@
+Proto Matter fluid texture
+==========================
+
+fluid.proto_matter.png and fluid.proto_matter.png.mcmeta are unmodified copies
+of GT New Horizons / GT5-Unofficial's fluid.protomatter.png and its .mcmeta
+(the Protomatter fluid added with Antimatter Power Generation, #3117).
+
+Source project: https://github.com/GTNewHorizons/GT5-Unofficial
+Source revision: 57a8408c2c008c15229d2fdc4bd0a983a06b9d1c
+Original path: src/main/resources/assets/gregtech/textures/blocks/fluids/fluid.protomatter.png
+Original contributors: GT New Horizons / GT5-Unofficial contributors.
+
+Source license: GNU Lesser General Public License v3, as provided by the
+upstream LICENSE.txt, which is identical to
+assets/gtladditions/models/effect/condensation/LGPL-3.0.txt; the incorporated
+GNU General Public License v3 text is GPL-3.0.txt in the same directory.
+
+SHA-256 (unmodified PNG file):
+fluid.proto_matter.png: 7d9a054dce9994bb3fa5efb4ab03b4938af6a07951e25da62ddf481e1adb0f82

@@ -5,6 +5,7 @@ import com.gtladd.gtladditions.common.data.StructureRenderType
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.AntichristBlockLayout
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.CondensationCoreBlockLayout
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.DimensionFocusBlockLayout
+import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.HeartBlockLayout
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.MatrixEyeBlockLayout
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.MatrixFrameBlockLayout
 import net.minecraft.core.BlockPos
@@ -24,6 +25,7 @@ object StructureBlockLayout {
                 machine.flipped
             )
             StructureRenderType.DIMENSION_FOCUS -> DimensionFocusBlockLayout.positions(controller, machine.facing, machine.flipped)
+            StructureRenderType.HEART -> HeartBlockLayout.positions(controller, machine.facing, machine.flipped)
         }
     }
 }

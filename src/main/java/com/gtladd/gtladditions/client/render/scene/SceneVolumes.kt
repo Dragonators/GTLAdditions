@@ -39,10 +39,11 @@ internal object SceneVolumes : PartRenderer<HeartBlackHoleSceneEntry> {
 
     private enum class Mode { NONE, COMBINED, LAYERS }
 
-    fun submit(frame: SceneFrame, blockEntity: BlockEntity, profile: HeartBlackHoleRenderProfile) {
+    @JvmOverloads
+    fun submit(frame: SceneFrame, blockEntity: BlockEntity, profile: HeartBlackHoleRenderProfile, limitViewDistance: Boolean = true) {
         val center = profile.center.add(Vec3.atLowerCornerOf(blockEntity.blockPos))
         val limit = VIEW_DISTANCE + HeartBlackHoleVisualConfig.CPU_CULLING_RADIUS
-        if (center.distanceToSqr(frame.cameraX, frame.cameraY, frame.cameraZ) > limit * limit) return
+        if (limitViewDistance && center.distanceToSqr(frame.cameraX, frame.cameraY, frame.cameraZ) > limit * limit) return
         // The proxy sphere is the only geometry the volume pass rasterises.
         val radius = HeartBlackHoleVisualConfig.volumeProxyRadius(profile.tick).toDouble()
         frame.submit(

@@ -60,5 +60,5 @@ categories:
 * [Time Space Distorter](time_space_distorter.md)
 * [Forge of the Antichrist](forge_of_the_antichrist.md)
 * [Helio Forge Modules](helio_forge_modules.md)
-* [Heart of the Universe](heart_of_the_universe.md)
+* [Heart of the Universe](heart_of_the_cosmos.md)
 * [Dimension Focus Infinity Crafting Array](dimension_focus_infinity_crafting_array.md)

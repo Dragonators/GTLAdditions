@@ -121,6 +121,12 @@ object GTLAddMaterial {
             .color(0xffffff)
             .iconSet(MaterialIconSet.DULL)
             .buildAndRegister().setFormula("✟✵✟")
+    val PROTO_MATTER: Material =
+        Material.Builder(GTLAdditions.id("proto_matter"))
+            .fluid(FluidStorageKeys.LIQUID, FluidBuilder().state(FluidState.LIQUID).customStill())
+            .color(0xffffff)
+            .buildAndRegister()
+
     fun init() {
     }
 }

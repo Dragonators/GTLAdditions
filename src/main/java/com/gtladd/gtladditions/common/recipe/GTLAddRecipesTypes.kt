@@ -10,6 +10,8 @@ import com.gregtechceu.gtceu.common.block.CoilBlock
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
 import com.gregtechceu.gtceu.common.data.GTSoundEntries
 import com.gregtechceu.gtceu.utils.FormattingUtil
+import com.gtladd.gtladditions.api.machine.feature.IStructureTierMachine
+import com.gtladd.gtladditions.client.gui.GenesisEngineRecipeUI
 import com.gtladd.gtladditions.common.modify.GTLAddSoundEntries
 import com.gtladd.gtladditions.common.modify.RecipesModify
 import com.lowdragmc.lowdraglib.gui.texture.ProgressTexture.FillDirection
@@ -197,6 +199,11 @@ object GTLAddRecipesTypes {
         GENESIS_ENGINE = GTRecipeTypes.register("genesis_engine", GTRecipeTypes.MULTIBLOCK)
             .setEUIO(IO.OUT).setMaxIOSize(2, 1, 0, 0)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+            .addDataInfo { data: CompoundTag ->
+                val tier = data.getInt(IStructureTierMachine.RECIPE_TIER)
+                if (tier > 0) LocalizationUtils.format("gtladditions.structure_tier.recipe", tier) else ""
+            }
+            .setUiBuilder { recipe: GTRecipe, page: WidgetGroup -> GenesisEngineRecipeUI.build(recipe, page) }
             .setSound(GTLAddSoundEntries.GENESIS_ENGINE)
         STAR_CORE_STRIPPER = GTRecipeTypes.register("star_core_stripper", GTRecipeTypes.MULTIBLOCK)
             .setEUIO(IO.IN).setMaxIOSize(3, 12, 1, 1)

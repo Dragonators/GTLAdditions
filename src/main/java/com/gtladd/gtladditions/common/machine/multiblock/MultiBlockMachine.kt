@@ -47,6 +47,7 @@ import com.gtladd.gtladditions.client.render.machine.ApocalypticMatrixRenderer
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographRender
 import com.gtladd.gtladditions.client.render.machine.DimensionFocusInfinityCraftingArrayRenderer
 import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer
+import com.gtladd.gtladditions.client.render.machine.HeartOfTheCosmosRenderer
 import com.gtladd.gtladditions.client.render.machine.HeartOfTheUniverseRenderer
 import com.gtladd.gtladditions.client.render.machine.LightHunterSpaceStationRenderer
 import com.gtladd.gtladditions.client.render.machine.PartWorkableCasingMachineRenderer
@@ -82,6 +83,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.controller.bs.Biosphere
 import com.gtladd.gtladditions.common.machine.multiblock.controller.module.*
 import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.*
 import com.gtladd.gtladditions.common.machine.multiblock.structure.*
+import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.HeartBlockLayout
 import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION
@@ -173,6 +175,7 @@ object MultiBlockMachine {
     val HELIOTHERMAL_PLASMA_FABRICATOR: MultiblockMachineDefinition
     val HELIOPHASE_LEYLINE_CRYSTALLIZER: MultiblockMachineDefinition
     val HEART_OF_THE_UNIVERSE: MultiblockMachineDefinition
+    val HEART_OF_THE_COSMOS: MultiblockMachineDefinition
     val LIGHT_HUNTER_SPACE_STATION: MultiblockMachineDefinition
     val DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY: MultiblockMachineDefinition
     val SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR: MultiblockMachineDefinition
@@ -2062,6 +2065,7 @@ object MultiBlockMachine {
             Function { HeartOfTheUniverse(it) }
         )
             .nonYAxisRotation()
+            .tooltipTextKey("tooltip.gtladditions.discontinued".toComponent)
             .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.2".toComponent)
@@ -2099,6 +2103,49 @@ object MultiBlockMachine {
                     .build()
             }
             .renderer { HeartOfTheUniverseRenderer() }
+            .hasTESR(true)
+            .register()
+
+        HEART_OF_THE_COSMOS = REGISTRATE.multiblock(
+            "heart_of_the_cosmos",
+            Function { HeartOfTheCosmos(it) }
+        )
+            .nonYAxisRotation()
+            .apply { allowFlip(false) }
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.1".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.2".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.3".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.4".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.6".toComponent)
+            .tooltipTextRecipeTypes(GENESIS_ENGINE)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeTypes(GENESIS_ENGINE)
+            .appearanceBlock(DIMENSION_INJECTION_CASING)
+            .partAppearance { _, _, _ -> IRIDIUM_CASING.get().defaultBlockState() }
+            .pattern { definition ->
+                // '.' is enclosed inside a plate.
+                val pattern = MultiBlockStructure.HEART_OF_THE_COSMOS_STRUCTURE.where("~", controller(blocks(definition.get())))
+
+                for ((symbol, id) in HeartBlockLayout.BLOCK_IDS) {
+                    if (symbol != 'c') pattern.where(symbol, blocks(getBlock(id)))
+                }
+
+                pattern
+                    .where(
+                        "c",
+                        blocks(getBlock(HeartBlockLayout.BLOCK_IDS.getValue('c')))
+                            .or(blocks(Wireless_Energy_Network_OUTPUT_Terminal.get()))
+                            .or(abilities(IMPORT_ITEMS))
+                            .or(abilities(IMPORT_FLUIDS))
+                            .or(abilities(EXPORT_ITEMS))
+                            .or(abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1))
+                    )
+                    .where(".", any())
+                    .where(" ", any())
+                    .build()
+            }
+            .renderer { HeartOfTheCosmosRenderer() }
             .hasTESR(true)
             .register()
 

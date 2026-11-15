@@ -84,6 +84,7 @@
     "stargatejourney.stargate.StargateStructureMixin"
   ],
   "client": [
+    "ldlib.TankWidgetAccessor",
     "gtceu.client.MultiblockInWorldPreviewRendererAccessor",
     "gtceu.client.MultiblockMachineDefinitionMixin",
     "gtlcore.client.GlobalRenderClockAccessor",

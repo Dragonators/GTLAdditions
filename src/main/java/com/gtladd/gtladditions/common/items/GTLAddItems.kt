@@ -53,6 +53,7 @@ object GTLAddItems {
     val ULTIMATE_CONVERSATION_CARD: ItemEntry<Item?>
     val DEBUG_MODULE_CONNECTOR: ItemEntry<ComponentItem>
     val STRANGE_ANNIHILATION_FUEL_ROD: ItemEntry<ComponentItem>
+    val ETERNITY_DARK_MATTER_FUEL_ROD: ItemEntry<ComponentItem>
     val BLACK_HOLE_SEED: ItemEntry<ComponentItem>
     val COMPRESSED_ASTRAL_ARRAY: ItemEntry<ComponentItem>
     val ASTRAL_ARRAY: ItemEntry<ComponentItem>
@@ -143,6 +144,10 @@ object GTLAddItems {
                 )
             )
             .lang("Strange Annihilation Fuel Rod")
+            .register()
+        ETERNITY_DARK_MATTER_FUEL_ROD = REGISTRATE
+            .item("eternity_dark_matter_fuel_rod") { properties: Item.Properties -> ComponentItem.create(properties) }
+            .lang("Eternity Dark Matter Fuel Rod")
             .register()
         BLACK_HOLE_SEED = REGISTRATE.item("black_hole_seed") { properties: Item.Properties -> ComponentItem.create(properties) }
             .onRegister(

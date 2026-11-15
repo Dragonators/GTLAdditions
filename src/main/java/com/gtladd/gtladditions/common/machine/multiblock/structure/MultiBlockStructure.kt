@@ -99,6 +99,10 @@ object MultiBlockStructure {
         StructureResourceLoader.loadFactoryPattern("multiblock/annihilate_generator.bin", "annihilate_generator")
     }
 
+    val HEART_OF_THE_COSMOS_STRUCTURE: FactoryBlockPattern by lazy(LazyThreadSafetyMode.NONE) {
+        StructureResourceLoader.loadFactoryPattern("multiblock/heart_of_the_cosmos.bin", "heart_of_the_cosmos")
+    }
+
     val FORGE_OF_THE_ANTICHRIST_MODULE: FactoryBlockPattern? by lazy(LazyThreadSafetyMode.NONE) {
         StructureResourceLoader.loadFactoryPattern("multiblock/forge_of_the_antichrist_module.bin", "forge_of_the_antichrist_module")
     }

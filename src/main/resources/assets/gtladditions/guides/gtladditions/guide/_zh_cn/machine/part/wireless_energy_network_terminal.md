@@ -44,7 +44,7 @@ item_ids:
 
 * <ItemLink id="gtladditions:wireless_energy_network_output_terminal" /> 提供动力仓与激光源仓能力。
 * 普通能源输出上限为 Long.MAX 级别。
-* 它可以把兼容机器输出的能量写入绑定玩家的无线电网；安装在 <ItemLink id="gtladditions:heart_of_the_universe" /> 上时，能够输出无限大的功率。
+* 它可以把兼容机器输出的能量写入绑定玩家的无线电网；安装在 <ItemLink id="gtladditions:heart_of_the_cosmos" /> 上时，能够输出无限大的功率。
 
 </Column>
 

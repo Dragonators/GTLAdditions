@@ -271,11 +271,12 @@ object RecipeCalculationHelper {
         return ParallelData(recipeList, compact)
     }
 
-    fun calculateParallelsWithGreedyAllocation(
+    inline fun calculateParallelsWithGreedyAllocation(
         recipes: Collection<GTRecipe>,
         totalParallel: Long,
         machine: IRecipeLogicMachine,
-        getParallelAndConsumption: (GTRecipe, Long) -> LongLongPair
+        crossinline getParallelAndConsumption: (GTRecipe, Long) -> LongLongPair,
+        crossinline createParalleledRecipe: (GTRecipe, Long) -> GTRecipe = { r, p -> IParallelLogic.getRecipeOutputChance(machine, multipleRecipe(r, p)) }
     ): ParallelData? {
         var remain = totalParallel
 
@@ -289,10 +290,7 @@ object RecipeCalculationHelper {
             val p = pair.firstLong()
             if (p <= 0) continue
 
-            val paralleledRecipe = IParallelLogic.getRecipeOutputChance(
-                machine,
-                multipleRecipe(match, p)
-            )
+            val paralleledRecipe = createParalleledRecipe(match, p)
             if (RecipeRunnerHelper.handleRecipeInput(machine, paralleledRecipe)) {
                 remain -= pair.secondLong()
                 recipeList.add(match)

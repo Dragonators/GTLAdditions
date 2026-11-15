@@ -1,0 +1,20 @@
+{
+  "vertex": "gtladditions:gtladditions_heart_starkiller",
+  "fragment": "gtladditions:gtladditions_heart_starkiller",
+  "attributes": ["Position", "Color", "Normal"],
+  "samplers": [{"name": "Sampler0"}, {"name": "Sampler1"}, {"name": "Sampler2"}, {"name": "Sampler3"}],
+  "uniforms": [
+    {"name": "ModelMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "Center", "type": "float", "count": 3, "values": [0.0, 0.0, 0.0]},
+    {"name": "Power", "type": "float", "count": 1, "values": [1.0]},
+    {"name": "Time", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "Role", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "Metal", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "Rough", "type": "float", "count": 1, "values": [0.5]},
+    {"name": "Emit", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "SceneHandMask", "type": "int", "count": 1, "values": [4]},
+    {"name": "SceneHandMaskEnabled", "type": "int", "count": 1, "values": [0]}
+  ]
+}

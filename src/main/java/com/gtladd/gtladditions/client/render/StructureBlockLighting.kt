@@ -35,19 +35,12 @@ object StructureBlockLighting {
 
         fun shade(level: BlockAndTintGetter, modelNormal: Matrix3fc): Float {
             val face = direction ?: return level.getShade(Direction.UP, false)
-            val x = modelNormal.m00() * face.stepX + modelNormal.m10() * face.stepY + modelNormal.m20() * face.stepZ
-            val y = modelNormal.m01() * face.stepX + modelNormal.m11() * face.stepY + modelNormal.m21() * face.stepZ
-            val z = modelNormal.m02() * face.stepX + modelNormal.m12() * face.stepY + modelNormal.m22() * face.stepZ
-            val lengthSquared = x * x + y * y + z * z
-            val up = level.getShade(Direction.UP, true)
-            val down = level.getShade(Direction.DOWN, true)
-            // Forge's continuous diffuse function, using this dimension/shaderpack's cardinal values.
-            val yFactor = (up + down) * 0.5f + (up - down) * 0.5f * y / sqrt(lengthSquared)
-
-            return (
-                (x * x * level.getShade(Direction.EAST, true) + y * y * yFactor + z * z * level.getShade(Direction.SOUTH, true)) /
-                    lengthSquared
-                ).coerceIn(0f, 1f)
+            return shade(
+                level,
+                modelNormal.m00() * face.stepX + modelNormal.m10() * face.stepY + modelNormal.m20() * face.stepZ,
+                modelNormal.m01() * face.stepX + modelNormal.m11() * face.stepY + modelNormal.m21() * face.stepZ,
+                modelNormal.m02() * face.stepX + modelNormal.m12() * face.stepY + modelNormal.m22() * face.stepZ
+            )
         }
 
         companion object {
@@ -55,6 +48,19 @@ object StructureBlockLighting {
 
             fun of(direction: Direction): FaceGroup = entries[direction.ordinal + 1]
         }
+    }
+
+    /** Forge's continuous diffuse function for a world-space normal, using this dimension/shaderpack's cardinal values. */
+    fun shade(level: BlockAndTintGetter, x: Float, y: Float, z: Float): Float {
+        val lengthSquared = x * x + y * y + z * z
+        val up = level.getShade(Direction.UP, true)
+        val down = level.getShade(Direction.DOWN, true)
+        val yFactor = (up + down) * 0.5f + (up - down) * 0.5f * y / sqrt(lengthSquared)
+
+        return (
+            (x * x * level.getShade(Direction.EAST, true) + y * y * yFactor + z * z * level.getShade(Direction.SOUTH, true)) /
+                lengthSquared
+            ).coerceIn(0f, 1f)
     }
 
     class CacheState {
