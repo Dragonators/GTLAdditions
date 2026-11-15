@@ -328,6 +328,9 @@ spotless {
         ktlint('1.3.1').editorConfigOverride([
                 'ktlint_standard_no-wildcard-imports': 'disabled',
                 'ktlint_standard_max-line-length': 'disabled',
+                // ktlint 1.3.1 gives ConditionWrappingRule and MixedConditionOperatorsRule the same ID.
+                // Disable the colliding ID explicitly so unordered provider selection cannot change the result.
+                'ktlint_standard_condition-wrapping': 'disabled',
                 'ij_kotlin_allow_trailing_comma': 'false',
                 'ij_kotlin_allow_trailing_comma_on_call_site': 'false'
         ])

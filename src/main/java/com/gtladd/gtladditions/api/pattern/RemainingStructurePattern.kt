@@ -7,10 +7,17 @@ import com.gtladd.gtladditions.common.data.StructureRenderType
 import com.gtladd.gtladditions.common.machine.multiblock.structure.StructureBlockLayout
 import com.gtladd.gtladditions.mixin.gtceu.api.pattern.BlockPatternAccessor
 import net.minecraft.core.Direction
+import java.util.EnumMap
+import java.util.WeakHashMap
 
-/** A validation template whose removed cells are skipped by the native matcher. */
 object RemainingStructurePattern {
-    fun create(pattern: BlockPattern, type: StructureRenderType): BlockPattern {
+    private val shared = WeakHashMap<BlockPattern, EnumMap<StructureRenderType, BlockPattern>>()
+
+    fun create(pattern: BlockPattern, type: StructureRenderType): BlockPattern = synchronized(shared) {
+        shared.getOrPut(pattern) { EnumMap(StructureRenderType::class.java) }.getOrPut(type) { build(pattern, type) }
+    }
+
+    private fun build(pattern: BlockPattern, type: StructureRenderType): BlockPattern {
         val accessor = pattern as BlockPatternAccessor
         val original = accessor.blockMatches
         val center = accessor.centerOffset
@@ -20,12 +27,14 @@ object RemainingStructurePattern {
         val matches = original.copyOf()
         val axes = pattern.structureDir.map { it.getActualFacing(Direction.SOUTH) }
         val any = Predicates.any()
+
         for (pos in StructureBlockLayout.positions(MachineInfo(0L, Direction.SOUTH, type, Direction.NORTH, false))) {
             val x = pos.x * axes[0].stepX + pos.y * axes[0].stepY + pos.z * axes[0].stepZ + center[0]
             val y = pos.x * axes[1].stepX + pos.y * axes[1].stepY + pos.z * axes[1].stepZ + center[1]
             val z = pos.x * axes[2].stepX + pos.y * axes[2].stepY + pos.z * axes[2].stepZ + center[4]
             val predicate = original[z][y][x]
             require(!predicate.isController && predicate.limited.isEmpty()) { "Removed cells cannot contain controllers or counted parts" }
+
             if (matches[z] === original[z]) matches[z] = original[z].copyOf()
             if (matches[z][y] === original[z][y]) matches[z][y] = original[z][y].copyOf()
             matches[z][y][x] = any

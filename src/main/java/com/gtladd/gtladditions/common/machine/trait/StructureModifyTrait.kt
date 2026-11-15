@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
 import com.gregtechceu.gtceu.api.pattern.BlockPattern
 import com.gregtechceu.gtceu.api.pattern.MultiblockState
 import com.gtladd.gtladditions.api.pattern.RemainingStructurePattern
+import com.gtladd.gtladditions.api.pattern.StructureTierLayout
 import com.gtladd.gtladditions.common.data.MachineInfo
 import com.gtladd.gtladditions.common.data.RemovedStructure
 import com.gtladd.gtladditions.common.data.StructureRenderType
@@ -18,12 +19,20 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import kotlin.concurrent.withLock
 
-class StructureModifyTrait(machine: MultiblockControllerMachine, private val type: StructureRenderType) : MachineTrait(machine) {
+class StructureModifyTrait(
+    machine: MultiblockControllerMachine,
+    private val type: StructureRenderType,
+    private val tiers: StructureTierLayout? = null,
+    private val onRestored: () -> Unit = {}
+) : MachineTrait(machine) {
     private lateinit var remainingPattern: BlockPattern
 
     @Volatile
     private var removedStructure = RemovedStructure.EMPTY
     private var restoring = false
+
+    val hasRemovedStructure: Boolean
+        get() = !removedStructure.isEmpty
 
     override fun onMachineLoad() {
         if (machine.level !is ServerLevel || removedStructure.isEmpty) return
@@ -32,30 +41,51 @@ class StructureModifyTrait(machine: MultiblockControllerMachine, private val typ
 
     fun checkPattern(): Boolean {
         val controller = machine as MultiblockControllerMachine
-        // The remaining template is already prepared by formation or machine loading.
-        val validation = if (removedStructure.isEmpty) controller.pattern else remainingPattern
-        return validation.checkPatternAt(controller.multiblockState, false)
+        val state = controller.multiblockState
+        if (tiers == null) {
+            // The remaining template is already prepared by formation or machine loading.
+            val validation = if (removedStructure.isEmpty) controller.pattern else remainingPattern
+            return validation.checkPatternAt(state, false)
+        }
+
+        prepareRemainingPattern()
+        return remainingPattern.checkPatternAt(state, false) &&
+            (!removedStructure.isEmpty || (1..tiers.minTier).all { tiers.matches(it, state, controller) })
     }
 
-    fun form() {
+    fun form() = form { StructureBlockLayout.positions(info()) }
+
+    fun form(tierRange: IntRange) = form { tiers!!.positions(tierRange, machine as MultiblockControllerMachine) }
+
+    private fun form(positions: () -> Collection<BlockPos>) {
         val level = machine.level as? ServerLevel ?: return
         val controller = machine as MultiblockControllerMachine
         controller.patternLock.withLock {
             if (!removedStructure.isEmpty || restoring) return
 
             prepareRemainingPattern()
-            val info = MachineInfo(controller.pos.asLong(), controller.frontFacing, type, controller.upwardsFacing, controller.isFlipped)
-            val positions = StructureBlockLayout.positions(info)
-            removedStructure = RemovedStructure.capture(
-                positions,
-                level::getBlockState,
-                { level.getBlockEntity(it)?.saveWithFullMetadata() }
-            )
-            // Remove these positions before erasure, so Core does not enqueue one recheck per removed block.
-            positions.forEach { controller.multiblockState.cache.remove(it.asLong()) }
-            onChanged()
-            removedStructure.erase { pos, state, data -> replace(level, pos, state, data) }
+            remove(level, controller, positions())
         }
+    }
+
+    /** [tierRange] must have been checked in the same tick. */
+    fun extend(tierRange: IntRange) {
+        val level = machine.level as? ServerLevel ?: return
+        val controller = machine as MultiblockControllerMachine
+        controller.patternLock.withLock { remove(level, controller, tiers!!.positions(tierRange, controller)) }
+    }
+
+    private fun remove(level: ServerLevel, controller: MultiblockControllerMachine, positions: Collection<BlockPos>) {
+        val captured = RemovedStructure.capture(
+            positions,
+            level::getBlockState,
+            { level.getBlockEntity(it)?.saveWithFullMetadata() }
+        )
+        removedStructure += captured
+        // Remove these positions before erasure, so Core does not enqueue one recheck per removed block.
+        positions.forEach { controller.multiblockState.cache.remove(it.asLong()) }
+        onChanged()
+        captured.erase { pos, state, data -> replace(level, pos, state, data) }
     }
 
     fun invalidate() {
@@ -76,10 +106,16 @@ class StructureModifyTrait(machine: MultiblockControllerMachine, private val typ
                 removedStructure.restore { pos, state, data -> replace(level, pos, state, data) }
                 removedStructure = RemovedStructure.EMPTY
                 onChanged()
+                onRestored()
             } finally {
                 restoring = false
             }
         }
+    }
+
+    private fun info(): MachineInfo {
+        val controller = machine as MultiblockControllerMachine
+        return MachineInfo(controller.pos.asLong(), controller.frontFacing, type, controller.upwardsFacing, controller.isFlipped)
     }
 
     private fun prepareRemainingPattern() {

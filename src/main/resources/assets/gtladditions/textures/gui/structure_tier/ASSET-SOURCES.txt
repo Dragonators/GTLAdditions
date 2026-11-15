@@ -1,0 +1,30 @@
+Structure upgrade page buttons and icon
+=======================================
+
+button_normal.png, button_hover.png, button_pressed.png and button_disabled.png
+are adapted from GTLCore's wireless panel buttons (button_normal.png,
+button_hover.png, button_disabled.png in assets/gtlcore/textures/gui/wireless/),
+cut to 18x14 with 3-pixel nine-slice edges. Normal keeps the original pixels,
+hover the original hover palette; pressed reverses the inner lighting and
+disabled reduces the highlights. The red cross of the original disabled
+button is left out.
+
+Source project: https://github.com/GNSW/GTLCore
+Source artifact: gtlcore-1.2.3.3.jar
+Source JAR SHA-256: 284a59caddb060cdba7d8774cd25924c7ef2cbecd813e1354c37248662041ebf
+Original contributors: GTLCore contributors.
+
+Source license: GNU Lesser General Public License v3, as declared by the
+source JAR's META-INF/mods.toml; the adapted buttons carry the same license.
+Full texts: assets/gtladditions/models/effect/condensation/LGPL-3.0.txt and
+GPL-3.0.txt in the same directory.
+
+icon.png is an original 16x16 drawing made for this mod (a machine facade with
+a controller screen and a small green up-arrow); no third-party pixels.
+
+SHA-256:
+button_normal.png: d8944961bdc4dfa612d812b473b4152f9aa080753ebad5687fe88d7249d7dc4b
+button_hover.png: 41765dbe55b04d0116fa843c682dd6b932152749822da12bae77419c7cb615a3
+button_pressed.png: 6fa5df2f0b9a7197b432383337ccef339a77d84d446d96a631aca4d0b6f471b4
+button_disabled.png: 269449a0e7b05215021ab5768c3db1d2c737f4aef3c0a889bc9ba6f1f893aae2
+icon.png: 3663910bf35e86aff73822290be3e155e95159ed10d368354b8a539d804353be

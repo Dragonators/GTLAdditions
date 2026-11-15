@@ -30,13 +30,22 @@ class RemovedStructure private constructor(
         }
     }
 
+    /** [other] must hold positions disjoint from these. */
+    operator fun plus(other: RemovedStructure): RemovedStructure {
+        if (isEmpty) return other
+        val merged = Long2ObjectLinkedOpenHashMap<BlockState>(blocks.size + other.blocks.size)
+        merged.putAll(blocks)
+        merged.putAll(other.blocks)
+        return RemovedStructure(merged, blockEntities + other.blockEntities)
+    }
+
     fun save(): CompoundTag = CompoundTag().apply {
         val palette = ListTag()
         blocks.long2ObjectEntrySet().groupBy({ it.value }, { it.longKey }).forEach { (state, positions) ->
             palette.add(
                 CompoundTag().apply {
                     put("state", NbtUtils.writeBlockState(state))
-                    putLongArray("positions", positions)
+                    putByteArray("packed", pack(positions))
                 }
             )
         }
@@ -60,7 +69,7 @@ class RemovedStructure private constructor(
         val EMPTY = RemovedStructure(Long2ObjectMaps.emptyMap(), emptyMap())
 
         fun capture(
-            positions: Set<BlockPos>,
+            positions: Collection<BlockPos>,
             stateAt: (BlockPos) -> BlockState,
             blockEntityAt: (BlockPos) -> CompoundTag?
         ): RemovedStructure {
@@ -81,7 +90,7 @@ class RemovedStructure private constructor(
             for (index in palette.indices) {
                 val entry = palette.getCompound(index)
                 val state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), entry.getCompound("state"))
-                entry.getLongArray("positions").forEach { blocks[it] = state }
+                unpack(entry.getByteArray("packed")) { blocks[it] = state }
             }
 
             if (blocks.isEmpty()) return EMPTY
@@ -95,6 +104,46 @@ class RemovedStructure private constructor(
             }
 
             return RemovedStructure(blocks, entities)
+        }
+
+        /** Unsigned LEB128 deltas of the sorted positions. */
+        private fun pack(positions: List<Long>): ByteArray {
+            val sorted = positions.toLongArray().apply { sort() }
+            val out = java.io.ByteArrayOutputStream(sorted.size * 2)
+            var previous = 0L
+
+            for (position in sorted) {
+                var delta = position - previous
+                previous = position
+
+                while (delta and 0x7fL.inv() != 0L) {
+                    out.write(((delta and 0x7f) or 0x80).toInt())
+                    delta = delta ushr 7
+                }
+
+                out.write(delta.toInt())
+            }
+
+            return out.toByteArray()
+        }
+
+        private inline fun unpack(packed: ByteArray, consumer: (Long) -> Unit) {
+            var index = 0
+            var position = 0L
+
+            while (index < packed.size) {
+                var delta = 0L
+                var shift = 0
+
+                do {
+                    val byte = packed[index++].toInt()
+                    delta = delta or ((byte and 0x7f).toLong() shl shift)
+                    shift += 7
+                } while (byte and 0x80 != 0)
+
+                position += delta
+                consumer(position)
+            }
         }
     }
 }
