@@ -38,7 +38,6 @@ object LightHunterVfxGeometry {
     const val CHART_STARS = 4
     const val ROOTS = 5
     const val CHART_FIELD = 6
-    const val ALL_LAYERS = 127
     const val CHART_LAYERS = 88
     private const val TAU = (PI * 2).toFloat()
     val nozzleCenters: List<Vector3f>

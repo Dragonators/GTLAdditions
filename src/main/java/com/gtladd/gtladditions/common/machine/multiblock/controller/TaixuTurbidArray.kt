@@ -378,7 +378,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) :
 
             // Build fluid outputs based on success rates
             val builder = GTRecipeBuilder(GTLAdditions.id("uu"), GTRecipeTypes.DUMMY_RECIPES)
-            modifiedRecipe.outputs.put(FluidRecipeCapability.CAP, ObjectArrayList())
+            modifiedRecipe.outputs[FluidRecipeCapability.CAP] = ObjectArrayList()
 
             val random = ThreadLocalRandom.current()
 
@@ -398,7 +398,7 @@ open class TaixuTurbidArray(holder: IMachineBlockEntity) :
 
             // Add generated outputs to recipe
             val generatedOutputs = builder.buildRawRecipe().outputs[FluidRecipeCapability.CAP]
-            if (generatedOutputs != null && generatedOutputs.isNotEmpty()) {
+            if (!generatedOutputs.isNullOrEmpty()) {
                 modifiedRecipe.outputs[FluidRecipeCapability.CAP]!!.addAll(generatedOutputs)
             }
 

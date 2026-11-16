@@ -11,7 +11,6 @@ object HeartBlockLayout {
     private const val RESOURCE = "multiblock/heart_of_the_cosmos.bin"
     private const val STRUCTURE_ID = "heart_of_the_cosmos"
     const val SHELL_SYMBOLS = "WwFSBATUGLDRQPMO"
-    const val FILLER = '.'
 
     /** Console: 'c' layer under the controller (takes the parts), 'r' layer below, 'n' core, 'g' hollow, 't' rim, 'l' seam, 'e' face. */
     val BLOCK_IDS: Map<Char, String> = mapOf(
@@ -49,7 +48,28 @@ object HeartBlockLayout {
     /** [position] from the black hole's centre cell, for a controller facing south; pattern order (aisle, row, column). */
     data class Cell(val position: BlockPos, val symbol: Char)
 
-    val cells: List<Cell> by lazy { collect { it in SHELL_SYMBOLS } }
+    val cells: List<Cell> by lazy {
+        buildList {
+            StructureResourceLoader.loadAisles(RESOURCE, STRUCTURE_ID).forEachIndexed { aisle, rows ->
+                rows.forEachIndexed { row, line ->
+                    line.forEachIndexed { column, symbol ->
+                        if (symbol in SHELL_SYMBOLS) {
+                            add(
+                                Cell(
+                                    BlockPos(
+                                        column - CONTROLLER[0] - centerOffset.x,
+                                        row - CONTROLLER[1] - centerOffset.y,
+                                        aisle - CONTROLLER[2] - centerOffset.z
+                                    ),
+                                    symbol
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     /** The shells lie at radii 39–42, 55–58, 79–83 and 110–115, so 68 and 96 split them into tiers 1 to 3. */
     val tiers = StructureTierLayout(1, 3, { MultiBlockMachine.HEART_OF_THE_COSMOS.patternFactory.get() }) { aisle, row, column ->
@@ -68,29 +88,6 @@ object HeartBlockLayout {
     }
 
     fun shells(tier: Int): Int = tier + 1
-
-    val fillers: List<BlockPos> by lazy { collect { it == FILLER }.map(Cell::position) }
-
-    private fun collect(include: (Char) -> Boolean): List<Cell> = buildList {
-        StructureResourceLoader.loadAisles(RESOURCE, STRUCTURE_ID).forEachIndexed { aisle, rows ->
-            rows.forEachIndexed { row, line ->
-                line.forEachIndexed { column, symbol ->
-                    if (include(symbol)) {
-                        add(
-                            Cell(
-                                BlockPos(
-                                    column - CONTROLLER[0] - centerOffset.x,
-                                    row - CONTROLLER[1] - centerOffset.y,
-                                    aisle - CONTROLLER[2] - centerOffset.z
-                                ),
-                                symbol
-                            )
-                        )
-                    }
-                }
-            }
-        }
-    }
 
     fun center(controller: BlockPos, facing: Direction, flipped: Boolean = false): BlockPos =
         controller.offset(rotateStructureOffset(centerOffset, facing, flipped))

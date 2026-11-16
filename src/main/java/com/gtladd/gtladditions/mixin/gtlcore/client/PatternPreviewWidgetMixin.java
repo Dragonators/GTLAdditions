@@ -58,7 +58,7 @@ public abstract class PatternPreviewWidgetMixin {
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void gtladditions$addTierButton(MultiblockMachineDefinition definition, CallbackInfo ci) {
+    private void gtladditions$addTierButton(MultiblockMachineDefinition controllerDefinition, CallbackInfo ci) {
         if (!(gtladditions$pattern instanceof PatternPreviewPatternAccessor pattern) ||
                 !(pattern.getControllerBase() instanceof IStructureTierMachine machine))
             return;
@@ -99,7 +99,7 @@ public abstract class PatternPreviewWidgetMixin {
         LongSet hidden = gtladditions$hidden();
         if (hidden.isEmpty()) return;
         var materials = ((PatternPreviewPatternAccessor) gtladditions$pattern).getMaterials();
-        cir.setReturnValue(StructureTierPreview.INSTANCE.materials(cir.getReturnValue(), (java.util.Map) materials, hidden));
+        cir.setReturnValue(StructureTierPreview.INSTANCE.materials(cir.getReturnValue(), materials, hidden));
     }
 
     @Inject(method = "dimensions", at = @At("HEAD"), cancellable = true)

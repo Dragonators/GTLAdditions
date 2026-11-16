@@ -38,7 +38,7 @@ class WeatherControlMachine(holder: IMachineBlockEntity) : StorageMachine(holder
         val now = offsetTimer
         val center = pos.relative(frontFacing.opposite)
         fun valid(target: BlockPos): Boolean =
-            world.hasChunkAt(target) && world.getBlockState(target).block is LightningRodBlock
+            world.isLoaded(target) && world.getBlockState(target).block is LightningRodBlock
 
         rodCache = rodCache.filter(::valid)
         if (lastScanTick == Long.MIN_VALUE || now - lastScanTick >= 20L) {

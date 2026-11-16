@@ -29,12 +29,11 @@ class MolecularAssemblerMultiblockMachine(holder: IMachineBlockEntity) :
     IMachineLife {
 
     private var mam = 0
-    private val modules: Set<IModularMachineModule<MolecularAssemblerMultiblockMachine, *>> =
-        ReferenceOpenHashSet<IModularMachineModule<MolecularAssemblerMultiblockMachine, *>>()
+    private val modules: Set<IModularMachineModule<MolecularAssemblerMultiblockMachine, *>> = ReferenceOpenHashSet()
     var isInfinityMode = false
 
     @Suppress("CAST_NEVER_SUCCEEDS")
-    override fun createRecipeLogic(vararg args: Any?): RecipeLogic? {
+    override fun createRecipeLogic(vararg args: Any?): RecipeLogic {
         return object : MolecularAssemblerRecipesLogic(this) {
             override fun findAndHandleRecipe() {
                 if (isInfinityMode) {

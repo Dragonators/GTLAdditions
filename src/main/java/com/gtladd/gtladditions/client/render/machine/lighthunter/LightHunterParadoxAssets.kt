@@ -14,7 +14,6 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
-import java.io.IOException
 import java.util.zip.GZIPInputStream
 
 internal object LightHunterParadoxAssets {
@@ -28,11 +27,9 @@ internal object LightHunterParadoxAssets {
 
     fun invalidate() = slot.invalidate()
 
-    @Throws(IOException::class)
-    fun read(resources: ResourceProvider) = Prepared(readModel(resources, "death_star"), readModel(resources, "kamino"))
+    private fun read(resources: ResourceProvider) = Prepared(readModel(resources, "death_star"), readModel(resources, "kamino"))
 
-    /** Owned by the caller. */
-    fun upload(prepared: Prepared): Loaded {
+    private fun upload(prepared: Prepared): Loaded {
         val created = ArrayList<Part>()
         try {
             return Loaded(
@@ -45,9 +42,8 @@ internal object LightHunterParadoxAssets {
         }
     }
 
-    fun load(prepared: Prepared) = slot.publish(upload(prepared))
+    private fun load(prepared: Prepared) = slot.publish(upload(prepared))
 
-    @Throws(IOException::class)
     private fun readModel(resources: ResourceProvider, name: String): List<PreparedPart> {
         val location = ResourceLocation("gtladditions", "models/effect/lighthunter/$name.bin.gz")
         DataInputStream(GZIPInputStream(resources.getResourceOrThrow(location).open()).buffered(1 shl 16)).use { data ->
@@ -100,9 +96,9 @@ internal object LightHunterParadoxAssets {
     }
 
     /** [texture] holds the image file's bytes; [vertices] eight floats per vertex. */
-    class PreparedPart(val texture: ByteArray?, val color: IntArray, val vertices: FloatArray)
+    private class PreparedPart(val texture: ByteArray?, val color: IntArray, val vertices: FloatArray)
 
-    class Prepared(val deathStar: List<PreparedPart>, val kamino: List<PreparedPart>)
+    private class Prepared(val deathStar: List<PreparedPart>, val kamino: List<PreparedPart>)
 
     class Part(val buffer: VertexBuffer, val texture: DynamicTexture?) : AutoCloseable {
         override fun close() {

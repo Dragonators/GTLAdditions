@@ -9,35 +9,35 @@ displayName = "${mod_name}"
 authors="アドニス、疏影"
 description = "添加了一些新机器和简化配方，结构与材质由疏影提供"
 
-[[dependencies.${mod_id}]]
+[[dependencies."${mod_id}"]]
     modId="forge"
     mandatory=true
     versionRange="${forge_version}"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.${mod_id}]]
+[[dependencies."${mod_id}"]]
     modId="minecraft"
     mandatory=true
     versionRange="${minecraft_version}"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.${mod_id}]]
+[[dependencies."${mod_id}"]]
 modId = "gtlcore"
 mandatory = true
 versionRange = "[1.2.3.3,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.${mod_id}]]
+[[dependencies."${mod_id}"]]
 modId = "sgjourney"
 mandatory = true
 versionRange = "[0.6.52]"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.${mod_id}]]
+[[dependencies."${mod_id}"]]
 modId = "oculus"
 mandatory = true
 versionRange = "[1.7.0,)"

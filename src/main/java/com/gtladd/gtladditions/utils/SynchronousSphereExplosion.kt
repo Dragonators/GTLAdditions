@@ -35,8 +35,9 @@ object SynchronousSphereExplosion {
         @Suppress("DEPRECATION")
         fun preserves(state: BlockState, world: BlockGetter, pos: BlockPos): Boolean {
             val resistance = if (this == PLANETARY_TOWER) {
-                state.block.getExplosionResistance(state, world, pos, null)
+                state.getExplosionResistance(world, pos, null)
             } else {
+                // Forge has no non-deprecated getter for the fixed base resistance charges use.
                 state.block.getExplosionResistance()
             }
 

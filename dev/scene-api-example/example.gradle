@@ -20,7 +20,8 @@ def sceneApiExampleJar = tasks.register('sceneApiExampleJar', Jar) {
 }
 
 // A script applied with `apply from` does not see the plugin's classes by name.
-tasks.register('remapSceneApiExampleJar', project.buildscript.classLoader.loadClass('net.fabricmc.loom.task.RemapJarTask')) {
+def remapJarTaskType = project.buildscript.classLoader.loadClass('net.fabricmc.loom.task.RemapJarTask').asSubclass(Task)
+tasks.register('remapSceneApiExampleJar', remapJarTaskType) {
     inputFile = sceneApiExampleJar.flatMap { it.archiveFile }
     archiveBaseName = 'gtladditions-scene-api-example'
     classpath.from(sourceSets.sceneApiExample.compileClasspath)

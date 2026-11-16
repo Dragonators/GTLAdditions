@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.common.machine.multiblock.structure
 
-import com.gtladd.gtladditions.common.data.MachineInfo
 import com.gtladd.gtladditions.common.data.StructureRenderType
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.AntichristBlockLayout
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.CondensationCoreBlockLayout
@@ -12,21 +11,19 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 
 object StructureBlockLayout {
-    fun positions(machine: MachineInfo): Set<BlockPos> {
-        val controller = BlockPos.of(machine.posLong)
-        return when (machine.type) {
-            StructureRenderType.ANTICHRIST -> AntichristBlockLayout.positions(controller, machine.facing, machine.flipped)
-            StructureRenderType.APOCALYPTIC_MATRIX -> MatrixFrameBlockLayout.positions(controller, machine.facing, machine.flipped) +
-                MatrixEyeBlockLayout.positions(controller, machine.facing, machine.flipped)
-            StructureRenderType.ANTIENTROPY_CONDENSATION -> CondensationCoreBlockLayout.positions(
-                controller,
-                machine.facing,
-                machine.upwardsFacing,
-                machine.flipped
-            )
-            StructureRenderType.DIMENSION_FOCUS -> DimensionFocusBlockLayout.positions(controller, machine.facing, machine.flipped)
-            StructureRenderType.HEART -> HeartBlockLayout.positions(controller, machine.facing, machine.flipped)
-        }
+    fun positions(
+        type: StructureRenderType,
+        controller: BlockPos,
+        facing: Direction,
+        upwardsFacing: Direction,
+        flipped: Boolean
+    ): Set<BlockPos> = when (type) {
+        StructureRenderType.ANTICHRIST -> AntichristBlockLayout.positions(controller, facing, flipped)
+        StructureRenderType.APOCALYPTIC_MATRIX -> MatrixFrameBlockLayout.positions(controller, facing, flipped) +
+            MatrixEyeBlockLayout.positions(controller, facing, flipped)
+        StructureRenderType.ANTIENTROPY_CONDENSATION -> CondensationCoreBlockLayout.positions(controller, facing, upwardsFacing, flipped)
+        StructureRenderType.DIMENSION_FOCUS -> DimensionFocusBlockLayout.positions(controller, facing, flipped)
+        StructureRenderType.HEART -> HeartBlockLayout.positions(controller, facing, flipped)
     }
 }
 

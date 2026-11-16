@@ -41,7 +41,7 @@ class MutablePCBFactoryMachine(holder: IMachineBlockEntity) :
                 match: GTRecipe,
                 remain: Long
             ): LongLongPair = if (RecipeHelper.getInputEUt(match) <= GTValues.V[GTValues.LuV]) {
-                LongLongPair.of(IParallelLogic.getMaxParallel(machine, match, Long.Companion.MAX_VALUE), 0)
+                LongLongPair.of(IParallelLogic.getMaxParallel(machine, match, Long.MAX_VALUE), 0)
             } else {
                 super.calculateParallel(machine, match, remain)
             }

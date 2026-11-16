@@ -1,9 +1,9 @@
 package com.gtladd.gtladditions.client.render.scene
 
-import com.gtladd.gtladditions.mixin.oculus.DepthColorStorageAccessor
 import com.mojang.blaze3d.systems.RenderSystem
 import net.irisshaders.iris.gl.IrisRenderSystem
 import net.irisshaders.iris.gl.blending.BlendModeStorage
+import net.irisshaders.iris.gl.blending.DepthColorStorage
 import net.minecraft.client.Minecraft
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -35,8 +35,8 @@ object OculusCompat {
     }
 
     private fun unlockDepthColorIfLocked() {
-        if (DepthColorStorageAccessor.isDepthColorLocked()) {
-            DepthColorStorageAccessor.unlockDepthColor()
+        if (DepthColorStorage.isDepthColorLocked()) {
+            DepthColorStorage.unlockDepthColor()
         }
     }
 

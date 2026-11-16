@@ -96,7 +96,7 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
                     this.setHoverTooltips(gtladditions$setMaxTooltips());
                     gui.getModularUIGui().setHoverTooltip(
                             tooltipTexts,
-                            getRealStack(slotReference.getItem()),
+                            getRealStack(gtladditions$max.storage.getStackInSlot(0)),
                             null,
                             null);
                 }

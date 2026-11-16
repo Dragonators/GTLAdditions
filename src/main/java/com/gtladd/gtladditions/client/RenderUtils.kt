@@ -2,9 +2,6 @@
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.client.render.withPose
-import com.gtladd.gtladditions.common.data.CircularMotionParams
-import com.gtladd.gtladditions.common.data.RotationParams
 import com.gtladd.gtladditions.mixin.gtlcore.client.GlobalRenderClockAccessor
 import com.gtladd.gtladditions.mixin.minecraft.client.BlendModeAccessor
 import com.mojang.blaze3d.platform.GlStateManager
@@ -22,15 +19,12 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.FastColor
-import net.minecraft.util.RandomSource
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.RegisterShadersEvent
 import net.minecraftforge.client.model.data.ModelData
 import org.gtlcore.gtlcore.client.ClientUtil
 import org.gtlcore.gtlcore.config.ConfigHolder
-import org.joml.Quaternionf
-import org.joml.Vector3f
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL12C
 import org.lwjgl.opengl.GL14C
@@ -40,18 +34,18 @@ import org.lwjgl.opengl.GL21C
 import org.lwjgl.opengl.GL30C
 import kotlin.math.*
 
-@Suppress("DuplicatedCode", "unused", "SameParameterValue")
+@Suppress("DuplicatedCode", "SameParameterValue")
 @OnlyIn(Dist.CLIENT)
 object RenderUtils {
 
     /** Uses Core's pause-aware nanosecond clock. */
-    fun getSmoothTickDouble(): Double = GlobalRenderClockAccessor.getElapsedNanos() / 50_000_000.0
+    fun getSmoothTickDouble(): Double = GlobalRenderClockAccessor.invokeGetElapsedNanos() / 50_000_000.0
 
     fun getSmoothTickDouble(machine: MetaMachine, partialTick: Float): Double =
         if (ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) getSmoothTickDouble() else machine.offsetTimer.toDouble() + partialTick
 
     // Narrow only a bounded final angle, so float matrices retain sub-frame motion in old worlds.
-    fun rotationRadians(angle: Double): Float = Math.IEEEremainder(angle, 2 * PI).toFloat()
+    fun rotationRadians(angle: Double): Float = angle.IEEErem(2 * PI).toFloat()
 
     /** Only the RGB tint is applied. */
     fun renderFullBrightModel(
@@ -253,163 +247,11 @@ object RenderUtils {
         }
     }
 
-    /**
-     * Generates random rotation parameters with uniformly distributed axis and speed
-     *
-     * @param random   Random source for generating rotation parameters
-     * @param minSpeed Minimum rotation speed in degrees per tick
-     * @param maxSpeed Maximum rotation speed in degrees per tick
-     * @return Rotation parameters containing axis, speed, and offset
-     */
-    fun createRandomRotation(random: RandomSource, minSpeed: Float, maxSpeed: Float): RotationParams {
-        val theta = random.nextFloat() * 2.0f * Math.PI.toFloat()
-        val phi = acos((2.0f * random.nextFloat() - 1.0f).toDouble()).toFloat()
-
-        val rotationAxis = Vector3f(
-            (sin(phi.toDouble()) * cos(theta.toDouble())).toFloat(),
-            (sin(phi.toDouble()) * sin(theta.toDouble())).toFloat(),
-            cos(phi.toDouble()).toFloat()
-        )
-
-        // Use square root distribution to concentrate speeds in the middle range, avoiding extreme fast rotation
-        val speedFactor = sqrt(random.nextFloat().toDouble()).toFloat()
-        val rotationSpeed = minSpeed + speedFactor * (maxSpeed - minSpeed)
-        val rotationOffset = random.nextFloat() * 360f
-        return RotationParams(rotationAxis, rotationSpeed, rotationOffset)
-    }
-
-    /**
-     * Renders a star layer with color tinting and rotation
-     *
-     * @param poseStack     Pose stack for transformations
-     * @param buffer        Multi-buffer source for rendering
-     * @param modelLocation Resource location of the model to render
-     * @param size          Scale size of the star layer
-     * @param rotationAxis  Rotation axis vector
-     * @param angle         Rotation angle in degrees
-     * @param argb32        ARGB32 color value for tinting
-     * @param type          Render type to use
-     */
-    fun renderStarLayer(
-        poseStack: PoseStack,
-        buffer: MultiBufferSource,
-        modelLocation: ResourceLocation?,
-        size: Float,
-        rotationAxis: Vector3f,
-        angle: Float,
-        argb32: Int,
-        type: RenderType
-    ) {
-        poseStack.withPose {
-            scale(size, size, size)
-            mulPose(
-                Quaternionf().fromAxisAngleDeg(
-                    rotationAxis.x,
-                    rotationAxis.y,
-                    rotationAxis.z,
-                    angle
-                )
-            )
-
-            renderFullBrightModel(this, buffer, modelLocation, type, argb32)
-        }
-    }
-
-    /**
-     * Renders a halo layer with glow effect using eyes render type
-     *
-     * @param poseStack     Pose stack for transformations
-     * @param buffer        Multi-buffer source for rendering
-     * @param size          Scale size of the halo layer
-     * @param rotationAxis  Rotation axis vector
-     * @param angle         Rotation angle in degrees
-     * @param haloTexture   Texture resource location for the halo glow effect
-     * @param modelLocation Resource location of the model to render
-     */
-    fun renderHaloLayer(
-        poseStack: PoseStack,
-        buffer: MultiBufferSource,
-        size: Float,
-        rotationAxis: Vector3f,
-        angle: Float,
-        haloTexture: ResourceLocation,
-        modelLocation: ResourceLocation
-    ) {
-        poseStack.withPose {
-            scale(size, size, size)
-            mulPose(
-                Quaternionf().fromAxisAngleDeg(
-                    rotationAxis.x,
-                    rotationAxis.y,
-                    rotationAxis.z,
-                    angle
-                )
-            )
-
-            val renderType = RenderType.eyes(haloTexture)
-
-            renderFullBrightModel(this, buffer, modelLocation, renderType)
-        }
-    }
-
-    /**
-     * Renders a model performing circular motion using a pre-obtained VertexConsumer and BakedModel
-     * Use this for batch rendering multiple models with the same RenderType
-     *
-     * @param poseStack     Pose stack for transformations
-     * @param vertexConsumer Pre-obtained vertex consumer (for batch rendering)
-     * @param bakedModel    Pre-obtained baked model (for batch rendering)
-     * @param motionParams  Parameters defining the circular motion
-     * @param tick          Current tick with partial ticks for animation
-     * @param size          Scale size of the model
-     * @param argb32        ARGB32 color value for tinting
-     * @param type          Render type to use
-     * @param faceMotion    If true, rotate the model to face the direction of motion
-     * @param additionalRotation Optional additional rotation to apply after positioning
-     * @param centered      If true, center the model at the orbit position (offsets by -0.5 in all axes after scaling)
-     */
-    fun renderCircularMotionModelDirect(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        bakedModel: BakedModel,
-        motionParams: CircularMotionParams,
-        tick: Double,
-        size: Float = 1.0f,
-        argb32: Int = 0xFFFFFFFF.toInt(),
-        type: RenderType,
-        faceMotion: Boolean = true,
-        additionalRotation: Quaternionf? = null,
-        centered: Boolean = false
-    ) {
-        val position = motionParams.getPosition(tick)
-
-        poseStack.withPose {
-            translate(position.x, position.y, position.z)
-
-            if (faceMotion) {
-                val facingAngle = motionParams.getFacingAngle(tick)
-                mulPose(Quaternionf().fromAxisAngleDeg(0f, 1f, 0f, facingAngle + 90f))
-            }
-
-            if (additionalRotation != null) {
-                mulPose(additionalRotation)
-            }
-
-            scale(size, size, size)
-
-            if (centered) {
-                translate(-0.5, -0.5, -0.5)
-            }
-
-            renderFullBrightModel(last(), vertexConsumer, bakedModel, type, argb32)
-        }
-    }
-
     class SmoothAnimationTimer {
-        private var startTick: Double = RenderUtils.getSmoothTickDouble()
+        private var startTick: Double = getSmoothTickDouble()
 
         fun reset() {
-            startTick = RenderUtils.getSmoothTickDouble()
+            startTick = getSmoothTickDouble()
         }
 
         /**
@@ -418,7 +260,7 @@ object RenderUtils {
          */
         fun getProgress(durationMillis: Long): Float {
             val durationTicks = durationMillis / 50.0 // 1 tick = 50ms
-            val elapsedTicks = RenderUtils.getSmoothTickDouble() - startTick
+            val elapsedTicks = getSmoothTickDouble() - startTick
             return (elapsedTicks / durationTicks).coerceIn(0.0, 1.0).toFloat()
         }
     }

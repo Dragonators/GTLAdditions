@@ -39,7 +39,6 @@ internal object SceneVolumes : PartRenderer<HeartBlackHoleSceneEntry> {
 
     private enum class Mode { NONE, COMBINED, LAYERS }
 
-    @JvmOverloads
     fun submit(frame: SceneFrame, blockEntity: BlockEntity, profile: HeartBlackHoleRenderProfile, limitViewDistance: Boolean = true) {
         val center = profile.center.add(Vec3.atLowerCornerOf(blockEntity.blockPos))
         val limit = VIEW_DISTANCE + HeartBlackHoleVisualConfig.CPU_CULLING_RADIUS

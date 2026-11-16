@@ -69,7 +69,7 @@ public abstract class WorkableElectricMultiblockMachineMixin {
               require = 0)
     private MultiblockDisplayText.Builder redirectEnergyUsageLine(
                                                                   MultiblockDisplayText.Builder builder,
-                                                                  IEnergyContainer energyFormatted,
+                                                                  IEnergyContainer energyContainer,
                                                                   @Local(argsOnly = true) List<Component> textList) {
         final var realThis = (WorkableElectricMultiblockMachine) (Object) this;
         if (realThis.isFormed() && gtladditions$wirelessNetworkEnergyHandler != null && gtladditions$wirelessNetworkEnergyHandler.isOnline() &&
@@ -91,7 +91,7 @@ public abstract class WorkableElectricMultiblockMachineMixin {
 
             return builder;
         } else {
-            return builder.addEnergyUsageLine(energyContainer);
+            return builder.addEnergyUsageLine(this.energyContainer);
         }
     }
 }

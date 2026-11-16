@@ -58,11 +58,11 @@ import org.gtlcore.gtlcore.integration.ae2.AEUtils
 import org.gtlcore.gtlcore.utils.datastructure.Int128
 import kotlin.math.max
 
-class MESuperPatternBufferPartMachine @JvmOverloads constructor(
+class MESuperPatternBufferPartMachine(
     holder: IMachineBlockEntity?,
-    patternsPerRow: Int = 9,
-    rowsPerPage: Int = 6,
-    maxPages: Int = 3
+    patternsPerRow: Int,
+    rowsPerPage: Int,
+    maxPages: Int
 ) : MEPatternBufferPartMachine(holder, patternsPerRow * rowsPerPage * maxPages, IO.BOTH),
     IWidePatternBuffer {
 

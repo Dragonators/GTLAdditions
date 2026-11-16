@@ -8,7 +8,6 @@ import java.nio.ByteOrder
 import java.util.zip.InflaterInputStream
 
 internal object HeartTextureCodec {
-    @Throws(IOException::class)
     fun read(input: InputStream, width: Int, height: Int, channels: Int): ByteArray {
         val count = width * height
         val expected = 8 + count * channels * Int.SIZE_BYTES

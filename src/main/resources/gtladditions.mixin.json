@@ -4,7 +4,6 @@
   "package": "com.gtladd.gtladditions.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ae2.ExternalStorageFacadeAccessor",
     "ae2.FluidIngredientConverterMixin",
     "ae2.ItemPlacementStrategyMixin",
     "ae2.ItemPickupStrategyMixin",
@@ -114,7 +113,6 @@
     "embeddium.FrameOverlayMeshingTaskMixin",
     "embeddium.FrameOverlayRegionManagerMixin",
     "embeddium.FrameOverlayWorldRendererAccessor",
-    "oculus.DepthColorStorageAccessor",
     "oculus.IrisRenderingPipelineMixin",
     "oculus.TransformPatcherMixin",
     "stargatejourney.InterfaceScreenMixin"

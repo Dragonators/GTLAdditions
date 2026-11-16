@@ -100,11 +100,11 @@ object StructureResourceLoader {
         resourcePath: String,
         loader: () -> T
     ): T {
-        val cached = cache.get(resourcePath)
+        val cached = cache[resourcePath]
         if (cached != null) return cached
 
         val loaded = loader()
-        cache.put(resourcePath, loaded)
+        cache[resourcePath] = loaded
         return loaded
     }
 
@@ -221,7 +221,7 @@ object StructureResourceLoader {
         readFully(bytes)
         for (byte in bytes) {
             val value = byte.toInt() and 0xFF
-            if (value < 0x20 || value > 0x7E) {
+            if (value !in 0x20..0x7E) {
                 error(resourcePath, expectedId, "$fieldName contains non-printable byte $value")
             }
         }

@@ -2,7 +2,6 @@ package com.gtladd.gtladditions.common.blocks
 
 import com.gregtechceu.gtceu.api.block.ActiveBlock
 import com.gregtechceu.gtceu.api.item.tool.GTToolType
-import com.gregtechceu.gtceu.common.data.GTModels
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration
 import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
@@ -12,26 +11,19 @@ import com.tterrag.registrate.util.entry.BlockEntry
 import com.tterrag.registrate.util.nullness.NonNullBiFunction
 import com.tterrag.registrate.util.nullness.NonNullFunction
 import com.tterrag.registrate.util.nullness.NonNullSupplier
-import net.minecraft.client.renderer.RenderType
-import net.minecraft.core.BlockPos
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.BlockTags
-import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item
-import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.GlassBlock
 import net.minecraft.world.level.block.state.BlockBehaviour
-import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.PushReaction
 import org.gtlcore.gtlcore.GTLCore
 import org.gtlcore.gtlcore.common.block.BlockMap
 import org.gtlcore.gtlcore.common.data.GTLBlocks
-import java.util.function.Supplier
 
-@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "DEPRECATION")
 object GTLAddBlocks {
     val QUANTUM_GLASS: BlockEntry<Block>
     val SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS: BlockEntry<Block>
@@ -58,11 +50,11 @@ object GTLAddBlocks {
         QUANTUM_GLASS = createGlassCasingBlock(
             "quantum_glass",
             GTLAdditions.id("block/casings/quantum_glass")
-        ) { Supplier { RenderType.translucent() } }
+        )
         SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS = createGlassCasingBlock(
             "spatially_transcendent_gravitational_lens",
             GTLAdditions.id("block/casings/spatially_transcendent_gravitational_lens")
-        ) { Supplier { RenderType.translucent() } }
+        )
         GOD_FORGE_ENERGY_CASING = createCasingBlock(
             "god_forge_energy_casing",
             GTLAdditions.id("block/casings/god_forge_energy_casing")
@@ -141,44 +133,42 @@ object GTLAddBlocks {
 
     fun createCasingBlock(name: String, texture: ResourceLocation?): BlockEntry<Block> = createCasingBlock(
         name,
-        { properties: BlockBehaviour.Properties? -> Block(properties) },
+        { properties: BlockBehaviour.Properties -> Block(properties) },
         texture,
         NonNullSupplier { Blocks.IRON_BLOCK },
-        { Supplier { RenderType.cutoutMipped() } }
+        "minecraft:cutout_mipped"
     )
 
     private fun createGlassCasingBlock(
         name: String,
-        texture: ResourceLocation?,
-        type: Supplier<Supplier<RenderType?>?>
+        texture: ResourceLocation?
     ): BlockEntry<Block> = createCasingBlock(
         name,
-        { arg: BlockBehaviour.Properties? ->
+        { arg: BlockBehaviour.Properties ->
             GlassBlock(arg)
         },
         texture,
         NonNullSupplier { Blocks.GLASS },
-        type
+        "minecraft:translucent"
     )
 
-    @Suppress("removal")
     fun createGravitonCasingBlock(name: String, sideTexture: ResourceLocation?): BlockEntry<Block> {
         val topBottomTexture = GTLAdditions.id("block/casings/suprachronal_magnetic_confinement_casing")
-        return GTLAddRegistration.REGISTRATE.block(name) { properties: BlockBehaviour.Properties? -> Block(properties) }
+        return GTLAddRegistration.REGISTRATE.block(name) { properties: BlockBehaviour.Properties -> Block(properties) }
             .initialProperties(NonNullSupplier { Blocks.IRON_BLOCK })
-            .properties { p: BlockBehaviour.Properties? -> p!!.isValidSpawn { state: BlockState?, level: BlockGetter?, pos: BlockPos?, ent: EntityType<*>? -> false } }
-            .addLayer { Supplier { RenderType.cutoutMipped() } }
-            .blockstate { ctx: DataGenContext<Block, Block?>, prov: RegistrateBlockstateProvider ->
+            .properties { p -> p.isValidSpawn { _, _, _, _ -> false } }
+            .blockstate { ctx: DataGenContext<Block, Block>, prov: RegistrateBlockstateProvider ->
                 prov.simpleBlock(
                     ctx.entry,
                     prov.models()
                         .cube(name, topBottomTexture, topBottomTexture, sideTexture, sideTexture, sideTexture, sideTexture)
                         .texture("particle", sideTexture)
+                        .renderType("minecraft:cutout_mipped")
                 )
             }
             .tag(GTToolType.WRENCH.harvestTags[0], BlockTags.MINEABLE_WITH_PICKAXE)
             .item(
-                NonNullBiFunction { block: Block?, properties: Item.Properties? ->
+                NonNullBiFunction { block: Block, properties: Item.Properties ->
                     BlockItem(
                         block,
                         properties
@@ -189,21 +179,21 @@ object GTLAddBlocks {
             .register()
     }
 
-    @Suppress("removal")
     fun createCasingBlock(
         name: String,
-        blockSupplier: NonNullFunction<BlockBehaviour.Properties?, Block?>,
+        blockSupplier: NonNullFunction<BlockBehaviour.Properties, Block>,
         texture: ResourceLocation?,
-        properties: NonNullSupplier<out Block?>,
-        type: Supplier<Supplier<RenderType?>?>
-    ): BlockEntry<Block> = GTLAddRegistration.REGISTRATE.block<Block?>(name, blockSupplier)
+        properties: NonNullSupplier<out Block>,
+        renderType: String
+    ): BlockEntry<Block> = GTLAddRegistration.REGISTRATE.block(name, blockSupplier)
         .initialProperties(properties)
-        .properties { p: BlockBehaviour.Properties? -> p!!.isValidSpawn { state: BlockState?, level: BlockGetter?, pos: BlockPos?, ent: EntityType<*>? -> false } }
-        .addLayer(type)
-        .blockstate(GTModels.cubeAllModel(name, texture))
+        .properties { p -> p.isValidSpawn { _, _, _, _ -> false } }
+        .blockstate { ctx, prov ->
+            prov.simpleBlock(ctx.entry, prov.models().cubeAll(name, texture).renderType(renderType))
+        }
         .tag(GTToolType.WRENCH.harvestTags[0], BlockTags.MINEABLE_WITH_PICKAXE)
         .item(
-            NonNullBiFunction { block: Block?, properties: Item.Properties? ->
+            NonNullBiFunction { block: Block, properties: Item.Properties ->
                 BlockItem(
                     block,
                     properties

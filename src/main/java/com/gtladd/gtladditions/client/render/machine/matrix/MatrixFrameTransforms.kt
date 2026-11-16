@@ -45,8 +45,7 @@ internal object MatrixFrameTransforms {
         }
     }
 
-    @JvmOverloads
-    fun apply(pose: PoseStack, index: Int, ticks: Double, yaw: Float, flipped: Boolean = false) {
+    fun apply(pose: PoseStack, index: Int, ticks: Double, yaw: Float, flipped: Boolean) {
         val layer = MatrixEffectGeometry.layers[index]
         applyStructure(pose, yaw, flipped)
         pose.translate(0.5, MatrixEffectGeometry.CUBE_CENTER_Y.toDouble(), 0.5)

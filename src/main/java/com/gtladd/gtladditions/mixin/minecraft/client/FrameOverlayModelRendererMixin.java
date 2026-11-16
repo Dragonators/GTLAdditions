@@ -25,10 +25,10 @@ public abstract class FrameOverlayModelRendererMixin {
             at = @At("HEAD"),
             cancellable = true,
             remap = false)
-    private void gtladditions$routeFrameOverlay(BlockAndTintGetter world, BakedModel model, BlockState state,
-                                                BlockPos pos, PoseStack pose, VertexConsumer consumer, boolean cull,
-                                                RandomSource random, long seed, int overlay, ModelData data,
-                                                RenderType layer, CallbackInfo ci) {
-        if (world instanceof RenderChunkRegion && FrameOverlayModels.separate(state, model, layer)) ci.cancel();
+    private void gtladditions$routeFrameOverlay(BlockAndTintGetter arg, BakedModel arg2, BlockState arg3,
+                                                BlockPos arg4, PoseStack arg5, VertexConsumer arg6, boolean bl,
+                                                RandomSource arg7, long l, int i, ModelData modelData,
+                                                RenderType renderType, CallbackInfo ci) {
+        if (arg instanceof RenderChunkRegion && FrameOverlayModels.separate(arg3, arg2, renderType)) ci.cancel();
     }
 }

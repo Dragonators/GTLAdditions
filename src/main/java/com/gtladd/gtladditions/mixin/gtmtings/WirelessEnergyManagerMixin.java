@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.mixin.gtmtings;
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 
+import com.gtladd.gtladditions.GTLAdditions;
 import com.hepdd.gtmthings.api.misc.GlobalVariableStorage;
 import com.hepdd.gtmthings.api.misc.WirelessEnergyManager;
 import com.hepdd.gtmthings.data.WirelessEnergySavaedData;
@@ -27,8 +28,7 @@ public abstract class WirelessEnergyManagerMixin {
         try {
             WirelessEnergySavaedData.INSTANCE.setDirty(true);
         } catch (Exception exception) {
-            System.out.println("COULD NOT MARK GLOBAL ENERGY AS DIRTY IN ADD EU");
-            exception.printStackTrace();
+            GTLAdditions.Companion.getLOGGER().error("Could not mark global energy as dirty while adding EU", exception);
         }
 
         UUID teamUUID = getTeamUUID(user_uuid);

@@ -21,8 +21,8 @@ public abstract class ContentMixin {
                    remap = false,
                    require = 1,
                    allow = 1)
-    private static MapCodec<?> gtladditions$allowNegativeTierBoost(Codec<?> codec, String fieldName,
+    private static MapCodec<?> gtladditions$allowNegativeTierBoost(Codec<?> codec, String name,
                                                                    Object defaultValue, Operation<MapCodec<?>> original) {
-        return original.call(Codec.INT, fieldName, defaultValue);
+        return original.call(Codec.INT, name, defaultValue);
     }
 }

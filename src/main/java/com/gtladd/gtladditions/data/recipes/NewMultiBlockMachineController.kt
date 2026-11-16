@@ -728,7 +728,7 @@ object NewMultiBlockMachineController {
                     .EUt(VA[UXV]).CWUt(2048)
             }
             .save(provider)
-        ASSEMBLER_RECIPES.recipeBuilder(id("advanced_slaughter_house"))
+        ASSEMBLER_RECIPES.recipeBuilder(id("biological_simulation_laboratory"))
             .inputItems(SLAUGHTERHOUSE, 32)
             .inputItems(WORLD_ACCELERATOR[IV], 8)
             .inputItems(WORLD_ACCELERATOR[LuV], 8)
@@ -741,7 +741,7 @@ object NewMultiBlockMachineController {
             .inputFluids(Americium.getFluid(2304))
             .outputItems(MultiBlockMachine.BIOLOGICAL_SIMULATION_LABORATORY)
             .EUt(VA[ZPM].toLong()).duration(1200).save(provider)
-        ASSEMBLER_RECIPES.recipeBuilder(id("extremiity_packer"))
+        ASSEMBLER_RECIPES.recipeBuilder(id("arcane_cache_vault"))
             .inputItems(PACKER[HV], 32)
             .inputItems(PACKER[EV], 16)
             .inputItems(PACKER[IV], 8)

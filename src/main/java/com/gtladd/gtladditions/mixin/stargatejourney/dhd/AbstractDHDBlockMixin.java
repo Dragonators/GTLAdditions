@@ -19,10 +19,10 @@ import java.util.List;
 public abstract class AbstractDHDBlockMixin {
 
     @Inject(method = "appendHoverText", at = @At("TAIL"))
-    private void gtladditions$updateTooltip(ItemStack stack, BlockGetter level, List<Component> tooltip, TooltipFlag flag, CallbackInfo ci) {
-        tooltip.removeIf(component -> component.getContents() instanceof TranslatableContents text &&
+    private void gtladditions$updateTooltip(ItemStack stack, BlockGetter getter, List<Component> tooltipComponents, TooltipFlag isAdvanced, CallbackInfo ci) {
+        tooltipComponents.removeIf(component -> component.getContents() instanceof TranslatableContents text &&
                 (text.getKey().equals("tooltip.sgjourney.energy_buffer") || text.getKey().equals("tooltip.sgjourney.dhd.crystal_menu")));
-        tooltip.addAll(List.of(
+        tooltipComponents.addAll(List.of(
                 Component.translatable("tooltip.gtladditions.dhd").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
                 Component.translatable("tooltip.gtladditions.dialog.0"),
                 Component.translatable("tooltip.gtladditions.dialog.1"),

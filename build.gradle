@@ -17,19 +17,19 @@ group = project.maven_group
 java {
 }
 
+sourceSets.main.resources.srcDir("src/generated/resources")
+
 loom {
     silentMojangMappingsLicense()
     forge {
         mixinConfigs = [
                 "gtladditions.mixin.json"
         ]
-
-        dataGen {
-            mod(mod_id)
-        }
     }
 
-    runConfigs.named("data").configure {
+    runConfigs.create("data") {
+        data()
+        programArgs("--all", "--mod", mod_id, "--output", file("src/generated/resources").absolutePath)
         programArg("--existing=" + file("src/main/resources").absolutePath)
     }
 }

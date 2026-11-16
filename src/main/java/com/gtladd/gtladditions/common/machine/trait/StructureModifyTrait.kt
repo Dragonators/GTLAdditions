@@ -6,7 +6,6 @@ import com.gregtechceu.gtceu.api.pattern.BlockPattern
 import com.gregtechceu.gtceu.api.pattern.MultiblockState
 import com.gtladd.gtladditions.api.pattern.RemainingStructurePattern
 import com.gtladd.gtladditions.api.pattern.StructureTierLayout
-import com.gtladd.gtladditions.common.data.MachineInfo
 import com.gtladd.gtladditions.common.data.RemovedStructure
 import com.gtladd.gtladditions.common.data.StructureRenderType
 import com.gtladd.gtladditions.common.machine.multiblock.structure.StructureBlockLayout
@@ -53,7 +52,10 @@ class StructureModifyTrait(
             (!removedStructure.isEmpty || (1..tiers.minTier).all { tiers.matches(it, state, controller) })
     }
 
-    fun form() = form { StructureBlockLayout.positions(info()) }
+    fun form() = form {
+        val controller = machine as MultiblockControllerMachine
+        StructureBlockLayout.positions(type, controller.pos, controller.frontFacing, controller.upwardsFacing, controller.isFlipped)
+    }
 
     fun form(tierRange: IntRange) = form { tiers!!.positions(tierRange, machine as MultiblockControllerMachine) }
 
@@ -78,9 +80,8 @@ class StructureModifyTrait(
     private fun remove(level: ServerLevel, controller: MultiblockControllerMachine, positions: Collection<BlockPos>) {
         val captured = RemovedStructure.capture(
             positions,
-            level::getBlockState,
-            { level.getBlockEntity(it)?.saveWithFullMetadata() }
-        )
+            level::getBlockState
+        ) { level.getBlockEntity(it)?.saveWithFullMetadata() }
         removedStructure += captured
         // Remove these positions before erasure, so Core does not enqueue one recheck per removed block.
         positions.forEach { controller.multiblockState.cache.remove(it.asLong()) }
@@ -111,11 +112,6 @@ class StructureModifyTrait(
                 restoring = false
             }
         }
-    }
-
-    private fun info(): MachineInfo {
-        val controller = machine as MultiblockControllerMachine
-        return MachineInfo(controller.pos.asLong(), controller.frontFacing, type, controller.upwardsFacing, controller.isFlipped)
     }
 
     private fun prepareRemainingPattern() {

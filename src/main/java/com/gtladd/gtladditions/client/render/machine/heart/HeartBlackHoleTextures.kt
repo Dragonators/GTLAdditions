@@ -7,7 +7,6 @@ import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceProvider
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
-import java.io.IOException
 
 internal object HeartBlackHoleTextures {
     private val slot = ResourceSlot<Loaded>("Heart of the Universe textures")
@@ -17,11 +16,10 @@ internal object HeartBlackHoleTextures {
 
     fun invalidate() = slot.invalidate()
 
-    @Throws(IOException::class)
-    fun read(resources: ResourceProvider) =
+    private fun read(resources: ResourceProvider) =
         Prepared(HeartBlackHoleLookupTextures.readResources(resources), HeartBlackHoleAppearanceTextures.readResources(resources))
 
-    fun load(prepared: Prepared) {
+    private fun load(prepared: Prepared) {
         val created = ArrayList<Int>(4)
         val next = try {
             HeartBlackHoleRenderState.withSavedState {
@@ -56,7 +54,10 @@ internal object HeartBlackHoleTextures {
         return true
     }
 
-    class Prepared(val tables: HeartBlackHoleLookupTextures.PreparedTables, val textures: HeartBlackHoleAppearanceTextures.PreparedTextures)
+    private class Prepared(
+        val tables: HeartBlackHoleLookupTextures.PreparedTables,
+        val textures: HeartBlackHoleAppearanceTextures.PreparedTextures
+    )
 
     private class Loaded(val deflection: Int, val inverseRadius: Int, val noise: Int, val galaxy: Int) : AutoCloseable {
         override fun close() {

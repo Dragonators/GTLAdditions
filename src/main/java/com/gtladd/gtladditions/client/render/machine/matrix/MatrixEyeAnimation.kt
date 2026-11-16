@@ -61,8 +61,7 @@ class MatrixEyeAnimation {
     private var swirl = 0.0
     private var rise = 0.0
 
-    @JvmOverloads
-    fun sample(seconds: Double, active: Boolean, smoothAnimations: Boolean = false): Frame {
+    fun sample(seconds: Double, active: Boolean, smoothAnimations: Boolean): Frame {
         require(seconds.isFinite())
         if (lastTime.isNaN() || lastSmoothAnimations != smoothAnimations) {
             // Render and machine clocks have unrelated origins; preserve the eye's local phase when switching.

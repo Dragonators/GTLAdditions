@@ -16,6 +16,8 @@ import org.lwjgl.system.MemoryUtil
 import java.nio.ByteBuffer
 import java.util.WeakHashMap
 import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 internal class HeartFleetLines(plan: HeartFleetPlan) : AutoCloseable {
     class Arc(val first: Int, val count: Int, val min: Vector3f, val max: Vector3f)
@@ -49,9 +51,9 @@ internal class HeartFleetLines(plan: HeartFleetPlan) : AutoCloseable {
                     for (j in k..k + 1) {
                         val angle = j * 2 * PI / 360
                         val p = Vector3f(
-                            ((line.plane.u.x * Math.cos(angle) + line.plane.v.x * Math.sin(angle)) * line.radius).toFloat(),
-                            ((line.plane.u.y * Math.cos(angle) + line.plane.v.y * Math.sin(angle)) * line.radius).toFloat(),
-                            ((line.plane.u.z * Math.cos(angle) + line.plane.v.z * Math.sin(angle)) * line.radius).toFloat()
+                            ((line.plane.u.x * cos(angle) + line.plane.v.x * sin(angle)) * line.radius).toFloat(),
+                            ((line.plane.u.y * cos(angle) + line.plane.v.y * sin(angle)) * line.radius).toFloat(),
+                            ((line.plane.u.z * cos(angle) + line.plane.v.z * sin(angle)) * line.radius).toFloat()
                         )
                         positions[vertex * 3] = p.x
                         positions[vertex * 3 + 1] = p.y

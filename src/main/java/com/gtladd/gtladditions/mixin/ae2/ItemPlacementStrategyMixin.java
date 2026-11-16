@@ -47,12 +47,12 @@ public abstract class ItemPlacementStrategyMixin {
                             target = "Lappeng/parts/automation/ItemPlacementStrategy;countEntitesAround(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)I"),
                    remap = false,
                    require = 1)
-    private int gtladditions$placeMultipleItemEntities(ItemPlacementStrategy instance, Level level, BlockPos placePos,
+    private int gtladditions$placeMultipleItemEntities(ItemPlacementStrategy instance, Level level, BlockPos pos,
                                                        Operation<Integer> original,
                                                        AEKey what, long amount, Actionable type, boolean placeAsEntity,
                                                        @Share("handledEntityOutput") LocalBooleanRef handled,
                                                        @Share("entityOutput") LocalLongRef entityOutput) {
-        int sum = original.call(instance, level, placePos);
+        int sum = original.call(instance, level, pos);
         int configuredRounds = ConfigHolder.getINSTANCE().ae2.formationPlaneItemEntityOutputRounds;
         int rounds = Math.clamp(configuredRounds, 1, 1000);
         if (rounds <= 1) return sum;

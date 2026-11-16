@@ -55,10 +55,7 @@ object GTLAddPredicates {
                 (matched.sortedBy { it.key.coilTemperature } + notMatched.sortedBy { it.key.coilTemperature }).map { BlockInfo.fromBlockState(it.value.get().defaultBlockState()) }.toTypedArray()
             }
         ) {
-            override fun test(blockWorldState: MultiblockState): Boolean {
-                if (super.test(blockWorldState)) return matchesTemperature((blockWorldState.blockState.block as CoilBlock).coilType.coilTemperature)
-                return false
-            }
+            override fun test(blockWorldState: MultiblockState): Boolean = super.test(blockWorldState) && matchesTemperature((blockWorldState.blockState.block as CoilBlock).coilType.coilTemperature)
         }).addTooltips("gtceu.multiblock.pattern.error.coils".toComponent)
     }
 }

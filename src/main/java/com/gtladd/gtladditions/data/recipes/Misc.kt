@@ -67,7 +67,7 @@ import kotlin.math.pow
 
 object Misc {
     fun init(provider: Consumer<FinishedRecipe?>) {
-        DECAY_HASTENER_RECIPES.recipeBuilder(id("tiranium50"))
+        DECAY_HASTENER_RECIPES.recipeBuilder(id("titanium_50"))
             .inputFluids(Titanium.getFluid(144))
             .outputFluids(Titanium50.getFluid(144))
             .EUt(VA[14].toLong()).duration(10).save(provider)
@@ -85,14 +85,14 @@ object Misc {
             .inputItems(getItemStack("kubejs:chain_command_block_core"))
             .inputItems(getItemStack("kubejs:command_block_broken"))
             .outputItems(Blocks.CHAIN_COMMAND_BLOCK.asItem())
-            .dimension(KubeJS.id("create")).CWUt(Int.Companion.MAX_VALUE / 2)
+            .dimension(KubeJS.id("create")).CWUt(Int.MAX_VALUE / 2)
             .EUt(V[14]).duration(20)
             .save(provider)
         CREATE_AGGREGATION_RECIPES.recipeBuilder(id("repeating_command_block"))
             .inputItems(getItemStack("kubejs:repeating_command_block_core"))
             .inputItems(getItemStack("kubejs:chain_command_block_broken"))
             .outputItems(Blocks.REPEATING_COMMAND_BLOCK.asItem())
-            .dimension(KubeJS.id("create")).CWUt(Int.Companion.MAX_VALUE / 2)
+            .dimension(KubeJS.id("create")).CWUt(Int.MAX_VALUE / 2)
             .EUt(V[14]).duration(20)
             .save(provider)
         for (i in 1..<5) {

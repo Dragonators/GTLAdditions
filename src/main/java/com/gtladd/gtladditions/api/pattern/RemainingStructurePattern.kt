@@ -2,10 +2,10 @@ package com.gtladd.gtladditions.api.pattern
 
 import com.gregtechceu.gtceu.api.pattern.BlockPattern
 import com.gregtechceu.gtceu.api.pattern.Predicates
-import com.gtladd.gtladditions.common.data.MachineInfo
 import com.gtladd.gtladditions.common.data.StructureRenderType
 import com.gtladd.gtladditions.common.machine.multiblock.structure.StructureBlockLayout
 import com.gtladd.gtladditions.mixin.gtceu.api.pattern.BlockPatternAccessor
+import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import java.util.EnumMap
 import java.util.WeakHashMap
@@ -28,7 +28,7 @@ object RemainingStructurePattern {
         val axes = pattern.structureDir.map { it.getActualFacing(Direction.SOUTH) }
         val any = Predicates.any()
 
-        for (pos in StructureBlockLayout.positions(MachineInfo(0L, Direction.SOUTH, type, Direction.NORTH, false))) {
+        for (pos in StructureBlockLayout.positions(type, BlockPos.ZERO, Direction.SOUTH, Direction.NORTH, false)) {
             val x = pos.x * axes[0].stepX + pos.y * axes[0].stepY + pos.z * axes[0].stepZ + center[0]
             val y = pos.x * axes[1].stepX + pos.y * axes[1].stepY + pos.z * axes[1].stepZ + center[1]
             val z = pos.x * axes[2].stepX + pos.y * axes[2].stepY + pos.z * axes[2].stepZ + center[4]

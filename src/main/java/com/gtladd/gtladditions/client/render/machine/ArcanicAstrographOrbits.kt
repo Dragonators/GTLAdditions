@@ -51,8 +51,8 @@ internal object ArcanicAstrographOrbits {
             .mul(rotation(xAngle.toDouble(), 1f, 0f, 0f))
 
         fun applyTransform(pose: PoseStack, tick: Double, scratch: Quaternionf) {
-            val orbitAngle = (tick.toDouble() * orbitSpeed * SPEED_SCALE + phaseDegrees) % 360.0
-            val spinAngle = tick.toDouble() * rotationSpeed * SPEED_SCALE % 360.0
+            val orbitAngle = (tick * orbitSpeed * SPEED_SCALE + phaseDegrees) % 360.0
+            val spinAngle = tick * rotationSpeed * SPEED_SCALE % 360.0
             pose.mulPose(tilt)
             pose.mulPose(yRotation(orbitAngle, scratch))
             pose.translate(-radius, 0.0, 0.0)

@@ -83,12 +83,14 @@ class RemovedStructure private constructor(
             return RemovedStructure(blocks, entities)
         }
 
+        @Suppress("DEPRECATION")
         fun load(tag: CompoundTag): RemovedStructure {
             val blocks = Long2ObjectLinkedOpenHashMap<BlockState>()
             val palette = tag.getList("palette", Tag.TAG_COMPOUND.toInt())
 
             for (index in palette.indices) {
                 val entry = palette.getCompound(index)
+                // Loaded before the machine has a level, and Forge registries offer no HolderGetter.
                 val state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), entry.getCompound("state"))
                 unpack(entry.getByteArray("packed")) { blocks[it] = state }
             }

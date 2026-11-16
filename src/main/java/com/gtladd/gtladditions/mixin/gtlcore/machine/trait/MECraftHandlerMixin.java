@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public abstract class MECraftHandlerMixin {
 
     @ModifyVariable(method = "extractGTRecipe", at = @At("STORE"), ordinal = 1, require = 2, allow = 2, remap = false)
-    private long gtladditions$fullOutputBudget(long remaining, long parallelAmount, int tickDuration) {
+    private long gtladditions$fullOutputBudget(long remain, long parallelAmount, int tickDuration) {
         // Refresh both the initial and decremented budget, even when the total exceeds Long.MAX_VALUE.
-        return parallelAmount == Long.MIN_VALUE ? Long.MAX_VALUE : remaining;
+        return parallelAmount == Long.MIN_VALUE ? Long.MAX_VALUE : remain;
     }
 
     @ModifyVariable(method = "extractGTRecipe", at = @At("HEAD"), argsOnly = true, ordinal = 0, require = 1, remap = false)

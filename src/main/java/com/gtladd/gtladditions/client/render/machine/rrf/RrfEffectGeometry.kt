@@ -111,8 +111,6 @@ object RrfEffectGeometry {
     }
 
     private class Plane(val origin: V, val u: V, val v: V, val frontPalette: Boolean = false) {
-        fun map(x: Double, y: Double) = origin + u * x + v * y
-
         fun tint(color: RrfColor): RrfColor = if (!frontPalette) {
             color
         } else {

@@ -18,7 +18,7 @@ object MachineUtil {
     fun inputItem(machine: WorkableMultiblockMachine, stack: ItemStack, amount: Long): Boolean =
         input(machine).item(stack, amount).execute()
 
-    fun inputItem(machine: WorkableMultiblockMachine, ingredient: LongIngredient, stack: ItemStack): Boolean =
+    fun inputItem(machine: WorkableMultiblockMachine, ingredient: LongIngredient): Boolean =
         input(machine).item(ingredient).execute()
 
     fun input(machine: WorkableMultiblockMachine): InputBuilder = InputBuilder(machine)
@@ -57,10 +57,7 @@ object MachineUtil {
         fun execute(): Boolean {
             if (!hasInput) return true
             val recipe = builder.buildRawRecipe()
-            if (matchRecipeInputNocache(machine, recipe)) {
-                return handleRecipeInputNocache(machine, recipe)
-            }
-            return false
+            return matchRecipeInputNocache(machine, recipe) && handleRecipeInputNocache(machine, recipe)
         }
     }
 

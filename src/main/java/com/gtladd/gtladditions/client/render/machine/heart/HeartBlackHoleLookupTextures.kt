@@ -17,7 +17,6 @@ internal object HeartBlackHoleLookupTextures {
     private val DEFLECTION_RESOURCE = GTLAdditions.id("shaders/lookup/heart_ray_deflection.dat")
     private val INVERSE_RADIUS_RESOURCE = GTLAdditions.id("shaders/lookup/heart_ray_inverse_radius.dat")
 
-    @Throws(IOException::class)
     fun readResources(resources: ResourceProvider): PreparedTables {
         val deflection = resources.getResourceOrThrow(DEFLECTION_RESOURCE).open().use {
             readTable(it, 512, 512)
@@ -30,8 +29,7 @@ internal object HeartBlackHoleLookupTextures {
         return PreparedTables(deflection, inverseRadius)
     }
 
-    @Throws(IOException::class)
-    fun readTable(input: InputStream, width: Int, height: Int): LookupTable {
+    private fun readTable(input: InputStream, width: Int, height: Int): LookupTable {
         val bytes = HeartTextureCodec.read(input, width, height, 2)
         val data = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
         if (data.float != width.toFloat() || data.float != height.toFloat()) {

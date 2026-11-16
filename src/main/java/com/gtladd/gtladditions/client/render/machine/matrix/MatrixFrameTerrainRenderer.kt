@@ -90,7 +90,8 @@ object MatrixFrameTerrainRenderer {
         val count = MatrixEffectGeometry.ENERGY_CORE_LAYER_INDEX
         val blocks = List(count, MatrixFrameModels::prepareLayer)
         val panels = List(count) { index ->
-            MatrixFrameDetails.layer(index).panels.groupBy { (_, normal, _) ->
+            MatrixFrameDetails.layer(index).panels.groupBy { panel ->
+                val normal = panel.normal
                 FaceGroup.of(Direction.getNearest(normal[0], normal[1], normal[2])).ordinal
             }
         }
@@ -109,7 +110,10 @@ object MatrixFrameTerrainRenderer {
             }
 
             // The neutral atlas sprite keeps the fittings in the pack's opaque terrain pass.
-            for ((vertices, normal, color) in panels[index][group].orEmpty()) {
+            for (panel in panels[index][group].orEmpty()) {
+                val vertices = panel.vertices
+                val normal = panel.normal
+                val color = panel.color
                 val builder = batch.builder(RenderType.solid())
                 val blockX = floor((vertices[0] + vertices[6]) * 0.5).toInt()
                 val blockY = floor((vertices[1] + vertices[7]) * 0.5).toInt()

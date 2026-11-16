@@ -60,10 +60,10 @@ public class ServerTickHandlerMixin {
             remap = false,
             require = 2,
             expect = 2)
-    private static void gtladditions$exchange(ServerBuildList list, Player player, CallbackInfo ci,
+    private static void gtladditions$exchange(ServerBuildList serverBuildList, Player player, CallbackInfo ci,
                                               @Local(name = "be") RenderBlockBE be,
                                               @Local(name = "blockState") BlockState state) {
-        CompoundTag data = BuildingGadgetsMachineSupport.newMachineData(state, player, list.teData != null);
+        CompoundTag data = BuildingGadgetsMachineSupport.newMachineData(state, player, serverBuildList.teData != null);
         if (data != null) be.setBlockEntityData(data);
     }
 
@@ -73,7 +73,7 @@ public class ServerTickHandlerMixin {
                      shift = At.Shift.AFTER),
             remap = false,
             require = 1)
-    private static void gtladditions$stopCutMachine(ServerBuildList list, Player player, CallbackInfo ci,
+    private static void gtladditions$stopCutMachine(ServerBuildList serverBuildList, Player player, CallbackInfo ci,
                                                     @Local(name = "blockPos") BlockPos pos,
                                                     @Local(name = "level") Level level,
                                                     @Local(name = "doRemove") boolean doRemove) {

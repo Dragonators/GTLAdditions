@@ -33,7 +33,7 @@ object ModuleConnectionBehavior : IInteractionItem {
     private const val NBT_MODULES = "Modules"
     private const val NBT_HAS_HOST = "HasHost"
 
-    override fun onItemUseFirst(itemStack: ItemStack, context: UseOnContext): InteractionResult? {
+    override fun onItemUseFirst(itemStack: ItemStack, context: UseOnContext): InteractionResult {
         val player = context.player as? ServerPlayer ?: return InteractionResult.PASS
         val pos = context.clickedPos
         val level = context.level
@@ -149,7 +149,7 @@ object ModuleConnectionBehavior : IInteractionItem {
                 appendLine("  (No modules recorded)")
             } else {
                 appendLine("Module Details:")
-                for (i in 0 until modulesList.size) {
+                for (i in modulesList.indices) {
                     val module = modulesList.getCompound(i)
                     val x = module.getInt("x")
                     val y = module.getInt("y")
@@ -165,7 +165,7 @@ object ModuleConnectionBehavior : IInteractionItem {
             appendLine("-".repeat(60))
             if (modulesList.isNotEmpty()) {
                 appendLine("val moduleInfos = arrayOf(")
-                for (i in 0 until modulesList.size) {
+                for (i in modulesList.indices) {
                     val module = modulesList.getCompound(i)
                     val x = module.getInt("x")
                     val y = module.getInt("y")
@@ -198,7 +198,7 @@ object ModuleConnectionBehavior : IInteractionItem {
             appendLine("-".repeat(60))
             if (modulesList.isNotEmpty()) {
                 appendLine("List.of(")
-                for (i in 0 until modulesList.size) {
+                for (i in modulesList.indices) {
                     val module = modulesList.getCompound(i)
                     val x = module.getInt("x")
                     val y = module.getInt("y")

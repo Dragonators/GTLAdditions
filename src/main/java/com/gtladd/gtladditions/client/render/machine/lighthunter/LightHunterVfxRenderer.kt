@@ -91,8 +91,7 @@ object LightHunterVfxRenderer {
             get() = if (opaqueWindowDrawn) LightHunterParadoxRenderer.WINDOW_TRANSLUCENT else LightHunterParadoxRenderer.WINDOW_COMPLETE
     }
 
-    /** One integration per four adjacent depth bins. The caller binds the scene depth. */
-    @JvmOverloads
+    /** The caller binds the scene depth. */
     fun drawLayered(
         meshes: Meshes,
         shader: ShaderInstance,
@@ -104,8 +103,8 @@ object LightHunterVfxRenderer {
         base: Int,
         rect: IntArray,
         local: Boolean,
-        layerMask: Int = LightHunterVfxGeometry.ALL_LAYERS,
-        paradoxSeconds: Float = -1f
+        layerMask: Int,
+        paradoxSeconds: Float
     ) {
         val activeTexture = GL11C.glGetInteger(GL13C.GL_ACTIVE_TEXTURE)
         RenderSystem.activeTexture(GL13C.GL_TEXTURE2)
@@ -161,11 +160,7 @@ object LightHunterVfxRenderer {
         }
     }
 
-    /**
-     * The plumes and rings clip their rays against the scene depth the caller bound to [shader]; [fieldShader] draws the
-     * chart film and the shield body.
-     */
-    @JvmOverloads
+    /** The caller binds the scene depth to [shader]; [fieldShader] draws the chart film and the shield body. */
     fun draw(
         meshes: Meshes,
         shader: ShaderInstance,
@@ -173,8 +168,8 @@ object LightHunterVfxRenderer {
         modelView: Matrix4f,
         projection: Matrix4f,
         tick: Float,
-        layerMask: Int = LightHunterVfxGeometry.ALL_LAYERS,
-        paradoxSeconds: Float = -1f
+        layerMask: Int,
+        paradoxSeconds: Float
     ) {
         val activeTexture = GL11C.glGetInteger(GL13C.GL_ACTIVE_TEXTURE)
         RenderSystem.activeTexture(GL13C.GL_TEXTURE0)
@@ -257,19 +252,15 @@ object LightHunterVfxRenderer {
         shader.getUniform("ParadoxPlane")?.set(LightHunterParadoxTiming.WINDOW_X + LightHunterParadoxModels.windowView(modelView).depthBias)
     }
 
-    class Meshes @JvmOverloads constructor(resources: ResourceProvider? = null) : AutoCloseable {
+    class Meshes : AutoCloseable {
         private val builder by lazy { BufferBuilder(262144) }
         private val buffers = arrayOfNulls<VertexBuffer>(LightHunterVfxGeometry.LAYERS)
         private val plasmaNoise = PlasmaNoise()
-        private val plasmaField = LightHunterPlasmaFieldCache(resources)
+        private val plasmaField = LightHunterPlasmaFieldCache()
 
         fun setResources(resources: ResourceProvider) = plasmaField.setResources(resources)
 
         fun beginFrame() = plasmaField.beginFrame()
-
-        fun bindPlasmaNoise(shader: ShaderInstance) {
-            plasmaNoise.bind(shader)
-        }
 
         /** Bind the returned 3D texture on unit 2 while consuming it. */
         fun preparePlasmaField(shader: ShaderInstance, tick: Float): Int {

@@ -17,7 +17,6 @@ import org.lwjgl.opengl.GL13C
 import org.lwjgl.opengl.GL30C
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
-import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -32,8 +31,7 @@ internal object MatrixEyeTextures {
 
     fun invalidate() = slot.invalidate()
 
-    @Throws(IOException::class)
-    fun read(resources: ResourceProvider) =
+    private fun read(resources: ResourceProvider) =
         Prepared(
             readImage(resources, "gold_base"),
             readImage(resources, "data"),
@@ -41,7 +39,7 @@ internal object MatrixEyeTextures {
             readImage(resources, "mist_noise")
         )
 
-    fun load(prepared: Prepared) {
+    private fun load(prepared: Prepared) {
         val created = ArrayList<Int>(4)
         val next = try {
             Loaded(
@@ -58,7 +56,6 @@ internal object MatrixEyeTextures {
         slot.publish(next)
     }
 
-    @Throws(IOException::class)
     private fun readImage(resources: ResourceProvider, name: String): Image =
         resources.getResourceOrThrow(GTLAdditions.id("textures/effect/matrix/eye/$name.png")).open().use { input ->
             NativeImage.read(NativeImage.Format.RGBA, input).use { image ->
@@ -108,9 +105,9 @@ internal object MatrixEyeTextures {
     }
 
     /** Tightly packed RGBA8 rows. */
-    class Image(val width: Int, val height: Int, val pixels: ByteArray)
+    private class Image(val width: Int, val height: Int, val pixels: ByteArray)
 
-    class Prepared(val base: Image, val data: Image, val normal: Image, val mistNoise: Image)
+    private class Prepared(val base: Image, val data: Image, val normal: Image, val mistNoise: Image)
 
     class Loaded(val base: Int, val data: Int, val normal: Int, val mistNoise: Int) : AutoCloseable {
         override fun close() {

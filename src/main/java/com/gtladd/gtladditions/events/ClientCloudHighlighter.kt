@@ -61,7 +61,6 @@ object ClientCloudHighlighter {
             .createCompositeState(false)
     )
 
-    @JvmStatic
     fun highlight(pos: BlockPos, dimensionId: String) {
         val level = Minecraft.getInstance().level ?: return
         val expireTick = level.gameTime + HIGHLIGHT_TICKS

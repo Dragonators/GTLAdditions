@@ -16,10 +16,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class FrameOverlayClientLevelMixin {
 
     @Inject(method = "onChunkLoaded", at = @At("RETURN"))
-    private void gtladditions$loaded(ChunkPos pos, CallbackInfo ci) {
+    private void gtladditions$loaded(ChunkPos chunkPos, CallbackInfo ci) {
         ClientLevel level = (ClientLevel) (Object) this;
         if (level != Minecraft.getInstance().level) return;
-        LevelChunk chunk = level.getChunkSource().getChunk(pos.x, pos.z, ChunkStatus.FULL, false);
+        LevelChunk chunk = level.getChunkSource().getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false);
         if (chunk != null) FrameOverlayRenderer.chunkLoaded(chunk);
     }
 

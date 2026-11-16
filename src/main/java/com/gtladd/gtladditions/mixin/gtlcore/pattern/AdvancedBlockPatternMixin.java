@@ -20,7 +20,7 @@ public abstract class AdvancedBlockPatternMixin {
 
     @Inject(method = "dismantleMultiblock", at = @At("HEAD"), require = 1)
     private void gtladditions$restoreBeforeDismantle(IMultiController controller, Player player,
-                                                     UltimateTerminalBehavior.AutoBuildSetting settings, CallbackInfo ci) {
+                                                     UltimateTerminalBehavior.AutoBuildSetting autoBuildSetting, CallbackInfo ci) {
         // The terminal skips real air. Restore before its scan, not from a later block-update callback.
         for (var trait : controller.self().getTraits()) {
             if (trait instanceof StructureModifyTrait structureModify) structureModify.restore();

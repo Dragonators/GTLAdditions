@@ -20,6 +20,7 @@ import net.minecraft.util.RandomSource
 import net.minecraft.world.inventory.InventoryMenu
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.model.data.ModelData
 
 open class OverlayHullMachineRenderer :
     MachineRenderer,
@@ -76,7 +77,7 @@ open class OverlayHullMachineRenderer :
         super.renderMachine(quads, definition, machine, frontFacing, side, rand, modelFacing, modelState)
         quads.addAll(
             overlayModel.getRotatedModel(frontFacing)
-                .getQuads(definition.defaultBlockState(), side, rand)
+                .getQuads(definition.defaultBlockState(), side, rand, ModelData.EMPTY, null)
                 .map { Quad.from(it, reBakeOverlayQuadsOffset()).rebake() }
         )
     }

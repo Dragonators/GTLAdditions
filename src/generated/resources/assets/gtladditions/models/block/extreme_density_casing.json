@@ -1,4 +1,5 @@
 {
+  "render_type": "minecraft:cutout_mipped",
   "parent": "minecraft:block/cube_all",
   "textures": {
     "all": "gtladditions:block/casings/extreme_density_casing"

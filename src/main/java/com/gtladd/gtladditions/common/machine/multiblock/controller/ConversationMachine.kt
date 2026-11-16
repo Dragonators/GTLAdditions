@@ -268,7 +268,7 @@ class ConversationMachine(holder: IMachineBlockEntity) :
         val MANAGED_FIELD_HOLDER = ManagedFieldHolder(ConversationMachine::class.java, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER)
 
         val HASH_STRATEGY = object : Hash.Strategy<Item> {
-            override fun hashCode(o: Item?) = o?.hashCode() ?: 0
+            override fun hashCode(o: Item?) = o.hashCode()
             override fun equals(a: Item?, b: Item?) = a?.hashCode() == b?.hashCode()
         }
 

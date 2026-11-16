@@ -108,23 +108,17 @@ object GTLAddRecipesTypes {
                 LocalizationUtils.format("gtceu.recipe.temperature", FormattingUtil.formatNumbers(temp))
             }.addDataInfo { data: CompoundTag? ->
                 val temp = data!!.getInt("ebf_temp")
-                val requiredCoil = ICoilType.getMinRequiredType(temp)
-                if (requiredCoil != null && requiredCoil.material != null) {
-                    return@addDataInfo LocalizationUtils.format(
-                        "gtceu.recipe.coil.tier",
-                        I18n.get(requiredCoil.material!!.unlocalizedName)
-                    )
-                }
-                ""
+                val material = ICoilType.getMinRequiredType(temp)?.material ?: return@addDataInfo ""
+                LocalizationUtils.format("gtceu.recipe.coil.tier", I18n.get(material.unlocalizedName))
             }.setUiBuilder { recipe: GTRecipe?, widgetGroup: WidgetGroup? ->
                 val temp = recipe!!.data.getInt("ebf_temp")
                 val items: MutableList<MutableList<ItemStack>> = ObjectArrayList()
                 items.add(
-                    GTCEuAPI.HEATING_COILS.entries.stream()
+                    GTCEuAPI.HEATING_COILS.entries
                         .filter { coil -> coil.key.coilTemperature >= temp }
                         .map { coil ->
                             ItemStack(coil.value.get())
-                        }.toList()
+                        }.toMutableList()
                 )
                 widgetGroup!!.addWidget(
                     SlotWidget(
@@ -151,27 +145,18 @@ object GTLAddRecipesTypes {
                 LocalizationUtils.format("gtceu.recipe.temperature", FormattingUtil.formatNumbers(temp))
             }.addDataInfo { data: CompoundTag? ->
                 val temp = data!!.getInt("ebf_temp")
-                val requiredCoil = ICoilType.getMinRequiredType(temp)
-                if (requiredCoil != null && requiredCoil.material != null) {
-                    LocalizationUtils.format(
-                        "gtceu.recipe.coil.tier",
-                        I18n.get(
-                            requiredCoil.material!!.unlocalizedName
-                        )
-                    )
-                } else {
-                    ""
-                }
+                val material = ICoilType.getMinRequiredType(temp)?.material ?: return@addDataInfo ""
+                LocalizationUtils.format("gtceu.recipe.coil.tier", I18n.get(material.unlocalizedName))
             }.setMaxTooltips(4).setUiBuilder { recipe: GTRecipe?, widgetGroup: WidgetGroup? ->
                 val temp = recipe!!.data.getInt("ebf_temp")
-                val items: MutableList<MutableList<ItemStack?>?> = ObjectArrayList()
+                val items: MutableList<MutableList<ItemStack>> = ObjectArrayList()
                 items.add(
-                    GTCEuAPI.HEATING_COILS.entries.stream()
+                    GTCEuAPI.HEATING_COILS.entries
                         .filter { coil: MutableMap.MutableEntry<ICoilType, Supplier<CoilBlock>> -> coil.key.coilTemperature >= temp }
                         .map { coil: MutableMap.MutableEntry<ICoilType, Supplier<CoilBlock>> ->
                             ItemStack(coil.value.get())
                         }
-                        .toList()
+                        .toMutableList()
                 )
                 widgetGroup!!.addWidget(
                     SlotWidget(

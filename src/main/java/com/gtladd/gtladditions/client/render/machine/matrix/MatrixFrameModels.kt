@@ -46,7 +46,7 @@ object MatrixFrameModels {
                     ResourceLocation(cell.material),
                     cell.faces.map { face ->
                         Direction.fromAxisAndDirection(
-                            Direction.Axis.values()[face.axis],
+                            Direction.Axis.entries[face.axis],
                             if (face.sign > 0) Direction.AxisDirection.POSITIVE else Direction.AxisDirection.NEGATIVE
                         )
                     }

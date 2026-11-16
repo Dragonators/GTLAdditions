@@ -56,7 +56,7 @@ public abstract class MultipleRecipesLogicMixin extends RecipeLogic implements I
     }
 
     @Inject(method = "<init>(Lorg/gtlcore/gtlcore/api/machine/multiblock/ParallelMachine;Ljava/util/function/BiPredicate;DD)V", at = @At("TAIL"), remap = false)
-    private void onInit(ParallelMachine ignore1, BiPredicate<CompoundTag, IRecipeLogicMachine> ignore2, double ignore3, double ignore4, CallbackInfo ci) {
+    private void onInit(ParallelMachine machine, BiPredicate<CompoundTag, IRecipeLogicMachine> dataCheck, double reductionEUt, double reductionDuration, CallbackInfo ci) {
         gtladditions$machine = ((IWirelessThreadModifierParallelMachine) getMachine());
     }
 

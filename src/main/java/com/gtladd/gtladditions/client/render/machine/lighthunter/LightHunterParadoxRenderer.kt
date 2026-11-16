@@ -10,7 +10,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.renderer.ShaderInstance
-import net.minecraft.server.packs.resources.ResourceProvider
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Matrix4f
@@ -26,11 +25,10 @@ object LightHunterParadoxRenderer {
     const val WINDOW_TRANSLUCENT = 2
     internal val meshes = Meshes()
 
-    class Meshes @JvmOverloads constructor(private val resources: ResourceProvider? = null) : AutoCloseable {
+    class Meshes : AutoCloseable {
         private val builder by lazy { BufferBuilder(256) }
         private var window: VertexBuffer? = null
         private val models = LightHunterParadoxModels()
-        private var own: LightHunterParadoxAssets.Loaded? = null
 
         fun beginFrame() = models.beginFrame()
 
@@ -44,19 +42,10 @@ object LightHunterParadoxRenderer {
 
         fun models(): LightHunterParadoxModels = models
 
-        internal fun assets(): LightHunterParadoxAssets.Loaded? =
-            if (resources == null) {
-                LightHunterParadoxAssets.current
-            } else {
-                own ?: LightHunterParadoxAssets.upload(LightHunterParadoxAssets.read(resources)).also { own = it }
-            }
-
         override fun close() {
             window?.close()
             window = null
             models.close()
-            own?.close()
-            own = null
         }
     }
 
@@ -83,7 +72,6 @@ object LightHunterParadoxRenderer {
         else -> PartOutcome.RESOURCE_UNAVAILABLE
     }
 
-    @JvmOverloads
     fun draw(
         meshes: Meshes,
         shader: ShaderInstance,
@@ -95,11 +83,11 @@ object LightHunterParadoxRenderer {
         key: Any,
         layered: Boolean,
         writeAlpha: Boolean,
-        windowPass: Int = WINDOW_COMPLETE
+        windowPass: Int
     ): Boolean {
         if (!windowDrawn(seconds)) return false
         val state = LightHunterParadoxTiming.window(seconds)
-        val assets = if (state.reveal > 0f) meshes.assets() ?: return false else null
+        val assets = if (state.reveal > 0f) LightHunterParadoxAssets.current ?: return false else null
         if (!HeartBlackHoleTextures.setGalaxySampler(shader)) return false
         val samplerObjects = GL.getCapabilities().OpenGL33
         val samplers = if (samplerObjects) IntArray(3) { GL33C.glGetIntegeri(GL33C.GL_SAMPLER_BINDING, it) } else IntArray(0)

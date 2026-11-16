@@ -23,9 +23,9 @@ public abstract class VillagerInitMixin {
                    remap = false,
                    require = 2,
                    allow = 2)
-    private static RegistryObject<?> gtladditions$disableArcheologistWorkstation(DeferredRegister<?> register, String name, Supplier<?> supplier,
+    private static RegistryObject<?> gtladditions$disableArcheologistWorkstation(DeferredRegister<?> register, String name, Supplier<?> sup,
                                                                                  Operation<RegistryObject<?>> original) {
-        Supplier<?> replacement = name.equals("archeologist_poi") ? () -> new PoiType(Set.of(), 1, 1) : supplier;
+        Supplier<?> replacement = name.equals("archeologist_poi") ? () -> new PoiType(Set.of(), 1, 1) : sup;
         return original.call(register, name, replacement);
     }
 }

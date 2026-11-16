@@ -3,7 +3,6 @@ package com.gtladd.gtladditions.client.render.machine.lighthunter
 /** Seconds, not ticks. */
 object LightHunterParadoxTiming {
     const val DURATION = 6f
-    const val ANCHORS_END = 2.1f
     const val WINDOW_START = 4.5f
     const val WINDOW_END = 5.8f
     const val ROTATION_DEGREES_PER_SECOND = 1.5f

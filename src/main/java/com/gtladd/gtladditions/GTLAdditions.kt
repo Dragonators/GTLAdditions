@@ -13,8 +13,6 @@ import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.config.ConfigHolder
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import org.apache.logging.log4j.LogManager
@@ -27,8 +25,13 @@ class GTLAdditions {
         ConfigHolder.init()
 
         val modEventBus = FMLJavaModLoadingContext.get().modEventBus
-        MinecraftForge.EVENT_BUS.register(this)
-        modEventBus.register(this)
+        modEventBus.addListener { _: MaterialRegistryEvent ->
+            GTCEuAPI.materialManager.createRegistry(MOD_ID)
+        }
+        modEventBus.addListener { _: MaterialEvent ->
+            MaterialModify.init()
+            GTLAddMaterial.init()
+        }
         GTLAddRegistration.REGISTRATE.registerEventListeners(modEventBus)
 
         modEventBus.addGenericListener(GTRecipeType::class.java) { _: GTCEuAPI.RegisterEvent<ResourceLocation, GTRecipeType> ->
@@ -37,17 +40,6 @@ class GTLAdditions {
         modEventBus.addGenericListener(MachineDefinition::class.java) { _: GTCEuAPI.RegisterEvent<ResourceLocation, MachineDefinition> ->
             GTLAddMachines.init()
         }
-    }
-
-    @SubscribeEvent
-    fun onMaterialRegistry(event: MaterialRegistryEvent) {
-        GTCEuAPI.materialManager.createRegistry(MOD_ID)
-    }
-
-    @SubscribeEvent
-    fun onMaterialRegister(event: MaterialEvent) {
-        MaterialModify.init()
-        GTLAddMaterial.init()
     }
 
     companion object {

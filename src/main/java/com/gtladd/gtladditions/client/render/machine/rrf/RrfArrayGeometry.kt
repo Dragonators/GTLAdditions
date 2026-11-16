@@ -118,13 +118,13 @@ object RrfArrayGeometry {
         val pitch = DoubleArray(CORNERS)
     }
 
-    private data class Topology(val indices: IntArray, val vertexCount: Int)
+    private class Topology(val indices: IntArray, val vertexCount: Int)
 
     private val topology by lazy {
         val draft = RrfArrayMesh(STRIDE)
         var base = 0
         repeat(RING_COUNT) { base += tubeIndices(draft, base, CORNERS, true) }
-        for (corner in 0 until CORNERS step 2) base += tubeIndices(draft, base, RING_COUNT, false)
+        repeat(CORNERS / 2) { base += tubeIndices(draft, base, RING_COUNT, false) }
         base += tubeIndices(draft, base, CORNERS, true)
 
         val core = coreTemplate

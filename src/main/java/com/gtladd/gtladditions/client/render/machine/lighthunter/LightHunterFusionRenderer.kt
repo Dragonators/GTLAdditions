@@ -36,10 +36,10 @@ object LightHunterFusionRenderer {
             LightHunterFusionGeometry.EXTENT
         )
 
-    class Meshes @JvmOverloads constructor(resources: ResourceProvider? = null) : AutoCloseable {
+    class Meshes : AutoCloseable {
         private val builder by lazy { BufferBuilder(1024) }
         private var volume: VertexBuffer? = null
-        private val field = LightHunterFusionFieldCache(resources)
+        private val field = LightHunterFusionFieldCache()
 
         fun setResources(provider: ResourceProvider) {
             close()

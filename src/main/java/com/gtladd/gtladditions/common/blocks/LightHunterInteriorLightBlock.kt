@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.RenderShape
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
+import net.minecraft.world.level.block.state.properties.DirectionProperty
 import net.minecraft.world.level.block.state.properties.IntegerProperty
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.Shapes
@@ -60,13 +61,11 @@ class LightHunterInteriorLightBlock(properties: Properties) : Block(properties) 
     }
 
     companion object {
-        val FACING = BlockStateProperties.HORIZONTAL_FACING
+        val FACING: DirectionProperty = BlockStateProperties.HORIZONTAL_FACING
         val SLOT: IntegerProperty = IntegerProperty.create("slot", 0, LightHunterInteriorLayout.LIGHT_COUNT - 1)
 
-        @JvmStatic
         fun lightLevel(state: BlockState): Int = LightHunterInteriorLayout.lightLevel(state.getValue(SLOT))
 
-        @JvmStatic
         fun ownerPosition(state: BlockState, pos: BlockPos): BlockPos =
             pos.subtract(LightHunterInteriorLayout.lightOffset(state.getValue(SLOT), state.getValue(FACING)))
     }

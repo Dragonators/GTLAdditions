@@ -19,8 +19,8 @@ public abstract class MEPatternBufferPartMachineBaseMixin {
                             remap = true),
                    remap = false,
                    require = 1)
-    private void gtladditions$clearSuperBinding(CompoundTag tag, String key, int[] position, Operation<Void> original) {
+    private void gtladditions$clearSuperBinding(CompoundTag tag, String key, int[] value, Operation<Void> original) {
         if ("pos".equals(key) && tag.contains("superPos", Tag.TAG_INT_ARRAY)) tag.remove("superPos");
-        original.call(tag, key, position);
+        original.call(tag, key, value);
     }
 }

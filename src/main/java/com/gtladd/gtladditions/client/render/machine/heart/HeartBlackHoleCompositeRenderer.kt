@@ -12,7 +12,6 @@ internal object HeartBlackHoleCompositeRenderer {
     private val IDENTITY_MATRIX = Matrix4f()
     private val BLOOM_SAMPLERS = arrayOf("BloomSampler", "BloomSampler1", "BloomSampler2", "BloomSampler3", "BloomSampler4")
 
-    @JvmOverloads
     fun renderPendingComposite(
         width: Int,
         height: Int,

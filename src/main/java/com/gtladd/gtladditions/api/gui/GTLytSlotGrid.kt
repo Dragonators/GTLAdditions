@@ -250,7 +250,7 @@ class GTLytSlotGrid(private val width: Int, private val itemHeight: Int, fluidHe
             val list = ObjectArrayList<Component>()
             list.add(FluidHelper.getDisplayName(fluidStack))
             TooltipsHandler.appendFluidTooltips(fluidStack.fluid, fluidStack.amount, list::add, null)
-            return list.stream().map { it.visualOrderText }.map { ClientTooltipComponent.create(it) }.toList()
+            return list.map { ClientTooltipComponent.create(it.visualOrderText) }.toMutableList()
         }
 
         override fun getIcon(): ItemStack = fluidStack.fluid.bucket.defaultInstance

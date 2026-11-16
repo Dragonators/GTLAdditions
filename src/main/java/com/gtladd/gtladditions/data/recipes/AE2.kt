@@ -23,7 +23,7 @@ object AE2 {
             .circuitMeta(3)
             .outputItems(getItemStack("ae2:singularity", 9))
             .EUt(GTValues.VA[10].toLong()).duration(1).save(provider)
-        ALLOY_SMELTER_RECIPES.recipeBuilder(GTLAdditions.id("quartz_glassquartz_glass"))
+        ALLOY_SMELTER_RECIPES.recipeBuilder(GTLAdditions.id("quartz_glass"))
             .inputItems(createItemTag("glass"))
             .inputItems(dust, CertusQuartz)
             .outputItems(getItemStack("ae2:quartz_glass"))

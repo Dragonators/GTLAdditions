@@ -17,7 +17,8 @@ import org.lwjgl.opengl.GL33C
 import org.lwjgl.opengl.GL42C
 import org.lwjgl.opengl.GL43C
 
-class LightHunterPlasmaFieldCache(private var resources: ResourceProvider? = null) : AutoCloseable {
+class LightHunterPlasmaFieldCache : AutoCloseable {
+    private var resources: ResourceProvider? = null
     private var program = 0
     private val fields = ArrayList<Field>(MAX_FIELDS)
     private var timeUniform = -1

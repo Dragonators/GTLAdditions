@@ -13,28 +13,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class FrameOverlayLevelRendererMixin {
 
     @Inject(method = "setSectionDirty(IIIZ)V", at = @At("HEAD"))
-    private void gtladditions$section(int x, int y, int z, boolean important, CallbackInfo ci) {
-        FrameOverlayRenderer.dirtySection(x, y, z);
+    private void gtladditions$section(int sectionX, int sectionY, int sectionZ, boolean reRenderOnMainThread, CallbackInfo ci) {
+        FrameOverlayRenderer.dirtySection(sectionX, sectionY, sectionZ);
     }
 
     // Embeddium overwrites these entry points and bypasses vanilla's nested calls.
     // The renderer deduplicates section keys from either backend.
     @Inject(method = "setBlocksDirty", at = @At("HEAD"))
-    private void gtladditions$area(int x0, int y0, int z0, int x1, int y1, int z1, CallbackInfo ci) {
-        FrameOverlayRenderer.dirtyArea(x0, y0, z0, x1, y1, z1);
+    private void gtladditions$area(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, CallbackInfo ci) {
+        FrameOverlayRenderer.dirtyArea(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     @Inject(method = "setBlockDirty(Lnet/minecraft/core/BlockPos;Z)V", at = @At("HEAD"))
-    private void gtladditions$block(BlockPos pos, boolean important, CallbackInfo ci) {
+    private void gtladditions$block(BlockPos pos, boolean reRenderOnMainThread, CallbackInfo ci) {
         FrameOverlayRenderer.dirtyArea(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1,
                 pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
     }
 
     @Inject(method = "setSectionDirtyWithNeighbors", at = @At("HEAD"))
-    private void gtladditions$neighbors(int x, int y, int z, CallbackInfo ci) {
-        for (int sx = x - 1; sx <= x + 1; sx++) {
-            for (int sy = y - 1; sy <= y + 1; sy++) {
-                for (int sz = z - 1; sz <= z + 1; sz++) FrameOverlayRenderer.dirtySection(sx, sy, sz);
+    private void gtladditions$neighbors(int sectionX, int sectionY, int sectionZ, CallbackInfo ci) {
+        for (int sx = sectionX - 1; sx <= sectionX + 1; sx++) {
+            for (int sy = sectionY - 1; sy <= sectionY + 1; sy++) {
+                for (int sz = sectionZ - 1; sz <= sectionZ + 1; sz++) FrameOverlayRenderer.dirtySection(sx, sy, sz);
             }
         }
     }

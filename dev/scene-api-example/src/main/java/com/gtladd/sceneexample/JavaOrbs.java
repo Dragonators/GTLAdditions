@@ -53,7 +53,7 @@ final class JavaOrbs {
         SceneFrame frame = context.getFrame();
         PoseStack pose = context.getPoseStack();
         // Non-null here: the parts declare SCENE_DEPTH and are translucent.
-        context.getSceneDepth().bind(shader);
+        java.util.Objects.requireNonNull(context.getSceneDepth()).bind(shader);
         shader.safeGetUniform("Phase").set((float) (frame.getRenderTicks() * 0.1));
         VertexBuffer mesh = Meshes.sphere();
         mesh.bind();

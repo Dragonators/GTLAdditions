@@ -18,7 +18,7 @@ object MatrixIrisStarGeometry {
     private const val TAU = PI * 2
     private const val DEG = PI / 180
 
-    data class Primitive(val a: FloatArray, val b: FloatArray, val c: FloatArray, val d: FloatArray)
+    class Primitive(val a: FloatArray, val b: FloatArray, val c: FloatArray, val d: FloatArray)
 
     data class Beam(val x: Float, val y: Float, val group: Int)
 

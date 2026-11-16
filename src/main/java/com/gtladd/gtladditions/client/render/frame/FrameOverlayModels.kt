@@ -93,7 +93,7 @@ object FrameOverlayModels {
         if (bases.isEmpty()) return false
 
         var found = false
-        for (side in Direction.values().toList() + listOf(null)) {
+        for (side in Direction.entries + listOf(null)) {
             val opaque = bases.flatMap { model.getQuads(state, side, random, ModelData.EMPTY, it) }
             for (overlay in model.getQuads(state, side, random, ModelData.EMPTY, RenderType.translucent())) {
                 found = true
@@ -139,7 +139,7 @@ object FrameOverlayModels {
         return true
     }
 
-    private data class Mask(val width: Int, val height: Int, val visible: BooleanArray, val opaque: BooleanArray, val binaryStable: Boolean)
+    private class Mask(val width: Int, val height: Int, val visible: BooleanArray, val opaque: BooleanArray, val binaryStable: Boolean)
 
     private fun mask(sprite: SpriteContents): Mask {
         val width = sprite.width()

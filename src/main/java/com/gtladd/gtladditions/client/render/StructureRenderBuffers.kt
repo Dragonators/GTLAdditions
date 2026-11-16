@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-/** Shared terrain builders; callers retain their own geometry, vertex order and transforms. */
 @OnlyIn(Dist.CLIENT)
 object StructureRenderBuffers {
     // 1.20.1 never frees BufferBuilder memory; builder sets live for the process and serve one batch at a time.
@@ -82,7 +81,7 @@ object StructureRenderBuffers {
             flushOpaque()
         }
 
-        fun draw(pose: PoseStack.Pose, shades: FloatArray, batchShader: Boolean = false) {
+        fun draw(pose: PoseStack.Pose, shades: FloatArray, batchShader: Boolean) {
             val color = RenderSystem.getShaderColor()
             val red = color[0]
             val green = color[1]

@@ -57,7 +57,7 @@ class SliderTextFieldWidget(
         this.textField.setCurrentString(value)
         this.onChange.accept(value)
         if (Minecraft.getInstance().isSameThread) {
-            if (!slider.widgets.isEmpty()) {
+            if (slider.widgets.isNotEmpty()) {
                 val sliderKnob = slider.widgets[0]
                 val newPos = ((currentValue - minValue) * 1.0 / (maxValue - minValue) * (sizeWidth - 4)).toInt()
                 sliderKnob.setSelfPosition(Position(newPos, 0))

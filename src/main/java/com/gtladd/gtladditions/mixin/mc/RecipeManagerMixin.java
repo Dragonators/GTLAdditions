@@ -20,11 +20,11 @@ public abstract class RecipeManagerMixin {
     @Inject(
             method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
             at = @At("HEAD"))
-    private void filterRecipes(Map<ResourceLocation, JsonElement> map,
-                               ResourceManager rm,
+    private void filterRecipes(Map<ResourceLocation, JsonElement> object,
+                               ResourceManager resourceManager,
                                ProfilerFiller profiler,
                                CallbackInfo ci) {
-        map.entrySet().removeIf(e -> StargateContent.isDisabledRecipe(e.getKey(), e.getValue()) ||
+        object.entrySet().removeIf(e -> StargateContent.isDisabledRecipe(e.getKey(), e.getValue()) ||
                 e.getKey().getPath().equals("endless_cake") ||
                 e.getKey().getPath().equals("ultimate_stew") ||
                 e.getKey().getPath().equals("infinity_bucket"));

@@ -55,7 +55,7 @@ open class GTLAddWorkableElectricMultipleRecipesMachine(holder: IMachineBlockEnt
 
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
         super.attachConfigurators(configuratorPanel)
-        createConfigurators()?.let { it -> configuratorPanel.attachConfigurators(it) }
+        createConfigurators()?.let { configuratorPanel.attachConfigurators(it) }
     }
 
     override fun addDisplayText(textList: MutableList<Component?>) {

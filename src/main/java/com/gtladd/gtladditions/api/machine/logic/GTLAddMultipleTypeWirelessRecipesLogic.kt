@@ -35,9 +35,7 @@ open class GTLAddMultipleTypeWirelessRecipesLogic : GTLAddMultipleWirelessRecipe
     override fun lookupRecipeIterator(): Set<GTRecipe> = if (isLock) {
         when {
             lockRecipe == null -> {
-                lockRecipe = machine.recipeTypes.asSequence()
-                    .mapNotNull { it.lookup.find(machine, this::checkRecipe) }
-                    .firstOrNull()
+                lockRecipe = machine.recipeTypes.firstNotNullOfOrNull { it.lookup.find(machine, this::checkRecipe) }
                 lockRecipe?.let { Collections.singleton(it) } ?: emptySet()
             }
             checkRecipe(lockRecipe) -> Collections.singleton(lockRecipe)

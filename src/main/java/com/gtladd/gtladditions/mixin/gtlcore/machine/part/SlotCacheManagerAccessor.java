@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface SlotCacheManagerAccessor {
 
     @Accessor("itemBestMatchCache")
-    Object2ObjectMap<Ingredient, AEItemKey> getItemMatches();
+    Object2ObjectMap<Ingredient, AEItemKey> getItemBestMatchCache();
 
     @Accessor("fluidBestMatchCache")
-    Object2ObjectMap<FluidIngredient, AEFluidKey> getFluidMatches();
+    Object2ObjectMap<FluidIngredient, AEFluidKey> getFluidBestMatchCache();
 }

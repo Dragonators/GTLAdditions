@@ -6,7 +6,6 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.renderer.ShaderInstance
 
 internal object HeartBlackHoleBlurRenderer {
-    @JvmOverloads
     fun render(
         input: RenderTarget,
         blurred: RenderTarget,

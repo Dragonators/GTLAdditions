@@ -42,11 +42,10 @@ internal object DimensionFocusPocketTextures {
 
     fun invalidate() = slot.invalidate()
 
-    @Throws(IOException::class)
-    fun read(resources: ResourceProvider): Prepared =
+    private fun read(resources: ResourceProvider): Prepared =
         Prepared(readCube(resources, "veil_near"), readCube(resources, "veil_deep"), readNoise(resources))
 
-    fun load(prepared: Prepared) {
+    private fun load(prepared: Prepared) {
         val created = ArrayList<Int>(3)
         val next = try {
             val near = uploadCube(prepared.gasNear).also(created::add)
@@ -60,7 +59,6 @@ internal object DimensionFocusPocketTextures {
         slot.publish(next)
     }
 
-    @Throws(IOException::class)
     private fun readCube(resources: ResourceProvider, name: String): List<ByteArray> = FACES.map { face ->
         resources.getResourceOrThrow(GTLAdditions.id("textures/effect/dimension_focus/${name}_$face.png")).open().use { input ->
             NativeImage.read(NativeImage.Format.RGBA, input).use { image ->
@@ -76,7 +74,6 @@ internal object DimensionFocusPocketTextures {
         }
     }
 
-    @Throws(IOException::class)
     private fun readNoise(resources: ResourceProvider): ByteArray {
         val bytes = resources.getResourceOrThrow(NOISE).open().use { GZIPInputStream(it).readAllBytes() }
         if (bytes.size != NOISE_SIZE * NOISE_SIZE * NOISE_SIZE * 3) throw IOException("Incorrect Dimension Focus noise size")
@@ -168,7 +165,7 @@ internal object DimensionFocusPocketTextures {
         }
     }
 
-    class Prepared(val gasNear: List<ByteArray>, val gasDeep: List<ByteArray>, val noise: ByteArray)
+    private class Prepared(val gasNear: List<ByteArray>, val gasDeep: List<ByteArray>, val noise: ByteArray)
 
     class Loaded(val noise: Int, val gasNear: Int, val gasDeep: Int) : AutoCloseable {
         override fun close() {

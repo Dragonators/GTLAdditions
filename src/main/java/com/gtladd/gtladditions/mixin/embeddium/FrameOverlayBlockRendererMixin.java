@@ -1,14 +1,11 @@
 package com.gtladd.gtladditions.mixin.embeddium;
 
-import net.minecraft.world.phys.Vec3;
-
 import com.gtladd.gtladditions.client.render.frame.FrameOverlayModels;
 import com.gtladd.gtladditions.client.render.frame.FrameOverlayTerrainPass;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import me.jellysquid.mods.sodium.client.model.light.data.QuadLightData;
+import com.llamalad7.mixinextras.sugar.Local;
 import me.jellysquid.mods.sodium.client.model.quad.BakedQuadView;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
 import me.jellysquid.mods.sodium.client.render.chunk.vertex.builder.ChunkMeshBufferBuilder;
@@ -27,17 +24,16 @@ public abstract class FrameOverlayBlockRendererMixin {
                    at = @At(value = "INVOKE",
                             target = "Lme/jellysquid/mods/sodium/client/render/chunk/vertex/builder/ChunkMeshBufferBuilder;push([Lme/jellysquid/mods/sodium/client/render/chunk/vertex/format/ChunkVertexEncoder$Vertex;Lme/jellysquid/mods/sodium/client/render/chunk/terrain/material/Material;)V"))
     private void gtladditions$routeFrameOverlay(ChunkMeshBufferBuilder originalBuffer,
-                                                ChunkVertexEncoder.Vertex[] vertices, Material originalMaterial,
+                                                ChunkVertexEncoder.Vertex[] vertices, Material material,
                                                 Operation<Void> original,
-                                                BlockRenderContext context, ChunkModelBuilder builder, Vec3 offset,
-                                                Material material, BakedQuadView quad, int[] colors,
-                                                QuadLightData light) {
+                                                @Local(argsOnly = true) BlockRenderContext ctx,
+                                                @Local(argsOnly = true) BakedQuadView quad) {
         var chunk = GlobalChunkBuildContext.get();
-        if (chunk != null && FrameOverlayModels.separate(context.state(), context.model(), context.renderLayer())) {
+        if (chunk != null && FrameOverlayModels.separate(ctx.state(), ctx.model(), ctx.renderLayer())) {
             chunk.buffers.get(FrameOverlayTerrainPass.PASS).getVertexBuffer(quad.getNormalFace())
                     .push(vertices, FrameOverlayTerrainPass.MATERIAL);
         } else {
-            original.call(originalBuffer, vertices, originalMaterial);
+            original.call(originalBuffer, vertices, material);
         }
     }
 }

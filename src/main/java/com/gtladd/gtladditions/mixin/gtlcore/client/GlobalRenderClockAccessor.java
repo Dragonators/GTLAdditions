@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface GlobalRenderClockAccessor {
 
     @Invoker(value = "getElapsedNanos", remap = false)
-    static long getElapsedNanos() {
+    static long invokeGetElapsedNanos() {
         throw new AssertionError();
     }
 }

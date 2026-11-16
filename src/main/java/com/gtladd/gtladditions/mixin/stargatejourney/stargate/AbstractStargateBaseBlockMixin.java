@@ -18,8 +18,8 @@ import java.util.List;
 public abstract class AbstractStargateBaseBlockMixin {
 
     @Inject(method = "appendHoverText", at = @At("TAIL"))
-    private void gtladditions$hideEnergyTooltip(ItemStack stack, BlockGetter level, List<Component> tooltip, TooltipFlag flag, CallbackInfo ci) {
-        tooltip.removeIf(component -> component.getContents() instanceof TranslatableContents text &&
+    private void gtladditions$hideEnergyTooltip(ItemStack stack, BlockGetter getter, List<Component> tooltipComponents, TooltipFlag isAdvanced, CallbackInfo ci) {
+        tooltipComponents.removeIf(component -> component.getContents() instanceof TranslatableContents text &&
                 text.getKey().equals("tooltip.sgjourney.energy"));
     }
 }

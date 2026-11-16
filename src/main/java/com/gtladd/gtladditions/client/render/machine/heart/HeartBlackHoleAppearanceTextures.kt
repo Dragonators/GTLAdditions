@@ -20,7 +20,6 @@ internal object HeartBlackHoleAppearanceTextures {
     private const val GALAXY_WIDTH = 2048
     private const val GALAXY_HEIGHT = 1024
 
-    @Throws(IOException::class)
     fun readResources(resources: ResourceProvider): PreparedTextures {
         val noise = resources.getResourceOrThrow(NOISE_RESOURCE).open().use { input ->
             NativeImage.read(NativeImage.Format.RGBA, input).use { image ->
@@ -37,8 +36,7 @@ internal object HeartBlackHoleAppearanceTextures {
         return PreparedTextures(noise, galaxy)
     }
 
-    @Throws(IOException::class)
-    fun readGalaxy(input: InputStream): TextureData {
+    private fun readGalaxy(input: InputStream): TextureData {
         val expected = 8 + GALAXY_WIDTH * GALAXY_HEIGHT * Int.SIZE_BYTES
         val bytes = HeartTextureCodec.read(input, GALAXY_WIDTH, GALAXY_HEIGHT, 1)
         val data = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)

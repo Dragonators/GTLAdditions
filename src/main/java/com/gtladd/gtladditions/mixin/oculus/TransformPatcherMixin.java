@@ -27,7 +27,7 @@ public abstract class TransformPatcherMixin {
 
     @Inject(method = "patchVanilla", at = @At("RETURN"), cancellable = true)
     private static void gtladditions$useModelNormalForFoliageClassification(String name, String vertex, String geometry, String tessControl, String tessEval, String fragment,
-                                                                            net.irisshaders.iris.gl.blending.AlphaTest alpha, boolean lines, boolean chunkOffset,
+                                                                            net.irisshaders.iris.gl.blending.AlphaTest alpha, boolean isLines, boolean hasChunkOffset,
                                                                             net.irisshaders.iris.gl.state.ShaderAttributeInputs inputs,
                                                                             it.unimi.dsi.fastutil.objects.Object2ObjectMap<?, ?> textureMap,
                                                                             CallbackInfoReturnable<Map<PatchShaderType, String>> cir) {

@@ -32,8 +32,8 @@ public abstract class AbstractStargateEntityMixin {
     }
 
     @Inject(method = "getCapability", at = @At("HEAD"), cancellable = true, remap = false)
-    private <T> void gtladditions$hideEnergyCapability(Capability<T> cap, Direction side, CallbackInfoReturnable<LazyOptional<T>> cir) {
-        if (cap == ForgeCapabilities.ENERGY) cir.setReturnValue(LazyOptional.empty());
+    private <T> void gtladditions$hideEnergyCapability(Capability<T> capability, Direction side, CallbackInfoReturnable<LazyOptional<T>> cir) {
+        if (capability == ForgeCapabilities.ENERGY) cir.setReturnValue(LazyOptional.empty());
     }
 
     @Inject(method = { "getEnergyCapacity", "getMaxEnergyReceive", "getMaxEnergyExtract", "getMaxEnergyDeplete" },

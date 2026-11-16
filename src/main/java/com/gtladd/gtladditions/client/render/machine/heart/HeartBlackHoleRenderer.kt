@@ -16,6 +16,8 @@ import org.joml.Vector3f
 import org.joml.Vector4f
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL14C
+import kotlin.math.IEEErem
+import kotlin.math.PI
 import kotlin.math.sin
 
 @OnlyIn(Dist.CLIENT)
@@ -244,7 +246,7 @@ object HeartBlackHoleRenderer {
         return if (axis == PITCH_AXIS) {
             (sin(angle) * HeartBlackHoleVisualConfig.BLACK_HOLE_VERTICAL_ROTATION_LIMIT).toFloat()
         } else {
-            Math.IEEEremainder(angle, 2 * Math.PI).toFloat()
+            angle.IEEErem(2 * PI).toFloat()
         }
     }
 
@@ -477,7 +479,7 @@ object HeartBlackHoleRenderer {
             val profile = command.profile
             volumeProxyRadius?.set(command.volumeProxyRadius)
             animationPhase?.set(
-                Math.IEEEremainder(profile.tick / 20.0 * 0.002, 2 * Math.PI).toFloat(),
+                (profile.tick / 20.0 * 0.002).IEEErem(2 * PI).toFloat(),
                 ((profile.tick / 20.0 * (profile.rotationSpeed / 0.3f)) % 12.0).toFloat()
             )
             center?.set(

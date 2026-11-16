@@ -13,12 +13,10 @@ import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
-import me.jellysquid.mods.sodium.client.render.texture.SpriteUtil
 import net.irisshaders.iris.api.v0.IrisApi
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.core.BlockPos
 import net.minecraft.core.SectionPos
 import net.minecraft.world.level.ChunkPos
@@ -35,8 +33,6 @@ import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.ModList
 import net.minecraftforge.fml.common.Mod
-import java.util.Collections
-import java.util.IdentityHashMap
 import java.util.PriorityQueue
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.abs
@@ -241,7 +237,7 @@ object FrameOverlayRenderer {
                     if (active.quads > 0) {
                         meshes.put(
                             active.key,
-                            Mesh(active.key, RenderUtils.uploadStaticBuffer(active.buffer), active.sprites.toTypedArray())
+                            Mesh(active.key, RenderUtils.uploadStaticBuffer(active.buffer))
                         )
                     } else {
                         active.buffer.end().release()
@@ -283,8 +279,6 @@ object FrameOverlayRenderer {
                         for (mesh in meshes.values) {
                             if (abs(mesh.x - cx) > radius || abs(mesh.z - cz) > radius || !event.frustum.isVisible(mesh.bounds)) continue
 
-                            // These sprites no longer belong to Embeddium's terrain meshes.
-                            if (embeddium) mesh.sprites.forEach(SpriteUtil::markSpriteActive)
                             event.poseStack.withPose {
                                 translate(mesh.x * 16.0 - camera.x, mesh.y * 16.0 - camera.y, mesh.z * 16.0 - camera.z)
                                 RenderUtils.withBoundBuffer(mesh.buffer) {
@@ -302,7 +296,7 @@ object FrameOverlayRenderer {
 
     private data class Pending(val key: Long, val distance: Double)
 
-    private class Mesh(key: Long, val buffer: VertexBuffer, val sprites: Array<TextureAtlasSprite>) {
+    private class Mesh(key: Long, val buffer: VertexBuffer) {
         val x = SectionPos.x(key)
         val y = SectionPos.y(key)
         val z = SectionPos.z(key)
@@ -312,7 +306,6 @@ object FrameOverlayRenderer {
     private class Job(val key: Long, val section: LevelChunkSection, val buffer: BufferBuilder, val baker: StructureBlockLighting.Baker) {
         var cursor = 0
         var quads = 0
-        val sprites: MutableSet<TextureAtlasSprite> = Collections.newSetFromMap(IdentityHashMap())
 
         private val origin = BlockPos(SectionPos.x(key) * 16, SectionPos.y(key) * 16, SectionPos.z(key) * 16)
         private val position = BlockPos.MutableBlockPos()
@@ -337,7 +330,6 @@ object FrameOverlayRenderer {
                 translate(x + offset.x, y + offset.y, z + offset.z)
                 lit.forEach {
                     it.write(buffer, last())
-                    sprites.add(it.quad.sprite)
                 }
             }
 

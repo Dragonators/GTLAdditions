@@ -41,7 +41,6 @@ import org.joml.Matrix4f
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import org.lwjgl.opengl.GL13C
-import java.util.function.Supplier
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -65,9 +64,8 @@ object ArcanicAstrographStarRenderer {
         val alpha = argb ushr 24 and 255
         val renderType = GTLAddRenderTypes.createAstrographStarLayer(
             GTLAdditions.id(texturePath),
-            additive,
-            Supplier { shader() }
-        )
+            additive
+        ) { shader() }
 
         fun shader(): ShaderInstance? = if (additive) glowShader else surfaceShader
     }
@@ -285,9 +283,9 @@ object ArcanicAstrographStarRenderer {
     }
 
     private fun cachedBufferSource(consumer: VertexConsumer, type: RenderType): MultiBufferSource.BufferSource? {
-        val source = Minecraft.getInstance()?.renderBuffers()?.bufferSource() ?: return null
+        val source = Minecraft.getInstance().renderBuffers().bufferSource()
         val access = source as? BufferSourceAccessor ?: return null
-        return source.takeIf { access.activeRenderType.orElse(null) === type && access.getRawBuffer(type) === consumer }
+        return source.takeIf { access.lastState.orElse(null) === type && access.invokeGetBuilderRaw(type) === consumer }
     }
 
     private inline fun forEachStarLayer(
@@ -302,7 +300,7 @@ object ArcanicAstrographStarRenderer {
             for (index in layers) {
                 val (material, radius, phaseDegrees, degreesPerTick, axis) = starLayers[index]
                 withPose {
-                    val angle = Math.toRadians((phaseDegrees + tick.toDouble() * degreesPerTick) % 360.0).toFloat()
+                    val angle = Math.toRadians((phaseDegrees + tick * degreesPerTick) % 360.0).toFloat()
                     mulPose(layerRotation.rotationAxis(angle, axis))
                     scale(radius, radius, radius)
                     draw(this, material)

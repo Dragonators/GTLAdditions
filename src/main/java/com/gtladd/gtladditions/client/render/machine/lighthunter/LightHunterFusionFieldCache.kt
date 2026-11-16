@@ -18,7 +18,8 @@ import org.lwjgl.opengl.GL43C
 import kotlin.math.abs
 import kotlin.math.floor
 
-class LightHunterFusionFieldCache(private var resources: ResourceProvider? = null) : AutoCloseable {
+class LightHunterFusionFieldCache : AutoCloseable {
+    private var resources: ResourceProvider? = null
     private var program = 0
     private val fields = ArrayList<Field>(MAX_FIELDS)
     private var firstCellUniform = -1
@@ -139,7 +140,7 @@ class LightHunterFusionFieldCache(private var resources: ResourceProvider? = nul
         val delta = if (previousOrigin == null) AXIAL.toLong() else originCell.toLong() - previousOrigin.toLong()
         val partial = previousOrigin != null && abs(delta) < AXIAL
         val count = if (partial) abs(delta).toInt() else AXIAL
-        val first = if (partial && delta > 0) previousOrigin!! + AXIAL else originCell
+        val first = if (partial && delta > 0) previousOrigin + AXIAL else originCell
         val activeTexture = GL11C.glGetInteger(GL13C.GL_ACTIVE_TEXTURE)
         val previousProgram = GL11C.glGetInteger(GL20C.GL_CURRENT_PROGRAM)
         val image = GL30C.glGetIntegeri(GL42C.GL_IMAGE_BINDING_NAME, 0)

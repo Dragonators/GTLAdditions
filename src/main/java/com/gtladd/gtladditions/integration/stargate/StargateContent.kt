@@ -56,17 +56,13 @@ object StargateContent {
         "naquadah_heavy_liquidizing"
     )
 
-    @JvmStatic
     fun isDisabledItem(id: ResourceLocation?): Boolean = id?.namespace == NAMESPACE && id.path in disabledItems
 
-    @JvmStatic
     fun isDisabledItem(item: Item): Boolean = isDisabledItem(ForgeRegistries.ITEMS.getKey(item))
 
-    @JvmStatic
     fun isDisabledFluid(id: ResourceLocation?): Boolean =
         id?.namespace == NAMESPACE && id.path in disabledFluids
 
-    @JvmStatic
     fun isDisabledFluid(fluid: Fluid): Boolean = isDisabledFluid(ForgeRegistries.FLUIDS.getKey(fluid))
 
     @JvmStatic

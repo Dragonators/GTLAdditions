@@ -3,9 +3,9 @@ package com.gtladd.gtladditions.client.render.machine.matrix
 import kotlin.math.sqrt
 
 object MatrixFrameDetails {
-    data class SolidQuad(val vertices: FloatArray, val normal: FloatArray, val color: FloatArray)
+    class SolidQuad(val vertices: FloatArray, val normal: FloatArray, val color: FloatArray)
 
-    data class GlowQuad(val vertices: FloatArray, val color: FloatArray, val alpha: Float)
+    class GlowQuad(val vertices: FloatArray, val color: FloatArray, val alpha: Float)
 
     data class Details(val panels: List<SolidQuad>, val lights: List<GlowQuad>)
 

@@ -17,9 +17,9 @@ public abstract class SceneViewMixin {
     // Batches flushed after AFTER_BLOCK_ENTITIES (water masks, translucent item sheets) have written depth by now.
     // Embeddium's renderChunkLayer overwrite keeps the HEAD injection.
     @Inject(method = "renderChunkLayer", at = @At("HEAD"))
-    private void gtladditions$beforeChunkLayer(RenderType type, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projection,
+    private void gtladditions$beforeChunkLayer(RenderType renderType, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projectionMatrix,
                                                CallbackInfo ci) {
-        if (type == RenderType.translucent()) SceneScheduler.INSTANCE.beforeTranslucentTerrain();
+        if (renderType == RenderType.translucent()) SceneScheduler.INSTANCE.beforeTranslucentTerrain();
     }
 
     // Both call sites (Fabulous with the weather target bound, and the other branch after depthMask(false)): rain stays

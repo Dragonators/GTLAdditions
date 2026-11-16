@@ -14,8 +14,8 @@ import java.util.Optional;
 public interface BufferSourceAccessor {
 
     @Accessor("lastState")
-    Optional<RenderType> getActiveRenderType();
+    Optional<RenderType> getLastState();
 
     @Invoker("getBuilderRaw")
-    BufferBuilder getRawBuffer(RenderType type);
+    BufferBuilder invokeGetBuilderRaw(RenderType type);
 }

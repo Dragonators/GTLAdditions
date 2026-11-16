@@ -66,7 +66,7 @@ class SpaceElevatorMKIIRenderer :
                 0.0f,
                 255.0f
             )
-            translate(x, y + 230.0 + 140.0 * sin((tick / 160.0f).toDouble()), z)
+            translate(x, y + 230.0 + 140.0 * sin(tick / 160.0f), z)
             renderClimber(this, buffer)
         }
     }

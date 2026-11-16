@@ -32,7 +32,7 @@ object AntichristBeamRenderer {
     private const val MAX_SEGMENTS = 10
     private const val SEGMENT_QUADS = 16
     private const val ENDPOINT_FLOATS = (MAX_SEGMENTS + 1) * 3
-    private const val PI = 3.1415926535897f
+    private const val PI = 3.1415927f
     private const val ALPHA_PACK_SCALE = 10000.0f
     private const val BACK_PLATE_DISTANCE = -121.5f
     private const val BACK_PLATE_RADIUS = 13.0f
@@ -445,7 +445,7 @@ object AntichristBeamRenderer {
             .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()) and 0xFFFF
 
     private fun getVertexAngle(quadId: Int, localId: Int, cameraAngle: Float): Float {
-        val idOffset = if (localId > 1 && localId < 5) 0 else 1
+        val idOffset = if (localId in 2..4) 0 else 1
         return (PI * (quadId + idOffset).toFloat()) / SEGMENT_QUADS.toFloat() + (cameraAngle - PI / 2.0f)
     }
 

@@ -10,10 +10,8 @@ object MatrixEffectGeometry {
     const val ENERGY_CORE_LAYER_INDEX = 3
     const val BEAM_RADIUS = 1.25f
     const val BEAM_HEIGHT = 1024.0f
-    const val IDLE_BEAM_ALPHA = 0.18f
-    const val ACTIVE_BEAM_ALPHA = 0.8f
 
-    data class Layer(
+    class Layer(
         val side: Float,
         val thickness: Float,
         val angles: FloatArray,

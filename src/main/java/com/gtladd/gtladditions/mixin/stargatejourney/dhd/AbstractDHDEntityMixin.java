@@ -44,7 +44,7 @@ public abstract class AbstractDHDEntityMixin extends EnergyBlockEntity {
     }
 
     @Inject(method = "outputEnergy", at = @At("HEAD"), cancellable = true, remap = false)
-    private void gtladditions$disableEnergyTransfer(Direction direction, CallbackInfo ci) {
+    private void gtladditions$disableEnergyTransfer(Direction outputDirection, CallbackInfo ci) {
         ci.cancel();
     }
 

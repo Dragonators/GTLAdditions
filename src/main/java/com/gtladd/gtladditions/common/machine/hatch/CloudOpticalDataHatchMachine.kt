@@ -47,10 +47,8 @@ class CloudOpticalDataHatchMachine(holder: IMachineBlockEntity) :
     override fun onDataStickLeftClick(player: Player, stack: ItemStack): Boolean =
         CloudTeamUtil.unbindFromDataStick(this, player)
 
-    override fun isRecipeAvailable(recipe: GTRecipe, seen: MutableCollection<IDataAccessHatch>): Boolean {
-        if (!seen.add(this)) return false
-        return CloudNetworkManager.isRecipeAvailableInCloud(recipe, teamId)
-    }
+    override fun isRecipeAvailable(recipe: GTRecipe, seen: MutableCollection<IDataAccessHatch>): Boolean =
+        seen.add(this) && CloudNetworkManager.isRecipeAvailableInCloud(recipe, teamId)
 
     override fun modifyRecipe(recipe: GTRecipe): GTRecipe? {
         if (recipe.conditions.none { it is ResearchCondition }) return recipe

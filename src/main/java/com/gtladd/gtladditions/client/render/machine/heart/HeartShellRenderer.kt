@@ -62,6 +62,8 @@ import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.ln
+import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -537,7 +539,7 @@ object HeartShellRenderer : PartRenderer<HeartShellRenderer.Overlay> {
         val shells = shellData() ?: return parts.forEach { context.report(it, PartOutcome.RESOURCE_UNAVAILABLE) }
         if (!ready()) return parts.forEach { context.report(it, PartOutcome.PENDING) }
         val frame = context.frame
-        val kappa = Math.log(2.0) / Math.pow(Math.sin(PI / 2 * minOf(LENGTH / GAP, 1.0)), 2.0)
+        val kappa = ln(2.0) / sin(PI / 2 * minOf(LENGTH / GAP, 1.0)).pow(2.0)
         RenderUtils.withSavedRenderState {
             premultiplied()
             RenderSystem.depthMask(false)

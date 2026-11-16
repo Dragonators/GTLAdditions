@@ -10,7 +10,7 @@ import io.github.douira.glsl_transformer.parser.ParseShape
 /** The classifier is Complementary/Euphoria's automatic cross-model foliage detection. */
 object IrisTerrainShaderCompat {
     private const val MODEL_NORMAL = "gtladditions_ModelGeoNormal"
-    private val crossModel = AutoHintedMatcher<Expression>(classifier("worldGeoNormal"), ParseShape.EXPRESSION)
+    private val crossModel = AutoHintedMatcher(classifier("worldGeoNormal"), ParseShape.EXPRESSION)
 
     data class Sources(val vertex: String, val fragment: String)
 

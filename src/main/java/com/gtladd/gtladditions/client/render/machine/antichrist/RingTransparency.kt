@@ -24,7 +24,7 @@ import java.util.Arrays
 
 @OnlyIn(Dist.CLIENT)
 object RingTransparency {
-    data class Instance(val transforms: Array<Matrix4f>, val shades: Array<FloatArray>)
+    class Instance(val transforms: Array<Matrix4f>, val shades: Array<FloatArray>)
 
     private var sources: List<Buffer> = emptyList()
     private var baseQuads = 0
@@ -184,8 +184,7 @@ object RingTransparency {
         }
 
         companion object {
-            @JvmOverloads
-            fun upload(builder: BufferBuilder, ring: Int = 0, group: Int = 0): Buffer {
+            fun upload(builder: BufferBuilder, ring: Int, group: Int): Buffer {
                 val rendered = builder.end()
                 var copy: ByteBuffer? = null
                 var buffer: Buffer? = null
