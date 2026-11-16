@@ -8,6 +8,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIO
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBATOMIC_TRANSMUTATIOON_CORE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD
 import com.gtladd.gtladditions.integration.stargate.StargateContent
+import com.gtladd.gtladditions.integration.xei.machineinfo.MachineInfoEmiCategory
 import com.lowdragmc.lowdraglib.LDLib
 import dev.emi.emi.api.EmiEntrypoint
 import dev.emi.emi.api.EmiPlugin
@@ -39,6 +40,8 @@ class GTEMIPlugin : EmiPlugin {
             GTRecipeTypeEmiCategory.CATEGORIES.apply(EM_RESONANCE_CONVERSION_FIELD),
             EmiStack.of(SUBATOMIC_TRANSMUTATIOON_CORE.asStack())
         )
+
+        MachineInfoEmiCategory.register(registry)
 
         if (LDLib.isReiLoaded() || LDLib.isJeiLoaded()) return
 

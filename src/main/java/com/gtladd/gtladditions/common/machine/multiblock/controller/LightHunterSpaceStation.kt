@@ -1,11 +1,15 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
+import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
+import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gtladd.gtladditions.api.machine.IAstralArrayInteractionMachine
+import com.gtladd.gtladditions.api.machine.logic.UpkeepRecipeLogic
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKI
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKII
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.NEXUS_SATELLITE_FACTORY_MKIII
@@ -62,6 +66,15 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
     }
 
     fun unlockParadoxical(): Boolean = astralArrayCount == MAX_ASTRAL_ARRAY_COUNT
+
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic = UpkeepRecipeLogic(this, UPKEEP_RECIPE)
+
+    override fun notifyStatusChanged(oldStatus: RecipeLogic.Status, newStatus: RecipeLogic.Status) {
+        super.notifyStatusChanged(oldStatus, newStatus)
+        if (newStatus == RecipeLogic.Status.WORKING) {
+            modules.forEach { it.onConnected(this) }
+        }
+    }
 
     override fun increaseAstralArrayCount(amount: Int): Int {
         val actualIncrease = minOf(amount, MAX_ASTRAL_ARRAY_COUNT - astralArrayCount)
@@ -349,6 +362,8 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
         val MODULE_CONNECTIONS = ModuleConnectionRegistry<LightHunterSpaceStation, LightHunterSpaceStationModuleBase>()
 
         private const val MAX_ASTRAL_ARRAY_COUNT = 64
+        val UPKEEP_EUT: Long = GTValues.V[GTValues.UXV]
+        private val UPKEEP_RECIPE = GTRecipeBuilder.ofRaw().EUt(UPKEEP_EUT).duration(UpkeepRecipeLogic.CYCLE_TICKS).buildRawRecipe()
         private val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
             LightHunterSpaceStation::class.java,
             WorkableMultiblockMachine.MANAGED_FIELD_HOLDER

@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
+import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
@@ -7,6 +8,8 @@ import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfiguratorButton
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
+import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.DataModuleBindingError
 import com.gtladd.gtladditions.api.machine.DataModuleBindingResult
@@ -14,6 +17,7 @@ import com.gtladd.gtladditions.api.machine.ITimeSpaceDistorterSource
 import com.gtladd.gtladditions.api.machine.IWirelessBindableSource
 import com.gtladd.gtladditions.api.machine.IWirelessBindableTarget
 import com.gtladd.gtladditions.api.machine.gui.MultiblockDisplayText
+import com.gtladd.gtladditions.api.machine.logic.UpkeepRecipeLogic
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.recipe.MachineUtil
 import com.lowdragmc.lowdraglib.gui.util.ClickData
@@ -326,10 +330,15 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
     // Metadata
     // ========================================
 
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic = UpkeepRecipeLogic(this, UPKEEP_RECIPE)
+
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     companion object {
         val BINDING_TYPE: ResourceLocation = ResourceLocation("gtladditions", "time_space_distorter")
+
+        val UPKEEP_EUT: Long = GTValues.VA[GTValues.OpV].toLong()
+        private val UPKEEP_RECIPE = GTRecipeBuilder.ofRaw().EUt(UPKEEP_EUT).duration(UpkeepRecipeLogic.CYCLE_TICKS).buildRawRecipe()
 
         private val QUANTUM_ANOMALY = Registries.getItemStack("kubejs:quantum_anomaly")
         private val HYPERCUBE = Registries.getItemStack("kubejs:hypercube")

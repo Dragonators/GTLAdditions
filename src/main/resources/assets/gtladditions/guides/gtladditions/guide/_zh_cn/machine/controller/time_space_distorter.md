@@ -63,6 +63,4 @@ item_ids:
 
 </Column>
 
-<Recipe id="gtladditions:time_space_distortion/time_space_distortion" />
-
 </Column>

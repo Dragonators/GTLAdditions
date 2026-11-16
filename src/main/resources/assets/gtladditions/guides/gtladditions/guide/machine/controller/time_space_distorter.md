@@ -63,6 +63,4 @@ Each additional material's amount is calculated as follows:
 
 </Column>
 
-<Recipe id="gtladditions:time_space_distortion/time_space_distortion" />
-
 </Column>

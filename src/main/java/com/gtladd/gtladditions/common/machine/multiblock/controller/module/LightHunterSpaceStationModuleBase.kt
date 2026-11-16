@@ -117,7 +117,7 @@ class LightHunterSpaceStationModuleBase(holder: IMachineBlockEntity) :
 
     companion object {
         val BEFORE_WORKING = Predicate { machine: IRecipeLogicMachine ->
-            (machine as LightHunterSpaceStationModuleBase).host?.isActive == true
+            (machine as LightHunterSpaceStationModuleBase).host?.recipeLogic?.isWorking == true
         }
 
         open class LightHunterSpaceStationModuleBaseLogic(

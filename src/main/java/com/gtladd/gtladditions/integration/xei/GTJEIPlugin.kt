@@ -9,6 +9,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIO
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBATOMIC_TRANSMUTATIOON_CORE
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD
 import com.gtladd.gtladditions.integration.stargate.StargateContent
+import com.gtladd.gtladditions.integration.xei.machineinfo.MachineInfoJeiCategory
 import com.lowdragmc.lowdraglib.LDLib
 import mezz.jei.api.IModPlugin
 import mezz.jei.api.JeiPlugin
@@ -16,6 +17,8 @@ import mezz.jei.api.constants.RecipeTypes
 import mezz.jei.api.constants.VanillaTypes
 import mezz.jei.api.forge.ForgeTypes
 import mezz.jei.api.registration.IRecipeCatalystRegistration
+import mezz.jei.api.registration.IRecipeCategoryRegistration
+import mezz.jei.api.registration.IRecipeRegistration
 import mezz.jei.api.runtime.IJeiRuntime
 import net.minecraft.resources.ResourceLocation
 
@@ -38,8 +41,19 @@ class GTJEIPlugin : IModPlugin {
         if (hiddenFluids.isNotEmpty()) ingredients.removeIngredientsAtRuntime(ForgeTypes.FLUID_STACK, hiddenFluids)
     }
 
+    override fun registerCategories(registration: IRecipeCategoryRegistration) {
+        if (LDLib.isReiLoaded() || LDLib.isEmiLoaded()) return
+        MachineInfoJeiCategory.registerCategories(registration)
+    }
+
+    override fun registerRecipes(registration: IRecipeRegistration) {
+        if (LDLib.isReiLoaded() || LDLib.isEmiLoaded()) return
+        MachineInfoJeiCategory.registerRecipes(registration)
+    }
+
     override fun registerRecipeCatalysts(registration: IRecipeCatalystRegistration) {
         if (LDLib.isReiLoaded() || LDLib.isEmiLoaded()) return
+        MachineInfoJeiCategory.registerRecipeCatalysts(registration)
         registration.addRecipeCatalyst(HELIOFLARE_POWER_FORGE.asStack(), RecipeTypes.SMELTING)
         // Conversion runs on a dummy recipe type; expose its actual block conversion recipes here.
         registration.addRecipeCatalyst(
