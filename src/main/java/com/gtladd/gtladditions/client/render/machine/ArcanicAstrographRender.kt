@@ -13,8 +13,10 @@ import com.mojang.blaze3d.vertex.PoseStack
 import net.irisshaders.iris.shadows.ShadowRenderingState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
+import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
@@ -44,8 +46,9 @@ class ArcanicAstrographRender :
         val facing = machine.frontFacing
         // The level's own source, wrapped by Iris under a shaderpack; shadows, breaking overlays and custom sources are not.
         val mainView = !ShadowRenderingState.areShadowsCurrentlyBeingRendered() && BlockEntityDispatch.isMainView(blockEntity)
+        val center = center(facing)
         poseStack.withPose {
-            translate(0.5 - facing.stepX * 16.0, 0.5, 0.5 - facing.stepZ * 16.0)
+            translate(center.x, center.y, center.z)
             if (mainView) {
                 renderOrbitObjects(tick, buffer, machine.parallelAmount, blockEntity.blockPos.asLong())
                 SceneRendering.frame()?.let { ArcanicAstrographStarRenderer.submit(it, blockEntity, facing, tick) }
@@ -86,4 +89,14 @@ class ArcanicAstrographRender :
 
     @OnlyIn(Dist.CLIENT)
     override fun getViewDistance(): Int = 128
+
+    @OnlyIn(Dist.CLIENT)
+    /** Measured from the sky shell, not from the controller in front of it. */
+    override fun shouldRender(blockEntity: BlockEntity, cameraPos: Vec3): Boolean {
+        val facing = (blockEntity as IMachineBlockEntity).metaMachine.frontFacing
+        return center(facing).add(Vec3.atLowerCornerOf(blockEntity.blockPos)).closerThan(cameraPos, viewDistance.toDouble())
+    }
+
+    /** The sky shell's centre relative to the controller block's corner. */
+    private fun center(facing: Direction): Vec3 = Vec3(0.5 - facing.stepX * 16.0, 0.5, 0.5 - facing.stepZ * 16.0)
 }

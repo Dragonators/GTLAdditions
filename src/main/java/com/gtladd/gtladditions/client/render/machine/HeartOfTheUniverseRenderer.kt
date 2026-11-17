@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -36,8 +37,7 @@ class HeartOfTheUniverseRenderer :
         val frame = SceneRendering.frame() ?: return
 
         val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
-        val starPos = getRotatedRenderPosition(Direction.SOUTH, machine.frontFacing, 0.0, 36.0, -39.0)
-        val profile = HeartBlackHoleRenderProfile.create(tick, machine.frontFacing, starPos)
+        val profile = HeartBlackHoleRenderProfile.create(tick, machine.frontFacing, starOffset(machine.frontFacing))
         SceneVolumes.submit(frame, blockEntity, profile)
     }
 
@@ -48,5 +48,15 @@ class HeartOfTheUniverseRenderer :
     override fun isGlobalRenderer(blockEntity: BlockEntity): Boolean = true
 
     @OnlyIn(Dist.CLIENT)
-    override fun getViewDistance(): Int = 384
+    override fun getViewDistance(): Int = 256
+
+    @OnlyIn(Dist.CLIENT)
+    /** Measured from the black hole, not from the controller below and in front of it. */
+    override fun shouldRender(blockEntity: BlockEntity, cameraPos: Vec3): Boolean {
+        val facing = (blockEntity as IMachineBlockEntity).metaMachine.frontFacing
+        return starOffset(facing).add(Vec3.atLowerCornerOf(blockEntity.blockPos)).closerThan(cameraPos, viewDistance.toDouble())
+    }
+
+    /** Relative to the controller block's corner. */
+    private fun starOffset(facing: Direction): Vec3 = getRotatedRenderPosition(Direction.SOUTH, facing, 0.0, 36.0, -39.0)
 }

@@ -46,6 +46,10 @@ object HeartFleetRenderer {
     private var instanceOffsets: Map<HeartFleetAssets.Model, Int> = emptyMap()
     private var instanceCapacity = 0
 
+    /** The fleet's reach from the black hole, once the first fleet frame has built the plan. */
+    val reach: Double?
+        get() = plan?.reach
+
     /** [HeartFleetPlan]'s frame to the game frame of a controller facing south. */
     private val STUDY = Matrix4f(1f, 0f, 0f, 0f, 0f, 0f, -1f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f)
     private val DS_POLE = Vector3f(-0.3f, 0.1f, 1f).normalize()
@@ -84,7 +88,7 @@ object HeartFleetRenderer {
             .filterKeys { it != "deathstar1" }
             .mapValues { (_, m) -> m.length.toDouble() to m.box.map(Float::toDouble).toDoubleArray() }
         val a = shells.shells[0].axis
-        // The opening is opposite the innermost shell's cap axis; game (x, y, z) is study (x, -z, y).
+        // The opening is opposite the innermost shell's cap axis; game (x, y, z) is HeartFleetPlan's (x, -z, y).
         val opening = Vector3d(-a.x.toDouble(), a.z.toDouble(), -a.y.toDouble())
         return HeartFleetPlan(sizes, opening, DEATH_STAR, STARKILLER).also {
             plan = it

@@ -59,7 +59,7 @@ class TimeSpaceDistorterRenderer :
     override fun isGlobalRenderer(blockEntity: BlockEntity): Boolean = true
 
     @OnlyIn(Dist.CLIENT)
-    override fun getViewDistance(): Int = 384
+    override fun getViewDistance(): Int = 256
 
     @OnlyIn(Dist.CLIENT)
     companion object {

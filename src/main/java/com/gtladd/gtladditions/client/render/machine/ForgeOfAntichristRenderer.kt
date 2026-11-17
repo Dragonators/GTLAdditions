@@ -5,12 +5,14 @@ import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristDeferredRenderer
 import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristRenderProfile
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
+import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
 import com.mojang.blaze3d.vertex.PoseStack
 import com.tterrag.registrate.util.entry.BlockEntry
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -52,4 +54,12 @@ class ForgeOfAntichristRenderer(
 
     @OnlyIn(Dist.CLIENT)
     override fun getViewDistance(): Int = 384
+
+    @OnlyIn(Dist.CLIENT)
+    /** Measured from the star the rings turn about, not from the controller at the end of its beam. */
+    override fun shouldRender(blockEntity: BlockEntity, cameraPos: Vec3): Boolean {
+        val facing = (blockEntity as IMachineBlockEntity).metaMachine.frontFacing
+        val star = getRotatedRenderPosition(AntichristRenderProfile.BASE_DIRECTION, facing, AntichristRenderProfile.STAR_OFFSET_X, 0.0, 0.0)
+        return star.add(Vec3.atLowerCornerOf(blockEntity.blockPos)).closerThan(cameraPos, viewDistance.toDouble())
+    }
 }

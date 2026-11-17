@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
 import com.gtladd.gtladditions.client.RenderUtils
+import com.gtladd.gtladditions.client.render.machine.condensation.CondensationCoreGeometry
 import com.gtladd.gtladditions.client.render.machine.condensation.CondensationCoreMesh
 import com.gtladd.gtladditions.client.render.machine.condensation.CondensationCoreRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.AntientropyCondensationCenter
@@ -11,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
@@ -47,4 +49,10 @@ class AntientropyCondensationRenderer :
     override fun isGlobalRenderer(blockEntity: BlockEntity): Boolean = true
 
     override fun getViewDistance(): Int = 128
+
+    /** Measured from the core, not from the controller in front of it. */
+    override fun shouldRender(blockEntity: BlockEntity, cameraPos: Vec3): Boolean {
+        val facing = (blockEntity as IMachineBlockEntity).metaMachine.frontFacing
+        return CondensationCoreGeometry.center(blockEntity.blockPos, facing).closerThan(cameraPos, viewDistance.toDouble())
+    }
 }

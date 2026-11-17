@@ -31,7 +31,6 @@ import net.minecraftforge.api.distmarker.OnlyIn
 
 @OnlyIn(Dist.CLIENT)
 internal object SceneVolumes : PartRenderer<HeartBlackHoleSceneEntry> {
-    private const val VIEW_DISTANCE = 384.0
     private val provider = SceneScheduler.register(ResourceLocation(GTLAdditions.MOD_ID, "heart"), null)
     private var mode = Mode.NONE
     private var pending: PendingHeartComposite? = null
@@ -39,10 +38,8 @@ internal object SceneVolumes : PartRenderer<HeartBlackHoleSceneEntry> {
 
     private enum class Mode { NONE, COMBINED, LAYERS }
 
-    fun submit(frame: SceneFrame, blockEntity: BlockEntity, profile: HeartBlackHoleRenderProfile, limitViewDistance: Boolean = true) {
+    fun submit(frame: SceneFrame, blockEntity: BlockEntity, profile: HeartBlackHoleRenderProfile) {
         val center = profile.center.add(Vec3.atLowerCornerOf(blockEntity.blockPos))
-        val limit = VIEW_DISTANCE + HeartBlackHoleVisualConfig.CPU_CULLING_RADIUS
-        if (limitViewDistance && center.distanceToSqr(frame.cameraX, frame.cameraY, frame.cameraZ) > limit * limit) return
         // The proxy sphere is the only geometry the volume pass rasterises.
         val radius = HeartBlackHoleVisualConfig.volumeProxyRadius(profile.tick).toDouble()
         frame.submit(

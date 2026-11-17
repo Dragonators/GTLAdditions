@@ -29,10 +29,6 @@ object HeartBlackHoleVisualConfig {
         return max(distortionRadius, (radius * max(SPACE_FADE_RADIUS, 0.001f)).toDouble()).toFloat()
     }
 
-    // CPU-only conservative bounds for deferred pass culling.
-    const val CPU_CULLING_MARGIN = 4.0f
-    const val CPU_CULLING_RADIUS = BLACK_HOLE_AND_DISK_RADIUS * SPACE_FADE_RADIUS + CPU_CULLING_MARGIN
-
     // Matches Radiant Event Horizon's default ROTATION_SPEED parameter.
     const val RADIANT_ROTATION_SPEED = 0.3f
 

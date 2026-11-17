@@ -86,6 +86,7 @@
     "ldlib.TankWidgetAccessor",
     "gtceu.client.MultiblockInWorldPreviewRendererAccessor",
     "gtceu.client.MultiblockMachineDefinitionMixin",
+    "gtceu.client.MetaMachineBlockEntityMixin",
     "gtlcore.client.GlobalRenderClockAccessor",
     "gtlcore.client.PatternPreviewPatternAccessor",
     "gtlcore.client.PatternPreviewWidgetMixin",

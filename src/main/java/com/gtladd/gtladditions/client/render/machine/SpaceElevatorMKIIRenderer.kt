@@ -90,7 +90,7 @@ class SpaceElevatorMKIIRenderer :
     override fun isGlobalRenderer(blockEntity: BlockEntity): Boolean = true
 
     @OnlyIn(Dist.CLIENT)
-    override fun getViewDistance(): Int = 512
+    override fun getViewDistance(): Int = 320
 
     private companion object {
         val CLIMBER_MODEL: ResourceLocation = GTLCore.id("obj/climber")

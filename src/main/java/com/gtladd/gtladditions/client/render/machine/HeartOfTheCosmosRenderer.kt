@@ -16,6 +16,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -28,7 +29,8 @@ class HeartOfTheCosmosRenderer :
         GTCEu.id("block/multiblock/cosmos_simulation"),
         IRIDIUM_CASING,
         GTLCore.id("block/casings/iridium_casing")
-    ) {
+    ),
+    MachineRenderBox {
 
     @OnlyIn(Dist.CLIENT)
     override fun render(
@@ -51,8 +53,7 @@ class HeartOfTheCosmosRenderer :
         if (machine.structureTier == HeartBlockLayout.tiers.maxTier) HeartFleetRenderer.submit(frame, machine, motion)
         if (!working) return
         val profile = HeartBlackHoleRenderProfile.create(tick, machine.frontFacing, starOffset(machine))
-        // shouldRender already limits the distance from the black hole.
-        SceneVolumes.submit(frame, blockEntity, profile, limitViewDistance = false)
+        SceneVolumes.submit(frame, blockEntity, profile)
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -70,6 +71,13 @@ class HeartOfTheCosmosRenderer :
     override fun shouldRender(blockEntity: BlockEntity, cameraPos: Vec3): Boolean {
         val machine = (blockEntity as IMachineBlockEntity).metaMachine
         return starOffset(machine).add(Vec3.atLowerCornerOf(blockEntity.blockPos)).closerThan(cameraPos, viewDistance.toDouble())
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    /** The shells, and the fleet once its plan is built, around the black hole. */
+    override fun renderBox(blockEntity: BlockEntity): AABB {
+        val center = starOffset((blockEntity as IMachineBlockEntity).metaMachine).add(Vec3.atLowerCornerOf(blockEntity.blockPos))
+        return AABB(center, center).inflate(HeartFleetRenderer.reach ?: HeartShellRenderer.RADIUS)
     }
 
     /** Relative to the controller block's corner. */
