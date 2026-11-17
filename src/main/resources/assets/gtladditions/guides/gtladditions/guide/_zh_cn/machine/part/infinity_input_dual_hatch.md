@@ -2,7 +2,7 @@
 navigation:
   title: 无尽输入总成
   icon: infinity_input_dual_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 8
 categories:
   - 机器仓室

@@ -2,7 +2,7 @@
 navigation:
   title: 伏羲八卦锻天炉
   icon: fuxi_bagua_heaven_forging_furnace
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 29
 categories:
   - 多方块结构主机

@@ -2,7 +2,7 @@
 navigation:
   title: Super Extended ME Export Buffer
   icon: me_super_extended_export_buffer
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 11
 categories:
   - machine part hatch

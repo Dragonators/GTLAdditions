@@ -2,7 +2,7 @@
 navigation:
   title: 猎光号空间站
   icon: light_hunter_space_station
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 34
 categories:
   - 多方块结构主机

@@ -2,7 +2,7 @@
 navigation:
   title: Helio 系列煅炉模块
   icon: heliofusion_exoticizer
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 47
 categories:
   - 多方块结构主机

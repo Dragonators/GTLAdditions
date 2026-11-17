@@ -2,7 +2,7 @@
 navigation:
   title: Wireless Energy Network Terminals
   icon: wireless_energy_network_input_terminal
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 20
 categories:
   - machine part hatch

@@ -2,7 +2,7 @@
 navigation:
   title: Ω-Spheres Divergence Engine
   icon: thread_modifier_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 19
 categories:
   - machine part hatch

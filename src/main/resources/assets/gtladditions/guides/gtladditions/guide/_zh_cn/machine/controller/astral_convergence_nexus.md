@@ -2,7 +2,7 @@
 navigation:
   title: 星穹聚合枢纽
   icon: astral_convergence_nexus
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 36
 categories:
   - 多方块结构主机

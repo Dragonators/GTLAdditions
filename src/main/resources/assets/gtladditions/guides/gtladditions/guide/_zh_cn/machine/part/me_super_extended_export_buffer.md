@@ -2,7 +2,7 @@
 navigation:
   title: 超级增广输出总成
   icon: me_super_extended_export_buffer
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 11
 categories:
   - 机器仓室

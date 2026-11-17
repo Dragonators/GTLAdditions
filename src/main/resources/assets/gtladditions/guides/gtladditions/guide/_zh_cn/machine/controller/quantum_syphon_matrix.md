@@ -2,7 +2,7 @@
 navigation:
   title: 量子虹吸矩阵
   icon: quantum_syphon_matrix
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 28
 categories:
   - 多方块结构主机

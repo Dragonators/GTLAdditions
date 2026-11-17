@@ -2,7 +2,7 @@
 navigation:
   title: Quantum Syphon Matrix
   icon: quantum_syphon_matrix
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 28
 categories:
   - multiblock controller

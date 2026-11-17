@@ -2,7 +2,7 @@
 navigation:
   title: 无线电网终端
   icon: wireless_energy_network_input_terminal
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 20
 categories:
   - 机器仓室

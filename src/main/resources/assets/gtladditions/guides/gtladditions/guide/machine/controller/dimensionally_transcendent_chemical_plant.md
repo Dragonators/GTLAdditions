@@ -2,7 +2,7 @@
 navigation:
   title: Advanced Chemical Plant
   icon: dimensionally_transcendent_chemical_plant
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 27
 categories:
   - multiblock controller

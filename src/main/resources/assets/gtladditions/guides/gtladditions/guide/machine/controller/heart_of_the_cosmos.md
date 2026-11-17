@@ -2,7 +2,7 @@
 navigation:
   title: Heart of the Universe
   icon: heart_of_the_cosmos
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 44
 categories:
   - multiblock controller

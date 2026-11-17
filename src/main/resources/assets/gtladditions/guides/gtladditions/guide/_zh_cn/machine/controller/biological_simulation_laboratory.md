@@ -2,7 +2,7 @@
 navigation:
   title: 生物数据模拟室
   icon: biological_simulation_laboratory
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 26
 categories:
   - 多方块结构主机

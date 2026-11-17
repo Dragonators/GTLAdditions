@@ -2,7 +2,7 @@
 navigation:
   title: Spectral Analysis Hatch
   icon: spectral_analysis_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 20
 categories:
   - machine part hatch

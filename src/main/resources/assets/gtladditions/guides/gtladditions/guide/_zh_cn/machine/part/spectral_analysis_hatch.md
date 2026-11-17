@@ -2,7 +2,7 @@
 navigation:
   title: 物料谱解析仓
   icon: spectral_analysis_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 20
 categories:
   - 机器仓室

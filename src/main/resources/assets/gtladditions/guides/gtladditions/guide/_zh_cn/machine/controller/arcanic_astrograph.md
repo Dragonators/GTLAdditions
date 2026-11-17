@@ -2,7 +2,7 @@
 navigation:
   title: 奥术星图
   icon: arcanic_astrograph
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 22
 categories:
   - 多方块结构主机

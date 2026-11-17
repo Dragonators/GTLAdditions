@@ -2,7 +2,7 @@
 navigation:
   title: Subatomic Transmutation Core
   icon: subatomic_transmutatioon_core
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 25
 categories:
   - multiblock controller

@@ -2,7 +2,7 @@
 navigation:
   title: Super Parallel Hatch
   icon: super_parallel_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 18
 categories:
   - machine part hatch

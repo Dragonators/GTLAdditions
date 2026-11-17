@@ -2,7 +2,7 @@
 navigation:
   title: Arcanic Astrograph
   icon: arcanic_astrograph
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 22
 categories:
   - multiblock controller

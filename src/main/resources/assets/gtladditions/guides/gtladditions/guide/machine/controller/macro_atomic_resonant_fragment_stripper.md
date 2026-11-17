@@ -2,7 +2,7 @@
 navigation:
   title: Macro Atomic Resonant Fragment Stripper
   icon: macro_atomic_resonant_fragment_stripper
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 46
 categories:
   - multiblock controller

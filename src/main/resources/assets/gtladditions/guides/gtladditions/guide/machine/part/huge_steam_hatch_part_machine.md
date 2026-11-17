@@ -2,7 +2,7 @@
 navigation:
   title: Huge Steam Input Hatch
   icon: huge_steam_input_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 6
 categories:
   - machine part hatch

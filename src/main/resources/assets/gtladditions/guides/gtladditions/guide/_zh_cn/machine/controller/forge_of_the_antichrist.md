@@ -2,7 +2,7 @@
 navigation:
   title: 伪神之煅炉
   icon: forge_of_the_antichrist
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 43
 categories:
   - 多方块结构主机

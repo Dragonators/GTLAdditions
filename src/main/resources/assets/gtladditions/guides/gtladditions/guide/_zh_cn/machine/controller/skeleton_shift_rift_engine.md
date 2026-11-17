@@ -2,7 +2,7 @@
 navigation:
   title: 骸变速隙机
   icon: skeleton_shift_rift_engine
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 33
 categories:
   - 多方块结构主机

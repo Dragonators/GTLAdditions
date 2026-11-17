@@ -2,7 +2,7 @@
 navigation:
   title: Time Space Distorter
   icon: time_space_distorter
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 43
 categories:
   - multiblock controller

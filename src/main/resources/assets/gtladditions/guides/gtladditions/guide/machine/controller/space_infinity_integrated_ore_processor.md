@@ -2,7 +2,7 @@
 navigation:
   title: Space Infinity Integrated Ore Processor
   icon: space_infinity_integrated_ore_processor
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 30
 categories:
   - multiblock controller

@@ -2,7 +2,7 @@
 navigation:
   title: 终焉曲折量子波动矩阵
   icon: apocalyptic_quantum_warp_matrix
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 42
 categories:
   - 多方块结构主机

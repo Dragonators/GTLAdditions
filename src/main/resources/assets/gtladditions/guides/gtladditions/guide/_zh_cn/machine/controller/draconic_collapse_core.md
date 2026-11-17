@@ -2,7 +2,7 @@
 navigation:
   title: 龙怒坍缩核心
   icon: draconic_collapse_core
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 24
 categories:
   - 多方块结构主机

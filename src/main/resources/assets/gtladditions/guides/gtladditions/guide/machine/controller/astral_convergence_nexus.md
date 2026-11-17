@@ -2,7 +2,7 @@
 navigation:
   title: Astral Convergence Nexus
   icon: astral_convergence_nexus
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 36
 categories:
   - multiblock controller

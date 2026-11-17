@@ -2,7 +2,7 @@
 navigation:
   title: Draconic Collapse Core
   icon: draconic_collapse_core
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 24
 categories:
   - multiblock controller

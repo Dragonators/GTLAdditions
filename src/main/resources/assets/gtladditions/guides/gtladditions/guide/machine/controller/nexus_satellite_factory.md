@@ -2,7 +2,7 @@
 navigation:
   title: Nexus Satellite Factory
   icon: nexus_satellite_factory_mk1
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 35
 categories:
   - multiblock controller

@@ -2,7 +2,7 @@
 navigation:
   title: 枢纽卫星工厂
   icon: nexus_satellite_factory_mk1
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 35
 categories:
   - 多方块结构主机

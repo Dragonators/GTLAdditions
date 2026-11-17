@@ -2,7 +2,7 @@
 navigation:
   title: 反熵冷凝中枢
   icon: antientropy_condensation_center
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 30
 categories:
   - 多方块结构主机

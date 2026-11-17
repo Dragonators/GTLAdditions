@@ -2,7 +2,7 @@
 navigation:
   title: Titan's Crip Earthbore
   icon: titan_crip_earthbore
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 25
 categories:
   - multiblock controller

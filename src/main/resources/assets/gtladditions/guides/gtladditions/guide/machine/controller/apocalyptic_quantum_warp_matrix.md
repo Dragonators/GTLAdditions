@@ -2,7 +2,7 @@
 navigation:
   title: Apocalyptic Quantum Warp Matrix
   icon: apocalyptic_quantum_warp_matrix
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 42
 categories:
   - multiblock controller

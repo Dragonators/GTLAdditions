@@ -2,7 +2,7 @@
 navigation:
   title: Antientropy Condensation Center
   icon: antientropy_condensation_center
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 30
 categories:
   - multiblock controller

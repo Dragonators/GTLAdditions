@@ -2,7 +2,7 @@
 navigation:
   title: Ω-天球分歧引擎
   icon: thread_modifier_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 19
 categories:
   - 机器仓室

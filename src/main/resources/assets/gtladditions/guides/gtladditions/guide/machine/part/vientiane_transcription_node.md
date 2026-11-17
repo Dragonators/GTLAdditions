@@ -2,7 +2,7 @@
 navigation:
   title: Vientiane Transcription Node
   icon: vientiane_transcription_node
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 5
 categories:
   - machine part hatch

@@ -2,7 +2,7 @@
 navigation:
   title: Space Scaling Instrument
   icon: stone
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 30
 categories:
   - multiblock controller

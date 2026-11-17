@@ -2,7 +2,7 @@
 navigation:
   title: 亚原子置换核心
   icon: subatomic_transmutatioon_core
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 25
 categories:
   - 多方块结构主机

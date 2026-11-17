@@ -2,7 +2,7 @@
 navigation:
   title: 超级样板总成
   icon: me_super_pattern_buffer
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 9
 categories:
   - 机器仓室

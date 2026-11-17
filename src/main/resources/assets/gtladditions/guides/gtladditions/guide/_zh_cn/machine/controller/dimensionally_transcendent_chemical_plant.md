@@ -2,7 +2,7 @@
 navigation:
   title: 超维度化工厂
   icon: dimensionally_transcendent_chemical_plant
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 27
 categories:
   - 多方块结构主机

@@ -2,7 +2,7 @@
 navigation:
   title: Helio Forge Modules
   icon: heliofusion_exoticizer
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 47
 categories:
   - multiblock controller

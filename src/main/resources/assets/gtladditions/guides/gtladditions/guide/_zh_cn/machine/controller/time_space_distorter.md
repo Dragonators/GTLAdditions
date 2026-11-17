@@ -2,7 +2,7 @@
 navigation:
   title: 时空扭曲者
   icon: time_space_distorter
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 43
 categories:
   - 多方块结构主机
