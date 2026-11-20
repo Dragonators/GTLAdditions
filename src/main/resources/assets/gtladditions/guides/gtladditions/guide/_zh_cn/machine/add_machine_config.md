@@ -48,7 +48,6 @@ GTLAdditions 自有机器：
 
 <Row>
     <BlockImage id="gtladditions:biological_simulation_laboratory" scale="3" />
-    <BlockImage id="gtladditions:dimensionally_transcendent_chemical_plant" scale="3" />
     <BlockImage id="gtladditions:quantum_syphon_matrix" scale="3" />
     <BlockImage id="gtladditions:fuxi_bagua_heaven_forging_furnace" scale="3" />
     <BlockImage id="gtladditions:antientropy_condensation_center" scale="3" />
@@ -175,6 +174,10 @@ GTLAdditions 自有机器：
     <BlockImage id="gtladditions:subatomic_transmutatioon_core" scale="3" />
 </Row>
 
+<Row>
+    <BlockImage id="gtladditions:exotic_chemical_complex" scale="3" />
+</Row>
+
 本 mod 改造为特殊处理的外部机器：
 
 <Row>
@@ -187,6 +190,7 @@ GTLAdditions 自有机器：
 
 说明：
 
+* <ItemLink id="gtladditions:exotic_chemical_complex" /> 在 1 级和 2 级按均分模式分配总并行池（2 级可为 12 座外围工艺单元分配独立并行上限，ZPM 及以下默认不占用预算）；3 级下默认转为每条配方独立计算的无限并行。
 * <ItemLink id="gtladditions:subatomic_transmutatioon_core" /> 通过 ME 嬗变总线转换方块；每轮转换量由线圈温度和转换卡决定，周期由卡片种类决定。
 * 猎光号空间站模块在未解锁特殊状态时按均分处理；解锁后会按每条配方独立计算，配方并行上限按特殊并行处理。
 * 伪神之锻炉及其模块按可运行配方分别计算，并会受主机输出倍率、能源网络和模块自身规则影响。

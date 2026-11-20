@@ -43,3 +43,10 @@ mandatory = true
 versionRange = "[1.7.0,)"
 ordering = "AFTER"
 side = "CLIENT"
+
+[[dependencies."${mod_id}"]]
+modId = "fusion"
+mandatory = true
+versionRange = "[1.3.16,)"
+ordering = "AFTER"
+side = "CLIENT"

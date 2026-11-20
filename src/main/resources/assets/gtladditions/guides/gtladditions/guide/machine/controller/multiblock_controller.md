@@ -28,7 +28,7 @@ categories:
 
 ## <Color color="#00AA00">**UIV**</Color>
 
-* [Advanced Chemical Plant](dimensionally_transcendent_chemical_plant.md)
+* [Exotic Chemical Complex](exotic_chemical_complex.md)
 * [Antientropy Condensation Center](antientropy_condensation_center.md)
 * [Inferno Cleft Smelting Vault](inferno_cleft_smelting_vault.md)
 * [Subatomic Transmutation Core](subatomic_transmutatioon_core.md)

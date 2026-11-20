@@ -1,0 +1,4 @@
+Nanochip Complex Glass and Nanochip Casing use textures from GTNewHorizons/GT5-Unofficial, revision b949b1fa1a4d7421eddb40b63c2c8a7d3154c816.
+Original glass tiles: assets/gregtech/mcpatcher/ctm/blockglass1/nanochipglass
+Original casing tiles: assets/gregtech/mcpatcher/ctm/blockcasings12/nanochipmeshinterfacecasing
+https://github.com/GTNewHorizons/GT5-Unofficial/tree/b949b1fa1a4d7421eddb40b63c2c8a7d3154c816/src/main/resources/assets/gregtech

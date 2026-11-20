@@ -25,6 +25,8 @@ import org.gtlcore.gtlcore.common.block.BlockMap
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 
 object GTLAddBlocks {
+    val NANOCHIP_CASING: BlockEntry<Block>
+    val NANOCHIP_COMPLEX_GLASS: BlockEntry<Block>
     val QUANTUM_GLASS: BlockEntry<Block>
     val SPATIALLY_TRANSCENDENT_GRAVITATIONAL_LENS: BlockEntry<Block>
     val GOD_FORGE_ENERGY_CASING: BlockEntry<Block>
@@ -47,6 +49,14 @@ object GTLAddBlocks {
 
     init {
         GTLAddRegistration.REGISTRATE.creativeModeTab(GTLAddCreativeModeTabs.GTLADD_BLOCKS)
+        NANOCHIP_CASING = createCasingBlock(
+            "nanochip_casing",
+            GTLAdditions.id("block/casings/nanochip_casing_ctm")
+        )
+        NANOCHIP_COMPLEX_GLASS = createGlassCasingBlock(
+            "nanochip_complex_glass",
+            GTLAdditions.id("block/casings/nanochip_complex_glass")
+        )
         QUANTUM_GLASS = createGlassCasingBlock(
             "quantum_glass",
             GTLAdditions.id("block/casings/quantum_glass")
@@ -161,7 +171,15 @@ object GTLAddBlocks {
                 prov.simpleBlock(
                     ctx.entry,
                     prov.models()
-                        .cube(name, topBottomTexture, topBottomTexture, sideTexture, sideTexture, sideTexture, sideTexture)
+                        .cube(
+                            name,
+                            topBottomTexture,
+                            topBottomTexture,
+                            sideTexture,
+                            sideTexture,
+                            sideTexture,
+                            sideTexture
+                        )
                         .texture("particle", sideTexture)
                         .renderType("minecraft:cutout_mipped")
                 )

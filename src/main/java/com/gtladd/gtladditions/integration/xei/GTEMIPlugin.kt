@@ -3,6 +3,7 @@ package com.gtladd.gtladditions.integration.xei
 import com.gregtechceu.gtceu.integration.emi.recipe.GTRecipeTypeEmiCategory
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ATOMIC_TRANSMUTATIOON_CORE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HEART_OF_THE_UNIVERSE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIOFLARE_POWER_FORGE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBATOMIC_TRANSMUTATIOON_CORE
@@ -29,6 +30,7 @@ class GTEMIPlugin : EmiPlugin {
                 is Item -> StargateContent.isDisabledItem(key) ||
                     key == ATOMIC_TRANSMUTATIOON_CORE.item ||
                     key == APOCALYPTIC_TORSION_QUANTUM_MATRIX.item ||
+                    key == DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT.item ||
                     key == HEART_OF_THE_UNIVERSE.item
                 is Fluid -> StargateContent.isDisabledFluid(key)
                 else -> false

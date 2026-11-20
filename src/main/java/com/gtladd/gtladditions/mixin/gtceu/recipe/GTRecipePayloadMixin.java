@@ -39,7 +39,7 @@ public abstract class GTRecipePayloadMixin extends ObjectTypedPayload<GTRecipe> 
         tag.putInt("ocTier", payload.ocTier);
         if (payload instanceof WirelessGTRecipe wirelessGTRecipe) {
             BigInteger wirelessEut = wirelessGTRecipe.getWirelessEuTickInputs();
-            if (wirelessEut != null && wirelessEut.signum() != 0) {
+            if (wirelessEut != null) {
                 tag.putByteArray("wirelessEut", wirelessEut.toByteArray());
             }
         }
@@ -94,7 +94,7 @@ public abstract class GTRecipePayloadMixin extends ObjectTypedPayload<GTRecipe> 
         buf.writeInt(payload.ocTier);
         if (payload instanceof WirelessGTRecipe wirelessGTRecipe) {
             BigInteger wirelessEut = wirelessGTRecipe.getWirelessEuTickInputs();
-            if (wirelessEut != null && wirelessEut.signum() != 0) {
+            if (wirelessEut != null) {
                 buf.writeByteArray(wirelessEut.toByteArray());
             }
         }

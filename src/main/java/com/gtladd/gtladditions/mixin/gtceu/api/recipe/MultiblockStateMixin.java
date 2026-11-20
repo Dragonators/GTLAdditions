@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.pattern.MultiblockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
+import com.gtladd.gtladditions.common.machine.multiblock.controller.ExoticChemicalComplex;
 import com.gtladd.gtladditions.common.machine.multiblock.controller.module.ForgeOfTheAntichristModuleBase;
 import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,6 +16,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = MultiblockState.class, priority = 2000)
 public abstract class MultiblockStateMixin {
+
+    @Inject(method = "onBlockStateChanged", at = @At("HEAD"), cancellable = true, remap = false)
+    private void gtladditions$skipInactiveExoticChemicalPosition(BlockPos pos, BlockState state, CallbackInfo ci) {
+        var match = (MultiblockState) (Object) this;
+        if (match.lastController instanceof ExoticChemicalComplex host && (!host.isFormed() || !match.isPosInCache(pos))) ci.cancel();
+    }
 
     // Target Core's overwrite only inside its formed, non-controller, non-ActiveBlock part branch.
     @Inject(method = "onBlockStateChanged",

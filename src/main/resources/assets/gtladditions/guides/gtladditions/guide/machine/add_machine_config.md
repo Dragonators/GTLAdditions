@@ -48,7 +48,6 @@ GTLAdditions-owned machines:
 
 <Row>
     <BlockImage id="gtladditions:biological_simulation_laboratory" scale="3" />
-    <BlockImage id="gtladditions:dimensionally_transcendent_chemical_plant" scale="3" />
     <BlockImage id="gtladditions:quantum_syphon_matrix" scale="3" />
     <BlockImage id="gtladditions:fuxi_bagua_heaven_forging_furnace" scale="3" />
     <BlockImage id="gtladditions:antientropy_condensation_center" scale="3" />
@@ -175,6 +174,10 @@ GTLAdditions-owned machines:
     <BlockImage id="gtladditions:subatomic_transmutatioon_core" scale="3" />
 </Row>
 
+<Row>
+    <BlockImage id="gtladditions:exotic_chemical_complex" scale="3" />
+</Row>
+
 External machines with special handling added by this mod:
 
 <Row>
@@ -187,6 +190,7 @@ External machines with special handling added by this mod:
 
 Notes:
 
+* <ItemLink id="gtladditions:exotic_chemical_complex" /> distributes its total parallel pool evenly at tiers 1 and 2 (at tier 2, independent parallel limits can be assigned to 12 outer process units and ZPM or lower recipes do not consume budget by default); at tier 3, it switches to independent per-recipe infinite parallel by default.
 * <ItemLink id="gtladditions:subatomic_transmutatioon_core" /> converts blocks through the ME Transmutation Bus Hatch. Coil temperature and the installed card determine the conversion capacity per cycle; the card determines the cycle duration.
 * Light Hunter Space Station modules use even distribution before the special station state is unlocked; after that, they calculate each recipe independently and use special per-recipe parallel limits.
 * Forge of the Antichrist and its modules calculate runnable recipes separately, with behavior affected by the host's output multiplier, wireless energy, and module rules.

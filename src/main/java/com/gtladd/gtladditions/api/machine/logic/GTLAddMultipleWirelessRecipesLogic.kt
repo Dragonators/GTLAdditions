@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.api.machine.logic
 
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
+import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipeMachine
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.matchRecipe
 import java.util.function.BiPredicate
@@ -11,6 +12,8 @@ open class GTLAddMultipleWirelessRecipesLogic :
     GTLAddMultipleRecipesLogic,
     IWirelessRecipeLogic {
     constructor(parallel: GTLAddWirelessWorkableElectricMultipleRecipesMachine) : super(parallel)
+
+    protected constructor(parallel: IGTLAddMultiRecipeMachine) : super(parallel, null, null)
 
     constructor(
         parallel: GTLAddWirelessWorkableElectricMultipleRecipesMachine,

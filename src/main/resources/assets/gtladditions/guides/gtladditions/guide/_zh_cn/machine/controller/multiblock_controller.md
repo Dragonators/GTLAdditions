@@ -28,7 +28,7 @@ categories:
 
 ## <Color color="#00AA00">**UIV**</Color>
 
-* [超维度化工厂](dimensionally_transcendent_chemical_plant.md)
+* [异星化工复合体](exotic_chemical_complex.md)
 * [反熵冷凝中枢](antientropy_condensation_center.md)
 * [炽隙裂炼穹](inferno_cleft_smelting_vault.md)
 * [亚原子置换核心](subatomic_transmutatioon_core.md)

@@ -46,6 +46,12 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
         parallel: GTLAddWorkableElectricMultipleRecipesMachine,
         recipeCheck: BiPredicate<GTRecipe, IRecipeLogicMachine>?,
         beforeWorking: Predicate<IRecipeLogicMachine>?
+    ) : this(parallel as IGTLAddMultiRecipeMachine, recipeCheck, beforeWorking)
+
+    protected constructor(
+        parallel: IGTLAddMultiRecipeMachine,
+        recipeCheck: BiPredicate<GTRecipe, IRecipeLogicMachine>?,
+        beforeWorking: Predicate<IRecipeLogicMachine>?
     ) : super(parallel) {
         this.limited = parallel
         this.recipeCheck = recipeCheck
@@ -72,7 +78,7 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
         } else {
             getGTRecipe()?.takeIf { matchRecipeOutput(machine, it) }?.let {
                 setupRecipe(it)
-                return
+                if (isWorking && progress == 0 && duration > 0) return
             }
             status = Status.IDLE
         }

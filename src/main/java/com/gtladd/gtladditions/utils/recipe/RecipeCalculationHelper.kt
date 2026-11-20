@@ -32,9 +32,9 @@ import kotlin.math.roundToInt
 
 object RecipeCalculationHelper {
 
-    // ===================================================
+    // ========================================
     // Process Recipe
-    // ===================================================
+    // ========================================
 
     inline fun multipleRecipe(
         recipe: GTRecipe,
@@ -102,7 +102,8 @@ object RecipeCalculationHelper {
         maxTotalEu: BigInteger,
         euMultiplier: Double,
         getRecipeEut: (GTRecipe) -> Long,
-        isEnergyConsumer: Boolean = true
+        isEnergyConsumer: Boolean = true,
+        crossinline onStarted: (GTRecipe, Long) -> Unit = { _, _ -> }
     ): Triple<ObjectArrayList<Content>, ObjectArrayList<Content>, BigInteger> {
         val itemOutputs = ObjectArrayList<Content>()
         val fluidOutputs = ObjectArrayList<Content>()
@@ -139,6 +140,7 @@ object RecipeCalculationHelper {
                 ) {
                     accumulatedEu = tempAccumulatedEu
                     collectOutputs(paralleledRecipe, itemOutputs, fluidOutputs)
+                    onStarted(r, p)
                 }
             } else {
                 accumulatedEu = tempAccumulatedEu
@@ -200,9 +202,9 @@ object RecipeCalculationHelper {
 
     fun hasOutputs(itemOutputs: List<Content>, fluidOutputs: List<Content>): Boolean = itemOutputs.isNotEmpty() || fluidOutputs.isNotEmpty()
 
-    // ===================================================
+    // ========================================
     // ParallelData Calculation
-    // ===================================================
+    // ========================================
 
     inline fun calculateParallelsWithFairAllocation(
         recipes: Collection<GTRecipe>,
@@ -353,9 +355,9 @@ object RecipeCalculationHelper {
         }
     }
 
-    // ===================================================
+    // ========================================
     // Recipe Copy Boost Fix ( > 10000 max chance)
-    // ===================================================
+    // ========================================
 
     fun copyFixRecipe(origin: GTRecipe, modifier: ContentModifier): GTRecipe =
         RecipeExtensionCopier.copy(
@@ -422,9 +424,9 @@ object RecipeCalculationHelper {
         }
     }
 
-    // ===================================================
+    // ========================================
     // Recycle Recipe
-    // ===================================================
+    // ========================================
 
     const val RECIPE_CYCLE_CONTAINER = "recipe_cycle_container"
 

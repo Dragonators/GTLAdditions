@@ -20,6 +20,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.ChunkPos
@@ -33,7 +34,8 @@ import kotlin.concurrent.withLock
 class StructureTierTrait(
     machine: MultiblockControllerMachine,
     val layout: StructureTierLayout,
-    private val structureModify: StructureModifyTrait
+    private val structureModify: StructureModifyTrait? = null,
+    private val onPhysicalStructure: (IntRange) -> Unit = {}
 ) : MachineTrait(machine) {
 
     @field:Persisted
@@ -63,10 +65,27 @@ class StructureTierTrait(
     val inventory = ItemStackTransfer(SLOTS)
 
     val selectedTier: Int
-        get() = if (chosenTier in layout.minTier..layout.maxTier) chosenTier else minOf(unlockedTier + 1, layout.maxTier)
+        get() = if (chosenTier in layout.minTier..layout.maxTier) {
+            chosenTier
+        } else {
+            minOf(
+                unlockedTier + 1,
+                layout.maxTier
+            )
+        }
 
     val buildTier: Int
         get() = minOf(selectedTier, unlockedTier)
+
+    val hasDropData: Boolean
+        get() = unlockedTier > layout.minTier || payment.any { it > 0 }
+
+    val hasPendingTier: Boolean
+        get() = (machine as MultiblockControllerMachine).isFormed && structureTier < unlockedTier
+
+    // ========================================
+    // TIER SELECTION & UNLOCK
+    // ========================================
 
     @Suppress("unused")
     @OnlyIn(Dist.CLIENT)
@@ -87,20 +106,24 @@ class StructureTierTrait(
         else -> 0L
     }
 
-    val hasDropData: Boolean
-        get() = unlockedTier > layout.minTier || payment.any { it > 0 }
-
     fun unlock(tier: Int): List<Component> {
         if (tier != unlockedTier + 1) return emptyList()
         val requirement = requirement(tier) ?: return emptyList()
+
         val paid = LongArray(requirement.costs.size) { paid(tier, it) }
         requirement.costs.forEachIndexed { i, cost ->
             for (slot in 0 until inventory.slots) {
                 val missing = cost.amount - paid[i]
                 if (missing <= 0) break
+
                 val stack = inventory.getStackInSlot(slot)
                 if (stack.isEmpty || !cost.ingredient.test(stack)) continue
-                paid[i] += inventory.extractItem(slot, minOf(missing, stack.count.toLong()).toInt(), false).count.toLong()
+
+                paid[i] += inventory.extractItem(
+                    slot,
+                    minOf(missing, stack.count.toLong()).toInt(),
+                    false
+                ).count.toLong()
             }
         }
 
@@ -132,11 +155,16 @@ class StructureTierTrait(
         }
     }
 
-    val hasPendingTier: Boolean
-        get() = (machine as MultiblockControllerMachine).isFormed && structureTier < unlockedTier
+    // ========================================
+    // BUILDING & ACTIVATION
+    // ========================================
 
     /** [cells] are nearest first; [chunks] are the unloaded parts the scan could not read. */
-    class Activation(val messages: List<Component>, val cells: List<BlockPos>, val chunks: List<AABB>)
+    class Activation(
+        val messages: List<Component>,
+        val cells: List<BlockPos>,
+        val chunks: List<AABB>
+    )
 
     fun autoBuild(player: Player, setting: UltimateTerminalBehavior.AutoBuildSetting) {
         val controller = machine as MultiblockControllerMachine
@@ -146,34 +174,53 @@ class StructureTierTrait(
             return
         }
 
-        layout.template { it in first..buildTier }.autoBuild(player, controller.multiblockState, setting)
-        if (controller.isFormed) activate(player.blockPosition()).messages.forEach(player::sendSystemMessage)
+        // The terminal clears its working state before placing blocks. Keep the live match and its mapped positions intact.
+        val world = player.level()
+        val buildState = MultiblockState(world, controller.pos)
+        layout.template { it in first..buildTier }.autoBuild(player, buildState, setting)
+        if (!controller.isFormed) return
+
+        val origin = player.blockPosition()
+        val finish = Runnable { activate(origin).messages.forEach(player::sendSystemMessage) }
+
+        // Forge publishes the placement snapshots after the terminal returns. Register the new cells after those notifications.
+        if (structureModify == null && world is ServerLevel && world.captureBlockSnapshots) {
+            world.server.tell(TickTask(world.server.tickCount, finish))
+        } else {
+            finish.run()
+        }
     }
 
     /** [origin] orders the reported problems by distance. */
     fun activate(origin: BlockPos): Activation {
         val controller = machine as MultiblockControllerMachine
-        if (!controller.isFormed) {
-            return Activation(listOf("gtladditions.structure_tier.not_formed".toComponent), emptyList(), emptyList())
-        }
-
-        if (structureTier >= unlockedTier) {
-            val message = if (unlockedTier < layout.maxTier) {
-                "gtladditions.structure_tier.unlock_first".toComponent(unlockedTier + 1)
-            } else {
-                "gtladditions.structure_tier.all_active".toComponent
-            }
-            return Activation(listOf(message), emptyList(), emptyList())
-        }
-
         controller.patternLock.withLock {
+            if (controller.isInValid || !controller.isFormed || controller.multiblockState.hasError()) {
+                return Activation(
+                    listOf("gtladditions.structure_tier.not_formed".toComponent),
+                    emptyList(),
+                    emptyList()
+                )
+            }
+
+            if (structureTier >= unlockedTier) {
+                val message = if (unlockedTier < layout.maxTier) {
+                    "gtladditions.structure_tier.unlock_first".toComponent(unlockedTier + 1)
+                } else {
+                    "gtladditions.structure_tier.all_active".toComponent
+                }
+                return Activation(listOf(message), emptyList(), emptyList())
+            }
+
             val scan = scan(structureTier + 1, unlockedTier, origin)
             val messages = ArrayList<Component>()
             if (scan.complete > structureTier) {
-                structureModify.extend(structureTier + 1..scan.complete)
+                structureModify?.extend(structureTier + 1..scan.complete)
                 structureTier = scan.complete
+                if (structureModify == null) onPhysicalStructure(1..structureTier)
                 onChanged()
-                messages += "gtladditions.structure_tier.activated".toComponent(structureTier).withStyle(ChatFormatting.GREEN)
+                messages += "gtladditions.structure_tier.activated".toComponent(structureTier)
+                    .withStyle(ChatFormatting.GREEN)
             }
 
             if (scan.problems.isNotEmpty()) {
@@ -204,16 +251,30 @@ class StructureTierTrait(
         }
     }
 
+    // ========================================
+    // LIFECYCLE & SCANNING
+    // ========================================
+
     fun onStructureFormed() {
         // JEI also forms controllers in a TrackedDummyWorld.
         if (machine.level !is ServerLevel) return
+
         val controller = machine as MultiblockControllerMachine
         controller.patternLock.withLock {
             // Formed again after an unload or a recheck: the active tiers stand.
-            if (structureModify.hasRemovedStructure) return
-            structureTier = scan(layout.minTier + 1, unlockedTier, controller.pos).complete
+            if (structureModify?.hasRemovedStructure == true) return
+
+            // Rechecking physical stages can lower the active tier. Only activation extends it again.
+            val lastTier = if (structureModify == null && structureTier > 0) structureTier else unlockedTier
+            val scan = scan(layout.minTier + 1, lastTier, controller.pos)
+            structureTier = scan.complete
             onChanged()
-            structureModify.form(1..structureTier)
+
+            if (structureModify != null) {
+                structureModify.form(1..structureTier)
+            } else {
+                onPhysicalStructure(1..structureTier)
+            }
         }
     }
 
@@ -235,6 +296,9 @@ class StructureTierTrait(
     private fun scan(from: Int, to: Int, origin: BlockPos): Scan {
         val controller = machine as MultiblockControllerMachine
         val state = MultiblockState(machine.level as ServerLevel, controller.pos)
+        if (structureModify == null) {
+            controller.multiblockState.matchContext.get<Any>("CoilType")?.let { state.matchContext.set("CoilType", it) }
+        }
 
         for (tier in from..to) {
             var missing = 0
@@ -269,6 +333,10 @@ class StructureTierTrait(
 
         return Scan(maxOf(to, from - 1))
     }
+
+    // ========================================
+    // PERSISTENCE
+    // ========================================
 
     // The input slots drop as items.
     override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {

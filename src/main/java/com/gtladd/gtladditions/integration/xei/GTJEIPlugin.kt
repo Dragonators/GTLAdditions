@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.integration.jei.recipe.GTRecipeTypeCategory
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.APOCALYPTIC_TORSION_QUANTUM_MATRIX
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.ATOMIC_TRANSMUTATIOON_CORE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HEART_OF_THE_UNIVERSE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIOFLARE_POWER_FORGE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBATOMIC_TRANSMUTATIOON_CORE
@@ -33,6 +34,7 @@ class GTJEIPlugin : IModPlugin {
             StargateContent.isDisabledItem(it.item) ||
                 it.`is`(ATOMIC_TRANSMUTATIOON_CORE.item) ||
                 it.`is`(APOCALYPTIC_TORSION_QUANTUM_MATRIX.item) ||
+                it.`is`(DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT.item) ||
                 it.`is`(HEART_OF_THE_UNIVERSE.item)
         }
 

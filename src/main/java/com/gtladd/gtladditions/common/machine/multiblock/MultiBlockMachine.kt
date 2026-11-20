@@ -83,6 +83,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.controller.bs.Biosphere
 import com.gtladd.gtladditions.common.machine.multiblock.controller.module.*
 import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.*
 import com.gtladd.gtladditions.common.machine.multiblock.structure.*
+import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.ExoticChemicalBlockLayout
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.HeartBlockLayout
 import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
@@ -152,6 +153,7 @@ object MultiBlockMachine {
     val DRACONIC_COLLAPSE_CORE: MultiblockMachineDefinition
     val TITAN_CRIP_EARTHBORE: MultiblockMachineDefinition
     val BIOLOGICAL_SIMULATION_LABORATORY: MultiblockMachineDefinition
+    val EXOTIC_CHEMICAL_COMPLEX: MultiblockMachineDefinition
     val DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT: MultiblockMachineDefinition
     val QUANTUM_SYPHON_MATRIX: MultiblockMachineDefinition
     val FUXI_BAGUA_HEAVEN_FORGING_FURNACE: MultiblockMachineDefinition
@@ -976,11 +978,30 @@ object MultiBlockMachine {
             )
             .register()
 
+        EXOTIC_CHEMICAL_COMPLEX = REGISTRATE.multiblock("exotic_chemical_complex", Function { ExoticChemicalComplex(it) })
+            .nonYAxisRotation()
+            .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.1".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.1".toComponent)
+            .tooltipTextKey("tooltip.gtlcore.structure.source".toComponent("GTNH"))
+            .tooltipTextRecipeTypes(LARGE_CHEMICAL_RECIPES)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(LARGE_CHEMICAL_RECIPES)
+            .appearanceBlock(CASING_PTFE_INERT)
+            .pattern(ExoticChemicalBlockLayout::pattern)
+            .workableCasingRenderer(
+                GTLAdditions.id("block/casings/nanochip_casing"),
+                GTCEu.id("block/machines/chemical_reactor")
+            )
+            .register()
+
         DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT = REGISTRATE.multiblock(
             "dimensionally_transcendent_chemical_plant",
             Function { DimensionallyTranscendentChemicalPlant(it) }
         )
             .nonYAxisRotation()
+            .tooltipTextKey("tooltip.gtladditions.discontinued".toComponent)
             .tooltipTextKey("gtceu.multiblock.dimensionally_transcendent_chemical_plant".toComponent)
             .tooltipTextCoilParallel()
             .tooltipTextLaser()

@@ -48,6 +48,7 @@ import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Block
+import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 import org.gtlcore.gtlcore.api.machine.trait.NotifiableCircuitItemStackHandler
 
 class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
@@ -304,6 +305,9 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
         inventory.isDistinct = isDistinct
         circuitInventory.isDistinct = isDistinct
         shareInventory.isDistinct = isDistinct
+        for (controller in controllers) {
+            if (controller is IRecipeCapabilityMachine && !controller.isDistinct) controller.upDate()
+        }
     }
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER

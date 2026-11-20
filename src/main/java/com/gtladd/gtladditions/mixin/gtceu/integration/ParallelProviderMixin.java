@@ -80,6 +80,7 @@ public abstract class ParallelProviderMixin {
     @Overwrite(remap = false)
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
         if (blockAccessor.getBlockEntity() instanceof MetaMachineBlockEntity blockEntity) {
+            if (blockEntity.getMetaMachine() instanceof ExoticChemicalComplex) return;
             if (blockEntity.getMetaMachine() instanceof IParallelHatch parallelHatch) {
                 compoundTag.putLong("parallel", parallelHatch.getCurrentParallel());
             } else if (blockEntity.getMetaMachine() instanceof WorkableMultiblockMachine workableElectricMultiblockMachine && workableElectricMultiblockMachine.isFormed()) {

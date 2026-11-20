@@ -20,7 +20,8 @@ public abstract class EmiRegistryImplMixin {
         if (workstation instanceof EmiStack stack &&
                 (stack.getKey() == MultiBlockMachine.INSTANCE.getAPOCALYPTIC_TORSION_QUANTUM_MATRIX().getItem() ||
                         stack.getKey() == MultiBlockMachine.INSTANCE.getHEART_OF_THE_UNIVERSE().getItem() ||
-                        stack.getKey() == MultiBlockMachine.INSTANCE.getATOMIC_TRANSMUTATIOON_CORE().getItem())) {
+                        stack.getKey() == MultiBlockMachine.INSTANCE.getATOMIC_TRANSMUTATIOON_CORE().getItem() ||
+                        stack.getKey() == MultiBlockMachine.INSTANCE.getDIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT().getItem())) {
             ci.cancel();
         }
     }
