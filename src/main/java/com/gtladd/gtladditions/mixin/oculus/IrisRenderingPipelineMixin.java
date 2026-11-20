@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.ShaderInstance;
 import com.gtladd.gtladditions.client.render.machine.antichrist.RingBatchShaderProgram;
 import com.gtladd.gtladditions.client.render.machine.antichrist.RingStructureVertexBuffer;
 import com.gtladd.gtladditions.client.render.machine.dimensionfocus.DimensionFocusOrbitRenderer;
+import com.gtladd.gtladditions.client.render.machine.elevator.SpaceElevatorCableRenderer;
 import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask;
 import com.gtladd.gtladditions.client.render.machine.heart.HeartShellRenderer;
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixFrameTerrainRenderer;
@@ -64,6 +65,7 @@ public abstract class IrisRenderingPipelineMixin {
         RingStructureVertexBuffer.useShaderCompatibleTerrainUploadMode();
         MatrixFrameTerrainRenderer.useShaderCompatibleTerrainUploadMode();
         DimensionFocusOrbitRenderer.useShaderCompatibleTerrainUploadMode();
+        SpaceElevatorCableRenderer.useShaderCompatibleTerrainUploadMode();
         HeartShellRenderer.useShaderCompatibleTerrainUploadMode();
         SceneScheduler.INSTANCE.pipelineChanged();
     }
@@ -73,6 +75,7 @@ public abstract class IrisRenderingPipelineMixin {
         RingStructureVertexBuffer.useVanillaCompatibleTerrainUploadMode();
         MatrixFrameTerrainRenderer.useVanillaCompatibleTerrainUploadMode();
         DimensionFocusOrbitRenderer.useVanillaCompatibleTerrainUploadMode();
+        SpaceElevatorCableRenderer.useVanillaCompatibleTerrainUploadMode();
         HeartShellRenderer.useVanillaCompatibleTerrainUploadMode();
         HeartHandDepthMask.destroy();
         SceneScheduler.INSTANCE.pipelineChanged();

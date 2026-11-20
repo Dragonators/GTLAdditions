@@ -52,7 +52,7 @@ import com.gtladd.gtladditions.client.render.machine.HeartOfTheUniverseRenderer
 import com.gtladd.gtladditions.client.render.machine.LightHunterSpaceStationRenderer
 import com.gtladd.gtladditions.client.render.machine.PartWorkableCasingMachineRenderer
 import com.gtladd.gtladditions.client.render.machine.RecursiveReverseRenderer
-import com.gtladd.gtladditions.client.render.machine.SpaceElevatorMKIIRenderer
+import com.gtladd.gtladditions.client.render.machine.SpaceElevatorRenderer
 import com.gtladd.gtladditions.client.render.machine.TimeSpaceDistorterRenderer
 import com.gtladd.gtladditions.client.render.machine.rrf.RrfEffectKind
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR
@@ -2512,7 +2512,7 @@ object MultiBlockMachine {
                     .where("O", air())
                     .build()
             }
-            .renderer { SpaceElevatorMKIIRenderer() }
+            .renderer { SpaceElevatorRenderer(climberHeight = 230.0, cableLength = 448, viewDistance = 320) }
             .hasTESR(true)
             .register()
 

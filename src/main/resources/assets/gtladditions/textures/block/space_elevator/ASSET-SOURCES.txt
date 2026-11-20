@@ -1,0 +1,26 @@
+Space elevator cable
+
+cable.png is CablePart.png from Modernity-GTNH, by the Modernity-GTNH
+contributors, copied without pixel changes.
+Source path: assets/gtnhintergalactic/textures/blocks/spaceElevator/CablePart.png
+Project: https://github.com/ModernityGTNH/Modernity-GTNH
+Revision: 80994475f6f9df5c39bdf13bfb384a851129c3c8 (weekly-29x-2026-11-16;
+the file last changed in d63cd72701e76942bb1957e19c515f013c7ad560)
+PNG SHA-256: 13c3a4d8c681f94638a8eda8c251da8c2c531e38545e178d10359e679a357fd0
+
+This texture retains its separate CC BY-NC-SA 4.0 license:
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode .
+It is not relicensed under the repository's code license. Attribution does
+not imply endorsement by Modernity-GTNH. The asset is supplied without warranty.
+License reference revision: d269058570ad367a5e3895ec0d4db53ca262b9bb.
+
+../../effect/space_elevator/cable_glow.png marks the centre 2x2 texels of
+cable.png, the area GTNH's cable shader lights up.
+
+The cable geometry (four helical ribbons around an octagon), its texture
+mapping and the travelling light front were adapted from GTNewHorizons/
+GT5-Unofficial, gtnhintergalactic/render/RenderSpaceElevatorCable.java and
+assets/gtnhintergalactic/shaders/spacecable.{vert,frag}.glsl, revision
+1849207a347ea75cf386b1e65ed272564b9ac4c6, licensed LGPL-3.0; its full text is
+assets/gtladditions/models/effect/condensation/LGPL-3.0.txt.
+https://github.com/GTNewHorizons/GT5-Unofficial

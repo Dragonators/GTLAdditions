@@ -25,6 +25,7 @@ import com.gtladd.gtladditions.api.pattern.patchPatternPredicates
 import com.gtladd.gtladditions.api.pattern.patternPredicateSelector
 import com.gtladd.gtladditions.api.pattern.replacePatternPredicates
 import com.gtladd.gtladditions.client.render.machine.QFTRenderer
+import com.gtladd.gtladditions.client.render.machine.SpaceElevatorRenderer
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.multiblock.controller.BasicOreProcessorMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.MolecularAssemblerMultiblockMachine
@@ -180,6 +181,7 @@ object MultiBlockModify {
     fun init() {
         if (LDLib.isClient()) {
             MultiBlockMachineA.QFT.renderer = QFTRenderer()
+            AdvancedMultiBlockMachineB.SPACE_ELEVATOR.renderer = SpaceElevatorRenderer(climberHeight = 180.0, cableLength = 360, viewDistance = 512)
         }
 
         MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->
