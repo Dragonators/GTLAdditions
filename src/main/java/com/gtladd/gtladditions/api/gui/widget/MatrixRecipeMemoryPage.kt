@@ -26,7 +26,9 @@ import com.lowdragmc.lowdraglib.gui.widget.ImageWidget
 import com.lowdragmc.lowdraglib.gui.widget.Widget
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
 import com.lowdragmc.lowdraglib.utils.TagOrCycleItemStackTransfer
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
@@ -64,6 +66,7 @@ class MatrixRecipeMemoryPage(private val trait: MatrixQuantumWarpTrait) : IFancy
 
     companion object {
         const val PAGE_SIZE = 6
+        private const val UPDATE_TIMES = 3
 
         fun filterRecipeIds(
             memory: Map<ResourceLocation, Long>,
@@ -137,8 +140,10 @@ class MatrixRecipeMemoryPage(private val trait: MatrixQuantumWarpTrait) : IFancy
             recipe: GTRecipe
         ) {
             super.collectStorage(storages, contents, recipe)
+
             // Embedded recipe previews use LDLib's container hover path, which cannot query null slots.
-            storages.values().filterIsInstance<TagOrCycleItemStackTransfer>().forEach { transfer ->
+            for (transfer in storages.values()) {
+                if (transfer !is TagOrCycleItemStackTransfer) continue
                 transfer.stacks.forEachIndexed { index, alternatives ->
                     if (alternatives == null) transfer.setStackInSlot(index, ItemStack.EMPTY)
                 }
@@ -147,12 +152,97 @@ class MatrixRecipeMemoryPage(private val trait: MatrixQuantumWarpTrait) : IFancy
     }
 
     private class MemoryWidget(private val trait: MatrixQuantumWarpTrait) : WidgetGroup(0, 0, 280, 190) {
+
+        private val times = Object2LongOpenHashMap<ResourceLocation>()
+        private var sentRevision = 0L
+
+        override fun writeInitialData(buffer: FriendlyByteBuf) {
+            super.writeInitialData(buffer)
+
+            val current = trait.recipeTimes
+            sentRevision = trait.recipeTimesRevision
+            times.clear()
+
+            buffer.writeVarInt(current.size)
+            for ((id, seconds) in current) {
+                buffer.writeResourceLocation(id)
+                buffer.writeVarLong(seconds)
+                times.put(id, seconds)
+            }
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        override fun readInitialData(buffer: FriendlyByteBuf) {
+            super.readInitialData(buffer)
+
+            times.clear()
+            repeat(buffer.readVarInt()) {
+                times.put(buffer.readResourceLocation(), buffer.readVarLong())
+            }
+
+            if (widgets.isEmpty()) addWidget(MemoryView(trait, times))
+            (widgets[0] as MemoryView).refresh()
+        }
+
+        override fun detectAndSendChanges() {
+            super.detectAndSendChanges()
+            if (sentRevision == trait.recipeTimesRevision) return
+
+            sentRevision = trait.recipeTimesRevision
+            val current = trait.recipeTimes
+            if (times == current) return
+
+            writeUpdateInfo(UPDATE_TIMES) { buffer ->
+                for ((id, seconds) in current) {
+                    if (times.getLong(id) == seconds) continue
+                    buffer.writeResourceLocation(id)
+                    buffer.writeVarLong(seconds)
+                    times.put(id, seconds)
+                }
+
+                if (times.size != current.size) {
+                    val ids = times.keys.iterator()
+                    while (ids.hasNext()) {
+                        val id = ids.next()
+                        if (id in current) continue
+
+                        buffer.writeResourceLocation(id)
+                        buffer.writeVarLong(0)
+                        ids.remove()
+                    }
+                }
+            }
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        override fun readUpdateInfo(id: Int, buffer: FriendlyByteBuf) {
+            if (id != UPDATE_TIMES) return super.readUpdateInfo(id, buffer)
+            // A tab reopened at the same widget index can still receive its previous instance's queued delta.
+            if (widgets.isEmpty()) return
+
+            while (buffer.isReadable) {
+                val recipe = buffer.readResourceLocation()
+                val seconds = buffer.readVarLong()
+                if (seconds == 0L) {
+                    times.removeLong(recipe)
+                } else {
+                    times.put(recipe, seconds)
+                }
+            }
+
+            (widgets[0] as MemoryView).refresh()
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private class MemoryView(
+        private val trait: MatrixQuantumWarpTrait,
+        private val recipeMemoryTimes: Map<ResourceLocation, Long>
+    ) : WidgetGroup(0, 0, 280, 190) {
         private var selectedType: ResourceLocation? = null
-        private var recipeMemoryTimes = emptyMap<ResourceLocation, Long>()
         private var recipeIds = emptyList<ResourceLocation>()
         private var page = paginate(recipeMemoryTimes, recipeIds, 0)
 
-        private var refreshTicks = 0
         private var hasRendered = false
 
         private val overview = WidgetGroup(0, 0, 280, 190)
@@ -192,7 +282,9 @@ class MatrixRecipeMemoryPage(private val trait: MatrixQuantumWarpTrait) : IFancy
             val filterLabel = TextTexture("gtladditions.matrix.memory.filter".toComponent.string).setType(TextTexture.TextType.LEFT)
             overview.addWidget(ImageWidget(4, 4, 38, 16, filterLabel))
             addTypeFilter(null)
-            trait.getMachine().recipeTypes.distinctBy { it.registryName }.forEach { addTypeFilter(it) }
+            for (type in trait.getMachine().recipeTypes) {
+                if (type.registryName !in typeFilters) addTypeFilter(type)
+            }
             updateFilterButtons()
 
             overview.addWidget(ImageWidget(4, 26, 272, 10, countText))
@@ -202,8 +294,6 @@ class MatrixRecipeMemoryPage(private val trait: MatrixQuantumWarpTrait) : IFancy
             overview.addWidget(previous.apply { setHoverTooltips("gtladditions.matrix.memory.previous".toComponent) })
             overview.addWidget(next.apply { setHoverTooltips("gtladditions.matrix.memory.next".toComponent) })
             overview.addWidget(ImageWidget(32, 170, 216, 16, pageText))
-
-            refresh()
         }
 
         private fun addTypeFilter(type: GTRecipeType?) {
@@ -256,18 +346,7 @@ class MatrixRecipeMemoryPage(private val trait: MatrixQuantumWarpTrait) : IFancy
             return super.keyPressed(keyCode, scanCode, modifiers)
         }
 
-        override fun updateScreen() {
-            super.updateScreen()
-
-            if (++refreshTicks >= 20) {
-                refreshTicks = 0
-                refresh()
-            }
-        }
-
-        private fun refresh() {
-            recipeMemoryTimes = trait.getRecipeMemoryTimes()
-
+        fun refresh() {
             if (details.isVisible) {
                 updateDetailTime()
             } else {
@@ -340,8 +419,8 @@ class MatrixRecipeMemoryPage(private val trait: MatrixQuantumWarpTrait) : IFancy
             val timeText = TextTexture(memoryDetail(seconds).string).setType(TextTexture.TextType.LEFT).setColor(0xDDDDDD)
 
             rows.addWidget(
-                ButtonWidget(0, index * 22, 272, 21, ColorRectTexture(0)) { click ->
-                    if (click.isRemote) showRecipe(id, info)
+                ButtonWidget(0, index * 22, 272, 21, ColorRectTexture(0)) {
+                    showRecipe(id, info)
                 }.setHoverTexture(ColorRectTexture(0x2255FFFF)).apply {
                     isActive = info.recipe != null
                     if (info.recipe != null) setHoverTooltips("gtladditions.matrix.memory.open".toComponent)

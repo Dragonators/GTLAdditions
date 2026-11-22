@@ -185,7 +185,7 @@ class RecursiveReverseArray(holder: IMachineBlockEntity) :
 
     private fun createBuffContext(): BuffContext {
         val forge = boundForge
-        val boost = modules.filterIsInstance<SupratemporalBoostingEngine>().firstOrNull()
+        val boost = modules.firstNotNullOfOrNull { it as? SupratemporalBoostingEngine }
         val boostReady = boost?.isBoostWindowActive() == true
         val machinesReady = enabled && forge?.isFormed() == true && isFormed()
         val buffProbability = if (enabled && boostReady) boost.getPerfectSupratemporalBoostParameter() else 0.0

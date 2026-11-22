@@ -31,7 +31,7 @@ class WorkingClockEffectsTrait(machine: GTLAddWorkableElectricMultipleRecipesMac
 
     override fun onMachineLoad() {
         if (machine.isRemote) {
-            onAnimationStateChanged(effectAnimation)
+            onAnimationStateChanged(effectAnimation, null)
         } else {
             updateAnimation()
         }
@@ -50,6 +50,8 @@ class WorkingClockEffectsTrait(machine: GTLAddWorkableElectricMultipleRecipesMac
         if (machine.isRemote) return
 
         val running = getMachine().isFormed && working
+        if (!effectAnimation.isEmpty && effectAnimation.getBoolean("running") == running) return
+
         val now = worldTime()
         serverClock.setRunning(running, now)
 
@@ -62,7 +64,7 @@ class WorkingClockEffectsTrait(machine: GTLAddWorkableElectricMultipleRecipesMac
 
     @Suppress("unused", "UNUSED_PARAMETER")
     @OnlyIn(Dist.CLIENT)
-    fun onAnimationStateChanged(newState: CompoundTag, oldState: CompoundTag? = null) {
+    fun onAnimationStateChanged(newState: CompoundTag, oldState: CompoundTag?) {
         if (!machine.isRemote) return
 
         if (newState.isEmpty) {

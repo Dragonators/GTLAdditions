@@ -84,7 +84,7 @@ class MachineInfoPage(val machine: MachineDefinition, private val eut: Long, pri
     }
 
     private fun openGuide() {
-        val guide = Guides.getById(GUIDE)!!
+        val guide = Guides.getById(GUIDE) ?: return
         GuidesCommon.openGuide(Minecraft.getInstance().player, GUIDE, guide.getIndex(ItemIndex::class.java)[machine.id])
     }
 

@@ -15,7 +15,9 @@ import net.minecraftforge.api.distmarker.OnlyIn
 
 @OnlyIn(Dist.CLIENT)
 internal object StructureTierRenderer {
+
     private const val HIGHLIGHT_MILLIS = 15_000L
+
     private var marked: Set<BlockPos> = emptySet()
 
     private val BUTTON_NORMAL = GTLAdditions.id("textures/gui/structure_tier/button_normal.png")
@@ -30,17 +32,30 @@ internal object StructureTierRenderer {
     private const val FRAME_HEIGHT = 14
     private const val EDGE = 3
 
+    fun clear() {
+        marked = emptySet()
+    }
+
     fun highlight(buf: FriendlyByteBuf) {
         val dimension = Minecraft.getInstance().level?.dimension() ?: return
         val until = System.currentTimeMillis() + HIGHLIGHT_MILLIS
+
         val cells = List(buf.readVarInt()) { BlockPos.of(buf.readLong()) }
         val chunks = List(buf.readVarInt()) {
-            AABB(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble())
+            AABB(
+                buf.readDouble(),
+                buf.readDouble(),
+                buf.readDouble(),
+                buf.readDouble(),
+                buf.readDouble(),
+                buf.readDouble()
+            )
         }
 
         val corners = chunks.map { BlockPos.containing(it.minX, it.minY, it.minZ) }
         // A fixed block must not stay marked: only the latest press's marks are drawn.
         marked = (cells + corners).toSet()
+
         val problem = ColorData(1f, 0f, 0f)
         val unloaded = ColorData(1f, 0.8f, 0f)
 

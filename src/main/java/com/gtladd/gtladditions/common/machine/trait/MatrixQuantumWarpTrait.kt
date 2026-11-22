@@ -16,7 +16,6 @@ import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ThreadMultiplierStrategy
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup
 import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture
-import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.objects.Object2LongMaps
@@ -32,37 +31,21 @@ import kotlin.math.pow
 class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTrait(machine) {
 
     @field:Persisted
-    @field:DescSynced
     var runningSecs = 0L
         private set
 
     @field:Persisted
-    @field:DescSynced
     var enableDimensionFold = false
         private set
 
     private val recipeRunningSecs = Object2LongOpenHashMap<ResourceLocation>()
     private var clockSubscription: TickableSubscription? = null
 
-    // ========================================
-    // For Client
-    // ========================================
+    val recipeTimes: Map<ResourceLocation, Long>
+        get() = recipeRunningSecs
 
-    @field:DescSynced
-    var displayInfinite = false
+    internal var recipeTimesRevision = 0L
         private set
-
-    @field:DescSynced
-    private var displayOutputMultiplier = 1.0
-
-    @field:DescSynced
-    private var displayAuxiliaryCoefficient = 0.0
-
-    @field:DescSynced
-    private var displayTSDReady = false
-
-    @field:DescSynced
-    private var recipeMemory = CompoundTag()
 
     // ========================================
     // Utils
@@ -70,32 +53,24 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
 
     fun recipeSecs(id: ResourceLocation): Long = recipeRunningSecs.getLong(id)
 
-    fun getRecipeMemoryTimes(): Map<ResourceLocation, Long> = recipeMemory.allKeys.associate { id ->
-        ResourceLocation(id) to recipeMemory.getLong(id)
-    }
-
+    @JvmOverloads
     fun hasInfiniteParallel(connected: Boolean = getMachine().resolveTSD()?.isReady() == true): Boolean =
         runningSecs >= MACHINE_SECONDS && getMachine().astralArrayCount >= MAX_ARRAYS && connected
 
     fun finiteThreads(): Long {
         val omegaMultiplier = ThreadMultiplierStrategy.getAdditionalMultiplier(getMachine().definition)
         val base = 1024L + 64L * omegaMultiplier * getMachine().astralArrayCount
+
         if (runningSecs >= MACHINE_SECONDS) return base * 16
+
         return (base * 16.0.pow(runningSecs.toDouble() / MACHINE_SECONDS)).toLong()
     }
 
     fun auxiliaryCoefficient(): Double {
         // At t >= T, 0.4 converts to an exact decimal for settlement.
         if (runningSecs >= MACHINE_SECONDS) return 0.4
-        return 0.8 * 2.0.pow(-runningSecs.toDouble() / MACHINE_SECONDS)
-    }
 
-    private fun publishRecipeMemory() {
-        recipeMemory = CompoundTag().apply {
-            for (entry in Object2LongMaps.fastIterable(recipeRunningSecs)) {
-                putLong(entry.key.toString(), entry.longValue)
-            }
-        }
+        return 0.8 * 2.0.pow(-runningSecs.toDouble() / MACHINE_SECONDS)
     }
 
     // ========================================
@@ -104,7 +79,6 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
 
     override fun onMachineLoad() {
         (machine.level as? ServerLevel)?.server?.tell(TickTask(0, ::updateRunningSecSubscription))
-        publishRecipeMemory()
     }
 
     fun onWorking() {
@@ -125,6 +99,7 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
 
     private fun updateRunningClock() {
         if (machine.offsetTimer % 20 != 0L) return
+
         val logic = getMachine().recipeLogic
         val working = logic.isWorking
         val activeRecipes = if (working) {
@@ -139,20 +114,19 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
         runningSecs = (runningSecs + if (working) 1L else -16L).coerceAtLeast(0)
 
         val iterator = Object2LongMaps.fastIterator(recipeRunningSecs)
+        // Every entry advances, decays or expires on this pass.
+        if (iterator.hasNext()) recipeTimesRevision++
+
         while (iterator.hasNext()) {
             val entry = iterator.next()
             val seconds = (entry.longValue + if (entry.key in activeRecipes) 1L else -4L).coerceAtLeast(0)
-            if (seconds == 0L) iterator.remove() else entry.setValue(seconds)
+            if (seconds == 0L) {
+                iterator.remove()
+            } else {
+                entry.setValue(seconds)
+            }
         }
 
-        val distorter = getMachine().resolveTSD()?.takeIf { it.isReady() }
-        displayInfinite = hasInfiniteParallel(distorter != null)
-        val folded = displayInfinite && enableDimensionFold
-        displayOutputMultiplier = (distorter?.outputMultiplier ?: 1.0) * (if (folded) 2 else 1)
-        displayAuxiliaryCoefficient = if (distorter != null) auxiliaryCoefficient() * (if (folded) 6 else 1) else 0.0
-        displayTSDReady = distorter != null
-
-        publishRecipeMemory()
         this.updateRunningSecSubscription()
     }
 
@@ -170,6 +144,7 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
 
     override fun loadCustomPersistedData(tag: CompoundTag) {
         super.loadCustomPersistedData(tag)
+        recipeTimesRevision++
         recipeRunningSecs.clear()
 
         val timers = tag.getCompound("quantumWarpRecipeSeconds")
@@ -186,12 +161,15 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
 
     fun addParallelDisplay(textList: MutableList<Component?>) {
         val p = getMachine().maxParallel
-        if (p > 1 && !displayInfinite) {
+        if (p > 1 && !hasInfiniteParallel()) {
             textList.add("gtceu.multiblock.parallel".toComponent(p))
         }
     }
 
     fun addDisplayText(textList: MutableList<Component?>) {
+        val distorter = getMachine().resolveTSD()?.takeIf { it.isReady() }
+        val infinite = hasInfiniteParallel(distorter != null)
+
         textList.add(
             "gtladditions.multiblock.forge_of_the_antichrist.running_sec".toComponent(
                 createRainbowComponent(FormattingUtil.DECIMAL_FORMAT_2F.format(runningSecs / 3600.0))
@@ -204,7 +182,7 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
         )
         textList.add(
             "gtladditions.multiblock.threads".toComponent(
-                if (displayInfinite) {
+                if (infinite) {
                     createLanguageRainbowComponentOnServer(
                         "gtladditions.multiblock.forge_of_the_antichrist.parallel".toComponent
                     )
@@ -213,15 +191,20 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
                 }
             ).withStyle(ChatFormatting.GRAY)
         )
-        if (displayTSDReady) {
+
+        if (distorter != null) {
+            val folded = infinite && enableDimensionFold
+            val output = distorter.outputMultiplier * (if (folded) 2 else 1)
+            val auxiliary = auxiliaryCoefficient() * (if (folded) 6 else 1)
+
             textList.add(
                 "gtladditions.matrix.output_multiplier".toComponent(
-                    displayOutputMultiplier.toString().literal.withStyle(ChatFormatting.GOLD)
+                    output.toString().literal.withStyle(ChatFormatting.GOLD)
                 )
             )
             textList.add(
                 "gtladditions.matrix.auxiliary_multiplier".toComponent(
-                    "%.2f".format(displayAuxiliaryCoefficient).literal.withStyle(ChatFormatting.GOLD)
+                    "%.2f".format(auxiliary).literal.withStyle(ChatFormatting.GOLD)
                 )
             )
         }
@@ -237,7 +220,7 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
                 GuiTextureGroup(GuiTextures.BUTTON, ResourceTexture("gtladditions:textures/gui/button/dimension_fold_off.png")),
                 GuiTextureGroup(GuiTextures.BUTTON, ResourceTexture("gtladditions:textures/gui/button/dimension_fold_on.png")),
                 { enableDimensionFold },
-                { _, pressed -> enableDimensionFold = pressed }
+                { clickData, pressed -> if (!clickData.isRemote) enableDimensionFold = pressed }
             ).setTooltipsSupplier { listOf("gtladditions.matrix.fold_toggle".toComponent) }
         )
     }

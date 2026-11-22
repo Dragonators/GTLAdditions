@@ -16,7 +16,6 @@ import com.gtladd.gtladditions.api.recipe.ChanceParallelLogic
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
-import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongArrayList
@@ -40,7 +39,6 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
     ),
     ITimeSpaceDistorterSource {
 
-    @field:DescSynced
     @field:Persisted
     private var timeSpaceDistorterPos: BlockPos? = null
 

@@ -33,7 +33,6 @@ class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any
     ITimeSpaceDistorterSource,
     IAstralArrayInteractionMachine {
 
-    @field:DescSynced
     @field:Persisted
     private var timeSpaceDistorterPos: BlockPos? = null
 
@@ -41,7 +40,6 @@ class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any
     private val structureModify = StructureModifyTrait(this, StructureRenderType.APOCALYPTIC_MATRIX)
 
     @field:Persisted
-    @field:DescSynced
     override var astralArrayCount = 0
         private set
 
@@ -49,7 +47,6 @@ class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any
     val matrixEffects = WorkingClockEffectsTrait(this)
 
     @field:Persisted
-    @field:DescSynced
     val quantumWarpTrait = MatrixQuantumWarpTrait(this)
 
     override fun increaseAstralArrayCount(amount: Int): Int {

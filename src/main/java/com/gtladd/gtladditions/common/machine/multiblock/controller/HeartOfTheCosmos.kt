@@ -65,7 +65,6 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
     override val structureTierTrait: StructureTierTrait = StructureTierTrait(this, HeartBlockLayout.tiers, structureModify)
 
     @field:Persisted
-    @field:DescSynced
     @field:DropSaved
     var annihilatedPlanes = 0L
 

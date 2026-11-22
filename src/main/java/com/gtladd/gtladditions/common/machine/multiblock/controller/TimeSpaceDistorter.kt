@@ -57,11 +57,9 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
     private var boundMatrixPos: BlockPos? = null
 
     @Persisted
-    @DescSynced
     private var lastConsumedAmounts = LongArray(0)
 
     @Persisted
-    @DescSynced
     private var lastConsumptionSucceeded = false
 
     private var boundMatrix: ITimeSpaceDistorterSource? = null
@@ -171,13 +169,16 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
     private fun consumeResources(parallels: Int128, coefficient: Double = 1.0, folded: Boolean = false): Boolean {
         val amounts = calculateRequiredAmounts(causalityDistortionLevel, parallels, coefficient, folded)
         val input = MachineUtil.input(this)
+
         forEachRequiredResource(
             amounts,
             addFluid = { input.fluid(it) },
             addItem = { stack, amount -> input.item(stack, amount) }
         )
+
         val consumed = input.execute()
         RecipeResult.of(this, null)
+
         lastConsumedAmounts = amounts
         lastConsumptionSucceeded = consumed
         return consumed
@@ -270,7 +271,8 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
     }
 
     private fun addLastConsumedDisplayText(textList: MutableList<Component>) {
-        if (!isFormed || lastConsumedAmounts.isEmpty()) return
+        if (!isFormed || lastConsumedAmounts.size < 5 || lastConsumedAmounts.all { it <= 0L }) return
+
         textList.add(
             Component.translatable(
                 if (lastConsumptionSucceeded) {

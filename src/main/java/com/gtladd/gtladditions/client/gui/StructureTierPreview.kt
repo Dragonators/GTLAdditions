@@ -32,11 +32,13 @@ import java.util.WeakHashMap
 
 @OnlyIn(Dist.CLIENT)
 object StructureTierPreview {
+
     private val kept = HashMap<Pair<StructureTierLayout, IntRange>, LongSet>()
     private val sparse = WeakHashMap<SparsePreviewShape, HashMap<IntRange, SparsePreviewShape>>()
     private val full = WeakHashMap<MultiblockShapeInfo, HashMap<IntRange, MultiblockShapeInfo>>()
     private val hidden = WeakHashMap<IMultiController, Array<LongSet?>>()
     private val heights = WeakHashMap<IMultiController, Array<PreviewHeight?>>()
+
     private var shownAt: BlockPos? = null
     private var shownTicks = 0
 
@@ -50,10 +52,17 @@ object StructureTierPreview {
     fun shown(machine: IStructureTierMachine): IntRange {
         val tiers = machine.structureTierTrait
         return if (tiers.structureTier >= tiers.layout.minTier) {
-            tiers.structureTier + 1..tiers.buildTier
+            tiers.structureTier + 1..tiers.unlockedTier
         } else {
-            0..tiers.buildTier
+            0..tiers.unlockedTier
         }
+    }
+
+    fun clear() {
+        shownAt = null
+        shownTicks = 0
+        deferred = null
+        deferredAt = 0L
     }
 
     fun opened(pos: BlockPos?, ticks: Int) {
@@ -66,6 +75,7 @@ object StructureTierPreview {
         val controller = machine as MultiblockControllerMachine
         if (controller.pos != shownAt) return
         if (!WorldPreview.active() && MultiblockInWorldPreviewRendererAccessor.getLastPos() != controller.pos) return
+
         MultiblockInWorldPreviewRenderer.cleanPreview()
         MultiblockInWorldPreviewRenderer.showPreview(controller.pos, controller, shownTicks)
     }
@@ -111,10 +121,11 @@ object StructureTierPreview {
         val (machine, range) = deferred ?: return null
         val mc = Minecraft.getInstance()
         if ((machine as MultiblockControllerMachine).definition != definition || !mc.isSameThread) return null
+
         deferred = null
         if (mc.level?.gameTime != deferredAt) return null
-        val shapes = definition.matchingShapes
 
+        val shapes = definition.matchingShapes
         return listOf(filter(shapes[0], machine, range)) + shapes.drop(1)
     }
 
@@ -172,6 +183,7 @@ object StructureTierPreview {
     fun hidden(controller: IMultiController, tier: Int): LongSet {
         val layout = (controller as IStructureTierMachine).structureTierTrait.layout
         if (tier >= layout.maxTier) return LongSets.EMPTY_SET
+
         return hidden.getOrPut(controller) { arrayOfNulls(layout.maxTier + 1) }.let { sets ->
             sets[tier] ?: LongOpenHashSet().also { set ->
                 for (pos in layout.positions(tier + 1..layout.maxTier, controller as MultiblockControllerMachine)) {
@@ -184,8 +196,8 @@ object StructureTierPreview {
 
     fun materials(list: List<List<GenericStack>>, materials: Map<BlockPos, AEKey>, hidden: LongSet): List<List<GenericStack>> {
         if (hidden.isEmpty()) return list
-        val minus = Object2LongOpenHashMap<AEKey>()
 
+        val minus = Object2LongOpenHashMap<AEKey>()
         for ((pos, key) in materials) {
             if (pos.asLong() in hidden) minus.addTo(key, 1L)
         }
@@ -204,6 +216,7 @@ object StructureTierPreview {
         hidden: LongSet
     ): PreviewHeight {
         val layout = (controller as IStructureTierMachine).structureTierTrait.layout
+
         return heights.getOrPut(controller) { arrayOfNulls(layout.maxTier + 1) }.let { cached ->
             cached[tier] ?: PreviewHeight().also { height ->
                 for ((pos, info) in blocks) {

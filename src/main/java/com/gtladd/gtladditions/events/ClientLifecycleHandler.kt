@@ -1,6 +1,8 @@
 package com.gtladd.gtladditions.events
 
 import com.gtladd.gtladditions.GTLAdditions.Companion.MOD_ID
+import com.gtladd.gtladditions.client.gui.StructureTierPreview
+import com.gtladd.gtladditions.client.gui.StructureTierRenderer
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographOrbits
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographStarRenderer
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixEyeRenderer
@@ -15,10 +17,14 @@ import net.minecraftforge.fml.common.Mod
 @Suppress("unused")
 @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.CLIENT])
 object ClientLifecycleHandler {
+
     @SubscribeEvent
     @JvmStatic
     fun onLevelUnload(event: LevelEvent.Unload) {
         if (!event.level.isClientSide) return
+
+        StructureTierPreview.clear()
+        StructureTierRenderer.clear()
         MatrixEyeRenderer.clearAnimations()
 
         val release = {
@@ -34,5 +40,9 @@ object ClientLifecycleHandler {
     // Highlights outlive a dimension change: the monitor can mark a machine in another dimension.
     @SubscribeEvent
     @JvmStatic
-    fun onLoggingOut(event: ClientPlayerNetworkEvent.LoggingOut) = ClientCloudHighlighter.clear()
+    fun onLoggingOut(event: ClientPlayerNetworkEvent.LoggingOut) {
+        ClientCloudHighlighter.clear()
+        StructureTierPreview.clear()
+        StructureTierRenderer.clear()
+    }
 }

@@ -64,31 +64,13 @@ class StructureTierTrait(
         private set
 
     @field:Persisted
-    @field:DescSynced
     var payment = LongArray(0)
         private set
 
-    /** 0 follows the next tier to unlock. */
-    @field:Persisted
-    @field:DescSynced
-    @field:UpdateListener(methodName = "onShownTiersChanged")
-    private var chosenTier = 0
+    internal var nextGuiActivationTick = 0L
 
     @field:Persisted
     val inventory = ItemStackTransfer(SLOTS)
-
-    val selectedTier: Int
-        get() = if (chosenTier in layout.minTier..layout.maxTier) {
-            chosenTier
-        } else {
-            minOf(
-                unlockedTier + 1,
-                layout.maxTier
-            )
-        }
-
-    val buildTier: Int
-        get() = minOf(selectedTier, unlockedTier)
 
     val hasDropData: Boolean
         get() = unlockedTier > layout.minTier || payment.any { it > 0 }
@@ -149,11 +131,6 @@ class StructureTierTrait(
         StructureTierPreview.refresh(machine as IStructureTierMachine)
     }
 
-    fun select(tier: Int) {
-        chosenTier = tier.coerceIn(layout.minTier, layout.maxTier)
-        onChanged()
-    }
-
     fun requirement(tier: Int): TierRequirement? = (machine as IStructureTierMachine).tierRequirement(tier)
 
     fun paid(tier: Int, index: Int): Long = when {
@@ -162,8 +139,8 @@ class StructureTierTrait(
         else -> 0L
     }
 
-    fun unlock(tier: Int): List<Component> {
-        if (tier != unlockedTier + 1) return emptyList()
+    fun unlock(): List<Component> {
+        val tier = unlockedTier + 1
         val requirement = requirement(tier) ?: return emptyList()
 
         val paid = LongArray(requirement.costs.size) { paid(tier, it) }
@@ -189,7 +166,6 @@ class StructureTierTrait(
         if (unpaid == 0 && unmet.isEmpty()) {
             unlockedTier = tier
             payment = LongArray(0)
-            chosenTier = 0
         }
 
         onChanged()
@@ -229,7 +205,7 @@ class StructureTierTrait(
             controller.multiblockState.error !== MultiblockState.UNLOAD_ERROR &&
             hasReplaceableCells(0..previousTier, setting.blocks)
         val first = if (formed && !replace) previousTier + 1 else 0
-        val last = if (replace) maxOf(previousTier, buildTier) else buildTier
+        val last = unlockedTier
         if (first > last) {
             player.sendSystemMessage("gtladditions.structure_tier.nothing_to_build".toComponent)
             return
@@ -259,7 +235,7 @@ class StructureTierTrait(
         val finish = Runnable { activate(origin).messages.forEach(player::sendSystemMessage) }
 
         // Forge publishes the placement snapshots after the terminal returns. Register the new cells after those notifications.
-        if (world is ServerLevel && world.captureBlockSnapshots && hasPhysicalCells(first..buildTier)) {
+        if (world is ServerLevel && world.captureBlockSnapshots && hasPhysicalCells(first..last)) {
             world.server.tell(TickTask(world.server.tickCount, finish))
         } else {
             finish.run()
