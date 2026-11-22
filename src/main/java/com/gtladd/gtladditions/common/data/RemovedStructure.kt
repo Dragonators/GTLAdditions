@@ -16,8 +16,13 @@ class RemovedStructure private constructor(
     private val blocks: Long2ObjectMap<BlockState>,
     private val blockEntities: Map<Long, CompoundTag>
 ) {
+
     val isEmpty: Boolean
         get() = blocks.isEmpty()
+
+    fun blockState(pos: BlockPos): BlockState? = blocks.get(pos.asLong())
+
+    fun contains(pos: BlockPos): Boolean = blocks.containsKey(pos.asLong())
 
     fun erase(write: (BlockPos, BlockState, CompoundTag?) -> Unit) {
         val air = Blocks.AIR.defaultBlockState()
@@ -30,12 +35,29 @@ class RemovedStructure private constructor(
         }
     }
 
+    fun restore(positions: Collection<BlockPos>, write: (BlockPos, BlockState, CompoundTag?) -> Unit): RemovedStructure {
+        if (positions.none(::contains)) return this
+
+        val remaining = Long2ObjectLinkedOpenHashMap(blocks)
+        val entities = HashMap(blockEntities)
+
+        for (pos in positions) {
+            val key = pos.asLong()
+            val state = remaining.remove(key) ?: continue
+            write(pos, state, entities.remove(key)?.copy())
+        }
+
+        return if (remaining.isEmpty()) EMPTY else RemovedStructure(remaining, entities)
+    }
+
     /** [other] must hold positions disjoint from these. */
     operator fun plus(other: RemovedStructure): RemovedStructure {
         if (isEmpty) return other
+
         val merged = Long2ObjectLinkedOpenHashMap<BlockState>(blocks.size + other.blocks.size)
         merged.putAll(blocks)
         merged.putAll(other.blocks)
+
         return RemovedStructure(merged, blockEntities + other.blockEntities)
     }
 

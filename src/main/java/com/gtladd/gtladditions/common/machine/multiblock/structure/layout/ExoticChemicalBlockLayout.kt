@@ -53,20 +53,6 @@ object ExoticChemicalBlockLayout {
         roles.getValue(aisles[a][r][c]).structureTier
     }
 
-    val base: BlockPattern by lazy {
-        tiers.template { it <= 1 }
-    }
-
-    // The controller lights the coils in each active stage.
-    val coils: Map<Int, List<Int>> by lazy {
-        (1..tiers.maxTier).associateWith { structureTier ->
-            tiers.cells(structureTier).filter { cell ->
-                val symbol = aisles[StructureTierLayout.aisle(cell)][StructureTierLayout.row(cell)][StructureTierLayout.column(cell)]
-                roles.getValue(symbol).material == "coil"
-            }
-        }
-    }
-
     val portOwners: Map<Int, Int> by lazy {
         buildMap {
             for (cell in tiers.cells(0)) {

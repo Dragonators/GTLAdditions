@@ -1,12 +1,18 @@
 package com.gtladd.gtladditions.common.machine.trait
 
+import com.gregtechceu.gtceu.api.block.ActiveBlock
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
+import com.gregtechceu.gtceu.api.pattern.BlockPattern
 import com.gregtechceu.gtceu.api.pattern.MultiblockState
+import com.gregtechceu.gtceu.api.pattern.MultiblockWorldSavedData
 import com.gtladd.gtladditions.api.machine.feature.IStructureTierMachine
 import com.gtladd.gtladditions.api.machine.feature.TierRequirement
+import com.gtladd.gtladditions.api.pattern.RemainingStructurePattern
 import com.gtladd.gtladditions.api.pattern.StructureTierLayout
 import com.gtladd.gtladditions.client.gui.StructureTierPreview
+import com.gtladd.gtladditions.mixin.gtceu.api.machine.WorkableMultiblockMachineAccessor
 import com.gtladd.gtladditions.mixin.gtceu.api.pattern.MultiblockStateAccessor
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
@@ -15,7 +21,12 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
+import it.unimi.dsi.fastutil.ints.IntSet
+import it.unimi.dsi.fastutil.ints.IntSets
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet
+import it.unimi.dsi.fastutil.longs.LongSet
+import it.unimi.dsi.fastutil.longs.LongSets
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
@@ -24,6 +35,7 @@ import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.ChunkPos
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -35,7 +47,8 @@ class StructureTierTrait(
     machine: MultiblockControllerMachine,
     val layout: StructureTierLayout,
     private val structureModify: StructureModifyTrait? = null,
-    private val onPhysicalStructure: (IntRange) -> Unit = {}
+    private val sharedContextKeys: Set<String> = setOf("CoilType"),
+    private val onTierSynced: (IntRange) -> Unit = {}
 ) : MachineTrait(machine) {
 
     @field:Persisted
@@ -81,7 +94,50 @@ class StructureTierTrait(
         get() = unlockedTier > layout.minTier || payment.any { it > 0 }
 
     val hasPendingTier: Boolean
-        get() = (machine as MultiblockControllerMachine).isFormed && structureTier < unlockedTier
+        get() = controller.isFormed && structureTier < unlockedTier
+
+    private val controller: MultiblockControllerMachine
+        get() = machine as MultiblockControllerMachine
+
+    private var physicalActiveBlocks: LongSet = LongSets.EMPTY_SET
+
+    private val virtualMask: IntSet by lazy {
+        structureModify?.let { RemainingStructurePattern.virtualCells(layout.pattern, it.renderType) }
+            ?: IntSets.EMPTY_SET
+    }
+
+    private val virtualCells: Array<IntArray> by lazy {
+        Array(layout.maxTier + 1) { tier ->
+            if (virtualMask.isEmpty()) {
+                IntArray(0)
+            } else {
+                layout.cells(tier).filter(virtualMask::contains).toIntArray()
+            }
+        }
+    }
+
+    private val physicalCells: Array<IntArray> by lazy {
+        Array(layout.maxTier + 1) { tier ->
+            val cells = layout.cells(tier)
+            when (virtualCells[tier].size) {
+                0 -> cells
+                cells.size -> IntArray(0)
+                else -> cells.filterNot(virtualMask::contains).toIntArray()
+            }
+        }
+    }
+
+    private val hasPhysicalUpperCells: Boolean by lazy {
+        hasPhysicalCells(layout.minTier + 1..layout.maxTier)
+    }
+
+    private val basePattern: BlockPattern by lazy {
+        when {
+            structureModify == null -> layout.base
+            !hasPhysicalUpperCells -> RemainingStructurePattern.create(layout.pattern, structureModify.renderType)
+            else -> layout.templateCells { tier, cell -> tier <= layout.minTier && !virtualMask.contains(cell) }
+        }
+    }
 
     // ========================================
     // TIER SELECTION & UNLOCK
@@ -167,24 +223,43 @@ class StructureTierTrait(
     )
 
     fun autoBuild(player: Player, setting: UltimateTerminalBehavior.AutoBuildSetting) {
-        val controller = machine as MultiblockControllerMachine
-        val first = if (controller.isFormed) structureTier + 1 else 0
-        if (first > buildTier) {
+        val formed = controller.isFormed
+        val previousTier = structureTier
+        val replace = formed && setting.isReplaceMode && setting.blocks.isNotEmpty() &&
+            controller.multiblockState.error !== MultiblockState.UNLOAD_ERROR &&
+            hasReplaceableCells(0..previousTier, setting.blocks)
+        val first = if (formed && !replace) previousTier + 1 else 0
+        val last = if (replace) maxOf(previousTier, buildTier) else buildTier
+        if (first > last) {
             player.sendSystemMessage("gtladditions.structure_tier.nothing_to_build".toComponent)
             return
+        }
+
+        if (formed) {
+            setting.isFlipped = controller.isFlipped
+            if (!replace) setting.isReplaceMode = false
         }
 
         // The terminal clears its working state before placing blocks. Keep the live match and its mapped positions intact.
         val world = player.level()
         val buildState = MultiblockState(world, controller.pos)
-        layout.template { it in first..buildTier }.autoBuild(player, buildState, setting)
-        if (!controller.isFormed) return
+        layout.template { it in first..last }.autoBuild(player, buildState, setting)
+
+        if (!controller.isFormed) {
+            if (formed) {
+                (world as? ServerLevel)?.let {
+                    MultiblockWorldSavedData.getOrCreate(it).removeMapping(controller.multiblockState)
+                }
+                controller.onPartUnload()
+            }
+            return
+        }
 
         val origin = player.blockPosition()
         val finish = Runnable { activate(origin).messages.forEach(player::sendSystemMessage) }
 
         // Forge publishes the placement snapshots after the terminal returns. Register the new cells after those notifications.
-        if (structureModify == null && world is ServerLevel && world.captureBlockSnapshots) {
+        if (world is ServerLevel && world.captureBlockSnapshots && hasPhysicalCells(first..buildTier)) {
             world.server.tell(TickTask(world.server.tickCount, finish))
         } else {
             finish.run()
@@ -193,7 +268,6 @@ class StructureTierTrait(
 
     /** [origin] orders the reported problems by distance. */
     fun activate(origin: BlockPos): Activation {
-        val controller = machine as MultiblockControllerMachine
         controller.patternLock.withLock {
             if (controller.isInValid || !controller.isFormed || controller.multiblockState.hasError()) {
                 return Activation(
@@ -212,13 +286,25 @@ class StructureTierTrait(
                 return Activation(listOf(message), emptyList(), emptyList())
             }
 
-            val scan = scan(structureTier + 1, unlockedTier, origin)
+            val oldTier = structureTier
+            recoverSharedContext(controller.multiblockState, 1..oldTier)
+            val scan = scan(oldTier + 1, unlockedTier, origin, skipRemoved = false)
             val messages = ArrayList<Component>()
-            if (scan.complete > structureTier) {
-                structureModify?.extend(structureTier + 1..scan.complete)
+
+            if (scan.complete > oldTier) {
                 structureTier = scan.complete
-                if (structureModify == null) onPhysicalStructure(1..structureTier)
+                scan.sharedContext.forEach(controller.multiblockState.matchContext::set)
                 onChanged()
+
+                if (hasPhysicalUpperCells) {
+                    val active = LongOpenHashSet(physicalActiveBlocks).apply { addAll(scan.activeBlocks) }
+                    syncPhysical(machine.level as ServerLevel, active)
+                }
+
+                structureModify?.capture(virtualPositions(oldTier + 1..structureTier))
+                onTierSynced(1..structureTier)
+                if (hasPhysicalUpperCells) updateActiveBlocks()
+
                 messages += "gtladditions.structure_tier.activated".toComponent(structureTier)
                     .withStyle(ChatFormatting.GREEN)
             }
@@ -233,6 +319,7 @@ class StructureTierTrait(
                     val expected = layout.predicate(cell).common
                         .firstNotNullOfOrNull { it.candidates?.get()?.firstOrNull() }?.blockState?.block?.name
                     val current = controller.level!!.getBlockState(pos)
+
                     messages += if (current.isAir) {
                         "gtladditions.structure_tier.needs".toComponent(position, expected)
                     } else {
@@ -251,40 +338,213 @@ class StructureTierTrait(
         }
     }
 
+    private fun hasReplaceableCells(tiers: IntRange, blocks: Set<Block>): Boolean {
+        for (tier in tiers) {
+            for (cell in layout.distinctPredicateCells(tier)) {
+                val predicate = layout.predicate(cell)
+                var total = 0
+                var matched = false
+
+                for (part in predicate.common) {
+                    val candidates = part.candidates?.get() ?: continue
+                    total += candidates.size
+                    if (!matched && candidates.any { it.blockState.block in blocks }) matched = true
+                }
+
+                for (part in predicate.limited) {
+                    val candidates = part.candidates?.get() ?: continue
+                    total += candidates.size
+                    if (!matched && candidates.any { it.blockState.block in blocks }) matched = true
+                }
+
+                if (matched && total > 1) return true
+            }
+        }
+
+        return false
+    }
+
     // ========================================
-    // LIFECYCLE & SCANNING
+    // LIFECYCLE
     // ========================================
+
+    fun checkPattern(): Boolean {
+        val state = controller.multiblockState
+        if (!basePattern.checkPatternAt(state, false)) return false
+
+        if (structureModify != null && !structureModify.hasRemovedStructure) {
+            for (tier in 1..layout.minTier) {
+                if (!layout.matches(virtualCells[tier], state, controller)) return false
+            }
+        }
+
+        val level = machine.level as? ServerLevel ?: return true
+        if (!hasPhysicalUpperCells || structureTier <= layout.minTier) return true
+
+        val checked = LongOpenHashSet()
+        for (tier in layout.minTier + 1..structureTier) {
+            for (cell in physicalCells[tier]) {
+                val pos = layout.position(cell, controller, state.isNeededFlip)
+                if (checked.add(ChunkPos.asLong(pos)) && !level.chunkSource.hasChunk(pos.x shr 4, pos.z shr 4)) {
+                    state.setError(MultiblockState.UNLOAD_ERROR)
+                    return false
+                }
+            }
+        }
+
+        return true
+    }
 
     fun onStructureFormed() {
         // JEI also forms controllers in a TrackedDummyWorld.
-        if (machine.level !is ServerLevel) return
+        val level = machine.level as? ServerLevel ?: return
 
-        val controller = machine as MultiblockControllerMachine
         controller.patternLock.withLock {
-            // Formed again after an unload or a recheck: the active tiers stand.
-            if (structureModify?.hasRemovedStructure == true) return
+            recoverSharedContext(controller.multiblockState, 1..layout.minTier)
 
-            // Rechecking physical stages can lower the active tier. Only activation extends it again.
-            val lastTier = if (structureModify == null && structureTier > 0) structureTier else unlockedTier
-            val scan = scan(layout.minTier + 1, lastTier, controller.pos)
+            val oldTier = structureTier
+            val lastTier = if (oldTier > 0) oldTier else unlockedTier
+            val scan = scan(layout.minTier + 1, lastTier, controller.pos, skipRemoved = true)
+
             structureTier = scan.complete
+            scan.sharedContext.forEach(controller.multiblockState.matchContext::set)
             onChanged()
 
+            val syncActive = hasPhysicalUpperCells || physicalActiveBlocks.isNotEmpty()
+            if (syncActive) syncPhysical(level, scan.activeBlocks)
+
             if (structureModify != null) {
-                structureModify.form(1..structureTier)
-            } else {
-                onPhysicalStructure(1..structureTier)
+                if (structureTier < oldTier) {
+                    structureModify.restore(virtualPositions(structureTier + 1..oldTier))
+                }
+                structureModify.capture(virtualPositions(1..structureTier, skipRemoved = true))
             }
+
+            onTierSynced(1..structureTier)
+            if (syncActive) updateActiveBlocks()
         }
+    }
+
+    fun onStructureInvalid() {
+        if (controller.multiblockState.error === MultiblockState.UNLOAD_ERROR) return
+
+        (machine.level as? ServerLevel)?.let { extinguish(it, LongSets.EMPTY_SET) }
+        onMachineRemoved()
+        onChanged()
+    }
+
+    fun onMachineRemoved() {
+        physicalActiveBlocks = LongSets.EMPTY_SET
+        structureModify?.restore()
+        structureTier = 0
     }
 
     fun onStructureRestored() {
         structureTier = 0
     }
 
+    // ========================================
+    // SYNC & SCANNING
+    // ========================================
+
+    private fun hasPhysicalCells(tiers: IntRange): Boolean = tiers.any { physicalCells[it].isNotEmpty() }
+
+    private fun syncPhysical(level: ServerLevel, active: LongSet) {
+        val state = controller.multiblockState
+        val saved = MultiblockWorldSavedData.getOrCreate(level)
+
+        saved.removeMapping(state)
+        for (tier in layout.minTier + 1..structureTier) {
+            for (cell in physicalCells[tier]) {
+                state.addPosCache(layout.position(cell, controller))
+            }
+        }
+        saved.addMapping(state)
+
+        extinguish(level, active)
+        physicalActiveBlocks = active
+
+        val merged = LongOpenHashSet(state.matchContext.getOrDefault<LongSet>("vaBlocks", LongSets.EMPTY_SET))
+        merged.addAll(active)
+        state.matchContext.set("vaBlocks", merged)
+        (controller as? WorkableMultiblockMachineAccessor)?.setActiveBlocks(merged)
+    }
+
+    private fun extinguish(level: ServerLevel, keep: LongSet) {
+        val previous = physicalActiveBlocks.iterator()
+        while (previous.hasNext()) {
+            val key = previous.nextLong()
+            if (keep.contains(key)) continue
+
+            val pos = BlockPos.of(key)
+            if (!level.isLoaded(pos)) continue
+
+            val state = level.getBlockState(pos)
+            val block = state.block
+            if (block is ActiveBlock && block.isActive(state)) {
+                level.setBlock(
+                    pos,
+                    block.changeActive(state, false),
+                    Block.UPDATE_CLIENTS or Block.UPDATE_KNOWN_SHAPE
+                )
+            }
+        }
+    }
+
+    private fun updateActiveBlocks() {
+        (controller as? WorkableMultiblockMachine)?.let { it.updateActiveBlocks(it.recipeLogic.isWorking) }
+    }
+
+    private fun isCaptured(cells: IntArray): Boolean =
+        cells.isNotEmpty() && structureModify?.contains(layout.position(cells[0], controller)) == true
+
+    private fun virtualPositions(tiers: IntRange, skipRemoved: Boolean = false): List<BlockPos> = buildList {
+        for (tier in tiers) {
+            val cells = virtualCells[tier]
+            if (skipRemoved && isCaptured(cells)) continue
+
+            for (cell in cells) {
+                add(layout.position(cell, controller))
+            }
+        }
+    }
+
+    private fun recoverSharedContext(target: MultiblockState, tiers: IntRange) {
+        if (structureModify?.hasRemovedStructure != true) return
+        if (sharedContextKeys.all { target.matchContext.get<Any>(it) != null }) return
+
+        val scratch = MultiblockState(target.world, controller.pos)
+        val accessor = scratch as MultiblockStateAccessor
+
+        for (tier in tiers) {
+            for (cell in layout.distinctPredicateCells(tier)) {
+                if (!virtualMask.contains(cell)) continue
+
+                val pos = layout.position(cell, controller)
+                val block = structureModify.blockState(pos) ?: continue
+
+                accessor.setPos(pos)
+                accessor.setBlockState(block)
+                val predicate = layout.predicate(cell)
+                scratch.predicate = predicate
+                if (!predicate.test(scratch)) continue
+
+                for (key in sharedContextKeys) {
+                    if (target.matchContext.get<Any>(key) == null) {
+                        scratch.matchContext.get<Any>(key)?.let { target.matchContext.set(key, it) }
+                    }
+                }
+
+                if (sharedContextKeys.all { target.matchContext.get<Any>(it) != null }) return
+            }
+        }
+    }
+
     /** [complete] is the last complete tier; the other fields describe [tier], the first incomplete one. */
     private class Scan(
         val complete: Int,
+        val sharedContext: Map<String, Any>,
+        val activeBlocks: LongSet,
         val tier: Int = 0,
         val missing: Int = 0,
         val wrong: Int = 0,
@@ -293,20 +553,30 @@ class StructureTierTrait(
     )
 
     /** Never loads chunks. */
-    private fun scan(from: Int, to: Int, origin: BlockPos): Scan {
-        val controller = machine as MultiblockControllerMachine
+    private fun scan(from: Int, to: Int, origin: BlockPos, skipRemoved: Boolean): Scan {
         val state = MultiblockState(machine.level as ServerLevel, controller.pos)
-        if (structureModify == null) {
-            controller.multiblockState.matchContext.get<Any>("CoilType")?.let { state.matchContext.set("CoilType", it) }
+        for (key in sharedContextKeys) {
+            controller.multiblockState.matchContext.get<Any>(key)?.let { state.matchContext.set(key, it) }
         }
 
+        val shared = HashMap<String, Any>()
+        val active = if (hasPhysicalUpperCells) LongOpenHashSet() else LongSets.EMPTY_SET
+
         for (tier in from..to) {
+            val cells = if (skipRemoved && tier <= structureTier && isCaptured(virtualCells[tier])) {
+                recoverSharedContext(state, tier..tier)
+                physicalCells[tier]
+            } else {
+                layout.cells(tier)
+            }
+
+            var tierActive: LongOpenHashSet? = null
             var missing = 0
             var wrong = 0
             val nearest = PriorityQueue<Pair<BlockPos, Int>>(compareByDescending { it.first.distSqr(origin) })
             val unloaded = Long2ObjectOpenHashMap<AABB>()
 
-            for (cell in layout.cells(tier)) {
+            for (cell in cells) {
                 val predicate = layout.predicate(cell)
                 val pos = layout.position(cell, controller)
                 if (!(state as MultiblockStateAccessor).invokeUpdate(pos, predicate)) {
@@ -315,7 +585,14 @@ class StructureTierTrait(
                     continue
                 }
 
-                if (predicate.test(state)) continue
+                if (predicate.test(state)) {
+                    if (!virtualMask.contains(cell) && state.blockState.block is ActiveBlock) {
+                        if (tierActive == null) tierActive = LongOpenHashSet()
+                        tierActive.add(pos.asLong())
+                    }
+                    continue
+                }
+
                 if (state.blockState.isAir) missing++ else wrong++
                 nearest.add(pos to cell)
                 if (nearest.size > HIGHLIGHTED) nearest.poll()
@@ -327,11 +604,27 @@ class StructureTierTrait(
                     val z = ChunkPos.getZ(entry.longKey) * 16.0
                     AABB(x, entry.value.minY, z, x + 16, entry.value.maxY, z + 16)
                 }
-                return Scan(tier - 1, tier, missing, wrong, nearest.sortedBy { it.first.distSqr(origin) }, chunks)
+
+                return Scan(
+                    tier - 1,
+                    shared,
+                    active,
+                    tier,
+                    missing,
+                    wrong,
+                    nearest.sortedBy { it.first.distSqr(origin) },
+                    chunks
+                )
+            }
+
+            // A failed tier must not publish even its correctly matched cells or their shared attributes.
+            tierActive?.let { active.addAll(it) }
+            for (key in sharedContextKeys) {
+                state.matchContext.get<Any>(key)?.let { shared[key] = it }
             }
         }
 
-        return Scan(maxOf(to, from - 1))
+        return Scan(maxOf(to, from - 1), shared, active)
     }
 
     // ========================================
@@ -341,6 +634,7 @@ class StructureTierTrait(
     // The input slots drop as items.
     override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {
         if (!forDrop) return
+
         tag.put(
             DROP_KEY,
             CompoundTag().apply {
@@ -352,6 +646,7 @@ class StructureTierTrait(
 
     override fun loadCustomPersistedData(tag: CompoundTag) {
         if (!tag.contains(DROP_KEY)) return
+
         val drop = tag.getCompound(DROP_KEY)
         unlockedTier = drop.getInt("unlocked")
         payment = drop.getLongArray("payment")

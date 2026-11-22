@@ -13,6 +13,7 @@
     "buildinggadgets2.ServerTickHandlerMixin",
     "buildinggadgets2.RenderBlockBEMixin",
     "gtceu.api.machine.IFancyUIMachineMixin",
+    "gtceu.api.machine.WorkableMultiblockMachineAccessor",
     "gtceu.api.machine.trait.RecipeLogicAccessor",
     "gtceu.api.pattern.BlockPatternAccessor",
     "gtceu.api.pattern.MultiblockStateAccessor",

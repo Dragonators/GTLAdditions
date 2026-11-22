@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
-import com.gregtechceu.gtceu.api.block.ActiveBlock
 import com.gregtechceu.gtceu.api.block.ICoilType
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
@@ -13,8 +12,6 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
-import com.gregtechceu.gtceu.api.pattern.MultiblockState
-import com.gregtechceu.gtceu.api.pattern.MultiblockWorldSavedData
 import com.gregtechceu.gtceu.utils.GTUtil
 import com.gtladd.gtladditions.api.machine.feature.IStructureTierMachine
 import com.gtladd.gtladditions.api.machine.feature.TierRequirement
@@ -30,13 +27,8 @@ import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet
-import it.unimi.dsi.fastutil.longs.LongSet
 import it.unimi.dsi.fastutil.longs.LongSets
 import net.minecraft.core.BlockPos
-import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.level.ChunkPos
-import net.minecraft.world.level.block.Block
 import org.gtlcore.gtlcore.api.machine.ISuspendableMachine
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 
@@ -51,14 +43,13 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
     override val structureTierTrait: StructureTierTrait = StructureTierTrait(
         this,
         ExoticChemicalBlockLayout.tiers,
-        onPhysicalStructure = ::publishStructure
+        onTierSynced = { publishStructure() }
     )
 
     val structureTier: Int
         get() = structureTierTrait.structureTier
 
     private var ownerMap: Map<Long, Int> = emptyMap()
-    private var previousActiveBlocks: LongSet = LongSets.EMPTY_SET
     private var maintenance: IMaintenanceMachine? = null
 
     // ========================================
@@ -91,25 +82,7 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
     // STRUCTURE & TIERS
     // ========================================
 
-    override fun checkPattern(): Boolean {
-        if (!ExoticChemicalBlockLayout.base.checkPatternAt(multiblockState, false)) return false
-
-        val world = level as? ServerLevel ?: return true
-        val checked = LongOpenHashSet()
-        val layout = ExoticChemicalBlockLayout.tiers
-
-        for (activeTier in 2..structureTier) {
-            for (cell in layout.cells(activeTier)) {
-                val pos = layout.position(cell, this, multiblockState.isNeededFlip)
-                if (checked.add(ChunkPos.asLong(pos)) && !world.chunkSource.hasChunk(pos.x shr 4, pos.z shr 4)) {
-                    multiblockState.setError(MultiblockState.UNLOAD_ERROR)
-                    return false
-                }
-            }
-        }
-
-        return true
-    }
+    override fun checkPattern(): Boolean = structureTierTrait.checkPattern()
 
     override fun tierRequirement(tier: Int): TierRequirement? = if (tier in 2..3) TierRequirement(emptyList()) else null
 
@@ -120,12 +93,8 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
 
     private fun physicalPos(part: IMultiPart): BlockPos = (part as? MetaMachine)?.pos ?: part.self().pos
 
-    private fun publishStructure(active: IntRange) {
-        val world = level as? ServerLevel ?: return
-        if (!world.server.isSameThread || isInValid || !isFormed || multiblockState.error != null) return
-
-        val layout = ExoticChemicalBlockLayout.tiers
-        val coils = active.flatMap { ExoticChemicalBlockLayout.coils.getValue(it) }.map { layout.position(it, this) }
+    private fun publishStructure() {
+        (multiblockState.matchContext["CoilType"] as? ICoilType)?.let { coilType = it }
 
         val groups = Array(13) { ArrayList<IMultiPart>() }
         for (part in parts) {
@@ -133,45 +102,7 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
             groups[owner].add(part)
         }
 
-        val saved = MultiblockWorldSavedData.getOrCreate(world)
-        saved.removeMapping(multiblockState)
-        for (activeTier in active) {
-            if (activeTier < 2) continue
-            for (cell in layout.cells(activeTier)) {
-                multiblockState.addPosCache(layout.position(cell, this))
-            }
-        }
-        saved.addMapping(multiblockState)
-
-        val animated = LongOpenHashSet(
-            multiblockState.matchContext.getOrDefault<LongSet>("vaBlocks", LongSets.EMPTY_SET)
-        )
-        coils.forEach { animated.add(it.asLong()) }
-
-        val previous = previousActiveBlocks.iterator()
-        while (previous.hasNext()) {
-            val key = previous.nextLong()
-            if (key in animated) continue
-            val pos = BlockPos.of(key)
-            if (!world.isLoaded(pos)) continue
-
-            val state = world.getBlockState(pos)
-            val block = state.block
-            if (block is ActiveBlock && block.isActive(state)) {
-                world.setBlock(
-                    pos,
-                    block.changeActive(state, false),
-                    Block.UPDATE_CLIENTS or Block.UPDATE_KNOWN_SHAPE
-                )
-            }
-        }
-
-        previousActiveBlocks = LongSets.EMPTY_SET
-        multiblockState.matchContext.set("vaBlocks", animated)
-        activeBlocks = animated
-
         getRecipeLogic().bind(Array(13) { groups[it].sortedBy { part -> physicalPos(part).asLong() } })
-        updateActiveBlocks(getRecipeLogic().isWorking)
     }
 
     // ========================================
@@ -183,7 +114,6 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
         ownerMap = ExoticChemicalBlockLayout.portOwners.entries.associate { (cell, id) ->
             ExoticChemicalBlockLayout.tiers.position(cell, this).asLong() to id
         }
-        previousActiveBlocks = activeBlocks ?: LongSets.EMPTY_SET
 
         // A mirror resolving its buffer in updatePartPositions can call upDate before the new groups are bound.
         getRecipeLogic().clearUnitParts()
@@ -212,7 +142,7 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
     override fun onStructureInvalid() {
         // Both unbind and the parent reset read the tier.
         isFormed = false
-        structureTierTrait.onStructureRestored()
+        structureTierTrait.onStructureInvalid()
         getRecipeLogic().unbind()
         ownerMap = emptyMap()
         maintenance = null
@@ -226,6 +156,7 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
     }
 
     override fun onMachineRemoved() {
+        structureTierTrait.onMachineRemoved()
         clearInventory(structureTierTrait.inventory)
     }
 

@@ -56,7 +56,7 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
     IDropSaveMachine,
     IMachineLife {
 
-    private val structureModify = StructureModifyTrait(this, StructureRenderType.HEART, HeartBlockLayout.tiers) {
+    private val structureModify = StructureModifyTrait(this, StructureRenderType.HEART) {
         structureTierTrait.onStructureRestored()
     }
 
@@ -80,7 +80,7 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
 
     override fun getRecipeLogic(): HeartOfTheCosmosLogic = super.getRecipeLogic() as HeartOfTheCosmosLogic
 
-    override fun checkPattern(): Boolean = structureModify.checkPattern()
+    override fun checkPattern(): Boolean = structureTierTrait.checkPattern()
 
     // ========================================
     // Structure tier
@@ -109,11 +109,11 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
-        structureModify.invalidate()
+        structureTierTrait.onStructureInvalid()
     }
 
     override fun onMachineRemoved() {
-        structureModify.restore()
+        structureTierTrait.onMachineRemoved()
         clearInventory(structureTierTrait.inventory)
     }
 

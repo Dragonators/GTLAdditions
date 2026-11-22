@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import org.gtlcore.gtlcore.api.pattern.AdvancedBlockPattern
+import java.util.IdentityHashMap
 
 class StructureTierLayout(
     val minTier: Int,
@@ -19,12 +20,17 @@ class StructureTierLayout(
     pattern: () -> BlockPattern,
     private val classifier: (aisle: Int, row: Int, column: Int) -> Int
 ) {
-    val pattern: BlockPattern by lazy(pattern)
 
-    private val cells: Array<IntArray> by lazy(::collect)
+    val pattern: BlockPattern by lazy(pattern)
+    val base: AdvancedBlockPattern by lazy { template { it <= minTier } }
+
+    private val tiers: Array<Pair<IntArray, IntArray>> by lazy(::collect)
 
     /** The base (0) includes the controller and parts. */
-    fun cells(tier: Int): IntArray = cells[tier]
+    fun cells(tier: Int): IntArray = tiers[tier].first
+
+    /** One cell per distinct predicate in [tier], used to recover shared matchContext keys from virtualized blocks. */
+    fun distinctPredicateCells(tier: Int): IntArray = tiers[tier].second
 
     fun predicate(cell: Int): TraceabilityPredicate =
         (pattern as BlockPatternAccessor).blockMatches[aisle(cell)][row(cell)][column(cell)]
@@ -45,14 +51,17 @@ class StructureTierLayout(
     fun position(cell: Int, controller: MultiblockControllerMachine, flipped: Boolean = controller.isFlipped): BlockPos =
         offset(cell, controller.frontFacing, controller.upwardsFacing, flipped).offset(controller.pos)
 
-    fun template(keep: (tier: Int) -> Boolean): AdvancedBlockPattern {
+    fun template(keep: (tier: Int) -> Boolean): AdvancedBlockPattern = templateCells { tier, _ -> keep(tier) }
+
+    fun templateCells(keep: (tier: Int, cell: Int) -> Boolean): AdvancedBlockPattern {
         val original = (pattern as BlockPatternAccessor).blockMatches
         val matches = original.copyOf()
         val any = Predicates.any()
 
         for (tier in 0..maxTier) {
-            if (keep(tier)) continue
             for (cell in cells(tier)) {
+                if (keep(tier, cell)) continue
+
                 val a = aisle(cell)
                 val r = row(cell)
                 if (matches[a] === original[a]) matches[a] = original[a].copyOf()
@@ -78,39 +87,51 @@ class StructureTierLayout(
             }
         }
 
-    fun matches(tier: Int, state: MultiblockState, controller: MultiblockControllerMachine): Boolean {
-        for (cell in cells(tier)) {
+    fun matches(cells: IntArray, state: MultiblockState, controller: MultiblockControllerMachine): Boolean {
+        val accessor = state as MultiblockStateAccessor
+
+        for (cell in cells) {
             val predicate = predicate(cell)
-            if (!(state as MultiblockStateAccessor).invokeUpdate(position(cell, controller, state.isNeededFlip), predicate)) return false
+            val pos = position(cell, controller, state.isNeededFlip)
+            if (!accessor.invokeUpdate(pos, predicate)) return false
+
             if (!predicate.test(state)) {
                 state.setError(PatternError())
                 return false
             }
         }
+
         return true
     }
 
-    private fun collect(): Array<IntArray> {
+    private fun collect(): Array<Pair<IntArray, IntArray>> {
         val matches = (pattern as BlockPatternAccessor).blockMatches
-        require(pattern.aisleRepetitions.all { it[0] == 1 && it[1] == 1 }) { "Structure tiers require fixed aisles" }
+        require(pattern.aisleRepetitions.all { it[0] == 1 && it[1] == 1 }) {
+            "Structure tiers require fixed aisles"
+        }
+
         val tiers = Array(maxTier + 1) { IntArrayList() }
+        val distinctByPredicate = Array(maxTier + 1) { IdentityHashMap<TraceabilityPredicate, Int>() }
 
         for (aisle in matches.indices) {
             for (row in matches[aisle].indices) {
                 for (column in matches[aisle][row].indices) {
                     val predicate = matches[aisle][row][column]
                     if (predicate.isAny) continue
+
                     val tier = classifier(aisle, row, column)
                     require(tier == 0 || !predicate.isController && predicate.limited.isEmpty()) {
                         "Tier cells cannot contain controllers or counted parts"
                     }
 
-                    tiers[tier].add(pack(aisle, row, column))
+                    val cell = pack(aisle, row, column)
+                    tiers[tier].add(cell)
+                    distinctByPredicate[tier].putIfAbsent(predicate, cell)
                 }
             }
         }
 
-        return Array(maxTier + 1) { tiers[it].toIntArray() }
+        return Array(maxTier + 1) { tiers[it].toIntArray() to distinctByPredicate[it].values.toIntArray() }
     }
 
     companion object {
