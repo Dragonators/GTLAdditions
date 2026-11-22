@@ -1,7 +1,6 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
 import com.gregtechceu.gtceu.api.GTValues
-import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfiguratorButton
@@ -11,8 +10,6 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.api.machine.DataModuleBindingError
-import com.gtladd.gtladditions.api.machine.DataModuleBindingResult
 import com.gtladd.gtladditions.api.machine.ITimeSpaceDistorterSource
 import com.gtladd.gtladditions.api.machine.IWirelessBindableSource
 import com.gtladd.gtladditions.api.machine.IWirelessBindableTarget
@@ -30,7 +27,6 @@ import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeStatus
@@ -79,51 +75,20 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
     override fun acceptsBindingSource(type: ResourceLocation): Boolean =
         type == ApocalypticTorsionQuantumMatrix.BINDING_TYPE || type == ApocalypticWarpQuantumMatrix.BINDING_TYPE
 
-    override fun bindResolvedSource(source: IWirelessBindableSource<*>): DataModuleBindingResult {
-        val matrix = source as? ITimeSpaceDistorterSource ?: return DataModuleBindingResult.Failure(
-            DataModuleBindingError.TARGET_MISMATCH,
-            "gtladditions.message.suprachronal_data_module.target_mismatch".toComponent
-        )
-
-        if (matrix.getLevel()?.dimension() != level?.dimension()) {
-            return DataModuleBindingResult.Failure(
-                DataModuleBindingError.DIMENSION_MISMATCH,
-                "gtladditions.message.suprachronal_data_module.dimension_mismatch".toComponent
-            )
-        }
-        if (!matrix.isFormed() || !isFormed()) {
-            return DataModuleBindingResult.Failure(
-                DataModuleBindingError.TARGET_MISMATCH,
-                "gtladditions.message.suprachronal_data_module.target_mismatch".toComponent
-            )
+    override var boundSourcePos: BlockPos?
+        get() = boundMatrixPos
+        set(value) {
+            boundMatrixPos = value
         }
 
-        if (boundMatrix != matrix) {
-            boundMatrix?.onUnbound(this)
-        }
-        boundMatrix = matrix
-        boundMatrixPos = matrix.getPos()
+    override val boundSource: ITimeSpaceDistorterSource?
+        get() = boundMatrix
 
-        matrix.onBound(this)
-        return DataModuleBindingResult.BoundSuccess(source, matrix.getPos(), getBoundMessage(source, matrix.getPos()))
-    }
+    override fun isValidSource(source: IWirelessBindableSource<*>): Boolean = source is ITimeSpaceDistorterSource
 
-    override fun unbindSource() = disconnectATQM(clearBinding = true)
-
-    fun disconnectATQM(clearBinding: Boolean) {
-        val oldMatrix = boundMatrix
-        boundMatrix = null
-        if (clearBinding) boundMatrixPos = null
-        oldMatrix?.disconnectTSD(this, clearBinding)
-    }
-
-    private fun reconnectATQM(): Boolean {
-        if (!isFormed) return false
-        val matrixPos = boundMatrixPos ?: return false
-        val machine = ((level as? ServerLevel)?.getBlockEntity(matrixPos) as? MetaMachineBlockEntity)
-            ?.metaMachine as? ITimeSpaceDistorterSource
-            ?: return false
-        return machine.isFormed() && bindResolvedSource(machine).isSuccess
+    override fun updateBoundSource(source: IWirelessBindableSource<*>?) {
+        boundMatrix = source as ITimeSpaceDistorterSource?
+        boundMatrix?.onBound(this)
     }
 
     // ========================================
@@ -132,22 +97,21 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
 
     override fun onStructureFormed() {
         super.onStructureFormed()
-        reconnectATQM()
+        reconnectSource()
     }
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
-        disconnectATQM(clearBinding = false)
+        disconnectSource(clearBinding = false)
     }
 
     override fun onMachineRemoved() {
-        disconnectATQM(clearBinding = true)
+        unbindSource()
     }
 
     override fun onUnload() {
         super.onUnload()
-        boundMatrix?.disconnectTSD(this, clearBinding = false)
-        boundMatrix = null
+        disconnectSource(clearBinding = false)
     }
 
     // ========================================

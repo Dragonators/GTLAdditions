@@ -53,8 +53,10 @@ class MatrixQuantumWarpTrait(machine: ApocalypticWarpQuantumMatrix) : MachineTra
 
     fun recipeSecs(id: ResourceLocation): Long = recipeRunningSecs.getLong(id)
 
-    @JvmOverloads
-    fun hasInfiniteParallel(connected: Boolean = getMachine().resolveTSD()?.isReady() == true): Boolean =
+    fun hasInfiniteParallel(): Boolean =
+        hasInfiniteParallel(true) && getMachine().resolveTSD()?.isReady() == true
+
+    fun hasInfiniteParallel(connected: Boolean): Boolean =
         runningSecs >= MACHINE_SECONDS && getMachine().astralArrayCount >= MAX_ARRAYS && connected
 
     fun finiteThreads(): Long {

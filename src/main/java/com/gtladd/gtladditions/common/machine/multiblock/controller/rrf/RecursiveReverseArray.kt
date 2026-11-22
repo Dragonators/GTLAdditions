@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller.rrf
 
-import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.gui.fancy.FancyMachineUIWidget
@@ -12,8 +11,6 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDisplayUIMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine
 import com.gregtechceu.gtceu.utils.FormattingUtil
-import com.gtladd.gtladditions.api.machine.DataModuleBindingError
-import com.gtladd.gtladditions.api.machine.DataModuleBindingResult
 import com.gtladd.gtladditions.api.machine.IWirelessBindableSource
 import com.gtladd.gtladditions.api.machine.IWirelessBindableTarget
 import com.gtladd.gtladditions.common.data.RecursiveReverseBuffState
@@ -31,7 +28,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.player.Player
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
@@ -73,51 +69,24 @@ class RecursiveReverseArray(holder: IMachineBlockEntity) :
 
     override fun acceptsBindingSource(type: ResourceLocation): Boolean = type == ForgeOfTheAntichrist.BINDING_TYPE
 
-    override fun bindResolvedSource(source: IWirelessBindableSource<*>): DataModuleBindingResult {
-        val forge = source as? ForgeOfTheAntichrist ?: return DataModuleBindingResult.Failure(
-            DataModuleBindingError.TARGET_MISMATCH,
-            "gtladditions.message.suprachronal_data_module.target_mismatch".toComponent
-        )
-
-        if (forge.level?.dimension() != level?.dimension()) {
-            return DataModuleBindingResult.Failure(
-                DataModuleBindingError.TARGET_MISMATCH,
-                "gtladditions.message.suprachronal_data_module.dimension_mismatch".toComponent
-            )
-        }
-        if (!forge.isFormed() || !isFormed()) {
-            return DataModuleBindingResult.Failure(
-                DataModuleBindingError.TARGET_MISMATCH,
-                "gtladditions.message.suprachronal_data_module.target_mismatch".toComponent
-            )
+    override var boundSourcePos: BlockPos?
+        get() = boundForgePos
+        set(value) {
+            boundForgePos = value
         }
 
-        if (boundForge != forge) {
-            boundForge?.onUnbound(this)
-        }
-        boundForge = forge
-        boundForgePos = forge.pos
+    override val boundSource: ForgeOfTheAntichrist?
+        get() = boundForge
 
-        forge.onBound(this)
-        return DataModuleBindingResult.BoundSuccess(source, forge.pos, getBoundMessage(source, forge.pos))
+    override fun isValidSource(source: IWirelessBindableSource<*>): Boolean = source is ForgeOfTheAntichrist
+
+    override fun updateBoundSource(source: IWirelessBindableSource<*>?) {
+        boundForge = source as ForgeOfTheAntichrist?
+        boundForge?.onBound(this)
     }
 
-    override fun unbindSource() = unbindForge(clearBinding = true)
-
-    fun unbindForge(clearBinding: Boolean) {
+    override fun onSourceDisconnected() {
         effectsActive = false
-        val oldForge = boundForge
-        boundForge = null
-        if (clearBinding) boundForgePos = null
-        oldForge?.disconnectRecursiveReverseArray(this, clearBinding)
-    }
-
-    private fun reconnectSource(): Boolean {
-        val forgePos = boundForgePos ?: return false
-        val machine = ((level as? ServerLevel)?.getBlockEntity(forgePos) as? MetaMachineBlockEntity)
-            ?.metaMachine as? ForgeOfTheAntichrist
-            ?: return false
-        return bindResolvedSource(machine).isSuccess
     }
 
     // ========================================
@@ -297,20 +266,18 @@ class RecursiveReverseArray(holder: IMachineBlockEntity) :
     override fun onStructureInvalid() {
         super.onStructureInvalid()
         safeClearModules()
-        unbindForge(clearBinding = false)
+        disconnectSource(clearBinding = false)
         updateTickSubscription()
     }
 
     override fun onMachineRemoved() {
         safeClearModules()
-        unbindForge(clearBinding = true)
+        unbindSource()
     }
 
     override fun onUnload() {
         super.onUnload()
-        effectsActive = false
-        boundForge?.disconnectRecursiveReverseArray(this, clearBinding = false)
-        boundForge = null
+        disconnectSource(clearBinding = false)
     }
 
     private fun updateEffectsActive() {

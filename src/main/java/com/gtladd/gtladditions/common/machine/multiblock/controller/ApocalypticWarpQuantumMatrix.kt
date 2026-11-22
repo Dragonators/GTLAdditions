@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
-import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
@@ -22,7 +21,6 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerLevel
 
 class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any?) :
     GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine(
@@ -34,9 +32,10 @@ class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any
     IAstralArrayInteractionMachine {
 
     @field:Persisted
-    private var timeSpaceDistorterPos: BlockPos? = null
+    override var timeSpaceDistorterPos: BlockPos? = null
 
-    private var timeSpaceDistorter: TimeSpaceDistorter? = null
+    override var timeSpaceDistorter: TimeSpaceDistorter? = null
+
     private val structureModify = StructureModifyTrait(this, StructureRenderType.APOCALYPTIC_MATRIX)
 
     @field:Persisted
@@ -92,48 +91,6 @@ class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any
 
     override val bindingType: ResourceLocation = BINDING_TYPE
 
-    override fun onBound(target: TimeSpaceDistorter) {
-        if (timeSpaceDistorter != target) {
-            timeSpaceDistorter?.unbindSource()
-        }
-
-        timeSpaceDistorter = target
-        timeSpaceDistorterPos = target.pos
-    }
-
-    override fun onUnbound(target: TimeSpaceDistorter?) {
-        disconnectTSD(target, clearBinding = true)
-    }
-
-    override fun disconnectTSD(target: TimeSpaceDistorter?, clearBinding: Boolean) {
-        if (target != null && timeSpaceDistorter != target && timeSpaceDistorterPos != target.pos) return
-        timeSpaceDistorter = null
-        if (clearBinding) timeSpaceDistorterPos = null
-    }
-
-    private fun reconnectTSD(): Boolean {
-        if (!isFormed) return false
-        val distorterPos = timeSpaceDistorterPos ?: return false
-        val serverLevel = level as? ServerLevel ?: return false
-        val machine = (serverLevel.getBlockEntity(distorterPos) as? MetaMachineBlockEntity)
-            ?.metaMachine as? TimeSpaceDistorter
-
-        if (machine == null) {
-            timeSpaceDistorterPos = null
-            return false
-        }
-
-        return machine.bindResolvedSource(this).isSuccess
-    }
-
-    internal fun resolveTSD(): TimeSpaceDistorter? {
-        val cached = timeSpaceDistorter
-        if (cached != null && cached.isFormed()) return cached
-        timeSpaceDistorter = null
-        if (!reconnectTSD()) return null
-        return timeSpaceDistorter
-    }
-
     // ========================================
     // Lifecycle
     // ========================================
@@ -143,7 +100,7 @@ class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any
     override fun onStructureFormed() {
         super.onStructureFormed()
         structureModify.form()
-        reconnectTSD()
+        reconnectTarget()
         matrixEffects.updateAnimation()
     }
 
@@ -151,20 +108,17 @@ class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any
         matrixEffects.updateAnimation(false)
         super.onStructureInvalid()
         structureModify.invalidate()
-        timeSpaceDistorter?.disconnectATQM(clearBinding = false)
-        timeSpaceDistorter = null
+        detachTarget()
     }
 
     override fun onMachineRemoved() {
         structureModify.restore()
-        timeSpaceDistorter?.unbindSource()
-        timeSpaceDistorter = null
+        unbindTarget()
     }
 
     override fun onUnload() {
         super.onUnload()
-        timeSpaceDistorter?.disconnectATQM(clearBinding = false)
-        timeSpaceDistorter = null
+        detachTarget()
     }
 
     override fun notifyStatusChanged(oldStatus: RecipeLogic.Status, newStatus: RecipeLogic.Status) {

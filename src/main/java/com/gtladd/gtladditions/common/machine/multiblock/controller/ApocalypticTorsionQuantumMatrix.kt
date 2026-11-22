@@ -1,7 +1,6 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
 import com.google.common.primitives.Ints
-import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
@@ -23,7 +22,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerLevel
 import org.gtlcore.gtlcore.api.recipe.IAdvancedContentModifier
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
@@ -40,9 +38,9 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
     ITimeSpaceDistorterSource {
 
     @field:Persisted
-    private var timeSpaceDistorterPos: BlockPos? = null
+    override var timeSpaceDistorterPos: BlockPos? = null
 
-    private var timeSpaceDistorter: TimeSpaceDistorter? = null
+    override var timeSpaceDistorter: TimeSpaceDistorter? = null
 
     // ========================================
     // Core overrides
@@ -62,46 +60,6 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
 
     override val bindingType: ResourceLocation = BINDING_TYPE
 
-    override fun onBound(target: TimeSpaceDistorter) {
-        if (timeSpaceDistorter != target) {
-            timeSpaceDistorter?.unbindSource()
-        }
-        timeSpaceDistorter = target
-        timeSpaceDistorterPos = target.pos
-    }
-
-    override fun onUnbound(target: TimeSpaceDistorter?) {
-        disconnectTSD(target, clearBinding = true)
-    }
-
-    override fun disconnectTSD(target: TimeSpaceDistorter?, clearBinding: Boolean) {
-        if (target != null && timeSpaceDistorter != target && timeSpaceDistorterPos != target.pos) return
-        timeSpaceDistorter = null
-        if (clearBinding) timeSpaceDistorterPos = null
-    }
-
-    private fun reconnectTSD(): Boolean {
-        if (!isFormed) return false
-        val distorterPos = timeSpaceDistorterPos ?: return false
-        val machine = ((level as? ServerLevel)?.getBlockEntity(distorterPos) as? MetaMachineBlockEntity)
-            ?.metaMachine as? TimeSpaceDistorter
-
-        if (machine == null) {
-            timeSpaceDistorterPos = null
-            return false
-        }
-
-        return machine.bindResolvedSource(this).isSuccess
-    }
-
-    private fun resolveTSD(): TimeSpaceDistorter? {
-        val cached = timeSpaceDistorter
-        if (cached != null && cached.isFormed()) return cached
-        timeSpaceDistorter = null
-        if (!reconnectTSD()) return null
-        return timeSpaceDistorter
-    }
-
     fun consumeTSDAndGetMultiplier(totalParallels: Long): Double =
         resolveTSD()?.tryConsumeAndGetOutputMultiplier(totalParallels) ?: 1.0
 
@@ -111,24 +69,21 @@ class ApocalypticTorsionQuantumMatrix(holder: IMachineBlockEntity, vararg args: 
 
     override fun onStructureFormed() {
         super.onStructureFormed()
-        reconnectTSD()
+        reconnectTarget()
     }
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
-        timeSpaceDistorter?.disconnectATQM(clearBinding = false)
-        timeSpaceDistorter = null
+        detachTarget()
     }
 
     override fun onMachineRemoved() {
-        timeSpaceDistorter?.unbindSource()
-        timeSpaceDistorter = null
+        unbindTarget()
     }
 
     override fun onUnload() {
         super.onUnload()
-        timeSpaceDistorter?.disconnectATQM(clearBinding = false)
-        timeSpaceDistorter = null
+        detachTarget()
     }
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER

@@ -1,10 +1,10 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
-import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
@@ -200,14 +200,13 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
-        recursiveReverseArray?.unbindForge(clearBinding = false)
-        recursiveReverseArray = null
+        detachTarget()
         safeClearModules()
         structureModify.invalidate()
     }
 
     override fun onMachineRemoved() {
-        recursiveReverseArray?.unbindSource()
+        unbindTarget()
         safeClearModules()
         structureModify.restore()
     }
@@ -219,7 +218,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         safeClearModules()
         scanAndConnectModules()
         structureModify.form()
-        reconnectRecursiveReverseArray()
+        reconnectTarget()
     }
 
     // ========================================
@@ -228,23 +227,19 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
     override val bindingType: ResourceLocation = BINDING_TYPE
 
-    override fun onBound(target: RecursiveReverseArray) {
-        if (recursiveReverseArray != target) {
-            recursiveReverseArray?.unbindSource()
+    override var boundTargetPos: BlockPos?
+        get() = recursiveReverseArrayPos
+        set(value) {
+            recursiveReverseArrayPos = value
         }
-        recursiveReverseArray = target
-        recursiveReverseArrayPos = target.pos
-    }
 
-    override fun onUnbound(target: RecursiveReverseArray?) {
-        disconnectRecursiveReverseArray(target, clearBinding = true)
-    }
+    override var boundTarget: RecursiveReverseArray?
+        get() = recursiveReverseArray
+        set(value) {
+            recursiveReverseArray = value
+        }
 
-    fun disconnectRecursiveReverseArray(target: RecursiveReverseArray?, clearBinding: Boolean) {
-        if (target != null && recursiveReverseArray != target && recursiveReverseArrayPos != target.pos) return
-        recursiveReverseArray = null
-        if (clearBinding) recursiveReverseArrayPos = null
-    }
+    override fun asValidTarget(machine: MetaMachine?): RecursiveReverseArray? = machine as? RecursiveReverseArray
 
     // ========================================
     // Life Cycle
@@ -257,8 +252,7 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
     override fun onUnload() {
         super.onUnload()
-        recursiveReverseArray?.unbindForge(clearBinding = false)
-        recursiveReverseArray = null
+        detachTarget()
     }
 
     override fun onWorking(): Boolean {
@@ -341,7 +335,10 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
         return 1 + addition
     }
 
-    fun canStarRitualStart(): Boolean = isActiveOrStasisAnchored() && getRecursiveReverseArray()?.isStarRitualGateActive() == true && runningSecs >= MAX_EFFICIENCY_SEC
+    fun canStarRitualStart(): Boolean =
+        isActiveOrStasisAnchored() &&
+            resolveTarget()?.isStarRitualGateActive() == true &&
+            runningSecs >= MAX_EFFICIENCY_SEC
 
     // ========================================
     // Utils - RRF
@@ -349,7 +346,8 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
 
     private fun getRecursiveReverseBuffState(): RecursiveReverseBuffState {
         cachedRecursiveReverseBuffState?.takeIf { cachedRecursiveReverseBuffTick == offsetTimer }?.let { return it }
-        val array = resolveRecursiveReverseArray() ?: return RecursiveReverseBuffState()
+
+        val array = resolveTarget() ?: return RecursiveReverseBuffState()
         return array.getBuffState().also {
             cachedRecursiveReverseBuffState = it
             cachedRecursiveReverseBuffTick = offsetTimer
@@ -357,27 +355,8 @@ class ForgeOfTheAntichrist(holder: IMachineBlockEntity, vararg args: Any?) :
     }
 
     private fun getRecursiveReverseBoostPreview(): RecursiveReverseArray.Companion.BoostPreview =
-        getRecursiveReverseArray()?.getBoostPreview() ?: RecursiveReverseArray.Companion.BoostPreview(false, 0.0, 1.0, emptyList(), emptyList())
-
-    private fun getRecursiveReverseArray(): RecursiveReverseArray? = resolveRecursiveReverseArray()
-
-    private fun resolveRecursiveReverseArray(): RecursiveReverseArray? {
-        val cached = recursiveReverseArray
-        if (cached != null && cached.isFormed()) return cached
-        recursiveReverseArray = null
-        if (!reconnectRecursiveReverseArray()) return null
-        return recursiveReverseArray
-    }
-
-    private fun reconnectRecursiveReverseArray(): Boolean {
-        if (!isFormed) return false
-        val arrayPos = recursiveReverseArrayPos ?: return false
-        val machine = ((level as? ServerLevel)?.getBlockEntity(arrayPos) as? MetaMachineBlockEntity)
-            ?.metaMachine as? RecursiveReverseArray
-            ?: return false
-        if (!machine.isFormed()) return false
-        return machine.bindResolvedSource(this).isSuccess
-    }
+        resolveTarget()?.getBoostPreview()
+            ?: RecursiveReverseArray.Companion.BoostPreview(false, 0.0, 1.0, emptyList(), emptyList())
 
     // ========================================
     // Metadata
