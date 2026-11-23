@@ -59,7 +59,7 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
         borderWidth = 1f
     }
 
-    // Same order as ExoticChemicalUnitState; a shared unit never has a row of its own.
+    // Same order as the unlocked states in ExoticChemicalUnitState.
     private enum class Look(
         val key: String,
         val text: Int,
@@ -68,13 +68,13 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
         RUN("run", 0x55FF55, 0xFF4CB717.toInt()),
         WAIT("wait", 0xFFAA00, 0xFFD48A15.toInt()),
         PAUSE("pause", 0xC3B1F2, 0xFF7A5EC2.toInt()),
-        IDLE("idle", 0xAAAAAA, 0xFF555555.toInt()),
-        SHARED("shared", 0xAAAAAA, 0xFF555555.toInt())
+        IDLE("idle", 0xAAAAAA, 0xFF555555.toInt())
     }
 
     private class Row(
         val id: Int,
         val look: Look,
+        val distortRecipes: Boolean,
         val progress: Int,
         val duration: Int,
         val outputCount: Int,
@@ -94,28 +94,13 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
 
     override fun appendTooltip(tooltip: ITooltip, accessor: BlockAccessor, config: IPluginConfig) {
         val t = accessor.serverData
-        if (!t.contains("independent", Tag.TAG_INT.toInt())) {
+        if (!t.contains("tier", Tag.TAG_INT.toInt())) {
             ExoticChemicalJadePages.compact()
             return
         }
 
         val tier = t.getInt("tier")
-        val independent = t.getInt("independent")
-
-        val summary = colored(ExoticChemicalDisplay.label("tier.$tier"), 0xFFFFFF)
-        if (tier >= 2) {
-            summary.append(colored(Component.literal(" · "), 0x777777))
-                .append(colored(ExoticChemicalDisplay.label("jade_independent", independent), 0xCCCCCC))
-                .append(colored(Component.literal(" · "), 0x777777))
-                .append(colored(ExoticChemicalDisplay.label("jade_shared", 12 - independent), 0x9A9A9A))
-        }
-        tooltip.add(summary)
-
-        // Same lines as the Forge of the Antichrist.
-        if (tier == 3) {
-            tooltip.add(Component.translatable("gtceu.multiblock.parallel", infinite()))
-            tooltip.add(Component.translatable("gtladditions.multiblock.threads", infinite()))
-        }
+        tooltip.add(colored(ExoticChemicalDisplay.label("tier.$tier"), 0xFFFFFF))
         if (t.contains("eut")) energy(tooltip, BigInteger(t.getByteArray("eut")))
 
         // The server sends only units with a current run (duration > 0), so like an ordinary GT machine an idle unit shows nothing.
@@ -124,6 +109,7 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
             Row(
                 r.getInt("id"),
                 Look.entries[r.getByte("state").toInt()],
+                r.getBoolean("distortRecipes"),
                 r.getInt("progress"),
                 r.getInt("duration"),
                 r.getInt("outputCount"),
@@ -150,8 +136,8 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
         } else {
             ExoticChemicalJadePages.compact()
 
-            val central = units.firstOrNull { it.id == 0 }
-            central?.let { unit(tooltip, it, false) }
+            val nexus = units.firstOrNull { it.id == 0 }
+            nexus?.let { unit(tooltip, it, false) }
 
             val locals = units.filter { it.id > 0 }
             val shown = locals.sortedBy {
@@ -160,7 +146,7 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
                     Look.RUN -> 1
                     else -> 2
                 }
-            }.take(if (central != null) PER_PAGE - 1 else PER_PAGE)
+            }.take(if (nexus != null) PER_PAGE - 1 else PER_PAGE)
             shown.forEach { unit(tooltip, it, false) }
 
             val remaining = locals.size - shown.size
@@ -200,11 +186,15 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
     }
 
     private fun unit(tooltip: ITooltip, r: Row, expanded: Boolean) {
-        val name = if (r.id == 0) ExoticChemicalDisplay.label("central") else ExoticChemicalDisplay.label("unit.${r.id}")
-        tooltip.add(
-            colored(Component.literal(r.id.toString().padStart(2, '0') + " ").append(name).append("  "), 0xE8E8E8)
-                .append(colored(ExoticChemicalDisplay.label("state." + r.look.key), r.look.text))
-        )
+        val name = ExoticChemicalDisplay.label("unit.${r.id}")
+        val heading = colored(Component.literal(r.id.toString().padStart(2, '0') + " ").append(name).append("  "), 0xE8E8E8)
+            .append(colored(ExoticChemicalDisplay.label("state." + r.look.key), r.look.text))
+
+        if (r.distortRecipes) {
+            heading.append("  ").append(ExoticChemicalDisplay.recipeMode(true).withStyle(ChatFormatting.GOLD))
+        }
+
+        tooltip.add(heading)
 
         val helper = tooltip.elementHelper
         if (!expanded && r.outputs.isNotEmpty()) {
@@ -219,7 +209,7 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
 
         val style = helper.progressStyle().color(r.look.bar).textColor(-1)
         val ratio = r.progress.coerceIn(0, r.duration).toFloat() / r.duration
-        tooltip.add(helper.progress(ratio, ExoticChemicalDisplay.label("bar", r.progress, r.duration), style, box, true))
+        tooltip.add(helper.progress(ratio, ExoticChemicalDisplay.progressLabel(r.progress, r.duration), style, box, true))
 
         if (!expanded) return
 
@@ -253,10 +243,6 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
     // ========================================
 
     private fun colored(text: Component, rgb: Int): MutableComponent = text.copy().withStyle { it.withColor(rgb) }
-
-    private fun infinite(): Component = CommonUtils.createLanguageRainbowComponent(
-        Component.translatable("gtladditions.multiblock.forge_of_the_antichrist.parallel")
-    )
 
     private fun output(tag: CompoundTag): ExoticChemicalOutput = if (tag.getString("kind") == "fluid") {
         ExoticChemicalOutput(

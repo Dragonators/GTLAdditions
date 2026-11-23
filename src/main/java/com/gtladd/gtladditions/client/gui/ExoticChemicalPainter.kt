@@ -65,11 +65,13 @@ object ExoticChemicalPainter {
     const val ACCENT_SOFT = 0xFF143832.toInt()
     const val ACCENT_BORDER = 0xFF2A8D7B.toInt()
     const val ACCENT_TEXT = 0xFF9CF6E4.toInt()
-    const val CENTRAL_BASE = 0xFF27726B.toInt()
+    const val DISTORT_ACCENT = 0xFFE2AD55.toInt()
+    const val DISTORT_SOFT = 0xFF382B1B.toInt()
+    const val DISTORT_TEXT = 0xFFFFDE9E.toInt()
+    const val NEXUS_BASE = 0xFF27726B.toInt()
 
     private const val KNOB_HI_ON = 0xFFD6FFF6.toInt()
     private const val KNOB_HI_OFF = 0xFFC4CCD4.toInt()
-    private const val KNOB_HI_PENDING = 0xFFFFEAB8.toInt()
     private const val GLASS_TINT = 0x6B0A1314
     private const val BLUEPRINT_TINT = 0xFF6AD4C2.toInt()
 
@@ -118,14 +120,14 @@ object ExoticChemicalPainter {
             0xFFCBD1D8.toInt(),
             "idle"
         ),
-        SHARED(
-            0xFF72928F.toInt(),
-            0xFF364A48.toInt(),
-            0xFF162121.toInt(),
-            0xFF0F1717.toInt(),
-            0xFF1A2424.toInt(),
-            0xFF94B5B1.toInt(),
-            "shared"
+        LOCKED(
+            0xFF596169.toInt(),
+            0xFF32373C.toInt(),
+            0xFF191C20.toInt(),
+            0xFF111316.toInt(),
+            0xFF1C2024.toInt(),
+            0xFF939AA2.toInt(),
+            "locked"
         )
     }
 
@@ -225,9 +227,6 @@ object ExoticChemicalPainter {
         g.drawString(font, text, x, y, color, false)
         return font.width(text)
     }
-
-    fun textRight(g: GuiGraphics, text: Component, right: Int, y: Int, color: Int): Int =
-        text(g, text, right - font.width(text), y, color)
 
     fun textCenter(g: GuiGraphics, text: Component, cx: Int, y: Int, color: Int): Int =
         text(g, text, cx - font.width(text) / 2, y, color)
@@ -402,26 +401,19 @@ object ExoticChemicalPainter {
         icon(g, "chev", x + w - 10, y + (h - 7) / 2, TEXT_DIM)
     }
 
-    fun switch(g: GuiGraphics, x: Int, y: Int, on: Boolean, disabled: Boolean, pending: Boolean = false) {
+    fun switch(g: GuiGraphics, x: Int, y: Int, on: Boolean, disabled: Boolean) {
         val h = 11
         well(g, x, y, SWITCH_W, h, if (disabled) BTN_DISABLED else WELL_BG, 1)
-        if (!disabled) {
-            when {
-                pending -> cylinder(g, x + 10, y + 1, SWITCH_W - 11, h - 2, State.WAIT.main)
-                on -> cylinder(g, x + 1, y + 1, SWITCH_W - 11, h - 2, ACCENT)
-            }
+        if (!disabled && on) {
+            cylinder(g, x + 1, y + 1, SWITCH_W - 11, h - 2, ACCENT)
         }
 
-        val kx = if (on && !pending) x + SWITCH_W - 10 else x + 1
+        val kx = if (on) x + SWITCH_W - 10 else x + 1
         if (disabled) {
             rect(g, kx, y + 1, 9, h - 2, PANEL_B)
             frame(g, kx, y + 1, 9, h - 2, PANEL_BORDER)
         } else {
-            val knobHi = when {
-                pending -> KNOB_HI_PENDING
-                on -> KNOB_HI_ON
-                else -> KNOB_HI_OFF
-            }
+            val knobHi = if (on) KNOB_HI_ON else KNOB_HI_OFF
             plate(
                 g,
                 kx,

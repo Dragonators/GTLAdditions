@@ -21,7 +21,8 @@ Cross-recipe mode parallelization is a machine capability. When a machine suppor
 
 * This differs from normal parallelization: normal parallelization mainly scales one recipe, while cross-recipe mode allows multiple recipe categories to participate in the same work cycle.
 * <ItemLink id="gtladditions:forge_of_the_antichrist" /> can run cross-recipe parallelization across Dimensionally Transcendent Plasma Forge, Stellar Forge, and Ultimate Material Forge recipes.
-* <ItemLink id="gtladditions:apocalyptic_quantum_warp_matrix" /> can run cross-recipe parallelization across Quantum Manipulator, Deep Chemical Distortion, and Singularity Collapse recipes.
+* <ItemLink id="gtladditions:apocalyptic_quantum_warp_matrix" /> can run cross-recipe parallelization across Quantum Manipulator and Singularity Collapse recipes.
+* At tier 3, the <ItemLink id="gtladditions:exotic_chemical_complex" /> can have different process units handle Large Chemical Reactor and Deep Chemical Distortion recipes, achieving an effect similar to cross-recipe mode parallelization.
 * The number of recipes that can actually progress at once is still limited by machine threads, parallel capability, inputs, and energy supply.
 
 </Column>

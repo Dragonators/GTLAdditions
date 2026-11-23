@@ -45,6 +45,7 @@ object MaterialModify {
 
         GTMaterials.Neptunium.setProperty(PropertyKey.INGOT, IngotProperty())
         GTMaterials.Neptunium.addFlags(MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_LONG_ROD)
+        GTMaterials.RhodiumPlatedPalladium.addFlags(MaterialFlags.GENERATE_FOIL)
 
         Technetium.setProperty(PropertyKey.FLUID, FluidProperty(FluidStorageKeys.LIQUID, FluidBuilder()))
         Rhenium.setProperty(PropertyKey.FLUID, FluidProperty(FluidStorageKeys.LIQUID, FluidBuilder()))

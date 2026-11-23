@@ -190,7 +190,7 @@ External machines with special handling added by this mod:
 
 Notes:
 
-* <ItemLink id="gtladditions:exotic_chemical_complex" /> distributes its total parallel pool evenly at tiers 1 and 2 (at tier 2, independent parallel limits can be assigned to 12 outer process units and ZPM or lower recipes do not consume budget by default); at tier 3, it switches to independent per-recipe infinite parallel by default.
+* At tier 1, only the Synthesis Nexus of the <ItemLink id="gtladditions:exotic_chemical_complex" /> runs, and all recipes count toward its even-distribution limit. At tier 2, all 12 outer units activate automatically, each with its own even-distribution limit that by default counts only UV and higher recipes. At tier 3, parallel is infinite by default, outer units can use manual limits, and all units can individually select Large Chemical Reactor or Deep Chemical Distortion recipes.
 * <ItemLink id="gtladditions:subatomic_transmutatioon_core" /> converts blocks through the ME Transmutation Bus Hatch. Coil temperature and the installed card determine the conversion capacity per cycle; the card determines the cycle duration.
 * Light Hunter Space Station modules use even distribution before the special station state is unlocked; after that, they calculate each recipe independently and use special per-recipe parallel limits.
 * Forge of the Antichrist and its modules calculate runnable recipes separately, with behavior affected by the host's output multiplier, wireless energy, and module rules.

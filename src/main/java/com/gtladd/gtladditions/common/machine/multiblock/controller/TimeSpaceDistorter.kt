@@ -73,7 +73,9 @@ class TimeSpaceDistorter(holder: IMachineBlockEntity, vararg args: Any?) :
     override val bindingTargetType: ResourceLocation = BINDING_TYPE
 
     override fun acceptsBindingSource(type: ResourceLocation): Boolean =
-        type == ApocalypticTorsionQuantumMatrix.BINDING_TYPE || type == ApocalypticWarpQuantumMatrix.BINDING_TYPE
+        type == ApocalypticTorsionQuantumMatrix.BINDING_TYPE ||
+            type == ApocalypticWarpQuantumMatrix.BINDING_TYPE ||
+            type == ExoticChemicalComplex.BINDING_TYPE
 
     override var boundSourcePos: BlockPos?
         get() = boundMatrixPos

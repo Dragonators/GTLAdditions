@@ -6,6 +6,8 @@ import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.client.gui.ExoticChemicalPainter
 import com.gtladd.gtladditions.client.gui.ExoticChemicalPainter.State
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ExoticChemicalComplex
+import com.gtladd.gtladditions.common.machine.multiblock.controller.ExoticChemicalComplex.Companion.TSD_COST_COEFFICIENT
+import com.gtladd.gtladditions.common.machine.multiblock.controller.TimeSpaceDistorter
 import com.gtladd.gtladditions.utils.CommonUtils
 import com.lowdragmc.lowdraglib.gui.util.DrawerHelper
 import com.lowdragmc.lowdraglib.gui.widget.TextFieldWidget
@@ -22,6 +24,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.fluids.FluidStack
+import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.DISTORT_RECIPES
 import java.math.BigInteger
 import kotlin.math.roundToInt
 
@@ -35,15 +38,13 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
     private var available = false
     private var allSuspendAfterFinish = false
     private var structureTier = 0
-    private var infinite = false
-    private var free = 0L
+    private var capacity = 0L
+    private var distorterMultiplier = 1.0
     private var eut: BigInteger = BigInteger.ZERO
     private val counts = IntArray(4)
     private val unitViews = Array(13) { UnitView() }
-    private var releaseAfterFinish = false
     private var paused = false
     private var suspendAfterFinish = false
-    private var limitMax = 0L
     private var message: Component? = null
     private var answered = 0
 
@@ -54,13 +55,12 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
 
     // Client only.
     private var received = false
-    private var independents = 0
     private var outputCount = 0
     private var pages = 1
     private var previewOutputs = emptyList<Output>()
     private var detailOutputs = emptyList<Output>()
     private var outputsView = false
-    private var input = "0"
+    private var input = "1"
     private var syncing = false
 
     // Debounce automatic limit edits and keep the typed value while the server reply is pending.
@@ -68,19 +68,25 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
     private var awaiting = 0
     private var sent = 0
     private val hots = ArrayList<Hot>()
-    private val field = LimitField(193, 134, 82, 16) { onInput(it) }
+    private val field = LimitField(193, LIMIT_Y, 82, 16) { onInput(it) }
 
     private val selectedView: UnitView
         get() = unitViews[selected]
 
     private val limitApplies: Boolean
-        get() = formed && available && selected > 0 && selectedView.independent && !releaseAfterFinish && structureTier >= 2
+        get() = formed && available && selected > 0 && structureTier >= 2
+
+    private val infinite: Boolean
+        get() = structureTier >= 3
+
+    private val limitMax: Long
+        get() = if (infinite) Long.MAX_VALUE else maxOf(1L, capacity)
 
     private val unlimited: Boolean
         get() = infinite && !selectedView.limitAll
 
     private val showField: Boolean
-        get() = formed && !outputsView && selected > 0 && selectedView.independent && !unlimited
+        get() = formed && !outputsView && selected > 0 && structureTier >= 2 && !unlimited
 
     init {
         field.isVisible = false
@@ -114,26 +120,26 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
 
     @OnlyIn(Dist.CLIENT)
     private fun nudge(sign: Int) {
-        val current = (input.toLongOrNull() ?: 0L).coerceAtLeast(0L)
+        val current = (input.toLongOrNull() ?: 1L).coerceAtLeast(1L)
         val step = step()
         val updated = if (sign > 0) {
             current + minOf(step, Long.MAX_VALUE - current)
         } else {
-            current - minOf(step, current)
+            current - minOf(step, current - 1L)
         }
 
         setInput(minOf(updated, limitMax))
         if (limitApplies) pendingSince = System.currentTimeMillis()
     }
 
-    private fun submit(limitAll: Boolean = selectedView.limitAll) {
+    private fun submit() {
         pendingSince = -1L
         if (!limitApplies) return
 
-        val value = (input.toLongOrNull() ?: 0L).coerceIn(0L, limitMax)
+        val value = (input.toLongOrNull() ?: 1L).coerceIn(1L, limitMax)
         if (value.toString() != input) setInput(value)
 
-        edit("limit", value, limitAll)
+        edit("limit", value, false)
         awaiting = 40
     }
 
@@ -227,7 +233,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
     /**
      * Synchronizes machine and unit state to the client.
      *
-     * - Progress, energy, and free capacity move every tick while running and are throttled to at most every 5 ticks.
+     * - Progress and energy move every tick while running and are throttled to at most every 5 ticks.
      * - Any other change goes out immediately; an unchanged machine sends nothing.
      */
     override fun detectAndSendChanges() {
@@ -258,32 +264,44 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         available = track(available, host.isRecipeLogicAvailable)
         allSuspendAfterFinish = track(allSuspendAfterFinish, logic.allSuspendAfterFinish)
         structureTier = track(structureTier, host.structureTier)
-        infinite = track(infinite, structureTier == 3)
-        releaseAfterFinish = track(releaseAfterFinish, selectedUnit.releaseAfterFinish)
+        capacity = track(capacity, logic.capacity)
+
+        val multiplier = if (infinite && available && logic.units.any { it.recipeType === DISTORT_RECIPES }) {
+            host.resolveTSD()?.takeIf(TimeSpaceDistorter::isReady)?.outputMultiplier ?: 1.0
+        } else {
+            1.0
+        }
+        distorterMultiplier = track(distorterMultiplier, multiplier)
+
         paused = track(paused, selectedUnit.isSuspend)
         suspendAfterFinish = track(suspendAfterFinish, selectedUnit.suspendAfterFinish)
-        limitMax = track(limitMax, logic.maxParallelLimit(selected))
-        message = track(message, ExoticChemicalDisplay.message(selectedUnit))
+        message = track(message, if (logic.isUnitUnlocked(selected)) ExoticChemicalDisplay.message(selectedUnit) else null)
 
         val nextCounts = IntArray(counts.size)
         var moved = false
         for (unitLogic in logic.units) {
             val state = ExoticChemicalDisplay.state(logic, unitLogic)
-            if (logic.isUnitActive(unitLogic)) nextCounts[state.ordinal]++
+            if (state != ExoticChemicalUnitState.LOCKED) nextCounts[state.ordinal]++
 
-            val limit = logic.parallelLimitOf(unitLogic.id)
-            if (unitViews[unitLogic.id].update(unitLogic.independent, state, unitLogic.duration, unitLogic.limitAll, limit)) {
+            if (unitViews[unitLogic.id].update(
+                    unitLogic.recipeType === DISTORT_RECIPES,
+                    state,
+                    unitLogic.duration,
+                    unitLogic.limitAll,
+                    unitLogic.parallelLimit
+                )
+            ) {
                 urgent = true
             }
             if (unitViews[unitLogic.id].progress != unitLogic.progress) {
                 moved = true
             }
         }
+
         if (!nextCounts.contentEquals(counts)) urgent = true
 
         val nextEut = ExoticChemicalDisplay.netEut(logic)
-        val nextFree = if (available) logic.availableParallel(0) else 0L
-        if (nextEut != eut || nextFree != free) moved = true
+        if (nextEut != eut) moved = true
         if (!urgent && (!moved || now - sentAt < 5L)) return
 
         nextCounts.copyInto(counts)
@@ -291,7 +309,6 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
             unitViews[unitLogic.id].progress = unitLogic.progress
         }
         eut = nextEut
-        free = nextFree
 
         val products = if (fullSync || recipe !== shownRecipe) {
             recipe?.let(ExoticChemicalDisplay::outputs).orEmpty()
@@ -313,16 +330,14 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         buf.writeBoolean(available)
         buf.writeBoolean(allSuspendAfterFinish)
         buf.writeVarInt(structureTier)
-        buf.writeBoolean(infinite)
-        buf.writeVarLong(free)
+        buf.writeVarLong(capacity)
+        buf.writeDouble(distorterMultiplier)
         buf.writeByteArray(eut.toByteArray())
         for (n in counts) buf.writeVarInt(n)
         for (v in unitViews) v.write(buf)
         buf.writeVarInt(selected)
-        buf.writeBoolean(releaseAfterFinish)
         buf.writeBoolean(paused)
         buf.writeBoolean(suspendAfterFinish)
-        buf.writeVarLong(limitMax)
         buf.writeNullable(message, FriendlyByteBuf::writeComponent)
         buf.writeVarInt(answered)
 
@@ -389,17 +404,14 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         available = buffer.readBoolean()
         allSuspendAfterFinish = buffer.readBoolean()
         structureTier = buffer.readVarInt()
-        infinite = buffer.readBoolean()
-        free = buffer.readVarLong()
+        capacity = buffer.readVarLong()
+        distorterMultiplier = buffer.readDouble()
         eut = BigInteger(buffer.readByteArray())
         for (i in counts.indices) counts[i] = buffer.readVarInt()
         for (v in unitViews) v.read(buffer)
-        independents = (1..12).count { unitViews[it].independent }
         selected = buffer.readVarInt()
-        releaseAfterFinish = buffer.readBoolean()
         paused = buffer.readBoolean()
         suspendAfterFinish = buffer.readBoolean()
-        limitMax = buffer.readVarLong()
         message = buffer.readNullable(FriendlyByteBuf::readComponent)
         answered = buffer.readVarInt()
 
@@ -415,6 +427,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         if (answered == sent) awaiting = 0
 
         val moved = !wasFormed || selected != lastSelected
+        if (selectedView.state == ExoticChemicalUnitState.LOCKED) outputsView = false
         if (moved || !limitApplies || unlimited) pendingSince = -1L
         if (moved || (pendingSince < 0L && awaiting == 0 && input.toLongOrNull() != selectedView.limit)) {
             setInput(selectedView.limit)
@@ -466,12 +479,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
             )
             hots += Hot(10, 186, 148, 16, { edit("suspend_after_finish_all", 0L, !all) })
 
-            when {
-                outputsView -> drawOutputs(g, mx, my)
-                selected == 0 -> drawCentral(g, mx, my)
-                selectedView.independent -> drawIndependent(g, mx, my)
-                else -> drawShared(g)
-            }
+            if (outputsView) drawOutputs(g, mx, my) else drawUnitDetails(g, mx, my)
 
             g.pose().popPose()
         }
@@ -526,27 +534,25 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         p.text(g, eu, ex, 11, p.TEXT)
         p.icon(g, "bolt", ex - 10, 10, State.WAIT.main)
 
-        var cx = 10 + tw + 8
-        for (st in State.entries) {
-            val n = if (st == State.SHARED) 12 - independents else counts[st.ordinal]
-            if (n <= 0) continue
+        val statusX = 10 + tw + 8
+        val statusWidth = counts.indices.sumOf { i ->
+            15 + p.font.width(label("state." + State.entries[i].key)) + p.font.width(counts[i].toString())
+        }
+        val scale = minOf(1f, (ex - 14 - statusX) / statusWidth.toFloat())
+        g.pose().pushPose()
+        g.pose().translate(statusX.toFloat(), 15f - 4f * scale, 0f)
+        g.pose().scale(scale, scale, 1f)
 
-            val name = label("state." + st.key)
-            val width = 9 + p.font.width(name) + p.font.width(n.toString())
-            if (cx + width > ex - 14) break
-
-            if (st == State.SHARED) {
-                p.rect(g, cx, 12, 5, 5, p.WELL_BG)
-                p.frame(g, cx, 12, 5, 5, st.main)
-            } else {
-                p.rect(g, cx, 12, 5, 5, st.main)
-                p.rect(g, cx, 12, 5, 1, 0x61FFFFFF)
-            }
-
-            val lw = p.text(g, name, cx + 7, 11, p.TEXT_DIM)
-            val dw = p.text(g, n.toString(), cx + 8 + lw, 11, p.TEXT)
+        var cx = 0
+        for (i in counts.indices) {
+            val st = State.entries[i]
+            p.rect(g, cx, 1, 5, 5, st.main)
+            p.rect(g, cx, 1, 5, 1, 0x61FFFFFF)
+            val lw = p.text(g, label("state." + st.key), cx + 7, 0, p.TEXT_DIM)
+            val dw = p.text(g, counts[i].toString(), cx + 8 + lw, 0, p.TEXT)
             cx += 8 + lw + dw + 7
         }
+        g.pose().popPose()
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -571,7 +577,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
             val st = look(v)
             val sel = pod.id == selected
 
-            if (st == State.SHARED) {
+            if (st == State.LOCKED) {
                 p.octagon(
                     g,
                     x,
@@ -598,14 +604,15 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
                     val fillW = maxOf(2, (10f * v.progress.coerceAtMost(v.duration) / v.duration).roundToInt())
                     p.rect(g, x + 3, y + 12, fillW, 2, st.main)
                 }
+                p.rect(g, x + 6, y + 14, 4, 1, if (v.distortRecipes) p.DISTORT_ACCENT else p.ACCENT)
             }
 
             if (sel) p.reticle(g, x - 2, y - 2, 20, 20, p.ACCENT)
             hots += Hot(x, y, 16, 16, { select(pod.id) }, tooltip = { podTooltip(pod.id) })
         }
 
-        val central = unitViews[0]
-        val cst = look(central)
+        val nexus = unitViews[0]
+        val nst = look(nexus)
         val sel = selected == 0
 
         p.octagon(
@@ -614,18 +621,18 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
             93,
             26,
             4,
-            p.lightness(p.CENTRAL_BASE, 1.05f),
-            p.lightness(p.CENTRAL_BASE, 0.65f),
-            if (sel) p.ACCENT else cst.main,
+            p.lightness(p.NEXUS_BASE, 1.05f),
+            p.lightness(p.NEXUS_BASE, 0.65f),
+            if (sel) p.ACCENT else nst.main,
             false
         )
-        p.textCenter(g, label("central"), cx, 98, -1)
+        p.textCenter(g, Component.literal(num(0)), cx, 98, -1)
         p.rect(g, 75, 109, 18, 2, 0x8C000000.toInt())
-        if (central.duration > 0) {
-            val fillW = maxOf(2, (18f * central.progress.coerceAtMost(central.duration) / central.duration).roundToInt())
-            p.cylinder(g, 75, 109, fillW, 2, cst.bar)
+        if (nexus.duration > 0) {
+            val fillW = maxOf(2, (18f * nexus.progress.coerceAtMost(nexus.duration) / nexus.duration).roundToInt())
+            p.cylinder(g, 75, 109, fillW, 2, nst.bar)
         }
-        p.rect(g, 82, 116, 5, 2, p.ACCENT)
+        p.rect(g, 82, 116, 5, 2, if (nexus.distortRecipes) p.DISTORT_ACCENT else p.ACCENT)
         if (sel) p.reticle(g, 69, 91, 30, 30, p.ACCENT)
         p.rect(g, 81, 177, 6, 1, p.alpha(p.ACCENT, 0.6f))
         hots += Hot(71, 93, 26, 26, { select(0) }, tooltip = { podTooltip(0) })
@@ -640,10 +647,19 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
             label("state." + st.key).withStyle { it.withColor(st.main and 0xFFFFFF) }
         )
 
-        if (id > 0 && v.independent) {
+        if (st == State.LOCKED) {
+            lines += label("locked_hint")
+            return lines
+        }
+
+        val p = ExoticChemicalPainter
+        val modeColor = if (v.distortRecipes) p.DISTORT_ACCENT else p.ACCENT
+        lines += ExoticChemicalDisplay.recipeMode(v.distortRecipes).withStyle { it.withColor(modeColor and 0xFFFFFF) }
+        if (id > 0) {
             val limitText = if (infinite && !v.limitAll) "∞" else FormattingUtil.formatNumbers(v.limit)
             lines += label("limit_value", limitText)
         }
+        distorterText(v)?.let { lines += it.withStyle(ChatFormatting.GOLD) }
 
         return lines
     }
@@ -655,7 +671,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
     @OnlyIn(Dist.CLIENT)
     private fun drawDeckHeader(g: GuiGraphics, st: State) {
         val p = ExoticChemicalPainter
-        val shared = st == State.SHARED
+        val locked = st == State.LOCKED
 
         p.tag(
             g,
@@ -663,15 +679,15 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
             38,
             18,
             12,
-            if (shared) p.SUB_WELL else p.ACCENT_SOFT,
-            if (shared) p.ROW_BORDER else p.ACCENT_BORDER
+            if (locked) p.SUB_WELL else p.ACCENT_SOFT,
+            if (locked) p.ROW_BORDER else p.ACCENT_BORDER
         )
         p.textCenter(
             g,
             Component.literal(num(selected)),
             180,
             p.ty(38, 12),
-            if (shared) p.TEXT_DIM else p.ACCENT_TEXT
+            if (locked) p.TEXT_DIM else p.ACCENT_TEXT
         )
 
         val status = label("state." + st.key)
@@ -680,7 +696,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         fitText(g, unitName(selected), 194, 40, sbx - 198, p.TEXT)
 
         p.tag(g, sbx, 38, sbW, 12, st.badge, p.alpha(st.main, 0.45f))
-        if (shared) {
+        if (locked) {
             p.rect(g, sbx + 4, 42, 4, 4, p.WELL_BG)
             p.frame(g, sbx + 4, 42, 4, 4, st.main)
         } else {
@@ -691,103 +707,134 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         message?.let { m ->
             hots += Hot(sbx, 38, sbW, 12, null, tooltip = { listOf(m) })
         }
-        p.groove(g, 166, 55, 136)
+        p.groove(g, 171, 53, 126)
     }
 
     @OnlyIn(Dist.CLIENT)
-    private fun drawShared(g: GuiGraphics) {
-        val p = ExoticChemicalPainter
-        drawDeckHeader(g, State.SHARED)
-        fitText(g, label("independent_run"), 172, 65, 97, p.TEXT)
-
-        val disabled = !available || structureTier < 2 || releaseAfterFinish
-        p.switch(g, 273, 63, false, disabled)
-        if (!disabled) {
-            hots += Hot(273, 63, p.SWITCH_W, 11, { edit("independent", 0L, false) })
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private fun drawCentral(g: GuiGraphics, mx: Int, my: Int) {
+    private fun drawUnitDetails(g: GuiGraphics, mx: Int, my: Int) {
         val p = ExoticChemicalPainter
         val st = look(selectedView)
-
         drawDeckHeader(g, st)
-        drawProgress(g, 63, st)
-        drawProductsLink(g, 80, mx, my)
+        drawRecipeModes(g, mx, my)
 
-        p.well(g, 171, 101, 126, 42, 0xFF121820.toInt())
+        if (st == State.LOCKED) {
+            p.well(g, 171, 93, 126, 40, p.WELL_BG)
+            p.textFit(g, label("locked_title").string, 171, 97, 126, 14, p.TEXT_DIM)
+            p.textFit(g, label("locked_hint").string, 171, 114, 126, 14, p.TEXT_MUTED)
+            return
+        }
 
-        val available = Component.literal(if (infinite) "∞" else FormattingUtil.formatNumbers(free))
-        val availableLabel = label("available")
-        val maxValWidth = 114 - minOf(p.font.width(availableLabel), 44) - 4
-        val valWidth = minOf(p.font.width(available), maxValWidth)
-        fitText(g, availableLabel, 177, 108, 114 - valWidth - 4, p.TEXT_DIM)
-        fitTextRight(g, available, 291, 108, valWidth, p.ACCENT_TEXT)
+        drawProgress(g, 75, st)
+        drawProductsLink(g, 90, mx, my)
+        p.groove(g, 171, 107, 126)
 
-        p.rect(g, 177, 121, 114, 1, 0x12FFFFFF)
-
-        val hosted = Component.literal("${12 - independents} / 12")
-        p.textRight(g, hosted, 291, 127, 0xFFEEF3F8.toInt())
-        fitText(g, label("hosted"), 177, 127, 110 - p.font.width(hosted), p.TEXT_DIM)
+        val boost = distorterText(selectedView)
+        if (selected == 0) {
+            drawNexusParallel(g, boost)
+        } else {
+            drawParallelControls(g, mx, my)
+            if (boost != null) {
+                p.tag(g, 171, 157, 126, 15, p.DISTORT_SOFT, p.DISTORT_ACCENT)
+                p.textFit(g, boost.string, 174, 157, 120, 15, p.DISTORT_TEXT)
+            }
+        }
 
         drawActions(g, mx, my)
     }
 
     @OnlyIn(Dist.CLIENT)
-    private fun drawIndependent(g: GuiGraphics, mx: Int, my: Int) {
+    private fun drawRecipeModes(g: GuiGraphics, mx: Int, my: Int) {
         val p = ExoticChemicalPainter
-        val st = look(selectedView)
+        val enabled = infinite && available
 
-        drawDeckHeader(g, st)
-        fitText(g, label("independent_run"), 172, 64, 97, p.TEXT)
-        p.switch(g, 273, 62, !releaseAfterFinish, false, pending = releaseAfterFinish)
-        hots += if (releaseAfterFinish) {
-            Hot(273, 62, p.SWITCH_W, 11, null, tooltip = { listOf(label("release_after_finish")) })
-        } else {
-            Hot(273, 62, p.SWITCH_W, 11, { edit("share", 0L, false) })
+        for (index in 0..1) {
+            val x = 171 + index * 63
+            val distort = index == 1
+            val current = distort == selectedView.distortRecipes
+            val active = enabled && current
+            val hovered = enabled && over(mx, my, x, 57, 63, 14)
+
+            val bg = when {
+                active -> if (distort) p.DISTORT_SOFT else p.ACCENT_SOFT
+                hovered -> p.ROW_HI
+                else -> p.BTN_DISABLED
+            }
+            val border = if (active) {
+                if (distort) p.DISTORT_ACCENT else p.ACCENT_BORDER
+            } else {
+                p.ROW_BORDER
+            }
+            p.tag(g, x, 57, 63, 14, bg, border)
+
+            val color = when {
+                active -> if (distort) p.DISTORT_TEXT else p.ACCENT_TEXT
+                current || enabled -> p.TEXT_DIM
+                else -> p.TEXT_MUTED
+            }
+            p.textFit(g, ExoticChemicalDisplay.recipeMode(distort).string, x, 57, 63, 14, color)
+
+            if (enabled && !current) {
+                hots += Hot(x, 57, 63, 14, { edit("recipe_type", 0L, distort) })
+            } else if (!infinite) {
+                hots += Hot(x, 57, 63, 14, null, tooltip = { listOf(label("recipe.unlock")) })
+            }
         }
+    }
 
-        drawProgress(g, 80, st)
-        drawProductsLink(g, 97, mx, my)
+    @OnlyIn(Dist.CLIENT)
+    private fun drawNexusParallel(g: GuiGraphics, boost: Component?) {
+        val p = ExoticChemicalPainter
+        p.well(g, 171, 111, 126, if (boost == null) 18 else 34, 0xFF121820.toInt())
 
-        p.groove(g, 166, 116, 136)
-        val limitWidth = p.text(g, label("limit"), 172, 123, p.TEXT_DIM)
-        if (!infinite) {
-            fitTextRight(
-                g,
-                label("remaining", FormattingUtil.formatNumbers(free)),
-                296,
-                123,
-                296 - (172 + limitWidth + 4),
-                p.TEXT_MUTED
-            )
+        val value = Component.literal(if (infinite) "∞" else FormattingUtil.formatNumbers(capacity))
+        val parallel = label("parallel")
+        val maxValWidth = 114 - minOf(p.font.width(parallel), 44) - 4
+        val valWidth = minOf(p.font.width(value), maxValWidth)
+        fitText(g, parallel, 177, 116, 114 - valWidth - 4, p.TEXT_DIM)
+        fitTextRight(g, value, 291, 116, valWidth, p.ACCENT_TEXT)
+
+        if (boost != null) {
+            p.rect(g, 177, 128, 114, 1, 0x12FFFFFF)
+            fitText(g, boost, 177, 132, 114, p.DISTORT_TEXT)
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private fun drawParallelControls(g: GuiGraphics, mx: Int, my: Int) {
+        val p = ExoticChemicalPainter
+        val limitWidth = p.text(g, label("limit"), 172, 111, p.TEXT_DIM)
+        val limitStatus = when {
+            !infinite -> label("limit_capacity", FormattingUtil.formatNumbers(capacity))
+            unlimited -> label("limit_unlimited")
+            else -> label("limit_manual")
+        }
+        fitTextRight(g, limitStatus, 296, 111, 296 - (172 + limitWidth + 4), p.TEXT_MUTED)
 
         val locked = unlimited || !limitApplies
-        val value = input.toLongOrNull() ?: 0L
+        val value = input.toLongOrNull() ?: 1L
         val step = step()
-        val minusOff = locked || value <= 0L
+        val minusOff = locked || value <= 1L
         val plusOff = locked || value >= limitMax
 
-        p.button(g, 171, 134, 22, 16, null, disabled = minusOff, hovered = over(mx, my, 171, 134, 22, 16))
-        p.textFit(g, "-$step", 171, 134, 22, 16, if (minusOff) p.TEXT_MUTED else p.TEXT)
-        p.well(g, 193, 134, 82, 16, if (locked) p.BTN_DISABLED else 0xFF0E1319.toInt())
-        p.button(g, 275, 134, 22, 16, null, disabled = plusOff, hovered = over(mx, my, 275, 134, 22, 16))
-        p.textFit(g, "+$step", 275, 134, 22, 16, if (plusOff) p.TEXT_MUTED else p.TEXT)
+        p.button(g, 171, LIMIT_Y, 22, 16, null, disabled = minusOff, hovered = over(mx, my, 171, LIMIT_Y, 22, 16))
+        p.textFit(g, "-$step", 171, LIMIT_Y, 22, 16, if (minusOff) p.TEXT_MUTED else p.TEXT)
+        p.well(g, 193, LIMIT_Y, 82, 16, if (locked) p.BTN_DISABLED else 0xFF0E1319.toInt())
+        p.button(g, 275, LIMIT_Y, 22, 16, null, disabled = plusOff, hovered = over(mx, my, 275, LIMIT_Y, 22, 16))
+        p.textFit(g, "+$step", 275, LIMIT_Y, 22, 16, if (plusOff) p.TEXT_MUTED else p.TEXT)
 
-        if (!minusOff) hots += Hot(171, 134, 22, 16, { nudge(-1) })
-        if (!plusOff) hots += Hot(275, 134, 22, 16, { nudge(1) })
-        if (unlimited) p.textCenter(g, Component.literal("∞"), 234, p.ty(134, 16), p.TEXT_MUTED)
+        if (!minusOff) hots += Hot(171, LIMIT_Y, 22, 16, { nudge(-1) })
+        if (!plusOff) hots += Hot(275, LIMIT_Y, 22, 16, { nudge(1) })
+        if (unlimited) p.textCenter(g, Component.literal("∞"), 234, p.ty(LIMIT_Y, 16), p.TEXT_MUTED)
 
         val limitAll = selectedView.limitAll
-        fitText(g, label("limit_all"), 172, 157, 97, p.TEXT)
-        p.switch(g, 273, 155, limitAll, !limitApplies)
+        fitText(g, label("limit_all"), 172, 142, 97, p.TEXT)
+        p.switch(g, 273, 140, limitAll, !limitApplies)
         if (limitApplies) {
-            hots += Hot(273, 155, p.SWITCH_W, 11, { submit(!limitAll) })
+            hots += Hot(273, 140, p.SWITCH_W, 11, {
+                if (pendingSince >= 0L) submit()
+                edit("limit_all", 0L, !limitAll)
+            })
         }
-
-        drawActions(g, mx, my)
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -873,7 +920,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
     @OnlyIn(Dist.CLIENT)
     private fun drawProgress(g: GuiGraphics, y: Int, st: State) {
         val v = selectedView
-        val barLabel = if (v.duration > 0) label("bar", v.progress, v.duration) else null
+        val barLabel = if (v.duration > 0) ExoticChemicalDisplay.progressLabel(v.progress, v.duration) else null
         ExoticChemicalPainter.progress(g, 171, y, 126, 13, v.progress, v.duration, st, barLabel)
     }
 
@@ -922,7 +969,6 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         )
         hots += Hot(171, 180, 44, 16, { edit("pause", 0L, !stopped) })
 
-        val afterDisabled = stopped || releaseAfterFinish
         p.button(
             g,
             219,
@@ -932,10 +978,10 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
             label("suspend_after_finish"),
             "clock",
             active = after,
-            disabled = afterDisabled,
+            disabled = stopped,
             hovered = over(mx, my, 219, 180, 78, 16)
         )
-        if (!afterDisabled) {
+        if (!stopped) {
             hots += Hot(219, 180, 78, 16, { edit("suspend_after_finish", 0L, !after) })
         }
     }
@@ -944,7 +990,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
     private fun drawFieldValue(g: GuiGraphics) {
         val p = ExoticChemicalPainter
         val x = position.x + 193
-        val y = position.y + 134
+        val y = position.y + LIMIT_Y
         val tw = p.font.width(input)
         val k = if (tw > 76) 76f / tw else 1f
         val drawnW = tw * k
@@ -1008,7 +1054,13 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
 
     private fun label(key: String, vararg args: Any?): MutableComponent = ExoticChemicalDisplay.label(key, *args)
 
-    private fun unitName(id: Int): MutableComponent = if (id == 0) label("central") else label("unit.$id")
+    private fun distorterText(view: UnitView): MutableComponent? = if (view.distortRecipes && distorterMultiplier > 1.0) {
+        label("distorter", distorterMultiplier, TSD_COST_COEFFICIENT)
+    } else {
+        null
+    }
+
+    private fun unitName(id: Int): MutableComponent = label("unit.$id")
 
     private fun num(id: Int): String = id.toString().padStart(2, '0')
 
@@ -1027,26 +1079,26 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
     )
 
     private class UnitView {
-        var independent = false
+        var distortRecipes = false
         var state = ExoticChemicalUnitState.IDLE
         var progress = 0
         var duration = 0
         var limitAll = false
-        var limit = 0L
+        var limit = 1L
 
         fun update(
-            independent: Boolean,
+            distortRecipes: Boolean,
             state: ExoticChemicalUnitState,
             duration: Int,
             limitAll: Boolean,
             limit: Long
         ): Boolean {
-            val changed = independent != this.independent ||
+            val changed = distortRecipes != this.distortRecipes ||
                 state != this.state ||
                 duration != this.duration ||
                 limitAll != this.limitAll ||
                 limit != this.limit
-            this.independent = independent
+            this.distortRecipes = distortRecipes
             this.state = state
             this.duration = duration
             this.limitAll = limitAll
@@ -1055,7 +1107,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         }
 
         fun write(buf: FriendlyByteBuf) {
-            buf.writeBoolean(independent)
+            buf.writeBoolean(distortRecipes)
             buf.writeByte(state.ordinal)
             buf.writeVarInt(progress)
             buf.writeVarInt(duration)
@@ -1064,7 +1116,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         }
 
         fun read(buf: FriendlyByteBuf) {
-            independent = buf.readBoolean()
+            distortRecipes = buf.readBoolean()
             state = ExoticChemicalUnitState.entries[buf.readByte().toInt()]
             progress = buf.readVarInt()
             duration = buf.readVarInt()
@@ -1098,7 +1150,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
         init {
             setBordered(false)
             setMaxStringLength(19)
-            setNumbersOnly(0L, Long.MAX_VALUE)
+            setNumbersOnly(1L, Long.MAX_VALUE)
             setWheelDur(0f)
             hover = null
             // Near-transparent but non-zero alpha: Font forces an alpha of 0 to opaque.
@@ -1128,6 +1180,7 @@ class ExoticChemicalMainPage(private val host: ExoticChemicalComplex) : WidgetGr
     }
 
     private companion object {
+        const val LIMIT_Y = 121
         const val OUTPUT_WIDTH = 107
         const val ELLIPSIS = "…"
 

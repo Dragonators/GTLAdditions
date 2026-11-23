@@ -18,11 +18,11 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-* Exotic Chemical Complex processes Large Chemical Reactor recipes with coil parallel, cross-recipe parallelization, and a tiered expandable structure.
+* The Exotic Chemical Complex processes Large Chemical Reactor recipes. Tier 3 unlocks Deep Chemical Distortion recipes.
 * It draws power directly from the wireless energy network.
 * The structure requires a maintenance hatch and can install <ItemLink id="gtladditions:thread_modifier_hatch" />, located on the left and right sides of the controller.
 * Input and output hatches can replace <ItemLink id="gtladditions:nanochip_casing" link={false} /> in their respective regions.
-* It consists of a central tower and 12 outer process units, each with isolated item and fluid inputs and outputs.
+* It consists of the Synthesis Nexus and 12 outer process units, each with isolated item and fluid inputs and outputs.
 
 </Column>
 
@@ -34,9 +34,9 @@ The Exotic Chemical Complex has 3 structure tiers.
 
 | Tier | Process units | Parallel rules | Recipe multipliers |
 | --- | --- | --- | --- |
-| 1 | Central tower only | All recipes share the total parallel pool | EU/t 1.0, duration 1.0 |
-| 2 | Unlocks 12 outer process units | By default only <Color color="#00AAAA">**UV**</Color> and higher recipes use the total parallel pool | EU/t 0.8, duration 0.6 |
-| 3 | As tier 2 | Unlocks infinite parallel | EU/t 0.8, duration 0.6 |
+| 1 | Synthesis Nexus only | Standard parallel | EU/t 1.0, duration 1.0 |
+| 2 | Unlocks 12 outer process units | Independent parallel per unit; by default only <Color color="#00AAAA">**UV**</Color> and higher recipes count | EU/t 0.8, duration 0.6 |
+| 3 | Unlocks Deep Chemical Distortion recipes | Unlocks infinite parallel; outer units support manual limits | EU/t 0.8, duration 0.6 |
 
 </Column>
 
@@ -60,15 +60,14 @@ The Exotic Chemical Complex has 3 structure tiers.
 
 <Latex math = "Coil\ parallel = \min(2147483647, \lfloor 2^{\frac{Coil\ temperature}{900}} \rfloor)" />
 
-* At tiers 1 and 2, the total parallel pool is determined by 256 base threads, extra threads from <ItemLink id="gtladditions:thread_modifier_hatch" />, and coil parallel:
+* At tiers 1 and 2, each unit's full parallel capacity is determined by 256 base threads, extra threads from the <ItemLink id="gtladditions:thread_modifier_hatch" />, and coil parallel.
 
-<Latex math = "Total\ parallel\ pool = (256 + Extra\ threads) \times Coil\ parallel" />
+<Latex math = "Unit\ capacity = (256 + Extra\ threads) \times Coil\ parallel" />
 
-* At tier 1, the central tower uses the entire pool and distributes parallel evenly across recipes.
-* At tier 2, the total parallel pool is shared between the central tower and outer units with "Run independently" enabled:
-  * By default only <Color color="#00AAAA">**UV**</Color> and higher recipes consume parallel; turning on "Count all recipes in parallel" limits all recipes in that unit to its configured parallel limit combined.
-  * By default, the central tower uses the remaining parallel left over by independent units.
-* At tier 3, both the central tower and independent units have infinite parallel; turning on "Count all recipes in parallel" limits that outer unit to its manually set parallel limit instead.
+* At tier 1, the Synthesis Nexus distributes its parallel capacity evenly across all recipes.
+* At tier 2, the Synthesis Nexus and each outer unit have their own full parallel capacity. By default, only <Color color="#00AAAA">**UV**</Color> and higher recipes consume parallel.
+  * Enabling "Count all recipes in parallel" applies this parallel limit to recipes of all tiers in that unit.
+* At tier 3, all units have infinite parallel.
 * Parallel limits can be adjusted in the input box or with the buttons on both sides and take effect automatically.
 
 </Column>
@@ -77,9 +76,19 @@ The Exotic Chemical Complex has 3 structure tiers.
 
 ### Process Units and Controls
 
-* **Region isolation**: The central tower and 12 outer process units have isolated item and fluid hatch regions; central only reads and writes hatches on the central platform.
-* **Independent mode and return**: From tier 2 onward, select an outer unit (01–12) on the main blueprint to toggle "Run independently". Turning it off returns an idle unit immediately and releases its parallel allocation; a busy unit returns after finishing and outputting its current run.
-* **Status and products**: Select central or any independent unit to view its progress bar and "Products" list.
+* The Synthesis Nexus and the 12 outer process units have isolated item and fluid hatches.
+* Select an unlocked unit on the blueprint to view its progress and "Products", or individually use "Pause"/"Resume" or "Pause after".
+
+</Column>
+
+<Column gap="2" fullWidth={true}>
+
+### Recipe Types and Time Space Distortion
+
+* Tiers 1 and 2 are limited to Large Chemical Reactor recipes. Tier 3 adds the option for Deep Chemical Distortion recipes.
+* The <ItemLink id="gtceu:me_recipe_pattern_buffer" /> installed on a unit hatch generates integrated patterns for that unit's active recipe type, refreshing automatically after a mode or structure tier change.
+* Use a <ItemLink id="gtladditions:suprachronal_data_module" link={false} /> to bind a <ItemLink id="gtladditions:time_space_distorter" />. Tier 3 Distortion units can gain a 1.3×–3.2× boost to item and fluid outputs.
+* Each batch is calculated from the parallels that actually started, with a fixed material cost of 0.1× the Distorter's base material cost.
 
 </Column>
 

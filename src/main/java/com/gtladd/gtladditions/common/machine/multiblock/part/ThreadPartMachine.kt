@@ -11,7 +11,6 @@ import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
 import com.gtladd.gtladditions.api.machine.feature.IThreadModifierPart
 import com.gtladd.gtladditions.api.machine.logic.MutableRecipesLogic
 import com.gtladd.gtladditions.common.items.GTLAddItems
-import com.gtladd.gtladditions.common.machine.multiblock.controller.ExoticChemicalComplex
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ThreadMultiplierStrategy.getAdditionalMultiplier
@@ -44,15 +43,7 @@ open class ThreadPartMachine(holder: IMachineBlockEntity) :
     // ========================================
 
     private fun reCalculateThreadCount() {
-        val previous = threadCount
         threadCount = Ints.saturatedCast(astralArrayInventory.getStackInSlot(0).count * 64L * threadMultiplier)
-        if (threadCount <= previous || isRemote) return
-
-        for (controller in controllers) {
-            if (controller is ExoticChemicalComplex && controller.structureTier in 1..2) {
-                controller.getRecipeLogic().wakeUnits(idleOnly = true)
-            }
-        }
     }
 
     // ========================================

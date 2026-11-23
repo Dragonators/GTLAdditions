@@ -38,11 +38,13 @@ import com.hepdd.gtmthings.data.CreativeMachines.CREATIVE_LASER_INPUT_HATCH
 import com.hepdd.gtmthings.data.CustomMachines.HUGE_INPUT_DUAL_HATCH
 import net.minecraft.data.recipes.FinishedRecipe
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
+import org.gtlcore.gtlcore.api.machine.multiblock.GTLCleanroomType.LAW_CLEANROOM
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.GTLBlocks.RHENIUM_REINFORCED_ENERGY_GLASS
 import org.gtlcore.gtlcore.common.data.GTLItems.*
 import org.gtlcore.gtlcore.common.data.GTLMachines
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
+import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.PRECISION_ASSEMBLER_RECIPES
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.SUPRACHRONAL_ASSEMBLY_LINE_RECIPES
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine.ADVANCED_VACUUM_DRYING_FURNACE
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine.MOLECULAR_ASSEMBLER_MATRIX
@@ -500,19 +502,27 @@ object NewMultiBlockMachineController {
                     .EUt(VA[UXV]).CWUt(1024)
             }
             .save(provider)
-        ASSEMBLER_RECIPES.recipeBuilder(id("nanochip_casing"))
-            .inputItems(getItemStack("gtceu:inert_machine_casing", 4))
-            .inputItems(wireFine, NaquadahAlloy, 16)
-            .inputItems(plate, Polytetrafluoroethylene, 4)
-            .inputFluids(SolderingAlloy.getFluid(576))
+        PRECISION_ASSEMBLER_RECIPES.recipeBuilder(id("nanochip_casing"))
+            .inputItems(frameGt, BlackTitanium, 4)
+            .inputItems(foil, RhodiumPlatedPalladium, 32)
+            .inputItems(plateDouble, Adamantine, 48)
+            .inputItems(pipeHugeFluid, HeavyQuarkDegenerateMatter, 4)
+            .inputFluids(SuperMutatedLivingSolder.getFluid(1440))
+            .inputFluids(Tairitsu.getFluid(1440))
+            .inputFluids(Neutronium.getFluid(5760))
             .outputItems(GTLAddBlocks.NANOCHIP_CASING, 4)
-            .EUt(VA[LuV].toLong()).duration(100).save(provider)
-        ASSEMBLER_RECIPES.recipeBuilder(id("nanochip_complex_glass"))
-            .inputItems(getItemStack("minecraft:tinted_glass", 16))
-            .inputItems(foil, NaquadahAlloy, 4)
-            .inputFluids(Polytetrafluoroethylene.getFluid(576))
-            .outputItems(GTLAddBlocks.NANOCHIP_COMPLEX_GLASS, 16)
-            .EUt(VA[LuV].toLong()).duration(100).save(provider)
+            .EUt(VA[UIV].toLong()).duration(200)
+            .cleanroom(LAW_CLEANROOM).save(provider)
+        PRECISION_ASSEMBLER_RECIPES.recipeBuilder(id("nanochip_complex_glass"))
+            .inputItems(getItemStack("kubejs:force_field_glass", 4))
+            .inputItems(GTLAddItems.EXTRAORDINARY_SOC, 4)
+            .inputItems(nanoswarm, Neutronium, 4)
+            .inputItems(foil, Cinobite, 16)
+            .inputFluids(FullerenePolymerMatrixPulp.getFluid(1440))
+            .inputFluids(CarbonNanotubes.getFluid(1440))
+            .outputItems(GTLAddBlocks.NANOCHIP_COMPLEX_GLASS, 4)
+            .EUt(VA[UIV].toLong()).duration(200)
+            .cleanroom(LAW_CLEANROOM).save(provider)
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("exotic_chemical_complex"))
             .inputItems(frameGt, BlackTitanium, 16)
             .inputItems(LARGE_CHEMICAL_PLANT, 16)
@@ -524,7 +534,7 @@ object NewMultiBlockMachineController {
             .inputItems(getItemStack("gtceu:uhv_chemical_reactor", 8))
             .inputItems(getItemStack("gtceu:uev_chemical_reactor", 4))
             .inputItems(getItemStack("gtceu:uiv_chemical_reactor", 2))
-            .inputItems(CustomTags.UIV_CIRCUITS, 32)
+            .inputItems(CustomTags.UXV_CIRCUITS, 32)
             .inputItems(TRANSCENDENT_ULTIMATE_BATTERY)
             .inputItems(getItemStack("gtceu:polytetrafluoroethylene_nonuple_fluid_pipe", 32))
             .inputItems(getItemStack("gtceu:polytetrafluoroethylene_huge_fluid_pipe", 32))
@@ -797,7 +807,7 @@ object NewMultiBlockMachineController {
             .inputItems(QFT, 1024)
             .inputItems(CREATIVE_LASER_INPUT_HATCH, 64)
             .inputItems(DOOR_OF_CREATE, 64)
-            .inputItems(CHEMICAL_DISTORT, 1024)
+            .inputItems(QFT, 1024)
             .inputItems(getItemStack("kubejs:quantum_anomaly", 1048576))
             .inputItems(CREATE_COMPUTATION, 256)
             .inputItems(getItemStack("kubejs:space_probe_mk3", 256))

@@ -7,6 +7,7 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDistinctPart
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType
 import com.gregtechceu.gtceu.integration.ae2.machine.MEOutputBusPartMachine
 import com.gregtechceu.gtceu.integration.ae2.machine.MEOutputHatchPartMachine
 import com.gtladd.gtladditions.api.machine.IGTLAddMultiRecipeMachine
@@ -50,7 +51,7 @@ internal class ExoticChemicalUnitMachine(private val host: ExoticChemicalComplex
 
     private val cache = HashMap<GTRecipe, FirstFlagRecipePartSet>()
     private val subscriptions = IdentityHashMap<Any, ISubscription>()
-    private val wake = Runnable { unitLogic.coordinator.wakeUnit(unitLogic.id) }
+    private val wake = Runnable { unitLogic.updateTickSubscription() }
 
     private var distinct = false
     private var itemBus = false
@@ -161,7 +162,7 @@ internal class ExoticChemicalUnitMachine(private val host: ExoticChemicalComplex
         outputs.clear()
         patterns.clear()
         meOutputs.clear()
-        cache.clear()
+        clearRecipeCache()
         proxy.clear()
         shared = null
     }
@@ -173,6 +174,8 @@ internal class ExoticChemicalUnitMachine(private val host: ExoticChemicalComplex
     override fun self(): ExoticChemicalComplex = host
 
     override fun getRecipeLogic(): ExoticChemicalUnitLogic = unitLogic
+
+    override fun getRecipeType(): GTRecipeType = unitLogic.recipeType
 
     override fun isRecipeLogicAvailable(): Boolean = isOnline && host.isRecipeLogicAvailable
 
@@ -240,6 +243,8 @@ internal class ExoticChemicalUnitMachine(private val host: ExoticChemicalComplex
     // RECIPE HANDLE CACHE
     // ========================================
 
+    fun clearRecipeCache() = cache.clear()
+
     override fun getActiveRecipeHandle(recipe: GTRecipe): IRecipeHandlePart? = cache[recipe]?.active
 
     override fun getAllCachedRecipeHandlesIter(recipe: GTRecipe): MutableIterator<IRecipeHandlePart> =
@@ -263,7 +268,7 @@ internal class ExoticChemicalUnitMachine(private val host: ExoticChemicalComplex
     // SUSPEND CONTROL
     // ========================================
 
-    override fun `gtlcore$isSuspendAfterFinish`(): Boolean = unitLogic.suspendAfterFinish || unitLogic.releaseAfterFinish
+    override fun `gtlcore$isSuspendAfterFinish`(): Boolean = unitLogic.suspendAfterFinish
 
     override fun `gtlcore$setSuspendAfterFinish`(value: Boolean) {
         unitLogic.setSuspendAfterFinish(value)

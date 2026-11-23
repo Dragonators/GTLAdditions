@@ -16,14 +16,16 @@ import net.minecraft.world.item.ItemStack
 import net.minecraftforge.fluids.FluidStack
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.ingredient.LongIngredient
+import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.DISTORT_RECIPES
 import java.math.BigInteger
+import kotlin.math.roundToInt
 
 internal enum class ExoticChemicalUnitState {
     RUN,
     WAIT,
     PAUSE,
     IDLE,
-    SHARED
+    LOCKED
 }
 
 internal data class ExoticChemicalOutput(
@@ -54,10 +56,18 @@ internal object ExoticChemicalDisplay {
 
     fun label(key: String, vararg args: Any?): MutableComponent = ("gtladditions.exotic_chemical.$key").toComponent(*args)
 
+    fun progressLabel(progress: Int, duration: Int): MutableComponent = if (duration < 20) {
+        "gtceu.jade.progress_tick".toComponent(progress, duration)
+    } else {
+        "gtceu.jade.progress_sec".toComponent((progress / 20f).roundToInt(), (duration / 20f).roundToInt())
+    }
+
+    fun recipeMode(distort: Boolean): MutableComponent = label(if (distort) "recipe.distort" else "recipe.large_chemical")
+
     fun state(coordinator: ExoticChemicalRecipeLogic, unitLogic: ExoticChemicalUnitLogic): ExoticChemicalUnitState {
         val result = unitLogic.recipeStatus
         return when {
-            unitLogic.id != 0 && !unitLogic.independent -> ExoticChemicalUnitState.SHARED
+            !coordinator.isUnitUnlocked(unitLogic.id) -> ExoticChemicalUnitState.LOCKED
             !unitLogic.isRecipeLogicAvailable -> ExoticChemicalUnitState.WAIT
             coordinator.globalPaused || unitLogic.isSuspend -> ExoticChemicalUnitState.PAUSE
             coordinator.host.uuid == null -> ExoticChemicalUnitState.WAIT
@@ -80,12 +90,18 @@ internal object ExoticChemicalDisplay {
 
     fun netEut(coordinator: ExoticChemicalRecipeLogic): BigInteger {
         var draw = BigInteger.ZERO
+
         for (unitLogic in coordinator.units) {
             val work = unitLogic.currentRecipe as? IWirelessGTRecipe ?: continue
-            if (state(coordinator, unitLogic) == ExoticChemicalUnitState.RUN) {
+            if (!coordinator.globalPaused &&
+                unitLogic.isRecipeLogicAvailable &&
+                unitLogic.isWorking &&
+                coordinator.host.uuid != null
+            ) {
                 draw -= work.getWirelessEuTickInputs() ?: BigInteger.ZERO
             }
         }
+
         return draw
     }
 
@@ -140,14 +156,13 @@ internal object ExoticChemicalDisplay {
         if (!coordinator.host.isFormed) return
 
         tag.putInt("tier", coordinator.host.structureTier)
-        tag.putInt("independent", coordinator.units.count { it.id > 0 && it.independent })
 
         val eut = netEut(coordinator)
         if (eut.signum() != 0) tag.putByteArray("eut", eut.toByteArray()) else tag.remove("eut")
 
         val units = ListTag()
         for (unitLogic in coordinator.units) {
-            if (!coordinator.isUnitActive(unitLogic) || unitLogic.duration <= 0) continue
+            if (!coordinator.isUnitUnlocked(unitLogic.id) || unitLogic.duration <= 0) continue
 
             val preview = ListTag()
             val count = unitLogic.currentRecipe?.let { recipe ->
@@ -158,6 +173,7 @@ internal object ExoticChemicalDisplay {
                 CompoundTag().apply {
                     putInt("id", unitLogic.id)
                     putByte("state", state(coordinator, unitLogic).ordinal.toByte())
+                    if (unitLogic.recipeType === DISTORT_RECIPES) putBoolean("distortRecipes", true)
                     putInt("progress", unitLogic.progress)
                     putInt("duration", unitLogic.duration)
                     putInt("outputCount", count)

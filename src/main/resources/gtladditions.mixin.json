@@ -42,6 +42,7 @@
     "gtceu.xei.FluidUnitMixin",
     "gtceu.xei.ItemEmiStackMixin",
     "gtlcore.data.recipe.GenerateDisassemblyMixin",
+    "gtlcore.integration.ExoticChemicalRecipePatternBufferMixin",
     "gtlcore.integration.MERecipePatternHelperMixin",
     "gtlcore.item.UltimateTerminalBehaviorMixin",
     "gtlcore.pattern.AdvancedBlockPatternMixin",

@@ -17,7 +17,7 @@ item_ids:
 <Column gap="20" fullWidth={true}>
 <Column gap="2" fullWidth={true}>
 
-* Work backward through the future and turn probability into certainty. The Matrix processes Quantum Manipulator, Deep Chemical Distortion and Singularity Collapse recipes together.
+* Work backward through the future and turn probability into certainty. The Matrix processes Quantum Manipulator and Singularity Collapse recipes together.
 * It draws power from the wireless energy network and needs no energy or laser hatches.
 * It starts with 1024 threads, provides Int.MAX parallels and ignores all recipe maintenance requirements.
 * This machine cannot use the ME Recipe Type Integrated Pattern Buffer.

@@ -17,8 +17,8 @@ item_ids:
 <Column gap="20" fullWidth={true}>
 <Column gap="2" fullWidth={true}>
 
-* The Time Space Distorter provides a boost to a bound <ItemLink id="gtladditions:apocalyptic_quantum_warp_matrix" />.
-* Use a <ItemLink id="gtladditions:suprachronal_data_module" link={false} /> to right-click a formed Matrix, then a formed Time Space Distorter in the same dimension to bind them.
+* A Time Space Distorter can bind one-to-one with an <ItemLink id="gtladditions:apocalyptic_quantum_warp_matrix" /> or an <ItemLink id="gtladditions:exotic_chemical_complex" />.
+* Use a <ItemLink id="gtladditions:suprachronal_data_module" link={false} /> to right-click the formed host, then the formed Time Space Distorter in the same dimension.
 * Keep the Time Space Distorter running and supply enough additional materials to receive the boost.
 * This machine cannot use the ME Recipe Type Integrated Pattern Buffer.
 
@@ -38,10 +38,11 @@ Use the plus and minus buttons in the interface to adjust the level. Higher leve
 </Column>
 <Column gap="2" fullWidth={true}>
 
-### Continuous Operation and Additional Material Costs
+### Additional Material Costs
 
-* When the Matrix starts working, it requires 80% of the base additional material amounts above. After 4 hours of continuous operation, this falls to 40%.
-* Material amounts are rounded down.
+* The Apocalyptic Quantum Warp Matrix starts at 80% of the base material cost. After 4 hours of continuous operation, this falls to 40%.
+* The Exotic Chemical Complex incurs costs only when a tier 3 Distortion unit starts a batch with outputs, at a fixed 10% of the base material cost.
+* Each material amount is rounded down.
 
 Each additional material's amount is calculated as follows:
 
@@ -49,9 +50,10 @@ Each additional material's amount is calculated as follows:
 
 <Latex math="c = 0.8 \times 2^{-\min(t/4, 1)}" />
 
-* P is the Matrix's actual total parallels for the cycle, and t is its continuous running time in hours.
+* P is the number of parallels that actually started in the Matrix or Distortion unit for that batch.
 * d is the base-cost divisor listed above: 17, 28, 44, 730 or 873.
-* c is the additional material multiplier from running time. F is 1 with Dimension Folding off, or 6 while it is active.
+* c is the material cost multiplier. For the Matrix, use the formula above with t as the continuous running time in hours. The Exotic Chemical Complex uses a fixed c of 0.1.
+* F is 6 while the Matrix has Dimension Folding active and 1 in all other cases.
 
 </Column>
 <Column gap="2" fullWidth={true}>
