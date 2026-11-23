@@ -44,11 +44,11 @@ The Exotic Chemical Complex has 3 structure tiers.
 
 ### Upgrading
 
-1. Open the Structure Upgrade page on the left of the controller GUI and choose the tier to view.
-2. The left side lists the required items. Once the upgrade conditions are met, put the items into the input on the right and press Unlock to consume them and unlock the next tier.
-3. Once the next tier is unlocked, its structure can be previewed in the world as usual or built with the terminal. After building it, press Activate to make it take effect.
+1. Open the "Structure Upgrade" tab in the controller GUI sidebar and switch to view the target tier and required materials.
+2. With the required items in your inventory, click "Unlock (From Inventory)" to consume them and unlock the next tier.
+3. Once the next tier is unlocked, its structure can be previewed in the world as usual or built with the terminal. After building it, click Activate to make it take effect.
 4. Coils across different structure tiers must also be of the same type.
-5. Unlocked tiers are kept when the controller is dismantled.
+5. Unlocked tiers and payment progress are kept when the controller is dismantled.
 
 </Column>
 

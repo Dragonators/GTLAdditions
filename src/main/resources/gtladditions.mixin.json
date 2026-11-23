@@ -12,6 +12,7 @@
     "buildinggadgets2.GadgetCutPasteMixin",
     "buildinggadgets2.ServerTickHandlerMixin",
     "buildinggadgets2.RenderBlockBEMixin",
+    "gtceu.api.gui.FancyMachineUIWidgetMixin",
     "gtceu.api.machine.IFancyUIMachineMixin",
     "gtceu.api.machine.WorkableMultiblockMachineAccessor",
     "gtceu.api.machine.trait.RecipeLogicAccessor",

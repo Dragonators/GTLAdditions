@@ -5,8 +5,10 @@ import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.gui.fancy.FancyMachineUIWidget
 import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfiguratorButton
+import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
+import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CombinedDirectionalFancyConfigurator
 import com.gregtechceu.gtceu.api.machine.feature.IDropSaveMachine
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart
@@ -20,7 +22,7 @@ import com.gtladd.gtladditions.api.machine.feature.IStructureTierMachine
 import com.gtladd.gtladditions.api.machine.feature.TierCost
 import com.gtladd.gtladditions.api.machine.feature.TierRequirement
 import com.gtladd.gtladditions.api.machine.gui.ExoticChemicalMainPage
-import com.gtladd.gtladditions.api.machine.gui.StructureTierConfigurator
+import com.gtladd.gtladditions.api.machine.gui.StructureTierPage
 import com.gtladd.gtladditions.api.machine.logic.chemical.ExoticChemicalRecipeLogic
 import com.gtladd.gtladditions.api.machine.logic.chemical.ExoticChemicalUnitLogic
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessCoilWorkableElectricMultipleRecipesMultiblockMachine
@@ -200,7 +202,6 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
 
     override fun onMachineRemoved() {
         structureTierTrait.onMachineRemoved()
-        clearInventory(structureTierTrait.inventory)
         unbindTarget()
     }
 
@@ -222,6 +223,12 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
 
     override fun hasPlayerInventory(): Boolean = false
 
+    override fun attachSideTabs(tabs: TabsWidget) {
+        tabs.setMainTab(this)
+        CombinedDirectionalFancyConfigurator.of(this, this)?.let(tabs::attachSubTab)
+        tabs.attachSubTab(StructureTierPage(this))
+    }
+
     // Rebuilt instead of calling super, which also adds GT's recipe lock button; units keep no locked recipe.
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
         configuratorPanel.attachConfigurators(
@@ -237,7 +244,6 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
 
         IRecipeCapabilityMachine.attachConfigurators(configuratorPanel, this)
         createConfigurators()?.let { configuratorPanel.attachConfigurators(it) }
-        configuratorPanel.attachConfigurators(StructureTierConfigurator(this))
     }
 
     companion object {

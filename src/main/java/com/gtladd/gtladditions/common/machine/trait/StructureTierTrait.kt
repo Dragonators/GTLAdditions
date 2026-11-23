@@ -16,7 +16,6 @@ import com.gtladd.gtladditions.mixin.gtceu.api.machine.WorkableMultiblockMachine
 import com.gtladd.gtladditions.mixin.gtceu.api.pattern.MultiblockStateAccessor
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
-import com.lowdragmc.lowdraglib.misc.ItemStackTransfer
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener
@@ -68,9 +67,6 @@ class StructureTierTrait(
         private set
 
     internal var nextGuiActivationTick = 0L
-
-    @field:Persisted
-    val inventory = ItemStackTransfer(SLOTS)
 
     val hasDropData: Boolean
         get() = unlockedTier > layout.minTier || payment.any { it > 0 }
@@ -139,36 +135,42 @@ class StructureTierTrait(
         else -> 0L
     }
 
-    fun unlock(): List<Component> {
+    fun unlock(player: Player): List<Component> {
         val tier = unlockedTier + 1
         val requirement = requirement(tier) ?: return emptyList()
 
+        val items = player.inventory.items
         val paid = LongArray(requirement.costs.size) { paid(tier, it) }
+        var consumed = false
         requirement.costs.forEachIndexed { i, cost ->
-            for (slot in 0 until inventory.slots) {
+            for (element in items) {
                 val missing = cost.amount - paid[i]
-                if (missing <= 0) break
+                if (missing <= 0L) break
 
-                val stack = inventory.getStackInSlot(slot)
-                if (stack.isEmpty || !cost.ingredient.test(stack)) continue
+                if (element.isEmpty || !cost.ingredient.test(element)) continue
 
-                paid[i] += inventory.extractItem(
-                    slot,
-                    minOf(missing, stack.count.toLong()).toInt(),
-                    false
-                ).count.toLong()
+                val taken = minOf(missing, element.count.toLong()).toInt()
+                element.shrink(taken)
+                paid[i] += taken
+                consumed = true
             }
         }
 
-        payment = paid
+        if (consumed) {
+            player.inventory.setChanged()
+        }
+
         val unpaid = requirement.costs.indices.count { paid[it] < requirement.costs[it].amount }
         val unmet = requirement.conditions.filterNot { it.test(machine as IStructureTierMachine) }
         if (unpaid == 0 && unmet.isEmpty()) {
             unlockedTier = tier
             payment = LongArray(0)
+            onChanged()
+        } else if (consumed) {
+            payment = paid
+            onChanged()
         }
 
-        onChanged()
         if (unlockedTier == tier) {
             return listOf("gtladditions.structure_tier.unlocked".toComponent(tier).withStyle(ChatFormatting.GREEN))
         }
@@ -607,7 +609,6 @@ class StructureTierTrait(
     // PERSISTENCE
     // ========================================
 
-    // The input slots drop as items.
     override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {
         if (!forDrop) return
 
@@ -631,7 +632,6 @@ class StructureTierTrait(
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
     companion object {
-        const val SLOTS = 16
         const val DROP_KEY = "gtladditionsStructureTier"
 
         private const val HIGHLIGHTED = 64

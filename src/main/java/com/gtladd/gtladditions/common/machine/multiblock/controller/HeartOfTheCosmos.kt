@@ -3,7 +3,7 @@ package com.gtladd.gtladditions.common.machine.multiblock.controller
 import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability
 import com.gregtechceu.gtceu.api.data.chemical.material.Material
-import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfigurator
+import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IDropSaveMachine
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
@@ -15,7 +15,7 @@ import com.gtladd.gtladditions.api.machine.feature.IStructureTierMachine
 import com.gtladd.gtladditions.api.machine.feature.TierCondition
 import com.gtladd.gtladditions.api.machine.feature.TierCost
 import com.gtladd.gtladditions.api.machine.feature.TierRequirement
-import com.gtladd.gtladditions.api.machine.gui.StructureTierConfigurator
+import com.gtladd.gtladditions.api.machine.gui.StructureTierPage
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe
@@ -94,7 +94,7 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
             "gtladditions.structure_tier.condition.planes".toComponent(
                 FormattingUtil.formatNumbers((machine as HeartOfTheCosmos).annihilatedPlanes),
                 FormattingUtil.formatNumbers(threshold)
-            ).withStyle(ChatFormatting.DARK_RED)
+            )
     }
 
     // ========================================
@@ -113,7 +113,6 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
 
     override fun onMachineRemoved() {
         structureTierTrait.onMachineRemoved()
-        clearInventory(structureTierTrait.inventory)
     }
 
     // ========================================
@@ -130,7 +129,10 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
     // GUI
     // ========================================
 
-    override fun createConfigurators(): IFancyConfigurator = StructureTierConfigurator(this)
+    override fun attachSideTabs(sideTabs: TabsWidget) {
+        super.attachSideTabs(sideTabs)
+        sideTabs.attachSubTab(StructureTierPage(this))
+    }
 
     override fun addDisplayText(textList: MutableList<Component?>) {
         super.addDisplayText(textList)
