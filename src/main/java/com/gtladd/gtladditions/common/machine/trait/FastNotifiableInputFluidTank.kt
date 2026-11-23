@@ -13,7 +13,6 @@ import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.TransferHelper
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.side.fluid.IFluidTransfer
-import com.lowdragmc.lowdraglib.syncdata.IContentChangeAware
 import com.lowdragmc.lowdraglib.syncdata.ITagSerializable
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenCustomHashSet
 import net.minecraft.ChatFormatting
@@ -31,8 +30,7 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) :
     NotifiableRecipeHandlerTrait<FluidIngredient>(machine),
     ICapabilityTrait,
     IFluidTransfer,
-    ITagSerializable<CompoundTag>,
-    IContentChangeAware {
+    ITagSerializable<CompoundTag> {
 
     private val fluidInventory: ObjectLinkedOpenCustomHashSet<FluidStack> =
         ObjectLinkedOpenCustomHashSet(FluidStackHashStrategy.comparingAllButAmount())
@@ -98,6 +96,7 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) :
     override fun getHandlerIO(): IO = IO.IN
 
     override fun onContentsChanged() {
+        onChanged()
         notifyListeners()
     }
 
@@ -252,8 +251,4 @@ class FastNotifiableInputFluidTank(machine: MetaMachine) :
         val fluids = tag.getList("fluidInventory", Tag.TAG_COMPOUND.toInt())
         AEUtils.loadInventory(fluids, FluidStack::loadFromTag, fluidInventory)
     }
-
-    override fun setOnContentsChanged(onContentChanged: Runnable?) {}
-
-    override fun getOnContentsChanged(): Runnable = Runnable { }
 }

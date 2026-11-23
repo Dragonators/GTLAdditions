@@ -34,8 +34,8 @@ item_ids:
 
 | 等级 | 可用配方 | 单位面功率 |
 | --- | --- | --- |
-| 1 | <ItemLink id="gtladditions:eternity_dark_matter_fuel_rod" /> + <ItemLink id="gtladditions:black_hole_seed" />（5% 消耗），湮灭约束器 90% 回收 1 个 | 64 个创造能源仓 |
-| 2 | <ItemLink id="gtladditions:strange_annihilation_fuel_rod" /> + <ItemLink id="gtladditions:black_hole_seed" />，湮灭约束器 60% 回收 64 个 | 4096 个创造能源仓 |
+| 1 | <ItemLink id="gtladditions:eternity_dark_matter_fuel_rod" /> + <ItemLink id="gtladditions:black_hole_seed" link={false} />（5% 消耗），湮灭约束器 90% 回收 1 个 | 64 个创造能源仓 |
+| 2 | <ItemLink id="gtladditions:strange_annihilation_fuel_rod" /> + <ItemLink id="gtladditions:black_hole_seed" link={false} />，湮灭约束器 60% 回收 64 个 | 4096 个创造能源仓 |
 | 3 | 同 2 级，黑洞种子至多 80% 概率消耗 | 最高 262,144 个创造能源仓 |
 
 </Column>

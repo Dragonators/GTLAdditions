@@ -34,8 +34,8 @@ The Heart of the Universe has 3 structure tiers.
 
 | Tier | Available recipe | Power per plane |
 | --- | --- | --- |
-| 1 | <ItemLink id="gtladditions:eternity_dark_matter_fuel_rod" /> + <ItemLink id="gtladditions:black_hole_seed" /> (consumed 5% of the time); 1 annihilation constrainer back 90% of the time | 64 creative energy hatches |
-| 2 | <ItemLink id="gtladditions:strange_annihilation_fuel_rod" /> + <ItemLink id="gtladditions:black_hole_seed" />; 64 annihilation constrainers back 60% of the time | 4096 creative energy hatches |
+| 1 | <ItemLink id="gtladditions:eternity_dark_matter_fuel_rod" /> + <ItemLink id="gtladditions:black_hole_seed" link={false} /> (consumed 5% of the time); 1 annihilation constrainer back 90% of the time | 64 creative energy hatches |
+| 2 | <ItemLink id="gtladditions:strange_annihilation_fuel_rod" /> + <ItemLink id="gtladditions:black_hole_seed" link={false} />; 64 annihilation constrainers back 60% of the time | 4096 creative energy hatches |
 | 3 | As tier 2; black hole seeds consumed at most 80% of the time | up to 262,144 creative energy hatches |
 
 </Column>

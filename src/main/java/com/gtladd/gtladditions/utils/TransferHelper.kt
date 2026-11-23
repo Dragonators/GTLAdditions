@@ -23,6 +23,8 @@ import java.util.function.Predicate
 
 object TransferHelper {
 
+    private const val MAX_EXPORT_ATTEMPTS = 1024
+
     fun exportToTarget(
         source: FastNotifiableInputFluidTank,
         filter: Predicate<FluidStack>,
@@ -42,30 +44,27 @@ object TransferHelper {
         if (hasME) return
 
         val target = FluidTransferHelper.getFluidTransfer(level, pos, direction) ?: return
-        var changed = false
-        val iterator = source.getFluidStorage().iterator()
-        while (iterator.hasNext()) {
-            val currentFluid = iterator.next()
 
+        val iterator = source.getFluidStorage().iterator()
+        var attempts = MAX_EXPORT_ATTEMPTS
+        var changed = false
+
+        while (iterator.hasNext() && attempts > 0) {
+            val currentFluid = iterator.next()
             if (currentFluid.isEmpty || !filter.test(currentFluid)) continue
 
-            val toDrain = currentFluid.copy()
-            var remainAmount = currentFluid.amount
-            do {
-                val filled = target.fill(toDrain, true)
-                if (filled > 0) {
-                    toDrain.amount = filled
-                    target.fill(toDrain, false)
-                    remainAmount -= filled
-                    currentFluid.amount -= filled
-                    changed = true
-                } else {
-                    break
-                }
-                toDrain.amount = remainAmount
-            } while (!toDrain.isEmpty)
+            var budget = currentFluid.amount
+            while (budget > 0L && attempts > 0) {
+                attempts--
+                val filled = target.fill(currentFluid.copy(budget), false)
+                if (filled <= 0L) break
 
-            if (currentFluid.amount <= 0) iterator.remove()
+                budget -= filled
+                currentFluid.amount -= filled
+                changed = true
+            }
+
+            if (currentFluid.amount <= 0L) iterator.remove()
         }
 
         if (changed) {
@@ -92,37 +91,34 @@ object TransferHelper {
         if (hasME) return
 
         val target = ItemTransferHelper.getItemTransfer(level, pos, direction) ?: return
-        var changed = false
+
         val iterator = Object2LongMaps.fastIterator(source.getItemStorage())
-        while (iterator.hasNext()) {
+        var attempts = MAX_EXPORT_ATTEMPTS
+        var changed = false
+
+        while (iterator.hasNext() && attempts > 0) {
             val entry = iterator.next()
             val stack = entry.key
-            val count = entry.longValue
-
             if (stack.isEmpty || !filter.test(stack)) continue
 
-            val tryTransferStack = stack.copy()
-            var remainCount = count
-            do {
-                val intCount = Ints.saturatedCast(remainCount)
-                tryTransferStack.count = intCount
-                val remainder = ItemTransferHelper.insertItem(target, tryTransferStack, true)
-                val amountToInsert = intCount - remainder.count
+            var budget = entry.longValue
+            while (budget > 0L && attempts > 0) {
+                val intCount = Ints.saturatedCast(budget)
+                attempts--
+                val remainder = ItemTransferHelper.insertItem(target, stack.copyWithCount(intCount), false)
+                val inserted = intCount - remainder.count
+                if (inserted <= 0) break
 
-                if (amountToInsert > 0) {
-                    tryTransferStack.count = amountToInsert
-                    ItemTransferHelper.insertItem(target, tryTransferStack, false)
-                    remainCount -= amountToInsert
-                    changed = true
+                budget -= inserted
+                changed = true
+
+                val left = entry.longValue - inserted
+                if (left > 0L) {
+                    entry.setValue(left)
                 } else {
+                    iterator.remove()
                     break
                 }
-            } while (remainCount > 0)
-
-            if (remainCount > 0) {
-                if (remainCount != count) entry.setValue(remainCount)
-            } else {
-                iterator.remove()
             }
         }
 
@@ -234,7 +230,7 @@ object TransferHelper {
         }
         is AEFluidKey -> {
             val inventory = fluidTarget.getFluidStorage()
-            val fluidStack = FluidStack.create(what.fluid, 1)
+            val fluidStack = FluidStack.create(what.fluid, 1, what.copyTag())
             val existing = inventory.get(fluidStack)
             val realInsert = amount.coerceAtMost(Long.MAX_VALUE - (existing?.amount ?: 0))
 
@@ -276,7 +272,7 @@ object TransferHelper {
             meStorage.insert(aeKey, count, Actionable.MODULATE, actionSource)
                 .takeIf { it > 0 }
                 ?.let { inserted ->
-                    val remaining = count - inserted
+                    val remaining = entry.longValue - inserted
                     if (remaining <= 0) {
                         iterator.remove()
                     } else {
