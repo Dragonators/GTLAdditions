@@ -20,6 +20,7 @@ import net.minecraftforge.client.event.RegisterShadersEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.common.data.machines.MultiBlockMachineA
 
 @OnlyIn(Dist.CLIENT)
@@ -37,7 +38,14 @@ class QFTRenderer :
         combinedOverlay: Int
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? WorkableMultiblockMachine ?: return
-        if (!machine.isFormed || !machine.isActive || !machine.isWorkingEnabled) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine) ||
+            !machine.isFormed ||
+            !machine.isActive ||
+            !machine.isWorkingEnabled
+        ) {
+            return
+        }
+
         val frame = SceneRendering.frame() ?: return
         QFTForceFieldRenderer.submit(frame, blockEntity.blockPos, machine.frontFacing, machine.offsetTimer.toDouble() + partialTicks)
     }

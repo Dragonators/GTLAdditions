@@ -33,6 +33,7 @@ open class GTLAddMultipleWirelessRecipesLogic :
         val parallelData = calculateParallels() ?: return null
 
         return buildFinalWirelessRecipe(parallelData, getMachine().getWirelessNetworkEnergyHandler())
+            ?.let { bindMonitorInputs(it, parallelData) }
     }
 
     override fun checkBeforeWorking(): Boolean {

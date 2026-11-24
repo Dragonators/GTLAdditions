@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
 import com.gregtechceu.gtceu.api.GTValues
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
@@ -31,6 +32,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
@@ -55,15 +57,15 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
     private var interiorLightSubscription: TickableSubscription? = null
     private var interiorLightingPending = false
 
+    // ========================================
+    // Recipe logic
+    // ========================================
+
     @Suppress("unused")
     fun supportsBatchProcessing(): Boolean = false
 
     @Suppress("unused")
     fun canConfigureBatchProcessing(): Boolean = false
-
-    private fun getMAM(): Int = mam.also {
-        if (offsetTimer % 20 == 0L) mam = formedModuleCount
-    }
 
     fun unlockParadoxical(): Boolean = astralArrayCount == MAX_ASTRAL_ARRAY_COUNT
 
@@ -85,19 +87,66 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
         return actualIncrease
     }
 
-    override fun addDisplayText(textList: MutableList<Component?>) {
-        super.addDisplayText(textList)
-        if (!isFormed) return
-        textList.add(
-            if (unlockParadoxical()) {
-                createLanguageRainbowComponentOnServer(
-                    "tooltip.gtladditions.industrial_array_max".toComponent
-                )
-            } else {
-                "tooltip.gtladditions.astral_array_count".toComponent("$astralArrayCount / $MAX_ASTRAL_ARRAY_COUNT".literal.withStyle(ChatFormatting.GOLD))
+    // ========================================
+    // Lifecycle
+    // ========================================
+
+    override fun onStructureFormed() {
+        super.onStructureFormed()
+        val world = level as? ServerLevel ?: return
+        if (registeredSlots == null) {
+            registeredSlots = moduleScanPositions.also { MODULE_CONNECTIONS.register(world.dimension(), this, it) }
+        }
+
+        scanAndConnectModules()
+        startInteriorLighting()
+    }
+
+    override fun onStructureInvalid() {
+        super.onStructureInvalid()
+        stopInteriorLighting()
+        releaseSlots()
+    }
+
+    override fun onMachineRemoved() {
+        stopInteriorLighting()
+        releaseSlots()
+    }
+
+    override fun onLoad() {
+        super.onLoad()
+        paradoxEffects.initializeState(unlockParadoxical())
+        if (isFormed) startInteriorLighting()
+    }
+
+    override fun onUnload() {
+        releaseSlots()
+        interiorLightSubscription?.unsubscribe()
+        interiorLightSubscription = null
+        interiorLightingPending = false
+        super.onUnload()
+    }
+
+    private fun startInteriorLighting() {
+        if (level?.isClientSide != false) return
+        // onLoad also runs inside chunk post-loading. Reading another chunk there can wait
+        // on the unfinished load that called us; only register work for a regular server tick.
+        interiorLightingPending = true
+        interiorLightSubscription = subscribeServerTick(interiorLightSubscription) {
+            if (!isFormed) {
+                stopInteriorLighting()
+            } else if (interiorLightingPending || offsetTimer % 100L == 0L) {
+                interiorLightingPending = false
+                LightHunterInteriorLighting.update(this, true)
             }
-        )
-        textList.add("tooltip.gtlcore.installed_module_count".toComponent(getMAM()))
+        }
+    }
+
+    private fun stopInteriorLighting() {
+        interiorLightSubscription?.unsubscribe()
+        interiorLightSubscription = null
+        interiorLightingPending = false
+        LightHunterInteriorLighting.update(this, false)
     }
 
     // ========================================
@@ -298,63 +347,37 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
         )
     )
 
-    override fun onStructureInvalid() {
-        super.onStructureInvalid()
-        stopInteriorLighting()
-        releaseSlots()
+    // ========================================
+    // GUI
+    // ========================================
+
+    private fun getMAM(): Int = mam.also {
+        if (offsetTimer % 20 == 0L) mam = formedModuleCount
     }
 
-    override fun onMachineRemoved() {
-        stopInteriorLighting()
-        releaseSlots()
-    }
-
-    override fun onStructureFormed() {
-        super.onStructureFormed()
-        val world = level as? ServerLevel ?: return
-        if (registeredSlots == null) {
-            registeredSlots = moduleScanPositions.also { MODULE_CONNECTIONS.register(world.dimension(), this, it) }
-        }
-
-        scanAndConnectModules()
-        startInteriorLighting()
-    }
-
-    override fun onLoad() {
-        super.onLoad()
-        paradoxEffects.initializeState(unlockParadoxical())
-        if (isFormed) startInteriorLighting()
-    }
-
-    override fun onUnload() {
-        releaseSlots()
-        interiorLightSubscription?.unsubscribe()
-        interiorLightSubscription = null
-        interiorLightingPending = false
-        super.onUnload()
-    }
-
-    private fun startInteriorLighting() {
-        if (level?.isClientSide != false) return
-        // onLoad also runs inside chunk post-loading. Reading another chunk there can wait
-        // on the unfinished load that called us; only register work for a regular server tick.
-        interiorLightingPending = true
-        interiorLightSubscription = subscribeServerTick(interiorLightSubscription) {
-            if (!isFormed) {
-                stopInteriorLighting()
-            } else if (interiorLightingPending || offsetTimer % 100L == 0L) {
-                interiorLightingPending = false
-                LightHunterInteriorLighting.update(this, true)
+    override fun addDisplayText(textList: MutableList<Component?>) {
+        super.addDisplayText(textList)
+        if (!isFormed) return
+        textList.add(
+            if (unlockParadoxical()) {
+                createLanguageRainbowComponentOnServer(
+                    "tooltip.gtladditions.industrial_array_max".toComponent
+                )
+            } else {
+                "tooltip.gtladditions.astral_array_count".toComponent("$astralArrayCount / $MAX_ASTRAL_ARRAY_COUNT".literal.withStyle(ChatFormatting.GOLD))
             }
-        }
+        )
+        textList.add("tooltip.gtlcore.installed_module_count".toComponent(getMAM()))
     }
 
-    private fun stopInteriorLighting() {
-        interiorLightSubscription?.unsubscribe()
-        interiorLightSubscription = null
-        interiorLightingPending = false
-        LightHunterInteriorLighting.update(this, false)
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
     }
+
+    // ========================================
+    // Metadata
+    // ========================================
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 

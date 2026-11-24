@@ -140,7 +140,8 @@ internal class ExoticChemicalUnitLogic(
     ): WirelessGTRecipe? {
         if (!wirelessTrait.isOnline) return null
 
-        val startedParallels = if (recipeType === DISTORT_RECIPES) Int128.ZERO() else null
+        val batchType = recipeType
+        val startedParallels = if (batchType === DISTORT_RECIPES) Int128.ZERO() else null
         val (itemOutputs, fluidOutputs, totalEu) = RecipeCalculationHelper.processParallelDataWireless(
             parallelData,
             unitMachine,
@@ -156,13 +157,6 @@ internal class ExoticChemicalUnitLogic(
         }
 
         if (startedParallels != null) {
-            // The unlimited path has already consumed inputs for every entry in ParallelData.
-            if (!parallelData.shouldProcess) {
-                for (count in parallelData.parallels) {
-                    startedParallels.add(count)
-                }
-            }
-
             val multiplier = coordinator.host.resolveTSD()
                 ?.tryConsumeAndGetOutputMultiplier(startedParallels, TSD_COST_COEFFICIENT, false) ?: 1.0
 
@@ -173,7 +167,13 @@ internal class ExoticChemicalUnitLogic(
             }
         }
 
-        return buildWirelessRecipe(itemOutputs, fluidOutputs, totalEu)
+        return RecipeCalculationHelper.buildWirelessRecipe(
+            itemOutputs,
+            fluidOutputs,
+            unitMachine.getLimitedDuration(),
+            totalEu,
+            batchType
+        )
     }
 
     // ========================================

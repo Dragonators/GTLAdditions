@@ -26,6 +26,7 @@ import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.matchRecipe
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.matchRecipeOutput
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.COSMOS_SIMULATION_RECIPES
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.HarmonyMachine
+import org.gtlcore.gtlcore.integration.monitor.IMonitorRecipeType
 import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
@@ -33,7 +34,8 @@ import kotlin.math.pow
 class ArcanicAstrograph(holder: IMachineBlockEntity, vararg args: Any?) :
     HarmonyMachine(holder, *args),
     IAstralArrayInteractionMachine,
-    IHarmonyMachineAccessor {
+    IHarmonyMachineAccessor,
+    IMonitorRecipeType {
 
     @field:Persisted
     @field:DescSynced
@@ -52,6 +54,15 @@ class ArcanicAstrograph(holder: IMachineBlockEntity, vararg args: Any?) :
     override fun getRecipeLogic(): ArcanicAstrographRecipeLogic = super.getRecipeLogic() as ArcanicAstrographRecipeLogic
 
     override fun getRecipeType(): GTRecipeType = COSMOS_SIMULATION_RECIPES
+
+    override fun monitorRecipeTypeName(): Component {
+        val activeType = if (recipeLogic.duration > 0 && !recipeLogic.isIdle) {
+            recipeLogic.lastRecipe?.recipeType ?: recipeType
+        } else {
+            recipeType
+        }
+        return activeType.registryName.toLanguageKey().toComponent
+    }
 
     override fun setWorkingEnabled(workingEnabled: Boolean) {
         if (!workingEnabled) astralArrayCompression.resetCompression()

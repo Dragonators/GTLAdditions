@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 
 class DimensionFocusInfinityCraftingArrayRenderer :
     WorkableCasingMachineRenderer(
@@ -35,6 +36,11 @@ class DimensionFocusInfinityCraftingArrayRenderer :
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? DimensionFocusInfinityCraftingArray ?: return
         if (!machine.isFormed) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine)) {
+            DimensionFocusOrbitRenderer.enqueue(blockEntity, machine, 0.0)
+            return
+        }
+
         val ticks = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         DimensionFocusOrbitRenderer.enqueue(blockEntity, machine, ticks)
         DimensionFocusPocketRenderer.enqueue(blockEntity, machine, ticks)

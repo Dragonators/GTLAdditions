@@ -79,6 +79,7 @@ object HeartShellRenderer : PartRenderer<HeartShellRenderer.Overlay> {
 
     private val provider = SceneRendering.register(GTLAdditions.id("heart_shells"))
     private val entries = Long2ObjectLinkedOpenHashMap<Entry>()
+    private val ZERO_ANGLES = DoubleArray(SHELLS)
     private val motions = WeakHashMap<HeartOfTheCosmos, HeartMotion>()
     private val lightingState = StructureBlockLighting.CacheState()
     private val shades = FloatArray(GROUPS)
@@ -128,6 +129,13 @@ object HeartShellRenderer : PartRenderer<HeartShellRenderer.Overlay> {
                 .bounds(PartBounds.sphere(x, y, z, RADIUS))
                 .features(PartFeature.OWN_HAND_MASK)
                 .build()
+        )
+    }
+
+    fun submitStatic(blockEntity: BlockEntity, machine: HeartOfTheCosmos) {
+        entries.put(
+            blockEntity.blockPos.asLong(),
+            Entry(blockEntity, machine, ZERO_ANGLES, HeartBlockLayout.shells(machine.structureTier))
         )
     }
 

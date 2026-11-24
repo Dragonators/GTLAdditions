@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRender
 import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixEffectRenderer
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixEyeRenderer
+import com.gtladd.gtladditions.client.render.machine.matrix.MatrixFrameTerrainRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ApocalypticWarpQuantumMatrix
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.renderer.MultiBufferSource
@@ -12,6 +13,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 
 class ApocalypticMatrixRenderer(
     baseCasing: ResourceLocation,
@@ -30,6 +32,12 @@ class ApocalypticMatrixRenderer(
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? ApocalypticWarpQuantumMatrix ?: return
         if (!machine.isFormed) {
             MatrixEyeRenderer.forget(blockEntity)
+            return
+        }
+
+        if (IGTLRenderDisabled.isRenderDisabled(machine)) {
+            MatrixEyeRenderer.forget(blockEntity)
+            MatrixFrameTerrainRenderer.enqueueStatic(blockEntity, machine)
             return
         }
 

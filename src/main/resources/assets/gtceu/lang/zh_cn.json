@@ -10,6 +10,7 @@
   "block.gtceu.uxv_67108863a_laser_source_hatch": "67108863安§eUXV§r激光源仓",
   "block.gtceu.zpm_67108863a_laser_source_hatch": "67108863安§cZPM§r激光源仓",
   "gtceu.antientropy_condensation": "反熵冷凝",
+  "gtceu.bio_cultivation": "生态培育",
   "gtceu.biological_simulation": "生物数据模拟",
   "gtceu.chaos_weave": "混沌编织",
   "gtceu.chaotic_alchemy": "混沌炼金",
@@ -137,5 +138,6 @@
   "gtceu.stellar_lgnition": "星焰跃迁",
   "gtceu.tectonic_fault_generator": "地脉断层发生器",
   "gtceu.tooltip.super_proxy_bind": "§f绑定到%s %s %s处的超级样板总成",
+  "gtceu.transmutation_block_conversion": "方块嬗变",
   "gtceu.voidflux_reaction": "虚空聚流反应"
 }

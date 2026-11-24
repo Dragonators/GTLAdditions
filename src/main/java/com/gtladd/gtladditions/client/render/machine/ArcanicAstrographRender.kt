@@ -20,6 +20,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.client.ClientUtil
 import org.joml.Quaternionf
 import java.util.function.Consumer
@@ -40,7 +41,7 @@ class ArcanicAstrographRender :
         combinedOverlay: Int
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? ArcanicAstrograph ?: return
-        if (!machine.isActive) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.isActive) return
 
         val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         val facing = machine.frontFacing

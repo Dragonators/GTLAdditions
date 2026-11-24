@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 
 class ForgeOfAntichristRenderer(
     baseCasing: ResourceLocation,
@@ -33,6 +34,13 @@ class ForgeOfAntichristRenderer(
         combinedOverlay: Int
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? ForgeOfTheAntichrist ?: return
+        if (IGTLRenderDisabled.isRenderDisabled(machine)) {
+            if (!machine.isFormed) return
+            val profile = AntichristRenderProfile.staticRings(machine.frontFacing)
+            AntichristDeferredRenderer.enqueue(blockEntity, profile, renderRings = true, renderEffects = false)
+            return
+        }
+
         val isWorking = machine.isActiveOrStasisAnchored()
         if (!machine.isFormed && !isWorking) return
 

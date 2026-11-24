@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper
 import com.gtladd.gtladditions.api.machine.IWirelessElectricMultiblockMachine
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleTypeRecipesLogic
@@ -12,6 +13,7 @@ import com.gtladd.gtladditions.api.machine.logic.IWirelessRecipeLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler
 import com.gtladd.gtladditions.api.recipe.IWirelessGTRecipe
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -119,6 +121,8 @@ class BiosphereIIIModule(holder: IMachineBlockEntity) :
     // ========================================
     // Recipe logic
     // ========================================
+
+    override fun getRecipeType(): GTRecipeType = GTLAddRecipesTypes.BIO_CULTIVATION
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = BiosphereModuleRecipeLogic(this)
 

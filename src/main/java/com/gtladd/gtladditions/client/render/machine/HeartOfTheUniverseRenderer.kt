@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 
 class HeartOfTheUniverseRenderer :
     WorkableCasingMachineRenderer(
@@ -33,7 +34,7 @@ class HeartOfTheUniverseRenderer :
         combinedOverlay: Int
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? HeartOfTheUniverse ?: return
-        if (!machine.recipeLogic.isWorking) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.recipeLogic.isWorking) return
         val frame = SceneRendering.frame() ?: return
 
         val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)

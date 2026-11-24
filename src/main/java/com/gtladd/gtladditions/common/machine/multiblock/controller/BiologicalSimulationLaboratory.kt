@@ -142,6 +142,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
             if (match != null && matchRecipeOutput(this.machine, match)) {
                 setupRecipe(match)
             }
+            pruneMonitorInputs()
         }
 
         val isNanCertificate: Boolean
@@ -186,6 +187,7 @@ class BiologicalSimulationLaboratory(holder: IMachineBlockEntity) :
             }
             progress = 0
             duration = 0
+            pruneMonitorInputs()
         }
     }
 

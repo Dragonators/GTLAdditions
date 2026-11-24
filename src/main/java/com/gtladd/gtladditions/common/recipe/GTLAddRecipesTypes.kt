@@ -71,6 +71,7 @@ object GTLAddRecipesTypes {
     val TIME_SPACE_DISTORTION: GTRecipeType
     val FORGE_OF_THE_ANTICHRIST: GTRecipeType
     val QUANTUM_OSCILLATION: GTRecipeType
+    val BIO_CULTIVATION: GTRecipeType
 
     @JvmField
     val COMPRESSED_ASTRAL_ARRAY: GTRecipeType
@@ -258,10 +259,14 @@ object GTLAddRecipesTypes {
         QUANTUM_OSCILLATION = GTRecipeTypes.register("quantum_oscillation", GTRecipeTypes.DUMMY)
             .setXEIVisible(false)
             .setSound(GTLAddSoundEntries.QUANTUM_OSCILLATION)
+        BIO_CULTIVATION = GTRecipeTypes.register("bio_cultivation", GTRecipeTypes.DUMMY)
+            .setXEIVisible(false)
+            .setSound(GTSoundEntries.COOLING)
 
         MULTIPLE_TYPE_RECIPES = setOf(
             FORGE_OF_THE_ANTICHRIST,
             QUANTUM_OSCILLATION,
+            BIO_CULTIVATION,
             COSMOS_SIMULATION_RECIPES
         )
     }

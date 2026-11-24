@@ -21,6 +21,7 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 
 class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any?) :
     GTLAddWirelessWorkableElectricMultipleTypeRecipesMachine(
@@ -66,6 +67,7 @@ class ApocalypticWarpQuantumMatrix(holder: IMachineBlockEntity, vararg args: Any
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
         super.attachConfigurators(configuratorPanel)
         quantumWarpTrait.attachConfigurators(configuratorPanel)
+        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
     }
 
     override fun attachSideTabs(tabs: TabsWidget) {

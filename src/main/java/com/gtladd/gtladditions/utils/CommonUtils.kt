@@ -1,17 +1,22 @@
 package com.gtladd.gtladditions.utils
 
+import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.client.util.TooltipHelper
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.world.phys.Vec3
+import org.gtlcore.gtlcore.integration.gtmt.NewGTValues
+import org.gtlcore.gtlcore.utils.NumberUtils
 import org.gtlcore.gtlcore.utils.TextUtil
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlin.math.*
 
@@ -95,6 +100,25 @@ object CommonUtils {
         } else {
             SCIENTIFIC_FIXED_FORMAT.format(value).lowercase().replace("e", "e+")
         }
+
+    fun formatCompactBigInteger(value: BigInteger): String {
+        val decimal = BigDecimal(value)
+        if (value.abs() > Constants.LONG_MAX_BIG) {
+            return SCIENTIFIC2_FORMAT.format(decimal).lowercase().replace("e", "e+")
+        }
+
+        val unit = (decimal.precision() - 1) / 3
+        return DECIMAL_FORMAT.format(decimal.movePointLeft(3 * unit)) + EXTENDED_UNITS[unit]
+    }
+
+    fun getEnergyTierComponent(energy: BigInteger): Component {
+        val longEnergy = NumberUtils.getLongValue(energy)
+        val tier = if (longEnergy == Long.MAX_VALUE) GTValues.MAX_TRUE else NumberUtils.getFakeVoltageTier(longEnergy)
+        val amperage = BigDecimal(energy).divide(BigDecimal.valueOf(GTValues.VEX[tier]), 2, RoundingMode.DOWN)
+
+        return "gtceu.top.electricity".toComponent(format2BigDecimal(amperage), NewGTValues.VNF[tier])
+            .withStyle { style -> style.withColor(TextUtil.`GTL_CORE$VC`[tier.coerceAtMost(14)]) }
+    }
 
     @JvmStatic
     fun format2BigDecimal(value: BigDecimal): String =

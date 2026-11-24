@@ -102,12 +102,21 @@ public abstract class LargeSteamParallelMultiblockMachineMixin extends WorkableM
                         itr.remove();
                         if (!this.capabilitiesProxy.contains(IO.IN, EURecipeCapability.CAP)) this.capabilitiesProxy.put(IO.IN, EURecipeCapability.CAP, new ArrayList<>());
                         (Objects.requireNonNull(this.capabilitiesProxy.get(IO.IN, EURecipeCapability.CAP)))
-                                .add(new SteamEnergyRecipeHandler(tank, 0.5 * (gtladditions$isHuge ? 250.0 : (gtladditions$isLarge ? Math.pow(3.0, amountOC) : 1.0))));
+                                .add(new SteamEnergyRecipeHandler(tank, getConversionRate()));
                         return;
                     }
                 }
             }
         }
+    }
+
+    /**
+     * @author GTLAdditions
+     * @reason Use the installed hatch's rate for steam consumption and its display.
+     */
+    @Overwrite(remap = false)
+    public double getConversionRate() {
+        return 0.5 * (gtladditions$isHuge ? 250.0 : (gtladditions$isLarge ? Math.pow(3.0, amountOC) : 1.0));
     }
 
     @SuppressWarnings("DiscouragedShift")

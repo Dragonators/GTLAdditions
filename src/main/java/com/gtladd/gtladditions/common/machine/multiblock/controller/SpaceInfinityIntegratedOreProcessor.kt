@@ -39,7 +39,7 @@ class SpaceInfinityIntegratedOreProcessor(holder: IMachineBlockEntity, vararg ar
         opHatch = null
     }
 
-    override fun createRecipeLogic(vararg args: Any): RecipeLogic = InfinityIntegratedOreProcessorLogic(this, BEFORE_RECIPE)
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic = InfinityIntegratedOreProcessorLogic(this)
 
     override fun getRecipeLogic(): InfinityIntegratedOreProcessorLogic = super.getRecipeLogic() as InfinityIntegratedOreProcessorLogic
 
@@ -63,10 +63,15 @@ class SpaceInfinityIntegratedOreProcessor(holder: IMachineBlockEntity, vararg ar
     }
 
     companion object {
+        private val startupFuel by lazy { GTLMaterials.StellarEnergyRocketFuel.getFluid(100_000) }
+
+        private val BEFORE_RECIPE = Predicate<IRecipeLogicMachine> { machine ->
+            MachineIO.inputFluid(machine as SpaceInfinityIntegratedOreProcessor, startupFuel)
+        }
+
         class InfinityIntegratedOreProcessorLogic(
-            parallel: SpaceInfinityIntegratedOreProcessor,
-            beforeWorking: Predicate<IRecipeLogicMachine>?
-        ) : GTLAddMultipleRecipesLogic(parallel, beforeWorking) {
+            parallel: SpaceInfinityIntegratedOreProcessor
+        ) : GTLAddMultipleRecipesLogic(parallel, BEFORE_RECIPE) {
             override fun getMachine(): SpaceInfinityIntegratedOreProcessor = super.getMachine() as SpaceInfinityIntegratedOreProcessor
 
             override fun calculateParallels(): ParallelData? {
@@ -84,18 +89,8 @@ class SpaceInfinityIntegratedOreProcessor(holder: IMachineBlockEntity, vararg ar
                         )
                     },
                     useModifiedRecipe = true
-                )
+                )?.also { it.addInput(startupFuel) }
             }
-        }
-
-        private val BEFORE_RECIPE = Predicate { machine: IRecipeLogicMachine ->
-            if (machine is SpaceInfinityIntegratedOreProcessor) {
-                return@Predicate MachineIO.inputFluid(
-                    machine,
-                    GTLMaterials.StellarEnergyRocketFuel.getFluid(100000)
-                )
-            }
-            false
         }
     }
 }

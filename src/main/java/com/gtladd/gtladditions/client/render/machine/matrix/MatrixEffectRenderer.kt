@@ -55,14 +55,14 @@ object MatrixEffectRenderer {
         val entry = Entry(blockEntity, machine, ticks, eye)
         val yaw = facingYaw(machine.frontFacing)
         val pos = blockEntity.blockPos
-        MatrixEyeRenderer.submit(frame, blockEntity, eye, yaw, machine.isFlipped)
+        MatrixEyeRenderer.submit(frame, blockEntity, eye, yaw)
         frame.submit(
             ScenePart.builder(PartKey.block(provider, pos, EYE_MIST), EyeMist, entry)
                 .blend(PartBlend.STRAIGHT)
                 .bounds(
                     PartBounds.union(
                         PartBounds.box(MatrixEyeRenderer.bounds(pos, yaw)),
-                        MatrixIrisStarRenderer.bounds(frame, pos, yaw, machine.isFlipped, true)
+                        MatrixIrisStarRenderer.bounds(frame, pos, yaw, true)
                     )
                 )
                 .features(PartFeature.SCENE_DEPTH)
@@ -72,10 +72,10 @@ object MatrixEffectRenderer {
         frame.submit(
             ScenePart.builder(PartKey.block(provider, pos, IRIS_STAR), IrisStar, entry)
                 .blend(PartBlend.SCREEN)
-                .bounds(MatrixIrisStarRenderer.bounds(frame, pos, yaw, machine.isFlipped, false))
+                .bounds(MatrixIrisStarRenderer.bounds(frame, pos, yaw, false))
                 .build()
         )
-        MatrixBeamRenderer.submit(frame, blockEntity, eye, yaw, machine.isFlipped)
+        MatrixBeamRenderer.submit(frame, blockEntity, eye, yaw)
         // The lights' sphere holds the core's around the same centre: an unordered pair whose tie goes by part number, the core first.
         val center = MatrixFrameTransforms.cubeCenter(pos, yaw)
         frame.submit(
@@ -86,7 +86,7 @@ object MatrixEffectRenderer {
                 .features(PartFeature.SCENE_DEPTH)
                 .build()
         )
-        MatrixEnergyCoreRenderer.submit(frame, blockEntity, ticks, yaw, machine.isFlipped)
+        MatrixEnergyCoreRenderer.submit(frame, blockEntity, ticks, yaw)
     }
 
     private fun facingYaw(facing: Direction): Float = when (facing) {
@@ -168,7 +168,7 @@ object MatrixEffectRenderer {
                     )
                     context.poseStack.withPose {
                         translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
-                        MatrixFrameTransforms.apply(this, index, entry.ticks, entry.yaw, entry.machine.isFlipped)
+                        MatrixFrameTransforms.apply(this, index, entry.ticks, entry.yaw)
                         RenderUtils.withBoundBuffer(buffer) {
                             buffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
                         }
@@ -187,7 +187,7 @@ object MatrixEffectRenderer {
                 val pos = entry.blockEntity.blockPos
                 context.poseStack.withPose {
                     translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
-                    MatrixEyeRenderer.applyTransform(this, entry.yaw, entry.machine.isFlipped)
+                    MatrixEyeRenderer.applyTransform(this, entry.yaw)
                     if (!MatrixIrisStarRenderer.render(this, entry.eye, false)) context.report(part, PartOutcome.RESOURCE_UNAVAILABLE)
                 }
             }
@@ -205,7 +205,7 @@ object MatrixEffectRenderer {
                 val pos = entry.blockEntity.blockPos
                 val outcome = context.poseStack.withPose {
                     translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
-                    MatrixEyeRenderer.applyTransform(this, entry.yaw, entry.machine.isFlipped)
+                    MatrixEyeRenderer.applyTransform(this, entry.yaw)
                     val mist = MatrixEyeRenderer.renderMist(this, entry.eye, context.sceneDepth!!)
                     if (MatrixIrisStarRenderer.render(this, entry.eye, true)) mist else PartOutcome.RESOURCE_UNAVAILABLE
                 }

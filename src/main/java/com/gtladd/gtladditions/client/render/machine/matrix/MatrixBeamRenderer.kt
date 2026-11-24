@@ -24,9 +24,9 @@ import org.joml.Vector3f
 internal object MatrixBeamRenderer : PartRenderer<MatrixBeam> {
     private const val RADIUS = MatrixEffectGeometry.BEAM_RADIUS * MatrixIrisStarRenderer.BEAM_HALO_RADIUS_SCALE
 
-    fun submit(frame: SceneFrame, blockEntity: BlockEntity, eye: MatrixEyeAnimation.Frame, yaw: Float, flipped: Boolean) {
+    fun submit(frame: SceneFrame, blockEntity: BlockEntity, eye: MatrixEyeAnimation.Frame, yaw: Float) {
         val pos = blockEntity.blockPos
-        MatrixIrisStarRenderer.beamOrigins(eye.time, yaw, flipped).forEachIndexed { index, origin ->
+        MatrixIrisStarRenderer.beamOrigins(eye.time, yaw).forEachIndexed { index, origin ->
             val x = pos.x + origin.x.toDouble()
             val y = pos.y + origin.y.toDouble()
             val z = pos.z + origin.z.toDouble()

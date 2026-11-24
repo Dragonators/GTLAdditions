@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.joml.Matrix3f
 import org.joml.Matrix4f
 import kotlin.math.roundToInt
@@ -44,7 +45,7 @@ class TimeSpaceDistorterRenderer :
         if (blockEntity !is IMachineBlockEntity) return
 
         val machine = blockEntity.metaMachine as? TimeSpaceDistorter ?: return
-        if (!machine.shouldRenderMagicCircleEffect()) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.shouldRenderMagicCircleEffect()) return
 
         val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         val center = getRotatedRenderPosition(Direction.SOUTH, machine.frontFacing, 0.0, -9.0, -5.0)

@@ -15,6 +15,7 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType
+import com.gregtechceu.gtceu.common.cover.MachineControllerCover
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gregtechceu.gtceu.utils.GTUtil
 import com.gtladd.gtladditions.api.machine.ITimeSpaceDistorterSource
@@ -29,18 +30,23 @@ import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessCoilWorkableEl
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.ExoticChemicalBlockLayout
 import com.gtladd.gtladditions.common.machine.trait.StructureTierTrait
+import com.gtladd.gtladditions.integration.gtlcore.monitor.ExoticChemicalMonitor
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongSets
 import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.crafting.Ingredient
 import org.gtlcore.gtlcore.api.machine.ISuspendableMachine
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
+import org.gtlcore.gtlcore.integration.monitor.IMonitorRecipeType
+import org.gtlcore.gtlcore.mixin.gtm.cover.MachineControllerCoverAccessorMixin
 import org.gtlcore.gtlcore.utils.Registries.getItem
 
 class ExoticChemicalComplex(holder: IMachineBlockEntity) :
@@ -48,6 +54,7 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
     IStructureTierMachine,
     IDropSaveMachine,
     ISuspendableMachine,
+    IMonitorRecipeType,
     ITimeSpaceDistorterSource {
 
     @field:Persisted
@@ -76,6 +83,8 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = ExoticChemicalRecipeLogic(this)
 
     override fun getRecipeLogic(): ExoticChemicalRecipeLogic = super.getRecipeLogic() as ExoticChemicalRecipeLogic
+
+    override fun monitorRecipeTypeName(): Component = ExoticChemicalMonitor.modeName(ExoticChemicalMonitor.recipeMode(this))
 
     // Unit logics are nested in the coordinator's save. Registering them as peer traits would share GT's NBT keys.
     override fun attachTraits(trait: MachineTrait) {
@@ -174,6 +183,15 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
         if (isFormed) {
             structureTierTrait.onStructureFormed()
             reconnectTarget()
+
+            // This host skips super.onStructureFormed(), so reapply Core's control covers synchronously here.
+            if (level is ServerLevel) {
+                for (cover in coverContainer.covers) {
+                    if (cover is MachineControllerCover) {
+                        (cover as MachineControllerCoverAccessorMixin).`gtlcore$updateInput`()
+                    }
+                }
+            }
         }
     }
 

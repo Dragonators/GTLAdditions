@@ -61,7 +61,7 @@ object MatrixEyeRenderer {
 
     fun clearAnimations() = animations.clear()
 
-    /** Centred 15 blocks along the facing; mirroring keeps it on the axis. */
+    /** Centred 15 blocks behind the controller. */
     fun bounds(pos: BlockPos, yaw: Float): AABB {
         val angle = Math.toRadians(yaw.toDouble())
         val x = pos.x + 0.5 - 15.0 * sin(angle)
@@ -69,9 +69,9 @@ object MatrixEyeRenderer {
         return AABB(x - 11.5, pos.y + 0.9, z - 11.5, x + 11.5, pos.y + 7.0, z + 11.5)
     }
 
-    fun submit(frame: SceneFrame, blockEntity: BlockEntity, eye: MatrixEyeAnimation.Frame, yaw: Float, flipped: Boolean) {
+    fun submit(frame: SceneFrame, blockEntity: BlockEntity, eye: MatrixEyeAnimation.Frame, yaw: Float) {
         frame.submit(
-            ScenePart.builder(PartKey.block(provider, blockEntity.blockPos, 0), Surfaces, Surface(blockEntity, eye, yaw, flipped))
+            ScenePart.builder(PartKey.block(provider, blockEntity.blockPos, 0), Surfaces, Surface(blockEntity, eye, yaw))
                 .pass(PartPass.OPAQUE)
                 .bounds(PartBounds.box(bounds(blockEntity.blockPos, yaw)))
                 .build()
@@ -79,8 +79,8 @@ object MatrixEyeRenderer {
     }
 
     /** Model coordinates (x,y,z), Z-up, to controller-relative Minecraft coordinates. */
-    fun applyTransform(pose: PoseStack, yaw: Float, flipped: Boolean) {
-        MatrixFrameTransforms.applyStructure(pose, yaw, flipped)
+    fun applyTransform(pose: PoseStack, yaw: Float) {
+        MatrixFrameTransforms.applyStructure(pose, yaw)
         pose.translate(0.5, -0.5, 0.5)
         pose.mulPose(Axis.XP.rotationDegrees(-90f))
     }
@@ -167,7 +167,7 @@ object MatrixEyeRenderer {
         }
     }
 
-    internal class Surface(val blockEntity: BlockEntity, val eye: MatrixEyeAnimation.Frame, val yaw: Float, val flipped: Boolean)
+    internal class Surface(val blockEntity: BlockEntity, val eye: MatrixEyeAnimation.Frame, val yaw: Float)
 
     private object Surfaces : PartRenderer<Surface> {
         override fun draw(context: PartDrawContext, parts: List<ScenePart<Surface>>) {
@@ -178,10 +178,8 @@ object MatrixEyeRenderer {
                 val pos = surface.blockEntity.blockPos
                 context.poseStack.withPose {
                     translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
-                    applyTransform(this, surface.yaw, surface.flipped)
-                    MatrixFrameTransforms.withWinding(surface.flipped) {
-                        renderSurfaces(this, surface.eye)?.let { context.report(part, it) }
-                    }
+                    applyTransform(this, surface.yaw)
+                    renderSurfaces(this, surface.eye)?.let { context.report(part, it) }
                 }
             }
         }

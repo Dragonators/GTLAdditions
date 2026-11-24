@@ -1,11 +1,13 @@
 package com.gtladd.gtladditions.common.modify
 
 import com.google.common.primitives.Ints
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
@@ -45,6 +47,7 @@ import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.AABB
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA
@@ -182,6 +185,15 @@ object MultiBlockModify {
         if (LDLib.isClient()) {
             MultiBlockMachineA.QFT.renderer = QFTRenderer()
             AdvancedMultiBlockMachineB.SPACE_ELEVATOR.renderer = SpaceElevatorRenderer(climberHeight = 180.0, cableLength = 360, viewDistance = 512)
+        }
+
+        MultiBlockMachineA.QFT.setMachineSupplier { holder ->
+            object : WorkableElectricMultiblockMachine(holder) {
+                override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+                    super.attachConfigurators(configuratorPanel)
+                    IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
+                }
+            }
         }
 
         MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->

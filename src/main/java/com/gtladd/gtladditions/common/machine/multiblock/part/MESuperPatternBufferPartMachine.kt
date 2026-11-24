@@ -51,6 +51,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
 import org.gtlcore.gtlcore.api.gui.MEPatternCatalystUIManager
 import org.gtlcore.gtlcore.common.data.GTLItems
+import org.gtlcore.gtlcore.common.item.manipulator.ManipulatorResources
 import org.gtlcore.gtlcore.common.machine.multiblock.part.PaginationUIManager
 import org.gtlcore.gtlcore.common.machine.multiblock.part.ae.MEPatternBufferPartMachine
 import org.gtlcore.gtlcore.common.machine.multiblock.part.ae.MEPatternBufferRecipeHandlerTrait
@@ -202,6 +203,39 @@ class MESuperPatternBufferPartMachine(
     // ========================================
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
+
+    override fun captureManipulatorContents(cost: MutableMap<AEKey, Long>): CompoundTag {
+        val contents = super.captureManipulatorContents(cost)
+
+        // Core serializes wideInput through the slot, but only bills its native long inventories.
+        for (index in internalInventory.indices) {
+            wideSlot(index).wideInputs().forEach { (key, amount) ->
+                ManipulatorResources.add(cost, key, amount.longValueExact())
+            }
+        }
+
+        val output = contents.getList("OutputBuffer", Tag.TAG_COMPOUND.toInt())
+        pending.forEach { (key, amount) ->
+            val count = amount.longValueExact()
+            ManipulatorResources.add(cost, key, count)
+            output.add(
+                CompoundTag().apply {
+                    put("Key", key.toTagGeneric())
+                    putLong("Amount", count)
+                }
+            )
+        }
+
+        return contents
+    }
+
+    override fun restoreManipulatorContents(tag: CompoundTag) {
+        super.restoreManipulatorContents(tag)
+
+        pending.clear()
+        buffer.mapValuesTo(pending) { Int128(it.value) }
+        buffer.clear()
+    }
 
     override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {
         super.saveCustomPersistedData(tag, forDrop)

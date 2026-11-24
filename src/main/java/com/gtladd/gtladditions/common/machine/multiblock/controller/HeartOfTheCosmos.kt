@@ -3,6 +3,7 @@ package com.gtladd.gtladditions.common.machine.multiblock.controller
 import com.gregtechceu.gtceu.api.capability.recipe.IO
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability
 import com.gregtechceu.gtceu.api.data.chemical.material.Material
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IDropSaveMachine
@@ -39,6 +40,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntArrayMap
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.crafting.Ingredient
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
@@ -128,6 +130,11 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
     // ========================================
     // GUI
     // ========================================
+
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
+    }
 
     override fun attachSideTabs(sideTabs: TabsWidget) {
         super.attachSideTabs(sideTabs)
@@ -266,16 +273,17 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
 
                 for ((i, recipe) in parallelData.originRecipeList.withIndex()) {
                     val parallel = parallelData.parallels[i]
+                    parallelData.addInputs(parallelData.processedRecipeList!![i].inputs)
                     var produced = recipe
                     var power = 1L
 
                     if (tier >= 2 && recipe.id == ANNIHILATION_RECIPE) {
-                        drawFirst(RECOVERY_FLUIDS, parallel)?.let { chance ->
+                        drawFirst(RECOVERY_FLUIDS, parallel, parallelData)?.let { chance ->
                             produced = withItemChance(recipe, IO.OUT, chance) { it.chance < it.maxChance }
                         }
 
                         if (tier == 3) {
-                            power = (1L shl planeLevel) * (drawFirst(POWER_FLUIDS, parallel) ?: 1)
+                            power = (1L shl planeLevel) * (drawFirst(POWER_FLUIDS, parallel, parallelData) ?: 1)
                         }
                     }
 
@@ -296,12 +304,17 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
                 return buildWirelessRecipe(itemOutputs, fluidOutputs, eu.negate())
             }
 
-            private fun drawFirst(fluids: Reference2IntArrayMap<Material>, planes: Long): Int? =
-                fluids.reference2IntEntrySet()
-                    .firstOrNull {
-                        MachineUtil.inputFluid(heart, it.key.getFluid(AUXILIARY_PER_PLANE * planes))
+            private fun drawFirst(fluids: Reference2IntArrayMap<Material>, planes: Long, parallelData: ParallelData): Int? {
+                for (entry in fluids.reference2IntEntrySet()) {
+                    val fluid = entry.key.getFluid(AUXILIARY_PER_PLANE * planes)
+                    if (MachineUtil.inputFluid(heart, fluid)) {
+                        parallelData.addInput(fluid)
+                        return entry.intValue
                     }
-                    ?.intValue
+                }
+
+                return null
+            }
 
             private fun withItemChance(recipe: GTRecipe, io: IO, chance: Int, matches: (Content) -> Boolean): GTRecipe =
                 recipe.copy()

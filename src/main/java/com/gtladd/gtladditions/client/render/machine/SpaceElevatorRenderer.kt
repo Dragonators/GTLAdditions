@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
 import java.util.function.Consumer
 import kotlin.math.sin
@@ -39,7 +40,7 @@ class SpaceElevatorRenderer(
         combinedOverlay: Int
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? SpaceElevatorMachine ?: return
-        if (!machine.isFormed) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.isFormed) return
 
         val ticks = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         // The shaft is the column three blocks behind the controller; the cable stands on the power core below it.

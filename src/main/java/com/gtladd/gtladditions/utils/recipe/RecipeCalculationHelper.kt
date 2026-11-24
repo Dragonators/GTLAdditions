@@ -83,13 +83,16 @@ object RecipeCalculationHelper {
                     )
                 ) {
                     totalEu += getTotalRecipeEu(r) * p * euMultiplier
+                    parallelData.addInputs(processedRecipe.inputs)
                     collectOutputs(processedRecipe, itemOutputs, fluidOutputs)
                 }
 
                 if (shouldBreak(totalEu)) break
             } else {
+                val processedRecipe = parallelData.processedRecipeList!![i]
                 totalEu += getTotalRecipeEu(r) * p * euMultiplier
-                collectOutputs(parallelData.processedRecipeList!![i], itemOutputs, fluidOutputs)
+                parallelData.addInputs(processedRecipe.inputs)
+                collectOutputs(processedRecipe, itemOutputs, fluidOutputs)
             }
         }
 
@@ -139,12 +142,16 @@ object RecipeCalculationHelper {
                     )
                 ) {
                     accumulatedEu = tempAccumulatedEu
+                    parallelData.addInputs(paralleledRecipe.inputs)
                     collectOutputs(paralleledRecipe, itemOutputs, fluidOutputs)
-                    onStarted(r, p)
+                    onStarted(paralleledRecipe, p)
                 }
             } else {
+                val processedRecipe = parallelData.processedRecipeList!![i]
                 accumulatedEu = tempAccumulatedEu
-                collectOutputs(parallelData.processedRecipeList!![i], itemOutputs, fluidOutputs)
+                parallelData.addInputs(processedRecipe.inputs)
+                collectOutputs(processedRecipe, itemOutputs, fluidOutputs)
+                onStarted(processedRecipe, p)
             }
         }
 

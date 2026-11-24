@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.IThreadModifierMachine
 import com.gtladd.gtladditions.api.machine.feature.IThreadModifierPart
 import com.gtladd.gtladditions.common.machine.hatch.OreProcessorHatch
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -22,12 +23,14 @@ import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
 import org.gtlcore.gtlcore.common.machine.multiblock.part.TemperatureSensorPartMachine
 import org.gtlcore.gtlcore.common.machine.trait.AdvancedInfiniteDrillLogic
+import org.gtlcore.gtlcore.integration.monitor.IMonitorRecipeType
 import org.gtlcore.gtlcore.utils.NumberUtils
 import java.math.BigInteger
 
 class AdvancedInfiniteDrillMachine(holder: IMachineBlockEntity) :
     org.gtlcore.gtlcore.common.machine.multiblock.electric.AdvancedInfiniteDrillMachine(holder),
-    IThreadModifierMachine {
+    IThreadModifierMachine,
+    IMonitorRecipeType {
     private var threadPartMachine: IThreadModifierPart? = null
     private var analysisHatch: OreProcessorHatch? = null
     private var temperatureSensors: List<TemperatureSensorPartMachine> = emptyList()
@@ -167,6 +170,8 @@ class AdvancedInfiniteDrillMachine(holder: IMachineBlockEntity) :
             .divide(BigInteger.valueOf(denominator))
             .min(BigInteger.valueOf(Long.MAX_VALUE))
             .toLong()
+
+    override fun monitorRecipeTypeName(): Component = "monitor.gtladditions.recipe_type.fluid_drilling".toComponent
 
     override fun addDisplayText(tooltips: MutableList<Component>) {
         super.addDisplayText(tooltips)

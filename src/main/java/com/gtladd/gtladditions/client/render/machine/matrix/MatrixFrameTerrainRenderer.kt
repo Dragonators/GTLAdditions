@@ -21,13 +21,16 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
+import java.util.EnumMap
 import kotlin.math.floor
 
 @OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(modid = GTLAdditions.MOD_ID, value = [Dist.CLIENT])
 object MatrixFrameTerrainRenderer {
     private val entries = Long2ObjectLinkedOpenHashMap<Entry>()
+    private val staticEntries = Long2ObjectLinkedOpenHashMap<Entry>()
     private var buffers: List<GroupedTerrainLayer>? = null
+    private val staticBlocks = EnumMap<Direction, GroupedTerrainLayer>(Direction::class.java)
     private var shaderTerrainActive = false
     private val lightingState = StructureBlockLighting.CacheState()
     private val shades = FloatArray(FaceGroup.entries.size)
@@ -48,11 +51,14 @@ object MatrixFrameTerrainRenderer {
     fun releaseBuffers() {
         releaseGeometry()
         entries.clear()
+        staticEntries.clear()
     }
 
     private fun releaseGeometry() {
         buffers?.forEach(GroupedTerrainLayer::close)
         buffers = null
+        staticBlocks.values.forEach(GroupedTerrainLayer::close)
+        staticBlocks.clear()
         MatrixFrameModels.clear()
     }
 
@@ -60,11 +66,18 @@ object MatrixFrameTerrainRenderer {
         entries.put(blockEntity.blockPos.asLong(), Entry(blockEntity, machine, ticks))
     }
 
+    fun enqueueStatic(blockEntity: BlockEntity, machine: ApocalypticWarpQuantumMatrix) {
+        staticEntries.put(blockEntity.blockPos.asLong(), Entry(blockEntity, machine, 0.0))
+    }
+
     @SubscribeEvent
     @JvmStatic
     fun onRenderLevelStage(event: RenderLevelStageEvent) {
-        if (event.stage != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES || entries.isEmpty()) return
+        if (event.stage != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return
+        if (entries.isEmpty() && staticEntries.isEmpty()) return
+
         try {
+            if (lightingState.changed()) releaseGeometry()
             val camera = event.camera.position
 
             for (entry in entries.values) {
@@ -78,11 +91,30 @@ object MatrixFrameTerrainRenderer {
                 val pos = entry.blockEntity.blockPos
                 event.poseStack.withPose {
                     translate(pos.x - camera.x, pos.y - camera.y, pos.z - camera.z)
-                    MatrixFrameTransforms.withWinding(entry.machine.isFlipped) { render(entry, this) }
+                    render(entry, this)
+                }
+            }
+
+            if (staticEntries.isNotEmpty()) {
+                for (entry in staticEntries.values) {
+                    val machine = entry.machine
+                    if (entry.blockEntity.isRemoved ||
+                        !machine.isFormed ||
+                        entry.blockEntity.level !== Minecraft.getInstance().level
+                    ) {
+                        continue
+                    }
+
+                    val pos = entry.blockEntity.blockPos
+                    event.poseStack.withPose {
+                        translate(pos.x - camera.x, pos.y - camera.y, pos.z - camera.z)
+                        renderStatic(entry, this)
+                    }
                 }
             }
         } finally {
             entries.clear()
+            staticEntries.clear()
         }
     }
 
@@ -137,7 +169,6 @@ object MatrixFrameTerrainRenderer {
     }
 
     private fun render(entry: Entry, poseStack: PoseStack) {
-        if (lightingState.changed()) releaseGeometry()
         val frameBuffers = buffers ?: buildBuffers().also { buffers = it }
         val level = checkNotNull(entry.blockEntity.level)
         val yaw = when (entry.machine.frontFacing) {
@@ -151,15 +182,26 @@ object MatrixFrameTerrainRenderer {
         repeat(MatrixEffectGeometry.ENERGY_CORE_LAYER_INDEX) { index ->
             worldPose.withPose {
                 // The same multi-axis transform, with no camera rotation mixed into the lighting.
-                MatrixFrameTransforms.apply(this, index, entry.ticks, yaw, entry.machine.isFlipped)
+                MatrixFrameTransforms.apply(this, index, entry.ticks, yaw)
                 val worldNormal = last().normal()
                 for (group in FaceGroup.entries) shades[group.ordinal] = group.shade(level, worldNormal)
                 poseStack.withPose {
-                    MatrixFrameTransforms.apply(this, index, entry.ticks, yaw, entry.machine.isFlipped)
+                    MatrixFrameTransforms.apply(this, index, entry.ticks, yaw)
                     frameBuffers[index].draw(last(), shades, batchShader = true)
                 }
             }
         }
+    }
+
+    private fun renderStatic(entry: Entry, pose: PoseStack) {
+        val level = checkNotNull(entry.blockEntity.level)
+        val facing = entry.machine.frontFacing
+        val blocks = staticBlocks.getOrPut(facing) { MatrixFrameModels.buildStaticBlocks(level, facing, shaderTerrainActive) }
+        for (group in FaceGroup.entries) {
+            val face = group.direction
+            shades[group.ordinal] = level.getShade(face ?: Direction.UP, face != null)
+        }
+        blocks.draw(pose.last(), shades, batchShader = true)
     }
 
     private data class Entry(val blockEntity: BlockEntity, val machine: ApocalypticWarpQuantumMatrix, val ticks: Double)

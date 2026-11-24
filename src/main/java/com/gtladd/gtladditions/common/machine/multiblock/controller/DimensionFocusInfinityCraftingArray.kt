@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
@@ -10,6 +11,7 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 
 class DimensionFocusInfinityCraftingArray(holder: IMachineBlockEntity) :
@@ -77,6 +79,11 @@ class DimensionFocusInfinityCraftingArray(holder: IMachineBlockEntity) :
     override fun onMachineRemoved() {
         structureModify.restore()
         removeFromHost(this.host)
+    }
+
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
     }
 
     override fun addDisplayText(textList: MutableList<Component?>) {

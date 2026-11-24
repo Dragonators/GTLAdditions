@@ -26,6 +26,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import java.util.function.Consumer
 
@@ -195,6 +196,7 @@ abstract class RRFModuleMachine(holder: IMachineBlockEntity) :
     }
 
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
         configuratorPanel.attachConfigurators(
             IFancyConfiguratorButton.Toggle(
                 GuiTextures.BUTTON_POWER.getSubTexture(0.0, 0.0, 1.0, 0.5),

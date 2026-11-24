@@ -1,7 +1,14 @@
 package com.gtladd.gtladditions.client.render.machine.matrix
 
 import com.gtladd.gtladditions.client.render.StructureBlockLighting
+import com.gtladd.gtladditions.client.render.StructureRenderBuffers
 import com.gtladd.gtladditions.client.render.withPose
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.EXTREME_DENSITY_CASING
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_TRIM_CASING
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GRAVITY_STABILIZATION_CASING
+import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.MatrixEyeBlockLayout
+import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.MatrixFrameBlockLayout
+import com.gtladd.gtladditions.common.machine.multiblock.structure.rotateStructureOffset
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
@@ -19,6 +26,8 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.data.ModelData
 import net.minecraftforge.registries.ForgeRegistries
+import org.gtlcore.gtlcore.common.data.GTLBlocks.DEGENERATE_RHENIUM_CONSTRAINED_CASING
+import org.gtlcore.gtlcore.utils.Registries.getBlock
 import java.util.IdentityHashMap
 
 @OnlyIn(Dist.CLIENT)
@@ -89,6 +98,78 @@ object MatrixFrameModels {
         }
 
         return groups
+    }
+
+    /** Rotate template positions before baking to keep block textures and CTM aligned to world faces. */
+    fun buildStaticBlocks(level: BlockAndTintGetter, facing: Direction, shaderCompatible: Boolean): StructureRenderBuffers.GroupedTerrainLayer {
+        val cells = linkedMapOf<BlockPos, BlockState>()
+        val frameStates = mapOf(
+            'C' to GRAVITY_STABILIZATION_CASING.get().defaultBlockState(),
+            'G' to GOD_FORGE_TRIM_CASING.get().defaultBlockState(),
+            'I' to DEGENERATE_RHENIUM_CONSTRAINED_CASING.get().defaultBlockState(),
+            'H' to getBlock("gtceu:atomic_casing").defaultBlockState(),
+            'K' to getBlock("kubejs:dimensional_stability_casing").defaultBlockState()
+        )
+        for (pos in MatrixFrameBlockLayout.positions(BlockPos.ZERO, Direction.SOUTH, false)) {
+            val state = frameStates.getValue(MatrixEyeBlockLayout.structureSymbol(pos))
+            cells[rotateStructureOffset(pos, facing, false)] = state
+        }
+
+        val coil = getBlock("kubejs:adamantine_coil_block").defaultBlockState()
+        for (pos in MatrixEyeBlockLayout.offsets) cells[rotateStructureOffset(pos, facing, false)] = coil
+
+        val neighbours = HashMap(cells)
+        val base = EXTREME_DENSITY_CASING.get().defaultBlockState()
+        val concrete = getBlock("kubejs:high_strength_concrete").defaultBlockState()
+        for (pos in MatrixEyeBlockLayout.offsets) {
+            for (near in BlockPos.betweenClosed(pos.offset(-1, -1, -1), pos.offset(1, 1, 1))) {
+                val state = when (MatrixEyeBlockLayout.structureSymbol(near)) {
+                    'E' -> base
+                    'J' -> concrete
+                    else -> continue
+                }
+                neighbours[rotateStructureOffset(near, facing, false)] = state
+            }
+        }
+
+        val view = FrameView(neighbours, level)
+        val baker = StructureBlockLighting.Baker()
+        val random = RandomSource.create(42L)
+        val groups = List(StructureBlockLighting.FaceGroup.entries.size) {
+            linkedMapOf<RenderType, MutableList<LitBlock>>()
+        }
+
+        val blockRenderer = Minecraft.getInstance().blockRenderer
+        for ((pos, state) in cells) {
+            val model = models.getOrPut(state) { blockRenderer.getBlockModel(state) }
+            val data = model.getModelData(view, pos, state, ModelData.EMPTY)
+            random.setSeed(42L)
+
+            for (type in model.getRenderTypes(state, random, data)) {
+                val quads = baker.bakeModel(model, view, pos, state, type, data, true)
+                for ((group, lit) in quads.groupBy { it.group }) {
+                    groups[group.ordinal].getOrPut(type, ::mutableListOf).add(LitBlock(pos, state, lit))
+                }
+            }
+        }
+
+        val pose = PoseStack()
+        return StructureRenderBuffers.groupedTerrainLayers(1, groups.size, shaderCompatible) { _, group, batch ->
+            for ((type, blocks) in groups[group]) {
+                val builder = batch.builder(type)
+                for ((pos, state, quads) in blocks) {
+                    val offset = state.getOffset(view, pos)
+                    batch.withBlock(builder, state, pos.x, pos.y, pos.z) {
+                        pose.withPose {
+                            translate(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z)
+                            for (quad in quads) {
+                                quad.write(builder, last())
+                            }
+                        }
+                    }
+                }
+            }
+        }.single()
     }
 
     fun prepareBlock(

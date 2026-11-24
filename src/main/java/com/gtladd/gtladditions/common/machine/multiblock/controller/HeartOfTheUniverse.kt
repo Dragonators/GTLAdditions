@@ -76,7 +76,7 @@ open class HeartOfTheUniverse(
                 if (!wirelessTrait.isOnline) return null
 
                 val parallelData = calculateParallels() ?: return null
-                return buildFinalWirelessRecipe(parallelData, wirelessTrait)
+                return buildFinalWirelessRecipe(parallelData, wirelessTrait)?.let { bindMonitorInputs(it, parallelData) }
             }
 
             override fun calculateParallels(): ParallelData? = RecipeCalculationHelper.calculateParallelsWithGreedyAllocation(

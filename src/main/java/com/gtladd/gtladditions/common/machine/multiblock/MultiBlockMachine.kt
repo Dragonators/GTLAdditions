@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.data.RotationState
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.frameGt
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController
@@ -120,6 +121,7 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.properties.SlabType
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.pattern.GTLPredicates
 import org.gtlcore.gtlcore.common.block.BlockMap
 import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
@@ -980,6 +982,7 @@ object MultiBlockMachine {
 
         EXOTIC_CHEMICAL_COMPLEX = REGISTRATE.multiblock("exotic_chemical_complex", Function { ExoticChemicalComplex(it) })
             .nonYAxisRotation()
+            .allowFlip(false)
             .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.2".toComponent)
@@ -1583,6 +1586,7 @@ object MultiBlockMachine {
             Function { ApocalypticWarpQuantumMatrix(it) }
         )
             .nonYAxisRotation()
+            .allowFlip(false)
             .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.2".toComponent)
@@ -1656,6 +1660,7 @@ object MultiBlockMachine {
             Function { ForgeOfTheAntichrist(it) }
         )
             .nonYAxisRotation()
+            .allowFlip(false)
             .tooltipTextKey("gtladditions.multiblock.forge_of_the_antichrist.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.forge_of_the_antichrist.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.forge_of_the_antichrist.tooltip.2".toComponent)
@@ -2083,7 +2088,14 @@ object MultiBlockMachine {
 
         HEART_OF_THE_UNIVERSE = REGISTRATE.multiblock(
             "heart_of_the_universe",
-            Function { HeartOfTheUniverse(it) }
+            Function { holder ->
+                object : HeartOfTheUniverse(holder) {
+                    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+                        super.attachConfigurators(configuratorPanel)
+                        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
+                    }
+                }
+            }
         )
             .nonYAxisRotation()
             .tooltipTextKey("tooltip.gtladditions.discontinued".toComponent)
@@ -2132,7 +2144,7 @@ object MultiBlockMachine {
             Function { HeartOfTheCosmos(it) }
         )
             .nonYAxisRotation()
-            .apply { allowFlip(false) }
+            .allowFlip(false)
             .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.2".toComponent)
@@ -2175,6 +2187,7 @@ object MultiBlockMachine {
             Function { DimensionFocusInfinityCraftingArray(it) }
         )
             .nonYAxisRotation()
+            .allowFlip(false)
             .tooltipTextMaxParallels(4096.toString())
             .tooltipTextLaser()
             .tooltipTextMultiRecipes()
@@ -2226,6 +2239,7 @@ object MultiBlockMachine {
             Function { LightHunterSpaceStation(it) }
         )
             .nonYAxisRotation()
+            .allowFlip(false)
             .tooltipTextKey("gtladditions.multiblock.light_hunter_space_station.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.light_hunter_space_station.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.light_hunter_space_station.tooltip.2".toComponent)
@@ -2364,6 +2378,7 @@ object MultiBlockMachine {
                 "gtladditions.multiblock.biosphere_iii.tooltip.2".toComponent
             )
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(DUMMY_RECIPES)
             .appearanceBlock(SPS_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
                 MultiBlockStructure.BIOSPHERE_III_STRUCTURE

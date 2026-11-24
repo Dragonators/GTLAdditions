@@ -52,7 +52,7 @@ internal object MatrixEnergyCoreRenderer : LayeredPartRenderer<MatrixEnergyCore>
     private var cube: VertexBuffer? = null
     private var circuitTexture = -1
 
-    fun submit(frame: SceneFrame, blockEntity: BlockEntity, ticks: Double, yaw: Float, flipped: Boolean) {
+    fun submit(frame: SceneFrame, blockEntity: BlockEntity, ticks: Double, yaw: Float) {
         val pos = blockEntity.blockPos
         val center = MatrixFrameTransforms.cubeCenter(pos, yaw)
         // The cube only turns about its centre.
@@ -61,7 +61,7 @@ internal object MatrixEnergyCoreRenderer : LayeredPartRenderer<MatrixEnergyCore>
             ScenePart.builder(
                 PartKey.block(MatrixEffectRenderer.provider, pos, PART),
                 this,
-                MatrixEnergyCore(blockEntity, ticks, yaw, flipped)
+                MatrixEnergyCore(blockEntity, ticks, yaw)
             )
                 .blend(PartBlend.STRAIGHT)
                 .bounds(PartBounds.sphere(center.x, center.y, center.z, radius))
@@ -111,7 +111,7 @@ internal object MatrixEnergyCoreRenderer : LayeredPartRenderer<MatrixEnergyCore>
         val frame = context.frame
         context.poseStack.withPose {
             translate(pos.x - frame.cameraX, pos.y - frame.cameraY, pos.z - frame.cameraZ)
-            MatrixFrameTransforms.withWinding(core.flipped) { withCorePose(this, core.ticks, core.yaw, core.flipped, draw) }
+            withCorePose(this, core.ticks, core.yaw, draw)
         }
     }
 
@@ -122,9 +122,9 @@ internal object MatrixEnergyCoreRenderer : LayeredPartRenderer<MatrixEnergyCore>
         circuitTexture = -1
     }
 
-    private fun withCorePose(pose: PoseStack, ticks: Double, yaw: Float, flipped: Boolean, draw: PoseStack.() -> Unit) {
+    private fun withCorePose(pose: PoseStack, ticks: Double, yaw: Float, draw: PoseStack.() -> Unit) {
         pose.withPose {
-            MatrixFrameTransforms.apply(this, MatrixEffectGeometry.ENERGY_CORE_LAYER_INDEX, ticks, yaw, flipped)
+            MatrixFrameTransforms.apply(this, MatrixEffectGeometry.ENERGY_CORE_LAYER_INDEX, ticks, yaw)
             val halfSide = MatrixEffectGeometry.layers[MatrixEffectGeometry.ENERGY_CORE_LAYER_INDEX].side * 0.5f
             scale(halfSide, halfSide, halfSide)
             draw()
@@ -277,4 +277,4 @@ internal object MatrixEnergyCoreRenderer : LayeredPartRenderer<MatrixEnergyCore>
     }
 }
 
-internal class MatrixEnergyCore(val blockEntity: BlockEntity, val ticks: Double, val yaw: Float, val flipped: Boolean)
+internal class MatrixEnergyCore(val blockEntity: BlockEntity, val ticks: Double, val yaw: Float)

@@ -54,6 +54,23 @@ class MESuperExtendedOutputPartMachine(holder: IMachineBlockEntity) : MEExtended
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
 
+    override fun prepareManipulatorSnapshot() {
+        super.prepareManipulatorSnapshot()
+
+        // The general-purpose getBuffer() view saturates. A paid copy must fit Core's bill exactly.
+        for (amount in pending.values) {
+            amount.longValueExact()
+        }
+    }
+
+    override fun restoreManipulatorBuffer(contents: Map<AEKey, Long>) {
+        pending.clear()
+        contents.mapValuesTo(pending) { Int128(it.value) }
+
+        // Keep the native buffer empty and let Core notify the output handlers and ME node.
+        super.restoreManipulatorBuffer(emptyMap())
+    }
+
     override fun saveCustomPersistedData(tag: CompoundTag, forDrop: Boolean) {
         super.saveCustomPersistedData(tag, forDrop)
         tag.put("buffer", WideBufferTools.writeAmounts(pending, AEKey::toTagGeneric))

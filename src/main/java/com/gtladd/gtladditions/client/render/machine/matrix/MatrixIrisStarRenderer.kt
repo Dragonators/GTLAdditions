@@ -56,9 +56,9 @@ object MatrixIrisStarRenderer {
      * the primitive's centre, and every centre lies within the group's [MatrixIrisStarGeometry.reach] of the seal's; a corner
      * moves at most sqrt(5) per unit of padding.
      */
-    fun bounds(frame: SceneFrame, pos: BlockPos, yaw: Float, flipped: Boolean, inner: Boolean): PartBounds {
+    fun bounds(frame: SceneFrame, pos: BlockPos, yaw: Float, inner: Boolean): PartBounds {
         val placement = PoseStack()
-        MatrixEyeRenderer.applyTransform(placement, yaw, flipped)
+        MatrixEyeRenderer.applyTransform(placement, yaw)
         val center = placement.last().pose().transformPosition(Vector3f(0f, 0f, MatrixIrisStarGeometry.PLANE_Z))
         val x = pos.x + center.x.toDouble()
         val y = pos.y + center.y.toDouble()
@@ -117,9 +117,9 @@ object MatrixIrisStarRenderer {
         return true
     }
 
-    fun beamOrigins(seconds: Double, yaw: Float, flipped: Boolean): List<Vector3f> {
+    fun beamOrigins(seconds: Double, yaw: Float): List<Vector3f> {
         val placement = PoseStack()
-        MatrixEyeRenderer.applyTransform(placement, yaw, flipped)
+        MatrixEyeRenderer.applyTransform(placement, yaw)
         return MatrixIrisStarGeometry.design.beams.map { beam ->
             val xy = MatrixIrisStarGeometry.beamPosition(beam, seconds)
             placement.last().pose().transformPosition(Vector3f(xy.x, xy.y, MatrixIrisStarGeometry.PLANE_Z))

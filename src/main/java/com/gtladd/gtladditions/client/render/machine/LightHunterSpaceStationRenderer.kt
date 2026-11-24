@@ -14,6 +14,7 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.RenderUtil
 
@@ -34,7 +35,13 @@ class LightHunterSpaceStationRenderer :
         combinedOverlay: Int
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? LightHunterSpaceStation ?: return
-        if ((!machine.isFormed && !machine.recipeLogic.isWorking) || ShadowRenderingState.areShadowsCurrentlyBeingRendered()) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine) ||
+            (!machine.isFormed && !machine.recipeLogic.isWorking) ||
+            ShadowRenderingState.areShadowsCurrentlyBeingRendered()
+        ) {
+            return
+        }
+
         val tick = LightHunterVfxRenderer.sampleAnimationTick(ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) {
             RenderUtil.getSmoothTick(machine, partialTicks)
         }

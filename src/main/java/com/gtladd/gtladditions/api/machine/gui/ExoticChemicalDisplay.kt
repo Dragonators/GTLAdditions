@@ -64,10 +64,16 @@ internal object ExoticChemicalDisplay {
 
     fun recipeMode(distort: Boolean): MutableComponent = label(if (distort) "recipe.distort" else "recipe.large_chemical")
 
-    fun state(coordinator: ExoticChemicalRecipeLogic, unitLogic: ExoticChemicalUnitLogic): ExoticChemicalUnitState {
+    fun state(coordinator: ExoticChemicalRecipeLogic, unitLogic: ExoticChemicalUnitLogic): ExoticChemicalUnitState =
+        if (coordinator.isUnitUnlocked(unitLogic.id)) {
+            operatingState(coordinator, unitLogic)
+        } else {
+            ExoticChemicalUnitState.LOCKED
+        }
+
+    fun operatingState(coordinator: ExoticChemicalRecipeLogic, unitLogic: ExoticChemicalUnitLogic): ExoticChemicalUnitState {
         val result = unitLogic.recipeStatus
         return when {
-            !coordinator.isUnitUnlocked(unitLogic.id) -> ExoticChemicalUnitState.LOCKED
             !unitLogic.isRecipeLogicAvailable -> ExoticChemicalUnitState.WAIT
             coordinator.globalPaused || unitLogic.isSuspend -> ExoticChemicalUnitState.PAUSE
             coordinator.host.uuid == null -> ExoticChemicalUnitState.WAIT

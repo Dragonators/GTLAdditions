@@ -6,17 +6,19 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 
 object MatrixEyeBlockLayout {
-    private val offsets by lazy {
-        val aisles = StructureResourceLoader.loadAisles("multiblock/apocalyptic_quantum_warp_matrix.bin", "apocalyptic_quantum_warp_matrix")
-        buildList {
-            // Factory pattern: columns = x + 81, rows = 88 - z, aisles = 127 - y.
-            val ring = aisles[125] // Model-local y=2; controller y=1.
+    private val aisles by lazy {
+        StructureResourceLoader.loadAisles("multiblock/apocalyptic_quantum_warp_matrix.bin", "apocalyptic_quantum_warp_matrix")
+    }
 
+    /** Full pattern at a south-facing controller-relative offset. Its controller is at column 81, row 73, aisle 126. */
+    internal fun structureSymbol(pos: BlockPos): Char = aisles[126 - pos.y][73 - pos.z][81 + pos.x]
+
+    internal val offsets by lazy {
+        buildList {
             for (z in -9..9) {
                 for (x in -9..9) {
-                    if (x * x + z * z < 9.5 * 9.5 && ring[88 - z][x + 81] == 'X') {
-                        add(BlockPos(x, 1, z - 15))
-                    }
+                    val pos = BlockPos(x, 1, z - 15)
+                    if (x * x + z * z < 9.5 * 9.5 && structureSymbol(pos) == 'X') add(pos)
                 }
             }
         }

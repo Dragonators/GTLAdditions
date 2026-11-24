@@ -45,6 +45,9 @@
     "gtlcore.data.recipe.GenerateDisassemblyMixin",
     "gtlcore.integration.ExoticChemicalRecipePatternBufferMixin",
     "gtlcore.integration.MERecipePatternHelperMixin",
+    "gtlcore.integration.MachineMonitorDataMixin",
+    "gtlcore.integration.MachineMonitorEntriesAccessor",
+    "gtlcore.integration.ManipulatorProxyMixin",
     "gtlcore.item.UltimateTerminalBehaviorMixin",
     "gtlcore.pattern.AdvancedBlockPatternMixin",
     "gtlcore.machine.CoilWorkableElectricMultipleRecipesMachineMixin",
@@ -67,7 +70,6 @@
     "gtmtings.WirelessEnergyMonitorMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMixin",
     "guide.DefaultExtensionsMixin",
-    "kjs.BasicBlockBuilderMixin",
     "ldlib.FluidHelperImplMixin",
     "ldlib.FluidStackMixin",
     "mc.RecipeManagerMixin",
@@ -88,6 +90,9 @@
     "stargatejourney.stargate.StargateStructureMixin"
   ],
   "client": [
+    "gtlcore.client.MachineMonitorScreenMixin",
+    "gtlcore.client.MachineMonitorViewMixin",
+    "gtlcore.client.MachineMonitorViewRowMixin",
     "ldlib.TankWidgetAccessor",
     "gtceu.client.MultiblockInWorldPreviewRendererAccessor",
     "gtceu.client.MultiblockMachineDefinitionMixin",

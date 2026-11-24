@@ -10,22 +10,26 @@ import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMult
 import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe
 import com.gtladd.gtladditions.common.data.ParallelData
+import com.gtladd.gtladditions.integration.gtlcore.monitor.BatchMonitorInputs
 import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import it.unimi.dsi.fastutil.longs.LongBooleanPair
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import net.minecraft.nbt.ListTag
 import org.gtlcore.gtlcore.api.machine.ISuspendableMachine
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper.*
 import org.gtlcore.gtlcore.common.machine.trait.MultipleRecipesLogic
+import org.gtlcore.gtlcore.integration.monitor.MachineMonitorEntries
 import java.math.BigInteger
 import java.util.*
 import java.util.function.BiPredicate
 import java.util.function.Predicate
 
 open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
+    private var batchMonitorInputs: BatchMonitorInputs? = null
     protected val limited: IGTLAddMultiRecipeMachine
     protected val recipeCheck: BiPredicate<GTRecipe, IRecipeLogicMachine>?
     protected val beforeWorking: Predicate<IRecipeLogicMachine>?
@@ -65,6 +69,7 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
         if (match != null && matchRecipeOutput(machine, match)) {
             setupRecipe(match)
         }
+        pruneMonitorInputs()
     }
 
     override fun onRecipeFinish() {
@@ -84,6 +89,7 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
         }
         progress = 0
         duration = 0
+        pruneMonitorInputs()
     }
 
     override fun getMachine(): GTLAddWorkableElectricMultipleRecipesMachine = super.getMachine() as GTLAddWorkableElectricMultipleRecipesMachine
@@ -96,11 +102,49 @@ open class GTLAddMultipleRecipesLogic : MultipleRecipesLogic {
         val parallelData = calculateParallels() ?: return null
 
         val wirelessTrait = getMachine().getWirelessNetworkEnergyHandler()
-        return if (wirelessTrait != null) {
+        val recipe = if (wirelessTrait != null) {
             buildFinalWirelessRecipe(parallelData, wirelessTrait)
         } else {
             buildFinalNormalRecipe(parallelData)
         }
+
+        return recipe?.let { bindMonitorInputs(it, parallelData) }
+    }
+
+    protected fun bindMonitorInputs(recipe: GTRecipe, parallelData: ParallelData): GTRecipe {
+        batchMonitorInputs = parallelData.monitorInputs.bind(recipe)
+        return recipe
+    }
+
+    protected fun pruneMonitorInputs() {
+        val pending = batchMonitorInputs ?: return
+        val recipe = lastRecipe
+        if (duration <= 0 || isIdle || recipe == null || !pending.matches(recipe)) batchMonitorInputs = null
+    }
+
+    override fun monitorInputs(): ListTag {
+        pruneMonitorInputs()
+        return batchMonitorInputs?.materializeCopy() ?: lastRecipe?.let(MachineMonitorEntries::inputs) ?: ListTag()
+    }
+
+    override fun setupRecipe(recipe: GTRecipe) {
+        super.setupRecipe(recipe)
+        pruneMonitorInputs()
+    }
+
+    override fun interruptRecipe() {
+        batchMonitorInputs = null
+        super.interruptRecipe()
+    }
+
+    override fun resetRecipeLogic() {
+        batchMonitorInputs = null
+        super.resetRecipeLogic()
+    }
+
+    override fun inValid() {
+        batchMonitorInputs = null
+        super.inValid()
     }
 
     protected open fun calculateParallels(): ParallelData? {

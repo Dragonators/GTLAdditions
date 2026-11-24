@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 
 @OnlyIn(Dist.CLIENT)
 class RecursiveReverseRenderer(private val kind: RrfEffectKind) :
@@ -28,7 +29,7 @@ class RecursiveReverseRenderer(private val kind: RrfEffectKind) :
         combinedOverlay: Int
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? MultiblockControllerMachine ?: return
-        if (!RrfEffectRenderer.isActive(machine)) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine) || !RrfEffectRenderer.isActive(machine)) return
         RrfEffectRenderer.submit(blockEntity, machine, kind, partialTicks)
     }
 

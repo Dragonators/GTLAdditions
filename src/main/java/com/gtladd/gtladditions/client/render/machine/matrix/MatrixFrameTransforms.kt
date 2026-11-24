@@ -7,20 +7,18 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.joml.Quaternionf
-import org.lwjgl.opengl.GL11C
 import kotlin.math.cos
 import kotlin.math.sin
 
 @OnlyIn(Dist.CLIENT)
 internal object MatrixFrameTransforms {
-    fun applyStructure(pose: PoseStack, yaw: Float, flipped: Boolean) {
+    fun applyStructure(pose: PoseStack, yaw: Float) {
         pose.translate(0.5, 0.0, 0.5)
         pose.mulPose(Axis.YP.rotationDegrees(yaw))
-        if (flipped) pose.scale(-1f, 1f, 1f)
         pose.translate(-0.5, 0.0, MatrixEffectGeometry.CENTER_OFFSET_Z - 0.5)
     }
 
-    /** In world space; the mirror leaves it in place. */
+    /** Centre of the nested frames in world space. */
     fun cubeCenter(pos: BlockPos, yaw: Float): Vec3 {
         val angle = Math.toRadians(yaw.toDouble())
         return Vec3(
@@ -30,24 +28,9 @@ internal object MatrixFrameTransforms {
         )
     }
 
-    fun withWinding(flipped: Boolean, render: () -> Unit) {
-        if (!flipped) {
-            render()
-            return
-        }
-
-        val winding = GL11C.glGetInteger(GL11C.GL_FRONT_FACE)
-        GL11C.glFrontFace(if (winding == GL11C.GL_CCW) GL11C.GL_CW else GL11C.GL_CCW)
-        try {
-            render()
-        } finally {
-            GL11C.glFrontFace(winding)
-        }
-    }
-
-    fun apply(pose: PoseStack, index: Int, ticks: Double, yaw: Float, flipped: Boolean) {
+    fun apply(pose: PoseStack, index: Int, ticks: Double, yaw: Float) {
         val layer = MatrixEffectGeometry.layers[index]
-        applyStructure(pose, yaw, flipped)
+        applyStructure(pose, yaw)
         pose.translate(0.5, MatrixEffectGeometry.CUBE_CENTER_Y.toDouble(), 0.5)
         // Blender model (x,y,z) -> Minecraft (x,z,-y), followed by local XYZ Euler rotation.
         pose.mulPose(Axis.XP.rotationDegrees(-90f))

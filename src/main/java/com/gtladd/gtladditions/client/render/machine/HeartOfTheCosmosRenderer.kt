@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.common.data.GTLBlocks.IRIDIUM_CASING
 
 class HeartOfTheCosmosRenderer :
@@ -44,6 +45,10 @@ class HeartOfTheCosmosRenderer :
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? HeartOfTheCosmos ?: return
         if (!machine.isFormed) return
         val frame = SceneRendering.frame() ?: return
+        if (IGTLRenderDisabled.isRenderDisabled(machine)) {
+            HeartShellRenderer.submitStatic(blockEntity, machine)
+            return
+        }
 
         val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         val working = machine.recipeLogic.isWorking

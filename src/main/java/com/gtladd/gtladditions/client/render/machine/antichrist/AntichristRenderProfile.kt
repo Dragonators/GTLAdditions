@@ -44,6 +44,19 @@ data class AntichristRenderProfile(
         const val STAR_GAMMA = 3.0f
         val BASE_DIRECTION: Direction = AntichristBlockLayout.BASE_DIRECTION
 
+        fun staticRings(facing: Direction): AntichristRenderProfile = AntichristRenderProfile(
+            tick = 0.0,
+            isWorking = false,
+            facing = facing,
+            renderMode = RenderMode.NORMAL,
+            starPos = getRotatedRenderPosition(BASE_DIRECTION, facing, STAR_OFFSET_X, 0.0, 0.0),
+            colorR = 0f,
+            colorG = 0f,
+            colorB = 0f,
+            starRadius = 0f,
+            beamAlpha = 0f
+        )
+
         fun create(
             machine: ForgeOfTheAntichrist,
             tick: Double,

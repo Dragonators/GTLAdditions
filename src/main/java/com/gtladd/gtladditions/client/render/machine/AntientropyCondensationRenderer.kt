@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import java.util.function.Consumer
 
 @OnlyIn(Dist.CLIENT)
@@ -40,6 +41,11 @@ class AntientropyCondensationRenderer :
     ) {
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? AntientropyCondensationCenter ?: return
         if (!machine.isFormed) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine)) {
+            CondensationCoreRenderer.submit(blockEntity, machine, 0.0, 0f)
+            return
+        }
+
         val flowPhase = ((RenderUtils.getSmoothTickDouble(machine, partialTicks) % 80.0) / 20.0).toFloat()
         CondensationCoreRenderer.submit(blockEntity, machine, machine.condensationEffects.animationTicks(partialTicks), flowPhase)
     }
