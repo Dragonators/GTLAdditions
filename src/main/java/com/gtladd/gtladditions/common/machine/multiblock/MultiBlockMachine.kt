@@ -2579,7 +2579,7 @@ object MultiBlockMachine {
             )
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(SPACE_ELEVATOR_MECHANICAL_CASING)
-            .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 4.0, false)))
+            .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
             .pattern { definition: MultiblockMachineDefinition? ->
                 MultiBlockStructure.SPACE_ELEVATOR_MKII_STRUCTURE
                     .where("P", controller(blocks(definition!!.get())))

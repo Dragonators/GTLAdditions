@@ -15,7 +15,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
-import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
 import org.gtlcore.gtlcore.utils.MachineUtil
 import kotlin.math.pow
@@ -92,54 +91,11 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
         if (host.recipeLogic.progress > 80) update() else scheduleUpdate()
     }
 
-    override fun getHostScanPositions(): Array<BlockPos> {
-        (level as? ServerLevel)?.let { serverLevel ->
-            val pos = getPos()
-            val coordinates: Array<BlockPos> = arrayOf(
-                pos.offset(8, -2, 3),
-                pos.offset(8, -2, -3),
-                pos.offset(-8, -2, 3),
-                pos.offset(-8, -2, -3),
-                pos.offset(3, -2, 8),
-                pos.offset(-3, -2, 8),
-                pos.offset(3, -2, -8),
-                pos.offset(-3, -2, -8)
-            )
-
-            for (i in coordinates) {
-                val chunk = serverLevel.chunkSource.getChunkNow(i.x shr 4, i.z shr 4) ?: continue
-                if (chunk.getBlockState(i).block === GTLBlocks.POWER_CORE.get()) {
-                    return arrayOf(
-                        i.offset(3, 2, 0),
-                        i.offset(-3, 2, 0),
-                        i.offset(0, 2, 3),
-                        i.offset(0, 2, -3)
-                    )
-                }
-            }
-        }
-        return MachineUtil.EMPTY_POS_ARRAY
-    }
+    override fun getHostScanPositions(): Array<BlockPos> = MachineUtil.EMPTY_POS_ARRAY
 
     override fun findAndConnectToHost(): Boolean {
         val world = level as? ServerLevel ?: return false
-        if (SpaceElevatorConnections.connectRegistered(world, pos, this)) return true
-
-        val saved = hostPosition?.let { SpaceElevatorConnections.loadedOriginalHost(world, it) }
-        if (saved != null && saved.isFormed) {
-            connectToHost(saved)
-            return true
-        }
-
-        for (position in hostScanPositions) {
-            val candidate = SpaceElevatorConnections.loadedOriginalHost(world, position) ?: continue
-            if (candidate.isFormed) {
-                connectToHost(candidate)
-                return true
-            }
-        }
-
-        return false
+        return SpaceElevatorConnections.connectRegistered(world, pos, this)
     }
 
     private fun getSpaceElevatorTier() {
@@ -165,9 +121,6 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
     override fun onStructureFormed() {
         super.onStructureFormed()
         SpaceElevatorConnections.register(this)
-        if (!findAndConnectToHost()) {
-            removeFromHost(this.host)
-        }
     }
 
     override fun onStructureInvalid() {
@@ -193,8 +146,7 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
     }
 
     override fun onUnload() {
-        SpaceElevatorConnections.unregister(this)
-        removeFromHost(host)
+        SpaceElevatorConnections.unload(this)
         super.onUnload()
     }
 

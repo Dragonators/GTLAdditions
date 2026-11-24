@@ -188,6 +188,9 @@ object MultiBlockModify {
             AdvancedMultiBlockMachineB.SPACE_ELEVATOR.renderer = SpaceElevatorRenderer(climberHeight = 180.0, cableLength = 360, viewDistance = 512)
         }
 
+        AdvancedMultiBlockMachineB.SPACE_ELEVATOR.recipeModifier =
+            GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false))
+
         MultiBlockMachineA.QFT.setMachineSupplier { holder ->
             object : WorkableElectricMultiblockMachine(holder) {
                 override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {

@@ -1,17 +1,19 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
-import com.gtladd.gtladditions.utils.module.SpaceElevatorConnections
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.server.level.ServerLevel
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA.ASSEMBLER_MODULE
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA.RESOURCE_COLLECTION
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
 
 class SpaceElevatorMKII(holder: IMachineBlockEntity) : SpaceElevatorMachine(holder) {
-    private var registeredSlots: Array<BlockPos>? = null
+    @Suppress("unused")
+    fun supportsBatchProcessing(): Boolean = false
+
+    @Suppress("unused")
+    fun canConfigureBatchProcessing(): Boolean = false
 
     override fun getModuleScanPositions(): Array<BlockPos> {
         // In the structure the power core is three aisles behind and two rows below the controller.
@@ -20,66 +22,6 @@ class SpaceElevatorMKII(holder: IMachineBlockEntity) : SpaceElevatorMachine(hold
             val (x, y, z) = MODULE_OFFSETS[i]
             core.offset(x, y, z)
         }
-    }
-
-    private fun registerSlots() {
-        val world = level as? ServerLevel ?: return
-        val slots = registeredSlots ?: moduleScanPositions.also {
-            SpaceElevatorConnections.registry.register(world.dimension(), this, it)
-            registeredSlots = it
-        }
-
-        for (pos in slots) {
-            val module = SpaceElevatorConnections.registry.moduleAt(world.dimension(), pos) ?: continue
-            SpaceElevatorConnections.connectRegistered(world, pos, module)
-        }
-    }
-
-    private fun releaseSlots() {
-        val world = level as? ServerLevel ?: return
-        val slots = registeredSlots ?: return
-
-        SpaceElevatorConnections.registry.unregister(world.dimension(), this, slots)
-        registeredSlots = null
-
-        for (pos in slots) {
-            val module = SpaceElevatorConnections.registry.moduleAt(world.dimension(), pos) ?: continue
-            if (module.host === this) {
-                module.removeFromHost(this)
-                SpaceElevatorConnections.connectRegistered(world, pos, module)
-            }
-        }
-    }
-
-    override fun onStructureFormed() {
-        releaseSlots()
-        super.onStructureFormed()
-        registerSlots()
-    }
-
-    override fun onLoad() {
-        super.onLoad()
-        if (isRecipeLogicAvailable) registerSlots()
-    }
-
-    override fun onStructureInvalid() {
-        releaseSlots()
-        super.onStructureInvalid()
-    }
-
-    override fun onPartUnload() {
-        releaseSlots()
-        super.onPartUnload()
-    }
-
-    override fun onUnload() {
-        releaseSlots()
-        super.onUnload()
-    }
-
-    override fun onMachineRemoved() {
-        releaseSlots()
-        super.onMachineRemoved()
     }
 
     override fun getModulesForRendering(): List<ModuleRenderInfo> = listOf(
