@@ -131,7 +131,10 @@ import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.ME_EXTENDED_EXPO
 import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.ME_RECIPE_PATTERN_BUFFER
 import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.STOCKING_IMPORT_BUS_ME
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
+import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
+import org.gtlcore.gtlcore.common.data.machines.structure.AdvancedMultiBlockMachineStructureA
+import org.gtlcore.gtlcore.common.machine.multiblock.electric.SuprachronalAssemblyLineModuleMachine
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getBlock
 import org.gtlcore.gtlcore.utils.StructureSlicer
@@ -188,6 +191,7 @@ object MultiBlockMachine {
     val BIOSPHERE_III: MultiblockMachineDefinition
     val BIOSPHERE_III_MODULE: MultiblockMachineDefinition
     val SPACE_ELEVATOR_MKII: MultiblockMachineDefinition
+    val SUPRACHRONAL_ASSEMBLY_RESONATIC_CIRCUIT_ASSEMBLY_MODULE: MultiblockMachineDefinition
 
     init {
         REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_MACHINE }
@@ -2504,6 +2508,57 @@ object MultiBlockMachine {
                 GTCEu.id("block/casings/hpca/high_power_casing"),
                 GTCEu.id("block/multiblock/implosion_compressor")
             )
+            .register()
+
+        SUPRACHRONAL_ASSEMBLY_RESONATIC_CIRCUIT_ASSEMBLY_MODULE = REGISTRATE.multiblock(
+            "suprachronal_assembly_resonatic_circuit_assembly_module",
+            Function { SuprachronalAssemblyLineModuleMachine(it) }
+        )
+            .allRotation()
+            .tooltipTextKey(
+                Component.translatable("gtceu.machine.duration_multiplier.tooltip", 0.4),
+                Component.translatable("gtceu.machine.suprachronal_assembly_line_module.tooltip.0"),
+                Component.translatable("gtceu.multiblock.laser.tooltip"),
+                Component.translatable("tooltip.gtlcore.structure.source", "TST"),
+                Component.translatable("gtceu.machine.perfect_oc")
+            )
+            .tooltipTextRecipeTypes(GTLAddRecipesTypes.CIRCUIT_RESONATIC_ASSEMBLE)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(GTLAddRecipesTypes.CIRCUIT_RESONATIC_ASSEMBLE)
+            .recipeModifiers(
+                { machine, recipe, _, _ -> GTLRecipeModifiers.reduction(machine, recipe, 1.0, 0.4) },
+                { machine, recipe, _, _ ->
+                    GTRecipeModifiers.accurateParallel(
+                        machine,
+                        recipe,
+                        (machine as SuprachronalAssemblyLineModuleMachine).parallel,
+                        false
+                    ).first
+                },
+                GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK_SUBTICK)
+            )
+            .appearanceBlock(MOLECULAR_CASING)
+            .pattern { definition ->
+                AdvancedMultiBlockMachineStructureA.SUPRACHRONAL_ASSEMBLY_LINE_MODULE
+                    .where("~", controller(blocks(definition.get())))
+                    .where("B", blocks(DIMENSIONALLY_TRANSCENDENT_CASING.get()))
+                    .where("C", blocks(getBlock("kubejs:molecular_coil")))
+                    .where("D", blocks(FUSION_GLASS.get()))
+                    .where("E", blocks(HIGH_POWER_CASING.get()))
+                    .where(
+                        "A",
+                        blocks(MOLECULAR_CASING.get())
+                            .or(abilities(IMPORT_ITEMS).setPreviewCount(1))
+                            .or(abilities(EXPORT_ITEMS).setPreviewCount(1))
+                            .or(abilities(IMPORT_FLUIDS).setPreviewCount(1))
+                            .or(abilities(PartAbility.OPTICAL_DATA_RECEPTION).setExactLimit(1))
+                            .or(abilities(INPUT_ENERGY).setMaxGlobalLimited(2))
+                            .or(abilities(INPUT_LASER).setMaxGlobalLimited(1))
+                    )
+                    .where(" ", any())
+                    .build()
+            }
+            .workableCasingRenderer(GTLCore.id("block/molecular_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
             .register()
 
         SPACE_ELEVATOR_MKII = REGISTRATE.multiblock(

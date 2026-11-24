@@ -25,6 +25,7 @@ categories:
 * [太素衍化枢纽](primordial_evolution_nexus.md)
 * [生态圈3号](biosphere_iii.md)
 * [赫尔墨斯之圃](biosphere_iii.md)
+* [超时空装配线磁共振电路组装模块](suprachronal_assembly_resonatic_circuit_assembly_module.md)
 
 ## <Color color="#00AA00">**UIV**</Color>
 

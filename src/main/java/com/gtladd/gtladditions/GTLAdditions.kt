@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialEvent
 import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialRegistryEvent
 import com.gregtechceu.gtceu.api.machine.MachineDefinition
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType
+import com.gtladd.gtladditions.api.recipe.UntypedSingularityIngredient
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.material.GTLAddMaterial
@@ -13,8 +14,11 @@ import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.config.ConfigHolder
 import net.minecraft.resources.ResourceLocation
+import net.minecraftforge.common.crafting.CraftingHelper
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
+import net.minecraftforge.registries.ForgeRegistries
+import net.minecraftforge.registries.RegisterEvent
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -25,6 +29,11 @@ class GTLAdditions {
         ConfigHolder.init()
 
         val modEventBus = FMLJavaModLoadingContext.get().modEventBus
+        modEventBus.addListener { event: RegisterEvent ->
+            if (event.registryKey == ForgeRegistries.Keys.RECIPE_SERIALIZERS) {
+                CraftingHelper.register(UntypedSingularityIngredient.ID, UntypedSingularityIngredient.Serializer)
+            }
+        }
         modEventBus.addListener { _: MaterialRegistryEvent ->
             GTCEuAPI.materialManager.createRegistry(MOD_ID)
         }

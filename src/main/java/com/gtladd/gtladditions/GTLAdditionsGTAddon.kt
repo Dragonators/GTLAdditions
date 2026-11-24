@@ -30,6 +30,7 @@ class GTLAdditionsGTAddon : IGTAddon {
     override fun addRecipes(provider: Consumer<FinishedRecipe?>) {
         PhotonMatrixEtch.init(provider)
         EMResonanceConversionField.init(provider)
+        CircuitResonaticAssemble.init(provider)
         TitansCripEarthbore.init(provider)
         BiologicalSimulation.init(provider)
         VoidfluxReaction.init(provider)

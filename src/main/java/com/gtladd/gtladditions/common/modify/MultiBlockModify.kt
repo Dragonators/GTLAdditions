@@ -14,6 +14,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic
 import com.gregtechceu.gtceu.api.recipe.logic.OCParams
 import com.gregtechceu.gtceu.api.recipe.logic.OCResult
+import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifierList
 import com.gregtechceu.gtceu.common.data.GTBlocks
 import com.gregtechceu.gtceu.common.data.GTMachines
@@ -283,6 +284,11 @@ object MultiBlockModify {
 
         val weatherControl = AdvancedMultiBlockMachineB.WEATHER_CONTROL
         weatherControl.setMachineSupplier(::WeatherControlMachine)
+        val baseWeatherModifier = weatherControl.recipeModifier
+        weatherControl.recipeModifier = RecipeModifier { machine, recipe, params, result ->
+            val modified = (machine as WeatherControlMachine).modifyLightningRecipe(recipe) ?: return@RecipeModifier null
+            baseWeatherModifier.apply(machine, modified, params, result)
+        }
         weatherControl.patchPatternPredicates(
             "weather_radon_input",
             patternPredicateSelector({ GTBlocks.STEEL_HULL.get() }, PartAbility.IMPORT_ITEMS, PartAbility.INPUT_ENERGY),
@@ -295,6 +301,24 @@ object MultiBlockModify {
         )
         // Generate the preview from the updated predicates, including the optional fluid hatch.
         weatherControl.setShapes { emptyList() }
+
+        val dataBank = GTResearchMachines.DATA_BANK as MultiblockMachineDefinition
+        dataBank.replacePatternPredicates(
+            "cloud_data_hatch_exclusion",
+            patternPredicateSelector({ GTBlocks.COMPUTER_CASING.get() }, PartAbility.OPTICAL_DATA_RECEPTION),
+            {
+                Predicates.blocks(GTBlocks.COMPUTER_CASING.get()).setMinGlobalLimited(3)
+                    .or(Predicates.abilities(PartAbility.DATA_ACCESS).setPreviewCount(3))
+                    .or(Predicates.abilities(PartAbility.OPTICAL_DATA_TRANSMISSION).setMinGlobalLimited(1, 1))
+                    .or(
+                        Predicates.blocks(
+                            *PartAbility.OPTICAL_DATA_RECEPTION.allBlocks
+                                .filter { it != GTLAddMachines.CLOUD_DATA_HATCH.block }
+                                .toTypedArray()
+                        ).setPreviewCount(1)
+                    )
+            }
+        )
 
         val networkSwitch = GTResearchMachines.NETWORK_SWITCH as MultiblockMachineDefinition
         networkSwitch.replacePatternPredicates(

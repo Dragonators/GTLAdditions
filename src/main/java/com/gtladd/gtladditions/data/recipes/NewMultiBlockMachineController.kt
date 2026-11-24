@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.GTValues.*
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.*
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.recipe.ResearchRecipeBuilder.StationRecipeBuilder
+import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient
 import com.gregtechceu.gtceu.common.data.GTItems.*
 import com.gregtechceu.gtceu.common.data.GTMachines.PACKER
 import com.gregtechceu.gtceu.common.data.GTMachines.WORLD_ACCELERATOR
@@ -12,6 +13,7 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLY_LINE_RECIPES
 import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.Companion.id
+import com.gtladd.gtladditions.api.recipe.UntypedSingularityIngredient
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GRAVITY_STABILIZATION_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
@@ -62,6 +64,18 @@ import java.util.function.Consumer
 
 object NewMultiBlockMachineController {
     fun init(provider: Consumer<FinishedRecipe?>) {
+        ASSEMBLER_RECIPES.recipeBuilder(id("suprachronal_assembly_resonatic_circuit_assembly_module"))
+            .inputItems(SUPRACHRONAL_ASSEMBLY_LINE_MODULE)
+            .inputItems(getItemStack("kubejs:circuit_resonatic_uv", 64))
+            .inputItems(CustomTags.UIV_CIRCUITS, 64)
+            .inputItems(gemExquisite, MagnetoResonatic, 64)
+            .inputItems(gemExquisite, MagnetoResonatic, 64)
+            .inputItems(getItemStack("kubejs:cryogenic_interface", 16))
+            .inputItems(getItemStack("kubejs:imprinted_resonatic_circuit_board", 8))
+            .inputFluids(UuAmplifier.getFluid(23040))
+            .outputItems(MultiBlockMachine.SUPRACHRONAL_ASSEMBLY_RESONATIC_CIRCUIT_ASSEMBLY_MODULE)
+            .EUt(VA[UIV].toLong()).duration(300).save(provider)
+
         ASSEMBLY_LINE_RECIPES.recipeBuilder(id("primordial_evolution_nexus"))
             .inputItems(PETROCHEMICAL_PLANT, 16)
             .inputItems(WOOD_DISTILLATION, 16)
@@ -370,7 +384,7 @@ object NewMultiBlockMachineController {
             .inputItems(getItemStack("kubejs:create_ultimate_battery", 16))
             .inputItems(getItemStack("kubejs:suprachronal_mainframe_complex", 64))
             .inputItems(getItemStack("kubejs:suprachronal_mainframe_complex", 64))
-            .inputItems(getItemStack("avaritia:singularity", 64))
+            .inputItems(SizedIngredient.create(UntypedSingularityIngredient.INSTANCE, 64))
             .inputItems(getItemStack("avaritia:cosmic_meatballs", 64))
             .inputItems(getItemStack("kubejs:quantum_anomaly", 64))
             .inputItems(nanoswarm, TranscendentMetal, 64)
@@ -906,7 +920,7 @@ object NewMultiBlockMachineController {
             .inputItems(getItemStack("kubejs:create_aggregatione_core", 480))
             .inputItems(GTLAddItems.COMPRESSED_ASTRAL_ARRAY, 64)
             .inputItems(RELATIVISTIC_HEAT_CAPACITOR, 640)
-            .inputItems(getItemStack("avaritia:singularity", 1024))
+            .inputItems(SizedIngredient.create(UntypedSingularityIngredient.INSTANCE, 1024))
             .inputFluids(Miracle.getFluid(100000000))
             .inputFluids(RawStarMatter.getFluid(FluidStorageKeys.PLASMA, 1638400000))
             .inputFluids(PROTO_HALKONITE.getFluid(144000000))
@@ -1003,7 +1017,7 @@ object NewMultiBlockMachineController {
             .inputItems(getItemStack("kubejs:suprachronal_max", 128))
             .inputItems(DIMENSIONALLY_TRANSCENDENT_MIXER, 640)
             .inputItems(getItemStack("kubejs:create_aggregatione_core", 480))
-            .inputItems(getItemStack("avaritia:singularity", 1024))
+            .inputItems(SizedIngredient.create(UntypedSingularityIngredient.INSTANCE, 1024))
             .inputItems(plateDouble, MagnetohydrodynamicallyConstrainedStarMatter, 4096)
             .inputItems(getItemStack("kubejs:nuclear_star", 4096))
             .inputItems(FIELD_GENERATOR_MAX.asStack(128))
@@ -1037,7 +1051,7 @@ object NewMultiBlockMachineController {
             .inputItems(BLACK_HOLE_SEED, 64)
             .inputItems(BLACK_HOLE_SEED, 64)
             .inputItems(BLACK_HOLE_SEED, 64)
-            .inputItems(getItemStack("avaritia:singularity", 16))
+            .inputItems(SizedIngredient.create(UntypedSingularityIngredient.INSTANCE, 16))
             .inputItems(CREATE_COMPUTATION, 16)
             .inputItems(getItemStack("kubejs:create_ultimate_battery", 16))
             .inputFluids(Chaos.getFluid(331776000))

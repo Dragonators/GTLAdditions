@@ -35,6 +35,7 @@ object GTLAddRecipesTypes {
     val MULTIPLE_TYPE_RECIPES: Set<GTRecipeType>
     val PHOTON_MATRIX_ETCH: GTRecipeType
     val EM_RESONANCE_CONVERSION_FIELD: GTRecipeType
+    val CIRCUIT_RESONATIC_ASSEMBLE: GTRecipeType
     val TECTONIC_FAULT_GENERATOR: GTRecipeType
     val BIOLOGICAL_SIMULATION: GTRecipeType
     val VOIDFLUX_REACTION: GTRecipeType
@@ -83,6 +84,11 @@ object GTLAddRecipesTypes {
     }
 
     init {
+        CIRCUIT_RESONATIC_ASSEMBLE = GTRecipeTypes.register("circuit_resonatic_assemble", GTRecipeTypes.MULTIBLOCK)
+            .setEUIO(IO.IN).setMaxIOSize(6, 1, 1, 0)
+            .setSlotOverlay(false, false, GuiTextures.CIRCUIT_OVERLAY)
+            .setProgressBar(GuiTextures.PROGRESS_BAR_CIRCUIT_ASSEMBLER, FillDirection.LEFT_TO_RIGHT)
+            .setSound(GTSoundEntries.ARC)
         PHOTON_MATRIX_ETCH = GTRecipeTypes.register("photon_matrix_etch", GTRecipeTypes.MULTIBLOCK)
             .setEUIO(IO.IN).setMaxIOSize(3, 1, 1, 0).setMaxTooltips(4)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC)

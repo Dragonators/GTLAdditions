@@ -54,6 +54,7 @@
     "gtlcore.machine.HarmonyMachineMixin",
     "gtlcore.machine.LargeSteamParallelMultiblockMachineMixin",
     "gtlcore.machine.SpaceElevatorModuleMachineMixin",
+    "gtlcore.machine.SpaceElevatorMachineMixin",
     "gtlcore.machine.WorkableElectricMultiblockMachineMixin",
     "gtlcore.machine.WorkableElectricMultipleRecipesMachineMixin",
     "gtlcore.machine.part.AutoConfigurationMaintenanceHatchPartMachineMixin",

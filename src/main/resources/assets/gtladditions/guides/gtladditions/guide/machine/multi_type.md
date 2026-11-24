@@ -13,7 +13,7 @@ categories:
 
 <Column gap="2" fullWidth={true}>
 
-Cross-recipe mode parallelization is a machine capability. When a machine supports multiple recipe categories, it can process recipes from different categories in the same work cycle instead of operating around only one recipe category.
+A machine with cross-recipe mode parallelization can process recipes from different categories in the same work cycle without manually switching the active recipe category.
 
 </Column>
 

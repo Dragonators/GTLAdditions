@@ -25,6 +25,7 @@ categories:
 * [Primordial Evolution Nexus](primordial_evolution_nexus.md)
 * [Biosphere III](biosphere_iii.md)
 * [Garden of Hermes](biosphere_iii.md)
+* [Suprachronal Assembly Line Resonatic Circuit Assembly Module](suprachronal_assembly_resonatic_circuit_assembly_module.md)
 
 ## <Color color="#00AA00">**UIV**</Color>
 

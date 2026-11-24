@@ -7,6 +7,7 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
+import com.gtladd.gtladditions.utils.module.SpaceElevatorConnections
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -91,7 +92,7 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
         if (host.recipeLogic.progress > 80) update() else scheduleUpdate()
     }
 
-    override fun getHostScanPositions(): Array<out BlockPos?>? {
+    override fun getHostScanPositions(): Array<BlockPos> {
         (level as? ServerLevel)?.let { serverLevel ->
             val pos = getPos()
             val coordinates: Array<BlockPos> = arrayOf(
@@ -102,14 +103,12 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
                 pos.offset(3, -2, 8),
                 pos.offset(-3, -2, 8),
                 pos.offset(3, -2, -8),
-                pos.offset(-3, -2, -8),
-                *SpaceElevatorMKII.MODULE_OFFSETS.map { offset ->
-                    pos.offset(offset[0], -2, offset[2])
-                }.toTypedArray()
+                pos.offset(-3, -2, -8)
             )
 
             for (i in coordinates) {
-                if (serverLevel.getBlockState(i).block === GTLBlocks.POWER_CORE.get()) {
+                val chunk = serverLevel.chunkSource.getChunkNow(i.x shr 4, i.z shr 4) ?: continue
+                if (chunk.getBlockState(i).block === GTLBlocks.POWER_CORE.get()) {
                     return arrayOf(
                         i.offset(3, 2, 0),
                         i.offset(-3, 2, 0),
@@ -120,6 +119,27 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
             }
         }
         return MachineUtil.EMPTY_POS_ARRAY
+    }
+
+    override fun findAndConnectToHost(): Boolean {
+        val world = level as? ServerLevel ?: return false
+        if (SpaceElevatorConnections.connectRegistered(world, pos, this)) return true
+
+        val saved = hostPosition?.let { SpaceElevatorConnections.loadedOriginalHost(world, it) }
+        if (saved != null && saved.isFormed) {
+            connectToHost(saved)
+            return true
+        }
+
+        for (position in hostScanPositions) {
+            val candidate = SpaceElevatorConnections.loadedOriginalHost(world, position) ?: continue
+            if (candidate.isFormed) {
+                connectToHost(candidate)
+                return true
+            }
+        }
+
+        return false
     }
 
     private fun getSpaceElevatorTier() {
@@ -144,6 +164,7 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
 
     override fun onStructureFormed() {
         super.onStructureFormed()
+        SpaceElevatorConnections.register(this)
         if (!findAndConnectToHost()) {
             removeFromHost(this.host)
         }
@@ -151,16 +172,30 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
+        SpaceElevatorConnections.unregister(this)
         removeFromHost(this.host)
     }
 
     override fun onPartUnload() {
         super.onPartUnload()
+        SpaceElevatorConnections.unregister(this)
         removeFromHost(this.host)
     }
 
     override fun onMachineRemoved() {
+        SpaceElevatorConnections.unregister(this)
         removeFromHost(this.host)
+    }
+
+    override fun onLoad() {
+        super.onLoad()
+        if (isRecipeLogicAvailable) SpaceElevatorConnections.register(this)
+    }
+
+    override fun onUnload() {
+        SpaceElevatorConnections.unregister(this)
+        removeFromHost(host)
+        super.onUnload()
     }
 
     override fun onWorking(): Boolean {

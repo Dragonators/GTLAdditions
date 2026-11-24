@@ -14,13 +14,17 @@ item_ids:
 
 <BlockImage id = "gtceu:weather_control" scale = "4" />
 
-* If you put a field generator in the host and use Circuit 4 whilst introducing gaseous radon, you can continuously summon lightning strikes <ItemLink id="minecraft:lightning_rod" /> within a 9x9x9 area
-> | Field Generator                        | Number of lightning strikes | Summoning interval | Gaseous radon consumption |
-> |----------------------------------------|-----------------------------|--------------------|---------------------------|
-> | <Color color="#AA00AA">**EV**</Color>  | 4                           | 1s                 | 1B/t                      |
-> | <Color color="#5555FF">**IV**</Color>  | 8                           | 0.75s              | 2B/t                      |
-> | <Color color="#FF55FF">**LuV**</Color> | 16                          | 0.5s               | 4B/t                      |
-* The original lightning rod inside the structure has been replaced with <ItemLink id="minecraft:iron_bars" />
-* The controller has one slot accepting EV, IV or LuV field generators; the structure accepts one optional fluid input hatch.
-* Circuits 1–3 retain their original behavior. Circuit 4 charges 30 EU/t for a 200-tick weather cycle and starts or renews thunder when that cycle completes, without requiring a field generator or radon.
-* Active lightning costs 1920 EU/t in total, including weather, and consumes radon continuously between strikes. Missing a field generator, valid rods, radon or lightning power falls back to weather alone without consuming lightning radon. Insufficient basic power or stopping prevents new operations.
+Circuits 1–3 retain their original weather controls. Use **Circuit 3** if you only want to set or maintain a thunderstorm.
+
+**Circuit 4 is dedicated to summoning lightning.**
+- Before starting, insert an EV, IV, or LuV field generator into the controller's single slot.
+- Place at least one <ItemLink id="minecraft:lightning_rod" /> outside the structure. Rods must be within the 9×9×9 area centered one block behind the controller.
+- The original lightning rods inside the structure have been replaced with <ItemLink id="minecraft:iron_bars" />. A fluid input hatch can be installed to supply gaseous radon.
+
+| Field generator | Maximum rods struck at once | Strike interval | Gaseous radon used |
+| --- | ---: | --- | ---: |
+| <Color color="#AA00AA">**EV**</Color> | 4 | 20 ticks (1 s) | 400 mB/t |
+| <Color color="#5555FF">**IV**</Color> | 8 | 15 ticks (0.75 s) | 1,200 mB/t |
+| <Color color="#FF55FF">**LuV**</Color> | 16 | 10 ticks (0.5 s) | 2,400 mB/t |
+
+Completing a cycle normally sets the weather to a 200-tick (10 s) thunderstorm.

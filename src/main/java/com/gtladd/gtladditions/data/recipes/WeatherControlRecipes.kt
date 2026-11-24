@@ -9,8 +9,8 @@ object WeatherControlRecipes {
     fun init(provider: Consumer<FinishedRecipe?>) {
         WEATHER_CONTROL_RECIPES.recipeBuilder("weather_control_4")
             .circuitMeta(4)
+            .EUt(WeatherControlMachine.LIGHTNING_EUT)
             .duration(WeatherControlMachine.WEATHER_TICKS)
-            .EUt(WeatherControlMachine.WEATHER_EUT)
             .addData(WeatherControlMachine.MODE_FOUR, true)
             .save(provider)
     }
