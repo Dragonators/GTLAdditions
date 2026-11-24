@@ -17,28 +17,9 @@ import org.lwjgl.opengl.GL20C
 import org.lwjgl.opengl.GL30C
 
 internal object HeartSceneCompositor : AutoCloseable {
-    private const val RETENTION_NANOS = 2_000_000_000L
     private val images = HeartLayerImages()
-
     private val subset = HeartLayerImages()
-
-    /** Keyed by Heart count. */
-    private val targets = HashMap<Int, Targets>()
-    private var lastImagesUse = 0L
-    private var lastSubsetUse = 0L
-
-    /** Minecraft has already bound main when this runs. */
-    fun beginFrame() {
-        val now = System.nanoTime()
-        val idleImages = images.count > 0 && now - lastImagesUse > RETENTION_NANOS
-        val idleSubset = subset.count > 0 && now - lastSubsetUse > RETENTION_NANOS
-        if (!idleImages && !idleSubset && targets.values.none { now - it.lastUse > RETENTION_NANOS }) return
-        RenderUtils.withTargetBindings {
-            targets.values.removeIf { target -> (now - target.lastUse > RETENTION_NANOS).also { idle -> if (idle) target.close() } }
-            if (idleImages) images.close()
-            if (idleSubset) subset.close()
-        }
-    }
+    private var targets: Targets? = null
 
     fun prepareLayers(
         entries: List<HeartBlackHoleRenderEntry>,
@@ -46,10 +27,7 @@ internal object HeartSceneCompositor : AutoCloseable {
         cameraPosition: Vec3,
         handMask: Int,
         depth: SceneDepth
-    ): Boolean {
-        lastImagesUse = System.nanoTime()
-        return HeartBlackHoleRenderer.renderLayers(entries, poseStack, cameraPosition, images, handMask, depth)
-    }
+    ): Boolean = HeartBlackHoleRenderer.renderLayers(entries, poseStack, cameraPosition, images, handMask, depth)
 
     fun copyLayer(sourceKey: Long) = images.copy(images.layerFor(sourceKey), blend = true, writeAlpha = false)
 
@@ -59,7 +37,6 @@ internal object HeartSceneCompositor : AutoCloseable {
         subset.ensure(images.width, images.height, sources.size, sources.map(images::rect))
         sources.forEachIndexed { index, source -> subset.copyLayer(images, source, index) }
         subset.uploadCenters()
-        lastSubsetUse = System.nanoTime()
 
         return subset
     }
@@ -137,92 +114,145 @@ internal object HeartSceneCompositor : AutoCloseable {
 
     /** [width] x [height] is the rect; [images] spans the whole frame. */
     fun ensureTargets(width: Int, height: Int, images: HeartLayerImages): Targets {
-        val now = System.nanoTime()
-        val count = images.count
-        val old = targets[count]
+        val old = targets
         if (old != null &&
             old.width >= width &&
             old.height >= height &&
             old.width <= images.width &&
             old.height <= images.height
         ) {
-            old.lastUse = now
+            old.ensureCount(images.count)
             return old
         }
 
         val capacityWidth = minOf(images.width, (maxOf(width, old?.width ?: 0) + 255) / 256 * 256)
         val capacityHeight = minOf(images.height, (maxOf(height, old?.height ?: 0) + 255) / 256 * 256)
         old?.close()
-        targets.remove(count)
-        return Targets(capacityWidth, capacityHeight, count).also {
-            it.lastUse = now
-            targets[count] = it
-        }
+        targets = null
+        return Targets(capacityWidth, capacityHeight, images.count).also { targets = it }
     }
 
     override fun close() {
-        targets.values.forEach(Targets::close)
-        targets.clear()
+        targets?.close()
+        targets = null
         images.close()
         subset.close()
-        lastImagesUse = 0L
-        lastSubsetUse = 0L
     }
 
-    internal class Targets(val width: Int, val height: Int, val count: Int) : AutoCloseable {
-        var lastUse = 0L
-        val depths: Int
-        private val sorting: List<RenderTarget>
-        private val background: RenderTarget
-        private val bins: List<RenderTarget>
-        private val framebuffer: Int
+    internal class Targets(val width: Int, val height: Int, count: Int) : AutoCloseable {
+        private val background = createColorTexture()
+        private val framebuffer = GL30C.glGenFramebuffers()
+        private val bins = IntArray(4)
+        private val sorting = ArrayList<RenderTarget>(2)
+
+        // Up to three distances share one texel. Larger groups store a distance/index pair per rank.
+        private var packedDepths = 0
+        private var packedCapacity = 0
+        private var rankedDepths = 0
+        private var rankedLayers = 0
+        private var activeCount = 0
+        private val binCount get() = minOf(activeCount + 1, 4)
+
+        val depths: Int get() = if (activeCount <= 3) packedDepths else rankedDepths
 
         init {
-            val allocated = ArrayList<RenderTarget>()
-            var array = 0
-            var frame = 0
             try {
+                ensureCount(count)
+            } catch (error: Exception) {
+                close()
+                throw error
+            }
+        }
+
+        fun ensureCount(count: Int) {
+            if (count == activeCount) return
+
+            if (count <= 3 && count > packedCapacity) {
                 val format = when (count) {
                     1 -> GL30C.GL_R32F
                     2 -> GL30C.GL_RG32F
-                    3 -> GL30C.GL_RGBA32F
-                    else -> GL30C.GL_RG32F
+                    else -> GL30C.GL_RGBA32F
                 }
-
-                val external = when (format) {
-                    GL30C.GL_R32F -> GL11C.GL_RED
-                    GL30C.GL_RG32F -> GL30C.GL_RG
+                val external = when (count) {
+                    1 -> GL11C.GL_RED
+                    2 -> GL30C.GL_RG
                     else -> GL11C.GL_RGBA
                 }
 
-                array = HeartLayerImages.createArray(width, height, if (count <= 3) 1 else count, format, external)
-                depths = array
-                sorting = List(if (count <= 3) 0 else 2) {
-                    HeartLayerImages.createTarget(width, height, GL30C.GL_RG32F).also(allocated::add)
+                val next = HeartLayerImages.createArray(width, height, 1, format, external)
+                if (packedDepths != 0) GlStateManager._deleteTexture(packedDepths)
+                packedDepths = next
+                packedCapacity = count
+            } else if (count >= 4 && count > rankedLayers) {
+                while (sorting.size < 2) {
+                    sorting.add(HeartLayerImages.createTarget(width, height, GL30C.GL_RG32F))
                 }
 
-                background = HeartLayerImages.createTarget(width, height, GL11C.GL_RGBA8).also(allocated::add)
-                bins = List(minOf(count + 1, 4)) { HeartLayerImages.createTarget(width, height, GL11C.GL_RGBA8).also(allocated::add) }
-                frame = GL30C.glGenFramebuffers()
-                framebuffer = frame
+                val next = HeartLayerImages.createArray(width, height, count, GL30C.GL_RG32F, GL30C.GL_RG)
+                if (rankedDepths != 0) GlStateManager._deleteTexture(rankedDepths)
+                rankedDepths = next
+                rankedLayers = count
+            }
+
+            val nextBins = minOf(count + 1, 4)
+            if (nextBins != binCount) {
                 GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, framebuffer)
-                bins.forEachIndexed { index, target ->
+                for (index in 0 until nextBins) {
+                    if (bins[index] != 0) continue
+
+                    bins[index] = createColorTexture()
                     GL30C.glFramebufferTexture2D(
                         GL30C.GL_FRAMEBUFFER,
                         GL30C.GL_COLOR_ATTACHMENT0 + index,
                         GL11C.GL_TEXTURE_2D,
-                        target.colorTextureId,
+                        bins[index],
                         0
                     )
                 }
 
-                GL20C.glDrawBuffers(IntArray(bins.size) { GL30C.GL_COLOR_ATTACHMENT0 + it })
+                GL20C.glDrawBuffers(DRAW_BUFFERS[nextBins - 1])
                 check(GL30C.glCheckFramebufferStatus(GL30C.GL_FRAMEBUFFER) == GL30C.GL_FRAMEBUFFER_COMPLETE)
-            } catch (exception: Exception) {
-                allocated.forEach { it.destroyBuffers() }
-                if (array != 0) GlStateManager._deleteTexture(array)
-                if (frame != 0) GL30C.glDeleteFramebuffers(frame)
-                throw exception
+            }
+
+            activeCount = count
+        }
+
+        /** Background and bins are sampled or attached to the shared MRT. Only the sorting targets need their own FBOs. */
+        private fun createColorTexture(): Int {
+            val bound = GL11C.glGetInteger(GL11C.GL_TEXTURE_BINDING_2D)
+            val texture = GlStateManager._genTexture()
+
+            try {
+                GlStateManager._bindTexture(texture)
+                RenderUtils.withTightlyPackedPixels {
+                    GL11C.glTexImage2D(
+                        GL11C.GL_TEXTURE_2D,
+                        0,
+                        GL11C.GL_RGBA8,
+                        width,
+                        height,
+                        0,
+                        GL11C.GL_RGBA,
+                        GL11C.GL_UNSIGNED_BYTE,
+                        0L
+                    )
+                }
+
+                check(GL11C.glGetTexLevelParameteri(GL11C.GL_TEXTURE_2D, 0, GL11C.GL_TEXTURE_WIDTH) == width) {
+                    "Could not allocate the Heart composition color texture"
+                }
+
+                GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_MIN_FILTER, GL11C.GL_NEAREST)
+                GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_MAG_FILTER, GL11C.GL_NEAREST)
+                GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_WRAP_S, GL12C.GL_CLAMP_TO_EDGE)
+                GL11C.glTexParameteri(GL11C.GL_TEXTURE_2D, GL11C.GL_TEXTURE_WRAP_T, GL12C.GL_CLAMP_TO_EDGE)
+
+                return texture
+            } catch (error: Exception) {
+                GlStateManager._deleteTexture(texture)
+                throw error
+            } finally {
+                GlStateManager._bindTexture(bound)
             }
         }
 
@@ -233,9 +263,9 @@ internal object HeartSceneCompositor : AutoCloseable {
             shader.getUniform("InverseProjection")?.set(Matrix4f(projection).invert())
             shader.getUniform("FrameSize")?.set(images.width.toFloat(), images.height.toFloat())
             shader.getUniform("Origin")?.set(rect[0].toFloat(), rect[1].toFloat())
-            shader.getUniform("Count")?.set(count)
+            shader.getUniform("Count")?.set(images.count)
             images.bindRects(shader)
-            if (count <= 3) {
+            if (images.count <= 3) {
                 // The common cases need only one packed R/RG/RGBA image. The material sorts three scalars.
                 GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, framebuffer)
                 GL30C.glFramebufferTextureLayer(GL30C.GL_FRAMEBUFFER, GL30C.GL_COLOR_ATTACHMENT0, depths, 0, 0)
@@ -252,16 +282,16 @@ internal object HeartSceneCompositor : AutoCloseable {
                         GL30C.GL_FRAMEBUFFER,
                         GL30C.GL_COLOR_ATTACHMENT0,
                         GL11C.GL_TEXTURE_2D,
-                        bins[0].colorTextureId,
+                        bins[0],
                         0
                     )
-                    GL20C.glDrawBuffers(IntArray(bins.size) { GL30C.GL_COLOR_ATTACHMENT0 + it })
+                    GL20C.glDrawBuffers(DRAW_BUFFERS[binCount - 1])
                 }
 
                 return
             }
 
-            for (rank in 0 until count) {
+            for (rank in 0 until images.count) {
                 val target = sorting[rank % 2]
                 target.bindWrite(true)
                 RenderSystem.viewport(0, 0, rect[2], rect[3])
@@ -279,13 +309,15 @@ internal object HeartSceneCompositor : AutoCloseable {
         fun beginLayers(output: RenderTarget, rect: IntArray) {
             GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, output.frameBufferId)
             RenderSystem.activeTexture(GL13C.GL_TEXTURE0)
-            GlStateManager._bindTexture(background.colorTextureId)
+            GlStateManager._bindTexture(background)
             GL11C.glCopyTexSubImage2D(GL11C.GL_TEXTURE_2D, 0, 0, 0, rect[0], rect[1], rect[2], rect[3])
             GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, framebuffer)
             HeartBlackHoleRenderState.disableScissor()
             HeartBlackHoleRenderState.prepareColorWrite()
             RenderSystem.enableScissor(0, 0, rect[2], rect[3])
-            bins.indices.forEach { index -> GL30C.glClearBufferfv(GL11C.GL_COLOR, index, ZERO) }
+            for (index in 0 until binCount) {
+                GL30C.glClearBufferfv(GL11C.GL_COLOR, index, ZERO)
+            }
             RenderSystem.viewport(-rect[0], -rect[1], output.viewWidth, output.viewHeight)
         }
 
@@ -296,13 +328,15 @@ internal object HeartSceneCompositor : AutoCloseable {
             RenderSystem.colorMask(true, true, true, false)
             RenderSystem.enableScissor(rect[0], rect[1], rect[2], rect[3])
             try {
-                shader.setSampler("Base", background.colorTextureId)
-                for (index in 0..3) shader.setSampler("Layer$index", bins[minOf(index, bins.lastIndex)].colorTextureId)
+                shader.setSampler("Base", background)
+                for (index in 0..3) {
+                    shader.setSampler("Layer$index", bins[minOf(index, binCount - 1)])
+                }
                 HeartLayerImages.bindArray(5, images.colors)
                 HeartLayerImages.bindArray(6, depths)
                 shader.getUniform("HeartImages")?.set(5)
                 shader.getUniform("LayerDepths")?.set(6)
-                shader.getUniform("Count")?.set(count)
+                shader.getUniform("Count")?.set(images.count)
                 images.bindRects(shader)
                 shader.getUniform("LayerBase")?.set(base)
                 shader.getUniform("FrameSize")?.set(images.width.toFloat(), images.height.toFloat())
@@ -315,13 +349,18 @@ internal object HeartSceneCompositor : AutoCloseable {
 
         override fun close() {
             sorting.forEach { it.destroyBuffers() }
-            background.destroyBuffers()
-            bins.forEach { it.destroyBuffers() }
             GL30C.glDeleteFramebuffers(framebuffer)
-            GlStateManager._deleteTexture(depths)
+            GlStateManager._deleteTexture(background)
+
+            for (texture in bins) {
+                if (texture != 0) GlStateManager._deleteTexture(texture)
+            }
+            if (packedDepths != 0) GlStateManager._deleteTexture(packedDepths)
+            if (rankedDepths != 0) GlStateManager._deleteTexture(rankedDepths)
         }
 
         companion object {
+            private val DRAW_BUFFERS = Array(4) { last -> IntArray(last + 1) { GL30C.GL_COLOR_ATTACHMENT0 + it } }
             private val ZERO = FloatArray(4)
         }
     }

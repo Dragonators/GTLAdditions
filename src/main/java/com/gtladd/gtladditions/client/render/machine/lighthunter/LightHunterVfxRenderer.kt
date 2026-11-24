@@ -47,7 +47,6 @@ object LightHunterVfxRenderer {
         smoothFrameTick = null
         meshes.beginFrame()
         LightHunterFusionRenderer.meshes.beginFrame()
-        LightHunterParadoxRenderer.meshes.beginFrame()
     }
 
     fun enqueue(blockEntity: BlockEntity, machine: LightHunterSpaceStation, tick: Float) {

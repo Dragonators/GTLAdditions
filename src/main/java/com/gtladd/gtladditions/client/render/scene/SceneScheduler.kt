@@ -80,9 +80,6 @@ internal object SceneScheduler {
         frame?.let(::finish)
         frame = null
         HeartHandDepthMask.beginFrame()
-        HeartSceneCompositor.beginFrame()
-        HeartBlackHolePostTargets.beginFrame()
-        SceneTargets.beginTick()
         if (resourcesChanged) {
             resourcesChanged = false
             providers.forEach { it.provider?.onResourcesReloaded(resourceGeneration) }
@@ -170,6 +167,7 @@ internal object SceneScheduler {
     }
 
     fun resourcesReloaded() {
+        releaseTargets()
         resourceGeneration++
         resourcesChanged = true
     }
@@ -297,7 +295,27 @@ internal object SceneScheduler {
     @SubscribeEvent
     @JvmStatic
     fun onLevelUnload(event: LevelEvent.Unload) {
-        if (event.level.isClientSide) levelChanged = true
+        if (event.level.isClientSide) {
+            releaseTargets()
+            levelChanged = true
+        }
+    }
+
+    private fun releaseTargets() {
+        val release = {
+            RenderUtils.withTargetBindings {
+                SceneTargets.close()
+                HeartBlackHolePostTargets.close()
+                HeartSceneCompositor.close()
+                HeartHandDepthMask.destroy()
+            }
+        }
+
+        if (RenderSystem.isOnRenderThread()) {
+            release()
+        } else {
+            RenderSystem.recordRenderCall { release() }
+        }
     }
 
     /** Submission order: a blended surface that writes depth depends on what is already there. */

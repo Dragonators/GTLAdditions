@@ -18,7 +18,6 @@ import java.nio.ByteBuffer
 
 /** The main colour and depth attachments are borrowed; this object never deletes them. */
 internal object SceneTargets {
-    private const val RETENTION_NANOS = 2_000_000_000L
     private var width = 0
     private var height = 0
     private var composeFramebuffer = 0
@@ -26,7 +25,6 @@ internal object SceneTargets {
     private var targetColor = 0
     private var snapshotFormat = 0
     private var stencil = false
-    private var lastUse = 0L
 
     /** `D_o`, `D_t`: the main depth's own format, so a copy samples exactly like the live buffer it is compared with. */
     var opaqueDepth = 0
@@ -44,7 +42,6 @@ internal object SceneTargets {
 
     /** [source] is the main depth texture. Its format is queried each time: a reallocation may keep the texture name. */
     fun ensure(width: Int, height: Int, source: Int, stencil: Boolean) {
-        lastUse = System.nanoTime()
         val format = internalFormat(source)
         if (composedDepth != 0 &&
             width == this.width &&
@@ -109,7 +106,6 @@ internal object SceneTargets {
         projection: Matrix4fc,
         jittered: Boolean
     ): SceneDepth {
-        lastUse = System.nanoTime()
         MemoryStack.stackPush().use { stack ->
             val viewport = stack.mallocInt(4)
             val colorMask = stack.malloc(4)
@@ -235,10 +231,6 @@ internal object SceneTargets {
         var color = 0
 
         override fun bindWrite(setViewport: Boolean) = bindTarget(color)
-    }
-
-    fun beginTick() {
-        if (composedDepth != 0 && System.nanoTime() - lastUse > RETENTION_NANOS) close()
     }
 
     fun close() {

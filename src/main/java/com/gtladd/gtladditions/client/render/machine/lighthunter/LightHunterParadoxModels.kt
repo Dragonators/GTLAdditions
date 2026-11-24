@@ -15,33 +15,15 @@ import kotlin.math.abs
 class LightHunterParadoxModels : AutoCloseable {
     private class Frame {
         val target = TextureTarget(512, 512, true, false)
-        var used = -1L
         var angle = Float.NaN
         val eye = Vector3f(Float.NaN)
     }
 
     private val frames = IdentityHashMap<Any, Frame>()
-    private var serial = 0L
 
-    /** Minecraft has already bound main when this runs. */
-    fun beginFrame() {
-        serial++
-        if (frames.values.none { serial - it.used > 2 }) return
-        RenderUtils.withTargetBindings {
-            val iterator = frames.values.iterator()
-
-            while (iterator.hasNext()) {
-                val frame = iterator.next()
-                if (serial - frame.used > 2) {
-                    frame.target.destroyBuffers()
-                    iterator.remove()
-                }
-            }
-        }
-    }
-
-    fun touch(key: Any) {
-        frames[key]?.used = serial
+    fun remove(key: Any) {
+        val frame = frames.remove(key) ?: return
+        RenderUtils.withTargetBindings { frame.target.destroyBuffers() }
     }
 
     internal fun prepare(
@@ -52,7 +34,6 @@ class LightHunterParadoxModels : AutoCloseable {
         angle: Float
     ): Int = HeartBlackHoleRenderState.withSavedState {
         val frame = frames.getOrPut(key) { Frame() }
-        frame.used = serial
         if (frame.angle != angle || frame.eye != eye) {
             frame.target.setClearColor(0f, 0f, 0f, 0f)
             RenderSystem.colorMask(true, true, true, true)
@@ -114,8 +95,12 @@ class LightHunterParadoxModels : AutoCloseable {
     }
 
     override fun close() {
-        frames.values.forEach { it.target.destroyBuffers() }
-        frames.clear()
+        if (frames.isEmpty()) return
+
+        RenderUtils.withTargetBindings {
+            frames.values.forEach { it.target.destroyBuffers() }
+            frames.clear()
+        }
     }
 
     data class WindowView(val eye: Vector3f, val depthBias: Float)

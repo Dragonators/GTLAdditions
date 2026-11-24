@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.common.machine.trait
 
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait
 import com.gtladd.gtladditions.client.render.machine.lighthunter.LightHunterParadoxAnimation
+import com.gtladd.gtladditions.client.render.machine.lighthunter.LightHunterParadoxRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.LightHunterSpaceStation
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.UpdateListener
@@ -39,6 +40,7 @@ class LightHunterParadoxEffectsTrait(machine: LightHunterSpaceStation) : Machine
     @OnlyIn(Dist.CLIENT)
     private fun clearClientAnimation() {
         LightHunterParadoxAnimation.remove(getMachine())
+        LightHunterParadoxRenderer.releaseModel(machine.holder.self())
     }
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER

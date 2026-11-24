@@ -31,15 +31,6 @@ class LightHunterFusionFieldCache : AutoCloseable {
 
     fun beginFrame() {
         frame++
-        val iterator = fields.iterator()
-
-        while (iterator.hasNext()) {
-            val field = iterator.next()
-            if (frame - field.lastFrame > IDLE_FRAMES) {
-                GL11C.glDeleteTextures(field.texture)
-                iterator.remove()
-            }
-        }
     }
 
     fun setResources(provider: ResourceProvider) {
@@ -191,6 +182,5 @@ class LightHunterFusionFieldCache : AutoCloseable {
         const val ORIGIN_STRIDE = 8
         const val AXIAL_PADDING = 58
         const val MAX_FIELDS = 4
-        const val IDLE_FRAMES = 120
     }
 }

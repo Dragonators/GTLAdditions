@@ -30,10 +30,6 @@ object LightHunterParadoxRenderer {
         private var window: VertexBuffer? = null
         private val models = LightHunterParadoxModels()
 
-        fun beginFrame() = models.beginFrame()
-
-        fun touch(key: Any) = models.touch(key)
-
         fun buffer(): VertexBuffer = window ?: run {
             builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR)
             LightHunterParadoxGeometry.write(builder)
@@ -46,6 +42,14 @@ object LightHunterParadoxRenderer {
             window?.close()
             window = null
             models.close()
+        }
+    }
+
+    fun releaseModel(key: Any) {
+        if (RenderSystem.isOnRenderThread()) {
+            meshes.models().remove(key)
+        } else {
+            RenderSystem.recordRenderCall { meshes.models().remove(key) }
         }
     }
 
@@ -94,8 +98,6 @@ object LightHunterParadoxRenderer {
         HeartBlackHoleRenderState.withSavedState {
             try {
                 samplers.indices.forEach { GL33C.glBindSampler(it, 0) }
-                // A dropout hides the signal, not the visible ship's cached render target.
-                meshes.touch(key)
                 val windowView = LightHunterParadoxModels.windowView(modelView)
                 val eye = windowView.eye
                 val angle = ((animationTick.toDouble() / 20.0 * LightHunterParadoxTiming.ROTATION_DEGREES_PER_SECOND) % 360.0 * PI / 180.0)
