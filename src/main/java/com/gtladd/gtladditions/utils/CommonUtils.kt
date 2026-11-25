@@ -57,6 +57,7 @@ object CommonUtils {
     private val SCIENTIFIC_FIXED_FORMAT = DecimalFormat("0.00000000E0")
     private val SCIENTIFIC2_FORMAT = DecimalFormat("0.##E0")
     private val LOG_1000 = log10(1000.0)
+    private val THOUSAND = BigDecimal.valueOf(1000)
 
     @JvmStatic
     fun format2Double(number: Double): String {
@@ -109,6 +110,12 @@ object CommonUtils {
 
         val unit = (decimal.precision() - 1) / 3
         return DECIMAL_FORMAT.format(decimal.movePointLeft(3 * unit)) + EXTENDED_UNITS[unit]
+    }
+
+    fun formatCompactBigDecimal(value: BigDecimal): String = if (value.abs() < THOUSAND) {
+        DECIMAL_FORMAT.format(value)
+    } else {
+        formatCompactBigInteger(value.toBigInteger())
     }
 
     fun getEnergyTierComponent(energy: BigInteger): Component {
