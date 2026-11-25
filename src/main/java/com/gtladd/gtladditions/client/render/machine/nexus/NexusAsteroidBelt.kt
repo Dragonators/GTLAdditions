@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.client.render.machine.nexus
 
+import com.gtladd.gtladditions.client.RenderUtils.rotationRadians
 import com.gtladd.gtladditions.client.render.scene.SceneScheduler
 import net.minecraft.client.Minecraft
 import org.joml.FrustumIntersection
@@ -10,7 +11,6 @@ import kotlin.math.max
 import kotlin.math.sin
 
 internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
-    private val original = nodes.getValue("dir.beltK1")
     private val solids = nodes.getValue("dir.beltRocks")
     private val sprites = nodes.getValue("dir.beltDust")
     private val pageSize = (solids.data.getAsJsonObject("geometry").get("indexPageTriangles")?.asInt ?: 80) * 3
@@ -50,20 +50,15 @@ internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
     }
 
     fun update(frame: NexusFrame, view: Matrix4f, projection: Matrix4f) {
-        val visible = original.visible
-        original.visible = false
-        if (!visible || frame.vanish >= 1) return
+        if (frame.vanish >= 1 || (frame.inverse <= 0.5 && 1 - frame["orbitFade"] <= 0.01)) return
 
-        solids.matrix.set(original.matrix)
-        sprites.matrix.set(original.matrix)
+        solids.matrix.identity().rotateZ(rotationRadians(2 * PI * frame.beltTime / 100.531))
+        sprites.matrix.set(solids.matrix)
 
         val gain = 0.3 + 0.7 * minOf(1.0, frame.rim)
         for (node in drawNodes) {
             node.value("uNeg", frame.inverse * 0.85)
             node.value("uGold", gain, gain * 0.77, gain * 0.42)
-        }
-
-        for (node in drawNodes) {
             node.value("uFall", frame.vanish)
             node.value("uStarR", frame.starRadius)
         }
@@ -103,7 +98,7 @@ internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
         lastFalling = falling
         lastView.set(view)
         lastProjection.set(projection)
-        modelView.set(view).mul(original.matrix)
+        modelView.set(view).mul(solids.matrix)
         clip.set(projection).mul(modelView)
         frustum.set(clip)
         lastHeight = Minecraft.getInstance().window.height

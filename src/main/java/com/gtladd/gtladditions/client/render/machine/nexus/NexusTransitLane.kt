@@ -1,10 +1,10 @@
 package com.gtladd.gtladditions.client.render.machine.nexus
 
-import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.polar
 import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.smooth
 import org.joml.Matrix4f
 import org.joml.Vector3d
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
@@ -18,14 +18,30 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
         val depth = nodes.getValue("transit.$name.depth")
         val fade = nodes.getValue("transit.$name.fade")
         val solidStream = solid.attributeStream(STREAM, HULL_FIELDS, true)
-        val depthStream = depth.attributeStream(STREAM, HULL_FIELDS, true)
         val fadeStream = fade.attributeStream(STREAM, HULL_FIELDS, true)
+
+        init {
+            depth.instanceSource = fade
+        }
     }
 
     // All ships of a lane turn at one speed, so none ever catches up with another.
-    private class Lane(val radius: Double, val z: Double, val direction: Double, val speed: Double)
+    private class Lane(val radius: Double, val z: Double, val direction: Double, val speed: Double) {
+        val turn = direction * speed / radius
+        val relative = speed / radius - direction * ZONE_TURN
+        val interval = ZONE_STEP / relative
+        val entry = ZONE_START + if (direction < 0) Math.toRadians((ZONE_ARC_MIN + ZONE_ARC_MAX) / 2) else 0.0
+        val trailSpan = TRAIL / speed
+    }
 
-    private class Pass(val index: Long, val u: Double, val start: Double, val cruise: Double)
+    private class Pass {
+        var index = 0L
+        var arrival = Double.POSITIVE_INFINITY
+        var nextArrival = Double.NEGATIVE_INFINITY
+        var u = 0.0
+        var start = 0.0
+        var cruise = 0.0
+    }
 
     private class Ship(val index: Int, val lane: Lane, val craft: Int) {
         val threshold = 0.08 + 0.85 * hash(index, 4)
@@ -36,8 +52,10 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
 
         // The angle of its place at time 0, and its small offset from the lane line.
         var slot = 0.0
-        var dr = 0.0
-        var dz = 0.0
+        var radius = lane.radius
+        var z = lane.z
+        var entryPhase = 0.0
+        val pass = Pass()
 
         var active = false
         var want = false
@@ -45,9 +63,9 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
         var onPass = Long.MIN_VALUE
         var onPhase = Phase.GAP
         var onTime = 0.0
-        var offPass = Long.MIN_VALUE
-        var offPhase = Phase.GAP
-        var offTime = 0.0
+
+        // While leaving, pass stays at the last active orbit and offU fixes the launch point.
+        var offTime = Double.NEGATIVE_INFINITY
         var offU = 0.0
     }
 
@@ -69,6 +87,7 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
     private val trailStream = trails.attributeStream(STREAM, TRAIL_FIELDS, true)
     private val ships = fleet()
     private var initialized = false
+    private var running = false
 
     private val pose = Pose()
     private val matrix = Matrix4f()
@@ -76,11 +95,18 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
     private val before = Vector3d()
     private val after = Vector3d()
     private val chord = Vector3d()
+    private val engineRim = Vector3d()
 
     fun update(frame: NexusFrame) {
         val build = if (frame.inverse > 0) frame.build else 0.0
-        val time = frame.time
+        if (build == 0.0 && !running) {
+            // Entering an already active scene starts mid-pass. Entering normal space arms later arrivals.
+            initialized = true
+            return
+        }
 
+        val time = frame.time
+        running = false
         for (ship in ships) {
             var active = build >= ship.lead.threshold
             if (ship.lag > 0) {
@@ -93,41 +119,53 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
                 if (time < ship.flipAt) active = ship.active
             }
 
-            if (initialized && active != ship.active) {
-                val pass = pass(ship, time)
+            if (active || ship.active) {
+                val pass = ship.pass
+                updatePass(ship, time)
                 val phase = phase(pass)
-                if (active) {
-                    ship.onPass = pass.index
-                    ship.onPhase = phase
-                    ship.onTime = time
-                } else {
-                    ship.offPass = pass.index
-                    ship.offPhase = phase
-                    ship.offTime = if (phase == Phase.LEAVING) time - (pass.u - ARRIVAL - pass.cruise) else time
-                    ship.offU = min(pass.u, ARRIVAL + pass.cruise)
+                if (initialized && active != ship.active) {
+                    if (active) {
+                        ship.onPass = pass.index
+                        ship.onPhase = phase
+                        ship.onTime = time
+                        ship.offTime = Double.NEGATIVE_INFINITY
+                    } else if (phase != Phase.GAP) {
+                        ship.offTime = if (phase == Phase.LEAVING) time - (pass.u - ARRIVAL - pass.cruise) else time
+                        ship.offU = min(pass.u, ARRIVAL + pass.cruise)
+                    }
                 }
+                if (active) draw(ship, pass, phase, time)
             }
 
             ship.active = active
-            draw(ship, time)
+            if (!active && ship.offTime != Double.NEGATIVE_INFINITY) {
+                val elapsed = time - ship.offTime
+                if (elapsed < DEPARTURE) depart(ship, ship.pass, ship.offU, elapsed)
+                if (!trail(ship, ship.pass, ship.offU, elapsed, 0.0) && elapsed >= DEPARTURE) {
+                    ship.offTime = Double.NEGATIVE_INFINITY
+                }
+            }
+            if (active || ship.want || ship.offTime != Double.NEGATIVE_INFINITY) running = true
         }
 
         initialized = true
         val power = 0.35 + 0.4 * (0.3 + 0.7 * min(1.0, frame.rim))
         for (craft in crafts) {
-            craft.solid.instances = craft.solidStream.size / craft.solidStream.components
-            craft.fade.instances = craft.fadeStream.size / craft.fadeStream.components
+            craft.solid.useInstances(craft.solidStream)
+            craft.fade.useInstances(craft.fadeStream)
             craft.depth.instances = craft.fade.instances
-            for (node in arrayOf(craft.solid, craft.depth, craft.fade)) {
-                node.visible = node.instances > 0
-                node.value("uPower", power)
-            }
+            craft.depth.visible = craft.fade.visible
+            if (craft.solid.visible) craft.solid.value("uPower", power)
+            if (craft.fade.visible) craft.fade.value("uPower", power)
         }
+        flares.useInstances(flareStream)
+        plumes.useInstances(plumeStream)
+        trails.useInstances(trailStream)
+    }
 
-        for ((node, stream) in arrayOf(flares to flareStream, plumes to plumeStream, trails to trailStream)) {
-            node.instances = stream.size / stream.components
-            node.visible = node.instances > 0
-        }
+    private fun NexusGpu.Node.useInstances(stream: NexusGpu.FloatData) {
+        instances = stream.size / stream.components
+        visible = instances > 0
     }
 
     // ========================================
@@ -135,9 +173,9 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
     // ========================================
 
     // Convoys keep MIN_GAP apart: the approach behind and the launch ahead of a jump need that much empty lane.
-    private fun fleet(): List<Ship> {
+    private fun fleet(): Array<Ship> {
         val inner = floor(SHIPS * LANES[0].radius / (LANES[0].radius + LANES[1].radius)).toInt()
-        val ships = List(SHIPS) { i ->
+        val ships = Array(SHIPS) { i ->
             val lane = if ((i + 1) * inner / SHIPS > i * inner / SHIPS) LANES[0] else LANES[1]
             val h = hash(i, 1)
             val craft = when {
@@ -171,10 +209,11 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
                     ship.lead = group[0]
                     ship.lag = LAG * m
                     ship.slot = lane.direction * x / lane.radius
+                    ship.entryPhase = lane.direction * (ship.lead.slot - lane.entry)
                     // Sideways and in height only away from the other lane, so oncoming traffic keeps its clearance.
                     val reach = if (m > 0) 1.0 else 0.4
-                    ship.dr = 0.35 * hash(ship.index, 94) * reach * away
-                    ship.dz = 0.45 * hash(ship.index, 95) * reach * away
+                    ship.radius = lane.radius + 0.35 * hash(ship.index, 94) * reach * away
+                    ship.z = lane.z + 0.45 * hash(ship.index, 95) * reach * away
                 }
                 cursor += length + MIN_GAP + spare * weights[j] / weights.sum()
             }
@@ -185,24 +224,29 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
     // ZONES entry points turn slowly round the ring. A convoy drops in when its place passes one (up to 15 % of a
     // pass later), flies 40-65 degrees and is gone before the next entry, so the traffic gathers in ZONES stretches.
     // The outer lane's entries sit at the far end of the inner lane's stretches: its ships come back through them.
-    private fun pass(ship: Ship, time: Double): Pass {
+    private fun updatePass(ship: Ship, time: Double) {
         val lane = ship.lane
         val lead = ship.lead
         val t = time - ship.lag
-        val turn = lane.speed / lane.radius
-        val relative = turn - lane.direction * ZONE_TURN
-        val step = 2 * PI / ZONES
-        val entry = ZONE_START + if (lane.direction < 0) Math.toRadians((ZONE_ARC_MIN + ZONE_ARC_MAX) / 2) else 0.0
-        val progress = lane.direction * (lead.slot - entry) + (turn - lane.direction * ZONE_TURN) * t
-        val interval = step / relative
-        fun arrival(k: Long) = t - (progress - k * step) / relative + 0.15 * interval * hash(lead.index, 210 + k)
+        val pass = ship.pass
+        if (t < pass.arrival || t >= pass.nextArrival) {
+            fun arrival(k: Long) = (k * ZONE_STEP - ship.entryPhase) / lane.relative + 0.15 * lane.interval * hash(lead.index, 210 + k)
+            var index = floor((ship.entryPhase + lane.relative * t) / ZONE_STEP).toLong()
+            val at = arrival(index)
+            if (at > t) {
+                pass.nextArrival = at
+                pass.arrival = arrival(--index)
+            } else {
+                pass.arrival = at
+                pass.nextArrival = arrival(index + 1)
+            }
 
-        var index = floor(progress / step).toLong()
-        var arrival = arrival(index)
-        if (arrival > t) arrival = arrival(--index)
-        val arc = Math.toRadians(ZONE_ARC_MIN + (ZONE_ARC_MAX - ZONE_ARC_MIN) * hash(lead.index, 230 + index))
-        val u = t - arrival
-        return Pass(index, u, ship.slot + lane.direction * turn * (time - u), arc * lane.radius / lane.speed)
+            pass.index = index
+            val arc = Math.toRadians(ZONE_ARC_MIN + (ZONE_ARC_MAX - ZONE_ARC_MIN) * hash(lead.index, 230 + index))
+            pass.cruise = arc * lane.radius / lane.speed
+            pass.start = ship.slot + lane.turn * (pass.arrival + ship.lag)
+        }
+        pass.u = t - pass.arrival
     }
 
     private fun phase(pass: Pass) = when {
@@ -212,29 +256,7 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
         else -> Phase.GAP
     }
 
-    private fun draw(ship: Ship, time: Double) {
-        val pass = pass(ship, time)
-        val phase = phase(pass)
-        if (!ship.active) {
-            val elapsed = time - ship.offTime
-            when (ship.offPhase) {
-                Phase.ARRIVING, Phase.CRUISING -> {
-                    val at = if (ship.offPass == pass.index) pass else pass(ship, ship.offTime)
-                    if (elapsed < DEPARTURE) depart(ship, at, ship.offU, elapsed)
-                    trail(ship, at, ship.offU, elapsed, 0.0)
-                }
-                Phase.LEAVING -> {
-                    val at = pass(ship, ship.offTime)
-                    if (ship.offPass == pass.index && phase == Phase.LEAVING) {
-                        depart(ship, pass, ARRIVAL + pass.cruise, pass.u - ARRIVAL - pass.cruise)
-                    }
-                    trail(ship, at, ARRIVAL + at.cruise, elapsed, 0.0)
-                }
-                Phase.GAP -> Unit
-            }
-            return
-        }
-
+    private fun draw(ship: Ship, pass: Pass, phase: Phase, time: Double) {
         val samePass = ship.onPass == pass.index
         if (samePass && ship.onPhase == Phase.LEAVING) return
 
@@ -260,7 +282,7 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
         val length = craft.length
         place(ship, pass, min(pass.u, ARRIVAL + pass.cruise))
         if (tau >= 0.21) {
-            hull(craft, 0.0, IDLE_A, IDLE_B, IDLE_STYLE)
+            hull(craft, 0.0)
             engine(length, 0.0, 1.0)
             return
         }
@@ -298,16 +320,18 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
             val alpha = if (coil) smooth(tau / 0.09) * (0.52 + 0.4 * k) else 1.05 * (1 - k).pow(1.85)
             val spread = 1 - (1 - k).pow(2.4)
 
+            val coilSpread = if (coil) k.pow(1.3) else 0.0
+            val rx = if (coil) lerp(0.86, 0.46, coilSpread) else lerp(0.42, 1.28, spread)
+            val ry = if (coil) lerp(0.58, 0.32, coilSpread) else lerp(0.30, 0.88, spread)
             for (ring in 0 until (if (coil) 1 else 2)) {
                 val scale = 1 - ring * 0.28
                 for (side in 0..1) {
                     flare(
                         shockX + ring * length * 0.16,
-                        length * scale * if (coil) lerp(0.86, 0.46, k.pow(1.3)) else lerp(0.42, 1.28, spread),
-                        length * scale * if (coil) lerp(0.58, 0.32, k.pow(1.3)) else lerp(0.30, 0.88, spread),
+                        length * scale * rx,
+                        length * scale * ry,
                         0.78,
                         1.0,
-                        CORE,
                         if (side == 0) ACCENT else PRIMARY,
                         alpha * if (ring == 0) 1.0 else 0.72,
                         if (side == 0) (if (coil) 0.54 * k else 0.44 * (1 - k)) else 0.0,
@@ -319,7 +343,7 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
 
             if (!coil && k < 0.65) {
                 val f = 1 - k / 0.65
-                flare(recoil - length * 0.15, length * 0.68 * (0.6 + 0.6 * (1 - f)), length * 0.42 * f, 1.0, 2.0, CORE, PRIMARY, 1.02 * f * f, 0.25, 0.0, 0.85 * f)
+                flare(recoil - length * 0.15, length * 0.68 * (0.6 + 0.6 * (1 - f)), length * 0.42 * f, 1.0, 2.0, PRIMARY, 1.02 * f * f, 0.25, 0.0, 0.85 * f)
             }
         }
 
@@ -330,9 +354,13 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
             hull(
                 craft,
                 anchor,
-                doubleArrayOf(compression * 0.6, -compression * 0.4, 1.0, 0.28),
-                doubleArrayOf(1 + compression * 0.52, 1 + compression * 0.36, 0.0, 0.0),
-                doubleArrayOf(0.18 * charge * charge, wave, 1.0, 0.0)
+                tailShift = compression * 0.6,
+                noseShift = -compression * 0.4,
+                tailGirth = 1 + compression * 0.52,
+                noseGirth = 1 + compression * 0.36,
+                heat = 0.18 * charge * charge,
+                wave = wave,
+                stretchHeat = 0.28
             )
             engine(length, anchor + compression * 0.6 * length, 1 + 2.6 * charge)
             return
@@ -357,9 +385,13 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
         hull(
             craft,
             center,
-            doubleArrayOf(-half, half, 1.0, 0.55 * thrust),
-            doubleArrayOf(girth + 0.52 * compression, girth + 0.36 * compression, 0.0, 0.0),
-            doubleArrayOf(0.18 * thrust, -9.0, visibility, 0.0)
+            tailShift = -half,
+            noseShift = half,
+            tailGirth = girth + 0.52 * compression,
+            noseGirth = girth + 0.36 * compression,
+            heat = 0.18 * thrust,
+            opacity = visibility,
+            stretchHeat = 0.55 * thrust
         )
 
         val stern = center - length * half
@@ -373,28 +405,24 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
         if (strength <= 0.01) return
         val r = min(0.42 * length, 1.25) * (0.8 + 0.2 * strength)
         val warm = sat((strength - 1) * 0.55)
-        val rim = Vector3d(ENGINE).lerp(PRIMARY, warm)
-        flare(shift - length * 0.52, r, r * 0.78, 1.0, 2.0, CORE, rim, min(1.1, 0.7 * strength), 0.24, 0.0, sat((strength - 1) * 0.45))
+        val rim = ENGINE.lerp(PRIMARY, warm, engineRim)
+        flare(shift - length * 0.52, r, r * 0.78, 1.0, 2.0, rim, min(1.1, 0.7 * strength), 0.24, 0.0, sat((strength - 1) * 0.45))
     }
 
     // After the jump the trail's tail keeps moving up while it fades.
-    private fun trail(ship: Ship, pass: Pass, head: Double, after: Double, born: Double) {
+    private fun trail(ship: Ship, pass: Pass, head: Double, after: Double, born: Double): Boolean {
         val fade = 1 - smooth(after / 1.6)
-        if (fade <= 0) return
+        if (fade <= 0) return false
         val lane = ship.lane
         val length = crafts[ship.craft].length
-        val span = TRAIL / lane.speed
+        val span = lane.trailSpan
         val stern = head - 0.55 * length / lane.speed
         val tail = max(born, stern - span) + after
-        if (stern - tail < 0.05) return
+        if (stern - tail < 0.05) return false
 
-        val turn = lane.direction * lane.speed / lane.radius
-        trailStream.put(lane.radius + ship.dr, pass.start + turn * tail, pass.start + turn * stern, lane.z + ship.dz)
-        trailStream.put(0.13 * length, 2.4, 0.12, 0.5)
-        trailStream.put(TRAIL_CORE)
-        trailStream.put(TRAIL_MID)
-        trailStream.put(VOID)
-        trailStream.put(TRAIL_ALPHA * fade * (0.35 + 0.65 * sat((stern - tail) / span)), 18.0, 0.0, 1.0)
+        trailStream.put(ship.radius, pass.start + lane.turn * tail, pass.start + lane.turn * stern, ship.z)
+        trailStream.put(0.13 * length, TRAIL_ALPHA * fade * (0.35 + 0.65 * sat((stern - tail) / span)))
+        return true
     }
 
     // ========================================
@@ -404,8 +432,10 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
     private fun place(ship: Ship, pass: Pass, u: Double) {
         val lane = ship.lane
         val end = ARRIVAL + pass.cruise
-        fun at(t: Double, out: Vector3d) =
-            out.set(polar(pass.start + lane.direction * lane.speed * t.coerceIn(0.0, end) / lane.radius, lane.radius + ship.dr, lane.z + ship.dz))
+        fun at(t: Double, out: Vector3d) {
+            val angle = pass.start + lane.turn * t.coerceIn(0.0, end)
+            out.set(ship.radius * cos(angle), ship.radius * sin(angle), ship.z)
+        }
         at(u, pose.p)
         at(u - 0.3, before)
         at(u + 0.3, after)
@@ -429,7 +459,18 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
 
     private fun world(along: Double): Vector3d = point.set(pose.x).mul(along).add(pose.p)
 
-    private fun hull(craft: Craft, along: Double, a: DoubleArray, b: DoubleArray, style: DoubleArray) {
+    private fun hull(
+        craft: Craft,
+        along: Double,
+        tailShift: Double = 0.0,
+        noseShift: Double = 0.0,
+        tailGirth: Double = 1.0,
+        noseGirth: Double = 1.0,
+        heat: Double = 0.0,
+        wave: Double = -9.0,
+        opacity: Double = 1.0,
+        stretchHeat: Double = 0.0
+    ) {
         val l = craft.length.toFloat()
         val origin = world(along)
         matrix.set(
@@ -439,13 +480,10 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
             origin.x.toFloat(), origin.y.toFloat(), origin.z.toFloat(), 1f
         )
 
-        val streams = if (style[2] < 1) arrayOf(craft.fadeStream, craft.depthStream) else arrayOf(craft.solidStream)
-        for (stream in streams) {
-            stream.put(matrix)
-            stream.put(a[0], a[1], a[2], a[3])
-            stream.put(b[0], b[1], b[2], b[3])
-            stream.put(style[0], style[1], style[2], style[3])
-        }
+        val stream = if (opacity < 1) craft.fadeStream else craft.solidStream
+        stream.put(matrix)
+        stream.put(tailShift, noseShift, tailGirth, noseGirth)
+        stream.put(heat, wave, opacity, stretchHeat)
     }
 
     private fun flare(
@@ -454,7 +492,6 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
         ry: Double,
         span: Double,
         mode: Double,
-        core: Vector3d,
         rim: Vector3d,
         alpha: Double,
         cushion: Double,
@@ -466,9 +503,7 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
         flareStream.put(pose.y)
         flareStream.put(pose.up)
         flareStream.put(rx, ry, span, mode)
-        flareStream.put(core)
         flareStream.put(rim)
-        flareStream.put(VOID)
         flareStream.put(alpha, cushion, rotation, open)
     }
 
@@ -476,13 +511,8 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
     private fun plume(from: Double, to: Double, width: Double, alpha: Double) {
         if (alpha <= 0.002 || width <= 0.002) return
         plumeStream.put(world(from))
-        plumeStream.put(world((from + to) * 0.5))
         plumeStream.put(world(to))
-        plumeStream.put(width, -0.9, 0.75, 0.4)
-        plumeStream.put(CORE)
-        plumeStream.put(PRIMARY)
-        plumeStream.put(VOID)
-        plumeStream.put(alpha, 30.0, 0.0, 1.0)
+        plumeStream.put(width, alpha)
     }
 
     companion object {
@@ -501,6 +531,7 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
 
         // The arcs stay short enough that a convoy is gone before its next entry on either lane.
         private const val ZONES = 3
+        private const val ZONE_STEP = 2 * PI / ZONES
         private const val ZONE_TURN = 2 * PI / 1200
         private const val ZONE_ARC_MIN = 40.0
         private const val ZONE_ARC_MAX = 65.0
@@ -509,41 +540,23 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
         private const val TRAIL = 20.0
         private const val TRAIL_ALPHA = 1.04
 
-        private val HULL_FIELDS = listOf("nexusM0" to 4, "nexusM1" to 4, "nexusM2" to 4, "nexusM3" to 4, "iDefA" to 4, "iDefB" to 4, "iStyle" to 4)
+        private val HULL_FIELDS = listOf("nexusM0" to 4, "nexusM1" to 4, "nexusM2" to 4, "nexusM3" to 4, "iDeform" to 4, "iStyle" to 4)
         private val FLARE_FIELDS = listOf(
             "iCenter" to 3,
             "iRight" to 3,
             "iUp" to 3,
             "iSize" to 4,
-            "iColCore" to 3,
             "iColRim" to 3,
-            "iColVoid" to 3,
             "iMeta" to 4
         )
-        private val PLUME_FIELDS = listOf(
-            "iA" to 3,
-            "iCtrl" to 3,
-            "iB" to 3,
-            "iProf" to 4,
-            "iColCore" to 3,
-            "iColMid" to 3,
-            "iColVoid" to 3,
-            "iMeta" to 4
-        )
-        private val TRAIL_FIELDS = listOf("iArc" to 4, "iProf" to 4, "iColCore" to 3, "iColMid" to 3, "iColVoid" to 3, "iMeta" to 4)
+        private val PLUME_FIELDS = listOf("iA" to 3, "iB" to 3, "iPlume" to 2)
+        private val TRAIL_FIELDS = listOf("iArc" to 4, "iTrail" to 2)
 
         private val LANES = arrayOf(Lane(44.0, 65.0, 1.0, 3.6), Lane(53.4, 70.7, -1.0, 4.2))
-        private val IDLE_A = doubleArrayOf(0.0, 0.0, 1.0, 0.0)
-        private val IDLE_B = doubleArrayOf(1.0, 1.0, 0.0, 0.0)
-        private val IDLE_STYLE = doubleArrayOf(0.0, -9.0, 1.0, 0.0)
 
-        private val VOID = Vector3d(0.014, 0.020, 0.040)
-        private val CORE = Vector3d(0.96, 0.99, 1.0)
         private val PRIMARY = Vector3d(0.42, 0.84, 1.0)
         private val ACCENT = Vector3d(1.0, 0.80, 0.34)
         private val ENGINE = Vector3d(0.38, 0.86, 1.0)
-        private val TRAIL_CORE = Vector3d(1.0, 0.95, 0.84)
-        private val TRAIL_MID = Vector3d(1.0, 0.80, 0.52)
 
         private fun hash(i: Int, k: Long): Double {
             val s = sin(i * 12.9898 + k * 78.233) * 43758.5453

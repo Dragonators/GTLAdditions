@@ -30,7 +30,6 @@ internal object NexusPlanets {
         }
 
         val orbits = Array(4) { nodes.getValue("dir.olines.items.$it.m") }
-        val belt = nodes.getValue("dir.beltK1")
         val starkillerGlow = nodes.getValue("dir.sets.PM.bodies.0.xSk.glow.mesh")
         val deathStar = Array(6) { nodes.getValue("deathStar.$it") }
         val traffic = Array(3) { nodes.getValue("dir.sets.PM.x.lines.items.$it.m") }
@@ -136,13 +135,6 @@ internal object NexusPlanets {
 
         if (scales[1] > 0.01) traffic(state, f, radii[1], scales[1] / size, batches)
         deathStar(state, f, radii[3], scales[3], neg)
-
-        val belt = state.belt
-        belt.visible = f.inverse > 0.5 || fade > 0.01
-        belt.matrix.identity().rotateZ(rotationRadians(2 * PI * f.beltTime / 100.531))
-        belt.value("uNeg", f.inverse * 0.85)
-        val gain = 0.3 + 0.7 * min(1.0, f["rim"])
-        belt.value("uGold", gain, gain * 0.77, gain * 0.42)
 
         linksAndTrails(state, f, radii, scales, batches)
     }

@@ -362,8 +362,9 @@ internal object NexusGpu {
         private val pairValues = FloatArray(2)
 
         init {
+            val defines = source.getAsJsonObject("defines")?.entrySet().orEmpty().joinToString("") { (name, value) -> "#define $name ${value.asString}\n" }
             fun compile(file: String, stage: Int): Int {
-                val material = sources.getValue(file)
+                val material = defines + sources.getValue(file)
                 val common = sources.getValue(COMMON)
                 val code = if (stage == GL_VERTEX_SHADER) {
                     NexusShaderSources.vertex(material, common)
@@ -510,7 +511,7 @@ internal object NexusGpu {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.elements)
         }
 
-        fun bind(node: Node, attributes: Collection<FloatData>) {
+        fun bind(node: Node, attributes: Collection<FloatData>, source: Geometry = this) {
             glBindVertexArray(vao)
             if (uploadedNode === node && uploadedVersion == node.version) return
 
@@ -519,7 +520,11 @@ internal object NexusGpu {
                 val attribute = dynamic.getOrPut(data.name) {
                     val locations = data.layout.map { glGetAttribLocation(program.id, it.first) }
                     val active = locations.any { it >= 0 }
-                    val buffer = if (active) ledger.buffer(glGenBuffers()) else 0
+                    val buffer = when {
+                        !active -> 0
+                        source === this -> ledger.buffer(glGenBuffers())
+                        else -> source.dynamic.getValue(data.name).buffer
+                    }
 
                     if (active) {
                         glBindBuffer(GL_ARRAY_BUFFER, buffer)
@@ -540,7 +545,7 @@ internal object NexusGpu {
                     Attribute(buffer, active)
                 }
 
-                if (!attribute.active) continue
+                if (!attribute.active || source !== this) continue
                 glBindBuffer(GL_ARRAY_BUFFER, attribute.buffer)
                 glBufferData(GL_ARRAY_BUFFER, data.buffer(), GL_STREAM_DRAW)
             }
@@ -665,6 +670,8 @@ internal object NexusGpu {
         private val matrixValues = FloatArray(16)
         private val normalValues = FloatArray(9)
 
+        // A second pass can read the originating node's VBO through its own program-specific VAO.
+        var instanceSource: Node? = null
         var visible = true
         var instances = 0
         var drawCount = geometry?.count ?: 0
@@ -791,7 +798,7 @@ internal object NexusGpu {
         }
 
         fun draw(view: Matrix4f, projection: Matrix4f, camera: FloatArray, time: Double, glow: Float, ambient: Float, handMask: Int = 0) {
-            if (!visible || drawCount <= 0) return
+            if (!visible || drawCount <= 0 || (instanced && instances <= 0)) return
             val program = program ?: return
             val geometry = geometry ?: return
             glUseProgram(program.id)
@@ -865,13 +872,20 @@ internal object NexusGpu {
                 glDisable(GL_POLYGON_OFFSET_FILL)
             }
 
-            geometry.bind(this, attributes.values)
+            val source = instanceSource
+            if (source == null) {
+                geometry.bind(this, attributes.values)
+            } else {
+                val sourceGeometry = checkNotNull(source.geometry)
+                sourceGeometry.bind(source, source.attributes.values)
+                geometry.bind(source, source.attributes.values, sourceGeometry)
+            }
             // A VAO can be shared by nodes with different compact draw lists.
             geometry.bindIndices(indices)
 
             if (mode == GL_POINTS) glEnable(GL_PROGRAM_POINT_SIZE)
             if (instanced) {
-                if (instances > 0) glDrawElementsInstanced(mode, drawCount, GL_UNSIGNED_INT, 0L, instances)
+                glDrawElementsInstanced(mode, drawCount, GL_UNSIGNED_INT, 0L, instances)
             } else {
                 glDrawElements(mode, drawCount, GL_UNSIGNED_INT, 0L)
             }

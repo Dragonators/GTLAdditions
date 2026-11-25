@@ -161,5 +161,7 @@ untextured hull by object-space projection. The BFF-1's grey and blue scratched
 metal is the same picture, the blue one as a tint in the vertex colour, and its
 metal / roughness pictures are reduced to constants. The jump deformation,
 engine glare, wake, shock wisps and ship trails are procedural GLSL.
+scripts/prepare_transit_meshes.py merges byte-identical hull vertices without
+changing triangle order and bakes the fixed wake and trail profiles.
 Star Wars designs are the property of Lucasfilm Ltd.
 The CC license attribution does not imply endorsement or trademark rights.
