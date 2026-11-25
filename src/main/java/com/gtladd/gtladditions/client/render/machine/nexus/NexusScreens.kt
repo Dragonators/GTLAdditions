@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.client.render.machine.nexus
 
+import com.gtladd.gtladditions.client.RenderUtils.rotationRadians
 import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.GOLD
 import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.ICE
 import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.WHITE
@@ -46,7 +47,7 @@ internal object NexusScreens {
         val shipPhases = FloatArray(6)
         val planets = Array(3) { FloatArray(16) }
         val planetInfo = Array(3) { FloatArray(16) }
-        val glitchClocks = Array(3) { FloatArray(5) }
+        val glitchClocks = Array(3) { FloatArray(NexusScreenClock.SIZE) }
         val modules = Array(3) { FloatArray(144) }
         val screens = Array(3) { nodes.getValue("dir.screens.$it.m") }
         val flows = Array(3) { nodes.getValue("dir.r9.flow.items.$it.m") }
@@ -163,7 +164,7 @@ internal object NexusScreens {
             screen.value("uShipU", state.shipPhases)
             screen.value("uMk", markers)
             screen.value("uPk", packets)
-            screen.value("uBelt", 2 * PI * f.beltTime / 100.531 - rot)
+            screen.value("uBelt", rotationRadians(2 * PI * f.beltTime / 100.531 - rot))
             screen.value("uOrbA", min(1 - f["orbitFade"], f["orbitDraw"]) * (1 - f.vanish))
             screen.value(
                 "uNum",
@@ -179,17 +180,17 @@ internal object NexusScreens {
                 val p = f.fall[i]
                 val fade = (1 - smooth((p - 0.8) / 0.2)) * (1 - 0.3 * p.pow(1.6))
                 val radius = hypot(f.planets[i].x, f.planets[i].y)
-                val angle = atan2(f.planets[i].y, f.planets[i].x) - rot
+                val angle = f.orbitAngle(i) - rot
                 val mapped = mapRadius(radius)
 
                 planets[i * 4] = (23.562 + 1.04 * mapped * cos(angle)).toFloat()
                 planets[i * 4 + 1] = (18 + 1.04 * mapped * sin(angle)).toFloat()
                 planets[i * 4 + 2] = max(0.001, doubleArrayOf(0.62, 0.74, 1.02, 1.2)[i] * 1.04.pow(0.75) * fade).toFloat()
                 planets[i * 4 + 3] = (min(1 - f["orbitFade"], f["orbitDraw"]) * if (fade > 0.01) 1 else 0).toFloat()
-                planetInfo[i * 4] = angle.toFloat()
+                planetInfo[i * 4] = rotationRadians(angle)
                 planetInfo[i * 4 + 1] = mapRadius(f.orbitRadii[i]).toFloat()
-                planetInfo[i * 4 + 2] = (angle * 2.2 + f.time * 0.05 * (i + 1)).toFloat()
-                planetInfo[i * 4 + 3] = (2 * PI * f.chartTime / 50.265 + 1.2).toFloat()
+                planetInfo[i * 4 + 2] = (angle * 2.2 + f.time * 0.05 * (i + 1)).IEEErem(8 * PI).toFloat()
+                planetInfo[i * 4 + 3] = rotationRadians(2 * PI * f.chartTime / 50.265 + 1.2)
             }
 
             screen.value("uPl", planets)
@@ -197,6 +198,7 @@ internal object NexusScreens {
             order[screen] = if ((f.camera.x - 135 * cos(az)) * cos(az) + (f.camera.y - 135 * sin(az)) * sin(az) > 0) 18.0 else -0.5
 
             val flow = state.flows[k]
+            flow.value("uFlowPhase", fract(f.time * 18.0 / 36.0))
             flow.visible = on > 0.003
             val color = mix(Vector3d(0.749, 0.941, 1.0), GOLD, f.inverse * 0.7)
             flow.value("uA", 0.42 * on)

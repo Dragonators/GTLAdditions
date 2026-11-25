@@ -41,6 +41,11 @@ internal object NexusCenter {
 
     // Render-thread scratch; Node.value copies the values into each scene's own storage.
     private val beamNoisePhases = FloatArray(12)
+    private val warpOctaves = FloatArray(3)
+    private val plasmaOctaves = FloatArray(5)
+    private val spotOctaves = FloatArray(5)
+    private val ringPhase = FloatArray(4)
+    private val detailPhase = FloatArray(4)
 
     fun sprite(node: NexusGpu.Node, center: Vector3d, size: Double, color: Vector3d, alpha: Double) {
         node.visible = alpha > 0.002
@@ -61,6 +66,10 @@ internal object NexusCenter {
         val ack = f["ack"]
 
         val star = state.star
+        star.value("uWarpPhase", NexusBeamClock.noiseOctaves(f.time * 0.006 * 1.4, 2.07, warpOctaves))
+        star.value("uPlasmaPhase", NexusBeamClock.noiseOctaves(f.time * 0.006 * 1.6, 2.03, plasmaOctaves))
+        star.value("uSpotPhase", NexusBeamClock.noiseOctaves(f.time * 0.002, 2.03, spotOctaves))
+        star.value("uGranulePhase", f.time * 0.01 % 1024.0, f.time * 0.013 % 1024.0)
         star.visible = true
         star.matrix.translation(0f, 0f, 88f).scale(r.toFloat())
         star.value("uBright", (1 + 0.3 * flash) * (1 - 0.45 * ember))
@@ -91,6 +100,7 @@ internal object NexusCenter {
         )
 
         val glory = state.glory
+        glory.value("uHuePhase", fract(f.time * 0.05))
         sprite(
             glory,
             limbCenter,
@@ -413,6 +423,14 @@ internal object NexusCenter {
     private fun rings(state: State, f: NexusFrame, b: NexusBatches) {
         if (f.build <= 0.002) return
 
+        ringPhase[0] = (floor(f.time * 13) % 1024.0).toFloat()
+        ringPhase[1] = fract(f.time * 0.8).toFloat()
+        ringPhase[2] = rotationRadians(f.time * 23)
+        ringPhase[3] = rotationRadians(f.time * 0.5)
+        detailPhase[0] = fract(f.time * 0.4).toFloat()
+        detailPhase[1] = fract(f.time * 0.22).toFloat()
+        detailPhase[2] = rotationRadians(f.time * 1.4)
+        detailPhase[3] = rotationRadians(f.time * 6)
         val radii = doubleArrayOf(25.0, 32.0, 39.0)
         for (i in 0..2) {
             val az = Math.toRadians(i * 120.0 + (if (i % 2 == 1) -1 else 1) * 0.35 * 44 * f.time)
@@ -431,6 +449,8 @@ internal object NexusCenter {
 
             for (kind in 0..1) {
                 val node = state.rings[i][kind]
+                node.value("uRingPhase", ringPhase)
+                node.value("uDetailPhase", detailPhase)
                 node.visible = (progress > 0.001 || f.build > 0.02) && (kind == 0 || (f.build < 0.999 && progress < 0.999))
                 node.matrix.translation(0f, 0f, 88f).rotate(q)
                 node.value("uBuildA", progress)

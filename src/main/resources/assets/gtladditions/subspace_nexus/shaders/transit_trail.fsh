@@ -11,8 +11,8 @@ void main() {
     float u = vUv.x;
     float r = abs(vUv.y);
     if (vEnv <= 0.0005 || r >= 1.0) discard;
-    float env = vEnv * smoothstep(0.0, 0.08, u) * smoothstep(1.0, 0.90, u);
-    float edge = smoothstep(1.0, 0.68, r);
+    float env = vEnv * smoothstep(0.0, 0.08, u) * (1.0 - smoothstep(0.90,1.0,u));
+    float edge = (1.0 - smoothstep(0.68,1.0,r));
     float a = vAlpha * env * uGlow;
     float skirt = exp(-r * r * 2.1);
     // The dark cushion under the light keeps it readable against the day sky.

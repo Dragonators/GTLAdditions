@@ -9,6 +9,16 @@ internal object NexusBeamClock {
         return if (remainder < 0) remainder + period else remainder
     }
 
+    /** Each octave scales the original translation, before its lattice period is removed. */
+    fun noiseOctaves(translation: Double, scale: Double, output: FloatArray): FloatArray {
+        var phase = translation
+        for (i in output.indices) {
+            output[i] = wrap(phase, NOISE_PERIOD).toFloat()
+            phase *= scale
+        }
+        return output
+    }
+
     fun flowPhase(time: Double, speed: Double, spacing: Double): Double = wrap(time * speed / spacing, 1.0)
 
     fun huePhase(time: Double): Double = wrap(time * 0.08, 1.0)

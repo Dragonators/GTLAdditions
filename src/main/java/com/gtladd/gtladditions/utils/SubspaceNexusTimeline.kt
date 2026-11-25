@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import kotlin.math.PI
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
@@ -448,20 +449,25 @@ object SubspaceNexusTimeline {
         val state = animationState.getString("state")
         val age = (tick - animationState.getDouble("since")) / 20.0
         val clock = chartClock(animationState, tick)
+        val eclipse = if (animationState.contains("eclipseChart")) animationState.getDouble("eclipseChart") else eventTick / 20.0 + 16
 
         return DoubleArray(4) { index ->
             val normal = phases[index] + 360 * clock / periods[index]
+            // Keep the winding reached at alignment: the chart and moons spin at fractional multiples of the orbit.
+            val at10 = phases[index] + 360 * (eclipse - 6.0) / periods[index]
+            fun alignedAngle(): Double {
+                if (animationState.getDouble("showBegin") >= 10.0) return -90.0
+                return -90.0 + 360.0 * (ceil((at10 + 90.0) / 360.0) + 1.0)
+            }
+
             when {
                 state == "startU" -> -90.0
                 state == "abort" -> animationState.getCompound("planetAt").getDouble("$index")
-                state == "unlock" && age >= 10 -> -90 + maxOf(0.0, age - 16) * 360 / periods[index]
+                state == "unlock" && (age >= 10 || animationState.getDouble("showBegin") >= 10.0) -> alignedAngle() + maxOf(0.0, age - 16) * 360 / periods[index]
                 state == "unlock" && age >= 1.5 -> {
-                    val at10 = phases[index] + 360 * (clock + 10 - age) / periods[index]
-                    normal + (1 - cos(PI * (age - 1.5) / 8.5)) * 0.5 * (((-90 - at10) % 360 + 720) % 360 + 360)
+                    normal + (1 - cos(PI * (age - 1.5) / 8.5)) * 0.5 * (alignedAngle() - at10)
                 }
-                isParadoxState(state) -> -90 + 360 * (
-                    clock - if (animationState.contains("eclipseChart")) animationState.getDouble("eclipseChart") else eventTick / 20.0 + 16
-                    ) / periods[index]
+                isParadoxState(state) -> alignedAngle() + 360 * (clock - eclipse) / periods[index]
                 else -> normal
             }
         }

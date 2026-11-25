@@ -3,6 +3,7 @@ package com.gtladd.gtladditions.client.render.machine.nexus
 import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.smooth
 import org.joml.Matrix4f
 import org.joml.Vector3d
+import kotlin.math.IEEErem
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.floor
@@ -244,7 +245,8 @@ internal class NexusTransitLane(nodes: Map<String, NexusGpu.Node>) {
             pass.index = index
             val arc = Math.toRadians(ZONE_ARC_MIN + (ZONE_ARC_MAX - ZONE_ARC_MIN) * hash(lead.index, 230 + index))
             pass.cruise = arc * lane.radius / lane.speed
-            pass.start = ship.slot + lane.turn * (pass.arrival + ship.lag)
+            // Keep angles bounded so float32 trail endpoints retain sub-pixel precision in old worlds.
+            pass.start = (ship.slot + lane.turn * (pass.arrival + ship.lag)).IEEErem(2 * PI)
         }
         pass.u = t - pass.arrival
     }

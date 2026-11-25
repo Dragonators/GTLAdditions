@@ -174,9 +174,10 @@ class NexusEffectsTrait(machine: SubspaceCorridorNexusIndustrialArray) : Machine
     @OnlyIn(Dist.CLIENT)
     fun onAnimationStateChanged(newState: CompoundTag, oldState: CompoundTag?) {
         if (!machine.isRemote) return
+        val level = machine.level ?: return
         clientClock.synchronize(
             newState,
-            (machine.level?.gameTime ?: 0L).toDouble(),
+            level.gameTime.toDouble(),
             RenderUtils.getSmoothTickDouble(machine, 0f),
             ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
         )

@@ -14,7 +14,7 @@ void main(){
   col+=vec3(.42,.5,.62)*.35*pow(1.-mu,4.)*smoothstep(0.,.9,-dot(V,L));
   vec3 o=normalize(vL);vec2 G=vec2(atan(o.z,o.x)*64.,asin(clamp(o.y,-1.,1.))*64.),c=floor(G),f=fract(G);float fw=min(1.,max(fwidth(G.x),fwidth(G.y))),lod=1.-smoothstep(.25,.7,fw);
   float on=step(.945,h31(vec3(c,5.))),win=on*(1.-smoothstep(.2,.2+fw,abs(f.x-.5)))*(1.-smoothstep(.16,.16+fw,abs(f.y-.5)));
-  col+=vec3(1.,.86,.62)*(win*lod*.9+.05*(1.-lod))*smoothstep(.12,-.15,nl)*uWinK;
+  col+=vec3(1.,.86,.62)*(win*lod*.9+.05*(1.-lod))*(1.0 - smoothstep(-.15,.12,nl))*uWinK;
   float dish=dot(o,normalize(vec3(.95,.31,0.)));col+=vec3(.42,1.,.55)*smoothstep(.9992,.9999,dish)*.9;
-  col=mix(col,vec3(.008,.007,.01)+uGold*.04,uNeg)+uGold*uRimG*(pow(1.-mu,7.)*1.25+smoothstep(.09,0.,mu)*.85);
+  col=mix(col,vec3(.008,.007,.01)+uGold*.04,uNeg)+uGold*uRimG*(pow(1.-mu,7.)*1.25+(1.0 - smoothstep(0.,.09,mu))*.85);
   gl_FragColor=vec4(col,1.);}

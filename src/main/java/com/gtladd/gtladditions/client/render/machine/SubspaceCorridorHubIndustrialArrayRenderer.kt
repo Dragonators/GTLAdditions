@@ -61,7 +61,7 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
             return
         }
 
-        val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
+        val tick = RenderUtils.getContinuousRenderTick(machine, partialTicks)
         val facing = machine.frontFacing
         val center = center(facing)
         val cache = getOrCreateCache(blockEntity.blockPos.asLong(), facing, center)

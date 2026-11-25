@@ -14,7 +14,7 @@ void main() {
     if (vSize.w < 1.5) {
         float r = length(vUv);
         if (r > 1.0) discard;
-        float edge = smoothstep(1.0, 0.74, r);
+        float edge = (1.0 - smoothstep(0.74,1.0,r));
         float d = (r - vSize.z) / max(0.025, vMeta.w);
         float crescent = pow(max(0.0, (r > 0.0 ? vUv.x / r : 0.0)), 5.5);
         float arc = exp(-d * d * 2.4) * crescent * edge;
@@ -25,7 +25,7 @@ void main() {
     } else {
         float r2 = dot(vUv, vUv);
         if (r2 > 1.0) discard;
-        float edge = smoothstep(1.0, 0.70, sqrt(r2));
+        float edge = (1.0 - smoothstep(0.70,1.0,sqrt(r2)));
         float halo = exp(-r2 * 7.2) * edge;
         vec2 glintAxis = vUv * vec2(3.0, 1.0 / 0.038);
         float glint = exp(-dot(glintAxis, glintAxis)) * vMeta.w;

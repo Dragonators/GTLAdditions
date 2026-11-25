@@ -1,4 +1,4 @@
-uniform vec3 uCam;uniform vec3 uStarC;uniform float uTime;uniform float uGlow;uniform float uStyle;uniform float uBuildA;uniform float uGlitch;uniform float uHolo;uniform float uHoloA;uniform float uSeed;
+uniform vec3 uCam;uniform vec3 uStarC;uniform vec4 uRingPhase;uniform vec4 uDetailPhase;uniform float uGlow;uniform float uStyle;uniform float uBuildA;uniform float uGlitch;uniform float uHolo;uniform float uHoloA;uniform float uSeed;
 uniform vec2 uAB;uniform vec3 uGold;uniform vec3 uIce;uniform vec3 uSteel;   // uSteel: body; uGold: trim (gold, silver-blue or graphite); uIce: lights.
 uniform float uLit;uniform float uLiner;uniform float uMat;uniform float uGlyph;uniform float uTick;uniform float uRelK;uniform float uHoloMode;uniform float uStarR;uniform float uSegN;uniform float uKeyK;uniform float uAmbK;
 uniform float uBodyK;uniform float uColl;uniform float uCollW;   // uColl: 0 mixed metal, 1 darker body colour, 2 body finish; uCollW: collar width.
@@ -21,27 +21,27 @@ float hexD(vec2 p){p=abs(p);return max(dot(p,vec2(.8660254,.5)),p.y);}
 float seg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;return length(pa-ba*clamp(dot(pa,ba)/dot(ba,ba),0.,1.));}
 vec3 envR2(vec3 P,vec3 R,vec3 ice,float bk,float bw){   // bk: beam gain; bw: beam width multiplier.
   float up=R.z,az=atan(R.y,R.x);vec3 e=mix(vec3(.006,.009,.018),vec3(.05,.07,.13),smoothstep(-.1,.6,up));
-  e+=ice*exp(-pow((up-.03)/.15,2.))*(.18+.4*pow(.5+.5*cos(az*6.),4.))+vec3(.006,.007,.009)*smoothstep(.05,-.5,up);
+  e+=ice*exp(-pow((up-.03)/.15,2.))*(.18+.4*pow(.5+.5*cos(az*6.),4.))+vec3(.006,.007,.009)*(1.0 - smoothstep(-.5,.05,up));
   float rr=dot(R.xy,R.xy);if(rr>1e-4){float t=-dot(P.xy,R.xy)/rr,z=P.z+t*R.z;vec2 q=P.xy+t*R.xy;
-    if(t>0.&&z>10.&&z<980.){float d2=dot(q,q);e+=vec3(.78,.8,1.)*bk*(exp(-d2/(6.*bw))*.9+exp(-d2/(60.*bw))*.22)*smoothstep(980.,600.,z);}}
+    if(t>0.&&z>10.&&z<980.){float d2=dot(q,q);e+=vec3(.78,.8,1.)*bk*(exp(-d2/(6.*bw))*.9+exp(-d2/(60.*bw))*.22)*(1.0 - smoothstep(600.,980.,z));}}
   return e;}
 vec3 envR(vec3 P,vec3 R,vec3 ice){return envR2(P,R,ice,1.,1.);}
 void main(){
   float u=vU,built=step(u,uBuildA);
   if(uHolo<.5){if(built<.5)discard;}else{if(built>.5||uHoloA<.003)discard;}
-  float tg=mod(floor(uTime*13.),1024.);if(uGlitch>.01&&hh(floor(u*64.)*3.1+tg+uSeed)<.12*uGlitch)discard;
+  float tg=uRingPhase.x;if(uGlitch>.01&&hh(floor(u*64.)*3.1+tg+uSeed)<.12*uGlitch)discard;
   vec3 n=normalize(vN),V=normalize(uCam-vP);if(dot(n,V)<0.)n=-n;
   float role=floor(vRole+.5),C=6.2831853*vRad;bool topf=abs(role-2.)<.5,coll=abs(role-6.)<.5;   // role is interpolated: round it first
   if(uHolo>.5){
-    if(uHoloMode<.5){float f=pow(1.-abs(dot(n,V)),2.),scan=.55+.45*sin(vP.z*2.4-uTime*6.);float a=(.06+.55*f)*scan*uHoloA*uGlow;gl_FragColor=vec4(uIce*a,a);return;}
+    if(uHoloMode<.5){float f=pow(1.-abs(dot(n,V)),2.),scan=.55+.45*sin(vP.z*2.4-uDetailPhase.w);float a=(.06+.55*f)*scan*uHoloA*uGlow;gl_FragColor=vec4(uIce*a,a);return;}
     float sw=u*C,fs=max(fwidth(sw),1e-4),ln=abs(role-1.)<.5?1.-smoothstep(.02,.06+fs*.6,abs(abs(vRo)-(uAB.x-.16))*1.414):0.;
-    float ph=fract(sw/7.-uTime*.8),band=1.-smoothstep(.04,.1+fs,min(ph,1.-ph)*7.),fr=1.-smoothstep(0.,.3+fs*2.,(u-uBuildA)*C);
-    float a=(.75*ln+.5*band+1.5*fr+.02)*uHoloA*uGlow*(.85+.15*sin(uTime*23.+u*40.));gl_FragColor=vec4(uIce*a,a);return;}
+    float ph=fract(sw/7.-uRingPhase.y),band=1.-smoothstep(.04,.1+fs,min(ph,1.-ph)*7.),fr=1.-smoothstep(0.,.3+fs*2.,(u-uBuildA)*C);
+    float a=(.75*ln+.5*band+1.5*fr+.02)*uHoloA*uGlow*(.85+.15*sin(uRingPhase.z+u*40.));gl_FragColor=vec4(uIce*a,a);return;}
   float y=topf?vRo+uAB.x:vZ+uAB.y,Ly=topf?2.*uAB.x:2.*uAB.y,s=u*C;   // across-face coordinate in blocks (axial on the walls, radial on top / bottom)
   vec3 wq=vL,steel=uSteel,alb=steel,emi=vec3(0.);float h=0.,ks=.5,sp=30.,fwZ=fwidth(vZ);
   if(abs(role-1.)<.5){alb=uGold*(.85+.15*fbm3(wq*1.3));ks=1.2;sp=46.;}
-  else if(abs(role-4.)<.5){alb=vec3(.02,.025,.03);ks=.3;emi=uIce*(.4+1.3*pow(.5+.5*sin((s*.06-uTime*.4)*6.2831853),6.));}
-  else if(abs(role-8.)<.5){float lw=max(.045,fwZ*1.5);alb=vec3(.02,.025,.03);ks=.3;emi=uIce*((1.-smoothstep(lw*.45,lw,abs(vZ)))*(.045/lw)*(.75+.25*sin(s*.09-uTime*.5))+.06);}
+  else if(abs(role-4.)<.5){alb=vec3(.02,.025,.03);ks=.3;emi=uIce*(.4+1.3*pow(.5+.5*sin((s*.06-uDetailPhase.x)*6.2831853),6.));}
+  else if(abs(role-8.)<.5){float lw=max(.045,fwZ*1.5);alb=vec3(.02,.025,.03);ks=.3;emi=uIce*((1.-smoothstep(lw*.45,lw,abs(vZ)))*(.045/lw)*(.75+.25*sin(s*.09-uRingPhase.w))+.06);}
   else if(abs(role-5.)<.5){alb=mix(steel,uGold,.5)*(.9+.2*fbm3(wq*vec3(.3,.3,8.)));ks=1.1;sp=60.;}
   else if(coll){alb=uColl<.5?mix(steel*1.2,uGold,.35):steel*(uStyle>2.5&&uStyle<3.5?uBodyK:1.)*(uColl<1.5?.72:1.);ks=1.;sp=54.;}
   else if(abs(role-7.)<.5){alb=steel*(.9+.2*fbm3(wq*vec3(.25,.25,22.)));ks=.85;sp=58.;}
@@ -56,7 +56,7 @@ void main(){
       float nH=floor(C/.62+.5),sz=C/nH;vec2 p=vec2(u*nH,y/sz),r=vec2(1.,1.7320508),hr=r*.5,a=mod(p,r)-hr,b=mod(p-hr,r)-hr,gv=dot(a,a)<dot(b,b)?a:b,id=p-gv;
       float e=.5-hexD(gv),var=hh(mod(floor(id.x+.5),nH)*12.9+floor(id.y*2.+.5)*7.1+uSeed);
       h=smoothstep(.0,.07,e);alb=mix(steel*.9,mix(steel,uGold,.25)*1.15,var*.6);alb=mix(uGold*.75,alb,smoothstep(.015,.04,e));
-      if(var>.94)emi+=uIce*(.25+.3*sin(uTime*1.4+var*40.))*smoothstep(.04,.18,e);ks=.8;sp=50.;}
+      if(var>.94)emi+=uIce*(.25+.3*sin(uDetailPhase.z+var*40.))*smoothstep(.04,.18,e);ks=.8;sp=50.;}
     else if(uStyle<2.5){        // uStyle 2: circuits.
       float nC=floor(C/.36+.5),rows=max(2.,floor(Ly/.36+.5));vec2 g=vec2(u*nC,y/Ly*rows),c=floor(g),f=fract(g);c.x=mod(c.x,nC);
       float r=hh(c.x*17.3+c.y*31.7+uSeed),w=.13,tr=0.;
@@ -66,7 +66,7 @@ void main(){
       else if(r<.8)tr=max((1.-smoothstep(w,w+.07,abs(f.y-.5)))*step(.5-w,f.x),(1.-smoothstep(w,w+.07,abs(f.x-.5)))*step(f.y,.5+w));
       float via=step(.9,hh(c.x*3.3+c.y*9.1+uSeed))*(1.-smoothstep(.2,.26,length(f-.5))),m=max(tr,via);
       alb=mix(steel*.32,uGold*.9,m);h=m*.7;ks=mix(1.4,1.2,m);sp=mix(96.,46.,m);
-      if(r<.42){float ph=fract(u*nC/26.-uTime*.22+hh(c.y*7.7+uSeed)*.8);emi+=uIce*tr*exp(-pow((ph-.5)*16.,2.))*1.3;}}
+      if(r<.42){float ph=fract(u*nC/26.-uDetailPhase.y+hh(c.y*7.7+uSeed)*.8);emi+=uIce*tr*exp(-pow((ph-.5)*16.,2.))*1.3;}}
     else if(uStyle<3.5){        // uStyle 3: glyphs.
       alb=steel*(abs(role)<.5?.36:uBodyK);ks=1.35;sp=88.;float tc=y-Ly*.5,gh=.96,nG=floor((C+.9424778*(uRelK-1.))/1.15+.5);   // glyph count from the field's depth-100% radius, so deepening keeps the same glyphs
       if(abs(role)<.5&&abs(tc)<gh*.5){vec2 g=vec2(u*nG,(tc+gh*.5)/gh),f=fract(g);float id=mod(floor(g.x),nG),st=1.;vec2 sc=vec2(1.15,gh),P=f*sc;

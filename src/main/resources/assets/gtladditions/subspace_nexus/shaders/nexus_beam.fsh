@@ -41,7 +41,7 @@ float pulses(){float pa=0.;
     else if(uPulseMode<2.5)pa+=p.y*exp(-dz*dz/(p.z*p.z*.02));
     else pa+=p.y*exp(-dz*dz/(p.z*p.z*.0625));}
   return uPulseMode>2.5&&uPulseMode<3.5?1.-exp(-pa):pa;}
-float finish(float ds,float wd){float m=mix(1.,smoothstep(uTop,uTop-14.,vP.z),uTopK)*uGlow;if(uBotK>0.)m*=smoothstep(uBottom,uBottom+uBotK,vP.z);if(uSoft>0.)m*=smoothstep(0.,uSoft,ds);
+float finish(float ds,float wd){float m=mix(1.,1.0 - smoothstep(uTop-14.,uTop,vP.z),uTopK)*uGlow;if(uBotK>0.)m*=smoothstep(uBottom,uBottom+uBotK,vP.z);if(uSoft>0.)m*=smoothstep(0.,uSoft,ds);
   if(uDiscK*wd>0.){vec3 rd=normalize(vP-uCam),oc=uCam-uDisc.xyz;float b=dot(oc,rd),q=b*b-dot(oc,oc)+uDisc.w*uDisc.w;
     if(q>0.&&-b-sqrt(q)>length(vP-uCam))m*=1.-uDiscK*wd*smoothstep(0.,uDisc.w*uDisc.w*.15,q);}
   return m;}
@@ -60,7 +60,7 @@ void main(){
       float n1=beamNoise(u,zz,0),n2=beamNoise(u,zz,1),xe=x*(1.+.5*(n1-.5));
       I=(.55*exp(-9.*xe*xe)+.45*exp(-2.4*xe*xe))*(.4+1.2*n2);
       I*=1.+uJet.z*pow(.5+.5*sin((zz/uJet.x-uBeamPhase.x)*6.2831853),uJet2.z);
-      if(uJet.w>0.){float p=fract(s/uJet2.x),w=.55*(1.-abs(2.*p-1.));I*=1.+uJet.w*exp(-s/90.)*smoothstep(w,w*.35,abs(u));}
+      if(uJet.w>0.){float p=fract(s/uJet2.x),w=.55*(1.-abs(2.*p-1.));if(w>0.)I*=1.+uJet.w*exp(-s/90.)*(1.0 - smoothstep(w*.35,w,abs(u)));}
       I*=1.+.45*exp(-s/18.);
       tint=mix(uHot,mix(col,uCool,uJet2.y),clamp(xe*1.3+s/500.,0.,1.));}
     tint=rainbow(tint,dist,x);

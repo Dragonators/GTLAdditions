@@ -741,8 +741,10 @@ internal object NexusGpu {
             return value.floats
         }
 
-        fun value(name: String, x: Double) {
-            valueStorage(name, 1)?.let { it[0] = x.toFloat() }
+        fun value(name: String, x: Double) = value(name, x.toFloat())
+
+        fun value(name: String, x: Float) {
+            valueStorage(name, 1)?.let { it[0] = x }
         }
 
         fun value(name: String, x: Double, y: Double) {

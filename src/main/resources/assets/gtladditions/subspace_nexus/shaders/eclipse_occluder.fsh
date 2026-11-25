@@ -1,1 +1,1 @@
-uniform float uAlpha;varying vec2 vUv;void main(){float r=length(vUv);if(r>1.)discard;float a=uAlpha*smoothstep(1.,.988,r);gl_FragColor=vec4(vec3(.012,.01,.016)*a,a);}
+uniform float uAlpha;varying vec2 vUv;void main(){float r=length(vUv);if(r>1.)discard;float a=uAlpha*(1.0 - smoothstep(.988,1.,r));gl_FragColor=vec4(vec3(.012,.01,.016)*a,a);}

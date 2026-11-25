@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.client.render.machine.nexus
 
+import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.fract
 import org.joml.Vector3d
 
 internal class NexusBatches(nodes: Map<String, NexusGpu.Node>) {
@@ -28,7 +29,7 @@ internal class NexusBatches(nodes: Map<String, NexusGpu.Node>) {
         if (alpha <= 0.002) return
         ring.put(center)
         ring.put(normal)
-        ring.put(radius, width, alpha, rotation)
+        ring.put(radius, width, alpha, fract(rotation))
         ring.put(color)
         ring.put(segments, gap, dashes, duty)
         ring.put(arcStart, arc)

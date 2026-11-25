@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.client.render.machine.nexus
 
+import com.gtladd.gtladditions.client.RenderUtils.rotationRadians
 import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.WHITE
 import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.fract
 import com.gtladd.gtladditions.client.render.machine.nexus.NexusFrame.Companion.mix
@@ -10,6 +11,7 @@ import org.joml.Matrix4f
 import org.joml.Quaternionf
 import org.joml.Vector3d
 import org.joml.Vector3f
+import kotlin.math.IEEErem
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.exp
@@ -156,22 +158,24 @@ internal object NexusFleet {
             beam.matrix.translation(center.x.toFloat(), center.y.toFloat(), 34f).scale(6.2f, 6.2f, (ship.z - 2.88 - 34).toFloat())
             beam.value("uAlpha", 0.17 * power * dock[i] * f.glow)
             beam.value("uHead", 0.0)
-            beam.value("uDash", 9.0, 0.22)
+            beam.value("uDash", fract(f.time * 9.0 * 0.22), 0.22)
 
             val padAlpha = if (power < 0.02) 0.072 else (0.32 + (0.85 - 0.32) * dock[i]) * max(power, 0.3)
-            val padClock = if (f.state == "unlock" && f.age in 10.0..16.0) f.time - f.age + 10 else f.time
+            val padClock = if (f.state == "unlock" && f.age in 10.0..16.0) f.animationState.getDouble("since") / 20.0 + 10.0 else f.time
             val burst = if (f.burst in 0.0..1.4) f.burst / 1.4 else -1.0
 
             for (part in 0..1) {
                 val pad = state.pads[i][part]
                 pad.visible = part == 0 || burst >= 0
-                pad.value("uRot", padClock * 0.02, -padClock * 0.05)
+                pad.value("uRot", fract(padClock * 0.02), fract(-padClock * 0.05))
                 pad.value("uA", padAlpha)
                 pad.value("uB", burst)
             }
 
             val cable = state.cables[i]
             cable.visible = true
+            cable.value("uFlowPhase", rotationRadians(f.time * 6.0 * 0.42))
+            cable.value("uCablePhase", fract(f.time * 0.45), (f.time * 0.22).IEEErem(2 * PI))
             cable.value(
                 "uBody",
                 mix(Vector3d(0.365, 0.4, 0.447), Vector3d(0.043, 0.055, 0.078), f.inverse)

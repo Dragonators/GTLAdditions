@@ -3,9 +3,9 @@ varying vec3 vP;varying vec3 vN;varying vec3 vT;varying float vRole;varying vec2
 float hh3(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
 vec3 envD(vec3 P,vec3 R,vec3 ice,float bk,float bw){
   float up=R.z,az=atan(R.y,R.x);vec3 e=mix(vec3(.006,.009,.018),vec3(.05,.07,.13),smoothstep(-.1,.6,up));
-  e+=ice*exp(-pow((up-.03)/.15,2.))*(.18+.4*pow(.5+.5*cos(az*6.),4.))+vec3(.006,.007,.009)*smoothstep(.05,-.5,up);
+  e+=ice*exp(-pow((up-.03)/.15,2.))*(.18+.4*pow(.5+.5*cos(az*6.),4.))+vec3(.006,.007,.009)*(1.0 - smoothstep(-.5,.05,up));
   float rr=dot(R.xy,R.xy);if(rr>1e-4){float t=-dot(P.xy,R.xy)/rr,z=P.z+t*R.z;vec2 q=P.xy+t*R.xy;
-    if(t>0.&&z>10.&&z<980.){float d2=dot(q,q);e+=vec3(.78,.8,1.)*bk*(exp(-d2/(6.*bw))*.9+exp(-d2/(60.*bw))*.22)*smoothstep(980.,600.,z);}}
+    if(t>0.&&z>10.&&z<980.){float d2=dot(q,q);e+=vec3(.78,.8,1.)*bk*(exp(-d2/(6.*bw))*.9+exp(-d2/(60.*bw))*.22)*(1.0 - smoothstep(600.,980.,z));}}
   return e;}
 void main(){
   vec3 n=normalize(vN),V=normalize(uCam-vP);if(dot(n,V)<0.)n=-n;
@@ -39,7 +39,7 @@ void main(){
     float fl=uLook>5.5?.12+.88*pow(.5+.5*sin((vUV.x-uFlow)*6.2831853/uFlowL),2.):1.;
     vec3 b=vec3(.03,.033,.04)*(.8+.4*w);col=(b*lit+F*(Env*envK+uKey*an*(.7+.6*w)))*ao+glowC*E*fl*1.2*smoothstep(.25,.55,depth);farC=col*.5+uIce*E*fl*.46;far=1.;}
   else if(bead){
-    float dsk=smoothstep(al+.025,al-.025,rA);col=mix(col,uKey*1.7,dsk*(1.-uInv));col*=1.-dsk*uInv;col+=uGold*1.8*exp(-pow((rA-al)/.05,2.))*uInv+uIce*vBoost*.22*E;}
+    float dsk=1.0 - smoothstep(al-.025,al+.025,rA);col=mix(col,uKey*1.7,dsk*(1.-uInv));col*=1.-dsk*uInv;col+=uGold*1.8*exp(-pow((rA-al)/.05,2.))*uInv+uIce*vBoost*.22*E;}
   if(uEdgeK>0.&&abs(role-1.)<.5)col+=glowC*uE*uEdgeK;
   if(far>.5)col=mix(farC,col,vLod);
   gl_FragColor=vec4(col,1.);}

@@ -47,7 +47,7 @@ internal class NexusFrame(
     val ignition = eventTick / 20.0 + 16
 
     fun eventAge(offset: Double, duration: Double): Double? = if (eventId > 0) {
-        SubspaceNexusTimeline.eventAge(animationState, time * 20, eventTick, offset, duration)
+        SubspaceNexusTimeline.eventAge(animationState, tick, eventTick, offset, duration)
     } else {
         null
     }
@@ -87,10 +87,12 @@ internal class NexusFrame(
     val orbitRadii = doubleArrayOf(25.0, 31.5, 38.0, 44.5)
     val planetAngles = SubspaceNexusTimeline.planetAngles(animationState, tick, eventTick)
 
+    fun orbitAngle(i: Int): Double = Math.toRadians(planetAngles[i]) + 2 * PI * (0.55 + 0.3 * i) * fall[i] * fall[i]
+
     val planets = List(4) { i ->
         val progress = fall[i]
         val r = orbitRadii[i] + (starRadius * 0.98 - orbitRadii[i]) * progress.pow(1.6)
-        val angle = planetAngles[i] * PI / 180 + 2 * PI * (0.55 + 0.3 * i) * progress * progress
+        val angle = orbitAngle(i)
         Vector3d(r * cos(angle), r * sin(angle), 88.0)
     }
 

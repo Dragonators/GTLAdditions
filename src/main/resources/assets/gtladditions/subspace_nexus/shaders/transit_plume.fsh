@@ -11,9 +11,9 @@ void main() {
     float u = vUv.x;
     float r = abs(vUv.y);
     if (vEnv <= 0.0005 || r >= 1.0) discard;
-    float env = vEnv * smoothstep(0.0, 0.08, u) * smoothstep(1.0, 0.90, u);
+    float env = vEnv * smoothstep(0.0, 0.08, u) * (1.0 - smoothstep(0.90,1.0,u));
     float wisp = 0.84 + 0.10 * sin(u * 14.0) + 0.06 * sin(u * 25.0) * cos(vUv.y * 2.2);
-    float edge = smoothstep(1.0, 0.68, r);
+    float edge = (1.0 - smoothstep(0.68,1.0,r));
     float a = vAlpha * env * uGlow;
     float skirt = exp(-r * r * 2.1);
     float cushion = clamp(a * 0.4 * skirt * edge, 0.0, 0.82);

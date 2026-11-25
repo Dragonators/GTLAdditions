@@ -1,12 +1,12 @@
-uniform vec3 uCam;uniform float uPix;uniform float uTime;uniform vec3 uStarC;uniform vec3 uLight;uniform float uAmb;uniform float uNeg;uniform float uRimG;uniform vec3 uGold;uniform vec3 uTech;uniform vec3 uPC;uniform float uPR;
+uniform vec3 uCam;uniform float uPix;uniform float uLinePhase;uniform float uCloudPhase[3];uniform vec3 uStarC;uniform vec3 uLight;uniform float uAmb;uniform float uNeg;uniform float uRimG;uniform vec3 uGold;uniform vec3 uTech;uniform vec3 uPC;uniform float uPR;
 uniform float uW;uniform float uSeed;uniform float uStyle;uniform float uSegN;uniform vec3 uSteel;uniform float uLineK;uniform float uHalfB;uniform float uGlyphH;
 varying vec3 vP;varying vec3 vN;varying float vU;varying float vY;varying float vRole;varying float vRad;
 float hh(float n){return fract(sin(n*127.1+.3)*43758.5453);}
-float h31(vec3 p){p=fract(p*vec3(.1031,.1030,.0973));p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
+float h31(vec3 p){p=fract((p-1024.*floor((p+512.)/1024.))*vec3(.1031,.1030,.0973));p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
 float vnoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
   return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),
              mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z);}
-float fbm3(vec3 p){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*vnoise(p);p=p*2.07+vec3(5.3,1.1,7.7);a*=.5;}return s/.875;}
+float fbm3(vec3 p,bool moving){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*vnoise(p+vec3(moving?uCloudPhase[i]:0.,0,0));p=p*2.07+vec3(5.3,1.1,7.7);a*=.5;}return s/.875;}
 float sgm(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;return length(pa-ba*clamp(dot(pa,ba)/dot(ba,ba),0.,1.));}
 void main(){
   vec3 n=normalize(vN),V=normalize(uCam-vP);if(dot(n,V)<0.)n=-n;
@@ -18,7 +18,7 @@ void main(){
   if(joint){alb=uSteel*.68;ks=1.25;}
   if(abs(role-1.)<.5){alb=uSteel*1.18;ks=1.3;}
   if(outer&&uLineK>0.){float lw=max(.005,.5*px),la=min(1.,.005/lw),ll=1.-smoothstep(lw*.5,lw+px*.5,abs(y));
-    emi+=uTech*ll*la*uLineK*(.45+.55*pow(.5+.5*sin(u*18.85-uTime*.7+uSeed),4.));}
+    emi+=uTech*ll*la*uLineK*(.45+.55*pow(.5+.5*sin(u*18.85-uLinePhase+uSeed),4.));}
   if((inner||joint)&&uStyle<2.5){float g3=u*uSegN*5.,c3=mod(floor(g3),uSegN*5.),f3=fract(g3),wid=(C/uSegN)/5.,on=step(.55,hh(c3*3.17+uSeed)),lod=1.-smoothstep(.006,.016,px),wy=1.-smoothstep(.004,.004+px,abs(y)),wx=1.-smoothstep(.0055,.0055+px,abs(f3-.5)*wid);
     emi+=vec3(1.,.82,.6)*on*wy*wx*lod*.85+vec3(1.,.8,.55)*.03*(1.-lod)*step(abs(y),.012);}
   if(uStyle>1.5&&uStyle<2.5&&outer){
@@ -31,10 +31,10 @@ void main(){
     emi+=uTech*.06*(1.-lod)*(1.-smoothstep(gh*.5,gh*.5+px,abs(y)));}
   float nl=dot(n,L);
   if(uStyle>2.5&&inner){
-    float th=u*6.2831853,yy=vY/uHalfB;vec3 q=vec3(cos(th)*5.,sin(th)*5.,yy*1.6)+uSeed;float h=fbm3(q),land=smoothstep(.47,.53,h);
-    alb=mix(vec3(.05,.18,.36),mix(vec3(.19,.32,.15),vec3(.5,.46,.34),smoothstep(.53,.72,h)),land);float cl=smoothstep(.55,.72,fbm3(q*2.3+vec3(uTime*.02,0.,0.)));alb=mix(alb,vec3(.86,.9,.94),cl*.6);
+    float th=u*6.2831853,yy=vY/uHalfB;vec3 q=vec3(cos(th)*5.,sin(th)*5.,yy*1.6)+uSeed;float h=fbm3(q,false),land=smoothstep(.47,.53,h);
+    alb=mix(vec3(.05,.18,.36),mix(vec3(.19,.32,.15),vec3(.5,.46,.34),smoothstep(.53,.72,h)),land);float cl=smoothstep(.55,.72,fbm3(q*2.3,true));alb=mix(alb,vec3(.86,.9,.94),cl*.6);
     float edge=smoothstep(.8,.9,abs(yy));alb=mix(alb,uSteel*.5,edge);ks=.12+.8*edge;
-    vec2 gg=vec2(u*1100.,yy*18.);float lod=1.-smoothstep(.006,.016,px),cc=step(.78,h31(vec3(floor(gg),3.)))*(1.-smoothstep(.2,.48,length(fract(gg)-.5)))*mix(.25,1.,land)*(1.-.7*cl);emi+=vec3(1.,.8,.55)*smoothstep(.1,-.2,nl)*(cc*lod+.09*mix(.25,1.,land)*(1.-lod))*(1.-edge);}
+    vec2 gg=vec2(u*1100.,yy*18.);float lod=1.-smoothstep(.006,.016,px),cc=step(.78,h31(vec3(floor(gg),3.)))*(1.-smoothstep(.2,.48,length(fract(gg)-.5)))*mix(.25,1.,land)*(1.-.7*cl);emi+=vec3(1.,.8,.55)*(1.0 - smoothstep(-.2,.1,nl))*(cc*lod+.09*mix(.25,1.,land)*(1.-lod))*(1.-edge);}
   vec3 oc=vP-uPC;float b=dot(oc,L),dc=sqrt(max(0.,dot(oc,oc)-b*b)),sh=b<0.?1.-smoothstep(uPR*.9,uPR*1.08,dc):0.;
   float diff=max(0.,nl*.85+.15)*(1.-sh),NV=abs(dot(n,V));
   vec3 key=uLight*1.05,fill=vec3(.05,.065,.1)*(.6+.4*n.z)+uAmb*.25,R=reflect(-V,n);float rA=acos(clamp(dot(R,L),-1.,1.)),hl=exp(-rA*rA/.22)*(1.-sh);

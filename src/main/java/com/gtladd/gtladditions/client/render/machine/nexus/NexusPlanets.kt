@@ -18,6 +18,10 @@ import org.joml.Vector3f
 import kotlin.math.*
 
 internal object NexusPlanets {
+    private val surfaceOctaves = FloatArray(5)
+    private val slotOctaves = FloatArray(3)
+    private val trafficOctaves = FloatArray(3)
+
     class State(nodes: Map<String, NexusGpu.Node>) {
         val definitions: JsonArray = NexusGpu.manifest().getAsJsonArray("planetDefinitions")
         val bodies = Array(4) { index ->
@@ -55,14 +59,21 @@ internal object NexusPlanets {
             node.value("uAmb", 0.06 + 0.05 * f.ambient)
             node.value("uStarR", f.starRadius)
             node.value("uLight", 0.902, 0.902, 1.0)
-            node.value("uAmb", 0.06 + 0.05 * f.ambient)
+        }
+
+        fun surface(node: NexusGpu.Node) {
+            light(node)
+            val speed = if (node.scalarValue("uKind") == 3f) 0.006 else 0.012
+            node.value("uCloudPhase", NexusBeamClock.noiseOctaves(f.time * speed, 2.03, surfaceOctaves))
+            node.value("uBandPhase", rotationRadians(f.time * 0.8))
+            node.value("uLavaPhase", f.time * 0.004 % 1024.0, (f.time * 1.3).IEEErem(2 * PI))
         }
 
         for (i in 0..3) {
             val d = definitions[i].asJsonObject
             val center = f.planets[i]
             val scale = scales[i]
-            val a = Math.toRadians(f.planetAngles[i]) + 2 * PI * (0.55 + 0.3 * i) * f.fall[i].pow(2)
+            val a = f.orbitAngle(i)
 
             if (i == 0) {
                 starkiller(state, f, center, radii[i], a, scale > 0.01, neg)
@@ -71,7 +82,7 @@ internal object NexusPlanets {
                 node.visible = scale > 0.01
                 node.matrix.translation(center.x.toFloat(), center.y.toFloat(), center.z.toFloat()).scale(max(0.001, scale).toFloat())
                 node.value("uSpin", Matrix3f().rotationZ(rotationRadians(a * (d.get("spin")?.asDouble ?: 4.0) + i)).get(FloatArray(9)))
-                light(node)
+                surface(node)
             }
 
             if (i == 2) {
@@ -109,7 +120,7 @@ internal object NexusPlanets {
                     moon.visible = scale > 0.01
                     moon.matrix.translation(p.x.toFloat(), p.y.toFloat(), p.z.toFloat()).scale(max(0.001, scale).toFloat())
                     moon.value("uSpin", Matrix3f().rotationZ(rotationRadians(ma * 0.5)).get(FloatArray(9)))
-                    light(moon)
+                    surface(moon)
                 }
             }
 
@@ -118,8 +129,9 @@ internal object NexusPlanets {
             orbit.visible = alpha > 0.003
             orbit.value("uA", alpha)
             orbit.value("uR", f.orbitRadii[i] * (1 - 0.08 * f.vanish.pow(2)))
-            orbit.value("uTh0", f.planetAngles[i] / 360)
-            orbit.value("uArc", f.planetAngles[i] / 360 - 0.02, f["orbitDraw"])
+            val turn = fract(f.planetAngles[i] / 360.0)
+            orbit.value("uTh0", turn)
+            orbit.value("uArc", fract(turn - 0.02), f["orbitDraw"])
             orbit.value(
                 "uGap",
                 if (f.fall[i] > 0.001) {
@@ -161,6 +173,8 @@ internal object NexusPlanets {
         val ez = Vector3d(ex).cross(ey)
 
         val node = state.bodies[0]
+        node.value("uBreathPhase", rotationRadians(f.time * 1.3))
+        node.value("uSlotPhase", NexusBeamClock.noiseOctaves(f.time * 0.5, 2.07, slotOctaves))
         node.visible = visible
         node.matrix.translation(c.x.toFloat(), c.y.toFloat(), c.z.toFloat()).scale(max(0.001, radius).toFloat())
         node.value("uC", c.x, c.y, c.z)
@@ -268,6 +282,8 @@ internal object NexusPlanets {
                 val size = 0.2 * radius
 
                 val wheel = state.trafficWheel
+                wheel.value("uLinePhase", rotationRadians(f.time * 0.7))
+                wheel.value("uCloudPhase", NexusBeamClock.noiseOctaves(f.time * 0.02, 2.07, trafficOctaves))
                 wheel.visible = true
                 wheel.matrix.translation(p.x.toFloat(), p.y.toFloat(), p.z.toFloat())
                     .rotate(q)
@@ -316,6 +332,7 @@ internal object NexusPlanets {
             }
 
             val color = mix(Vector3d(0.95, 0.97, 1.0), GOLD, f.inverse)
+            link.value("uBeatPhase", fract(f.time * 0.4))
             link.value("uA", 0.42 * fade)
             link.value("uCol", color.x, color.y, color.z)
         }

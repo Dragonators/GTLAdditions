@@ -1,12 +1,12 @@
-uniform vec3 uCam;uniform float uPix;uniform float uTime;uniform mat3 uW2L;uniform vec3 uC;uniform float uS;uniform vec3 uStarC;uniform float uStarR;uniform vec3 uLight;uniform float uAmb;uniform float uNeg;uniform float uRimG;uniform vec3 uGold;uniform vec3 uFire;uniform vec3 uHot;uniform vec3 uAtmo;
+uniform vec3 uCam;uniform float uPix;uniform float uBreathPhase;uniform float uSlotPhase[3];uniform mat3 uW2L;uniform vec3 uC;uniform float uS;uniform vec3 uStarC;uniform float uStarR;uniform vec3 uLight;uniform float uAmb;uniform float uNeg;uniform float uRimG;uniform vec3 uGold;uniform vec3 uFire;uniform vec3 uHot;uniform vec3 uAtmo;
 uniform sampler2D uMap;uniform float uMapK;uniform vec3 uTint;uniform vec4 uShad[4];uniform float uShadW;
 varying vec3 vP;
 float hh(float n){return fract(sin(n*127.1+.3)*43758.5453);}
-float h31(vec3 p){p=fract(p*vec3(.1031,.1030,.0973));p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
+float h31(vec3 p){p=fract((p-1024.*floor((p+512.)/1024.))*vec3(.1031,.1030,.0973));p+=dot(p,p.yxz+33.33);return fract((p.x+p.y)*p.z);}
 float vnoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
   return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),
              mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z);}
-float fbm3(vec3 p){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*vnoise(p);p=p*2.07+vec3(5.3,1.1,7.7);a*=.5;}return s/.875;}
+float fbm3(vec3 p){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*vnoise(p+vec3(0,0,uSlotPhase[i]));p=p*2.07+vec3(5.3,1.1,7.7);a*=.5;}return s/.875;}
 const float RF1=.945,RF2=.885,RP=.2,X0=.4,CW=.05;
 float wid(float lam){return mix(.085,.31,exp(-lam*lam/.46));}
 float ribs(float x){return .5+.5*cos(x*75.4);}
@@ -30,7 +30,7 @@ void main(){
   if(!hit&&d>.012)discard;
   float r=length(p),q=length(p.yz),lam=atan(p.y,p.x),z=abs(p.z),w=wid(lam);bool ice=r>.9975;
   vec3 n=ice?normalize(p):calcN(p),wp=uC+(p*uW2L)*uS,V=-rd,Lw=normalize(uStarC-wp),Ll=normalize(uW2L*Lw);
-  float nl=dot(n,Ll),mu=max(0.,dot(n,V)),px=uPix*length(uCam-wp)/uS,breath=.92+.08*sin(uTime*1.3),sa=min(.92,uStarR/length(uStarC-wp)),lit=sphLight(nl,sa);
+  float nl=dot(n,Ll),mu=max(0.,dot(n,V)),px=uPix*length(uCam-wp)/uS,breath=.92+.08*sin(uBreathPhase),sa=min(.92,uStarR/length(uStarC-wp)),lit=sphLight(nl,sa);
   vec3 col,E=vec3(0.);
   if(ice){
     vec3 tc=uMapK>.5?texEq(uMap,normalize(p)).rgb:vec3(.8,.86,.94);tc=mix(vec3(dot(tc,vec3(.3,.5,.2))),tc,.3)*uTint;
@@ -42,7 +42,7 @@ void main(){
     E+=uFire*.05*exp(-q*q/.09)*(1.-smoothstep(-.1,.3,nl))*breath;
   }else if(q<RP+.0025&&p.x<.93){
     float k=clamp((.9-p.x)/(.9-X0),0.,1.),hot=exp(-q*q/.0055);
-    if(p.x<X0+.003){float n1=fbm3(vec3(p.yz*16.,uTime*.5));E=mix(uFire,uHot,hot)*(1.15+1.7*hot)*(.8+.4*n1)*(.74+.26*cos(q*105.));}
+    if(p.x<X0+.003){float n1=fbm3(vec3(p.yz*16.,0.));E=mix(uFire,uHot,hot)*(1.15+1.7*hot)*(.8+.4*n1)*(.74+.26*cos(q*105.));}
     else E=uFire*(.22+1.35*k*k)*(.3+.95*smoothstep(.3,.95,ribs(p.x)))+uHot*.25*k*k*k;
     E*=breath;col=vec3(0.);
   }else{
@@ -61,7 +61,7 @@ void main(){
     float H=pow(max(0.,dot(n,normalize(Ll+V))),24.)*.3*diff;
     col=alb*(uAmb*1.2+vec3(.008,.01,.016)+diff*uLight*1.25)+uLight*H;
   }
-  col=mix(col,vec3(.008,.007,.01)+uGold*.05,uNeg)+uGold*uRimG*(ice?pow(1.-mu,7.)*1.25+smoothstep(.09,0.,mu)*.85:0.);
+  col=mix(col,vec3(.008,.007,.01)+uGold*.05,uNeg)+uGold*uRimG*(ice?pow(1.-mu,7.)*1.25+(1.0 - smoothstep(0.,.09,mu))*.85:0.);
   E*=1.15;col+=E/(1.+.3*max(E.r,max(E.g,E.b)))*(1.-.55*uNeg);
   vec4 cp=projectionMatrix*viewMatrix*vec4(wp,1.);gl_FragDepth=.5*cp.z/cp.w+.5;
   gl_FragColor=vec4(col,1.);}
