@@ -62,10 +62,10 @@ class CloudOpticalDataMachine(holder: IMachineBlockEntity) :
         private set
 
     @Persisted
-    protected val importItems = NotifiableItemStackHandler(this, 90, IO.BOTH)
+    private val importItems = NotifiableItemStackHandler(this, 90, IO.BOTH)
 
     @Persisted
-    protected val createItem = NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH) {
+    private val createItem = NotifiableItemStackHandler(this, 1, IO.NONE, IO.BOTH) {
         object : ItemStackTransfer(1) {
             override fun getSlotLimit(slot: Int): Int = 1
         }

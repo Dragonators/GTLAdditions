@@ -2,7 +2,7 @@
 navigation:
   title: Forge of the Antichrist
   icon: forge_of_the_antichrist
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 43
 categories:
   - multiblock controller

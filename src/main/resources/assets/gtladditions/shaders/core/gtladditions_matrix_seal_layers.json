@@ -1,0 +1,19 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "1-srcalpha", "srcalpha": "one", "dstalpha": "1-srcalpha"},
+  "vertex": "gtladditions:gtladditions_matrix_seal",
+  "fragment": "gtladditions:gtladditions_matrix_seal_layers",
+  "attributes": ["Position", "Color"],
+  "samplers": [{"name": "SceneDepth"}],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "Intensity", "type": "float", "count": 1, "values": [1]},
+    {"name": "SceneViewport", "type": "float", "count": 2, "values": [0, 0]},
+    {"name": "LayerDepths", "type": "int", "count": 1, "values": [3]},
+    {"name": "LayerCount", "type": "int", "count": 1, "values": [0]},
+    {"name": "LayerBase", "type": "int", "count": 1, "values": [0]},
+    {"name": "LayerMode", "type": "int", "count": 1, "values": [0]},
+    {"name": "LayerOrigin", "type": "float", "count": 2, "values": [0, 0]},
+    {"name": "LayerRect", "type": "float", "count": 4, "values": [0, 0, 0, 0]}
+  ]
+}

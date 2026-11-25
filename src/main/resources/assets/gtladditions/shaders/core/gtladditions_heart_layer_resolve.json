@@ -1,0 +1,35 @@
+{
+  "vertex": "gtladditions:gtladditions_heart_post",
+  "fragment": "gtladditions:gtladditions_heart_layer_resolve",
+  "attributes": [
+    "Position",
+    "UV0"
+  ],
+  "samplers": [
+    {
+      "name": "Base"
+    },
+    {
+      "name": "Layer0"
+    },
+    {
+      "name": "Layer1"
+    },
+    {
+      "name": "Layer2"
+    },
+    {
+      "name": "Layer3"
+    }
+  ],
+  "uniforms": [
+    {"name":"HeartImages","type":"int","count":1,"values":[5]},
+    {"name":"LayerDepths","type":"int","count":1,"values":[6]},
+
+    {"name":"Origin","type":"float","count":2,"values":[0,0]},
+    {"name":"Count","type":"int","count":1,"values":[0]},
+    {"name":"LayerBase","type":"int","count":1,"values":[0]},
+    {"name": "ImageRects", "type": "int", "count": 1, "values": [7]},
+    {"name": "ImageStorageSize", "type": "float", "count": 2, "values": [1, 1]}
+  ]
+}

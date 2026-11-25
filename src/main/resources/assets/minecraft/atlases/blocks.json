@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:directory",
+      "source": "effect/astrograph/planets",
+      "prefix": "effect/astrograph/planets/"
+    }
+  ]
+}

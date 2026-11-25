@@ -1,8 +1,8 @@
 package com.gtladd.gtladditions.client.render.machine.heart
 
-import com.mojang.blaze3d.platform.GlStateManager
+import com.gtladd.gtladditions.api.client.scene.SceneDepth
+import com.gtladd.gtladditions.client.RenderUtils
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.VertexBuffer
 import net.minecraft.client.renderer.ShaderInstance
 import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11C
@@ -10,19 +10,26 @@ import org.lwjgl.opengl.GL14C
 
 internal object HeartBlackHoleCompositeRenderer {
     private val IDENTITY_MATRIX = Matrix4f()
+    private val BLOOM_SAMPLERS = arrayOf("BloomSampler", "BloomSampler1", "BloomSampler2", "BloomSampler3", "BloomSampler4")
 
-    fun renderPendingComposite(width: Int, height: Int, pending: PendingHeartComposite) {
+    fun renderPendingComposite(
+        width: Int,
+        height: Int,
+        pending: PendingHeartComposite,
+        handMask: Int = 0,
+        writeAlpha: Boolean = false,
+        origin: IntArray? = null
+    ) {
         val compositeShader = HeartBlackHoleShaders.compositeShader ?: return
-        val previousState = PendingCompositeState.capture()
-
-        try {
-            RenderSystem.viewport(0, 0, width, height)
-            HeartBlackHoleFramebuffer.prepareFramebufferWrite(false)
-            RenderSystem.colorMask(true, true, true, false)
+        HeartBlackHoleRenderState.withSavedState {
+            if (!HeartBlackHoleFramebuffer.isComplete("composite framebuffer")) return@withSavedState
+            RenderSystem.viewport(-(origin?.get(0) ?: 0), -(origin?.get(1) ?: 0), width, height)
+            compositeShader.getUniform("CompositeOrigin")?.set((origin?.get(0) ?: 0).toFloat(), (origin?.get(1) ?: 0).toFloat())
+            HeartBlackHoleRenderState.prepareColorWrite(writeAlpha = writeAlpha)
             RenderSystem.disableDepthTest()
-            RenderSystem.depthMask(false)
             RenderSystem.disableCull()
             RenderSystem.enableBlend()
+            RenderSystem.blendEquation(GL14C.GL_FUNC_ADD)
             RenderSystem.blendFuncSeparate(
                 GL11C.GL_ONE,
                 GL11C.GL_ONE_MINUS_SRC_ALPHA,
@@ -30,69 +37,38 @@ internal object HeartBlackHoleCompositeRenderer {
                 GL11C.GL_ONE_MINUS_SRC_ALPHA
             )
 
-            drawCompositeQuad(compositeShader, pending)
-        } finally {
-            VertexBuffer.unbind()
-            compositeShader.clear()
-            previousState.restore()
+            try {
+                drawCompositeQuad(compositeShader, pending, handMask)
+            } finally {
+                compositeShader.clear()
+            }
         }
     }
 
     private fun drawCompositeQuad(
         compositeShader: ShaderInstance,
-        pending: PendingHeartComposite
+        pending: PendingHeartComposite,
+        handMask: Int
     ) {
         compositeShader.setSampler("EffectSampler", pending.targets.effect.colorTextureId)
-        compositeShader.setSampler("BlurredEffectSampler", pending.targets.effectBlurB.colorTextureId)
-        compositeShader.setSampler("MaskSampler", pending.targets.mask.colorTextureId)
-        compositeShader.setSampler("BlurredMaskSampler", pending.targets.maskBlurB.colorTextureId)
+        compositeShader.setSampler("BlurredEffectSampler", pending.targets.effectBlurred.colorTextureId)
+        compositeShader.setSampler("MaskSampler", pending.targets.effect.colorTextureId)
+        compositeShader.setSampler("BlurredMaskSampler", pending.targets.maskBlurred.colorTextureId)
+        compositeShader.setSampler("HandMaskSampler", if (handMask != 0) handMask else pending.targets.effect.colorTextureId)
+        compositeShader.getUniform("HandMaskEnabled")?.set(if (handMask != 0) 1f else 0f)
+        HeartBlackHoleFramebuffer.bindSceneDepth(compositeShader, pending.depth)
+        compositeShader.getUniform("HeartSpheres")?.set(pending.spheres)
+        pending.targets.bloomLevels.forEachIndexed { index, level ->
+            compositeShader.setSampler(BLOOM_SAMPLERS[index], level.blurred.colorTextureId)
+        }
+
         compositeShader.getUniform("BlurInputScale")?.set(
             pending.width.toFloat() / pending.blurWidth.toFloat(),
             pending.height.toFloat() / pending.blurHeight.toFloat()
         )
 
-        HeartBlackHoleQuadBuffers.screenQuadBuffer.bind()
-        HeartBlackHoleQuadBuffers.screenQuadBuffer.drawWithShader(IDENTITY_MATRIX, IDENTITY_MATRIX, compositeShader)
-    }
-
-    @Suppress("ArrayInDataClass")
-    private data class PendingCompositeState(
-        val viewport: IntArray,
-        val blendEnabled: Boolean,
-        val depthTestEnabled: Boolean,
-        val cullEnabled: Boolean,
-        val depthMask: Boolean,
-        val blendSrcRgb: Int,
-        val blendDstRgb: Int,
-        val blendSrcAlpha: Int,
-        val blendDstAlpha: Int
-    ) {
-        fun restore() {
-            RenderSystem.blendFuncSeparate(blendSrcRgb, blendDstRgb, blendSrcAlpha, blendDstAlpha)
-            if (blendEnabled) RenderSystem.enableBlend() else RenderSystem.disableBlend()
-            if (depthTestEnabled) RenderSystem.enableDepthTest() else RenderSystem.disableDepthTest()
-            if (cullEnabled) RenderSystem.enableCull() else RenderSystem.disableCull()
-            RenderSystem.colorMask(true, true, true, true)
-            RenderSystem.depthMask(depthMask)
-            RenderSystem.viewport(viewport[0], viewport[1], viewport[2], viewport[3])
-        }
-
-        companion object {
-            fun capture(): PendingCompositeState {
-                val viewport = IntArray(4)
-                GL11C.glGetIntegerv(GL11C.GL_VIEWPORT, viewport)
-                return PendingCompositeState(
-                    viewport,
-                    GL11C.glIsEnabled(GL11C.GL_BLEND),
-                    GL11C.glIsEnabled(GL11C.GL_DEPTH_TEST),
-                    GL11C.glIsEnabled(GL11C.GL_CULL_FACE),
-                    GL11C.glGetBoolean(GL11C.GL_DEPTH_WRITEMASK),
-                    GlStateManager._getInteger(GL14C.GL_BLEND_SRC_RGB),
-                    GlStateManager._getInteger(GL14C.GL_BLEND_DST_RGB),
-                    GlStateManager._getInteger(GL14C.GL_BLEND_SRC_ALPHA),
-                    GlStateManager._getInteger(GL14C.GL_BLEND_DST_ALPHA)
-                )
-            }
+        RenderUtils.withBoundBuffer(HeartBlackHoleQuadBuffers.screenQuadBuffer) {
+            HeartBlackHoleQuadBuffers.screenQuadBuffer.drawWithShader(IDENTITY_MATRIX, IDENTITY_MATRIX, compositeShader)
         }
     }
 }
@@ -102,5 +78,8 @@ internal data class PendingHeartComposite(
     val width: Int,
     val height: Int,
     val blurWidth: Int,
-    val blurHeight: Int
+    val blurHeight: Int,
+    val depth: SceneDepth,
+    /** One proxy sphere per column, view-space centre and radius; a zero radius ends the list. */
+    val spheres: Matrix4f
 )

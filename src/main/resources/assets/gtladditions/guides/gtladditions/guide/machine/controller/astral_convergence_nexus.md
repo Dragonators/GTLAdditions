@@ -2,7 +2,7 @@
 navigation:
   title: Astral Convergence Nexus
   icon: astral_convergence_nexus
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 36
 categories:
   - multiblock controller
@@ -20,6 +20,7 @@ item_ids:
 
 * <ItemLink id="gtladditions:astral_convergence_nexus" /> is a module machine for <ItemLink id="gtceu:space_elevator" /> and mainly processes space assembly module recipes.
 * It must connect to <ItemLink id="gtceu:space_elevator" />. If the <ItemLink id="gtceu:space_elevator" /> does not satisfy its running conditions, the module will not continue progressing recipes.
+* Each voltage tier of the connected space elevator above UV multiplies module recipe duration by 80%; once connected, the UI shows the current duration multiplier.
 * The machine supports laser input and cross-recipe parallelization.
 * The structure can install <ItemLink id="gtladditions:thread_modifier_hatch" />.
 

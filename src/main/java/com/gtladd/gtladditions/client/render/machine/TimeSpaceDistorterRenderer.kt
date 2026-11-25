@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.machine.multiblock.controller.TimeSpaceDistorter
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
@@ -21,7 +22,7 @@ import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
-import org.gtlcore.gtlcore.utils.RenderUtil
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.joml.Matrix3f
 import org.joml.Matrix4f
 import kotlin.math.roundToInt
@@ -44,12 +45,14 @@ class TimeSpaceDistorterRenderer :
         if (blockEntity !is IMachineBlockEntity) return
 
         val machine = blockEntity.metaMachine as? TimeSpaceDistorter ?: return
-        if (!machine.shouldRenderMagicCircleEffect()) return
+        if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.shouldRenderMagicCircleEffect()) return
 
-        val tick = RenderUtil.getSmoothTick(machine, partialTicks)
+        val tick = RenderUtils.getContinuousRenderTick(machine, partialTicks)
         val center = getRotatedRenderPosition(Direction.SOUTH, machine.frontFacing, 0.0, -9.0, -5.0)
 
-        renderMagicCircle(tick, center, machine.renderCausalityDistortionLevel, poseStack, buffer)
+        val levelIndex = machine.renderCausalityDistortionLevel.coerceIn(1, 4) - 1
+        val speed = 0.62 + 0.08 * levelIndex / 3.0
+        renderMagicCircle(RenderUtils.rotationDegrees(machine, tick, speed), center, levelIndex, poseStack, buffer)
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -59,7 +62,7 @@ class TimeSpaceDistorterRenderer :
     override fun isGlobalRenderer(blockEntity: BlockEntity): Boolean = true
 
     @OnlyIn(Dist.CLIENT)
-    override fun getViewDistance(): Int = 384
+    override fun getViewDistance(): Int = 256
 
     @OnlyIn(Dist.CLIENT)
     companion object {
@@ -72,16 +75,12 @@ class TimeSpaceDistorterRenderer :
         private val LEVEL_BLUE = IntArray(4) { 255 }
 
         private fun renderMagicCircle(
-            tick: Float,
+            rotationDegrees: Float,
             center: Vec3,
-            distortionLevel: Int,
+            levelIndex: Int,
             poseStack: PoseStack,
             buffer: MultiBufferSource
         ) {
-            val levelIndex = distortionLevel.coerceIn(1, 4) - 1
-            val levelProgress = levelIndex / 3.0f
-            val rotationDegrees = tick * (0.62f + 0.08f * levelProgress)
-
             poseStack.withPose {
                 translate(center.x, center.y, center.z)
                 mulPose(Axis.YP.rotationDegrees(rotationDegrees))
@@ -150,6 +149,6 @@ class TimeSpaceDistorterRenderer :
             (value.coerceIn(0.0f, 1.0f) * 255.0f).roundToInt().coerceIn(0, 255)
 
         private fun magicCircleTexture(name: String): ResourceLocation =
-            GTLAdditions.id("textures/block/multiblock/time_space_distorter/$name.png")
+            GTLAdditions.id("textures/effect/time_space_distorter/$name.png")
     }
 }

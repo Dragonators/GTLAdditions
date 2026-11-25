@@ -2,7 +2,7 @@
 navigation:
   title: Arcane Cache Vault
   icon: arcane_cache_vault
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 23
 categories:
   - multiblock controller

@@ -33,15 +33,15 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.List;
 import java.util.Optional;
 
-import static com.gtladd.gtladditions.utils.CommonUtils.isTargetDimension;
-import static com.gtladd.gtladditions.utils.CommonUtils.selectDisplayItem;
+import static com.gtladd.gtladditions.integration.stargate.StargateDimensions.isTargetDimension;
+import static com.gtladd.gtladditions.integration.stargate.StargateDimensions.selectDisplayItem;
 
 @SuppressWarnings("all")
 @Mixin(StargateStructure.class)
 public abstract class StargateStructureMixin extends SGJourneyStructure {
 
     public StargateStructureMixin(StructureSettings config, Holder<StructureTemplatePool> startPool, Optional<ResourceLocation> startJigsawName, int size, HeightProvider startHeight, Optional<Heightmap.Types> projectStartToHeightmap, int maxDistanceFromCenter, Optional<Boolean> commonStargates) {
-        super(config, startPool, startJigsawName, size, startHeight, projectStartToHeightmap, maxDistanceFromCenter, commonStargates);
+        super(config, startPool, startJigsawName, size, startHeight, projectStartToHeightmap, maxDistanceFromCenter, Optional.empty(), commonStargates, Optional.empty(), Optional.empty());
     }
 
     /**

@@ -1,11 +1,13 @@
 package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.client.RenderMode
+import com.gtladd.gtladditions.client.RenderUtils
+import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper.getClientBeamAlpha
+import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper.getClientRenderColor
+import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper.getClientRenderRadius
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAntichrist
+import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.AntichristBlockLayout
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientBeamAlpha
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderColor
-import com.gtladd.gtladditions.utils.antichrist.ClientAnimationHelper.getClientRenderRadius
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
@@ -14,7 +16,7 @@ import java.awt.Color
 
 @OnlyIn(Dist.CLIENT)
 data class AntichristRenderProfile(
-    val tick: Float,
+    val tick: Double,
     val isWorking: Boolean,
     val facing: Direction,
     val renderMode: RenderMode,
@@ -23,7 +25,8 @@ data class AntichristRenderProfile(
     val colorG: Float,
     val colorB: Float,
     val starRadius: Float,
-    val beamAlpha: Float
+    val beamAlpha: Float,
+    val starRotationDegrees: Float
 ) {
     val shouldRenderBeam: Boolean
         get() = beamAlpha > 0.001f
@@ -38,14 +41,28 @@ data class AntichristRenderProfile(
         }
 
     companion object {
-        const val STAR_OFFSET_X = -122.0
+        const val STAR_OFFSET_X = AntichristBlockLayout.STAR_OFFSET_X
         const val BASE_STAR_RADIUS = 13.0f
         const val STAR_GAMMA = 3.0f
-        val BASE_DIRECTION: Direction = Direction.EAST
+        val BASE_DIRECTION: Direction = AntichristBlockLayout.BASE_DIRECTION
+
+        fun staticRings(facing: Direction): AntichristRenderProfile = AntichristRenderProfile(
+            tick = 0.0,
+            isWorking = false,
+            facing = facing,
+            renderMode = RenderMode.NORMAL,
+            starPos = getRotatedRenderPosition(BASE_DIRECTION, facing, STAR_OFFSET_X, 0.0, 0.0),
+            colorR = 0f,
+            colorG = 0f,
+            colorB = 0f,
+            starRadius = 0f,
+            beamAlpha = 0f,
+            starRotationDegrees = 0f
+        )
 
         fun create(
             machine: ForgeOfTheAntichrist,
-            tick: Float,
+            tick: Double,
             isWorking: Boolean
         ): AntichristRenderProfile {
             val renderMode = machine.starRitual.renderMode
@@ -62,14 +79,21 @@ data class AntichristRenderProfile(
                 colorG = ((argb32 shr 8) and 0xFF) / 255.0f,
                 colorB = (argb32 and 0xFF) / 255.0f,
                 starRadius = BASE_STAR_RADIUS * radiusMultiplier,
-                beamAlpha = getClientBeamAlpha(machine, renderMode)
+                beamAlpha = getClientBeamAlpha(machine, renderMode),
+                starRotationDegrees = if (isWorking) RenderUtils.rotationDegrees(machine, tick, rotationSpeed(renderMode)) else 0f
             )
+        }
+
+        private fun rotationSpeed(mode: RenderMode): Double = when (mode) {
+            RenderMode.RAINBOW -> 1.7
+            RenderMode.COLLAPSING -> 2.6
+            else -> 1.0
         }
 
         private fun getRenderColorAndRadius(
             renderMode: RenderMode,
             machine: ForgeOfTheAntichrist,
-            tick: Float
+            tick: Double
         ): Pair<Int, Float> = when (renderMode) {
             RenderMode.NORMAL -> machine.rgbFromTime to machine.radiusMultiplier
             RenderMode.RAINBOW -> getRainbowColor(tick) to machine.radiusMultiplier
@@ -83,8 +107,8 @@ data class AntichristRenderProfile(
             }
         }
 
-        private fun getRainbowColor(tick: Float): Int {
-            val hue = (tick % 60) / 60.0f
+        private fun getRainbowColor(tick: Double): Int {
+            val hue = ((tick % 60.0) / 60.0).toFloat()
             val color = Color.getHSBColor(hue, 1.0f, 1.0f)
             return (0xFF shl 24) or (color.red shl 16) or (color.green shl 8) or color.blue
         }

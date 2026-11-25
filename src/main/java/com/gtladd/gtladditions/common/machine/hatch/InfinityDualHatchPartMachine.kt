@@ -26,7 +26,6 @@ import com.hepdd.gtmthings.common.block.machine.trait.CatalystFluidStackHandler
 import com.hepdd.gtmthings.common.block.machine.trait.CatalystItemStackHandler
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup
 import com.lowdragmc.lowdraglib.gui.texture.TextTexture
-import com.lowdragmc.lowdraglib.gui.util.ClickData
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget
 import com.lowdragmc.lowdraglib.gui.widget.DraggableScrollableWidgetGroup
 import com.lowdragmc.lowdraglib.gui.widget.Widget
@@ -49,6 +48,7 @@ import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Block
+import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 import org.gtlcore.gtlcore.api.machine.trait.NotifiableCircuitItemStackHandler
 
 class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
@@ -179,7 +179,7 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
 
     override fun extract(what: AEKey?, amount: Long, mode: Actionable?, source: IActionSource?): Long = 0
 
-    override fun getDescription(): Component? = "block.gtladditions.infinity_input_dual_hatch".toComponent
+    override fun getDescription(): Component = "block.gtladditions.infinity_input_dual_hatch".toComponent
 
     // ========================================
     // GUI
@@ -244,7 +244,7 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
                 GuiTextures.BUTTON_DISTINCT_BUSES.getSubTexture(0.0, 0.5, 1.0, 0.5),
                 GuiTextures.BUTTON_DISTINCT_BUSES.getSubTexture(0.0, 0.0, 1.0, 0.5),
                 { this.isDistinct() },
-                { clickData: ClickData?, pressed: Boolean? -> setDistinct(pressed!!) }
+                { _, pressed: Boolean? -> setDistinct(pressed!!) }
             )
                 .setTooltipsSupplier { pressed: Boolean ->
                     listOf<Component?>(
@@ -264,7 +264,7 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
                         GuiTextures.BUTTON,
                         TextTexture("\ud83d\udd19")
                     )
-                ) { clickData: ClickData ->
+                ) { _ ->
                     this.refundAll()
                 }.setTooltips(listOf<Component>("gtmthings.machine.huge_item_bus.tooltip.1".toComponent))
                 )
@@ -305,6 +305,9 @@ class InfinityDualHatchPartMachine(holder: IMachineBlockEntity) :
         inventory.isDistinct = isDistinct
         circuitInventory.isDistinct = isDistinct
         shareInventory.isDistinct = isDistinct
+        for (controller in controllers) {
+            if (controller is IRecipeCapabilityMachine && !controller.isDistinct) controller.upDate()
+        }
     }
 
     override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER

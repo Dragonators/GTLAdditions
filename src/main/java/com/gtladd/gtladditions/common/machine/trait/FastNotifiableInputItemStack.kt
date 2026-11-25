@@ -12,7 +12,6 @@ import com.gregtechceu.gtceu.utils.ItemStackHashStrategy
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.TransferHelper
 import com.lowdragmc.lowdraglib.side.item.IItemTransfer
-import com.lowdragmc.lowdraglib.syncdata.IContentChangeAware
 import com.lowdragmc.lowdraglib.syncdata.ITagSerializable
 import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenCustomHashMap
 import it.unimi.dsi.fastutil.objects.Object2LongMap
@@ -37,8 +36,7 @@ class FastNotifiableInputItemStack(machine: MetaMachine) :
     ICapabilityTrait,
     IItemTransfer,
     IOptimizedMEList,
-    ITagSerializable<CompoundTag>,
-    IContentChangeAware {
+    ITagSerializable<CompoundTag> {
 
     private val itemInventory: Object2LongLinkedOpenCustomHashMap<ItemStack> =
         Object2LongLinkedOpenCustomHashMap(ItemStackHashStrategy.comparingAllButCount())
@@ -101,6 +99,7 @@ class FastNotifiableInputItemStack(machine: MetaMachine) :
     override fun getHandlerIO(): IO = IO.IN
 
     override fun onContentsChanged() {
+        onChanged()
         notifyListeners()
     }
 
@@ -193,8 +192,7 @@ class FastNotifiableInputItemStack(machine: MetaMachine) :
         val realInsert = min(Long.MAX_VALUE - existing, count.toLong())
 
         if (!simulate && realInsert > 0L) {
-            stack.count = 1
-            itemInventory.addTo(stack, realInsert)
+            itemInventory.addTo(stack.copyWithCount(1), realInsert)
             if (notifyChanges) this.onContentsChanged()
         }
 
@@ -225,6 +223,7 @@ class FastNotifiableInputItemStack(machine: MetaMachine) :
 
         val itemsTag = AEUtils.createListTag(ItemStack::serializeNBT, itemInventory)
         if (!itemsTag.isEmpty()) tag.put("inventory", itemsTag)
+        if (isDistinct) tag.putBoolean("isDistinct", true)
 
         return tag
     }
@@ -234,9 +233,6 @@ class FastNotifiableInputItemStack(machine: MetaMachine) :
 
         val items = tag.getList("inventory", Tag.TAG_COMPOUND.toInt())
         AEUtils.loadInventory(items, ItemStack::of, itemInventory)
+        isDistinct = tag.getBoolean("isDistinct")
     }
-
-    override fun setOnContentsChanged(onContentChanged: Runnable?) {}
-
-    override fun getOnContentsChanged(): Runnable = Runnable { }
 }

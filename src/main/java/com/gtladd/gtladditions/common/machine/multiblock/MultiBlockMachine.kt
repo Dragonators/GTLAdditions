@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.data.RotationState
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.frameGt
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController
@@ -42,18 +43,26 @@ import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectric
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricParallelHatchMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.mutable.MutableElectricMultiblockMachine
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration.Companion.REGISTRATE
+import com.gtladd.gtladditions.client.render.machine.AntientropyCondensationRenderer
+import com.gtladd.gtladditions.client.render.machine.ApocalypticMatrixRenderer
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographRender
+import com.gtladd.gtladditions.client.render.machine.DimensionFocusInfinityCraftingArrayRenderer
 import com.gtladd.gtladditions.client.render.machine.ForgeOfAntichristRenderer
+import com.gtladd.gtladditions.client.render.machine.HeartOfTheCosmosRenderer
 import com.gtladd.gtladditions.client.render.machine.HeartOfTheUniverseRenderer
 import com.gtladd.gtladditions.client.render.machine.PartWorkableCasingMachineRenderer
-import com.gtladd.gtladditions.client.render.machine.SpaceElevatorMKIIRenderer
+import com.gtladd.gtladditions.client.render.machine.RecursiveReverseRenderer
+import com.gtladd.gtladditions.client.render.machine.SpaceElevatorRenderer
 import com.gtladd.gtladditions.client.render.machine.SubspaceCorridorHubIndustrialArrayRenderer
 import com.gtladd.gtladditions.client.render.machine.TimeSpaceDistorterRenderer
+import com.gtladd.gtladditions.client.render.machine.rrf.RrfEffectKind
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.EXTREME_DENSITY_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_ENERGY_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_INNER_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_SUPPORT_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GOD_FORGE_TRIM_CASING
+import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.GRAVITY_STABILIZATION_CASING
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.MEDIARY_GRAVITON_FLOW_REGULATOR
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.PHONON_CONDUIT
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.POWER_MODULE_7
@@ -75,6 +84,8 @@ import com.gtladd.gtladditions.common.machine.multiblock.controller.bs.Biosphere
 import com.gtladd.gtladditions.common.machine.multiblock.controller.module.*
 import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.*
 import com.gtladd.gtladditions.common.machine.multiblock.structure.*
+import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.ExoticChemicalBlockLayout
+import com.gtladd.gtladditions.common.machine.multiblock.structure.layout.HeartBlockLayout
 import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION
@@ -110,6 +121,7 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.properties.SlabType
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.pattern.GTLPredicates
 import org.gtlcore.gtlcore.common.block.BlockMap
 import org.gtlcore.gtlcore.common.block.GTLFusionCasingBlock
@@ -119,7 +131,10 @@ import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.ME_EXTENDED_EXPO
 import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.ME_RECIPE_PATTERN_BUFFER
 import org.gtlcore.gtlcore.common.data.GTLMachines.GTAEMachines.STOCKING_IMPORT_BUS_ME
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
+import org.gtlcore.gtlcore.common.data.GTLRecipeModifiers
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes.*
+import org.gtlcore.gtlcore.common.data.machines.structure.AdvancedMultiBlockMachineStructureA
+import org.gtlcore.gtlcore.common.machine.multiblock.electric.SuprachronalAssemblyLineModuleMachine
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getBlock
 import org.gtlcore.gtlcore.utils.StructureSlicer
@@ -143,6 +158,7 @@ object MultiBlockMachine {
     val DRACONIC_COLLAPSE_CORE: MultiblockMachineDefinition
     val TITAN_CRIP_EARTHBORE: MultiblockMachineDefinition
     val BIOLOGICAL_SIMULATION_LABORATORY: MultiblockMachineDefinition
+    val EXOTIC_CHEMICAL_COMPLEX: MultiblockMachineDefinition
     val DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT: MultiblockMachineDefinition
     val QUANTUM_SYPHON_MATRIX: MultiblockMachineDefinition
     val FUXI_BAGUA_HEAVEN_FORGING_FURNACE: MultiblockMachineDefinition
@@ -153,6 +169,7 @@ object MultiBlockMachine {
     val SKELETON_SHIFT_RIFT_ENGINE: MultiblockMachineDefinition
     val TIME_SPACE_DISTORTER: MultiblockMachineDefinition
     val APOCALYPTIC_TORSION_QUANTUM_MATRIX: MultiblockMachineDefinition
+    val APOCALYPTIC_QUANTUM_WARP_MATRIX: MultiblockMachineDefinition
     val FORGE_OF_THE_ANTICHRIST: MultiblockMachineDefinition
     val RECURSIVE_REVERSE_ARRAY: MultiblockMachineDefinition
     val CATALYTIC_CASCADE_ARRAY: MultiblockMachineDefinition
@@ -165,6 +182,7 @@ object MultiBlockMachine {
     val HELIOTHERMAL_PLASMA_FABRICATOR: MultiblockMachineDefinition
     val HELIOPHASE_LEYLINE_CRYSTALLIZER: MultiblockMachineDefinition
     val HEART_OF_THE_UNIVERSE: MultiblockMachineDefinition
+    val HEART_OF_THE_COSMOS: MultiblockMachineDefinition
     val SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY: MultiblockMachineDefinition
     val DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY: MultiblockMachineDefinition
     val SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR: MultiblockMachineDefinition
@@ -173,6 +191,7 @@ object MultiBlockMachine {
     val BIOSPHERE_III: MultiblockMachineDefinition
     val BIOSPHERE_III_MODULE: MultiblockMachineDefinition
     val SPACE_ELEVATOR_MKII: MultiblockMachineDefinition
+    val SUPRACHRONAL_ASSEMBLY_RESONATIC_CIRCUIT_ASSEMBLY_MODULE: MultiblockMachineDefinition
 
     init {
         REGISTRATE.creativeModeTab { GTLAddCreativeModeTabs.GTLADD_MACHINE }
@@ -422,6 +441,12 @@ object MultiBlockMachine {
         )
             .noneRotation()
             .tooltipTextKey("tooltip.gtladditions.discontinued".toComponent)
+            .tooltipTextKey(
+                "gtladditions.multiblock.atomic_transmutation_core.replacement".toComponent(
+                    "block.gtladditions.subatomic_transmutatioon_core".toComponent,
+                    "block.gtladditions.me_block_conservation".toComponent
+                )
+            )
             .tooltipTextCoilParallel()
             .tooltipTextLaser()
             .tooltipTextMultiRecipes()
@@ -479,7 +504,7 @@ object MultiBlockMachine {
                     .where(
                         "d",
                         blocks(LAFIUM_MECHANICAL_CASING.get())
-                            .or(blocks(GTLAddMachines.ME_BLOCK_CONVERSATION.block).setMaxGlobalLimited(1))
+                            .or(blocks(GTLAddMachines.ME_BLOCK_CONVERSATION.block).setExactLimit(1))
                             .or(abilities(INPUT_ENERGY).setMaxGlobalLimited(1))
                     )
                     .where("E", blocks(DRAGON_STRENGTH_TRITANIUM_CASING.get()))
@@ -513,7 +538,7 @@ object MultiBlockMachine {
             .tooltipTextMultiRecipes()
             .tooltipTextRecipeTypes(ASSEMBLER_MODULE_RECIPES)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
-            .recipeType(ASSEMBLER_MODULE_RECIPES) // 婢额亞鈹栫紒鍕棅
+            .recipeType(ASSEMBLER_MODULE_RECIPES) // 澶┖缁勮
             .appearanceBlock(SPACE_ELEVATOR_MECHANICAL_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
                 FactoryBlockPattern.start()
@@ -548,8 +573,8 @@ object MultiBlockMachine {
             .tooltipTextMultiRecipes()
             .tooltipTextRecipeTypes(MINER_MODULE_RECIPES, DRILLING_MODULE_RECIPES)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
-            .recipeType(MINER_MODULE_RECIPES) // 婢额亞鈹栭柌鍥╃唵
-            .recipeType(DRILLING_MODULE_RECIPES) // 婢额亞鈹栭柦璁崇俺
+            .recipeType(MINER_MODULE_RECIPES) // 澶┖閲囩熆
+            .recipeType(DRILLING_MODULE_RECIPES) // 澶┖閽讳簳
             .appearanceBlock(SPACE_ELEVATOR_MECHANICAL_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
                 FactoryBlockPattern.start()
@@ -911,11 +936,34 @@ object MultiBlockMachine {
             )
             .register()
 
+        EXOTIC_CHEMICAL_COMPLEX = REGISTRATE.multiblock("exotic_chemical_complex", Function { ExoticChemicalComplex(it) })
+            .nonYAxisRotation()
+            .allowFlip(false)
+            .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.1".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.2".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.3".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.exotic_chemical_complex.tooltip.4".toComponent(ExoticChemicalComplex.TSD_COST_COEFFICIENT))
+            .tooltipTextKey("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.1".toComponent)
+            .tooltipTextKey("tooltip.gtlcore.structure.source".toComponent("GTNH"))
+            .tooltipTextRecipeTypes(LARGE_CHEMICAL_RECIPES, DISTORT_RECIPES)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeTypes(LARGE_CHEMICAL_RECIPES, DISTORT_RECIPES)
+            .appearanceBlock(CASING_PTFE_INERT)
+            .pattern(ExoticChemicalBlockLayout::pattern)
+            .workableCasingRenderer(
+                GTLAdditions.id("block/casings/nanochip_casing"),
+                GTCEu.id("block/machines/chemical_reactor")
+            )
+            .register()
+
         DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT = REGISTRATE.multiblock(
             "dimensionally_transcendent_chemical_plant",
             Function { DimensionallyTranscendentChemicalPlant(it) }
         )
             .nonYAxisRotation()
+            .tooltipTextKey("tooltip.gtladditions.discontinued".toComponent)
             .tooltipTextKey("gtceu.multiblock.dimensionally_transcendent_chemical_plant".toComponent)
             .tooltipTextCoilParallel()
             .tooltipTextLaser()
@@ -1103,10 +1151,8 @@ object MultiBlockMachine {
                     .where("L", blocks(DIMENSION_INJECTION_CASING.get()))
                     .build()
             }
-            .workableCasingRenderer(
-                GTLCore.id("block/casings/antifreeze_heatproof_machine_casing"),
-                GTCEu.id("block/multiblock/vacuum_freezer")
-            )
+            .renderer { AntientropyCondensationRenderer() }
+            .hasTESR(true)
             .register()
 
         TAIXU_TURBID_ARRAY = REGISTRATE.multiblock(
@@ -1388,7 +1434,6 @@ object MultiBlockMachine {
             .tooltipTextKey("gtceu.multiblock.time_space_distorter.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.time_space_distorter.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.time_space_distorter.tooltip.1".toComponent)
-            .tooltipTextRecipeTypes(GTLAddRecipesTypes.TIME_SPACE_DISTORTION)
             .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(GTLAddRecipesTypes.TIME_SPACE_DISTORTION)
@@ -1441,12 +1486,13 @@ object MultiBlockMachine {
             Function { ApocalypticTorsionQuantumMatrix(it) }
         )
             .nonYAxisRotation()
+            .tooltipTextKey("tooltip.gtladditions.discontinued".toComponent)
             .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.2".toComponent)
             .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.3".toComponent)
             .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.4".toComponent)
-            .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.5".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.5".toComponent(1024))
             .tooltipTextKey("gtceu.machine.eut_multiplier.tooltip".toComponent(0.2))
             .tooltipTextParallelHatch()
             .tooltipTextKey("gtladditions.multiblock.multiple_recipe_types_machine.tooltip.0".toComponent)
@@ -1491,11 +1537,86 @@ object MultiBlockMachine {
             .partAppearance { _, _, _ -> MANIPULATOR.get().defaultBlockState() }
             .register()
 
+        APOCALYPTIC_QUANTUM_WARP_MATRIX = REGISTRATE.multiblock(
+            "apocalyptic_quantum_warp_matrix",
+            Function { ApocalypticWarpQuantumMatrix(it) }
+        )
+            .nonYAxisRotation()
+            .allowFlip(false)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.1".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.2".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.3".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_torsion_quantum_matrix.tooltip.4".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_quantum_warp_matrix.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_quantum_warp_matrix.tooltip.1".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_quantum_warp_matrix.tooltip.2".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_quantum_warp_matrix.tooltip.3".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.apocalyptic_quantum_warp_matrix.tooltip.4".toComponent)
+            .tooltipTextKey(
+                "gtladditions.multiblock.apocalyptic_quantum_warp_matrix.tooltip.5".toComponent(
+                    createObfuscatedDeleteComponent("??").copy().withStyle(ChatFormatting.ITALIC)
+                )
+            )
+            .tooltipTextKey("gtceu.machine.eut_multiplier.tooltip".toComponent(0.2))
+            .tooltipTextKey("gtladditions.multiblock.multiple_recipe_types_machine.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.wireless_multiple_recipes_machine.tooltip.1".toComponent)
+            .tooltipTextRecipeTypes(QFT_RECIPES, NEUTRON_COMPRESSOR_RECIPES)
+            .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeTypes(QFT_RECIPES, NEUTRON_COMPRESSOR_RECIPES)
+            .appearanceBlock(GRAVITY_STABILIZATION_CASING)
+            .pattern { definition: MultiblockMachineDefinition? ->
+                MultiBlockStructure.APOCALYPTIC_QUANTUM_WARP_MATRIX
+                    .where("~", controller(blocks(definition!!.get())))
+                    .where("A", blocks(QFT_COIL.get()))
+                    .where("B", blocks(HYPER_MECHANICAL_CASING.get()))
+                    .where("C", blocks(GRAVITY_STABILIZATION_CASING.get()))
+                    .where("D", blocks(ANTIFREEZE_HEATPROOF_MACHINE_CASING.get()))
+                    .where("E", blocks(EXTREME_DENSITY_CASING.get()))
+                    .where("G", blocks(GOD_FORGE_TRIM_CASING.get()))
+                    .where("H", blocks(getBlock("gtceu:atomic_casing")))
+                    .where("I", blocks(DEGENERATE_RHENIUM_CONSTRAINED_CASING.get()))
+                    .where("J", blocks(getBlock("kubejs:high_strength_concrete")))
+                    .where("K", blocks(getBlock("kubejs:dimensional_stability_casing")))
+                    .where("L", blocks(MANIPULATOR.get()))
+                    .where("M", blocks(ENHANCE_HYPER_MECHANICAL_CASING.get()))
+                    .where("N", blocks(getBlock("kubejs:module_connector")))
+                    .where("O", blocks(getBlock("kubejs:force_field_glass")))
+                    .where("P", blocks(getBlock("kubejs:annihilate_core")))
+                    .where("Q", blocks(getBlock("kubejs:dimensional_bridge_casing")))
+                    .where("R", blocks(ULTIMATE_STELLAR_CONTAINMENT_CASING.get()))
+                    .where("S", blocks(getBlock("kubejs:accelerated_pipeline")))
+                    .where("T", blocks(getBlock("kubejs:molecular_coil")))
+                    .where("U", blocks(getBlock("gtceu:superconducting_coil")))
+                    .where(
+                        "V",
+                        blocks(GRAVITY_STABILIZATION_CASING.get())
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_ITEMS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), IMPORT_FLUIDS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), EXPORT_ITEMS))
+                            .or(abilitiesExcept(ME_RECIPE_PATTERN_BUFFER.get(), EXPORT_FLUIDS))
+                    )
+                    .where("W", blocks(QUANTUM_GLASS.get()))
+                    .where("X", blocks(getBlock("kubejs:adamantine_coil_block")))
+                    .build()
+            }
+            .renderer {
+                ApocalypticMatrixRenderer(
+                    GTLAdditions.id("block/casings/gravity_stabilization_casing"),
+                    GTCEu.id("block/multiblock/data_bank")
+                )
+            }
+            .hasTESR(true)
+            .register()
+
         FORGE_OF_THE_ANTICHRIST = REGISTRATE.multiblock(
             "forge_of_the_antichrist",
             Function { ForgeOfTheAntichrist(it) }
         )
             .nonYAxisRotation()
+            .allowFlip(false)
             .tooltipTextKey("gtladditions.multiblock.forge_of_the_antichrist.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.forge_of_the_antichrist.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.forge_of_the_antichrist.tooltip.2".toComponent)
@@ -1606,10 +1727,8 @@ object MultiBlockMachine {
                     .where("R", blocks(FUSION_CASING_MK5.get()))
                     .build()
             }
-            .workableCasingRenderer(
-                GTLCore.id("block/create_casing"),
-                GTCEu.id("block/multiblock/top/cosmos_simulation")
-            )
+            .renderer { RecursiveReverseRenderer(RrfEffectKind.ARRAY) }
+            .hasTESR(true)
             .register()
 
         CATALYTIC_CASCADE_ARRAY = REGISTRATE.multiblock("catalytic_cascade_array", Function { CatalyticCascadeArray(it) })
@@ -1633,7 +1752,8 @@ object MultiBlockMachine {
                     .where("A", blocks(FUSION_CASING_MK3.get()))
                     .build()
             }
-            .workableCasingRenderer(GTLCore.id("block/casings/dimension_injection_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
+            .renderer { RecursiveReverseRenderer(RrfEffectKind.CATALYTIC) }
+            .hasTESR(true)
             .register()
 
         MAGNETORHEOLOGICAL_CONVERGENCE_CORE = REGISTRATE.multiblock("magnetorheological_convergence_core", Function { MagnetorheologicalConvergenceCore(it) })
@@ -1658,13 +1778,13 @@ object MultiBlockMachine {
                     .where("A", blocks(FUSION_CASING_MK3.get()))
                     .build()
             }
-            .workableCasingRenderer(GTLCore.id("block/casings/dimension_injection_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
+            .renderer { RecursiveReverseRenderer(RrfEffectKind.FOCUS) }
+            .hasTESR(true)
             .register()
 
         SPACETIME_STASIS_DEVICE = REGISTRATE.multiblock("spacetime_stasis_device", Function { SpacetimeStasisDevice(it) })
             .nonYAxisRotation()
             .tooltipTextKey("tooltip.gtladditions.recursive_reverse_array_module".toComponent)
-            .tooltipTextRecipeTypes(GTLAddRecipesTypes.SPACETIME_STASIS)
             .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(GTLAddRecipesTypes.SPACETIME_STASIS)
@@ -1685,13 +1805,13 @@ object MultiBlockMachine {
                     .where("A", blocks(FUSION_CASING_MK3.get()))
                     .build()
             }
-            .workableCasingRenderer(GTLCore.id("block/casings/dimension_injection_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
+            .renderer { RecursiveReverseRenderer(RrfEffectKind.STASIS) }
+            .hasTESR(true)
             .register()
 
         SUPRATEMPORAL_BOOSTING_ENGINE = REGISTRATE.multiblock("supratemporal_boosting_engine", Function { SupratemporalBoostingEngine(it) })
             .nonYAxisRotation()
             .tooltipTextKey("tooltip.gtladditions.recursive_reverse_array_module".toComponent)
-            .tooltipTextRecipeTypes(GTLAddRecipesTypes.SUPRATEMPORAL_BOOSTING)
             .tooltipTextKey("gtladditions.multiblock.recipe_pattern_buffer_unavailable".toComponent)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(GTLAddRecipesTypes.SUPRATEMPORAL_BOOSTING)
@@ -1714,7 +1834,8 @@ object MultiBlockMachine {
                     .where("A", blocks(FUSION_CASING_MK3.get()))
                     .build()
             }
-            .workableCasingRenderer(GTLCore.id("block/casings/dimension_injection_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
+            .renderer { RecursiveReverseRenderer(RrfEffectKind.BOOST) }
+            .hasTESR(true)
             .register()
 
         HELIOFUSION_EXOTICIZER = REGISTRATE.multiblock(
@@ -1923,9 +2044,17 @@ object MultiBlockMachine {
 
         HEART_OF_THE_UNIVERSE = REGISTRATE.multiblock(
             "heart_of_the_universe",
-            Function { HeartOfTheUniverse(it) }
+            Function { holder ->
+                object : HeartOfTheUniverse(holder) {
+                    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+                        super.attachConfigurators(configuratorPanel)
+                        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
+                    }
+                }
+            }
         )
             .nonYAxisRotation()
+            .tooltipTextKey("tooltip.gtladditions.discontinued".toComponent)
             .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.2".toComponent)
@@ -1966,11 +2095,55 @@ object MultiBlockMachine {
             .hasTESR(true)
             .register()
 
+        HEART_OF_THE_COSMOS = REGISTRATE.multiblock(
+            "heart_of_the_cosmos",
+            Function { HeartOfTheCosmos(it) }
+        )
+            .nonYAxisRotation()
+            .allowFlip(false)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.1".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.2".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.3".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.4".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.heart_of_the_universe.tooltip.6".toComponent)
+            .tooltipTextRecipeTypes(GENESIS_ENGINE)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeTypes(GENESIS_ENGINE)
+            .appearanceBlock(DIMENSION_INJECTION_CASING)
+            .partAppearance { _, _, _ -> IRIDIUM_CASING.get().defaultBlockState() }
+            .pattern { definition ->
+                // '.' is enclosed inside a plate.
+                val pattern = MultiBlockStructure.HEART_OF_THE_COSMOS_STRUCTURE.where("~", controller(blocks(definition.get())))
+
+                for ((symbol, id) in HeartBlockLayout.BLOCK_IDS) {
+                    if (symbol != 'c') pattern.where(symbol, blocks(getBlock(id)))
+                }
+
+                pattern
+                    .where(
+                        "c",
+                        blocks(getBlock(HeartBlockLayout.BLOCK_IDS.getValue('c')))
+                            .or(blocks(Wireless_Energy_Network_OUTPUT_Terminal.get()))
+                            .or(abilities(IMPORT_ITEMS))
+                            .or(abilities(IMPORT_FLUIDS))
+                            .or(abilities(EXPORT_ITEMS))
+                            .or(abilities(GTLAddPartAbility.THREAD_MODIFIER).setMaxGlobalLimited(1))
+                    )
+                    .where(".", any())
+                    .where(" ", any())
+                    .build()
+            }
+            .renderer { HeartOfTheCosmosRenderer() }
+            .hasTESR(true)
+            .register()
+
         DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY = REGISTRATE.multiblock(
             "dimension_focus_infinity_crafting_array",
             Function { DimensionFocusInfinityCraftingArray(it) }
         )
             .nonYAxisRotation()
+            .allowFlip(false)
             .tooltipTextMaxParallels(4096.toString())
             .tooltipTextLaser()
             .tooltipTextMultiRecipes()
@@ -2013,10 +2186,8 @@ object MultiBlockMachine {
                     .where("R", blocks(getBlock("gtlcore:rhenium_reinforced_energy_glass")))
                     .build()
             }
-            .workableCasingRenderer(
-                GTLCore.id("block/casings/sps_casing"),
-                GTCEu.id("block/multiblock/research_station")
-            )
+            .renderer { DimensionFocusInfinityCraftingArrayRenderer() }
+            .hasTESR(true)
             .register()
 
         SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY = REGISTRATE.multiblock(
@@ -2168,6 +2339,7 @@ object MultiBlockMachine {
                 "gtladditions.multiblock.biosphere_iii.tooltip.2".toComponent
             )
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(DUMMY_RECIPES)
             .appearanceBlock(SPS_CASING)
             .pattern { definition: MultiblockMachineDefinition? ->
                 MultiBlockStructure.BIOSPHERE_III_STRUCTURE
@@ -2227,7 +2399,7 @@ object MultiBlockMachine {
                     .where("N", blocks(getBlock("minecraft:mangrove_roots")))
                     .where("-", blocks(getBlock("minecraft:sponge")))
                     .where("e", blocks(getBlock("kubejs:gelid_cryotheum")))
-                    .where("Q", blocks(getBlock("minecraft:grass_block")))
+                    .where("Q", blocks(getBlock("minecraft:grass_block"), getBlock("minecraft:dirt")))
                     .where("D", blocks(getBlock("gtceu:fusion_glass")))
                     .where("V", blocks(getBlock("kubejs:hollow_casing")))
                     .where("C", blocks(getBlock("kubejs:high_strength_concrete")))
@@ -2295,6 +2467,57 @@ object MultiBlockMachine {
             )
             .register()
 
+        SUPRACHRONAL_ASSEMBLY_RESONATIC_CIRCUIT_ASSEMBLY_MODULE = REGISTRATE.multiblock(
+            "suprachronal_assembly_resonatic_circuit_assembly_module",
+            Function { SuprachronalAssemblyLineModuleMachine(it) }
+        )
+            .allRotation()
+            .tooltipTextKey(
+                Component.translatable("gtceu.machine.duration_multiplier.tooltip", 0.4),
+                Component.translatable("gtceu.machine.suprachronal_assembly_line_module.tooltip.0"),
+                Component.translatable("gtceu.multiblock.laser.tooltip"),
+                Component.translatable("tooltip.gtlcore.structure.source", "TST"),
+                Component.translatable("gtceu.machine.perfect_oc")
+            )
+            .tooltipTextRecipeTypes(GTLAddRecipesTypes.CIRCUIT_RESONATIC_ASSEMBLE)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(GTLAddRecipesTypes.CIRCUIT_RESONATIC_ASSEMBLE)
+            .recipeModifiers(
+                { machine, recipe, _, _ -> GTLRecipeModifiers.reduction(machine, recipe, 1.0, 0.4) },
+                { machine, recipe, _, _ ->
+                    GTRecipeModifiers.accurateParallel(
+                        machine,
+                        recipe,
+                        (machine as SuprachronalAssemblyLineModuleMachine).parallel,
+                        false
+                    ).first
+                },
+                GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.PERFECT_OVERCLOCK_SUBTICK)
+            )
+            .appearanceBlock(MOLECULAR_CASING)
+            .pattern { definition ->
+                AdvancedMultiBlockMachineStructureA.SUPRACHRONAL_ASSEMBLY_LINE_MODULE
+                    .where("~", controller(blocks(definition.get())))
+                    .where("B", blocks(DIMENSIONALLY_TRANSCENDENT_CASING.get()))
+                    .where("C", blocks(getBlock("kubejs:molecular_coil")))
+                    .where("D", blocks(FUSION_GLASS.get()))
+                    .where("E", blocks(HIGH_POWER_CASING.get()))
+                    .where(
+                        "A",
+                        blocks(MOLECULAR_CASING.get())
+                            .or(abilities(IMPORT_ITEMS).setPreviewCount(1))
+                            .or(abilities(EXPORT_ITEMS).setPreviewCount(1))
+                            .or(abilities(IMPORT_FLUIDS).setPreviewCount(1))
+                            .or(abilities(PartAbility.OPTICAL_DATA_RECEPTION).setExactLimit(1))
+                            .or(abilities(INPUT_ENERGY).setMaxGlobalLimited(2))
+                            .or(abilities(INPUT_LASER).setMaxGlobalLimited(1))
+                    )
+                    .where(" ", any())
+                    .build()
+            }
+            .workableCasingRenderer(GTLCore.id("block/molecular_casing"), GTCEu.id("block/multiblock/fusion_reactor"))
+            .register()
+
         SPACE_ELEVATOR_MKII = REGISTRATE.multiblock(
             "space_elevator_mkii",
             Function { SpaceElevatorMKII(it) }
@@ -2313,7 +2536,7 @@ object MultiBlockMachine {
             )
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .appearanceBlock(SPACE_ELEVATOR_MECHANICAL_CASING)
-            .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 4.0, false)))
+            .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
             .pattern { definition: MultiblockMachineDefinition? ->
                 MultiBlockStructure.SPACE_ELEVATOR_MKII_STRUCTURE
                     .where("P", controller(blocks(definition!!.get())))
@@ -2340,7 +2563,7 @@ object MultiBlockMachine {
                     .where("O", air())
                     .build()
             }
-            .renderer { SpaceElevatorMKIIRenderer() }
+            .renderer { SpaceElevatorRenderer(climberHeight = 230.0, cableLength = 448, viewDistance = 320) }
             .hasTESR(true)
             .register()
 
@@ -2399,7 +2622,7 @@ object MultiBlockMachine {
             .tooltipTextKey("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.3".toComponent)
             .tooltipTextKey("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.4".toComponent)
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
                     tooltipTextKey("gtladditions.multiblock.forge_of_the_antichrist.tooltip.3".toComponent)
                     tooltipTextKey(
                         "gtladditions.multiblock.base_parallel".toComponent("1536".literal.withStyle(ChatFormatting.GOLD))
@@ -2415,7 +2638,7 @@ object MultiBlockMachine {
             .tooltipTextKey("gtladditions.multiblock.macro_atomic_resonant_fragment_stripper.tooltip.10".toComponent)
             .tooltipTextKey("tooltip.gtlcore.structure.source".toComponent("TST"))
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
                     tooltipTextRecipeTypes(STAR_CORE_STRIPPER, ELEMENT_COPYING_RECIPES)
                 } else {
                     tooltipTextRecipeTypes(ELEMENT_COPYING_RECIPES)
@@ -2423,7 +2646,7 @@ object MultiBlockMachine {
             }
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .apply {
-                if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+                if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
                     recipeTypes(STAR_CORE_STRIPPER, ELEMENT_COPYING_RECIPES)
                 } else {
                     recipeTypes(ELEMENT_COPYING_RECIPES)

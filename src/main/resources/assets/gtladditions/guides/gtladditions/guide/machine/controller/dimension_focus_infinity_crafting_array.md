@@ -2,7 +2,7 @@
 navigation:
   title: Dimension Focus Infinity Crafting Array
   icon: dimension_focus_infinity_crafting_array
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 45
 categories:
   - multiblock controller

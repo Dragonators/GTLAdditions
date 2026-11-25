@@ -21,15 +21,17 @@ public abstract class FluidUnitMixin {
     private Double2ObjectFunction<Component> translator;
 
     @Inject(method = "<init>", at = @At("RETURN"), remap = false)
-    private void fixLongOverflow(String name, int ordinal, String enumName, Double2ObjectFunction<Component> translator, CallbackInfo ci) {
-        if ("millibuckets".equals(enumName)) {
+    private void fixLongOverflow(CallbackInfo ci) {
+        // Enum constructors include synthetic parameters; the logical name is assigned by RETURN.
+        String unitName = ((FluidUnit) (Object) this).getName();
+        if ("millibuckets".equals(unitName)) {
             this.translator = (a) -> {
                 int divisor = FluidUnit.literDivisor();
                 long displayAmount = Math.round(a / divisor);
                 return EmiPort.translatable("emi.fluid.amount.millibuckets",
                         EmiRenderHelper.TEXT_FORMAT.format(displayAmount));
             };
-        } else if ("liters".equals(enumName)) {
+        } else if ("liters".equals(unitName)) {
             this.translator = (a) -> {
                 int divisor = FluidUnit.literDivisor();
                 long displayAmount = Math.round(a / divisor);

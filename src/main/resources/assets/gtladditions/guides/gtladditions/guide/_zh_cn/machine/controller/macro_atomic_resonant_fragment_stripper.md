@@ -2,7 +2,7 @@
 navigation:
   title: 宏原子谐振碎片剥离器
   icon: macro_atomic_resonant_fragment_stripper
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 46
 categories:
   - 多方块结构主机

@@ -44,7 +44,6 @@ class RecipeTypeContributions : RecipeTypeMappingSupplier {
             it[GTLAddRecipesTypes.CHAOTIC_ALCHEMY] = MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE.asStack()
             it[GTLAddRecipesTypes.MOLECULAR_DECONSTRUCTION] = MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE.asStack()
             it[GTLAddRecipesTypes.COMPRESSED_ASTRAL_ARRAY] = MultiBlockMachine.ARCANIC_ASTROGRAPH.asStack()
-            it[GTLAddRecipesTypes.TIME_SPACE_DISTORTION] = MultiBlockMachine.TIME_SPACE_DISTORTER.asStack()
             it[GCyMRecipeTypes.ALLOY_BLAST_RECIPES] = GCyMMachines.BLAST_ALLOY_SMELTER.asStack()
             it[GTRecipeTypes.BLAST_RECIPES] = GTMachines.ELECTRIC_BLAST_FURNACE.asStack()
             it[GTRecipeTypes.ASSEMBLER_RECIPES] = GTMachines.ASSEMBLER[10].asStack()

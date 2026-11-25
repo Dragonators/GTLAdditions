@@ -25,11 +25,11 @@ categories:
 * [太素衍化枢纽](primordial_evolution_nexus.md)
 * [生态圈3号](biosphere_iii.md)
 * [赫尔墨斯之圃](biosphere_iii.md)
+* [超时空装配线磁共振电路组装模块](suprachronal_assembly_resonatic_circuit_assembly_module.md)
 
 ## <Color color="#00AA00">**UIV**</Color>
 
-* ~~[原子置换核心](atomic_transmutation_core.md)~~
-* [超维度化工厂](dimensionally_transcendent_chemical_plant.md)
+* [异星化工复合体](exotic_chemical_complex.md)
 * [反熵冷凝中枢](antientropy_condensation_center.md)
 * [炽隙裂炼穹](inferno_cleft_smelting_vault.md)
 * [亚原子置换核心](subatomic_transmutatioon_core.md)
@@ -57,9 +57,9 @@ categories:
 * [奥术星图](arcanic_astrograph.md)
 * [递归反演阵列](recursive_reverse_array.md)
 * [天基无尽集成矿石处理厂](space_infinity_integrated_ore_processor.md)
-* [终焉曲折量子波动矩阵](apocalyptic_torsion_quantum_matrix.md)
+* [终焉曲折量子波动矩阵](apocalyptic_quantum_warp_matrix.md)
 * [时空扭曲者](time_space_distorter.md)
 * [伪神之煅炉](forge_of_the_antichrist.md)
 * [Helio 系列煅炉模块](helio_forge_modules.md)
-* [宇宙之心](heart_of_the_universe.md)
+* [宇宙之心](heart_of_the_cosmos.md)
 * [维度聚焦无尽合成阵列](dimension_focus_infinity_crafting_array.md)

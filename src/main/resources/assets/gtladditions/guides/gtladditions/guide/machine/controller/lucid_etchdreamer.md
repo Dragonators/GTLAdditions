@@ -2,7 +2,7 @@
 navigation:
   title: Lucid Etchdreamer
   icon: lucid_etchdreamer
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 20
 categories:
   - multiblock controller

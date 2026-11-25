@@ -30,6 +30,7 @@ class GTLAdditionsGTAddon : IGTAddon {
     override fun addRecipes(provider: Consumer<FinishedRecipe?>) {
         PhotonMatrixEtch.init(provider)
         EMResonanceConversionField.init(provider)
+        CircuitResonaticAssemble.init(provider)
         TitansCripEarthbore.init(provider)
         BiologicalSimulation.init(provider)
         VoidfluxReaction.init(provider)
@@ -37,10 +38,8 @@ class GTLAdditionsGTAddon : IGTAddon {
         ChaosWeave.init(provider)
         NightmareCrafting.init(provider)
         GenesisEngine.init(provider)
-        RecursiveReverseArrayRecipes.init(provider)
         HeliofusionExoticizer.init(provider)
         LeylineCrystallize.init(provider)
-        InterStellar.init(provider)
         EvolutionOfPrimordial.init(provider)
         AE2.init(provider)
         Assembler.init(provider)
@@ -54,6 +53,7 @@ class GTLAdditionsGTAddon : IGTAddon {
         RuriditExtend.init(provider)
         SocProcess.init(provider)
         Misc.init(provider)
+        WeatherControlRecipes.init(provider)
         StarGate.init(provider)
         SkyTearsAndGregHeart.init(provider)
     }

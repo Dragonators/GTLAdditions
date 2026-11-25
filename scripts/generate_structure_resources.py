@@ -556,14 +556,6 @@ def read_binary(path: Path) -> dict[str, object]:
 
 def referenced_structure_arrays() -> dict[str, list[str]]:
     arrays = {}
-    for path in sorted((KOTLIN_STRUCTURE_ROOT / "lighthunterstructure").glob("LightHunterStructure*.kt")):
-        for name, expression in val_expressions(path):
-            if not name.startswith("A_"):
-                continue
-            values, _ = parse_array_of(expression, 0)
-            if not all(isinstance(value, str) for value in values):
-                fail(f"{path}:{name}: expected arrayOf strings")
-            arrays[f"{path.stem}.{name}"] = values
     for path in sorted(KOTLIN_STRUCTURE_ROOT.glob("LargeStructure*.kt")):
         for name, expression in val_expressions(path):
             if not name.startswith("A_"):

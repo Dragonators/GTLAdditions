@@ -1,34 +1,3 @@
-const float DISTORTION_RADIUS_SCALE = 1.13;
-const float HEARTBEAT_FREQUENCY = 0.14;
-const float SPACE_HEARTBEAT_RADIUS_AMPLITUDE = 0.045;
-
-float getHeartbeatPulse(float time) {
-    float phase = sin(time * HEARTBEAT_FREQUENCY);
-    return phase * phase;
-}
-
-float getDistortionRadius(float time, float blackHoleAndDiskRadius) {
-    return max(blackHoleAndDiskRadius, 0.001) *
-        DISTORTION_RADIUS_SCALE *
-        (1.0 + getHeartbeatPulse(time) * SPACE_HEARTBEAT_RADIUS_AMPLITUDE);
-}
-
-float getDistortionRadius(float time) {
-    return getDistortionRadius(time, BlackHoleAndDiskRadius);
-}
-
-float getVolumeProxyRadius(float time, float blackHoleAndDiskRadius, float spaceFadeRadius) {
-    float radius = max(blackHoleAndDiskRadius, 0.001);
-    return max(
-        getDistortionRadius(time, radius),
-        radius * max(spaceFadeRadius, 0.001)
-    );
-}
-
-float getVolumeProxyRadius(float time) {
-    return getVolumeProxyRadius(time, BlackHoleAndDiskRadius, SpaceFadeRadius);
-}
-
 bool intersectSphere(
     vec3 rayOrigin,
     vec3 rayDirection,
@@ -37,6 +6,8 @@ bool intersectSphere(
     out float entryT,
     out float exitT
 ) {
+    entryT = 0.0;
+    exitT = 0.0;
     vec3 offset = rayOrigin - sphereCenter;
     float b = dot(offset, rayDirection);
     float c = dot(offset, offset) - sphereRadius * sphereRadius;

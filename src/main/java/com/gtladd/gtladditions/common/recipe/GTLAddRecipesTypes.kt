@@ -10,6 +10,8 @@ import com.gregtechceu.gtceu.common.block.CoilBlock
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes
 import com.gregtechceu.gtceu.common.data.GTSoundEntries
 import com.gregtechceu.gtceu.utils.FormattingUtil
+import com.gtladd.gtladditions.api.machine.feature.IStructureTierMachine
+import com.gtladd.gtladditions.client.gui.GenesisEngineRecipeUI
 import com.gtladd.gtladditions.common.modify.GTLAddSoundEntries
 import com.gtladd.gtladditions.common.modify.RecipesModify
 import com.lowdragmc.lowdraglib.gui.texture.ProgressTexture.FillDirection
@@ -33,6 +35,7 @@ object GTLAddRecipesTypes {
     val MULTIPLE_TYPE_RECIPES: Set<GTRecipeType>
     val PHOTON_MATRIX_ETCH: GTRecipeType
     val EM_RESONANCE_CONVERSION_FIELD: GTRecipeType
+    val CIRCUIT_RESONATIC_ASSEMBLE: GTRecipeType
     val TECTONIC_FAULT_GENERATOR: GTRecipeType
     val BIOLOGICAL_SIMULATION: GTRecipeType
     val VOIDFLUX_REACTION: GTRecipeType
@@ -69,6 +72,7 @@ object GTLAddRecipesTypes {
     val TIME_SPACE_DISTORTION: GTRecipeType
     val FORGE_OF_THE_ANTICHRIST: GTRecipeType
     val QUANTUM_OSCILLATION: GTRecipeType
+    val BIO_CULTIVATION: GTRecipeType
 
     @JvmField
     val COMPRESSED_ASTRAL_ARRAY: GTRecipeType
@@ -80,6 +84,11 @@ object GTLAddRecipesTypes {
     }
 
     init {
+        CIRCUIT_RESONATIC_ASSEMBLE = GTRecipeTypes.register("circuit_resonatic_assemble", GTRecipeTypes.MULTIBLOCK)
+            .setEUIO(IO.IN).setMaxIOSize(6, 1, 1, 0)
+            .setSlotOverlay(false, false, GuiTextures.CIRCUIT_OVERLAY)
+            .setProgressBar(GuiTextures.PROGRESS_BAR_CIRCUIT_ASSEMBLER, FillDirection.LEFT_TO_RIGHT)
+            .setSound(GTSoundEntries.ARC)
         PHOTON_MATRIX_ETCH = GTRecipeTypes.register("photon_matrix_etch", GTRecipeTypes.MULTIBLOCK)
             .setEUIO(IO.IN).setMaxIOSize(3, 1, 1, 0).setMaxTooltips(4)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT).setSound(GTSoundEntries.ARC)
@@ -106,23 +115,17 @@ object GTLAddRecipesTypes {
                 LocalizationUtils.format("gtceu.recipe.temperature", FormattingUtil.formatNumbers(temp))
             }.addDataInfo { data: CompoundTag? ->
                 val temp = data!!.getInt("ebf_temp")
-                val requiredCoil = ICoilType.getMinRequiredType(temp)
-                if (requiredCoil != null && requiredCoil.material != null) {
-                    return@addDataInfo LocalizationUtils.format(
-                        "gtceu.recipe.coil.tier",
-                        I18n.get(requiredCoil.material!!.unlocalizedName)
-                    )
-                }
-                ""
+                val material = ICoilType.getMinRequiredType(temp)?.material ?: return@addDataInfo ""
+                LocalizationUtils.format("gtceu.recipe.coil.tier", I18n.get(material.unlocalizedName))
             }.setUiBuilder { recipe: GTRecipe?, widgetGroup: WidgetGroup? ->
                 val temp = recipe!!.data.getInt("ebf_temp")
                 val items: MutableList<MutableList<ItemStack>> = ObjectArrayList()
                 items.add(
-                    GTCEuAPI.HEATING_COILS.entries.stream()
+                    GTCEuAPI.HEATING_COILS.entries
                         .filter { coil -> coil.key.coilTemperature >= temp }
                         .map { coil ->
                             ItemStack(coil.value.get())
-                        }.toList()
+                        }.toMutableList()
                 )
                 widgetGroup!!.addWidget(
                     SlotWidget(
@@ -149,27 +152,18 @@ object GTLAddRecipesTypes {
                 LocalizationUtils.format("gtceu.recipe.temperature", FormattingUtil.formatNumbers(temp))
             }.addDataInfo { data: CompoundTag? ->
                 val temp = data!!.getInt("ebf_temp")
-                val requiredCoil = ICoilType.getMinRequiredType(temp)
-                if (requiredCoil != null && requiredCoil.material != null) {
-                    LocalizationUtils.format(
-                        "gtceu.recipe.coil.tier",
-                        I18n.get(
-                            requiredCoil.material!!.unlocalizedName
-                        )
-                    )
-                } else {
-                    ""
-                }
+                val material = ICoilType.getMinRequiredType(temp)?.material ?: return@addDataInfo ""
+                LocalizationUtils.format("gtceu.recipe.coil.tier", I18n.get(material.unlocalizedName))
             }.setMaxTooltips(4).setUiBuilder { recipe: GTRecipe?, widgetGroup: WidgetGroup? ->
                 val temp = recipe!!.data.getInt("ebf_temp")
-                val items: MutableList<MutableList<ItemStack?>?> = ObjectArrayList()
+                val items: MutableList<MutableList<ItemStack>> = ObjectArrayList()
                 items.add(
-                    GTCEuAPI.HEATING_COILS.entries.stream()
+                    GTCEuAPI.HEATING_COILS.entries
                         .filter { coil: MutableMap.MutableEntry<ICoilType, Supplier<CoilBlock>> -> coil.key.coilTemperature >= temp }
                         .map { coil: MutableMap.MutableEntry<ICoilType, Supplier<CoilBlock>> ->
                             ItemStack(coil.value.get())
                         }
-                        .toList()
+                        .toMutableList()
                 )
                 widgetGroup!!.addWidget(
                     SlotWidget(
@@ -197,6 +191,11 @@ object GTLAddRecipesTypes {
         GENESIS_ENGINE = GTRecipeTypes.register("genesis_engine", GTRecipeTypes.MULTIBLOCK)
             .setEUIO(IO.OUT).setMaxIOSize(2, 1, 0, 0)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+            .addDataInfo { data: CompoundTag ->
+                val tier = data.getInt(IStructureTierMachine.RECIPE_TIER)
+                if (tier > 0) LocalizationUtils.format("gtladditions.structure_tier.recipe", tier) else ""
+            }
+            .setUiBuilder { recipe: GTRecipe, page: WidgetGroup -> GenesisEngineRecipeUI.build(recipe, page) }
             .setSound(GTLAddSoundEntries.GENESIS_ENGINE)
         STAR_CORE_STRIPPER = GTRecipeTypes.register("star_core_stripper", GTRecipeTypes.MULTIBLOCK)
             .setEUIO(IO.IN).setMaxIOSize(3, 12, 1, 1)
@@ -223,10 +222,8 @@ object GTLAddRecipesTypes {
             .setEUIO(IO.IN).setMaxIOSize(9, 1, 0, 0)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.ARC)
-        INTER_STELLAR = GTRecipeTypes.register("inter_stellar", GTRecipeTypes.MULTIBLOCK)
-            .setEUIO(IO.IN).setMaxIOSize(1, 0, 0, 0)
-            .setMaxTooltips(3)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        INTER_STELLAR = GTRecipeTypes.register("inter_stellar", GTRecipeTypes.DUMMY)
+            .setXEIVisible(false)
             .setSound(GTLAddSoundEntries.INTER_STELLAR)
         NIGHTMARE_CRAFTING = GTRecipeTypes.register("nightmare_crafting", GTRecipeTypes.MULTIBLOCK)
             .setEUIO(IO.IN).setMaxIOSize(16, 1, 1, 0)
@@ -241,21 +238,14 @@ object GTLAddRecipesTypes {
         TRANSMUTATION_BLOCK_CONVERSION = GTRecipeTypes.register("transmutation_block_conversion", GTRecipeTypes.DUMMY)
             .setXEIVisible(false)
             .setSound(GTLAddSoundEntries.INTER_STELLAR)
-        SPACETIME_STASIS = GTRecipeTypes.register("spacetime_stasis", GTRecipeTypes.MULTIBLOCK)
-            .setEUIO(IO.IN)
-            .setMaxIOSize(0, 0, 1, 0)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        SPACETIME_STASIS = GTRecipeTypes.register("spacetime_stasis", GTRecipeTypes.DUMMY)
+            .setXEIVisible(false)
             .setSound(GTSoundEntries.SCIENCE)
-        SUPRATEMPORAL_BOOSTING = GTRecipeTypes.register("supratemporal_boosting", GTRecipeTypes.MULTIBLOCK)
-            .setEUIO(IO.IN)
-            .setMaxIOSize(1, 0, 0, 0)
-            .setMaxTooltips(3)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        SUPRATEMPORAL_BOOSTING = GTRecipeTypes.register("supratemporal_boosting", GTRecipeTypes.DUMMY)
+            .setXEIVisible(false)
             .setSound(GTLAddSoundEntries.GENESIS_ENGINE)
-        TIME_SPACE_DISTORTION = GTRecipeTypes.register("time_space_distortion", GTRecipeTypes.MULTIBLOCK)
-            .setEUIO(IO.IN)
-            .setMaxIOSize(1, 0, 0, 0)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        TIME_SPACE_DISTORTION = GTRecipeTypes.register("time_space_distortion", GTRecipeTypes.DUMMY)
+            .setXEIVisible(false)
             .setSound(GTLAddSoundEntries.QUANTUM_OSCILLATION)
         COMPRESSED_ASTRAL_ARRAY = GTRecipeTypes.register("compressed_astral_array", GTRecipeTypes.MULTIBLOCK)
             .setXEIVisible(false)
@@ -275,10 +265,14 @@ object GTLAddRecipesTypes {
         QUANTUM_OSCILLATION = GTRecipeTypes.register("quantum_oscillation", GTRecipeTypes.DUMMY)
             .setXEIVisible(false)
             .setSound(GTLAddSoundEntries.QUANTUM_OSCILLATION)
+        BIO_CULTIVATION = GTRecipeTypes.register("bio_cultivation", GTRecipeTypes.DUMMY)
+            .setXEIVisible(false)
+            .setSound(GTSoundEntries.COOLING)
 
         MULTIPLE_TYPE_RECIPES = setOf(
             FORGE_OF_THE_ANTICHRIST,
             QUANTUM_OSCILLATION,
+            BIO_CULTIVATION,
             COSMOS_SIMULATION_RECIPES
         )
     }

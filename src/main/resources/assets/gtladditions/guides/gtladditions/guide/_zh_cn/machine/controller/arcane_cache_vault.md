@@ -2,7 +2,7 @@
 navigation:
   title: 密藏之匣
   icon: arcane_cache_vault
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 23
 categories:
   - 多方块结构主机

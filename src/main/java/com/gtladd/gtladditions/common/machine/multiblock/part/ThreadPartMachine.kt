@@ -38,9 +38,17 @@ open class ThreadPartMachine(holder: IMachineBlockEntity) :
         astralArrayInventory.setFilter { stack: ItemStack? -> astralArrayFilter(stack!!) }
     }
 
+    // ========================================
+    // THREAD COUNT
+    // ========================================
+
     private fun reCalculateThreadCount() {
         threadCount = Ints.saturatedCast(astralArrayInventory.getStackInSlot(0).count * 64L * threadMultiplier)
     }
+
+    // ========================================
+    // GUI
+    // ========================================
 
     override fun createUIWidget(): Widget {
         val group = WidgetGroup(0, 0, 150, 70)
@@ -76,6 +84,10 @@ open class ThreadPartMachine(holder: IMachineBlockEntity) :
         )
         return group
     }
+
+    // ========================================
+    // MULTIBLOCK LIFECYCLE
+    // ========================================
 
     override fun onMachineRemoved() {
         clearInventory(astralArrayInventory)

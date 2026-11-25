@@ -2,7 +2,7 @@
 navigation:
   title: Inferno Cleft Smelting Vault
   icon: inferno_cleft_smelting_vault
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 32
 categories:
   - multiblock controller

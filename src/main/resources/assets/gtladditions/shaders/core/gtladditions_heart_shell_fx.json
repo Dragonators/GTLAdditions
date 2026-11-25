@@ -1,0 +1,24 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "1-srcalpha", "srcalpha": "zero", "dstalpha": "one"},
+  "vertex": "gtladditions:gtladditions_heart_shell_fx",
+  "fragment": "gtladditions:gtladditions_heart_shell_fx",
+  "attributes": ["Position", "UV0", "Color", "Normal"],
+  "samplers": [{"name": "Sampler0"}, {"name": "Sampler1"}],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "SweepPhase", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "WarmPhase", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "CircuitTime", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "Power", "type": "float", "count": 1, "values": [1.0]},
+    {"name": "Gap", "type": "float", "count": 1, "values": [14.0]},
+    {"name": "Kappa", "type": "float", "count": 1, "values": [1.0]},
+    {"name": "Reach", "type": "float", "count": 1, "values": [5.73]},
+    {"name": "Cell", "type": "float", "count": 1, "values": [0.5]},
+    {"name": "MaxAngle", "type": "float", "count": 1, "values": [1.85]},
+    {"name": "Layer", "type": "float", "count": 1, "values": [1.0]},
+    {"name": "Sweep", "type": "float", "count": 3, "values": [0.0, 1.0, 0.0]},
+    {"name": "SceneHandMask", "type": "int", "count": 1, "values": [4]},
+    {"name": "SceneHandMaskEnabled", "type": "int", "count": 1, "values": [0]}
+  ]
+}

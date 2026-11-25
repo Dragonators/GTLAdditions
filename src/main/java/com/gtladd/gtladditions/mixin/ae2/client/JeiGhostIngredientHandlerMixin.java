@@ -15,7 +15,7 @@ import java.util.List;
 @Mixin(targets = "appeng.integration.modules.jei.GhostIngredientHandler", remap = false)
 public abstract class JeiGhostIngredientHandlerMixin {
 
-    @Inject(method = "getTargetsTyped*", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getTargetsTyped(Lappeng/client/gui/AEBaseScreen;Lmezz/jei/api/ingredients/ITypedIngredient;Z)Ljava/util/List;", at = @At("RETURN"), cancellable = true)
     private <I> void gtladditions$addSearchTargets(AEBaseScreen<?> gui, ITypedIngredient<I> ingredient,
                                                    boolean doStart, CallbackInfoReturnable<List<IGhostIngredientHandler.Target<I>>> cir) {
         var searchTargets = TerminalSearchBoxJeiHandler.INSTANCE.getTargetsTyped(gui, ingredient, doStart);

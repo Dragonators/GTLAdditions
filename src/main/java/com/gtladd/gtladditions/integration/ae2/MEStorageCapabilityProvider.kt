@@ -11,5 +11,12 @@ import net.minecraftforge.common.util.LazyOptional
 class MEStorageCapabilityProvider(private val storageSupplier: () -> InfinityDualHatchPartMachine) : ICapabilityProvider {
     private val storageCap: LazyOptional<MEStorage> = LazyOptional.of(storageSupplier)
 
-    override fun <T : Any?> getCapability(capability: Capability<T?>, direction: Direction?): LazyOptional<T?> = if (capability == Capabilities.STORAGE && storageSupplier.invoke().frontFacing == direction) storageCap.cast() else LazyOptional.empty()
+    override fun <T> getCapability(capability: Capability<T?>, direction: Direction?): LazyOptional<T?> =
+        if (capability == Capabilities.STORAGE &&
+            storageSupplier.invoke().frontFacing == direction
+        ) {
+            storageCap.cast()
+        } else {
+            LazyOptional.empty()
+        }
 }

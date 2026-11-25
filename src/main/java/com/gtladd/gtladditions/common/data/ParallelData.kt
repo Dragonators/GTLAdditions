@@ -1,6 +1,11 @@
 package com.gtladd.gtladditions.common.data
 
+import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
+import com.gregtechceu.gtceu.api.recipe.content.Content
+import com.gtladd.gtladditions.integration.gtlcore.monitor.BatchMonitorInputs
+import com.lowdragmc.lowdraglib.side.fluid.FluidStack
+import net.minecraft.world.item.ItemStack
 
 /**
  * Data structure for parallel recipe processing.
@@ -15,4 +20,12 @@ data class ParallelData(
     val parallels: LongArray,
     val shouldProcess: Boolean = true,
     val processedRecipeList: List<GTRecipe>? = null
-)
+) {
+    val monitorInputs = BatchMonitorInputs()
+
+    fun addInputs(inputs: Map<RecipeCapability<*>, List<Content>>) = monitorInputs.addInputs(inputs)
+
+    fun addInput(item: ItemStack) = monitorInputs.addInput(item)
+
+    fun addInput(fluid: FluidStack) = monitorInputs.addInput(fluid)
+}

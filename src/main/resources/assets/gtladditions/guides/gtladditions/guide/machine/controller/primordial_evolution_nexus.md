@@ -2,7 +2,7 @@
 navigation:
   title: Primordial Evolution Nexus
   icon: primordial_evolution_nexus
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 10
 item_ids:
   - primordial_evolution_nexus

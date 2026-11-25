@@ -7,7 +7,6 @@ import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix.toolHeadDrill
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier
-import com.gregtechceu.gtceu.common.data.GTItems.*
 import com.gregtechceu.gtceu.common.data.GTMaterials
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gregtechceu.gtceu.utils.ItemStackHashStrategy
@@ -18,7 +17,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet
 import net.minecraft.data.recipes.FinishedRecipe
 import net.minecraft.world.item.ItemStack
 import org.gtlcore.gtlcore.common.data.GTLItems.*
-import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.data.GTLRecipeTypes
 import org.gtlcore.gtlcore.config.ConfigHolder
 import org.gtlcore.gtlcore.utils.Registries.getItemStack
@@ -63,7 +61,7 @@ object SkyTearsAndGregHeart {
         )
     }
 
-    private val itemModifier = ContentModifier.multiplier(min(4.0 / max(ConfigHolder.INSTANCE.durationMultiplier, 1.0), 4096.0))
+    private val itemModifier = ContentModifier.multiplier(min(4.0 / max(ConfigHolder.INSTANCE.content.durationMultiplier, 1.0), 4096.0))
 
     fun init() {
         GTLRecipeTypes.FRAGMENT_WORLD_COLLECTION.onRecipeBuild { recipeBuilder: GTRecipeBuilder, provider: Consumer<FinishedRecipe> ->
@@ -129,7 +127,7 @@ object SkyTearsAndGregHeart {
         }
         newBuilder.chancedInput(targetDrill, 1, 0)
 
-        newBuilder.output[ItemRecipeCapability.CAP]?.let { it ->
+        newBuilder.output[ItemRecipeCapability.CAP]?.let {
             val copyList = ObjectArrayList<Content>(it.size)
             for (content in it) {
                 val temp = content.copy(ItemRecipeCapability.CAP, itemModifier)
@@ -144,7 +142,7 @@ object SkyTearsAndGregHeart {
     }
 
     fun init(provider: Consumer<FinishedRecipe?>) {
-        if (!ConfigHolder.INSTANCE.enableSkyBlokeMode) return
+        if (!ConfigHolder.INSTANCE.content.enableSkyBlokeMode) return
         STAR_CORE_STRIPPER.recipeBuilder(id("for_stargate"))
             .notConsumable(WORLD_FRAGMENTS_OVERWORLD)
             .chancedOutput(WORLD_FRAGMENTS_OVERWORLD.asStack(), 5000, 0)

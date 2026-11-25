@@ -9,6 +9,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.gtladd.gtladditions.integration.buildinggadgets2.BuildingGadgetsMachineSupport;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -27,6 +29,16 @@ public abstract class RenderBlockBEMixin extends BlockEntity {
 
     protected RenderBlockBEMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    @WrapOperation(method = "setRealBlock",
+                   at = @At(value = "INVOKE",
+                            target = "Lnet/minecraft/world/level/block/entity/BlockEntity;load(Lnet/minecraft/nbt/CompoundTag;)V",
+                            remap = true),
+                   remap = false,
+                   require = 1)
+    private void gtladditions$loadMachineData(BlockEntity blockEntity, CompoundTag tag, Operation<Void> original) {
+        BuildingGadgetsMachineSupport.loadMachineData(blockEntity, () -> original.call(blockEntity, tag));
     }
 
     @Inject(method = "setRealBlock", at = @At("RETURN"), remap = false, require = 1)

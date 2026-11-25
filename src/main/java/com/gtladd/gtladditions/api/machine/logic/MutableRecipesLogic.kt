@@ -11,11 +11,13 @@ import com.gtladd.gtladditions.api.machine.trait.IWirelessNetworkEnergyHandler
 import com.gtladd.gtladditions.api.recipe.IWirelessGTRecipe
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe
 import com.gtladd.gtladditions.common.data.ParallelData
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import com.gtladd.gtladditions.integration.gtlcore.monitor.BatchMonitorInputs
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.longs.LongLongPair
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import net.minecraft.nbt.ListTag
 import org.gtlcore.gtlcore.api.machine.ISuspendableMachine
 import org.gtlcore.gtlcore.api.machine.multiblock.ParallelMachine
 import org.gtlcore.gtlcore.api.machine.trait.ILockRecipe
@@ -26,6 +28,8 @@ import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeMultiplierTracker
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.api.recipe.RecipeRunnerHelper
+import org.gtlcore.gtlcore.integration.monitor.IMonitorRecipeInputs
+import org.gtlcore.gtlcore.integration.monitor.MachineMonitorEntries
 import java.util.*
 import java.util.function.BiPredicate
 import kotlin.sequences.toCollection
@@ -34,6 +38,7 @@ open class MutableRecipesLogic<T> :
     RecipeLogic,
     ILockRecipe,
     IWirelessRecipeLogic,
+    IMonitorRecipeInputs,
     IRecipeStatus
     where T : WorkableElectricMultiblockMachine,
           T : IRecipeLogicMachine,
@@ -43,6 +48,7 @@ open class MutableRecipesLogic<T> :
 
     @DescSynced
     private var useMultipleRecipes = false
+    private var batchMonitorInputs: BatchMonitorInputs? = null
     private val reductionEUt: Double
     private val reductionDuration: Double
     protected val recipeCheck: BiPredicate<GTRecipe, IRecipeLogicMachine>?
@@ -77,6 +83,7 @@ open class MutableRecipesLogic<T> :
         } else {
             super.findAndHandleRecipe()
         }
+        pruneMonitorInputs()
     }
 
     override fun onRecipeFinish() {
@@ -85,6 +92,38 @@ open class MutableRecipesLogic<T> :
         } else {
             super.onRecipeFinish()
         }
+        pruneMonitorInputs()
+    }
+
+    private fun pruneMonitorInputs() {
+        val pending = batchMonitorInputs ?: return
+        val recipe = lastRecipe
+        if (duration <= 0 || isIdle || recipe == null || !pending.matches(recipe)) batchMonitorInputs = null
+    }
+
+    override fun monitorInputs(): ListTag {
+        pruneMonitorInputs()
+        return batchMonitorInputs?.materializeCopy() ?: lastRecipe?.let(MachineMonitorEntries::inputs) ?: ListTag()
+    }
+
+    override fun setupRecipe(recipe: GTRecipe) {
+        super.setupRecipe(recipe)
+        pruneMonitorInputs()
+    }
+
+    override fun interruptRecipe() {
+        batchMonitorInputs = null
+        super.interruptRecipe()
+    }
+
+    override fun resetRecipeLogic() {
+        batchMonitorInputs = null
+        super.resetRecipeLogic()
+    }
+
+    override fun inValid() {
+        batchMonitorInputs = null
+        super.inValid()
     }
 
     override fun handleRecipeWorking() {
@@ -161,11 +200,13 @@ open class MutableRecipesLogic<T> :
         val parallelData = calculateParallels() ?: return null
 
         val wirelessTrait = getMachine().getWirelessNetworkEnergyHandler()
-        return if (wirelessTrait != null) {
+        val recipe = if (wirelessTrait != null) {
             buildFinalWirelessRecipe(parallelData, wirelessTrait)
         } else {
             buildFinalNormalRecipe(parallelData)
         }
+
+        return recipe?.also { batchMonitorInputs = parallelData.monitorInputs.bind(it) }
     }
 
     protected open fun calculateParallels(): ParallelData? {
@@ -242,6 +283,7 @@ open class MutableRecipesLogic<T> :
     protected open fun checkBeforeWorking(): Boolean {
         if (!machine.hasProxies()) return false
         if (getMachine().overclockVoltage <= 0) return false
+        if (getMachine().getWirelessNetworkEnergyHandler()?.isOnline == false) return false
         return true
     }
 

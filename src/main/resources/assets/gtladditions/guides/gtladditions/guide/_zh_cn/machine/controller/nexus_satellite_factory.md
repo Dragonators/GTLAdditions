@@ -2,7 +2,7 @@
 navigation:
   title: 枢纽卫星工厂
   icon: nexus_satellite_factory_mk1
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 35
 categories:
   - 多方块结构主机
@@ -43,7 +43,7 @@ item_ids:
 
 * 枢纽卫星工厂支持激光供能，并允许安装 <ItemLink id="gtladditions:thread_modifier_hatch" />。
 * 常规状态下，模块按自身等级、结构和已安装部件提供并行能力。
-* 当主站嵌入满 512 个 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} /> 并解锁悖论实现理论后，已连接模块会从主站获得无限并行和无限线程。1 个 <ItemLink id="gtladditions:compressed_astral_array" link={false} linkColor={true} /> 会直接填满这个上限。
+* 当主站嵌入满 64 个 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} /> 并解锁悖论实现理论后，已连接模块会从主站获得无限并行和无限线程。1 个 <ItemLink id="gtladditions:compressed_astral_array" link={false} linkColor={true} /> 会直接填满这个上限。
 
 </Column>
 

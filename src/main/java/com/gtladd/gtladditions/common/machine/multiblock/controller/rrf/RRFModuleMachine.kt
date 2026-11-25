@@ -26,6 +26,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import java.util.function.Consumer
 
@@ -39,6 +40,10 @@ abstract class RRFModuleMachine(holder: IMachineBlockEntity) :
     @Persisted
     @DescSynced
     var enabled: Boolean = true
+
+    @DescSynced
+    var effectsActive: Boolean = false
+        private set
 
     @Persisted
     private var hostPosition: BlockPos? = null
@@ -111,7 +116,14 @@ abstract class RRFModuleMachine(holder: IMachineBlockEntity) :
         removeFromHost(host)
     }
 
+    private fun updateEffectsActive() {
+        if (level?.isClientSide == false) {
+            effectsActive = getHost()?.isFormed == true && isReadyForRecursiveReverseBuff()
+        }
+    }
+
     protected fun updateTickSubscription() {
+        updateEffectsActive()
         if (isFormed && isConnectedToHost) {
             tickSubscription = subscribeServerTick(tickSubscription, ::moduleServerTick)
         } else {
@@ -184,6 +196,7 @@ abstract class RRFModuleMachine(holder: IMachineBlockEntity) :
     }
 
     override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
         configuratorPanel.attachConfigurators(
             IFancyConfiguratorButton.Toggle(
                 GuiTextures.BUTTON_POWER.getSubTexture(0.0, 0.0, 1.0, 0.5),

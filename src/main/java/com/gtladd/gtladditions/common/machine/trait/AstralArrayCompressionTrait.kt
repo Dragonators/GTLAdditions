@@ -5,7 +5,7 @@ import com.gtladd.gtladditions.api.machine.IAstralArrayInteractionMachine
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.machine.multiblock.controller.ArcanicAstrograph
 import com.gtladd.gtladditions.utils.CommonUtils.getRotatedRenderPosition
-import com.gtladd.gtladditions.utils.MachineUtil
+import com.gtladd.gtladditions.utils.recipe.MachineUtil
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.core.Direction

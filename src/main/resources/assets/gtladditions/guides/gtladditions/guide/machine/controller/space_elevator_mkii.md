@@ -2,7 +2,7 @@
 navigation:
   title: Space Elevator MKII
   icon: space_elevator_mkii
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 10
 item_ids:
   - space_elevator_mkii

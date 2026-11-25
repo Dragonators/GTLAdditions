@@ -5,7 +5,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gtladd.gtladditions.api.machine.wireless.GTLAddWirelessWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.recipe.WirelessGTRecipe
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.math.BigInteger
@@ -35,9 +35,7 @@ open class GTLAddMultipleTypeWirelessRecipesLogic : GTLAddMultipleWirelessRecipe
     override fun lookupRecipeIterator(): Set<GTRecipe> = if (isLock) {
         when {
             lockRecipe == null -> {
-                lockRecipe = machine.recipeTypes.asSequence()
-                    .mapNotNull { it.lookup.find(machine, this::checkRecipe) }
-                    .firstOrNull()
+                lockRecipe = machine.recipeTypes.firstNotNullOfOrNull { it.lookup.find(machine, this::checkRecipe) }
                 lockRecipe?.let { Collections.singleton(it) } ?: emptySet()
             }
             checkRecipe(lockRecipe) -> Collections.singleton(lockRecipe)

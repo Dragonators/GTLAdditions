@@ -22,7 +22,7 @@ item_ids:
 
 <Row>
 <Recipe id="gtladditions:electric_blast_furnace/magnesium_chloride_dust" />
-<Recipe id="gtladditions:decay_hastener/tiranium50" />
+<Recipe id="gtladditions:decay_hastener/titanium_50" />
 </Row>
 
 <Row>

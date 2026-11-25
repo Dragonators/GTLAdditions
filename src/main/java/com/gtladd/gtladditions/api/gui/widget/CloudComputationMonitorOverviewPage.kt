@@ -311,9 +311,8 @@ private class CloudOverviewWidget(
         TextTexture {
             Component.translatable("gui.gtladditions.cloud_monitor.sort_quantity_short").string +
                 if (descending()) "▼" else "▲"
-        }.setColor(16777045),
-        { onPress() }
-    ).apply {
+        }.setColor(16777045)
+    ) { onPress() }.apply {
         setClientSideWidget()
         setHoverTooltips(Component.translatable("gui.gtladditions.cloud_monitor.sort"))
     }
@@ -505,7 +504,7 @@ private class CloudMonitorRowWidget(
         this.cwu = cwu
     }
 
-    fun getSortValue(byMax: Boolean): Long = if (byMax) max else cwu.toLong()
+    fun getSortValue(byMax: Boolean): Long = if (byMax) max else cwu
 
     @OnlyIn(Dist.CLIENT)
     private fun sendLocationMessages(player: Player, locations: List<CloudMachineSnapshot>) {

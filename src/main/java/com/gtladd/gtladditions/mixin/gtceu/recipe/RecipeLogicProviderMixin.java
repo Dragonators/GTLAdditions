@@ -19,6 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import com.gtladd.gtladditions.api.recipe.IWirelessGTRecipe;
+import com.gtladd.gtladditions.common.machine.multiblock.controller.bs.BiosphereIIIController;
+import com.gtladd.gtladditions.integration.gtlcore.monitor.WirelessMonitorPower;
 import com.gtladd.gtladditions.utils.CommonUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -41,10 +43,13 @@ public abstract class RecipeLogicProviderMixin {
 
     @Inject(method = "write(Lnet/minecraft/nbt/CompoundTag;Lcom/gregtechceu/gtceu/api/machine/trait/RecipeLogic;)V", at = @At("HEAD"), remap = false)
     protected void write(CompoundTag data, RecipeLogic capability, CallbackInfo ci) {
-        if (capability.getLastRecipe() instanceof IWirelessGTRecipe recipe) {
+        if (capability.machine instanceof BiosphereIIIController controller) {
+            var average = controller.getAverageEnergyConsumption();
+            if (average.signum() > 0) data.putByteArray(WirelessMonitorPower.TAG, average.negate().toByteArray());
+        } else if (capability.getDuration() > 0 && !capability.isIdle() && capability.getLastRecipe() instanceof IWirelessGTRecipe recipe) {
             var bigIntInput = recipe.getWirelessEuTickInputs();
             if (bigIntInput != null && bigIntInput.signum() != 0) {
-                data.putByteArray("wirelessTickInputs", bigIntInput.toByteArray());
+                data.putByteArray(WirelessMonitorPower.TAG, bigIntInput.toByteArray());
             }
         }
     }
@@ -89,8 +94,8 @@ public abstract class RecipeLogicProviderMixin {
                             tooltip.add(Component.translatable("gtceu.top.energy_production").append(" ").append(text));
                         }
                     }
-                } else if (capData.contains("wirelessTickInputs", Tag.TAG_BYTE_ARRAY)) {
-                    BigInteger wirelessEut = new BigInteger(capData.getByteArray("wirelessTickInputs"));
+                } else if (capData.contains(WirelessMonitorPower.TAG, Tag.TAG_BYTE_ARRAY)) {
+                    BigInteger wirelessEut = new BigInteger(capData.getByteArray(WirelessMonitorPower.TAG));
                     BigInteger abs = wirelessEut.abs();
                     long longEu = NumberUtils.getLongValue(abs);
                     var tier = longEu == Long.MAX_VALUE ? GTValues.MAX_TRUE : NumberUtils.getFakeVoltageTier(longEu);

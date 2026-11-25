@@ -1,0 +1,15 @@
+{
+  "vertex": "gtladditions:gtladditions_heart_post",
+  "fragment": "gtladditions:gtladditions_heart_hand_mask",
+  "attributes": ["Position", "UV0"],
+  "samplers": [
+    {"name": "SolidBeforeDepthSampler"},
+    {"name": "SolidAfterDepthSampler"},
+    {"name": "TranslucentBeforeDepthSampler"},
+    {"name": "TranslucentAfterDepthSampler"}
+  ],
+  "uniforms": [
+    {"name": "SolidHandEnabled", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "TranslucentHandEnabled", "type": "float", "count": 1, "values": [0.0]}
+  ]
+}

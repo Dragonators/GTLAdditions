@@ -41,6 +41,8 @@ class GTLAddMultiBlockMachineBuilder private constructor(
 
     fun noneRotation(): GTLAddMultiBlockMachineBuilder = super.rotationState(RotationState.NONE).allowExtendedFacing(false).allowFlip(false) as GTLAddMultiBlockMachineBuilder
 
+    override fun allowFlip(allowFlip: Boolean): GTLAddMultiBlockMachineBuilder = super.allowFlip(allowFlip) as GTLAddMultiBlockMachineBuilder
+
     fun tooltipTextKey(vararg key: Component): GTLAddMultiBlockMachineBuilder = super.tooltips(*key) as GTLAddMultiBlockMachineBuilder
 
     fun tooltipTextMaxParallels(parallel: Any): GTLAddMultiBlockMachineBuilder = super.tooltips("gtceu.multiblock.max_parallel".toComponent(parallel)) as GTLAddMultiBlockMachineBuilder

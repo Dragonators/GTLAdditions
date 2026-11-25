@@ -2,7 +2,7 @@
 navigation:
   title: 亚原子置换核心
   icon: subatomic_transmutatioon_core
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 25
 categories:
   - 多方块结构主机
@@ -13,6 +13,8 @@ item_ids:
 # 亚原子置换核心
 
 <BlockImage id="gtladditions:subatomic_transmutatioon_core" scale="8" />
+
+亚原子置换核心是原子置换核心的新版主机，通过转换卡与线圈控制方块嬗变。
 
 * 结构中需要安装 <ItemLink id="gtladditions:me_block_conservation" />
 * 只能使用泰坦钢或以上线圈

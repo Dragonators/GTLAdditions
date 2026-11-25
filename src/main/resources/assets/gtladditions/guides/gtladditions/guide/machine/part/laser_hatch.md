@@ -2,7 +2,7 @@
 navigation:
   title: Laser Hatches
   icon: gtmthings:luv_16777216a_wireless_laser_source_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 9
 categories:
   - machine part hatch

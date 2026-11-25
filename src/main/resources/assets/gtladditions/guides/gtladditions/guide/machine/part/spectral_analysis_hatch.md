@@ -2,7 +2,7 @@
 navigation:
   title: Spectral Analysis Hatch
   icon: spectral_analysis_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 20
 categories:
   - machine part hatch
@@ -61,3 +61,14 @@ item_ids:
 * For <ItemLink id="gtceu:integrated_ore_processor" />, perfect tuning changes overclocking from lossy overclocking to perfect overclocking.
 * For <ItemLink id="gtceu:advanced_integrated_ore_processor" />, after base cross-recipe threads, <ItemLink id="gtladditions:thread_modifier_hatch" /> threads, and frequency band 1 threads have already applied, perfect tuning multiplies the total cross-recipe threads by 2.
 * For <ItemLink id="gtladditions:space_infinity_integrated_ore_processor" />, perfect tuning doubles recipe output.
+
+## Advanced Infinite Fluid Driller
+
+* When installed on an Advanced Infinite Fluid Driller:
+* Channel 1: Yield Bonus
+> Level 0 (default): 1.5x, Level 1: 2.3x, Level 2: 3.2x, Level 3: 4x
+* Channel 2: Energy Reduction
+> Level 0 (default): 0.8, Level 1: 0.6, Level 2: 0.2, Level 3: 0.05
+* Channel 3: Range Bonus
+> Level 0 (default): 7x7, Level 1: 9x9, Level 2: 11x11, Level 3: 13x13. The lowest tier retains upstream parameter 6, which Core scans as 7x7; removing the hatch restores 5x5 and refreshes the fluid cache.
+* Yield stacks with the local thread multiplier and is constrained by available power. Perfect tuning removes coolant demand and maintains maximum temperature. Up to 15 extra overclock levels each require four times the qualifying power while doubling actual yield and consumption.

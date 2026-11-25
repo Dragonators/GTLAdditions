@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialEvent
 import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialRegistryEvent
 import com.gregtechceu.gtceu.api.machine.MachineDefinition
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType
+import com.gtladd.gtladditions.api.recipe.UntypedSingularityIngredient
 import com.gtladd.gtladditions.api.registry.GTLAddRegistration
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.material.GTLAddMaterial
@@ -12,12 +13,12 @@ import com.gtladd.gtladditions.common.material.MaterialModify
 import com.gtladd.gtladditions.common.modify.GTLAddCreativeModeTabs
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes
 import com.gtladd.gtladditions.config.ConfigHolder
-import com.gtladd.gtladditions.network.GTLAddNetworking
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.common.crafting.CraftingHelper
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
+import net.minecraftforge.registries.ForgeRegistries
+import net.minecraftforge.registries.RegisterEvent
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -26,11 +27,20 @@ class GTLAdditions {
     init {
         GTLAddCreativeModeTabs.init()
         ConfigHolder.init()
-        GTLAddNetworking.init()
 
         val modEventBus = FMLJavaModLoadingContext.get().modEventBus
-        MinecraftForge.EVENT_BUS.register(this)
-        modEventBus.register(this)
+        modEventBus.addListener { event: RegisterEvent ->
+            if (event.registryKey == ForgeRegistries.Keys.RECIPE_SERIALIZERS) {
+                CraftingHelper.register(UntypedSingularityIngredient.ID, UntypedSingularityIngredient.Serializer)
+            }
+        }
+        modEventBus.addListener { _: MaterialRegistryEvent ->
+            GTCEuAPI.materialManager.createRegistry(MOD_ID)
+        }
+        modEventBus.addListener { _: MaterialEvent ->
+            MaterialModify.init()
+            GTLAddMaterial.init()
+        }
         GTLAddRegistration.REGISTRATE.registerEventListeners(modEventBus)
 
         modEventBus.addGenericListener(GTRecipeType::class.java) { _: GTCEuAPI.RegisterEvent<ResourceLocation, GTRecipeType> ->
@@ -39,17 +49,6 @@ class GTLAdditions {
         modEventBus.addGenericListener(MachineDefinition::class.java) { _: GTCEuAPI.RegisterEvent<ResourceLocation, MachineDefinition> ->
             GTLAddMachines.init()
         }
-    }
-
-    @SubscribeEvent
-    fun onMaterialRegistry(event: MaterialRegistryEvent) {
-        GTCEuAPI.materialManager.createRegistry(MOD_ID)
-    }
-
-    @SubscribeEvent
-    fun onMaterialRegister(event: MaterialEvent) {
-        MaterialModify.init()
-        GTLAddMaterial.init()
     }
 
     companion object {

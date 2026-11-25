@@ -1,0 +1,24 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "1-srcalpha",
+    "srcalpha": "one",
+    "dstalpha": "1-srcalpha"
+  },
+  "vertex": "gtladditions:gtladditions_heart_post",
+  "fragment": "gtladditions:gtladditions_heart_layer_copy",
+  "attributes": [
+    "Position",
+    "UV0"
+  ],
+  "samplers": [],
+  "uniforms": [
+    {"name":"HeartImages","type":"int","count":1,"values":[5]},
+    {"name":"ImageIndex","type":"int","count":1,"values":[0]},
+    {"name":"AlphaOnly","type":"int","count":1,"values":[0]},
+    {"name":"SkipRect","type":"float","count":4,"values":[0,0,0,0]},
+    {"name": "ImageRects", "type": "int", "count": 1, "values": [7]},
+    {"name": "ImageStorageSize", "type": "float", "count": 2, "values": [1, 1]}
+  ]
+}

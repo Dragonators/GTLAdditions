@@ -1,0 +1,110 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "1-srccolor",
+    "srcalpha": "zero",
+    "dstalpha": "one"
+  },
+  "vertex": "gtladditions:gtladditions_matrix_beam_glow",
+  "fragment": "gtladditions:gtladditions_matrix_beam_glow",
+  "attributes": [
+    "Position",
+    "UV0",
+    "UV1"
+  ],
+  "samplers": [
+    {
+      "name": "Sampler0"
+    }
+  ],
+  "uniforms": [
+    {"name": "SceneHandMask", "type": "int", "count": 1, "values": [4]},
+    {"name": "SceneHandMaskEnabled", "type": "int", "count": 1, "values": [0]},
+    {
+      "name": "ProjMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "BeamColor",
+      "type": "float",
+      "count": 3,
+      "values": [
+        1,
+        0.68,
+        0.24
+      ]
+    },
+    {
+      "name": "CoreColor",
+      "type": "float",
+      "count": 3,
+      "values": [
+        1,
+        0.9,
+        0.6
+      ]
+    },
+    {
+      "name": "HaloColor",
+      "type": "float",
+      "count": 3,
+      "values": [
+        1,
+        0.52,
+        0.12
+      ]
+    },
+    {
+      "name": "BeamRadius",
+      "type": "float",
+      "count": 1,
+      "values": [
+        2.5
+      ]
+    },
+    {
+      "name": "BeamViews",
+      "type": "matrix4x4",
+      "count": 96,
+      "values": [
+        0
+      ]
+    },
+    {
+      "name": "BeamCameraX",
+      "type": "float",
+      "count": 6,
+      "values": [
+        0
+      ]
+    },
+    {
+      "name": "BeamCameraY",
+      "type": "float",
+      "count": 6,
+      "values": [
+        0
+      ]
+    }
+  ]
+}

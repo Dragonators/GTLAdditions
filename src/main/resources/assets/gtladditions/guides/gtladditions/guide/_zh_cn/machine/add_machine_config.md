@@ -41,7 +41,6 @@ GTLAdditions 自有机器：
 
 <Row>
     <BlockImage id="gtladditions:lucid_etchdreamer" scale="3" />
-    <BlockImage id="gtladditions:atomic_transmutation_core" scale="3" />
     <BlockImage id="gtladditions:astral_convergence_nexus" scale="3" />
     <BlockImage id="gtladditions:nebula_reaper" scale="3" />
     <BlockImage id="gtladditions:arcane_cache_vault" scale="3" />
@@ -49,7 +48,6 @@ GTLAdditions 自有机器：
 
 <Row>
     <BlockImage id="gtladditions:biological_simulation_laboratory" scale="3" />
-    <BlockImage id="gtladditions:dimensionally_transcendent_chemical_plant" scale="3" />
     <BlockImage id="gtladditions:quantum_syphon_matrix" scale="3" />
     <BlockImage id="gtladditions:fuxi_bagua_heaven_forging_furnace" scale="3" />
     <BlockImage id="gtladditions:antientropy_condensation_center" scale="3" />
@@ -58,7 +56,7 @@ GTLAdditions 自有机器：
 <Row>
     <BlockImage id="gtladditions:taixu_turbid_array" scale="3" />
     <BlockImage id="gtladditions:inferno_cleft_smelting_vault" scale="3" />
-    <BlockImage id="gtladditions:heart_of_the_universe" scale="3" />
+    <BlockImage id="gtladditions:heart_of_the_cosmos" scale="3" />
     <BlockImage id="gtladditions:dimension_focus_infinity_crafting_array" scale="3" />
 </Row>
 
@@ -85,7 +83,7 @@ GTLAdditions 自有机器：
     <BlockImage id="gtladditions:draconic_collapse_core" scale="3" />
     <BlockImage id="gtladditions:titan_crip_earthbore" scale="3" />
     <BlockImage id="gtladditions:skeleton_shift_rift_engine" scale="3" />
-    <BlockImage id="gtladditions:apocalyptic_torsion_quantum_matrix" scale="3" />
+    <BlockImage id="gtladditions:apocalyptic_quantum_warp_matrix" scale="3" />
 </Row>
 
 本 mod 改造为贪婪设定的外部机器：
@@ -173,6 +171,11 @@ GTLAdditions 自有机器：
     <BlockImage id="gtladditions:nexus_satellite_factory_mk4" scale="3" />
     <BlockImage id="gtladditions:space_infinity_integrated_ore_processor" scale="3" />
     <BlockImage id="gtladditions:macro_atomic_resonant_fragment_stripper" scale="3" />
+    <BlockImage id="gtladditions:subatomic_transmutatioon_core" scale="3" />
+</Row>
+
+<Row>
+    <BlockImage id="gtladditions:exotic_chemical_complex" scale="3" />
 </Row>
 
 本 mod 改造为特殊处理的外部机器：
@@ -187,6 +190,8 @@ GTLAdditions 自有机器：
 
 说明：
 
+* <ItemLink id="gtladditions:exotic_chemical_complex" /> 一级仅化合中枢运行，全部配方计入化合中枢的均分上限。二级自动激活 12 座外围单元，各单元有自己的均分上限，默认仅 UV 及以上配方计入。三级默认无限并行，外围可手动限流，所有单元可分别选择大型化反或深度化学扭曲配方。
+* <ItemLink id="gtladditions:subatomic_transmutatioon_core" /> 通过 ME 嬗变总线转换方块；每轮转换量由线圈温度和转换卡决定，周期由卡片种类决定。
 * 亚空间航道枢纽模块在未解锁特殊状态时按均分处理；解锁后会按每条配方独立计算，配方并行上限按特殊并行处理。
 * 伪神之锻炉及其模块按可运行配方分别计算，并会受主机输出倍率、能源网络和模块自身规则影响。
 * 空间缩放仪、天基无尽集成矿石处理厂和宏原子谐振碎片剥离器按每条配方并行独立计算。

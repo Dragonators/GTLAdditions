@@ -235,13 +235,13 @@ class GTLytSlotGrid(private val width: Int, private val itemHeight: Int, fluidHe
         private fun getDisplayedItemStack(stacks: Array<ItemStack>) = if (stacks.isEmpty()) {
             ItemStack.EMPTY
         } else {
-            stacks[(System.nanoTime() / TimeUnit.MILLISECONDS.toNanos(2000L) % stacks.size.toLong()).toInt()]
+            stacks[Math.floorMod(System.nanoTime() / TimeUnit.MILLISECONDS.toNanos(2000L), stacks.size.toLong()).toInt()]
         }
 
         private fun getDisplayedFluidStack(stacks: Array<FluidStack>) = if (stacks.isEmpty()) {
             FluidStack.empty()
         } else {
-            stacks[(System.nanoTime() / TimeUnit.MILLISECONDS.toNanos(2000L) % stacks.size.toLong()).toInt()]
+            stacks[Math.floorMod(System.nanoTime() / TimeUnit.MILLISECONDS.toNanos(2000L), stacks.size.toLong()).toInt()]
         }
     }
 
@@ -250,7 +250,7 @@ class GTLytSlotGrid(private val width: Int, private val itemHeight: Int, fluidHe
             val list = ObjectArrayList<Component>()
             list.add(FluidHelper.getDisplayName(fluidStack))
             TooltipsHandler.appendFluidTooltips(fluidStack.fluid, fluidStack.amount, list::add, null)
-            return list.stream().map { it.visualOrderText }.map { ClientTooltipComponent.create(it) }.toList()
+            return list.map { ClientTooltipComponent.create(it.visualOrderText) }.toMutableList()
         }
 
         override fun getIcon(): ItemStack = fluidStack.fluid.bucket.defaultInstance

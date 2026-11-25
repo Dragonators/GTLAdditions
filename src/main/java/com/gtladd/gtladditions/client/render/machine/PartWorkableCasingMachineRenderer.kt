@@ -13,10 +13,13 @@ import net.minecraft.client.resources.model.ModelState
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.RandomSource
+import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.level.block.Block
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import java.util.*
+import net.minecraftforge.client.model.data.ModelData
+import java.util.concurrent.ConcurrentHashMap
+import java.util.function.Consumer
 
 open class PartWorkableCasingMachineRenderer(
     baseCasing: ResourceLocation,
@@ -26,9 +29,14 @@ open class PartWorkableCasingMachineRenderer(
 ) : WorkableCasingMachineRenderer(baseCasing, workableModel),
     IControllerRenderer {
 
-    protected val partCasingModels: MutableMap<Direction, BakedModel> = EnumMap(Direction::class.java)
+    protected val partCasingModels: MutableMap<Direction, BakedModel> = ConcurrentHashMap()
 
-    @Suppress("DEPRECATION")
+    @OnlyIn(Dist.CLIENT)
+    override fun onPrepareTextureAtlas(atlasName: ResourceLocation, register: Consumer<ResourceLocation>) {
+        super.onPrepareTextureAtlas(atlasName, register)
+        if (atlasName == InventoryMenu.BLOCK_ATLAS) partCasingModels.clear()
+    }
+
     @OnlyIn(Dist.CLIENT)
     override fun renderPartModel(
         quads: MutableList<BakedQuad>,
@@ -40,7 +48,7 @@ open class PartWorkableCasingMachineRenderer(
         modelFacing: Direction?,
         modelState: ModelState?
     ) {
-        quads.addAll(getPartCasingModel(frontFacing).getQuads(partEntry.get().defaultBlockState(), side, rand))
+        quads.addAll(getPartCasingModel(frontFacing).getQuads(partEntry.get().defaultBlockState(), side, rand, ModelData.EMPTY, null))
     }
 
     @OnlyIn(Dist.CLIENT)

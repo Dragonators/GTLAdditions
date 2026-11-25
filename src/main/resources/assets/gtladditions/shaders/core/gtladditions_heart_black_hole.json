@@ -1,11 +1,53 @@
 {
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "1-srcalpha",
+    "srcalpha": "one",
+    "dstalpha": "1-srcalpha"
+  },
   "vertex": "gtladditions:gtladditions_heart_black_hole",
   "fragment": "gtladditions:gtladditions_heart_black_hole",
   "attributes": [
     "Position"
   ],
-  "samplers": [],
+  "samplers": [
+    {"name": "RayDeflectionSampler"},
+    {"name": "RayInverseRadiusSampler"},
+    {"name": "DiscNoiseSampler"},
+    {"name": "GalaxySampler"},
+    {"name": "MaterialSampler"},
+    {"name": "SceneDepth"}
+  ],
   "uniforms": [
+    {
+      "name": "SceneSize", "type": "float", "count": 2, "values": [1.0, 1.0]
+    },
+    {
+      "name": "PassSize", "type": "float", "count": 2, "values": [1.0, 1.0]
+    },
+    {
+      "name": "InverseProjection", "type": "matrix4x4", "count": 16,
+      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "name": "MaterialUvScale",
+      "type": "float",
+      "count": 2,
+      "values": [1.0, 1.0]
+    },
+    {
+      "name": "MaterialPixelScale",
+      "type": "float",
+      "count": 2,
+      "values": [0.5, 0.5]
+    },
+    {
+      "name": "VolumeProxyRadius",
+      "type": "float",
+      "count": 1,
+      "values": [36.25]
+    },
     {
       "name": "ModelViewMat",
       "type": "matrix4x4",
@@ -53,12 +95,10 @@
       ]
     },
     {
-      "name": "Time",
+      "name": "AnimationPhase",
       "type": "float",
-      "count": 1,
-      "values": [
-        0.0
-      ]
+      "count": 2,
+      "values": [0.0, 0.0]
     },
     {
       "name": "Center",
@@ -95,19 +135,10 @@
       ]
     },
     {
-      "name": "RotationSpeed",
-      "type": "float",
-      "count": 1,
-      "values": [
-        0.3
-      ]
-    },
-    {
       "name": "BlackHoleRotation",
       "type": "float",
-      "count": 3,
+      "count": 2,
       "values": [
-        0.0,
         0.0,
         0.0
       ]

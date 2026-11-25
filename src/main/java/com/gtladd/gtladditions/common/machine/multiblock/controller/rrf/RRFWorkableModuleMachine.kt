@@ -1,5 +1,6 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller.rrf
 
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
@@ -7,11 +8,13 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gtladd.gtladditions.api.machine.gui.MultiblockDisplayText
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeStatus
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
@@ -27,6 +30,10 @@ abstract class RRFWorkableModuleMachine(holder: IMachineBlockEntity, vararg args
     private var host: RecursiveReverseArray? = null
     private var arrayTickSubscription: TickableSubscription? = null
 
+    @DescSynced
+    var effectsActive: Boolean = false
+        private set
+
     @Suppress("unused")
     fun supportsBatchProcessing(): Boolean = false
 
@@ -38,6 +45,14 @@ abstract class RRFWorkableModuleMachine(holder: IMachineBlockEntity, vararg args
     // ========================================
 
     open fun isReadyForRecursiveReverseBuff(): Boolean = isFormed && recipeLogic.isWorking
+
+    protected open fun isEffectReady(): Boolean = isReadyForRecursiveReverseBuff()
+
+    private fun updateEffectsActive() {
+        if (level?.isClientSide == false) {
+            effectsActive = getHost()?.isFormed == true && isEffectReady()
+        }
+    }
 
     // ========================================
     // Module connection
@@ -66,10 +81,12 @@ abstract class RRFWorkableModuleMachine(holder: IMachineBlockEntity, vararg args
 
     override fun onConnected(host: RecursiveReverseArray) {
         recipeLogic.updateTickSubscription()
+        updateEffectsActive()
     }
 
     override fun onDisconnected() {
         failDisconnectedRecipe()
+        updateEffectsActive()
     }
 
     // ========================================
@@ -115,6 +132,7 @@ abstract class RRFWorkableModuleMachine(holder: IMachineBlockEntity, vararg args
     open fun moduleTick() = Unit
 
     private fun updateArrayTickSubscription() {
+        updateEffectsActive()
         if (isFormed) {
             arrayTickSubscription = subscribeServerTick(arrayTickSubscription, ::moduleArrayServerTick)
         } else {
@@ -147,6 +165,11 @@ abstract class RRFWorkableModuleMachine(holder: IMachineBlockEntity, vararg args
                         .withStyle(if (isConnectedToHost) ChatFormatting.GREEN else ChatFormatting.RED)
                 )
             )
+    }
+
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
     }
 
     // ========================================

@@ -1,16 +1,23 @@
 package com.gtladd.gtladditions.mixin.oculus;
 
-import net.irisshaders.iris.gl.framebuffer.GlFramebuffer;
 import net.irisshaders.iris.pipeline.IrisRenderingPipeline;
+import net.irisshaders.iris.pipeline.WorldRenderingPhase;
+import net.irisshaders.iris.pipeline.programs.ShaderKey;
+import net.irisshaders.iris.shaderpack.programs.ProgramFallbackResolver;
 import net.irisshaders.iris.shaderpack.programs.ProgramSet;
+import net.irisshaders.iris.shaderpack.programs.ProgramSource;
 import net.irisshaders.iris.targets.RenderTargets;
+import net.minecraft.client.renderer.ShaderInstance;
 
-import com.google.common.collect.ImmutableSet;
-import com.gtladd.gtladditions.client.render.machine.antichrist.AntichristIrisPipelineBridge;
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredMachineRenderer;
-import com.gtladd.gtladditions.utils.antichrist.RingStructureVertexBuffer;
-import com.mojang.blaze3d.platform.GlStateManager;
-import org.lwjgl.opengl.GL30C;
+import com.gtladd.gtladditions.client.render.machine.antichrist.RingBatchShaderProgram;
+import com.gtladd.gtladditions.client.render.machine.antichrist.RingStructureVertexBuffer;
+import com.gtladd.gtladditions.client.render.machine.dimensionfocus.DimensionFocusOrbitRenderer;
+import com.gtladd.gtladditions.client.render.machine.elevator.SpaceElevatorCableRenderer;
+import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask;
+import com.gtladd.gtladditions.client.render.machine.heart.HeartShellRenderer;
+import com.gtladd.gtladditions.client.render.machine.matrix.MatrixFrameTerrainRenderer;
+import com.gtladd.gtladditions.client.render.scene.IrisPipelineBridge;
+import com.gtladd.gtladditions.client.render.scene.SceneScheduler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -21,129 +28,70 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.io.IOException;
+import java.util.Optional;
 
 @Mixin(value = IrisRenderingPipeline.class, remap = false)
-@Implements(@Interface(
-                       iface = AntichristIrisPipelineBridge.class,
-                       prefix = "gtladditions$"))
+@Implements(@Interface(iface = IrisPipelineBridge.class, prefix = "gtladditions$"))
 public abstract class IrisRenderingPipelineMixin {
 
-    @Unique
-    private static final int GTLADDITIONS_ANTICHRIST_FALLBACK_TARGET = 0;
-
+    @Shadow
+    @Final
+    private ProgramFallbackResolver resolver;
     @Shadow
     @Final
     private RenderTargets renderTargets;
 
     @Shadow
-    @Final
-    private ImmutableSet<Integer> flippedAfterPrepare;
-
-    @Shadow
-    @Final
-    private ImmutableSet<Integer> flippedAfterTranslucent;
-
-    @Shadow
-    public boolean isBeforeTranslucent;
-
-    @Shadow
-    private boolean isMainBound;
+    private ShaderInstance createShader(String name, Optional<ProgramSource> source, ShaderKey key) throws IOException {
+        throw new AssertionError();
+    }
 
     @Unique
-    private GlFramebuffer gtladditions$antichristFallbackBeforeTranslucent;
+    private final RingBatchShaderProgram gtladditions$ringShader = new RingBatchShaderProgram();
 
     @Unique
-    private GlFramebuffer gtladditions$antichristFallbackAfterTranslucent;
+    public ShaderInstance gtladditions$getFoaBatchShader() {
+        return gtladditions$ringShader.getOrCreate(this, resolver, this::createShader);
+    }
 
     @Unique
-    private int gtladditions$antichristFallbackWidth = -1;
-
-    @Unique
-    private int gtladditions$antichristFallbackHeight = -1;
-
-    @Unique
-    private final Deque<int[]> gtladditions$antichristFramebufferStack = new ArrayDeque<>();
-
-    @Unique
-    private final Deque<Boolean> gtladditions$antichristMainBoundStack = new ArrayDeque<>();
+    public int gtladditions$getOpaqueDepthTexture() {
+        return renderTargets.getDepthTextureNoTranslucents().getTextureId();
+    }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void gtladditionsInternal$useShaderCompatibleRingTerrain(ProgramSet programSet, CallbackInfo ci) {
+    private void gtladditionsInternal$initializeMachineRendering(ProgramSet programSet, CallbackInfo ci) {
         RingStructureVertexBuffer.useShaderCompatibleTerrainUploadMode();
-    }
-
-    @Unique
-    public void gtladditions$beginAntichristFallbackTarget() {
-        gtladditionsInternal$ensureAntichristFallbackTargets();
-        gtladditions$antichristFramebufferStack.push(new int[] {
-                GlStateManager._getInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING),
-                GlStateManager._getInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING) });
-        gtladditions$antichristMainBoundStack.push(isMainBound);
-
-        GlFramebuffer fallback = isBeforeTranslucent ? gtladditions$antichristFallbackBeforeTranslucent : gtladditions$antichristFallbackAfterTranslucent;
-        fallback.bind();
-        isMainBound = false;
-    }
-
-    @Unique
-    public void gtladditions$endAntichristFallbackTarget() {
-        if (gtladditions$antichristFramebufferStack.isEmpty()) {
-            return;
-        }
-
-        int[] previousFramebuffers = gtladditions$antichristFramebufferStack.pop();
-        GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, previousFramebuffers[0]);
-        GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, previousFramebuffers[1]);
-        isMainBound = !gtladditions$antichristMainBoundStack.isEmpty() && gtladditions$antichristMainBoundStack.pop();
-    }
-
-    @Unique
-    private void gtladditionsInternal$ensureAntichristFallbackTargets() {
-        int width = renderTargets.getCurrentWidth();
-        int height = renderTargets.getCurrentHeight();
-        if (gtladditions$antichristFallbackBeforeTranslucent != null && gtladditions$antichristFallbackAfterTranslucent != null && width == gtladditions$antichristFallbackWidth && height == gtladditions$antichristFallbackHeight) {
-            return;
-        }
-
-        gtladditionsInternal$destroyAntichristFallbackTargets();
-        gtladditions$antichristFallbackBeforeTranslucent = gtladditionsInternal$createAntichristFallbackTarget(flippedAfterPrepare);
-        gtladditions$antichristFallbackAfterTranslucent = gtladditionsInternal$createAntichristFallbackTarget(flippedAfterTranslucent);
-        gtladditions$antichristFallbackWidth = width;
-        gtladditions$antichristFallbackHeight = height;
-    }
-
-    @Unique
-    private GlFramebuffer gtladditionsInternal$createAntichristFallbackTarget(ImmutableSet<Integer> flippedTargets) {
-        int[] drawBuffers = new int[] { GTLADDITIONS_ANTICHRIST_FALLBACK_TARGET };
-        return renderTargets.createGbufferFramebuffer(flippedTargets, drawBuffers);
+        MatrixFrameTerrainRenderer.useShaderCompatibleTerrainUploadMode();
+        DimensionFocusOrbitRenderer.useShaderCompatibleTerrainUploadMode();
+        SpaceElevatorCableRenderer.useShaderCompatibleTerrainUploadMode();
+        HeartShellRenderer.useShaderCompatibleTerrainUploadMode();
+        SceneScheduler.INSTANCE.pipelineChanged();
     }
 
     @Inject(method = "destroy", at = @At("HEAD"))
-    private void gtladditionsInternal$destroyAntichristFallbackTargetsOnDestroy(CallbackInfo ci) {
+    private void gtladditionsInternal$destroyMachineRendering(CallbackInfo ci) {
         RingStructureVertexBuffer.useVanillaCompatibleTerrainUploadMode();
-        gtladditionsInternal$destroyAntichristFallbackTargets();
+        MatrixFrameTerrainRenderer.useVanillaCompatibleTerrainUploadMode();
+        DimensionFocusOrbitRenderer.useVanillaCompatibleTerrainUploadMode();
+        SpaceElevatorCableRenderer.useVanillaCompatibleTerrainUploadMode();
+        HeartShellRenderer.useVanillaCompatibleTerrainUploadMode();
+        HeartHandDepthMask.destroy();
+        SceneScheduler.INSTANCE.pipelineChanged();
     }
 
-    @Inject(method = "finalizeLevelRendering", at = @At("TAIL"))
-    private void gtladditionsInternal$renderAntichristAfterShaderpackFinal(CallbackInfo ci) {
-        DeferredMachineRenderer.renderAfterShaderpackFinal();
+    @Inject(method = "setPhase", at = @At("HEAD"))
+    private void gtladditionsInternal$beginHeartHandPhase(WorldRenderingPhase phase, CallbackInfo ci) {
+        if (phase == WorldRenderingPhase.HAND_SOLID) {
+            HeartHandDepthMask.beginSolidHand();
+        } else if (phase == WorldRenderingPhase.HAND_TRANSLUCENT) {
+            HeartHandDepthMask.beginTranslucentHand();
+        }
     }
 
-    @Unique
-    private void gtladditionsInternal$destroyAntichristFallbackTargets() {
-        if (gtladditions$antichristFallbackBeforeTranslucent != null) {
-            renderTargets.destroyFramebuffer(gtladditions$antichristFallbackBeforeTranslucent);
-            gtladditions$antichristFallbackBeforeTranslucent = null;
-        }
-        if (gtladditions$antichristFallbackAfterTranslucent != null) {
-            renderTargets.destroyFramebuffer(gtladditions$antichristFallbackAfterTranslucent);
-            gtladditions$antichristFallbackAfterTranslucent = null;
-        }
-        gtladditions$antichristFallbackWidth = -1;
-        gtladditions$antichristFallbackHeight = -1;
-        gtladditions$antichristFramebufferStack.clear();
-        gtladditions$antichristMainBoundStack.clear();
+    @Inject(method = "finalizeLevelRendering", at = @At("HEAD"))
+    private void gtladditionsInternal$finishHeartHandMask(CallbackInfo ci) {
+        HeartHandDepthMask.finishFrame(renderTargets);
     }
 }

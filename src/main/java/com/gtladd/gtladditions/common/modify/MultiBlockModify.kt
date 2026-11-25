@@ -1,17 +1,20 @@
 package com.gtladd.gtladditions.common.modify
 
 import com.google.common.primitives.Ints
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine
 import com.gregtechceu.gtceu.api.pattern.Predicates
 import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic
 import com.gregtechceu.gtceu.api.recipe.logic.OCParams
 import com.gregtechceu.gtceu.api.recipe.logic.OCResult
+import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifierList
 import com.gregtechceu.gtceu.common.data.GTBlocks
 import com.gregtechceu.gtceu.common.data.GTMachines
@@ -24,13 +27,17 @@ import com.gtladd.gtladditions.api.pattern.PatternPredicateSelector
 import com.gtladd.gtladditions.api.pattern.patchPatternPredicates
 import com.gtladd.gtladditions.api.pattern.patternPredicateSelector
 import com.gtladd.gtladditions.api.pattern.replacePatternPredicates
+import com.gtladd.gtladditions.client.render.machine.QFTRenderer
+import com.gtladd.gtladditions.client.render.machine.SpaceElevatorRenderer
 import com.gtladd.gtladditions.common.machine.GTLAddMachines
 import com.gtladd.gtladditions.common.machine.multiblock.controller.BasicOreProcessorMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.MolecularAssemblerMultiblockMachine
+import com.gtladd.gtladditions.common.machine.multiblock.controller.WeatherControlMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.AdvancedInfiniteDrillMachine
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.CreateAggregation
 import com.gtladd.gtladditions.common.machine.multiblock.controller.mutable.DoorOfCreate
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
+import com.lowdragmc.lowdraglib.LDLib
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -41,6 +48,7 @@ import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.AABB
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.machines.AdditionalMultiBlockMachine
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA
@@ -175,6 +183,23 @@ object MultiBlockModify {
     )
 
     fun init() {
+        if (LDLib.isClient()) {
+            MultiBlockMachineA.QFT.renderer = QFTRenderer()
+            AdvancedMultiBlockMachineB.SPACE_ELEVATOR.renderer = SpaceElevatorRenderer(climberHeight = 180.0, cableLength = 360, viewDistance = 512)
+        }
+
+        AdvancedMultiBlockMachineB.SPACE_ELEVATOR.recipeModifier =
+            GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false))
+
+        MultiBlockMachineA.QFT.setMachineSupplier { holder ->
+            object : WorkableElectricMultiblockMachine(holder) {
+                override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+                    super.attachConfigurators(configuratorPanel)
+                    IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
+                }
+            }
+        }
+
         MultiBlockMachineA.INTEGRATED_ORE_PROCESSOR.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             BasicOreProcessorMachine(blockEntity)
         }
@@ -251,9 +276,52 @@ object MultiBlockModify {
             ),
             threadModifierPredicate
         )
+        AdvancedMultiBlockMachineB.ADVANCED_INFINITE_DRILLER.patchPatternPredicates(
+            "spectral_analysis_hatch",
+            patternPredicateSelector({ Registries.getBlock("gtlcore:iridium_casing") }, PartAbility.IMPORT_FLUIDS),
+            { Predicates.blocks(GTLAddMachines.ORE_PROCESSOR_HATCH.get()).setMaxGlobalLimited(1) }
+        )
         AdvancedMultiBlockMachineB.ADVANCED_INFINITE_DRILLER.setMachineSupplier { blockEntity: IMachineBlockEntity ->
             AdvancedInfiniteDrillMachine(blockEntity)
         }
+
+        val weatherControl = AdvancedMultiBlockMachineB.WEATHER_CONTROL
+        weatherControl.setMachineSupplier(::WeatherControlMachine)
+        val baseWeatherModifier = weatherControl.recipeModifier
+        weatherControl.recipeModifier = RecipeModifier { machine, recipe, params, result ->
+            val modified = (machine as WeatherControlMachine).modifyLightningRecipe(recipe) ?: return@RecipeModifier null
+            baseWeatherModifier.apply(machine, modified, params, result)
+        }
+        weatherControl.patchPatternPredicates(
+            "weather_radon_input",
+            patternPredicateSelector({ GTBlocks.STEEL_HULL.get() }, PartAbility.IMPORT_ITEMS, PartAbility.INPUT_ENERGY),
+            { Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1) }
+        )
+        weatherControl.replacePatternPredicates(
+            "weather_iron_bars",
+            patternPredicateSelector(Blocks.LIGHTNING_ROD),
+            { Predicates.blocks(Blocks.IRON_BARS) }
+        )
+        // Generate the preview from the updated predicates, including the optional fluid hatch.
+        weatherControl.setShapes { emptyList() }
+
+        val dataBank = GTResearchMachines.DATA_BANK as MultiblockMachineDefinition
+        dataBank.replacePatternPredicates(
+            "cloud_data_hatch_exclusion",
+            patternPredicateSelector({ GTBlocks.COMPUTER_CASING.get() }, PartAbility.OPTICAL_DATA_RECEPTION),
+            {
+                Predicates.blocks(GTBlocks.COMPUTER_CASING.get()).setMinGlobalLimited(3)
+                    .or(Predicates.abilities(PartAbility.DATA_ACCESS).setPreviewCount(3))
+                    .or(Predicates.abilities(PartAbility.OPTICAL_DATA_TRANSMISSION).setMinGlobalLimited(1, 1))
+                    .or(
+                        Predicates.blocks(
+                            *PartAbility.OPTICAL_DATA_RECEPTION.allBlocks
+                                .filter { it != GTLAddMachines.CLOUD_DATA_HATCH.block }
+                                .toTypedArray()
+                        ).setPreviewCount(1)
+                    )
+            }
+        )
 
         val networkSwitch = GTResearchMachines.NETWORK_SWITCH as MultiblockMachineDefinition
         networkSwitch.replacePatternPredicates(

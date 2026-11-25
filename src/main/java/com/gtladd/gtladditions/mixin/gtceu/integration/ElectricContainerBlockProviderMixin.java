@@ -1,29 +1,21 @@
 package com.gtladd.gtladditions.mixin.gtceu.integration;
 
-import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
 import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.integration.jade.provider.ElectricContainerBlockProvider;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-
 import com.gtladd.gtladditions.common.machine.trait.NetworkEnergyContainer;
-import org.jetbrains.annotations.Nullable;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ElectricContainerBlockProvider.class)
 public abstract class ElectricContainerBlockProviderMixin {
 
-    /**
-     * @author Dragons
-     * @reason except wireless terminal
-     */
-    @Nullable
-    @Overwrite(remap = false)
-    protected IEnergyContainer getCapability(Level level, BlockPos pos, @Nullable Direction side) {
-        var container = GTCapabilityHelper.getEnergyContainer(level, pos, side);
+    @ModifyReturnValue(method = "getCapability(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Lcom/gregtechceu/gtceu/api/capability/IEnergyContainer;",
+                       at = @At("RETURN"),
+                       remap = false,
+                       require = 1)
+    private IEnergyContainer gtladditions$hideWirelessContainer(IEnergyContainer container) {
         return container instanceof NetworkEnergyContainer ? null : container;
     }
 }

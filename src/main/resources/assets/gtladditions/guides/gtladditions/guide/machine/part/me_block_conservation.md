@@ -2,7 +2,7 @@
 navigation:
   title: Transmutation Bus Hatch
   icon: me_block_conservation
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 10
 categories:
   - machine part hatch

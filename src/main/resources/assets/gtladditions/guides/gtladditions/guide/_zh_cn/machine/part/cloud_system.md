@@ -2,7 +2,7 @@
 navigation:
   title: 云端算力与研究数据系统
   icon: gtladditions:cloud_computation_monitor
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 10
 item_ids:
   - gtladditions:cloud_computation_monitor

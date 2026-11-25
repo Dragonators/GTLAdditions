@@ -84,12 +84,11 @@ object WideBufferTools {
         return emptyList()
     }
 
-    @JvmOverloads
     fun flushToNetwork(
         pending: Object2ObjectOpenHashMap<AEKey, Int128>,
         network: IGrid?,
         source: IActionSource,
-        maxOperations: Int = DEFAULT_OUTPUT_TRANSFER_LIMIT
+        maxOperations: Int
     ): Boolean {
         if (pending.isEmpty() || network == null) return false
 
@@ -152,7 +151,6 @@ object WideBufferTools {
         return result
     }
 
-    @JvmOverloads
     fun <K> readAmounts(
         entries: ListTag,
         extractor: Function<CompoundTag, K?>,

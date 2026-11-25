@@ -57,11 +57,14 @@ open class GTLAddWirelessWorkableElectricMultipleRecipesMachine(holder: IMachine
                 )
             } else if (this.isFormed) {
                 this.refreshTier()
+                onWirelessNetworkBound()
             }
             return InteractionResult.sidedSuccess(isRemote)
         }
         return super.onUse(state, world, pos, player, hand, hit)
     }
+
+    protected open fun onWirelessNetworkBound() = Unit
 
     override fun onLeftClick(
         player: Player,

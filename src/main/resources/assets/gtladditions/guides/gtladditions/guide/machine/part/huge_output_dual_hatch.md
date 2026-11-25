@@ -2,7 +2,7 @@
 navigation:
   title: Huge Output Dual Hatch
   icon: gtmthings:iv_huge_output_dual_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 8
 categories:
   - machine part hatch

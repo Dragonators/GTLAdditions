@@ -8,7 +8,6 @@ import com.lowdragmc.lowdraglib.gui.widget.Widget
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup
 import com.lowdragmc.lowdraglib.utils.Position
 import com.lowdragmc.lowdraglib.utils.Size
-import net.minecraft.client.Minecraft
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.util.Mth
 import net.minecraftforge.api.distmarker.Dist
@@ -56,8 +55,8 @@ class SliderTextFieldWidget(
         this.valueResponder.accept(value)
         this.textField.setCurrentString(value)
         this.onChange.accept(value)
-        if (Minecraft.getInstance().isSameThread) {
-            if (!slider.widgets.isEmpty()) {
+        if (isRemote) {
+            if (slider.widgets.isNotEmpty()) {
                 val sliderKnob = slider.widgets[0]
                 val newPos = ((currentValue - minValue) * 1.0 / (maxValue - minValue) * (sizeWidth - 4)).toInt()
                 sliderKnob.setSelfPosition(Position(newPos, 0))

@@ -1,13 +1,18 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.feature.IMachineModifyDrops
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricParallelHatchMultipleRecipesMachine
 import com.gtladd.gtladditions.common.data.ParallelData
+import com.gtladd.gtladditions.common.data.StructureRenderType
 import com.gtladd.gtladditions.common.items.GTLAddItems
+import com.gtladd.gtladditions.common.machine.trait.StructureModifyTrait
+import com.gtladd.gtladditions.common.machine.trait.WorkingClockEffectsTrait
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.Constants.INT_MAX_BIG
@@ -25,6 +30,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.utils.MachineIO
 import org.gtlcore.gtlcore.utils.Registries
 import java.math.BigInteger
@@ -33,17 +39,51 @@ import kotlin.math.max
 
 class AntientropyCondensationCenter(holder: IMachineBlockEntity, vararg args: Any?) :
     GTLAddWorkableElectricParallelHatchMultipleRecipesMachine(holder, *args),
-    IMachineModifyDrops {
+    IMachineModifyDrops,
+    IMachineLife {
 
-    @Persisted
-    @DescSynced
+    private val structureModify = StructureModifyTrait(this, StructureRenderType.ANTIENTROPY_CONDENSATION)
+
+    @field:Persisted
+    @field:DescSynced
     private var relativisticHeatCapacitorInstalled = false
 
-    @Persisted
-    @DescSynced
+    @field:Persisted
+    @field:DescSynced
     private var lastCryotheumDustCost = 0
 
+    @field:DescSynced
+    val condensationEffects = WorkingClockEffectsTrait(this)
+
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = AntientropyCondensationCenterLogic(this)
+
+    override fun checkPattern(): Boolean = structureModify.checkPattern()
+
+    override fun onStructureFormed() {
+        super.onStructureFormed()
+        structureModify.form()
+        condensationEffects.updateAnimation()
+    }
+
+    override fun onStructureInvalid() {
+        condensationEffects.updateAnimation(false)
+        super.onStructureInvalid()
+        structureModify.invalidate()
+    }
+
+    override fun onMachineRemoved() {
+        structureModify.restore()
+    }
+
+    override fun notifyStatusChanged(oldStatus: RecipeLogic.Status, newStatus: RecipeLogic.Status) {
+        super.notifyStatusChanged(oldStatus, newStatus)
+        condensationEffects.updateAnimation(newStatus == RecipeLogic.Status.WORKING)
+    }
+
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
+    }
 
     override fun addDisplayText(textList: MutableList<Component?>) {
         super.addDisplayText(textList)
@@ -107,8 +147,13 @@ class AntientropyCondensationCenter(holder: IMachineBlockEntity, vararg args: An
     private fun consumeCryotheumDust(parallelData: ParallelData): Boolean {
         val cost = calculateCryotheumDustCost(totalParallels(parallelData))
         lastCryotheumDustCost = cost
-        if (cost <= 0) return true
-        return MachineIO.inputItem(this, Registries.getItemStack("kubejs:dust_cryotheum", cost))
+        if (cost == 0) return true
+
+        val dust = Registries.getItemStack("kubejs:dust_cryotheum", cost)
+        if (!MachineIO.inputItem(this, dust)) return false
+
+        parallelData.addInput(dust)
+        return true
     }
 
     private fun calculateCryotheumDustCost(totalParallel: BigInteger): Int {

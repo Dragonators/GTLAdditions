@@ -263,12 +263,12 @@ class ConversationMachine(holder: IMachineBlockEntity) :
         val CARD_2: Item by lazy { FAST_CONVERSION_SIMULATE_CARD.asItem() }
         val CARD_3: Item by lazy { GTLAddItems.ULTIMATE_CONVERSATION_CARD.asItem() }
         val CARD_4: Item by lazy { GTLAddItems.ASTRAL_ARRAY.asItem() }
-        val RAW_RECIPE: GTRecipe by lazy { GTRecipeBuilder.ofRaw().inputEU(EUT).buildRawRecipe() }
+        val RAW_RECIPE: GTRecipe by lazy { GTRecipeBuilder.ofRaw().EUt(EUT).buildRawRecipe() }
         val EUT: Long = VA[UHV].toLong()
         val MANAGED_FIELD_HOLDER = ManagedFieldHolder(ConversationMachine::class.java, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER)
 
         val HASH_STRATEGY = object : Hash.Strategy<Item> {
-            override fun hashCode(o: Item?) = o?.hashCode() ?: 0
+            override fun hashCode(o: Item?) = o.hashCode()
             override fun equals(a: Item?, b: Item?) = a?.hashCode() == b?.hashCode()
         }
 

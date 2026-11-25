@@ -2,7 +2,7 @@
 navigation:
   title: Biosphere III
   icon: biosphere_iii
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 10
 item_ids:
   - biosphere_iii

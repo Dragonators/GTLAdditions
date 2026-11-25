@@ -24,9 +24,9 @@ class CleanItemLinkCompiler : FlowTagCompiler() {
         val itemStack = itemStackAndId.right
         val linkEnabled = MdxAttrs.getBoolean(compiler, parent, el, "link", true)
         val linkColor = MdxAttrs.getBoolean(compiler, parent, el, "linkColor", false)
-        val anchor = compiler.getIndex(ItemIndex::class.java)[itemId]
+        val anchor = if (linkEnabled) compiler.getIndex(ItemIndex::class.java)[itemId] else null
 
-        if (anchor == null && itemId.namespace == compiler.pageId.namespace) {
+        if (linkEnabled && anchor == null && itemId.namespace == compiler.pageId.namespace) {
             parent.append(compiler.createErrorFlowContent("Item $itemId is not indexed by any page", el))
             return
         }

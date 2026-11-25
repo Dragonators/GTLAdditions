@@ -1,0 +1,12 @@
+{
+  "loader": "forge:obj",
+  "model": "gtladditions:models/effect/condensation/smooth_sphere.obj",
+  "mtl_override": "gtladditions:models/effect/condensation/geometry.mtl",
+  "automatic_culling": false,
+  "shade_quads": false,
+  "emissive_ambient": false,
+  "textures": {
+    "surface": "minecraft:block/white_concrete",
+    "particle": "minecraft:block/white_concrete"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "vertex": "gtladditions:gtladditions_heart_post",
+  "fragment": "gtladditions:gtladditions_scene_depth_compose",
+  "attributes": [
+    "Position",
+    "UV0"
+  ],
+  "samplers": [
+    {
+      "name": "SceneDepthIn"
+    },
+    {
+      "name": "OpaqueDepth"
+    },
+    {
+      "name": "TranslucentDepth"
+    }
+  ],
+  "uniforms": [
+    {
+      "name": "ExcludeTranslucent",
+      "type": "int",
+      "count": 1,
+      "values": [
+        1
+      ]
+    }
+  ]
+}

@@ -19,6 +19,14 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "name": "KernelRadius",
+      "type": "int",
+      "count": 1,
+      "values": [
+        0
+      ]
     }
   ]
 }

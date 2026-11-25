@@ -2,7 +2,7 @@
 navigation:
   title: Wireless Energy Network Terminals
   icon: wireless_energy_network_input_terminal
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 20
 categories:
   - machine part hatch
@@ -44,7 +44,7 @@ item_ids:
 
 * <ItemLink id="gtladditions:wireless_energy_network_output_terminal" /> provides Dynamo Hatch and Laser Source Hatch capability.
 * Normal energy output limit is Long.MAX level.
-* It can write energy output by compatible machines into the bound player's wireless energy network. When installed on <ItemLink id="gtladditions:heart_of_the_universe" />, it can output infinite power.
+* It can write energy output by compatible machines into the bound player's wireless energy network. When installed on <ItemLink id="gtladditions:heart_of_the_cosmos" />, it can output infinite power.
 
 </Column>
 

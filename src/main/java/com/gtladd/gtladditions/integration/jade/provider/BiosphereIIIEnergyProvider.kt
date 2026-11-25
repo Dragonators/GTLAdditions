@@ -32,7 +32,7 @@ class BiosphereIIIEnergyProvider :
         tooltip.add(
             "gui.gtladditions.biosphere_iii_average_eut".toComponent(
                 CommonUtils.formatBigIntegerFixed(averageEnergy).literal.withStyle(ChatFormatting.GOLD),
-                BiosphereIIIController.getEnergyTierComponent(averageEnergy)
+                CommonUtils.getEnergyTierComponent(averageEnergy)
             )
         )
     }

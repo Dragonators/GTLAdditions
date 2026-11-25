@@ -18,7 +18,7 @@ fun SlotCacheManager.getBestItemMatch(
     inventory: Object2ObjectMap<AEKey, Int128>,
     needAmount: Long
 ): AEItemKey? {
-    val matches = (this as SlotCacheManagerAccessor).itemMatches
+    val matches = (this as SlotCacheManagerAccessor).itemBestMatchCache
     val cached = matches[ingredient]
     if (cached != null && (inventory[cached]?.longValue() ?: 0L) >= needAmount) return cached
 
@@ -39,7 +39,7 @@ fun SlotCacheManager.getBestFluidMatch(
     inventory: Object2ObjectMap<AEKey, Int128>,
     needAmount: Long
 ): AEFluidKey? {
-    val matches = (this as SlotCacheManagerAccessor).fluidMatches
+    val matches = (this as SlotCacheManagerAccessor).fluidBestMatchCache
     val cached = matches[ingredient]
     if (cached != null && (inventory[cached]?.longValue() ?: 0L) >= needAmount) return cached
 
@@ -61,7 +61,7 @@ fun SlotCacheManager.getBestItemMatchSimulate(
     catalystInventory: Object2LongMap<AEItemKey>,
     needAmount: Long
 ): AEItemKey? {
-    val matches = (this as SlotCacheManagerAccessor).itemMatches
+    val matches = (this as SlotCacheManagerAccessor).itemBestMatchCache
     val cached = matches[ingredient]
     if (cached != null && ((inventory[cached]?.longValue() ?: 0L) >= needAmount || catalystInventory.getLong(cached) >= needAmount)) return cached
 
@@ -83,7 +83,7 @@ fun SlotCacheManager.getBestFluidMatchSimulate(
     catalystInventory: Object2LongMap<AEFluidKey>,
     needAmount: Long
 ): AEFluidKey? {
-    val matches = (this as SlotCacheManagerAccessor).fluidMatches
+    val matches = (this as SlotCacheManagerAccessor).fluidBestMatchCache
     val cached = matches[ingredient]
     if (cached != null && ((inventory[cached]?.longValue() ?: 0L) >= needAmount || catalystInventory.getLong(cached) >= needAmount)) return cached
 

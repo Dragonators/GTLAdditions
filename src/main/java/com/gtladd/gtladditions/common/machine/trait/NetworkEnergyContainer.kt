@@ -172,5 +172,5 @@ class NetworkEnergyContainer(
 
     override fun outputsEnergy(side: Direction): Boolean = false
 
-    override fun getHandlerIO(): IO? = handlerIO
+    override fun getHandlerIO(): IO = handlerIO
 }

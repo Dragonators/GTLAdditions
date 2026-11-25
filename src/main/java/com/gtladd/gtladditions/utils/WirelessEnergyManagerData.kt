@@ -14,5 +14,5 @@ object WirelessEnergyManagerData {
         .expireAfterWrite(Duration.ofSeconds(5))
         .maximumSize(10000)
         .weakKeys()
-        .build<MetaMachine, Pair<UUID, BigInteger>>()
+        .build()
 }

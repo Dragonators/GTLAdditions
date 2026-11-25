@@ -17,18 +17,18 @@ import snownee.jade.api.ITooltip;
 public abstract class WidePatternBufferJadeMixin {
 
     @Inject(method = "putTag", at = @At("HEAD"), cancellable = true)
-    private static void gtladd$preciseBufferTag(CompoundTag tag, MEPatternBufferPartMachineBase machine, CallbackInfo ci) {
-        var pending = machine instanceof IWidePatternBuffer access ? access.widePending() : null;
+    private static void gtladd$preciseBufferTag(CompoundTag compoundTag, MEPatternBufferPartMachineBase buffer, CallbackInfo ci) {
+        var pending = buffer instanceof IWidePatternBuffer access ? access.widePending() : null;
         if (pending != null) {
-            WideBufferDisplay.INSTANCE.write(tag, machine, pending);
+            WideBufferDisplay.INSTANCE.write(compoundTag, buffer, pending);
             ci.cancel();
         }
     }
 
     @Inject(method = "readBufferContents", at = @At("HEAD"), cancellable = true)
-    private static void gtladd$preciseBufferTooltip(ITooltip tooltip, CompoundTag tag, CallbackInfo ci) {
-        if (tag.getBoolean(WideBufferDisplay.MARKER)) {
-            WideBufferDisplay.INSTANCE.read(tooltip, tag);
+    private static void gtladd$preciseBufferTooltip(ITooltip iTooltip, CompoundTag serverData, CallbackInfo ci) {
+        if (serverData.getBoolean(WideBufferDisplay.MARKER)) {
+            WideBufferDisplay.INSTANCE.read(iTooltip, serverData);
             ci.cancel();
         }
     }

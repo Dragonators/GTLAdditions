@@ -46,7 +46,8 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, var
     private var hasFluidTransfer = false
     private var hasItemTransfer = false
 
-    protected open fun createTank(): NotifiableFluidTank = SuperNotifiableFluidTank(this@SuperDualHatchPartMachine, 24, Long.Companion.MAX_VALUE shr 12, IO.IN)
+    protected open fun createTank(): NotifiableFluidTank =
+        SuperNotifiableFluidTank(this@SuperDualHatchPartMachine, 24, Long.MAX_VALUE shr 12, IO.IN)
 
     fun getTankInventorySize(): Int = this.tank.storages.size
 
@@ -170,7 +171,7 @@ open class SuperDualHatchPartMachine(holder: IMachineBlockEntity, tier: Int, var
                 ++itemCount
             }
         }
-        for (i in 0..getTankInventorySize() - 1) {
+        for (i in 0..<getTankInventorySize()) {
             val fs = this.tank.getFluidInTank(i)
             if (!fs.isEmpty) {
                 textList.add(

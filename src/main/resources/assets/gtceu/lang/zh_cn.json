@@ -10,6 +10,7 @@
   "block.gtceu.uxv_67108863a_laser_source_hatch": "67108863安§eUXV§r激光源仓",
   "block.gtceu.zpm_67108863a_laser_source_hatch": "67108863安§cZPM§r激光源仓",
   "gtceu.antientropy_condensation": "反熵冷凝",
+  "gtceu.bio_cultivation": "生态培育",
   "gtceu.biological_simulation": "生物数据模拟",
   "gtceu.chaos_weave": "混沌编织",
   "gtceu.chaotic_alchemy": "混沌炼金",
@@ -78,7 +79,7 @@
   "gtceu.machine.taixuturbidarray.tooltip.13": "电压等级达到MAX时解锁uu物质输出",
   "gtceu.machine.taixuturbidarray.tooltip.14": "固定耗时：%ss",
   "gtceu.machine.taixuturbidarray.tooltip.15": "固定耗能：当前电压耗能*524288安",
-  "gtceu.machine.taixuturbidarray.tooltip.16": "允许嵌入至多2048个§6星规矩阵§r，提高并行上限，并解锁跨配方并行",
+  "gtceu.machine.taixuturbidarray.tooltip.16": "允许嵌入至多2048个§6星阵§r，提高并行上限，并解锁跨配方并行",
   "gtceu.machine.taixuturbidarray.tooltip.17": "并行计算公式为: 3^16 * ⌊count^(1.392)⌋",
   "gtceu.machine.taixuturbidarray.tooltip.18": "固定拥有128跨配方线程",
   "gtceu.machine.taixuturbidarray.tooltip.2": "uu增幅液成功概率计算公式：1/(1+e^(-0.1*(α/50+β/100+高度/3))",
@@ -137,5 +138,6 @@
   "gtceu.stellar_lgnition": "星焰跃迁",
   "gtceu.tectonic_fault_generator": "地脉断层发生器",
   "gtceu.tooltip.super_proxy_bind": "§f绑定到%s %s %s处的超级样板总成",
+  "gtceu.transmutation_block_conversion": "方块嬗变",
   "gtceu.voidflux_reaction": "虚空聚流反应"
 }

@@ -16,21 +16,22 @@ import com.lowdragmc.lowdraglib.misc.ItemStackTransfer;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import com.gtladd.gtladditions.common.machine.GTLAddMachines;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 @Mixin(AutoConfigurationMaintenanceHatchPartMachine.class)
 public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends TieredPartMachine implements IMachineLife, IAutoConfigurationMaintenanceHatch {
@@ -47,16 +48,6 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
 
     @Shadow(remap = false)
     private float durationMultiplier;
-
-    @Shadow(remap = false)
-    private static Component getTextWidgetText(Supplier<Float> multiplier) {
-        throw new AssertionError();
-    }
-
-    @Shadow(remap = false)
-    public float getDurationMultiplier() {
-        throw new AssertionError();
-    }
 
     public AutoConfigurationMaintenanceHatchPartMachineMixin(IMachineBlockEntity holder) {
         super(holder, 5);
@@ -78,53 +69,24 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
         this.clearInventory(this.gtladditions$max.storage);
     }
 
-    /**
-     * @author .
-     * @reason .
-     */
-    @Overwrite(remap = false)
-    private void incInternalMultiplier(int multiplier) {
-        durationMultiplier = Math.min(durationMultiplier + 0.01F * (float) multiplier, gtladditions$getMax());
+    @ModifyConstant(method = "incInternalMultiplier", constant = @Constant(floatValue = 1.2F), remap = false, require = 2, allow = 2)
+    private float gtladditions$maximumMultiplier(float original) {
+        return gtladditions$getMax();
     }
 
-    /**
-     * @author .
-     * @reason .
-     */
-    @Overwrite(remap = false)
-    private void decInternalMultiplier(int multiplier) {
-        durationMultiplier = Math.max(durationMultiplier - 0.01F * (float) multiplier, gtladditions$getMin());
+    @ModifyConstant(method = "decInternalMultiplier", constant = @Constant(floatValue = 0.2F), remap = false, require = 2, allow = 2)
+    private float gtladditions$minimumMultiplier(float original) {
+        return gtladditions$getMin();
     }
 
-    /**
-     * @author .
-     * @reason .
-     */
-    @Overwrite(remap = false)
-    public Widget createUIWidget() {
-        WidgetGroup group = new WidgetGroup(0, 0, 150, 70);
-        group.addWidget((new DraggableScrollableWidgetGroup(4, 4, 142, 62)).setBackground(GuiTextures.DISPLAY).addWidget((new ComponentPanelWidget(4, 5, (list) -> {
-            list.add(getTextWidgetText(this::getDurationMultiplier));
-            MutableComponent buttonText = Component.translatable("gtceu.maintenance.configurable_duration.modify");
-            buttonText.append(" ");
-            buttonText.append(ComponentPanelWidget.withButton(Component.literal("[-]"), "sub"));
-            buttonText.append(" ");
-            buttonText.append(ComponentPanelWidget.withButton(Component.literal("[+]"), "add"));
-            list.add(buttonText);
-        })).setMaxWidthLimit(130).clickHandler((componentData, clickData) -> {
-            if (!clickData.isRemote) {
-                int multiplier = clickData.isCtrlClick ? 100 : (clickData.isShiftClick ? 10 : 1);
-                if (componentData.equals("sub")) this.decInternalMultiplier(multiplier);
-                else if (componentData.equals("add")) this.incInternalMultiplier(multiplier);
-            }
-        }))).setBackground(GuiTextures.BACKGROUND_INVERSE);
+    @ModifyReturnValue(method = "createUIWidget", at = @At("RETURN"), remap = false, require = 1)
+    private Widget gtladditions$appendMainframeSlot(Widget original) {
+        if (!(original instanceof WidgetGroup group)) return original;
         var slot = new SlotWidget(gtladditions$max.storage, 0, 120, 40) {
 
             @Override
             public List<Component> getTooltipTexts() {
-                List<Component> tooltips = new ArrayList<>();
-                tooltips.addAll(gtladditions$setMaxTooltips());
-                return tooltips;
+                return new ArrayList<>(gtladditions$setMaxTooltips());
             }
 
             @Override
@@ -134,14 +96,14 @@ public abstract class AutoConfigurationMaintenanceHatchPartMachineMixin extends 
                     this.setHoverTooltips(gtladditions$setMaxTooltips());
                     gui.getModularUIGui().setHoverTooltip(
                             tooltipTexts,
-                            getRealStack(slotReference.getItem()),
+                            getRealStack(gtladditions$max.storage.getStackInSlot(0)),
                             null,
                             null);
                 }
             }
         }.setBackground(GuiTextures.SLOT);
         group.addWidget(slot);
-        return group;
+        return original;
     }
 
     @Unique

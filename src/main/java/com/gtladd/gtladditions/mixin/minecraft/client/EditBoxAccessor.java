@@ -9,5 +9,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface EditBoxAccessor {
 
     @Accessor("isEditable")
-    boolean isEditable();
+    boolean getIsEditable();
 }

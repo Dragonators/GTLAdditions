@@ -4,9 +4,11 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.TickableSubscription
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
+import com.gtladd.gtladditions.utils.module.SpaceElevatorConnections
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
@@ -14,7 +16,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
-import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
 import org.gtlcore.gtlcore.utils.MachineUtil
 import kotlin.math.pow
@@ -29,6 +30,15 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
                 AdvancedSpaceElevatorModuleMachine::class.java,
                 GTLAddWorkableElectricMultipleRecipesMachine.MANAGED_FIELD_HOLDER
             )
+
+        private class AdvancedSpaceElevatorModuleLogic(machine: AdvancedSpaceElevatorModuleMachine) : GTLAddMultipleRecipesLogic(machine, { (it as AdvancedSpaceElevatorModuleMachine).host != null }) {
+
+            override fun getMachine(): AdvancedSpaceElevatorModuleMachine = super.getMachine() as AdvancedSpaceElevatorModuleMachine
+
+            override fun getReductionDuration(): Double = super.getReductionDuration() * getMachine().durationMultiplier
+
+            override fun getEuMultiplier(): Double = super.getEuMultiplier() * getMachine().durationMultiplier
+        }
     }
 
     @field:DescSynced
@@ -91,35 +101,11 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
         if (host.recipeLogic.progress > 80) update() else scheduleUpdate()
     }
 
-    override fun getHostScanPositions(): Array<out BlockPos?>? {
-        (level as? ServerLevel)?.let { serverLevel ->
-            val pos = getPos()
-            val coordinates: Array<BlockPos> = arrayOf(
-                pos.offset(8, -2, 3),
-                pos.offset(8, -2, -3),
-                pos.offset(-8, -2, 3),
-                pos.offset(-8, -2, -3),
-                pos.offset(3, -2, 8),
-                pos.offset(-3, -2, 8),
-                pos.offset(3, -2, -8),
-                pos.offset(-3, -2, -8),
-                *SpaceElevatorMKII.MODULE_OFFSETS.map { offset ->
-                    pos.offset(offset[0], -2, offset[2])
-                }.toTypedArray()
-            )
+    override fun getHostScanPositions(): Array<BlockPos> = MachineUtil.EMPTY_POS_ARRAY
 
-            for (i in coordinates) {
-                if (serverLevel.getBlockState(i).block === GTLBlocks.POWER_CORE.get()) {
-                    return arrayOf(
-                        i.offset(3, 2, 0),
-                        i.offset(-3, 2, 0),
-                        i.offset(0, 2, 3),
-                        i.offset(0, 2, -3)
-                    )
-                }
-            }
-        }
-        return MachineUtil.EMPTY_POS_ARRAY
+    override fun findAndConnectToHost(): Boolean {
+        val world = level as? ServerLevel ?: return false
+        return SpaceElevatorConnections.connectRegistered(world, pos, this)
     }
 
     private fun getSpaceElevatorTier() {
@@ -138,29 +124,42 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
         moduleTier = 0
     }
 
-    override fun createRecipeLogic(vararg args: Any): RecipeLogic = GTLAddMultipleRecipesLogic(
-        this
-    ) { machine -> (machine as AdvancedSpaceElevatorModuleMachine).host != null }
+    /** Same reduction as the GTLCore modules: 0.8 per host voltage tier above UV, none while the host is not running. */
+    private val durationMultiplier: Double
+        get() = 0.8.pow((spaceElevatorTier - 1).coerceAtLeast(0))
+
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic = AdvancedSpaceElevatorModuleLogic(this)
 
     override fun onStructureFormed() {
         super.onStructureFormed()
-        if (!findAndConnectToHost()) {
-            removeFromHost(this.host)
-        }
+        SpaceElevatorConnections.register(this)
     }
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
+        SpaceElevatorConnections.unregister(this)
         removeFromHost(this.host)
     }
 
     override fun onPartUnload() {
         super.onPartUnload()
+        SpaceElevatorConnections.unregister(this)
         removeFromHost(this.host)
     }
 
     override fun onMachineRemoved() {
+        SpaceElevatorConnections.unregister(this)
         removeFromHost(this.host)
+    }
+
+    override fun onLoad() {
+        super.onLoad()
+        if (isRecipeLogicAvailable) SpaceElevatorConnections.register(this)
+    }
+
+    override fun onUnload() {
+        SpaceElevatorConnections.unload(this)
+        super.onUnload()
     }
 
     override fun onWorking(): Boolean {
@@ -176,7 +175,12 @@ class AdvancedSpaceElevatorModuleMachine(holder: IMachineBlockEntity) :
         super.addDisplayText(textList)
         if (this.isFormed) {
             if (this.offsetTimer % 10L == 0L) this.getSpaceElevatorTier()
-            textList.add((if (this.spaceElevatorTier < 1) "tooltip.gtlcore.space_elevator_not_connected" else "tooltip.gtlcore.space_elevator_connected").toComponent)
+            if (this.spaceElevatorTier < 1) {
+                textList.add("tooltip.gtlcore.space_elevator_not_connected".toComponent)
+            } else {
+                textList.add("tooltip.gtlcore.space_elevator_connected".toComponent)
+                textList.add("gtceu.machine.duration_multiplier.tooltip".toComponent(FormattingUtil.formatPercent(durationMultiplier)))
+            }
         }
     }
 

@@ -2,7 +2,7 @@
 navigation:
   title: Biological Simulation Laboratory
   icon: biological_simulation_laboratory
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 26
 categories:
   - multiblock controller

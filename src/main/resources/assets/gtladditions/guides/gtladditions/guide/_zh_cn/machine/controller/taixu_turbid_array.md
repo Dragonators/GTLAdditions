@@ -2,7 +2,7 @@
 navigation:
   title: 太虚浊化阵
   icon: taixu_turbid_array
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 31
 categories:
   - 多方块结构主机

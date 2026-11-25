@@ -16,8 +16,8 @@ import com.gtladd.gtladditions.common.machine.multiblock.controller.ForgeOfTheAn
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
 import com.gtladd.gtladditions.utils.CommonUtils.createRainbowComponent
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
-import com.gtladd.gtladditions.utils.antichrist.AntichristPosHelper
+import com.gtladd.gtladditions.utils.module.AntichristPosHelper
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.objects.ObjectArrayList

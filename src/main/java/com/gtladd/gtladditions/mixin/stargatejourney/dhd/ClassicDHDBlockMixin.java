@@ -1,59 +1,21 @@
 package com.gtladd.gtladditions.mixin.stargatejourney.dhd;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
-import net.povstalec.sgjourney.common.block_entities.dhd.ClassicDHDEntity;
 import net.povstalec.sgjourney.common.blocks.dhd.ClassicDHDBlock;
-import net.povstalec.sgjourney.common.menu.ClassicDHDMenu;
 
-import org.jetbrains.annotations.NotNull;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ClassicDHDBlock.class)
 public abstract class ClassicDHDBlockMixin {
 
-    /**
-     * @author Dragons
-     * @reason Disable Holder
-     */
-    @Overwrite
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult trace) {
-        if (!level.isClientSide()) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-
-            if (blockEntity instanceof ClassicDHDEntity dhd) {
-                dhd.setStargate();
-
-                MenuProvider containerProvider = new MenuProvider() {
-
-                    @Override
-                    public @NotNull Component getDisplayName() {
-                        return Component.translatable("screen.sgjourney.dhd");
-                    }
-
-                    @Override
-                    public AbstractContainerMenu createMenu(int windowId, @NotNull Inventory playerInventory, @NotNull Player playerEntity) {
-                        return new ClassicDHDMenu(windowId, playerInventory, blockEntity);
-                    }
-                };
-                NetworkHooks.openScreen((ServerPlayer) player, containerProvider, blockEntity.getBlockPos());
-            } else {
-                throw new IllegalStateException("Our named container provider is missing!");
-            }
-        }
-        return InteractionResult.SUCCESS;
+    @ModifyExpressionValue(method = "use",
+                           at = @At(value = "INVOKE",
+                                    target = "Lnet/povstalec/sgjourney/common/block_entities/dhd/ClassicDHDEntity;hasPermissions(Lnet/minecraft/world/entity/player/Player;Z)Z",
+                                    remap = false),
+                           require = 1,
+                           allow = 1)
+    private boolean gtladditions$openDialingMenu(boolean original) {
+        return false;
     }
 }

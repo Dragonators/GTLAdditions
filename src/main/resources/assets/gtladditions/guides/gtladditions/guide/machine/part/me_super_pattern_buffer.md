@@ -2,7 +2,7 @@
 navigation:
   title: ME Super Pattern Buffer
   icon: me_super_pattern_buffer
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 9
 categories:
   - machine part hatch

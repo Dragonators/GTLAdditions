@@ -85,7 +85,7 @@ object GTLAddMachines {
     }
 
     val GTLAdd_ADD: BiConsumer<ItemStack?, MutableList<Component?>?> =
-        BiConsumer { stack: ItemStack?, components: MutableList<Component?>? ->
+        BiConsumer { _, components: MutableList<Component?>? ->
             components!!.add(createRainbowComponent("gui.gtladditions.add".translatable))
         }
 
@@ -109,7 +109,9 @@ object GTLAddMachines {
                     .abilities(*GTMachines.DUAL_OUTPUT_HATCH_ABILITIES).compassNode("huge_dual_hatch")
                     .tooltips("gtceu.machine.dual_hatch.export.tooltip".toComponent)
                     .tooltips("gtceu.universal.tooltip.item_storage_capacity".toComponent((1 + tier) * 2 - 1))
-                    .tooltips("gtceu.universal.tooltip.fluid_storage_capacity_mult".toComponent(tier, FormattingUtil.formatNumbers(Int.Companion.MAX_VALUE)))
+                    .tooltips(
+                        "gtceu.universal.tooltip.fluid_storage_capacity_mult".toComponent(tier, FormattingUtil.formatNumbers(Int.MAX_VALUE))
+                    )
                 builder.register()
             },
             *GTValues.tiersBetween(1, 13)
@@ -145,7 +147,7 @@ object GTLAddMachines {
             .tooltips(
                 "gtceu.multiblock.steam_oc_hv".toComponent,
                 "gtceu.multiblock.steam_duraiton".toComponent,
-                "gtceu.universal.tooltip.fluid_storage_capacity".toComponent(Int.Companion.MAX_VALUE),
+                "gtceu.universal.tooltip.fluid_storage_capacity".toComponent(Int.MAX_VALUE),
                 "gtceu.machine.steam.steam_hatch.tooltip".toComponent
             )
             .tooltipBuilder(GTLAdd_ADD).compassSections(GTCompassSections.STEAM).compassNode("steam_hatch")
@@ -156,8 +158,15 @@ object GTLAddMachines {
             .rotationState(RotationState.ALL)
             .abilities(*GTMachines.DUAL_INPUT_HATCH_ABILITIES)
             .langValue("Super Input Dual Hatch").overlayTieredHullRenderer("super_input_dual_hatch.import")
-            .tooltips("gtceu.universal.tooltip.item_storage_capacity".toComponent(37))
-            .tooltips("gtceu.universal.tooltip.fluid_storage_capacity_mult".toComponent(24, FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE shr 12)))
+            .tooltips(
+                "gtladditions.machine.super_input_dual_hatch.item_capacity".toComponent(37, FormattingUtil.formatNumbers(Int.MAX_VALUE))
+            )
+            .tooltips(
+                "gtladditions.machine.super_input_dual_hatch.fluid_capacity".toComponent(
+                    24,
+                    FormattingUtil.formatNumbers(Long.MAX_VALUE shr 12)
+                )
+            )
             .tooltipBuilder(GTLAdd_ADD).tier(14).register()
         ORE_PROCESSOR_HATCH = REGISTRATE.machine("spectral_analysis_hatch") { OreProcessorHatch(it!!) }
             .rotationState(RotationState.ALL)
@@ -206,7 +215,7 @@ object GTLAddMachines {
                 "gtceu.universal.tooltip.fluid_storage_capacity_mult".toComponent(
                     "gtladditions.multiblock.forge_of_the_antichrist.parallel".toComponent
                         .withStyle(ChatFormatting.GOLD).withStyle(ChatFormatting.BOLD),
-                    FormattingUtil.formatNumbers(Long.Companion.MAX_VALUE)
+                    FormattingUtil.formatNumbers(Long.MAX_VALUE)
                 )
             )
             .tooltips("gtladditions.machine.infinity_input_dual_hatch.tooltip.0".toComponent)

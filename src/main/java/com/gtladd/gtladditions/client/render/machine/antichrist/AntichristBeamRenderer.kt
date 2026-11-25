@@ -1,22 +1,23 @@
 package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
+import com.gtladd.gtladditions.client.RenderUtils
+import com.gtladd.gtladditions.client.render.IndexedEffectVertexBuffer
 import com.gtladd.gtladditions.client.render.withPose
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
-import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.ShaderInstance
+import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.joml.Quaternionf
 import org.joml.Vector3f
 import kotlin.math.asin
 import kotlin.math.atan2
@@ -31,88 +32,153 @@ object AntichristBeamRenderer {
     private const val MAX_SEGMENTS = 10
     private const val SEGMENT_QUADS = 16
     private const val ENDPOINT_FLOATS = (MAX_SEGMENTS + 1) * 3
-    private const val PI = 3.1415926535897f
+    private const val PI = 3.1415927f
     private const val ALPHA_PACK_SCALE = 10000.0f
     private const val BACK_PLATE_DISTANCE = -121.5f
     private const val BACK_PLATE_RADIUS = 13.0f
     private const val INTENSE_BEAM_TANGENT_FADE_DISTANCE = 3.75f
 
-    private val SPACE_LAYER = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/space_layer.png")
+    private val SPACE_LAYER = GTLAdditions.id("textures/effect/astrograph/space_layer.png")
 
-    private val beamBuffer: VertexBuffer by lazy {
-        VertexBuffer(VertexBuffer.Usage.DYNAMIC)
+    private val beamBuffer: IndexedEffectVertexBuffer by lazy { IndexedEffectVertexBuffer() }
+
+    private val beamIndices = IntArray(MAX_SEGMENTS * SEGMENT_QUADS * 6).also { indices ->
+        var offset = 0
+
+        for (segment in 0 until MAX_SEGMENTS) {
+            for (quad in 0 until SEGMENT_QUADS) {
+                val a = segment * (SEGMENT_QUADS + 1) + quad
+                val b = a + SEGMENT_QUADS + 1
+                indices[offset++] = b + 1
+                indices[offset++] = a + 1
+                indices[offset++] = a
+                indices[offset++] = a
+                indices[offset++] = b
+                indices[offset++] = b + 1
+            }
+        }
+    }
+
+    private val beamLayerBuffer: IndexedEffectVertexBuffer by lazy { IndexedEffectVertexBuffer() }
+    private val beamViews = FloatArray(6 * 16)
+    private val beamCameraX = FloatArray(6)
+    private val beamCameraY = FloatArray(6)
+
+    private val beamLayerIndices = IntArray(6 * SEGMENT_QUADS * 6) { index ->
+        val layer = index / (SEGMENT_QUADS * 6)
+        beamIndices[index % (SEGMENT_QUADS * 6)] + layer * 2 * (SEGMENT_QUADS + 1)
     }
 
     private val softBeam = SegmentBuffer()
     private val intenseBeam = SegmentBuffer()
+    private val boundsBeam = SegmentBuffer()
     private val cameraPosition = Vector3f()
 
-    data class VerticalTaperBeamProfile(
-        val tick: Float,
-        val basePos: Vec3,
-        val height: Float,
-        val bottomRadius: Float,
-        val topRadius: Float,
-        val colorR: Float,
-        val colorG: Float,
-        val colorB: Float,
-        val beamAlpha: Float
-    ) {
-        val shouldRenderBeam: Boolean
-            get() = beamAlpha > 0.001f && height > 0.001f && bottomRadius > 0.001f && topRadius >= 0.0f
-    }
-
-    fun render(profile: AntichristRenderProfile, poseStack: PoseStack, blockEntity: BlockEntity) {
-        if (!profile.shouldRenderBeam) return
-        val shader = AntichristShaders.beamShader ?: return
-
-        updateCameraPositionInBeamSpace(profile, blockEntity)
+    fun draw(profile: AntichristRenderProfile, poseStack: PoseStack, blockPos: BlockPos, camera: Vec3): Boolean {
+        val shader = AntichristShaders.beamShader ?: return false
+        updateCameraPositionInBeamSpace(profile, blockPos, camera)
         writeSoftBeamSegments(profile.starRadius, profile.beamAlpha, softBeam)
         writeIntenseBeamSegments(profile.starRadius, profile.beamAlpha, intenseBeam)
 
         poseStack.withPose {
             translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
             mulPose(Axis.YP.rotationDegrees(profile.beamYawDegrees))
-            renderCurrentSegments(
-                shader,
-                profile.tick,
-                profile.colorR,
-                profile.colorG,
-                profile.colorB,
-                1.0f,
-                1.0f,
-                1.0f
-            )
+            RenderUtils.withSavedRenderState {
+                renderCurrentSegments(shader, profile.tick, profile.colorR, profile.colorG, profile.colorB, 1.0f, 1.0f, 1.0f)
+            }
         }
+
+        return true
     }
 
-    fun renderVerticalTaper(profile: VerticalTaperBeamProfile, poseStack: PoseStack, blockEntity: BlockEntity) {
-        if (!profile.shouldRenderBeam) return
-        val shader = AntichristShaders.beamShader ?: return
+    fun bounds(profile: AntichristRenderProfile, blockPos: BlockPos): AABB {
+        var radius = 0f
+        var near = Float.MAX_VALUE
+        var far = -Float.MAX_VALUE
 
-        updateCameraPositionInVerticalBeamSpace(profile, blockEntity)
-        writeVerticalSoftBeamSegments(profile, softBeam)
-        writeVerticalIntenseBeamSegments(profile, intenseBeam)
+        for (intense in booleanArrayOf(false, true)) {
+            if (intense) {
+                writeIntenseBeamSegments(profile.starRadius, profile.beamAlpha, boundsBeam)
+            } else {
+                writeSoftBeamSegments(profile.starRadius, profile.beamAlpha, boundsBeam)
+            }
 
-        poseStack.withPose {
-            translate(profile.basePos.x, profile.basePos.y, profile.basePos.z)
-            mulPose(Axis.XP.rotationDegrees(-90.0f))
-            renderCurrentSegments(
-                shader,
-                profile.tick,
-                profile.colorR,
-                profile.colorG,
-                profile.colorB,
-                1.0f,
-                1.0f,
-                1.0f
+            for (endpoint in 0..boundsBeam.segmentCount) {
+                radius = max(radius, boundsBeam.radius(endpoint))
+                near = minOf(near, boundsBeam.offset(endpoint))
+                far = max(far, boundsBeam.offset(endpoint))
+            }
+        }
+
+        val turn = Axis.YP.rotationDegrees(profile.beamYawDegrees)
+        val corner = Vector3f()
+        var bounds: AABB? = null
+
+        for (i in 0..7) {
+            turn.transform(
+                corner.set(
+                    if (i and 1 == 0) -radius else radius,
+                    if (i and 2 == 0) -radius else radius,
+                    if (i and 4 == 0) near else far
+                )
             )
+            val x = blockPos.x + profile.starPos.x + corner.x
+            val y = blockPos.y + profile.starPos.y + corner.y
+            val z = blockPos.z + profile.starPos.z + corner.z
+            bounds = bounds?.minmax(AABB(x, y, z, x, y, z)) ?: AABB(x, y, z, x, y, z)
+        }
+
+        return requireNotNull(bounds)
+    }
+
+    fun renderVerticalLayers(
+        blockEntity: BlockEntity,
+        pose: PoseStack,
+        tick: Double,
+        origins: List<Vector3f>,
+        height: Float,
+        radius: Float,
+        alpha: Float,
+        shader: ShaderInstance,
+        camera: Vec3
+    ) {
+        require(origins.size <= 6)
+        if (origins.isEmpty() || height <= 0.001f) return
+
+        val rotation = Quaternionf().rotationTo(0f, 0f, 1f, 0f, 1f, 0f)
+        val builder = Tesselator.getInstance().builder
+        builder.begin(VertexFormat.Mode.TRIANGLES, AntichristShaders.BEAM_VERTEX_FORMAT)
+
+        for ((layer, origin) in origins.withIndex()) {
+            val from = Vec3(origin.x.toDouble(), origin.y.toDouble(), origin.z.toDouble())
+            updateCameraPositionInLocalBeamSpace(blockEntity, from, rotation, camera)
+            writeLinearBeamSegments(radius, radius, height, alpha, softBeam)
+            writeBeamVertices(builder, softBeam, tick, layer)
+            beamCameraX[layer] = cameraPosition.x
+            beamCameraY[layer] = cameraPosition.y
+
+            pose.withPose {
+                translate(from.x, from.y, from.z)
+                mulPose(rotation)
+                last().pose().get(beamViews, layer * 16)
+            }
+        }
+
+        shader.getUniform("BeamViews")?.set(beamViews)
+        shader.getUniform("BeamCameraX")?.set(beamCameraX)
+        shader.getUniform("BeamCameraY")?.set(beamCameraY)
+        RenderSystem.setShaderTexture(0, SPACE_LAYER)
+
+        RenderUtils.withBoundBuffer(beamLayerBuffer) {
+            beamLayerBuffer.uploadIndexed(builder.end(), beamLayerIndices)
+            beamLayerBuffer.drawCount = origins.size * SEGMENT_QUADS * 6
+            beamLayerBuffer.drawWithShader(pose.last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
     }
 
     private fun PoseStack.renderCurrentSegments(
         shader: ShaderInstance,
-        tick: Float,
+        tick: Double,
         colorR: Float,
         colorG: Float,
         colorB: Float,
@@ -120,13 +186,7 @@ object AntichristBeamRenderer {
         intenseColorG: Float,
         intenseColorB: Float
     ) {
-        RenderSystem.enableBlend()
-        RenderSystem.blendFunc(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
-        )
-        RenderSystem.enableDepthTest()
-        RenderSystem.depthMask(false)
+        // The tube shows its inside too; blending is the program's own, depth comes from the composition baseline.
         RenderSystem.disableCull()
         RenderSystem.setShaderTexture(0, SPACE_LAYER)
 
@@ -135,23 +195,16 @@ object AntichristBeamRenderer {
         shader.getUniform("BeamColor")?.set(colorR, colorG, colorB)
         shader.getUniform("Intensity")?.set(2.0f)
         uploadBeamBuffer(softBeam, tick)
-        DeferredOculusCompat.withDeferredShaderPass {
-            beamBuffer.bind()
+        RenderUtils.withBoundBuffer(beamBuffer) {
             beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
 
         shader.getUniform("BeamColor")?.set(intenseColorR, intenseColorG, intenseColorB)
         shader.getUniform("Intensity")?.set(4.0f)
         uploadBeamBuffer(intenseBeam, tick)
-        DeferredOculusCompat.withDeferredShaderPass {
-            beamBuffer.bind()
+        RenderUtils.withBoundBuffer(beamBuffer) {
             beamBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
         }
-
-        VertexBuffer.unbind()
-        RenderSystem.enableCull()
-        RenderSystem.depthMask(true)
-        RenderSystem.disableBlend()
     }
 
     @Suppress("SameParameterValue")
@@ -207,51 +260,27 @@ object AntichristBeamRenderer {
         segments.repeatLastEndpoint()
     }
 
-    private fun writeVerticalSoftBeamSegments(
-        profile: VerticalTaperBeamProfile,
+    private fun writeLinearBeamSegments(
+        startRadius: Float,
+        endRadius: Float,
+        beamLength: Float,
+        alpha: Float,
         segments: SegmentBuffer
     ) {
         segments.clear()
-
-        val fadeEndOffset = profile.height * 0.1f
-        val fadeEndRadius = interpolate(0.0f, profile.height, profile.bottomRadius, profile.topRadius, fadeEndOffset)
-
-        segments.add(profile.bottomRadius, 0.0f, 0.0f)
-        segments.add(fadeEndRadius, fadeEndOffset, profile.beamAlpha)
-        segments.add(profile.topRadius, profile.height, profile.beamAlpha * 0.85f)
-        segments.repeatLastEndpoint()
-    }
-
-    private fun writeVerticalIntenseBeamSegments(
-        profile: VerticalTaperBeamProfile,
-        segments: SegmentBuffer
-    ) {
-        segments.clear()
-
-        val fadeEndOffset = profile.height * 0.1f
-        val fadeEndRadius = interpolate(
-            0.0f,
-            profile.height,
-            profile.bottomRadius * 0.45f,
-            profile.topRadius * 0.5f,
-            fadeEndOffset
-        )
-
-        segments.add(profile.bottomRadius * 0.45f, 0.0f, 0.0f)
-        segments.add(fadeEndRadius, fadeEndOffset, profile.beamAlpha * 0.55f)
-        segments.add(profile.topRadius * 0.5f, profile.height, profile.beamAlpha * 0.85f)
+        segments.add(startRadius, 0.0f, alpha)
+        segments.add(endRadius, beamLength, alpha)
         segments.repeatLastEndpoint()
     }
 
     private fun updateCameraPositionInBeamSpace(
         profile: AntichristRenderProfile,
-        blockEntity: BlockEntity
+        blockPos: BlockPos,
+        camera: Vec3
     ) {
-        val cameraWorldPos = Minecraft.getInstance().gameRenderer.mainCamera.position
-        val blockPos = blockEntity.blockPos
-        val cameraRelativeX = cameraWorldPos.x - blockPos.x.toDouble() - profile.starPos.x
-        val cameraRelativeY = cameraWorldPos.y - blockPos.y.toDouble() - profile.starPos.y
-        val cameraRelativeZ = cameraWorldPos.z - blockPos.z.toDouble() - profile.starPos.z
+        val cameraRelativeX = camera.x - blockPos.x.toDouble() - profile.starPos.x
+        val cameraRelativeY = camera.y - blockPos.y.toDouble() - profile.starPos.y
+        val cameraRelativeZ = camera.z - blockPos.z.toDouble() - profile.starPos.z
         val yawRadians = Math.toRadians((-profile.beamYawDegrees).toDouble())
         val cosYaw = cos(yawRadians).toFloat()
         val sinYaw = sin(yawRadians).toFloat()
@@ -265,21 +294,21 @@ object AntichristBeamRenderer {
         )
     }
 
-    private fun updateCameraPositionInVerticalBeamSpace(
-        profile: VerticalTaperBeamProfile,
-        blockEntity: BlockEntity
+    private fun updateCameraPositionInLocalBeamSpace(
+        blockEntity: BlockEntity,
+        origin: Vec3,
+        rotation: Quaternionf,
+        camera: Vec3
     ) {
-        val cameraWorldPos = Minecraft.getInstance().gameRenderer.mainCamera.position
         val blockPos = blockEntity.blockPos
-        val relativeX = cameraWorldPos.x - blockPos.x.toDouble() - profile.basePos.x
-        val relativeY = cameraWorldPos.y - blockPos.y.toDouble() - profile.basePos.y
-        val relativeZ = cameraWorldPos.z - blockPos.z.toDouble() - profile.basePos.z
-
-        cameraPosition.set(
-            relativeX.toFloat(),
-            -relativeZ.toFloat(),
-            relativeY.toFloat()
+        val relative = Vector3f(
+            (camera.x - blockPos.x.toDouble() - origin.x).toFloat(),
+            (camera.y - blockPos.y.toDouble() - origin.y).toFloat(),
+            (camera.z - blockPos.z.toDouble() - origin.z).toFloat()
         )
+
+        Quaternionf(rotation).conjugate().transform(relative)
+        cameraPosition.set(relative)
     }
 
     private fun getStartAngle(starRadius: Float): Float {
@@ -363,25 +392,23 @@ object AntichristBeamRenderer {
     private fun interpolate(x0: Float, x1: Float, y0: Float, y1: Float, x: Float): Float =
         y0 + ((x - x0) * (y1 - y0)) / (x1 - x0)
 
-    private fun uploadBeamBuffer(segments: SegmentBuffer, tick: Float) {
+    private fun uploadBeamBuffer(segments: SegmentBuffer, tick: Double) {
         val builder = Tesselator.getInstance().builder
         builder.begin(VertexFormat.Mode.TRIANGLES, AntichristShaders.BEAM_VERTEX_FORMAT)
         writeBeamVertices(builder, segments, tick)
 
-        beamBuffer.bind()
-        beamBuffer.upload(builder.end())
+        RenderUtils.withBoundBuffer(beamBuffer) {
+            beamBuffer.uploadIndexed(builder.end(), beamIndices)
+            beamBuffer.drawCount = segments.segmentCount * SEGMENT_QUADS * 6
+        }
     }
 
-    private fun writeBeamVertices(builder: BufferBuilder, segments: SegmentBuffer, tick: Float) {
+    private fun writeBeamVertices(builder: BufferBuilder, segments: SegmentBuffer, tick: Double, layer: Int = 0) {
         val cameraAngle = atan2(cameraPosition.y, cameraPosition.x)
-        for (segmentId in 0 until MAX_SEGMENTS) {
-            for (quadId in 0 until SEGMENT_QUADS) {
-                addBeamVertex(builder, segments, segmentId + 1, quadId, 0, cameraAngle, tick)
-                addBeamVertex(builder, segments, segmentId, quadId, 1, cameraAngle, tick)
-                addBeamVertex(builder, segments, segmentId, quadId, 2, cameraAngle, tick)
-                addBeamVertex(builder, segments, segmentId, quadId, 3, cameraAngle, tick)
-                addBeamVertex(builder, segments, segmentId + 1, quadId, 4, cameraAngle, tick)
-                addBeamVertex(builder, segments, segmentId + 1, quadId, 5, cameraAngle, tick)
+
+        for (endpoint in 0..segments.segmentCount) {
+            for (angle in 0..SEGMENT_QUADS) {
+                addBeamVertex(builder, segments, endpoint, angle, 2, cameraAngle, tick, layer)
             }
         }
     }
@@ -393,20 +420,22 @@ object AntichristBeamRenderer {
         quadId: Int,
         localId: Int,
         cameraAngle: Float,
-        tick: Float
+        tick: Double,
+        layer: Int
     ) {
         val radius = segments.radius(endpointId)
         val offset = segments.offset(endpointId)
         val angle = getVertexAngle(quadId, localId, cameraAngle)
         val x = cos(angle) * radius
         val y = sin(angle) * radius
-        val timer = tick / 240.0f
+        // Both texture coordinates repeat after three timer units.
+        val timer = ((tick / 240.0) % 3.0).toFloat()
         val heightOffset = (offset / 256.0f) + timer
         val alpha = packAlpha(segments.transparency(endpointId))
 
         builder.vertex(x.toDouble(), y.toDouble(), offset.toDouble())
             .uv(heightOffset, angle / (2.0f * PI) + heightOffset / 3.0f + timer)
-            .overlayCoords(alpha)
+            .overlayCoords(alpha or (layer shl 16))
             .endVertex()
     }
 
@@ -416,13 +445,15 @@ object AntichristBeamRenderer {
             .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()) and 0xFFFF
 
     private fun getVertexAngle(quadId: Int, localId: Int, cameraAngle: Float): Float {
-        val idOffset = if (localId > 1 && localId < 5) 0 else 1
+        val idOffset = if (localId in 2..4) 0 else 1
         return (PI * (quadId + idOffset).toFloat()) / SEGMENT_QUADS.toFloat() + (cameraAngle - PI / 2.0f)
     }
 
     private class SegmentBuffer {
         val values = FloatArray(ENDPOINT_FLOATS)
         private var endpointCount = 0
+        val segmentCount: Int
+            get() = (endpointCount - 1).coerceAtLeast(0)
 
         fun clear() {
             endpointCount = 0

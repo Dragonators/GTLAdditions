@@ -91,7 +91,7 @@ open class WirelessEnergyNetworkTerminalPartMachineBase(holder: IMachineBlockEnt
         IO.NONE -> null
     }
 
-    protected fun createEnergyContainer(vararg args: Any?): NetworkEnergyContainer = NetworkEnergyContainer(this, io)
+    protected fun createEnergyContainer(): NetworkEnergyContainer = NetworkEnergyContainer(this, io)
 
     override fun getUUID(): UUID? = uuid
 

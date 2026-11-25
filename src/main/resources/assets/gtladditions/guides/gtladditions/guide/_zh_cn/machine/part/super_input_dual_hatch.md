@@ -2,7 +2,7 @@
 navigation:
   title: 超级输入总成
   icon: super_input_dual_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 7
 categories:
   - 机器仓室

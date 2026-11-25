@@ -1,8 +1,8 @@
 ---
 navigation:
-  title: Subatomic Transmutatioon Core
+  title: Subatomic Transmutation Core
   icon: subatomic_transmutatioon_core
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 25
 categories:
   - multiblock controller
@@ -10,9 +10,11 @@ item_ids:
   - gtladditions:subatomic_transmutatioon_core
 ---
 
-# Subatomic Transmutatioon Core
+# Subatomic Transmutation Core
 
 <BlockImage id="gtladditions:subatomic_transmutatioon_core" scale="8" />
+
+The Subatomic Transmutation Core replaces the Atomic Transmutation Core and controls block transmutation through conversion cards and coils.
 
 * The structure must install <ItemLink id="gtladditions:me_block_conservation" />.
 * Only Titansteel-tier coils or above can be used.

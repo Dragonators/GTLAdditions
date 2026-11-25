@@ -23,14 +23,14 @@ object CloudTeamUtil {
 
     fun bindOnPlacement(machine: IBindable, placer: LivingEntity?) {
         if (placer is Player && !placer.level().isClientSide) {
-            machine.setUUID(placer.uuid)
+            machine.uuid = placer.uuid
         }
     }
 
     @Suppress("SameReturnValue")
     fun bindFromDataStick(machine: IBindable, player: Player): InteractionResult {
         if (player.level().isClientSide) return InteractionResult.SUCCESS
-        machine.setUUID(player.uuid)
+        machine.uuid = player.uuid
         if (player is ServerPlayer) {
             player.sendSystemMessage(
                 Component.translatable("gui.gtladditions.cloud.bind_success", TeamUtil.GetName(player))

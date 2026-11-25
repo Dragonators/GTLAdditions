@@ -24,9 +24,47 @@
     },
     {
       "name": "BlurredMaskSampler"
+    },
+    {
+      "name": "BloomSampler"
+    },
+    {
+      "name": "BloomSampler1"
+    },
+    {
+      "name": "BloomSampler2"
+    },
+    {
+      "name": "BloomSampler3"
+    },
+    {
+      "name": "BloomSampler4"
+    },
+    {
+      "name": "HandMaskSampler"
+    },
+    {
+      "name": "SceneDepth"
     }
   ],
   "uniforms": [
+    {
+      "name": "SceneSize", "type": "float", "count": 2, "values": [1.0, 1.0]
+    },
+    {
+      "name": "InverseProjection", "type": "matrix4x4", "count": 16,
+      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "name": "HeartSpheres", "type": "matrix4x4", "count": 16,
+      "values": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "name": "HandMaskEnabled",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
+    },
     {
       "name": "BlurInputScale",
       "type": "float",
@@ -35,6 +73,7 @@
         2.0,
         2.0
       ]
-    }
+    },
+    {"name": "CompositeOrigin", "type": "float", "count": 2, "values": [0, 0]}
   ]
 }

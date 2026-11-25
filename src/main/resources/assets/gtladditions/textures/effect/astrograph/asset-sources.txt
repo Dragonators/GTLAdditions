@@ -1,0 +1,17 @@
+GTNH Eye of Harmony sky texture
+
+Source: GTNewHorizons/GT5-Unofficial
+Commit: 45cc18c5be210232a767f470cd5870b02202f056
+https://github.com/GTNewHorizons/GT5-Unofficial/tree/45cc18c5be210232a767f470cd5870b02202f056/src/main/resources/assets/tectech/models
+
+Modified derivative (resampled and re-encoded):
+space_layer.png <- spaceLayer.png
+
+The three stellar textures are shared from ../star/; see its asset-sources.txt.
+License: LGPL-3.0; complete license texts are LGPL-3.0.txt and GPL-3.0.txt in
+assets/gtladditions/models/effect/condensation/.
+
+Resampling (2026-11-06): the 8192x4096 upstream image was halved to
+4096x2048 with a 2x2 box filter in linear light, then encoded with Pillow as
+progressive JPEG, quality 92, 4:4:4 chroma. The upstream .png filename
+contains JPEG data; this naming convention is retained.

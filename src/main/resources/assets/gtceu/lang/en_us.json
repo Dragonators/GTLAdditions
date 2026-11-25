@@ -10,6 +10,7 @@
   "block.gtceu.uxv_67108863a_laser_source_hatch": "67108863An§eUXV§rLaser Source Hatch",
   "block.gtceu.zpm_67108863a_laser_source_hatch": "67108863An§cZPM§rLaser Source Hatch",
   "gtceu.antientropy_condensation": "Antientropy Condensation",
+  "gtceu.bio_cultivation": "Bio-Cultivation",
   "gtceu.biological_simulation": "Biological Simulation",
   "gtceu.chaos_weave": "Chaos Weave",
   "gtceu.chaotic_alchemy": "Chaotic Alchemy",
@@ -137,5 +138,6 @@
   "gtceu.stellar_lgnition": "Stellar Lgnition",
   "gtceu.tectonic_fault_generator": "Tectonic Fault Generator",
   "gtceu.tooltip.super_proxy_bind": "§fBinding to a Super Pattern Buffer at %s %s %s",
+  "gtceu.transmutation_block_conversion": "Block Transmutation",
   "gtceu.voidflux_reaction": "Voidflux Reaction"
 }

@@ -35,7 +35,7 @@ class PatternPredicateSelector private constructor(
         if (requirePureAir && !predicate.isAir) return false
         val candidateBlocks = predicate.candidateBlocks()
         return blocks.map { it() }.all(candidateBlocks::contains) &&
-            abilities.all { ability -> ability.getAllBlocks().any(candidateBlocks::contains) }
+            abilities.all { ability -> ability.allBlocks.any(candidateBlocks::contains) }
     }
 
     companion object {
@@ -117,7 +117,7 @@ private fun BlockPattern.patchPredicates(
     transform: (TraceabilityPredicate) -> TraceabilityPredicate
 ): BlockPattern {
     val matches = IdentityHashMap<TraceabilityPredicate, TraceabilityPredicate>()
-    val blockMatches = (this as BlockPatternAccessor).`gtladd$getBlockMatches`()
+    val blockMatches = (this as BlockPatternAccessor).blockMatches
 
     for (aisle in blockMatches) {
         for (row in aisle) {

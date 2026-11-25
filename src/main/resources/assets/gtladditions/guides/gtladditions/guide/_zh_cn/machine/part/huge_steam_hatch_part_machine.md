@@ -2,7 +2,7 @@
 navigation:
   title: 巨型蒸汽输入仓
   icon: huge_steam_input_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 6
 categories:
   - 机器仓室

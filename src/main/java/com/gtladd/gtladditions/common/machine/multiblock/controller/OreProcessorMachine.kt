@@ -8,8 +8,8 @@ import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.machine.hatch.OreProcessorHatch
-import com.gtladd.gtladditions.utils.OreProcessorRecipeHelper
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import com.gtladd.gtladditions.utils.recipe.OreProcessorRecipeHelper
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import it.unimi.dsi.fastutil.longs.LongLongPair
 import org.gtlcore.gtlcore.utils.NumberUtils
 

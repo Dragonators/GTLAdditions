@@ -1,0 +1,6 @@
+﻿{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gtladditions:item/eternity_dark_matter_fuel_rod"
+  }
+}

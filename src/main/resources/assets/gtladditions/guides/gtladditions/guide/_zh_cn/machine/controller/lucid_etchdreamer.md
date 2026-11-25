@@ -2,7 +2,7 @@
 navigation:
   title: 光之蚀梦者
   icon: lucid_etchdreamer
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 20
 categories:
   - 多方块结构主机

@@ -17,6 +17,24 @@ compared to its JSON before writing. JSON coordinates remain `[aisle,row,column]
 `verify` checks content, the resource set and the current binary version. If a
 resource was restored from an older Git revision, run `generate` again.
 
+## Hidden structure resources
+
+Animated structure masks read packaged GTLASB3 data through
+`StructureResourceLoader`, using the same classloader and caches as FOA:
+
+- FOA uses `rings/forge_of_the_antichrist_rings.bin`.
+- Dimension Focus reuses `multiblock/dimension_focus_infinity_crafting_array.bin`,
+  selecting `ADKLM` outside rows 18 through 22.
+- Antientropy Condensation reuses `multiblock/antientropy_condensation_center.bin`,
+  selecting the 32 `J` glass blocks and one `M` generator.
+- The Matrix uses `masks/apocalyptic_matrix_frames.bin`. Its 3,072 accepted
+  coordinates are a subset of materials also used elsewhere in the full machine,
+  so selecting those materials from the machine would hide additional blocks.
+  The eye also hides the 110 central `X` coils through `MatrixEyeBlockLayout`.
+
+The former runtime JSON under `effects/` is no longer used. Resource packs do not
+override these classpath-loaded structure grids.
+
 ## GTLASB3 binary format
 
 All multi-byte integers are unsigned, big endian. A resource contains:
@@ -94,19 +112,3 @@ absent, invoke the bundled wrapper JAR from the project root:
 ```powershell
 java -classpath gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain build
 ```
-
-Measured on 2026-10-08 for the current 31 resources / 33 grids / 6,274,112 cells:
-
-| Representation | Bytes |
-|---|---:|
-| Old binary resources | 821,782 |
-| GTLASB3 binary resources | 581,777 |
-| Old structure entries compressed in JAR | 78,062 |
-| GTLASB3 with ordinary ZIP compression | 51,062 |
-| GTLASB3 with build-time Python Zopfli | 42,018 |
-
-The final compressed structure payload is 46.17% smaller than the old JAR payload.
-These values exclude unchanged ZIP directory overhead. Python calls the native
-Zopfli implementation, so its compressed bytes can differ slightly from the former
-Pngtastic JVM port. Runtime game startup time and heap use were not benchmarked;
-byte-for-byte structure equality and shared rows were verified.

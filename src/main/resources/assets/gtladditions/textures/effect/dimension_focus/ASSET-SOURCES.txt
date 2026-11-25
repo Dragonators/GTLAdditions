@@ -1,0 +1,7 @@
+Dimension Focus pocket dimension: generated for this mod, no third-party content.
+
+veil_near_*.png, veil_deep_*.png  Cube map faces (+X, -X, +Y, -Y, +Z, -Z), GL face orientation with image row 0 at t = -1.
+                                  R = soft gas base, G = detail octaves continuing it (both normalised to mean .5, sd .15), B = baked light (near) / unused (deep).
+                                  Baked on the GPU from procedural fold maps, then normalised.
+../../../shaders/lookup/dimension_focus_noise.dat
+                                  gzip of 64 x 64 x 64 x RGB8, x fastest: three independent band-limited noises, tileable.

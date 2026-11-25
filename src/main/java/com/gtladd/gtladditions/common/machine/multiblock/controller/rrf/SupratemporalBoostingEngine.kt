@@ -1,10 +1,14 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller.rrf
 
+import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
+import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
 import com.gregtechceu.gtceu.common.data.GTMaterials
+import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
+import com.gtladd.gtladditions.api.machine.logic.UpkeepRecipeLogic
 import com.gtladd.gtladditions.common.machine.hatch.VientianeTranscriptionNode
-import com.gtladd.gtladditions.utils.MachineUtil.inputFluid
+import com.gtladd.gtladditions.utils.recipe.MachineUtil.inputFluid
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
@@ -44,7 +48,11 @@ class SupratemporalBoostingEngine(holder: IMachineBlockEntity, vararg args: Any?
 
     fun isBoostWindowActive(): Boolean = isReadyForRecursiveReverseBuff() && !overheated
 
+    override fun isEffectReady(): Boolean = isBoostWindowActive()
+
     fun getEuMultiplierBuff(): Double = calculateEuMultiplier(getPerfectSupratemporalBoostParameter())
+
+    override fun createRecipeLogic(vararg args: Any): RecipeLogic = UpkeepRecipeLogic(this, UPKEEP_RECIPE)
 
     // ========================================
     // Life cycle
@@ -175,6 +183,9 @@ class SupratemporalBoostingEngine(holder: IMachineBlockEntity, vararg args: Any?
 
     companion object {
         val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(SupratemporalBoostingEngine::class.java, RRFWorkableModuleMachine.MANAGED_FIELD_HOLDER)
+
+        val UPKEEP_EUT: Long = GTValues.VA[GTValues.UXV].toLong()
+        private val UPKEEP_RECIPE = GTRecipeBuilder.ofRaw().EUt(UPKEEP_EUT).duration(UpkeepRecipeLogic.CYCLE_TICKS).buildRawRecipe()
 
         private const val MIN_TEMPERATURE = 48000
         private const val OPTIMAL_MIN = 93000

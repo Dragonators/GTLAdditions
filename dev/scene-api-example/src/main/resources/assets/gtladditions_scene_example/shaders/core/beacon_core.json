@@ -1,0 +1,12 @@
+{
+  "vertex": "gtladditions_scene_example:mesh",
+  "fragment": "gtladditions_scene_example:beacon_core",
+  "attributes": ["Position"],
+  "samplers": [{"name": "HandMask"}],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
+    {"name": "CoreColor", "type": "float", "count": 4, "values": [1.0, 0.72, 0.25, 1.0]},
+    {"name": "HandMaskEnabled", "type": "int", "count": 1, "values": [0]}
+  ]
+}

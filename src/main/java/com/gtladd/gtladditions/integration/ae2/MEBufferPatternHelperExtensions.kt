@@ -16,7 +16,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient
 import com.gtladd.gtladditions.common.machine.multiblock.part.MESuperPatternBufferPartMachine
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.minecraft.world.level.Level

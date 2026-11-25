@@ -31,6 +31,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.BIOSP
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DRACONIC_COLLAPSE_CORE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.EXOTIC_CHEMICAL_COMPLEX
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.FUXI_BAGUA_HEAVEN_FORGING_FURNACE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.INFERNO_CLEFT_SMELTING_VAULT
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.LUCID_ETCHDREAMER
@@ -122,6 +123,7 @@ object MutableMultiBlockModify {
             DRACONIC_COLLAPSE_CORE,
             TITAN_CRIP_EARTHBORE,
             BIOLOGICAL_SIMULATION_LABORATORY,
+            EXOTIC_CHEMICAL_COMPLEX,
             DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT,
             QUANTUM_SYPHON_MATRIX,
             FUXI_BAGUA_HEAVEN_FORGING_FURNACE,

@@ -9,7 +9,7 @@ import com.gtladd.gtladditions.api.machine.EBFChecks
 import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddCoilWorkableElectricMultipleRecipesMultiblockMachine
 import com.gtladd.gtladditions.common.data.ParallelData
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import it.unimi.dsi.fastutil.longs.LongBooleanPair
 import org.gtlcore.gtlcore.api.recipe.IGTRecipe
 import java.util.function.BiPredicate

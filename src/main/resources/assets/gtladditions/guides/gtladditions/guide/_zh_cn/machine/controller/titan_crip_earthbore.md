@@ -2,7 +2,7 @@
 navigation:
   title: 泰坦之握凿地机
   icon: titan_crip_earthbore
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 25
 categories:
   - 多方块结构主机

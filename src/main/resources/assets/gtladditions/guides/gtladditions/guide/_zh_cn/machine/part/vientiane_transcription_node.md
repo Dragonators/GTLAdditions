@@ -2,7 +2,7 @@
 navigation:
   title: 万象转录节点
   icon: vientiane_transcription_node
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 5
 categories:
   - 机器仓室

@@ -1,0 +1,12 @@
+{
+  "blend": {"func": "add", "srcrgb": "srcalpha", "dstrgb": "one"},
+  "vertex": "gtladditions:gtladditions_matrix_seal",
+  "fragment": "gtladditions:gtladditions_matrix_seal",
+  "attributes": ["Position", "Color"],
+  "samplers": [],
+  "uniforms": [
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "Intensity", "type": "float", "count": 1, "values": [1]}
+  ]
+}

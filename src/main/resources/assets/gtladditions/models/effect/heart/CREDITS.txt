@@ -1,0 +1,30 @@
+Heart of the Cosmos: fleet, stations and textures (fleet.bin.gz, textures/effect/heart/)
+
+Craft (each CC BY 4.0, https://creativecommons.org/licenses/by/4.0/). Changes for this mod: reduced in Blender (Decimate collapse)
+where noted, scaled to a common size, re-encoded; the base colour, emissive, normal and metal/roughness pictures are kept (other maps
+dropped), pictures at most 512 px (the Star Destroyer's at most 1024 px).
+  "TIE" by metalmorag, https://sketchfab.com/3d-models/5bcaa60ed5ce4a51b4233aed418f2280 (not reduced)
+  "Star Wars: TIE/in Interceptor" by DanielAndersson, https://sketchfab.com/3d-models/80171ec2930b4949836bcf24d9694c41 (reduced)
+  "Star Wars: TIE/x1 Advanced x1" by DanielAndersson, https://sketchfab.com/3d-models/0b3825de4fa542a893c9f9344b7e5f31 (reduced)
+  "Star Wars: TIE/ph Phantom" by DanielAndersson, https://sketchfab.com/3d-models/3fbf9b38b2a24db8b6fcc9f7a67dbf03 (not reduced)
+  "Star Wars: VT-49 Decimator" by DanielAndersson, https://sketchfab.com/3d-models/3d9103b8d13942a3a990a0f42f2f4c4a (reduced)
+  "Star Wars: Gozanti-Class Cruiser" by DanielAndersson, https://sketchfab.com/3d-models/6a587e545b1c48bea95480b49458ac63
+    (reduced; pose baked, rig removed). Its worn-metal picture and normal picture (ScratchedMetalDark) are also laid on the
+    VT-49's hull materials that came without a picture, and on the Starkiller base's metal.
+  "Star Destroyer" by GoddHoward, https://sketchfab.com/3d-models/b5435fed6c3143f99b56f5de862a05bd (not reduced; bump maps dropped)
+
+Death Star
+  "Death Star - Star Wars" by quiznos323, https://sketchfab.com/3d-models/423fb92f677f4448aef407112a1fc032
+  CC BY-NC-SA 4.0, https://creativecommons.org/licenses/by-nc-sa/4.0/. Changes: laser beam and its rig removed (the eight emitter
+  positions kept as points), pictures resized to 1024 px, re-encoded, normal maps dropped (flat at that size). This adapted model is
+  shared under the same licence.
+
+Starkiller base
+  Reconstructed for this project from the public gallery images of chrikre's "Starkiller Base" (TurboSquid 976439); that commercial
+  model was not obtained and none of its data is used.
+  Ice: USGS Astrogeology Science Center, "Europa Voyager - Galileo SSI Global Mosaic 500m" (NASA / JPL / USGS; use constraints:
+  none), its soft Voyager-era areas filled with fine detail taken from its own crisp areas, reduced to 4096 x 2048, with
+  low-frequency tone and colour from Hermes, "Europa (2K)", Celestia Motherlode ("Free to use
+  and edit"), reduced to 1024 x 512.
+
+Star Wars designs are the property of Lucasfilm Ltd.

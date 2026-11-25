@@ -2,7 +2,7 @@
 navigation:
   title: 维度聚焦无尽合成阵列
   icon: dimension_focus_infinity_crafting_array
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 45
 categories:
   - 多方块结构主机

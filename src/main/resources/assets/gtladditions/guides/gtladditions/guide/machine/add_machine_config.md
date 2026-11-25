@@ -41,7 +41,6 @@ GTLAdditions-owned machines:
 
 <Row>
     <BlockImage id="gtladditions:lucid_etchdreamer" scale="3" />
-    <BlockImage id="gtladditions:atomic_transmutation_core" scale="3" />
     <BlockImage id="gtladditions:astral_convergence_nexus" scale="3" />
     <BlockImage id="gtladditions:nebula_reaper" scale="3" />
     <BlockImage id="gtladditions:arcane_cache_vault" scale="3" />
@@ -49,7 +48,6 @@ GTLAdditions-owned machines:
 
 <Row>
     <BlockImage id="gtladditions:biological_simulation_laboratory" scale="3" />
-    <BlockImage id="gtladditions:dimensionally_transcendent_chemical_plant" scale="3" />
     <BlockImage id="gtladditions:quantum_syphon_matrix" scale="3" />
     <BlockImage id="gtladditions:fuxi_bagua_heaven_forging_furnace" scale="3" />
     <BlockImage id="gtladditions:antientropy_condensation_center" scale="3" />
@@ -58,7 +56,7 @@ GTLAdditions-owned machines:
 <Row>
     <BlockImage id="gtladditions:taixu_turbid_array" scale="3" />
     <BlockImage id="gtladditions:inferno_cleft_smelting_vault" scale="3" />
-    <BlockImage id="gtladditions:heart_of_the_universe" scale="3" />
+    <BlockImage id="gtladditions:heart_of_the_cosmos" scale="3" />
     <BlockImage id="gtladditions:dimension_focus_infinity_crafting_array" scale="3" />
 </Row>
 
@@ -85,7 +83,7 @@ GTLAdditions-owned machines:
     <BlockImage id="gtladditions:draconic_collapse_core" scale="3" />
     <BlockImage id="gtladditions:titan_crip_earthbore" scale="3" />
     <BlockImage id="gtladditions:skeleton_shift_rift_engine" scale="3" />
-    <BlockImage id="gtladditions:apocalyptic_torsion_quantum_matrix" scale="3" />
+    <BlockImage id="gtladditions:apocalyptic_quantum_warp_matrix" scale="3" />
 </Row>
 
 External machines changed by this mod to use the greedy setting:
@@ -173,6 +171,11 @@ GTLAdditions-owned machines:
     <BlockImage id="gtladditions:nexus_satellite_factory_mk4" scale="3" />
     <BlockImage id="gtladditions:space_infinity_integrated_ore_processor" scale="3" />
     <BlockImage id="gtladditions:macro_atomic_resonant_fragment_stripper" scale="3" />
+    <BlockImage id="gtladditions:subatomic_transmutatioon_core" scale="3" />
+</Row>
+
+<Row>
+    <BlockImage id="gtladditions:exotic_chemical_complex" scale="3" />
 </Row>
 
 External machines with special handling added by this mod:
@@ -187,7 +190,9 @@ External machines with special handling added by this mod:
 
 Notes:
 
-* Subspace Corridor Hub modules use even distribution before the special hub state is unlocked; after that, they calculate each recipe independently and use special per-recipe parallel limits.
+* At tier 1, only the Synthesis Nexus of the <ItemLink id="gtladditions:exotic_chemical_complex" /> runs, and all recipes count toward its even-distribution limit. At tier 2, all 12 outer units activate automatically, each with its own even-distribution limit that by default counts only UV and higher recipes. At tier 3, parallel is infinite by default, outer units can use manual limits, and all units can individually select Large Chemical Reactor or Deep Chemical Distortion recipes.
+* <ItemLink id="gtladditions:subatomic_transmutatioon_core" /> converts blocks through the ME Transmutation Bus Hatch. Coil temperature and the installed card determine the conversion capacity per cycle; the card determines the cycle duration.
+* Subspace Corridor Hub modules use even distribution before the special station state is unlocked; after that, they calculate each recipe independently and use special per-recipe parallel limits.
 * Forge of the Antichrist and its modules calculate runnable recipes separately, with behavior affected by the host's output multiplier, wireless energy, and module rules.
 * Space Scaling Instrument, Space Infinity Integrated Ore Processor, and Macro Atomic Resonant Fragment Stripper calculate parallel independently for each recipe.
 * Dimension Focus Infinity Crafting Array itself belongs to even distribution; as a Molecular Assembler Matrix module, it enables special infinity crafting behavior for that host.

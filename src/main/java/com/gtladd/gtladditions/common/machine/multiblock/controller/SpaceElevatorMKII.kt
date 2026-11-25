@@ -3,19 +3,25 @@ package com.gtladd.gtladditions.common.machine.multiblock.controller
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.world.level.Level
-import org.gtlcore.gtlcore.common.data.GTLBlocks
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA.ASSEMBLER_MODULE
 import org.gtlcore.gtlcore.common.data.machines.AdvancedMultiBlockMachineA.RESOURCE_COLLECTION
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.SpaceElevatorMachine
-import org.gtlcore.gtlcore.utils.MachineUtil
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
 
 class SpaceElevatorMKII(holder: IMachineBlockEntity) : SpaceElevatorMachine(holder) {
+    @Suppress("unused")
+    fun supportsBatchProcessing(): Boolean = false
+
+    @Suppress("unused")
+    fun canConfigureBatchProcessing(): Boolean = false
+
     override fun getModuleScanPositions(): Array<BlockPos> {
-        val powerCore = getPowerCore(pos, level ?: return MachineUtil.EMPTY_POS_ARRAY)
-            ?: return MachineUtil.EMPTY_POS_ARRAY
-        return MODULE_OFFSETS.map { (x, y, z) -> powerCore.offset(x, y, z) }.toTypedArray()
+        // In the structure the power core is three aisles behind and two rows below the controller.
+        val core = pos.relative(frontFacing.opposite, 3).below(2)
+        return Array(MODULE_OFFSETS.size) { i ->
+            val (x, y, z) = MODULE_OFFSETS[i]
+            core.offset(x, y, z)
+        }
     }
 
     override fun getModulesForRendering(): List<ModuleRenderInfo> = listOf(
@@ -77,20 +83,8 @@ class SpaceElevatorMKII(holder: IMachineBlockEntity) : SpaceElevatorMachine(hold
         module(-23, -13, Direction.NORTH, ASSEMBLER_MODULE)
     )
 
-    private fun getPowerCore(controllerPos: BlockPos, level: Level): BlockPos? =
-        POWER_CORE_OFFSETS.asSequence()
-            .map { (x, y, z) -> controllerPos.offset(x, y, z) }
-            .firstOrNull { level.getBlockState(it).block === GTLBlocks.POWER_CORE.get() }
-
     companion object {
-        private val POWER_CORE_OFFSETS = arrayOf(
-            intArrayOf(3, -2, 0),
-            intArrayOf(-3, -2, 0),
-            intArrayOf(0, -2, 3),
-            intArrayOf(0, -2, -3)
-        )
-
-        val MODULE_OFFSETS = arrayOf(
+        private val MODULE_OFFSETS = arrayOf(
             intArrayOf(4, 2, 11), intArrayOf(4, 2, -11), intArrayOf(-4, 2, 11), intArrayOf(-4, 2, -11),
             intArrayOf(11, 2, 4), intArrayOf(-11, 2, 4), intArrayOf(11, 2, -4), intArrayOf(-11, 2, -4),
             intArrayOf(18, 2, 8), intArrayOf(18, 2, -8), intArrayOf(-18, 2, 8), intArrayOf(-18, 2, -8),

@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [],
+  "remove": [
+    "sgjourney:naquadah_rod",
+    "sgjourney:naquadah_copper_rod",
+    "sgjourney:naquadah_iron_rod",
+    "sgjourney:trinium_rod"
+  ]
+}

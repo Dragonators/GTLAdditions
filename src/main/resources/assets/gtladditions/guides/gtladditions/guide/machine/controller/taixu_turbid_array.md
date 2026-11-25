@@ -2,7 +2,7 @@
 navigation:
   title: Taixu Turbid Array
   icon: taixu_turbid_array
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 31
 categories:
   - multiblock controller

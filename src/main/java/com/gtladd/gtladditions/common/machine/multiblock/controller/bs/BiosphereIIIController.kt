@@ -1,6 +1,5 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller.bs
 
-import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.api.gui.GuiTextures
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfiguratorButton
@@ -33,13 +32,9 @@ import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
-import org.gtlcore.gtlcore.integration.gtmt.NewGTValues
-import org.gtlcore.gtlcore.utils.NumberUtils
-import org.gtlcore.gtlcore.utils.TextUtil
+import org.gtlcore.gtlcore.integration.monitor.IMonitorRecipeType
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
-import java.math.BigDecimal
 import java.math.BigInteger
-import java.math.RoundingMode
 import java.util.function.Consumer
 
 class BiosphereIIIController(holder: IMachineBlockEntity) :
@@ -47,7 +42,8 @@ class BiosphereIIIController(holder: IMachineBlockEntity) :
     IModularMachineHost<BiosphereIIIController>,
     IWirelessElectricMultiblockMachine,
     IThreadModifierMachine,
-    IMachineLife {
+    IMachineLife,
+    IMonitorRecipeType {
     private val modulePos = ObjectOpenHashSet<IModularMachineModule<BiosphereIIIController, *>>(8)
     private var energySample = NO_ENERGY_SAMPLE
     private var currentSampleEnergy = BigInteger.ZERO
@@ -111,14 +107,70 @@ class BiosphereIIIController(holder: IMachineBlockEntity) :
         BiosphereIIIPosHelper.calculateModulePositions(pos, frontFacing)
 
     override fun getModulesForRendering(): List<ModuleRenderInfo> = listOf(
-        ModuleRenderInfo(BlockPos(-6, 7, 0), Direction.UP, Direction.NORTH, Direction.NORTH, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(6, 7, 0), Direction.UP, Direction.NORTH, Direction.NORTH, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(8, 9, 0), Direction.UP, Direction.NORTH, Direction.EAST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(-8, 9, 0), Direction.UP, Direction.NORTH, Direction.WEST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(8, 15, 0), Direction.UP, Direction.NORTH, Direction.WEST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(-8, 15, 0), Direction.UP, Direction.NORTH, Direction.EAST, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(6, 17, 0), Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE),
-        ModuleRenderInfo(BlockPos(-6, 17, 0), Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.UP, MultiBlockMachine.BIOSPHERE_III_MODULE)
+        ModuleRenderInfo(
+            BlockPos(6, 0, -7),
+            Direction.NORTH,
+            Direction.UP,
+            Direction.NORTH,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(-6, 0, -7),
+            Direction.NORTH,
+            Direction.UP,
+            Direction.NORTH,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(6, 0, -17),
+            Direction.NORTH,
+            Direction.UP,
+            Direction.SOUTH,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(-6, 0, -17),
+            Direction.NORTH,
+            Direction.UP,
+            Direction.SOUTH,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(-8, 0, -9),
+            Direction.NORTH,
+            Direction.UP,
+            Direction.EAST,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(-8, 0, -15),
+            Direction.NORTH,
+            Direction.UP,
+            Direction.EAST,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(8, 0, -9),
+            Direction.NORTH,
+            Direction.UP,
+            Direction.WEST,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        ),
+        ModuleRenderInfo(
+            BlockPos(8, 0, -15),
+            Direction.NORTH,
+            Direction.UP,
+            Direction.WEST,
+            Direction.UP,
+            MultiBlockMachine.BIOSPHERE_III_MODULE
+        )
     )
 
     override fun isFormed(): Boolean = isFormed
@@ -201,7 +253,7 @@ class BiosphereIIIController(holder: IMachineBlockEntity) :
         currentSampleEnergy = currentSampleEnergy.add(energy)
     }
 
-    internal fun getAverageEnergyConsumption(): BigInteger {
+    fun getAverageEnergyConsumption(): BigInteger {
         updateEnergySample()
         return averageEnergyConsumption
     }
@@ -276,6 +328,8 @@ class BiosphereIIIController(holder: IMachineBlockEntity) :
         return group
     }
 
+    override fun monitorRecipeTypeName(): Component = "monitor.gtladditions.recipe_type.module_power".toComponent
+
     override fun addDisplayText(textList: MutableList<Component>) {
         val modulesActive = hasActiveModules()
         val averageEnergyConsumption = getAverageEnergyConsumption()
@@ -287,7 +341,7 @@ class BiosphereIIIController(holder: IMachineBlockEntity) :
                 "gui.gtladditions.biosphere_iii_average_eut".toComponent(
                     CommonUtils.formatBigIntegerFixed(averageEnergyConsumption).literal
                         .withStyle(ChatFormatting.GOLD),
-                    getEnergyTierComponent(averageEnergyConsumption)
+                    CommonUtils.getEnergyTierComponent(averageEnergyConsumption)
                 )
             )
             .addComponent(Component.translatable("gtceu.machine.module", modulePos.size))
@@ -320,25 +374,5 @@ class BiosphereIIIController(holder: IMachineBlockEntity) :
         private const val ENERGY_AVERAGE_WINDOW = 20
         private const val NO_ENERGY_SAMPLE = Long.MIN_VALUE
         private val ENERGY_AVERAGE_WINDOW_BIG_INTEGER = BigInteger.valueOf(ENERGY_AVERAGE_WINDOW.toLong())
-
-        internal fun getEnergyTierComponent(energy: BigInteger): Component {
-            val longEnergy = NumberUtils.getLongValue(energy)
-            val energyTier = if (longEnergy == Long.MAX_VALUE) {
-                GTValues.MAX_TRUE
-            } else {
-                NumberUtils.getFakeVoltageTier(longEnergy)
-            }
-            val amperage = BigDecimal(energy).divide(
-                BigDecimal.valueOf(GTValues.VEX[energyTier]),
-                2,
-                RoundingMode.DOWN
-            )
-            return "gtceu.top.electricity".toComponent(
-                CommonUtils.format2BigDecimal(amperage),
-                NewGTValues.VNF[energyTier]
-            ).withStyle { style ->
-                style.withColor(TextUtil.`GTL_CORE$VC`[energyTier.coerceAtMost(14)])
-            }
-        }
     }
 }

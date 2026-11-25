@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.common.machine.multiblock.controller
 
 import appeng.client.render.effects.ParticleTypes
 import com.gregtechceu.gtceu.api.block.ICoilType
+import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability
 import com.gregtechceu.gtceu.api.data.chemical.material.Material
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys
 import com.gregtechceu.gtceu.api.gui.GuiTextures
@@ -10,22 +11,27 @@ import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfiguratorButton
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IExplosionMachine
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic
+import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic
+import com.gregtechceu.gtceu.api.recipe.content.Content
+import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient
 import com.gregtechceu.gtceu.api.sound.AutoReleasedSound
 import com.gregtechceu.gtceu.common.data.GTMaterials.*
 import com.gregtechceu.gtceu.common.data.GTSoundEntries
+import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.gui.MultiblockDisplayText
 import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import com.gtladd.gtladditions.utils.ComponentExtensions.translatable
-import com.gtladd.gtladditions.utils.MachineUtil.input
-import com.gtladd.gtladditions.utils.SynchronousSphereExplosion
+import com.gtladd.gtladditions.utils.recipe.MachineUtil.input
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -33,13 +39,17 @@ import org.gtlcore.gtlcore.api.machine.trait.IRecipeStatus
 import org.gtlcore.gtlcore.api.recipe.RecipeResult
 import org.gtlcore.gtlcore.common.data.GTLMaterials.*
 import org.gtlcore.gtlcore.common.machine.multiblock.electric.StorageMachine
+import org.gtlcore.gtlcore.integration.monitor.IMonitorRecipeType
+import org.gtlcore.gtlcore.integration.voxelregion.GtlRegionExplosionFacade
 import org.gtlcore.gtlcore.utils.Registries
+import java.util.UUID
 import kotlin.enums.enumEntries
 import kotlin.math.min
 
 class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
     StorageMachine(holder, 64),
-    IExplosionMachine {
+    IExplosionMachine,
+    IMonitorRecipeType {
 
     @field:Persisted
     private var storageEUt = 0L
@@ -132,6 +142,8 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
         )
     }
 
+    override fun monitorRecipeTypeName(): Component = "monitor.gtladditions.recipe_type.ionisation_power".toComponent
+
     override fun addDisplayText(textList: MutableList<Component>) {
         MultiblockDisplayText.builder(textList, isFormed)
             .setWorkingStatus(recipeLogic.isWorkingEnabled, recipeLogic.isActive)
@@ -164,12 +176,7 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
         isWorkingEnabled = false
 
         currentLevel.removeBlock(this.pos, false)
-        SynchronousSphereExplosion.explode(
-            currentLevel,
-            pos,
-            radius,
-            SynchronousSphereExplosion.Profile.PLANETARY_TOWER
-        )
+        GtlRegionExplosionFacade.submitSphere(currentLevel, MACHINE_ACTOR, pos, radius)
     }
 
     private fun addStorageEUt(start: Boolean): Long {
@@ -217,6 +224,7 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
     }
 
     companion object {
+        private val MACHINE_ACTOR = UUID(0L, 0L)
         private val MANAGED_FIELD_HOLDER = ManagedFieldHolder(
             PlanetaryIonisationConvergenceTower::class.java,
             StorageMachine.MANAGED_FIELD_HOLDER
@@ -242,12 +250,21 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
             RecipeLogic(pictMachine),
             IRecipeStatus {
 
-            init {
-                duration = DURATION
+            override fun loadCustomPersistedData(tag: CompoundTag) {
+                super.loadCustomPersistedData(tag)
+                val restored = lastRecipe
+                // The recipe codec supplies Map.of() when a saved cycle had no power output.
+                if (restored != null && restored.tickOutputs.isEmpty()) lastRecipe = restored.copy()
+            }
+
+            override fun setStatus(status: Status) {
+                if (status == Status.SUSPEND && !pictMachine.startCycle) lastRecipe = null
+                super.setStatus(status)
             }
 
             override fun serverTick() {
                 if (pictMachine.fired) {
+                    lastRecipe = null
                     status = Status.IDLE
                     progress = 0
                     subscription?.unsubscribe()
@@ -273,99 +290,46 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
                 workingStatus = null
                 pictMachine.renderParticles()
                 if (progress == 0) {
-                    val droneResult = DroneResult(false, "")
-                    val nextCycle = pictMachine.cycleAmount + 1
-                    pictMachine.coilEnergy?.let {
-                        when (it.workTier) {
-                            1 -> {
-                                when {
-                                    (nextCycle % 10000 == 0 || pictMachine.cycleAmount == 0) && !pictMachine.machineStorageItem.`is`(SPACE_DRONE_MK2) -> {
-                                        pictMachine.startCycle = false
-                                        droneResult.isDrone = false
-                                        droneResult.tier = SPACE_DRONE_MK2.descriptionId
-                                    }
-                                    else -> {
-                                        pictMachine.startCycle =
-                                            input(pictMachine).fluid(RHENIUM).fluid(ICE).execute()
-                                        if (pictMachine.startCycle) {
-                                            if (nextCycle % 10000 == 0 || pictMachine.cycleAmount == 0) {
-                                                pictMachine.machineStorage.extractItemInternal(0, 1, false)
-                                                droneResult.isDrone
-                                                droneResult.tier = SPACE_DRONE_MK2.descriptionId
-                                            }
-                                            pictMachine.cycleAmount = nextCycle
-                                        }
-                                    }
-                                }
-                            }
-                            2 -> {
-                                when {
-                                    (nextCycle % 20000 == 0 || pictMachine.cycleAmount == 0) && !pictMachine.machineStorageItem.`is`(SPACE_DRONE_MK4) -> {
-                                        pictMachine.startCycle = false
-                                        droneResult.isDrone = false
-                                        droneResult.tier = SPACE_DRONE_MK4.descriptionId
-                                    }
-                                    else -> {
-                                        pictMachine.startCycle =
-                                            input(pictMachine).fluid(PROMETHIUM).fluid(HELIUM).execute()
-                                        if (pictMachine.startCycle) {
-                                            if (nextCycle % 20000 == 0 || pictMachine.cycleAmount == 0) {
-                                                pictMachine.machineStorage.extractItemInternal(0, 1, false)
-                                                droneResult.isDrone
-                                                droneResult.tier = SPACE_DRONE_MK4.descriptionId
-                                            }
-                                            pictMachine.cycleAmount = nextCycle
-                                        }
-                                    }
-                                }
-                            }
-                            3 -> {
-                                when {
-                                    (nextCycle % 100000 == 0 || pictMachine.cycleAmount == 0) && !pictMachine.machineStorageItem.`is`(SPACE_DRONE_MK6) -> {
-                                        pictMachine.startCycle = false
-                                        droneResult.isDrone = false
-                                        droneResult.tier = SPACE_DRONE_MK6.descriptionId
-                                    }
-                                    else -> {
-                                        pictMachine.startCycle =
-                                            input(pictMachine).fluid(CRYSTALMATRIX).fluid(CRYOTHEUM).execute()
-                                        if (pictMachine.startCycle) {
-                                            if (nextCycle % 100000 == 0 || pictMachine.cycleAmount == 0) {
-                                                pictMachine.machineStorage.extractItemInternal(0, 1, false)
-                                                droneResult.isDrone
-                                                droneResult.tier = SPACE_DRONE_MK6.descriptionId
-                                            }
-                                            pictMachine.cycleAmount = nextCycle
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (!droneResult.isDrone && !droneResult.tier.isEmpty()) {
-                        workingStatus = RecipeResult.fail("gui.gtladditions.planetary_ionisation_convergence_tower_4".toComponent.append(droneResult.tier.toComponent))
+                    pictMachine.startCycle = when (pictMachine.coilEnergy?.workTier) {
+                        1 -> startCycle(RHENIUM, ICE, SPACE_DRONE_MK2, 10_000)
+                        2 -> startCycle(PROMETHIUM, HELIUM, SPACE_DRONE_MK4, 20_000)
+                        3 -> startCycle(CRYSTALMATRIX, CRYOTHEUM, SPACE_DRONE_MK6, 100_000)
+                        else -> false
                     }
                 }
+
                 if (pictMachine.startCycle) {
                     val generatedEUt = pictMachine.addStorageEUt(progress == 0)
                     if (pictMachine.fired) {
+                        lastRecipe = null
                         status = Status.IDLE
                         progress = 0
                         return
                     }
 
-                    val actualEUt = min(
-                        pictMachine.energyContainer.energyCanBeInserted,
-                        generatedEUt
-                    )
-                    pictMachine.energyContainer.addEnergy(actualEUt)
+                    val energyContainer = pictMachine.energyContainer
+                    val actualEUt = energyContainer.addEnergy(min(energyContainer.energyCanBeInserted, generatedEUt))
                     pictMachine.storageEUt -= actualEUt
+
+                    lastRecipe?.let { cycle ->
+                        if (actualEUt > 0) {
+                            val output = cycle.tickOutputs.computeIfAbsent(EURecipeCapability.CAP) {
+                                val chance = ChanceLogic.getMaxChancedValue()
+                                listOf(Content(actualEUt, chance, chance, 0, null, null))
+                            }
+                            output[0].content = actualEUt
+                        } else {
+                            cycle.tickOutputs.remove(EURecipeCapability.CAP)
+                        }
+                    }
 
                     this.status = Status.WORKING
                     ++this.progress
                 } else {
+                    lastRecipe = null
                     this.setWaiting(null)
                 }
+
                 if (this.status == Status.WAITING) {
                     this.doDamping()
                 }
@@ -408,7 +372,33 @@ class PlanetaryIonisationConvergenceTower(holder: IMachineBlockEntity) :
                 }
             }
 
-            private data class DroneResult(var isDrone: Boolean, var tier: String)
+            private fun startCycle(first: FluidStack, second: FluidStack, drone: Item, droneInterval: Int): Boolean {
+                val nextCycle = pictMachine.cycleAmount + 1
+                val needsDrone = pictMachine.cycleAmount == 0 || nextCycle % droneInterval == 0
+
+                if (needsDrone && !pictMachine.machineStorageItem.`is`(drone)) {
+                    workingStatus = RecipeResult.fail(
+                        "gui.gtladditions.planetary_ionisation_convergence_tower_4".toComponent
+                            .append(drone.descriptionId.toComponent)
+                    )
+                    return false
+                }
+                if (!input(pictMachine).fluid(first).fluid(second).execute()) return false
+
+                val cycle = GTRecipeBuilder.ofRaw()
+                    .duration(DURATION)
+                    .inputFluids(FluidIngredient.of(first), FluidIngredient.of(second))
+                if (needsDrone) {
+                    val consumed = pictMachine.machineStorage.extractItemInternal(0, 1, false)
+                    if (!consumed.isEmpty) cycle.inputItems(consumed)
+                }
+
+                pictMachine.cycleAmount = nextCycle
+                lastRecipe = cycle.buildRawRecipe()
+                duration = DURATION
+
+                return true
+            }
         }
     }
 }

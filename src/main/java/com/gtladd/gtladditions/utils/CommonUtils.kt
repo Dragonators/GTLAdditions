@@ -1,22 +1,22 @@
 package com.gtladd.gtladditions.utils
 
+import com.gregtechceu.gtceu.api.GTValues
 import com.gregtechceu.gtceu.client.util.TooltipHelper
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.utils.ComponentExtensions.literal
-import committee.nova.mods.avaritia.init.registry.ModItems
+import com.gtladd.gtladditions.utils.ComponentExtensions.toComponent
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
-import net.povstalec.sgjourney.StargateJourney
-import net.povstalec.sgjourney.common.init.BlockInit
+import org.gtlcore.gtlcore.integration.gtmt.NewGTValues
+import org.gtlcore.gtlcore.utils.NumberUtils
 import org.gtlcore.gtlcore.utils.TextUtil
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlin.math.*
 
@@ -101,6 +101,25 @@ object CommonUtils {
             SCIENTIFIC_FIXED_FORMAT.format(value).lowercase().replace("e", "e+")
         }
 
+    fun formatCompactBigInteger(value: BigInteger): String {
+        val decimal = BigDecimal(value)
+        if (value.abs() > Constants.LONG_MAX_BIG) {
+            return SCIENTIFIC2_FORMAT.format(decimal).lowercase().replace("e", "e+")
+        }
+
+        val unit = (decimal.precision() - 1) / 3
+        return DECIMAL_FORMAT.format(decimal.movePointLeft(3 * unit)) + EXTENDED_UNITS[unit]
+    }
+
+    fun getEnergyTierComponent(energy: BigInteger): Component {
+        val longEnergy = NumberUtils.getLongValue(energy)
+        val tier = if (longEnergy == Long.MAX_VALUE) GTValues.MAX_TRUE else NumberUtils.getFakeVoltageTier(longEnergy)
+        val amperage = BigDecimal(energy).divide(BigDecimal.valueOf(GTValues.VEX[tier]), 2, RoundingMode.DOWN)
+
+        return "gtceu.top.electricity".toComponent(format2BigDecimal(amperage), NewGTValues.VNF[tier])
+            .withStyle { style -> style.withColor(TextUtil.`GTL_CORE$VC`[tier.coerceAtMost(14)]) }
+    }
+
     @JvmStatic
     fun format2BigDecimal(value: BigDecimal): String =
         if (value <= Constants.LONG_MAX_DECIMAL) {
@@ -130,8 +149,7 @@ object CommonUtils {
     ).withStyle(ChatFormatting.OBFUSCATED)
 
     private fun formattingComponent(component: MutableComponent, colours: Array<ChatFormatting>): MutableComponent {
-        val delay = 200.0
-        val offset = floor((System.currentTimeMillis() and 0x3FFFL) / delay).toInt() % colours.size
+        val offset = ((System.currentTimeMillis() / 200L) % colours.size).toInt()
         val color = colours[offset]
 
         return component.withStyle(color)
@@ -173,27 +191,6 @@ object CommonUtils {
 
         return component
     }
-
-    // ===================================================
-    // StarGate Journey
-    // ===================================================
-
-    const val VALID_TAG = "gtladditions:stargate_transfer"
-
-    private val FORBIDDEN_DIMENSIONS by lazy {
-        mapOf(
-            ResourceLocation(StargateJourney.MODID, "lantea") to ItemStack(BlockInit.UNIVERSE_STARGATE.get().asItem()),
-            ResourceLocation(StargateJourney.MODID, "abydos") to ItemStack(ModItems.neutron_ring.get()),
-            ResourceLocation(StargateJourney.MODID, "chulak") to ItemStack(ModItems.infinity_umbrella.get()),
-            ResourceLocation(StargateJourney.MODID, "cavum_tenebrae") to ItemStack(ModItems.infinity_ring.get())
-        )
-    }
-
-    @JvmStatic
-    fun selectDisplayItem(dimensionLocation: ResourceLocation): ItemStack? = FORBIDDEN_DIMENSIONS[dimensionLocation]
-
-    @JvmStatic
-    fun isTargetDimension(dimensionLocation: ResourceLocation): Boolean = FORBIDDEN_DIMENSIONS.containsKey(dimensionLocation)
 
     // ===================================================
     // Pos Offset

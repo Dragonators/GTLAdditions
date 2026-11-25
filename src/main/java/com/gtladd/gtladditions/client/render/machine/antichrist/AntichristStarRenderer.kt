@@ -1,10 +1,8 @@
 package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.client.RenderMode
-import com.gtladd.gtladditions.client.render.machine.deferred.DeferredOculusCompat
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.withPose
-import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
@@ -12,7 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexBuffer
 import com.mojang.blaze3d.vertex.VertexFormat
-import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -27,9 +25,9 @@ object AntichristStarRenderer {
     private const val SPHERE_SLICES = 128
     private const val SPHERE_STACKS = 128
 
-    private val STAR_LAYER_0 = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/star_layer_0.png")
-    private val STAR_LAYER_1 = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/star_layer_1.png")
-    private val STAR_LAYER_2 = GTLAdditions.id("textures/block/multiblock/forge_of_antichrist/star_layer_2.png")
+    private val STAR_LAYER_0 = GTLAdditions.id("textures/effect/star/star_layer_0.png")
+    private val STAR_LAYER_1 = GTLAdditions.id("textures/effect/star/star_layer_1.png")
+    private val STAR_LAYER_2 = GTLAdditions.id("textures/effect/star/star_layer_2.png")
 
     private val LAYER_0_AXIS = Vector3f(0.0f, 1.0f, 1.0f).normalize()
     private val LAYER_1_AXIS = Vector3f(1.0f, 1.0f, 0.0f).normalize()
@@ -39,37 +37,21 @@ object AntichristStarRenderer {
         buildSphereBuffer(SPHERE_SLICES, SPHERE_STACKS)
     }
 
-    fun renderOpaque(profile: AntichristRenderProfile, poseStack: PoseStack) {
-        renderOpaque(profile, poseStack, STAR_LAYER_0)
+    fun drawOpaque(profile: AntichristRenderProfile, poseStack: PoseStack): Boolean {
+        val shader = AntichristShaders.starOpaqueShader ?: return false
+        drawLayer(shader, profile, poseStack, STAR_LAYER_0, profile.starRadius, LAYER_0_AXIS, 130f, 1.0f)
+        return true
     }
 
-    fun renderOpaque(profile: AntichristRenderProfile, poseStack: PoseStack, texture: ResourceLocation) {
-        RenderSystem.enableDepthTest()
-        RenderSystem.depthMask(true)
-        renderLayer(profile, poseStack, texture, profile.starRadius, LAYER_0_AXIS, 130f, 1.0f)
+    fun drawTransparent(profile: AntichristRenderProfile, poseStack: PoseStack): Boolean {
+        val shader = AntichristShaders.starShader ?: return false
+        drawLayer(shader, profile, poseStack, STAR_LAYER_1, profile.starRadius * 1.02f, LAYER_1_AXIS, -49f, 0.4f)
+        drawLayer(shader, profile, poseStack, STAR_LAYER_2, profile.starRadius * 1.04f, LAYER_2_AXIS, 67f, 0.2f)
+        return true
     }
 
-    fun renderOpaqueOriginalColor(profile: AntichristRenderProfile, poseStack: PoseStack, texture: ResourceLocation) {
-        RenderSystem.enableDepthTest()
-        RenderSystem.depthMask(true)
-        renderLayerOriginalColor(profile, poseStack, texture, profile.starRadius, LAYER_0_AXIS, 130f)
-    }
-
-    fun renderTransparent(profile: AntichristRenderProfile, poseStack: PoseStack) {
-        RenderSystem.enableBlend()
-        RenderSystem.blendFunc(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
-        )
-        RenderSystem.enableDepthTest()
-        RenderSystem.depthMask(false)
-        renderLayer(profile, poseStack, STAR_LAYER_1, profile.starRadius * 1.02f, LAYER_1_AXIS, -49f, 0.4f)
-        renderLayer(profile, poseStack, STAR_LAYER_2, profile.starRadius * 1.04f, LAYER_2_AXIS, 67f, 0.2f)
-        RenderSystem.depthMask(true)
-        RenderSystem.disableBlend()
-    }
-
-    private fun renderLayer(
+    private fun drawLayer(
+        shader: ShaderInstance,
         profile: AntichristRenderProfile,
         poseStack: PoseStack,
         texture: ResourceLocation,
@@ -78,13 +60,7 @@ object AntichristStarRenderer {
         baseRotation: Float,
         alpha: Float
     ) {
-        val shader = AntichristShaders.starShader ?: return
-        val rotationSpeedMultiplier = when (profile.renderMode) {
-            RenderMode.RAINBOW -> 1.7f
-            RenderMode.COLLAPSING -> 2.6f
-            else -> 1.0f
-        }
-        val rotationDegrees = baseRotation + (profile.tick * rotationSpeedMultiplier) % 360000f
+        val rotationDegrees = baseRotation + profile.starRotationDegrees
 
         poseStack.withPose {
             translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
@@ -96,52 +72,14 @@ object AntichristStarRenderer {
             shader.getUniform("Color")?.set(profile.colorR, profile.colorG, profile.colorB, alpha)
             shader.getUniform("Gamma")?.set(AntichristRenderProfile.STAR_GAMMA)
 
-            sphereBuffer.bind()
-            DeferredOculusCompat.withDeferredShaderPass {
+            RenderUtils.withBoundBuffer(sphereBuffer) {
                 sphereBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
             }
-            VertexBuffer.unbind()
-            RenderSystem.enableCull()
-        }
-    }
-
-    private fun renderLayerOriginalColor(
-        profile: AntichristRenderProfile,
-        poseStack: PoseStack,
-        texture: ResourceLocation,
-        radius: Float,
-        axis: Vector3f,
-        baseRotation: Float
-    ) {
-        val rotationSpeedMultiplier = when (profile.renderMode) {
-            RenderMode.RAINBOW -> 1.7f
-            RenderMode.COLLAPSING -> 2.6f
-            else -> 1.0f
-        }
-        val rotationDegrees = baseRotation + (profile.tick * rotationSpeedMultiplier) % 360000f
-
-        poseStack.withPose {
-            translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)
-            mulPose(Quaternionf().fromAxisAngleDeg(axis.x, axis.y, axis.z, rotationDegrees))
-            scale(radius, radius, radius)
-
-            RenderSystem.disableCull()
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
-            RenderSystem.setShaderTexture(0, texture)
-
-            sphereBuffer.bind()
-            DeferredOculusCompat.withDeferredShaderPass {
-                RenderSystem.setShader(GameRenderer::getPositionTexShader)
-                val shader = GameRenderer.getPositionTexShader() ?: return@withDeferredShaderPass
-                sphereBuffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
-            }
-            VertexBuffer.unbind()
             RenderSystem.enableCull()
         }
     }
 
     private fun buildSphereBuffer(slices: Int, stacks: Int): VertexBuffer {
-        val buffer = VertexBuffer(VertexBuffer.Usage.STATIC)
         val builder = Tesselator.getInstance().builder
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX)
 
@@ -182,10 +120,7 @@ object AntichristStarRenderer {
             }
         }
 
-        buffer.bind()
-        buffer.upload(builder.end())
-        VertexBuffer.unbind()
-        return buffer
+        return RenderUtils.uploadStaticBuffer(builder)
     }
 
     private fun addVertex(builder: BufferBuilder, x: Double, y: Double, z: Double, u: Double, v: Double) {

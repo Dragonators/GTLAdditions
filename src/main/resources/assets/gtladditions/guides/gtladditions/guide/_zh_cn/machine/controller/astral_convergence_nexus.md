@@ -2,7 +2,7 @@
 navigation:
   title: 星穹聚合枢纽
   icon: astral_convergence_nexus
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 36
 categories:
   - 多方块结构主机
@@ -20,6 +20,7 @@ item_ids:
 
 * <ItemLink id="gtladditions:astral_convergence_nexus" /> 是 <ItemLink id="gtceu:space_elevator" /> 的模块机器，主要处理太空组装模块配方。
 * 它需要连接到 <ItemLink id="gtceu:space_elevator" />；<ItemLink id="gtceu:space_elevator" /> 未满足运行条件时，模块不会继续推进配方。
+* 所连接太空电梯的电压等级每比 UV 高一级，模块配方耗时变为原来的 80%；连接后界面会显示当前耗时倍数。
 * 机器支持激光输入和跨配方并行。
 * 结构允许安装 <ItemLink id="gtladditions:thread_modifier_hatch" />。
 

@@ -16,7 +16,7 @@ import org.gtlcore.gtlcore.config.ConfigHolder
 import java.util.function.Consumer
 
 object IntegratedOreProcessor {
-    val oreNumber: Int = ConfigHolder.INSTANCE.oreMultiplier
+    val oreNumber: Int = ConfigHolder.INSTANCE.content.oreMultiplier
     val oreFluid: Int = 100 * oreNumber
 
     fun init(provider: Consumer<FinishedRecipe?>) {

@@ -2,7 +2,7 @@
 navigation:
   title: 超级并行控制仓
   icon: super_parallel_hatch
-  parent: part/machine_part_index.md
+  parent: machine/part/machine_part_index.md
   position: 18
 categories:
   - 机器仓室

@@ -18,6 +18,7 @@ import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gtladd.gtladditions.GTLAdditions.Companion.id
 import com.gtladd.gtladditions.common.items.GTLAddItems
 import com.gtladd.gtladditions.common.items.GTLAddItems.BLACK_HOLE_SEED
+import com.gtladd.gtladditions.common.items.GTLAddItems.ETERNITY_DARK_MATTER_FUEL_ROD
 import com.gtladd.gtladditions.common.items.GTLAddItems.INFINITY_WAFER
 import com.gtladd.gtladditions.common.items.GTLAddItems.PHONONIC_SEED_CRYSTAL
 import com.gtladd.gtladditions.common.items.GTLAddItems.PRIMARY_SOC
@@ -34,6 +35,8 @@ import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_CRYSTAL_SOL
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PHONON_MEDIUM
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE
 import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_HALKONITE_BASE
+import com.gtladd.gtladditions.common.material.GTLAddMaterial.PROTO_MATTER
+import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.ANTIENTROPY_CONDENSATION
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.CHAOTIC_ALCHEMY
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.COMPRESSED_ASTRAL_ARRAY
 import com.lowdragmc.lowdraglib.side.fluid.FluidStack
@@ -43,6 +46,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
 import org.gtlcore.gtlcore.api.data.tag.GTLTagPrefix.nanoswarm
+import org.gtlcore.gtlcore.api.machine.multiblock.GTLCleanroomType.LAW_CLEANROOM
 import org.gtlcore.gtlcore.common.data.GTLBlocks.CREATE_CASING
 import org.gtlcore.gtlcore.common.data.GTLBlocks.DIMENSION_CONNECTION_CASING
 import org.gtlcore.gtlcore.common.data.GTLItems
@@ -63,7 +67,7 @@ import kotlin.math.pow
 
 object Misc {
     fun init(provider: Consumer<FinishedRecipe?>) {
-        DECAY_HASTENER_RECIPES.recipeBuilder(id("tiranium50"))
+        DECAY_HASTENER_RECIPES.recipeBuilder(id("titanium_50"))
             .inputFluids(Titanium.getFluid(144))
             .outputFluids(Titanium50.getFluid(144))
             .EUt(VA[14].toLong()).duration(10).save(provider)
@@ -81,14 +85,14 @@ object Misc {
             .inputItems(getItemStack("kubejs:chain_command_block_core"))
             .inputItems(getItemStack("kubejs:command_block_broken"))
             .outputItems(Blocks.CHAIN_COMMAND_BLOCK.asItem())
-            .dimension(KubeJS.id("create")).CWUt(Int.Companion.MAX_VALUE / 2)
+            .dimension(KubeJS.id("create")).CWUt(Int.MAX_VALUE / 2)
             .EUt(V[14]).duration(20)
             .save(provider)
         CREATE_AGGREGATION_RECIPES.recipeBuilder(id("repeating_command_block"))
             .inputItems(getItemStack("kubejs:repeating_command_block_core"))
             .inputItems(getItemStack("kubejs:chain_command_block_broken"))
             .outputItems(Blocks.REPEATING_COMMAND_BLOCK.asItem())
-            .dimension(KubeJS.id("create")).CWUt(Int.Companion.MAX_VALUE / 2)
+            .dimension(KubeJS.id("create")).CWUt(Int.MAX_VALUE / 2)
             .EUt(V[14]).duration(20)
             .save(provider)
         for (i in 1..<5) {
@@ -177,6 +181,27 @@ object Misc {
             .outputItems(STRANGE_ANNIHILATION_FUEL_ROD)
             .EUt(VA[MAX].toLong())
             .duration(12000)
+            .save(provider)
+        PRECISION_ASSEMBLER_RECIPES.recipeBuilder(id("eternity_dark_matter_fuel_rod"))
+            .inputItems(getItemStack("kubejs:dark_matter", 64))
+            .inputItems(getItemStack("kubejs:dark_matter", 64))
+            .inputItems(getItemStack("kubejs:dark_matter", 64))
+            .inputItems(getItemStack("kubejs:annihilation_constrainer"))
+            .inputFluids(Antimatter.getFluid(200000))
+            .inputFluids(RawStarMatter.getFluid(FluidStorageKeys.PLASMA, 1000))
+            .inputFluids(Chaos.getFluid(100))
+            .inputFluids(Eternity.getFluid(100))
+            .outputItems(ETERNITY_DARK_MATTER_FUEL_ROD)
+            .EUt(4L * VA[MAX])
+            .duration(2000)
+            .cleanroom(LAW_CLEANROOM)
+            .save(provider)
+        ANTIENTROPY_CONDENSATION.recipeBuilder(id("proto_matter"))
+            .inputItems(getItemStack("kubejs:proto_matter", 10))
+            .inputFluids(DimensionallyTranscendentResidue.getFluid(100))
+            .outputFluids(PROTO_MATTER.getFluid(100))
+            .EUt(VA[UXV].toLong())
+            .duration(100)
             .save(provider)
         ASSEMBLER_MODULE_RECIPES.recipeBuilder(id("black_hole_seed"))
             .inputItems(EMITTER_MAX, 16)
@@ -314,7 +339,7 @@ object Misc {
             .outputItems(nugget, Magmatter, 9)
             .duration(2000).EUt(VA[MAX].toLong())
             .save(provider)
-        if (ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+        if (ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
             WORLD_DATA_SCANNER_RECIPES.recipeBuilder(id("barnarda_data_sky"))
                 .notConsumable(WORLD_FRAGMENTS_BARNARDA.asStack())
                 .inputItems(TOOL_DATA_STICK.asStack(8))
@@ -327,7 +352,7 @@ object Misc {
                 .save(provider)
         }
         initAdditionMaterial(provider)
-        if (!ConfigHolder.INSTANCE.enableSkyBlokeMode) {
+        if (!ConfigHolder.INSTANCE.content.enableSkyBlokeMode) {
             GREENHOUSE_RECIPES.recipeBuilder(id("oak_sapling"))
                 .notConsumable(getItemStack("minecraft:oak_sapling"))
                 .inputFluids(Water.getFluid(1000))

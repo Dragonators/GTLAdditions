@@ -2,7 +2,7 @@
 navigation:
   title: 奥术星图
   icon: arcanic_astrograph
-  parent: controller/multiblock_controller.md
+  parent: machine/controller/multiblock_controller.md
   position: 22
 categories:
   - 多方块结构主机
@@ -26,7 +26,7 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-### 星规矩阵加成
+### 星阵加成
 
 * 可嵌入 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} /> 或 <ItemLink id="gtladditions:compressed_astral_array" link={false} linkColor={true} /> 来提高并行上限。
 * 并行计算公式为：
