@@ -34,6 +34,7 @@ internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
     private val lastProjection = Matrix4f()
     private var lastSelectionTime = Double.NaN
     private var lastHeight = 0
+    private var lastFalling = false
     private val modelView = Matrix4f()
     private val clip = Matrix4f()
     private val frustum = FrustumIntersection()
@@ -51,7 +52,7 @@ internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
     fun update(frame: NexusFrame, view: Matrix4f, projection: Matrix4f) {
         val visible = original.visible
         original.visible = false
-        if (!visible) return
+        if (!visible || frame.vanish >= 1) return
 
         solids.matrix.set(original.matrix)
         sprites.matrix.set(original.matrix)
@@ -60,6 +61,11 @@ internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
         for (node in drawNodes) {
             node.value("uNeg", frame.inverse * 0.85)
             node.value("uGold", gain, gain * 0.77, gain * 0.42)
+        }
+
+        for (node in drawNodes) {
+            node.value("uFall", frame.vanish)
+            node.value("uStarR", frame.starRadius)
         }
 
         solids.value("uAmbK", 0.05 + 0.3 * frame.ambient)
@@ -73,14 +79,16 @@ internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
         solids.value("uSpinPhase", spin)
 
         val elapsed = frame.beltTime - lastSelectionTime
+        val falling = frame.vanish > 0
         if (!initialized ||
+            falling != lastFalling ||
             elapsed < 0.0 ||
             elapsed >= 0.1 ||
             lastHeight != Minecraft.getInstance().window.height ||
             !view.equals(lastView, 1e-5f) ||
             !projection.equals(lastProjection, 1e-6f)
         ) {
-            select(frame.beltTime, view, projection)
+            select(frame.beltTime, view, projection, falling)
         }
 
         solids.drawCount = solidIndices.indexCount
@@ -90,8 +98,9 @@ internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
         if (SceneScheduler.frameId % 256L == 0L) NexusIndexPages.collect()
     }
 
-    private fun select(time: Double, view: Matrix4f, projection: Matrix4f) {
+    private fun select(time: Double, view: Matrix4f, projection: Matrix4f, falling: Boolean) {
         lastSelectionTime = time
+        lastFalling = falling
         lastView.set(view)
         lastProjection.set(projection)
         modelView.set(view).mul(original.matrix)
@@ -119,7 +128,8 @@ internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
             // Include the minimum-size soft sprite in the conservative culling sphere. At r<=52.4 and one turn/100.531s,
             // the centre moves <0.33 blocks between stationary-camera refreshes. Retain that swept margin.
             val radius = max(rock.diameter, max(0f, depth) * 1.5f / scale) + 0.35f
-            val inView = frustum.testSphere(rock.x, rock.y, rock.z, radius)
+            // Falling rocks leave their slots for the star, which the static spheres do not follow.
+            val inView = falling || frustum.testSphere(rock.x, rock.y, rock.z, radius)
             val submitted = solid && inView
             if (rock.submitted != submitted) {
                 solidIndices.setVisible(rock.firstPage, rock.pages, submitted)

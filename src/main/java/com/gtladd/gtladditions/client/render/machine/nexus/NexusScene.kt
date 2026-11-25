@@ -57,6 +57,7 @@ object NexusScene {
         val center = NexusCenter.State(nodes)
         val planets = NexusPlanets.State(nodes)
         val belt = NexusAsteroidBelt(nodes)
+        val transit = NexusTransitLane(nodes)
 
         val opaque = ArrayList<NexusGpu.Node>()
         val transparent = ArrayList<NexusGpu.Node>()
@@ -67,6 +68,7 @@ object NexusScene {
             NexusCenter.update(center, frame, logistics, batches)
             NexusPlanets.update(planets, frame, batches)
             belt.update(frame, view, projection)
+            transit.update(frame)
             val order = NexusScreens.update(screens, frame, logistics, batches)
             batches.upload()
             ships.update(frame)
