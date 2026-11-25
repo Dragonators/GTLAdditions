@@ -20,7 +20,7 @@ internal class NexusIndexPages(private val source: IntArray, val pageSize: Int) 
         private set
 
     init {
-        require(pageSize > 0 && source.size % pageSize == 0)
+        check(source.size % pageSize == 0)
     }
 
     fun contains(page: Int): Boolean = slotForPage[page] >= 0

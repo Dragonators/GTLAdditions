@@ -16,20 +16,11 @@ internal class NexusTextureArray(spec: JsonObject, layers: Layers, ledger: Nexus
         private set
 
     init {
-        val format = if (layers.channels == 1) {
-            GL_RED
-        } else if (layers.channels == 3) {
-            GL_RGB
-        } else {
-            GL_RGBA
-        }
-
-        val internal = if (layers.channels == 1) {
-            GL_R8
-        } else if (layers.channels == 3) {
-            GL_RGB8
-        } else {
-            GL_RGBA8
+        val (format, internal) = when (layers.channels) {
+            1 -> GL_RED to GL_R8
+            3 -> GL_RGB to GL_RGB8
+            4 -> GL_RGBA to GL_RGBA8
+            else -> error("Unsupported Nexus array channels: ${layers.channels}")
         }
 
         glBindTexture(GL_TEXTURE_2D_ARRAY, id)
@@ -76,9 +67,7 @@ internal class NexusTextureArray(spec: JsonObject, layers: Layers, ledger: Nexus
         @Throws(IOException::class)
         fun read(spec: JsonObject, file: (String) -> ByteArray): Layers {
             val files = spec.getAsJsonArray("layers")
-            require(files.size() > 0)
             val channels = spec.get("channels")?.asInt ?: 4
-            require(channels == 1 || channels == 3 || channels == 4)
             var width = 0
             var height = 0
             val pixels = files.mapIndexed { layer, name ->
@@ -88,7 +77,7 @@ internal class NexusTextureArray(spec: JsonObject, layers: Layers, ledger: Nexus
                         height = image.height
                     }
 
-                    require(image.width == width && image.height == height) { "Inconsistent Nexus array layer: $name" }
+                    check(image.width == width && image.height == height) { "Inconsistent Nexus array layer: $name" }
                     val data = ByteArray(width * height * channels)
                     var index = 0
 

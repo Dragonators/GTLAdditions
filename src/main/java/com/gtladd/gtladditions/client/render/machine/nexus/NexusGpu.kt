@@ -144,16 +144,14 @@ internal object NexusGpu {
     }
 
     fun replace(prepared: () -> Prepared, retire: () -> Unit) {
-        var next: Loaded? = null
-        var failure: Exception? = null
         try {
-            next = build(prepared())
+            val next = build(prepared())
+            retire()
+            slot.publish(next)
         } catch (error: Exception) {
-            failure = error
+            retire()
+            slot.fail(error)
         }
-
-        retire()
-        if (next != null) slot.publish(next) else slot.fail(checkNotNull(failure))
     }
 
     /** Binds textures on the active unit only and uses no program. */
@@ -734,7 +732,6 @@ internal object NexusGpu {
         private fun valueStorage(name: String, size: Int): FloatArray? {
             if (program != null && !program.active(name)) return null
             val value = values.getOrPut(name) { Value(name, FloatArray(size)) }
-            check(value.floats.size == size)
             if (!value.active) {
                 value.active = true
                 activeValues.add(value)

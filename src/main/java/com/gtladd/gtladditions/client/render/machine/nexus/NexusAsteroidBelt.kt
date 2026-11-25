@@ -13,7 +13,7 @@ import kotlin.math.sin
 internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
     private val solids = nodes.getValue("dir.beltRocks")
     private val sprites = nodes.getValue("dir.beltDust")
-    private val pageSize = (solids.data.getAsJsonObject("geometry").get("indexPageTriangles")?.asInt ?: 80) * 3
+    private val pageSize = solids.data.getAsJsonObject("geometry").get("indexPageTriangles").asInt * 3
 
     private class Rock(val x: Float, val y: Float, val z: Float, val diameter: Float, val firstPage: Int, val pages: Int) {
         var submitted = false
@@ -21,7 +21,7 @@ internal class NexusAsteroidBelt(nodes: Map<String, NexusGpu.Node>) {
 
     private val rocks = NexusGpu.belt().getAsJsonArray("rocks").map {
         val row = it.asJsonArray
-        require(pageSize > 0 && row[4].asInt % pageSize == 0 && row[5].asInt % pageSize == 0)
+        check(row[4].asInt % pageSize == 0 && row[5].asInt % pageSize == 0)
         Rock(row[0].asFloat, row[1].asFloat, row[2].asFloat, row[3].asFloat, row[4].asInt / pageSize, row[5].asInt / pageSize)
     }
 
