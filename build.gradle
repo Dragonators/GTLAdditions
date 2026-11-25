@@ -321,7 +321,6 @@ spotless {
         importOrderFile(orderFile)
         removeUnusedImports('cleanthat-javaparser-unnecessaryimport')
         eclipse('4.31').configFile(formatFile)
-        replaceRegex 'removeFinalNewline', /[\r\n]+\z/, ''
     }
 
     kotlin {
@@ -336,7 +335,6 @@ spotless {
                 'ij_kotlin_allow_trailing_comma_on_call_site': 'false'
         ])
         trimTrailingWhitespace()
-        replaceRegex 'removeFinalNewline', /[\r\n]+\z/, ''
     }
 }
 kotlin {

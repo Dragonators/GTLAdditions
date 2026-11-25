@@ -17,8 +17,9 @@ GTLAdditions is developed for Minecraft Forge 1.20.1 and the GregTech Leisure ec
 | --- | --- |
 | Java | `>= 21` |
 | GTLCore (`gtlcore`) | `>= 1.2.3.3-fix4` |
-| Stargate Journey (`sgjourney`) | `0.6.44` only |
+| Stargate Journey (`sgjourney`) | `0.6.52` only |
 | Oculus (`oculus`) | `>= 1.7.0`, client side |
+| Fusion (`fusion`) | `>= 1.3.16`, client side |
 
 ## Install
 
@@ -31,7 +32,7 @@ GTLAdditions is developed for Minecraft Forge 1.20.1 and the GregTech Leisure ec
 
 ### Multiblock Machines
 
-GTLAdditions registers the following multiblock controllers in this checkout.
+GTLAdditions adds the following active multiblock controllers.
 
 | Machine | Recipe / System | Usage |
 | --- | --- | --- |
@@ -40,33 +41,39 @@ GTLAdditions registers the following multiblock controllers in this checkout.
 | Nexus Satellite Factory MK-III | Evaporation, Autoclave, Extractor, Brewing, Fermenting, Distillery, Distillation, Fluid Heater, Fluid Solidification, Chemical Bath | Light Hunter module for fluid and chemical support recipes |
 | Nexus Satellite Factory MK-IV | Canner, Arc Furnace, Lightning Processor, Assembler, Precision Assembler, Circuit Assembler | Light Hunter module for assembly and high-value processing |
 | Lucid Etchdreamer | Photon Matrix Etch | Advanced etching route for engraving-style production |
-| Atomic Transmutation Core | EM Resonance Conversion Field | Legacy/discontinued controller kept for compatibility |
-| Subatomic Transmutatioon Core | Transmutation Block Conversion | Block transmutation controller using the Transmutation Bus Hatch |
+| Subatomic Transmutation Core | Block Transmutation | Block transmutation controller using the Transmutation Bus Hatch |
 | Astral Convergence Nexus | Space Assembler Module | Space elevator assembler module replacement |
 | Nebula Reaper | Space Miner Module, Space Drilling Module | Space elevator mining and drilling module replacement |
-| Arcanic Astrograph | Cosmos Simulation, Compressed Astral Array | Eye of Harmony style endgame simulation and astral-array compression |
+| Space Elevator MKII | Space Elevator | Upgraded space elevator host supporting up to 56 modules with higher parallelism for advanced modules |
+| Arcanic Astrograph | Cosmos Simulation, Astral Array Compression | Eye of Harmony style endgame simulation and astral-array compression |
 | Arcane Cache Vault | Packer | Multi-recipe packer-style processing |
 | Space Scaling Instrument | Packer | The final form of packers |
 | Draconic Collapse Core | Aggregation Device | Higher-parallel aggregation processing with advanced input support |
 | Titan's Crip Earthbore | Tectonic Fault Generator | High-parallel advanced drill that does not require bedrock maintenance |
 | Biological Simulation Laboratory | Biological Simulation | Entity and world-data based biological resource simulation |
-| Advanced Chemical Plant | Large Chemical Reactor | Multi-recipe advanced chemical processing |
+| Primordial Evolution Nexus | Evolution Of Primordial | Multi-recipe raw-material hub unifying petrochemical, wood-processing, and biochemical lines |
+| Biosphere III | Centralized power host | Centralized power and thread host for Garden of Hermes modules (wired, laser, or wireless input) |
+| Garden of Hermes | Greenhouse, Fishing Ground (Bio-Cultivation) | Biosphere III module processing greenhouse and fishing-ground recipes without local energy hatches |
+| Suprachronal Assembly Line Resonatic Circuit Assembly Module | Resonatic Circuit Assembly | Suprachronal Assembly Line module for lower-cost, high-speed ULV–UIV Resonatic circuit production |
+| Exotic Chemical Complex | Large Chemical Reactor, Deep Chemical Distortion (Tier 3) | 3-tier wireless chemical complex with a Synthesis Nexus and 12 independent outer units; Tier 3 unlocks Deep Chemical Distortion and Time Space Distorter output boosts |
 | Quantum Syphon Matrix | Voidflux Reaction | Voidflux and air-series production |
 | Fuxi Bagua Heaven-forging Furnace | Stellar Lgnition, Chaotic Alchemy, Molecular Deconstruction, Ultimate Material Forge | Stellar Lgnition directly converts some fluids into plasma; Chaotic Alchemy combines alloy smelting and vacuum freezing into one-step reactions; Molecular Deconstruction directly converts powders that could not originally be extracted into fluids |
-| Antientropy Condensation Center | Antientropy Condensation | Cooling-tower style antientropy processing without the old helium requirement |
+| Antientropy Condensation Center | Antientropy Condensation | Cooling-tower style antientropy processing without the old helium requirement, with optional Relativistic Heat Capacitor embedding |
 | Taixu Turbid Array | Chaos Weave | Scrap Box, UU Amplifier, and UU Matter |
 | Planetary Ionisation Convergence Tower | Generator / laser output system | UHV-and-above power generation alternative |
 | Inferno Cleft Smelting Vault | Pyrolyse Oven, Cracker | Multi-recipe pyrolysis and cracking replacement |
 | Skeleton Shift Rift Engine | Decay Hastener | High-tier decay-hastening machine |
-| Time Space Distorter | Time Space Distortion | Boost module for the Apocalyptic Torsion Quantum Matrix |
-| Apocalyptic Torsion Quantum Matrix | QFT, Distort, Neutron Compressor | Endgame replacement for QFT and Chemical Distorter processing |
+| Time Space Distorter | Time Space Distortion | 4-level causality boost host bound via Suprachronal Data Module to Apocalyptic Quantum Warp Matrix or Tier 3 Exotic Chemical Complex |
+| Apocalyptic Quantum Warp Matrix | QFT, Neutron Compressor | Wireless endgame QFT and compressor controller with continuous-operation warmup, recipe memory, infinite mode, and Dimension Folding |
 | Forge of the Antichrist | Dimensionally Transcendent Plasma Forge, Stellar Forge, Ultimate Material Forge | Modular endgame forge with Helio module support |
 | Recursive Reverse Array | Recursive Reverse Array system | Binds modules and Forge of the Antichrist state for endgame buffs |
-| Heart of the Universe | Genesis Engine | Endgame generation machine with wireless energy output support |
+| Heart of the Universe | Genesis Engine | 3-tier endgame wireless generator annihilating planes with fuel rods, auxiliary fluids, and plane-count scaling |
 | Dimension Focus Infinity Crafting Array | Nightmare Crafting | Infinity Catalyst crafting automation and Molecular Assembler boost module |
-| Light Hunter Space Station | Interstellar | Main controller for factory modules |
+| Light Hunter Space Station | Interstellar | Main controller for up to 20 Nexus Satellite Factory modules, with Paradoxical Attainment mode |
 | Space Infinity Integrated Ore Processor | Space Ore Processor | Endgame version of integrated ore processing |
 | Macro Atomic Resonant Fragment Stripper | Element Copying, optional Star Core Stripper | Endgame fragment stripping and element-copying machine |
+
+Legacy discontinued controllers (`Atomic Transmutation Core`, `Advanced Chemical Plant`, `Apocalyptic Torsion Quantum Matrix`, and the legacy `Heart of the Universe`) remain registered for existing-world compatibility only and cannot be crafted.
 
 ### Recursive Reverse Array Modules
 
@@ -95,20 +102,21 @@ These are registered Helio modules for Forge of the Antichrist.
 
 | Part | Usage |
 | --- | --- |
-| Laser Hatches | Laser hatch family with higher power, used by advanced machines |
+| Laser Hatches | High-amperage wired and wireless laser hatch series for advanced machines |
 | Huge Output Dual Hatch | Output version of the Huge Input Dual Hatch |
 | Huge Steam Input Hatch | Raises steam multiblock recipe voltage support to HV and fixes duration to 1 tick |
 | Super Input Dual Hatch | Higher-capacity Huge Input Dual Hatch |
 | Infinity Input Dual Hatch | Ultimate input bus with infinite capacity, optimized for high-performance AE2-related parts |
-| ME Super Pattern Buffer | Custom-capacity ME pattern buffer with Forge pattern mode support |
+| ME Super Pattern Buffer | Custom-capacity ME pattern buffer with Int128 internal buffer and Forge pattern mode support |
+| Super Extended ME Export Buffer | Extended ME export buffer with Int128 accumulated output capacity per material and configurable per-cycle transfer attempts |
 | ME Super Pattern Buffer Proxy | Proxy part for ME Super Pattern Buffer setups |
 | Transmutation Bus Hatch | Block transmutation bus for transmutation controllers |
-| Spectral Analysis Hatch | Boost module usable by integrated ore processing |
+| Spectral Analysis Hatch | Boost module usable by integrated ore processors and the Advanced Infinite Driller |
 | Vientiane Transcription Node | Redstone signal output part for supported module machines |
 | Super Parallel Hatch | Endgame parallel control hatch |
 | Wireless Energy Network Input Terminal | Unlimited energy hatch / laser target hatch directly connected to the wireless energy network |
 | Wireless Energy Network Output Terminal | Unlimited dynamo hatch / laser source hatch directly connected to the wireless energy network |
-| Thread Modifier Hatch | Thread boost module, and parallel boost module for some machines |
+| Ω-Spheres Divergence Engine | Thread boost module, and parallel boost module for some machines |
 | Cloud Computation / Research Data System | Cross-dimensional, team-shared computation and research-data hatches, monitor, and storage machine |
 
 ### Other Modified Content

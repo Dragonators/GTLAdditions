@@ -19,6 +19,6 @@ side = "CLIENT"
 [[dependencies.gtladditions_scene_example]]
 modId = "gtladditions"
 mandatory = false
-versionRange = "[3.3.1Custom,)"
+versionRange = "[3.6Custom,)"
 ordering = "AFTER"
 side = "CLIENT"
