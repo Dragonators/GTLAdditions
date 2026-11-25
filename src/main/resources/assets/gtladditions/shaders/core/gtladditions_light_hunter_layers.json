@@ -6,7 +6,7 @@
     "srcalpha": "one",
     "dstalpha": "1-srcalpha"
   },
-  "vertex": "gtladditions:gtladditions_light_hunter",
+  "vertex": "gtladditions:gtladditions_light_hunter_layers",
   "fragment": "gtladditions:gtladditions_light_hunter_layers",
   "attributes": [
     "Position",

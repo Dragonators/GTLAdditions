@@ -28,7 +28,7 @@ vec3 fanBacklight() {
 vec3 fanRotor(float grain) {
     vec3 metal = vec3(0.30, 0.36, 0.39);
     if (material == INTERIOR_FAN_HUB) {
-        float aa = length(fwidth(uv));
+        float aa = max(length(fwidth(uv)), 1e-5);
         float bolt = 1.0;
         for (int i = 0; i < 7; i++) {
             float angle = 0.147 + float(i) * 0.8975979;
@@ -47,8 +47,8 @@ vec3 hullDisplayColor() {
     float u = uv.x;
     float v = uv.y;
     float scan = 0.158421875 + fract(DisplayTime / 8.0 + 0.12) * 0.68315625;
-    float distance = abs(u - scan);
-    float pulse = exp(-distance * 65.0);
+    float dist = abs(u - scan);
+    float pulse = exp(-dist * 65.0);
     if (material == INTERIOR_DISPLAY_HOUSING) return vec3(0.018,0.038,0.052) * surfaceLight;
     if (material == INTERIOR_DISPLAY_GLASS) return vec3(0.040,0.075,0.095) * surfaceLight;
     if (material == INTERIOR_DISPLAY_OUTLINE) return vec3(0.27,0.48,0.55) + vec3(0.20,0.30,0.32) * pulse;
@@ -57,10 +57,10 @@ vec3 hullDisplayColor() {
     if (material == INTERIOR_DISPLAY_TRIM) return vec3(0.25,0.48,0.55);
     vec2 gridPosition = vec2(u * 20.0, v * 9.0);
     vec2 gridDistance = abs(fract(gridPosition + 0.5) - 0.5);
-    float aa = max(fwidth(gridPosition.x), fwidth(gridPosition.y));
+    float aa = max(max(fwidth(gridPosition.x), fwidth(gridPosition.y)), 1e-5);
     float grid = 1.0 - smoothstep(0.009, 0.009 + aa, min(gridDistance.x, gridDistance.y));
     float band = step(0.0833,v) * step(v,0.8444);
-    float beam = 1.0 - smoothstep(0.0008, 0.0008 + max(fwidth(u),0.0003), distance);
+    float beam = 1.0 - smoothstep(0.0008, 0.0008 + max(fwidth(u),0.0003), dist);
     float trail = exp(-max(scan-u,0.0)*40.0) * step(u,scan);
     float header = 1.0-smoothstep(0.001,0.001+max(fwidth(v),0.0003),abs(v-0.864));
     return vec3(0.025,0.055,0.075) + vec3(0.018,0.040,0.055)*grid

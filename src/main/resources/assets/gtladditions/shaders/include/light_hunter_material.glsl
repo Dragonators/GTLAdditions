@@ -46,7 +46,9 @@ vec2 shieldCharge(vec2 id, float time) {
     float seed = shieldHash(id + vec2(19.2, 31.1));
     float clusters = shieldNoise(id * vec2(1.7320508, 1.0) * 0.16 + vec2(13.0, 4.0));
     float t = time * SHIELD_CHARGE_SPEED;
-    float groupPulse = pow(0.5 + 0.5 * sin(clusters * 10.0 - t * 0.52), 5.0);
+    float groupWave = max(0.0, 0.5 + 0.5 * sin(clusters * 10.0 - t * 0.52));
+    float groupWave2 = groupWave * groupWave;
+    float groupPulse = groupWave2 * groupWave2 * groupWave;
     float cellPhase = 0.5 + 0.5 * sin(t * 0.67 + seed * 2.2 + clusters * 3.0);
     float charge = groupPulse * smoothstep(0.24, 0.66, clusters) * (0.64 + 0.36 * cellPhase);
     return vec2(charge, charge * charge);
@@ -56,7 +58,10 @@ float shieldFresnel() {
     float size = length(normal);
     if (size < 1e-8) return 0.0;
     vec3 view = orthoCamera > 0.5 ? -localForward : localEye - localPosition;
-    return pow(1.0 - abs(dot(normal / size, normalize(view))), 3.0);
+    float viewSize = length(view);
+    if (viewSize < 1e-6) return 0.0;
+    float base = max(0.0, 1.0 - abs(dot(normal / size, view / viewSize)));
+    return base * base * base;
 }
 vec4 shieldHoneycomb(vec2 surface, float time, float latent) {
     vec2 p = surface / SHIELD_CELL_SIZE;
@@ -151,9 +156,9 @@ vec2 plasmaBox(vec3 origin, vec3 direction, float len, float radius) {
 #ifndef LIGHT_HUNTER_LAYERED
 vec2 effectScreenPixel() { return gl_FragCoord.xy; }
 void layerBegin(vec3 eyeView, vec3 dirView) {}
-void layerAccumulate(float density, float segment, float distance, float absorption, float transmission, vec3 color) {}
-float layerClipSegment(float distance, float segment) { return segment; }
-void layerAccumulateEmission(vec3 emission, float segment, float distance) {}
+void layerAccumulate(float density, float segment, float rayDist, float absorption, float transmission, vec3 color) {}
+float layerClipSegment(float rayDist, float segment) { return segment; }
+void layerAccumulateEmission(vec3 emission, float segment, float rayDist) {}
 vec4 layerFinish(vec3 light, float exposure) { return vec4(vec3(1.0)-exp(-light*exposure),1.0); }
 #endif
 #moj_import <gtladditions:light_hunter_ring.glsl>
@@ -163,10 +168,10 @@ vec4 auxiliaryVolume(vec3 origin, vec3 direction, vec2 hit) {
     vec3 light = vec3(0.0);
     float transmission = 1.0;
     for (int i = 0; i < 16; i++) {
-        float distance = hit.x + float(i) * stepSize;
-        float segment = min(stepSize, hit.y - distance);
+        float rayDist = hit.x + float(i) * stepSize;
+        float segment = min(stepSize, hit.y - rayDist);
         if (segment <= 0.0) break;
-        vec3 q = origin + direction * (distance + 0.5 * segment);
+        vec3 q = origin + direction * (rayDist + 0.5 * segment);
         float u = clamp(q.x / 25.0, 0.0, 1.0);
         float radius = max(1.15 * (1.0 - u), 0.012);
         float radial = length(q.yz) / radius;
@@ -178,7 +183,7 @@ vec4 auxiliaryVolume(vec3 origin, vec3 direction, vec2 hit) {
         vec3 color = mix(vec3(0.14, 0.40, 1.30), vec3(0.50, 0.90, 1.42), exp(-u * 4.5));
         color = mix(color, vec3(0.90, 1.04, 1.30), exp(-radial * radial * 13.0) * (1.0 - u) * (1.0 - u) * 0.50);
         float alpha = 1.0 - exp(-density * segment * 2.1);
-        layerAccumulate(density,segment,distance,2.1,transmission,color*1.20);
+        layerAccumulate(density,segment,rayDist,2.1,transmission,color*1.20);
         light += transmission * alpha * color * 1.20;
         transmission *= exp(-density * segment * 0.45);
     }
@@ -212,15 +217,15 @@ vec4 volumePlume() {
     vec3 light=vec3(0.0);
     float transmission=1.0;
     for(int i=0;i<64;i++) {
-        float distance=hit.x+float(i)*stepSize;
-        float segmentSize=min(stepSize,hit.y-distance);
+        float rayDist=hit.x+float(i)*stepSize;
+        float segmentSize=min(stepSize,hit.y-rayDist);
         if(segmentSize<=0.0)break;
-        vec3 q=ro+direction*(distance+0.5*segmentSize);
-        vec4 sample=samplePlasmaField(q,len,mainJet);
-        float alpha=1.0-exp(-sample.a*segmentSize*0.49);
-        layerAccumulate(sample.a,segmentSize,distance,0.49,transmission,sample.rgb*1.34);
-        light+=transmission*alpha*sample.rgb*1.34;
-        transmission*=exp(-sample.a*segmentSize*0.24);
+        vec3 q=ro+direction*(rayDist+0.5*segmentSize);
+        vec4 fieldSample=samplePlasmaField(q,len,mainJet);
+        float alpha=1.0-exp(-fieldSample.a*segmentSize*0.49);
+        layerAccumulate(fieldSample.a,segmentSize,rayDist,0.49,transmission,fieldSample.rgb*1.34);
+        light+=transmission*alpha*fieldSample.rgb*1.34;
+        transmission*=exp(-fieldSample.a*segmentSize*0.24);
     }
     return layerFinish(light,1.05);
 }
@@ -242,9 +247,13 @@ bool chartCoveredByWindow() {
 
 void materialMain() {
     bool navigation = navigationPanelRegion();
-    if (navigation && Effect == 6) {
-        materialColor = navigationPanel();
-        return;
+    if (Effect == 6) {
+        vec2 panelDx = dFdx(localPosition.zy);
+        vec2 panelDy = dFdy(localPosition.zy);
+        if (navigation) {
+            materialColor = navigationPanel(panelDx, panelDy);
+            return;
+        }
     }
     if (navigation && (Effect == 3 || Effect == 4)) discard;
     // Coplanar layers must not depend on a sub-depth-buffer-unit geometric offset at long range.
@@ -278,8 +287,10 @@ void materialMain() {
         float seam = exp(-border / max(0.01, fwidth(border) * 1.2));
         float glow = exp(-border * 30.0);
         float ridge = exp(-abs(panelUv.y - 0.5) * 90.0);
-        float scan = pow(0.5 + 0.5 * sin(panelUv.x * 28.0 - AngularTime * 0.65), 32.0);
-        float cells = pow(0.5 + 0.5 * sin(panelUv.x * 87.0 + sin(abs(panelUv.y - 0.5) * 40.0)), 16.0);
+        float scan = max(0.0, 0.5 + 0.5 * sin(panelUv.x * 28.0 - AngularTime * 0.65));
+        scan *= scan; scan *= scan; scan *= scan; scan *= scan; scan *= scan;
+        float cells = max(0.0, 0.5 + 0.5 * sin(panelUv.x * 87.0 + sin(abs(panelUv.y - 0.5) * 40.0)));
+        cells *= cells; cells *= cells; cells *= cells; cells *= cells;
         a = mix(0.045, 0.022, interior) + seam * 0.85 + glow * 0.30 + ridge * 0.12;
         a += scan * 0.035 * (1.0 - interior) + cells * 0.02 * (1.0 - interior);
         // Keep both sides visible at grazing angles. Raster coverage and fwidth handle thin edges;

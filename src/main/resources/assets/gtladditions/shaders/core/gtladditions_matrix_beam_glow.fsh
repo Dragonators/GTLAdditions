@@ -30,7 +30,7 @@ void main() {
     float halo = 0.25 * exp(-3.0 * x * x);
     float edge = 1.0 - smoothstep(0.78, 1.0, x);
 
-    vec3 texel = texture(Sampler0, texCoord).rgb;
+    vec3 texel = textureLod(Sampler0, texCoord, 0.0).rgb;
     float flow = clamp(1.0 - dot(texel, vec3(0.2126, 0.7152, 0.0722)), 0.0, 1.0);
     vec3 emission = BeamColor * body * mix(0.15, 1.0, flow) + CoreColor * core * flow + HaloColor * halo;
     emission *= max(transparency, 0.0) * edge;

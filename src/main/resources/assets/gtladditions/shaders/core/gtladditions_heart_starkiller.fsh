@@ -71,7 +71,8 @@ void main() {
     bool ice = Role > 0.5 && Role < 1.5;
     // Derivatives in uniform control flow, before any branch.
     vec3 o = normalize(ObjectPos);
-    vec2 uv = vec2(atan(o.y, o.x) / 6.2831853 + 0.5, asin(clamp(o.z, -1.0, 1.0)) / 3.14159265 + 0.5);
+    float az = abs(o.x) + abs(o.y) > 1e-6 ? atan(o.y, o.x) : 0.0;
+    vec2 uv = vec2(az / 6.2831853 + 0.5, asin(clamp(o.z, -1.0, 1.0)) / 3.14159265 + 0.5);
     vec2 dx = dFdx(uv);
     vec2 dy = dFdy(uv);
     float hu = fract(uv.x + 0.5);
@@ -100,13 +101,21 @@ void main() {
         vec3 a = cross(wy, n);
         vec3 b = cross(n, wx);
         float d = dot(wx, a);
-        float k = length(wx) / max(length(objX), 1e-7);
-        n = normalize(abs(d) * n - sign(d) * (hX * a + hY * b) * k * smoothstep(0.7, 1.4, texel));
+        if (abs(d) > 1e-10) {
+            float k = length(wx) / max(length(objX), 1e-7);
+            n = normalize(abs(d) * n - sign(d) * (hX * a + hY * b) * k * smoothstep(0.7, 1.4, texel));
+        }
         nl = max(dot(n, l), 0.0);
         vec3 col = base * (vec3(0.04, 0.046, 0.056) + vec3(0.08) * mu + vec3(1.0, 0.93, 0.84) * nl * (0.45 + 0.8 * Power));
-        col += mix(vec3(0.04), base, Metal) * pow(max(dot(n, normalize(l + v)), 0.0), mix(8.0, 140.0, 1.0 - Rough)) * nl * (1.2 - 0.8 * Rough) * (0.4 + 0.6 * Power);
-        col += vec3(0.06, 0.12, 0.2) * pow(1.0 - mu, 5.0) * (0.3 + 0.7 * smoothstep(-0.3, 0.4, dot(n, l)));
-        col += vec3(0.08, 0.13, 0.22) * pow(1.0 - mu, 4.0) * smoothstep(0.0, 0.9, -dot(v, l));
+        vec3 hv = l + v;
+        float hv2 = dot(hv, hv);
+        float ndh = hv2 > 1e-10 ? max(dot(n, hv * inversesqrt(hv2)), 0.0) : 0.0;
+        col += mix(vec3(0.04), base, Metal) * pow(ndh, mix(8.0, 140.0, 1.0 - Rough)) * nl * (1.2 - 0.8 * Rough) * (0.4 + 0.6 * Power);
+        float f1 = max(1.0 - mu, 0.0);
+        float f2 = f1 * f1;
+        float f4 = f2 * f2;
+        col += vec3(0.06, 0.12, 0.2) * (f4 * f1) * (0.3 + 0.7 * smoothstep(-0.3, 0.4, dot(n, l)));
+        col += vec3(0.08, 0.13, 0.22) * f4 * smoothstep(0.0, 0.9, -dot(v, l));
         color = srgb(col);
     } else {
         vec3 on = normalize(ObjectNormal);
@@ -129,13 +138,17 @@ void main() {
         vec2 cut = trench(ObjectPos, normalize(ObjectLight));
         float sun = nl * cut.y;
         vec3 col = base * ((vec3(0.15, 0.165, 0.195) + vec3(0.2) * mu) * cut.x + vec3(1.0, 0.93, 0.84) * sun * (0.45 + 0.8 * Power));
-        float spec = pow(max(dot(n, normalize(l + v)), 0.0), mix(10.0, 90.0, 1.0 - Rough));
+        vec3 hv = l + v;
+        float hv2 = dot(hv, hv);
+        float ndh = hv2 > 1e-10 ? max(dot(n, hv * inversesqrt(hv2)), 0.0) : 0.0;
+        float spec = pow(ndh, mix(10.0, 90.0, 1.0 - Rough));
         col += mix(vec3(0.04), vec3(0.3, 0.32, 0.36), Metal) * spec * sun * (1.1 - 0.7 * Rough) * (0.4 + 0.6 * Power);
         float q = length(ObjectPos.yz - CORE.yz);
         if (q < 0.2) col *= 0.75 + 0.25 * smoothstep(0.04, 0.22, q);
         vec3 tc = CORE - ObjectPos;
         float d = length(tc);
-        col += (base + 0.02) * vec3(1.1, 0.07, 0.015) * max(dot(normalize(ObjectNormal), tc / d), 0.0) * exp(-d * d / 0.02) * 2.4 * Power * breath;
+        float coreFacing = d > 1e-6 ? max(dot(normalize(ObjectNormal), tc / d), 0.0) : 0.0;
+        col += (base + 0.02) * vec3(1.1, 0.07, 0.015) * coreFacing * exp(-d * d / 0.02) * 2.4 * Power * breath;
         color = srgb(col);
     }
 

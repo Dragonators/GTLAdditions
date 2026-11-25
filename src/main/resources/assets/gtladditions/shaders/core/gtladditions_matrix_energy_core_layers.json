@@ -6,7 +6,7 @@
     "srcalpha": "one",
     "dstalpha": "1-srcalpha"
   },
-  "vertex": "gtladditions:gtladditions_matrix_energy_core",
+  "vertex": "gtladditions:gtladditions_matrix_energy_core_layers",
   "fragment": "gtladditions:gtladditions_matrix_energy_core_layers",
   "attributes": [
     "Position"

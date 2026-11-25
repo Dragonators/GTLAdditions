@@ -5,6 +5,7 @@ import com.gtladd.gtladditions.client.gui.StructureTierPreview
 import com.gtladd.gtladditions.client.gui.StructureTierRenderer
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographOrbits
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographStarRenderer
+import com.gtladd.gtladditions.client.render.machine.heart.HeartShellRenderer
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixEyeRenderer
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixIrisStarRenderer
 import com.mojang.blaze3d.systems.RenderSystem
@@ -30,6 +31,7 @@ object ClientLifecycleHandler {
         val release = {
             ArcanicAstrographOrbits.clearCache()
             ArcanicAstrographStarRenderer.releaseBuffers()
+            HeartShellRenderer.onLevelUnload()
             MatrixEyeRenderer.releaseBuffers()
             MatrixIrisStarRenderer.releaseBuffers()
         }

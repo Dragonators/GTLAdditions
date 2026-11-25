@@ -12,8 +12,8 @@ vec4 fusionColor;
 #ifndef LIGHT_HUNTER_FUSION_LAYERED
 vec2 effectScreenPixel() { return gl_FragCoord.xy; }
 void layerBegin(vec3 eyeView,vec3 dirView) {}
-float layerClipSegment(float distance,float segment) { return segment; }
-void layerAccumulateEmission(vec3 emission,float segment,float distance) {}
+float layerClipSegment(float rayDist,float segment) { return segment; }
+void layerAccumulateEmission(vec3 emission,float segment,float rayDist) {}
 #endif
 const float PI=3.14159265359, TAU=6.28318530718, R=32.5;
 
@@ -53,7 +53,8 @@ vec3 coronaField(float angle,float radial,float x){
     float segment=1.0-smoothstep(reach,reach+.09,abs(connectionArc(angle)));
     float tubeGate=mix(segment*ignition,1.0,bridge)*(.36+.64*grow);
     float coronaGate=smoothstep(2.5,4.1,Seconds);
-    float chargePulse=1.0+.22*exp(-pow((Seconds-3.65)/.22,2.0))*(1.0-smoothstep(4.0,4.3,Seconds));
+    float chargeDelta=(Seconds-3.65)/.22;
+    float chargePulse=1.0+.22*exp(-chargeDelta*chargeDelta)*(1.0-smoothstep(4.0,4.3,Seconds));
     float wisp=0.0;
     if(coronaGate>0.0){
         float shoulder=exp(-radial*radial/.28-x*x/3.6);
@@ -64,10 +65,11 @@ vec3 coronaField(float angle,float radial,float x){
     float hot=exp(-(x*x*.9+center*center)/(.095*1.6*1.6));
     vec3 light=(vec3(.82,.93,1.0)*core*(6.666667/1.75)+vec3(.035,.40,1.0)*hot*(.30/1.6))*tubeGate*chargePulse;
     light+=vec3(.025,.38,1.0)*wisp*.84*coronaGate;
-    float arc=connectionArc(angle);
-    float band=exp(-pow(arc/.13,2.0))*ignition;
+    float arc=connectionArc(angle),arcBand=arc/.13;
+    float band=exp(-arcBand*arcBand)*ignition;
     float mantle=exp(-(x*x*1.4+radial*radial)/(.13*1.6*1.6));
-    float ringMark=exp(-pow((sqrt(x*x*1.4+radial*radial)-.608)/.072,2.0));
+    float markDelta=(sqrt(x*x*1.4+radial*radial)-.608)/.072;
+    float ringMark=exp(-markDelta*markDelta);
     light+=vec3(.34,.77,1.0)*band*(mantle*(.95/1.6)+ringMark*(1.3/1.6));
     return light;
 }
@@ -85,15 +87,15 @@ vec3 emission(vec3 p,vec3 direction){
     return coronaField(angle,radial,x)*envelope*rayWeight;
 }
 vec3 fusionIntegrate(vec3 ro,vec3 rd,vec2 interval,float offset) {
-    float distance=max(interval.x,0.0),finish=interval.y;
+    float rayDist=max(interval.x,0.0),finish=interval.y;
     vec3 light=vec3(0);
     for(int i=0;i<256;i++) {
-        if(distance>=finish)break;
-        float stepSize=layerClipSegment(distance+offset,min(.10,finish-distance));
-        vec3 energy=(emission(ro+rd*(distance+stepSize*.211324865),rd)+emission(ro+rd*(distance+stepSize*.788675135),rd))*.5;
+        if(rayDist>=finish)break;
+        float stepSize=layerClipSegment(rayDist+offset,min(.10,finish-rayDist));
+        vec3 energy=(emission(ro+rd*(rayDist+stepSize*.211324865),rd)+emission(ro+rd*(rayDist+stepSize*.788675135),rd))*.5;
         light+=energy*stepSize;
-        layerAccumulateEmission(energy,stepSize,distance+offset);
-        distance+=stepSize;
+        layerAccumulateEmission(energy,stepSize,rayDist+offset);
+        rayDist+=stepSize;
     }
     return light;
 }
@@ -114,10 +116,10 @@ void fusionMain() {
     float finish=(viewZ-eyeView.z)/dirView.z;
     vec2 axial=vec2(0,finish);
     if(abs(direction.x)<.000001){if(abs(origin.x)>3.20)discard;}
-    else{vec2 t=(vec2(-3.20,3.20)-origin.x)/direction.x;axial=vec2(max(0,min(t.x,t.y)),min(finish,max(t.x,t.y)));}
+    else{vec2 t=(vec2(-3.20,3.20)-origin.x)/direction.x;axial=vec2(max(0.0,min(t.x,t.y)),min(finish,max(t.x,t.y)));}
     if(axial.y<=axial.x)discard;
     float offset=axial.x;origin+=direction*offset;
-    vec2 outer=cylinder(origin.yz,direction.yz,R+.90);outer=vec2(max(outer.x,0),min(outer.y,axial.y-offset));
+    vec2 outer=cylinder(origin.yz,direction.yz,R+.90);outer=vec2(max(outer.x,0.0),min(outer.y,axial.y-offset));
     if(outer.y<=outer.x)discard;
     vec2 inner=cylinder(origin.yz,direction.yz,R-.90);
     layerBegin(eyeView,dirView);

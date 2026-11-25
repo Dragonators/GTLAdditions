@@ -31,7 +31,7 @@ mat3 rotY(float a) {
     return mat3(c, 0.0, -s, 0.0, 1.0, 0.0, s, 0.0, c);
 }
 
-vec3 noise3(vec3 q) {
+vec3 pocketNoise3(vec3 q) {
     return textureLod(NoiseTex, q * 0.25, 0.0).rgb;
 }
 
@@ -80,8 +80,9 @@ float mercator(float y) {
 }
 
 void eternityField(vec3 d, out vec3 hue, out float arm) {
-    vec3 n = noise3(d * 1.15 + 1.0);
-    float w = (n.r - 0.5) * 3.2 + (n.g - 0.5) * 1.2, ps = mercator(d.y) * 2.2, lon = atan(d.x, d.z);
+    vec3 n = pocketNoise3(d * 1.15 + 1.0);
+    float w = (n.r - 0.5) * 3.2 + (n.g - 0.5) * 1.2, ps = mercator(d.y) * 2.2;
+    float lon = (abs(d.x) + abs(d.z) > 1e-6) ? atan(d.x, d.z) : 0.0;
     float up = smoothstep(-0.12, 0.12, d.y + (n.b - 0.5) * 0.5), r = Flow * 0.3;
     float au = lon + r + ps + w, al = -lon + r + ps + w + 1.3, t = Time * 0.05;
     float pole = smoothstep(0.76, 0.97, abs(d.y));
@@ -96,7 +97,7 @@ vec3 azure(vec3 d) {
 
 // Fetch both hemisphere maps so derivatives stay valid across their seam.
 vec3 gas(samplerCube map, vec3 d, float rate, float width, float seed) {
-    vec3 sn = noise3(d * 2.7 + seed);
+    vec3 sn = pocketNoise3(d * 2.7 + seed);
     float up = smoothstep(-width, width, d.y + (sn.r - 0.5) * 0.42 + (sn.g - 0.5) * 0.2);
     vec3 a = texture(map, rotY(Flow * rate + seed) * d).rgb;
     vec3 b = texture(map, rotY(-Flow * rate + seed + 1.9) * vec3(d.x, -d.y, d.z)).rgb;

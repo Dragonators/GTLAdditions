@@ -1,6 +1,6 @@
 {
   "blend": {"func": "add", "srcrgb": "one", "dstrgb": "1-srcalpha", "srcalpha": "one", "dstalpha": "1-srcalpha"},
-  "vertex": "gtladditions:gtladditions_matrix_seal",
+  "vertex": "gtladditions:gtladditions_matrix_seal_layers",
   "fragment": "gtladditions:gtladditions_matrix_seal_layers",
   "attributes": ["Position", "Color"],
   "samplers": [{"name": "SceneDepth"}],

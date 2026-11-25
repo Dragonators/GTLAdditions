@@ -11,25 +11,25 @@ void layerBegin(vec3 eyeView,vec3 dirView) {
             rayBoundaries[i]=(-boundaries[i]-eyeView.z)/dirView.z;
     }
 }
-void layerAccumulate(float density,float segment,float distance,float absorption,float transmission,vec3 color) {
+void layerAccumulate(float density,float segment,float rayDist,float absorption,float transmission,vec3 color) {
     if (LayerMode!=1) return;
     for (int i=0; i<5; i++) {
-        float portion=clamp(rayBoundaries[i]-distance,0.0,segment);
+        float portion=clamp(rayBoundaries[i]-rayDist,0.0,segment);
         prefixes[i]+=transmission*(1.0-exp(-density*portion*absorption))*color;
     }
 }
-float layerClipSegment(float distance,float segment) {
+float layerClipSegment(float rayDist,float segment) {
     if (LayerMode!=1) return segment;
     for (int i=0; i<5; i++) {
-        float remaining=rayBoundaries[i]-distance;
+        float remaining=rayBoundaries[i]-rayDist;
         if (remaining>0.00001) segment=min(segment,remaining);
     }
     return segment;
 }
-void layerAccumulateEmission(vec3 emission,float segment,float distance) {
+void layerAccumulateEmission(vec3 emission,float segment,float rayDist) {
     if (LayerMode!=1) return;
     for (int i=0; i<5; i++) {
-        prefixes[i]+=emission*clamp(rayBoundaries[i]-distance,0.0,segment);
+        prefixes[i]+=emission*clamp(rayBoundaries[i]-rayDist,0.0,segment);
     }
 }
 vec4 layerFinish(vec3 light,float exposure) {

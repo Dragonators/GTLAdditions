@@ -43,7 +43,10 @@ vec3 plasmaColor(float x) {
 }
 
 float plasmaShockNodes(float x) {
-    float nodes=exp(-pow((x-16.0)/2.3,2.0))+0.80*exp(-pow((x-29.2)/2.6,2.0))+0.60*exp(-pow((x-46.25)/3.0,2.0));
+    float n0=(x-16.0)/2.3;
+    float n1=(x-29.2)/2.6;
+    float n2=(x-46.25)/3.0;
+    float nodes=exp(-n0*n0)+0.80*exp(-n1*n1)+0.60*exp(-n2*n2);
     return 1.0+0.75*nodes;
 }
 

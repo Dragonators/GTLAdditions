@@ -20,7 +20,7 @@ uniform float uSeat, uFloor, uOn, uMist, uMistH, uShroud, uRise, uStir, uLight, 
 vec4 noiseSlice(vec2 p, float slice) {
     float z = mod(slice, 64.);
     vec2 tile = vec2(mod(z, 8.), floor(z / 8.));
-    return texture(tNoise, (tile * 66. + 1. + fract(p) * 64.) / 528.);
+    return textureLod(tNoise, (tile * 66. + 1. + fract(p) * 64.) / 528., 0.);
 }
 
 vec4 sampleVolumeNoise(vec3 p) {

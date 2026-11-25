@@ -40,16 +40,16 @@ vec2 ringCylinderInterval(vec2 origin, vec2 direction, float radius) {
 void integrateRingInterval(vec3 origin, vec3 direction, float base, vec2 interval, float gain, inout vec3 light) {
     if (interval.y <= interval.x) return;
     vec3 start = origin + direction * interval.x;
-    float length = interval.y - interval.x;
+    float span = interval.y - interval.x;
     float cursor = 0.0;
     // At the largest animated radius (13.104), a field interval is under 19 blocks.
     // The 0.20 minimum step plus at most five layer-boundary splits fits in 128 steps.
     for (int i = 0; i < 128; i++) {
-        if (cursor >= length) break;
+        if (cursor >= span) break;
         float d = ringFieldDistance(start + direction * cursor, ringShape.y);
-        float segment = min(clamp(d * 0.8, 0.20, 0.70), length - cursor);
-        float distance = base + interval.x + cursor;
-        segment = layerClipSegment(distance, segment);
+        float segment = min(clamp(d * 0.8, 0.20, 0.70), span - cursor);
+        float rayDist = base + interval.x + cursor;
+        segment = layerClipSegment(rayDist, segment);
         // Four-point Gaussian quadrature resolves the bright core without tying
         // the sample lattice to an opaque occluder's moving end point.
         vec3 emission = vec3(0.0);
@@ -59,7 +59,7 @@ void integrateRingInterval(vec3 origin, vec3 direction, float base, vec2 interva
         emission += ringFieldEmission(start + direction * (cursor + segment * 0.930568155797), ringShape.y) * 0.173927422569;
         emission *= gain;
         light += emission * segment;
-        layerAccumulateEmission(emission, segment, distance);
+        layerAccumulateEmission(emission, segment, rayDist);
         cursor += segment;
     }
 }
@@ -98,7 +98,8 @@ vec4 volumeRing() {
     layerBegin(eyeView, dirView);
     vec3 light = vec3(0.0);
     float age = ringAge();
-    float pulse = pow(0.5 + 0.5 * sin(AngularTime * 2.1 - age * 4.2), 3.0);
+    float pulseWave = max(0.0, 0.5 + 0.5 * sin(AngularTime * 2.1 - age * 4.2));
+    float pulse = pulseWave * pulseWave * pulseWave;
     float gain = tint.a * mix(1.0, 0.56, age) * (0.80 + 0.38 * pulse);
     if (inner.y > inner.x && inner.y > outer.x && inner.x < outer.y) {
         integrateRingInterval(origin, direction, base, vec2(outer.x, min(outer.y, inner.x)), gain, light);

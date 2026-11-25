@@ -180,7 +180,8 @@ void main() {
 
     float ringA = MaxAngle - plateAngle;
     float ringH = fract(SweepPhase - (Layer - 1.0) * 0.09) * (MaxAngle + 0.9) - 0.3;
-    float ring = exp(-pow((ringA - ringH) / 0.30, 2.0)) * Power;
+    float ringD = (ringA - ringH) / 0.30;
+    float ring = exp(-(ringD * ringD)) * Power;
     if ((flags & 8) != 0) add += base * ring * 0.9;
 
     // Premultiplied: alpha darkens the terrain beneath (edge and flat AO); the edge also shades this overlay's own light.

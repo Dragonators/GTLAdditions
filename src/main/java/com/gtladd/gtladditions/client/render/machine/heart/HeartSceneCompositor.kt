@@ -339,7 +339,6 @@ internal object HeartSceneCompositor : AutoCloseable {
                 shader.getUniform("Count")?.set(images.count)
                 images.bindRects(shader)
                 shader.getUniform("LayerBase")?.set(base)
-                shader.getUniform("FrameSize")?.set(images.width.toFloat(), images.height.toFloat())
                 shader.getUniform("Origin")?.set(rect[0].toFloat(), rect[1].toFloat())
                 HeartLayerImages.drawQuad(shader)
             } finally {

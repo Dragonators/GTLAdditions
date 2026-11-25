@@ -17,7 +17,9 @@ void main() {
     if (Kind==1) {
         float light=max(0.0,dot(n,normalize(vec3(1.0,-0.2,-0.65))));
         vec3 base=mix(albedo,vec3(dot(albedo,vec3(0.2126,0.7152,0.0722))),0.12)*vec3(0.80,0.92,1.0);
-        float limb=pow(1.0-max(0.0,dot(n,view)),5.0);
+        float limbBase=clamp(1.0-dot(n,view),0.0,1.0);
+        float limb2=limbBase*limbBase;
+        float limb=limb2*limb2*limbBase;
         color=base*(0.012+light*0.32)+vec3(0.025,0.065,0.09)*limb*(0.15+light);
     } else {
         vec3 key=normalize(vec3(-3.0,4.0,6.0));

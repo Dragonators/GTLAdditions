@@ -4,7 +4,7 @@
     "srcrgb": "one",
     "dstrgb": "one"
   },
-  "vertex": "gtladditions:gtladditions_light_hunter",
+  "vertex": "gtladditions:gtladditions_light_hunter_layers",
   "fragment": "gtladditions:gtladditions_light_hunter_fusion_layers",
   "attributes": [
     "Position",

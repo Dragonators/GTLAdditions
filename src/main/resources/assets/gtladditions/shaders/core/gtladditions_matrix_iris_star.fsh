@@ -12,7 +12,7 @@ uniform float uFlickerPhase, uFlowPhase, uLight, uIdle, uReveal, uFront, uGazeAm
 const float PI = 3.14159265, TAU = 6.2831853;
 
 float profile(float d, vec3 W, float pix) {
-    vec3 I = vec3(.7, .3, .085), e;
+    vec3 I = vec3(.7, .3, .085);
     float s = 0.;
     for (int k = 0; k < 3; k++) {
         float w = W[k], we = max(w, pix * .85), x = d / we, f = max(0., 1. - x * x);
@@ -50,7 +50,8 @@ void main() {
         e = profile(d, W, pix);
     } else if (type == 1) {
         vec2 rel = vLocal - vA.xy;
-        float ang = atan(rel.y, rel.x), len = length(rel), span = vB.y;
+        float len = length(rel), span = vB.y;
+        float ang = len > 1e-6 ? atan(rel.y, rel.x) : 0.;
         float s = mod(ang - vB.x, TAU), ps = vB.z - vB.x, pe = ps + vB.w;
         bool last = pe >= span - 1e-4, first = ps <= 1e-4;
         float d;
@@ -82,8 +83,12 @@ void main() {
         e = profile(abs(sd), W, pix) + iris * .9 + slit * .75 * open;
     }
     float level = uIdle + (1. - uIdle) * lit * uLight;
-    float front = uFront * exp(-pow((rr - uReveal) / 1.4, 2.));
-    float gz = uGazeAmt * pow(max(dot(normalize(vWorld + 1e-4), uGazeDir), 0.), 8.) * .9;
+    float frontD = (rr - uReveal) / 1.4;
+    float front = uFront * exp(-(frontD * frontD));
+    float gzDot = rr > 1e-6 ? max(dot(vWorld / rr, uGazeDir), 0.) : 0.;
+    float gz2 = gzDot * gzDot;
+    float gz4 = gz2 * gz2;
+    float gz = uGazeAmt * (gz4 * gz4) * .9;
     float flick = vD.w > .5 ? .8 + .2 * sin(uFlickerPhase + vSeed * TAU) : 1.;
     float flow = 1.;
     int fm = int(vC.w + .5);
@@ -93,7 +98,8 @@ void main() {
         flow = .85 + .35 * (1. - smoothstep(0., ext, abs(dl)));
     } else if (fm >= 2) {
         float x = param / 7. - uFlowPhase * (fm == 2 ? 1. : -1.);
-        flow = .7 + 1.1 * exp(-pow((fract(x) - .5) / .07, 2.)) * uLight;
+        float flowD = (fract(x) - .5) / .07;
+        flow = .7 + 1.1 * exp(-(flowD * flowD)) * uLight;
     }
     vec3 col = mix(uPrimary, uSecondary, vC.y);
     vec3 c = col * e * inten * (level * (1. + gz) * flick * flow + front * 1.3) * uBright;
