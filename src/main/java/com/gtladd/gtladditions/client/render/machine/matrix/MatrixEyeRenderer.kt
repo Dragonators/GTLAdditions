@@ -111,7 +111,6 @@ object MatrixEyeRenderer {
                     shader.getUniform("uCamLight")?.set(light)
                     shader.getUniform("uTint")?.set(tint)
                     shader.getUniform("uGaze")?.set(frame.gazeX, frame.gazeY)
-                    shader.getUniform("uTime")?.set(frame.time.toFloat())
                     shader.getUniform("uDilate")?.set(frame.dilate)
                     shader.getUniform("uLidU")?.set(frame.upperLid)
                     shader.getUniform("uLidL")?.set(frame.lowerLid)
@@ -120,6 +119,7 @@ object MatrixEyeRenderer {
                 }
 
                 setup(eye)
+                eye.getUniform("uAngularTime")?.set((frame.time % (100.0 * Math.PI)).toFloat())
                 eye.getUniform("uScale")?.set(RADIUS, RADIUS, HEIGHT)
                 eye.getUniform("uSclera")?.set(sclera)
                 eye.getUniform("uAbyss")?.set(abyss)
@@ -128,6 +128,7 @@ object MatrixEyeRenderer {
                 draw(domeBuffer(), view, eye)
                 if (frame.open < 1f) {
                     setup(lid)
+                    lid.getUniform("uSeamPhase")?.set((frame.time * 0.6 % 1024.0).toFloat())
                     lid.getUniform("uScale")?.set(RADIUS * 1.03f, RADIUS * 1.03f, HEIGHT * 1.06f)
                     lid.getUniform("uSkin")?.set(skin)
                     lid.getUniform("uSeam")?.set(frame.seam)
@@ -153,7 +154,9 @@ object MatrixEyeRenderer {
                 shader.getUniform("uTint")?.set(tint)
                 shader.getUniform("uShroud")?.set(frame.shroud)
                 shader.getUniform("uStir")?.set(frame.stir)
-                shader.getUniform("uSwirl")?.set(frame.swirl)
+                // Q23 turns. The shader divides by a different radius-dependent speed factor at each sample.
+                val swirl = (frame.swirl / (2.0 * Math.PI) * 8388608.0).toLong()
+                shader.getUniform("uSwirlWords")?.set((swirl ushr 32).toInt(), swirl.toInt())
                 shader.getUniform("uRise")?.set(frame.rise)
                 shader.getUniform("uLight")?.set(frame.light * 0.9f + frame.seam * 0.12f)
                 shader.setSampler("tNoise", textures.mistNoise)

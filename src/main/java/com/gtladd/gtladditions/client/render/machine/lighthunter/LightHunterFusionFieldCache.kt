@@ -22,7 +22,8 @@ class LightHunterFusionFieldCache : AutoCloseable {
     private var resources: ResourceProvider? = null
     private var program = 0
     private val fields = ArrayList<Field>(MAX_FIELDS)
-    private var firstCellUniform = -1
+    private var firstSlotUniform = -1
+    private var noiseOffsetUniform = -1
     private var cellCountUniform = -1
     private var sizeUniform = -1
     private var frame = 0L
@@ -39,11 +40,10 @@ class LightHunterFusionFieldCache : AutoCloseable {
         unavailable = false
     }
 
-    fun prepare(tick: Float): Field? {
+    fun prepare(axialCell: Double): Field? {
         if (unavailable || !GL.getCapabilities().OpenGL43) return null
         val provider = resources ?: return null
-        val time = tick / 20f
-        val originCell = floor((-time * 0.28f) / (AXIAL_STEP * ORIGIN_STRIDE)).toInt() * ORIGIN_STRIDE - AXIAL_PADDING
+        val originCell = floor(axialCell / ORIGIN_STRIDE).toLong() * ORIGIN_STRIDE - AXIAL_PADDING
         try {
             if (program == 0) initialize(provider)
             val field = fields.firstOrNull { it.originCell == originCell } ?: nextField()
@@ -89,7 +89,8 @@ class LightHunterFusionFieldCache : AutoCloseable {
             GL20C.glAttachShader(program, compute)
             GL20C.glLinkProgram(program)
             check(GL20C.glGetProgrami(program, GL20C.GL_LINK_STATUS) != 0) { GL20C.glGetProgramInfoLog(program) }
-            firstCellUniform = GL20C.glGetUniformLocation(program, "FirstCell")
+            firstSlotUniform = GL20C.glGetUniformLocation(program, "FirstSlot")
+            noiseOffsetUniform = GL20C.glGetUniformLocation(program, "FusionNoiseOffset")
             cellCountUniform = GL20C.glGetUniformLocation(program, "CellCount")
             sizeUniform = GL20C.glGetUniformLocation(program, "FieldSize")
         } finally {
@@ -125,10 +126,10 @@ class LightHunterFusionFieldCache : AutoCloseable {
         }
     }
 
-    private fun update(field: Field, originCell: Int) {
+    private fun update(field: Field, originCell: Long) {
         val previousOrigin = field.originCell
         // The axial axis is a ring buffer.
-        val delta = if (previousOrigin == null) AXIAL.toLong() else originCell.toLong() - previousOrigin.toLong()
+        val delta = if (previousOrigin == null) AXIAL.toLong() else originCell - previousOrigin
         val partial = previousOrigin != null && abs(delta) < AXIAL
         val count = if (partial) abs(delta).toInt() else AXIAL
         val first = if (partial && delta > 0) previousOrigin + AXIAL else originCell
@@ -144,7 +145,8 @@ class LightHunterFusionFieldCache : AutoCloseable {
             // Finish earlier reads before reusing a field for another animation phase.
             GL42C.glMemoryBarrier(GL42C.GL_SHADER_IMAGE_ACCESS_BARRIER_BIT)
             GlStateManager._glUseProgram(program)
-            GL20C.glUniform1i(firstCellUniform, first)
+            GL20C.glUniform1i(firstSlotUniform, Math.floorMod(first, AXIAL))
+            GL20C.glUniform1fv(noiseOffsetUniform, noiseOffsets(first * AXIAL_STEP))
             GL20C.glUniform1i(cellCountUniform, count)
             GL20C.glUniform3i(sizeUniform, ANGULAR, RADIAL, AXIAL)
             GL42C.glBindImageTexture(0, field.texture, 0, true, 0, GL15C.GL_WRITE_ONLY, GL30C.GL_RG16F)
@@ -167,20 +169,34 @@ class LightHunterFusionFieldCache : AutoCloseable {
     }
 
     class Field internal constructor(val texture: Int) {
-        internal var originCell: Int? = null
+        internal var originCell: Long? = null
         internal var lastFrame = -1L
         internal var lastUse = 0L
-        val origin: Float get() = requireNotNull(originCell) * AXIAL_STEP
         val originSlot: Float get() = Math.floorMod(requireNotNull(originCell), AXIAL).toFloat()
     }
 
-    private companion object {
-        const val ANGULAR = 2048
-        const val RADIAL = 48
-        const val AXIAL = 128
-        const val AXIAL_STEP = 0.078125f
-        const val ORIGIN_STRIDE = 8
-        const val AXIAL_PADDING = 58
-        const val MAX_FIELDS = 4
+    companion object {
+        private const val ANGULAR = 2048
+        private const val RADIAL = 48
+        private const val AXIAL = 128
+        const val AXIAL_STEP = 0.078125
+        private const val ORIGIN_STRIDE = 8
+        private const val AXIAL_PADDING = 58
+        private const val MAX_FIELDS = 4
+        private val offsets = FloatArray(10)
+
+        /** Axial translation of each noise octave, shared by the analytic and cached field. */
+        internal fun noiseOffsets(z: Double): FloatArray {
+            fun octave(start: Int, scale: Double) {
+                offsets[start] = (z * scale % 1024.0).toFloat()
+                offsets[start + 1] = (z * scale * 2.03 % 1024.0).toFloat()
+                offsets[start + 2] = (z * scale * 4.07 % 1024.0).toFloat()
+            }
+            octave(0, 0.58)
+            octave(3, 0.63)
+            octave(6, 1.0)
+            offsets[9] = (z * 2.1 % 1024.0).toFloat()
+            return offsets
+        }
     }
 }

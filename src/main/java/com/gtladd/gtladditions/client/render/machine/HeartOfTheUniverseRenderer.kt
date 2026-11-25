@@ -37,7 +37,7 @@ class HeartOfTheUniverseRenderer :
         if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.recipeLogic.isWorking) return
         val frame = SceneRendering.frame() ?: return
 
-        val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
+        val tick = RenderUtils.getContinuousRenderTick(machine, partialTicks)
         val profile = HeartBlackHoleRenderProfile.create(tick, machine.frontFacing, starOffset(machine.frontFacing))
         SceneVolumes.submit(frame, blockEntity, profile)
     }

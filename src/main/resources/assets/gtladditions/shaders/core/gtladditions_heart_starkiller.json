@@ -9,7 +9,7 @@
     {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
     {"name": "Center", "type": "float", "count": 3, "values": [0.0, 0.0, 0.0]},
     {"name": "Power", "type": "float", "count": 1, "values": [1.0]},
-    {"name": "Time", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "BreathPhase", "type": "float", "count": 1, "values": [0.0]},
     {"name": "Role", "type": "float", "count": 1, "values": [0.0]},
     {"name": "Metal", "type": "float", "count": 1, "values": [0.0]},
     {"name": "Rough", "type": "float", "count": 1, "values": [0.5]},

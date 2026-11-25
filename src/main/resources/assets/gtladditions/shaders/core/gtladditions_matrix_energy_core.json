@@ -74,11 +74,39 @@
       ]
     },
     {
-      "name": "Phase",
+      "name": "CircuitPhase",
       "type": "float",
       "count": 1,
       "values": [
-        3.5
+        0.0
+      ]
+    },
+    {
+      "name": "VolumePhase",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "CloudOffset",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "CloudDetailOffset",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0.0,
+        0.0,
+        0.0
       ]
     },
     {

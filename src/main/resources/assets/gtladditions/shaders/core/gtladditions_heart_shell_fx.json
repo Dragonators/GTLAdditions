@@ -7,7 +7,8 @@
   "uniforms": [
     {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
     {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]},
-    {"name": "Time", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "SweepPhase", "type": "float", "count": 1, "values": [0.0]},
+    {"name": "WarmPhase", "type": "float", "count": 1, "values": [0.0]},
     {"name": "CircuitTime", "type": "float", "count": 1, "values": [0.0]},
     {"name": "Power", "type": "float", "count": 1, "values": [1.0]},
     {"name": "Gap", "type": "float", "count": 1, "values": [14.0]},

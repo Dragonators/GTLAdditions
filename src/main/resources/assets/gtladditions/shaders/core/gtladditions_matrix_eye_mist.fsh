@@ -14,7 +14,7 @@ uniform vec4 uViewport;
 uniform vec2 uResolution;
 uniform mat4 uInvProj, uCamWorld;
 uniform vec3 uCam, uEyeScale, uTint;
-uniform float uSeat, uFloor, uOn, uMist, uMistH, uShroud, uSwirl, uRise, uStir, uLight, uMistGlow, uClimb;
+uniform float uSeat, uFloor, uOn, uMist, uMistH, uShroud, uRise, uStir, uLight, uMistGlow, uClimb;
 
 // 64 z slices in an 8x8 atlas, each with a one-texel periodic XY border.
 vec4 noiseSlice(vec2 p, float slice) {
@@ -32,6 +32,34 @@ vec3 lin(vec3 c) {
     return mix(c / 12.92, pow((c + .055) / 1.055, vec3(2.4)), step(vec3(.04045), c));
 }
 
+uniform ivec2 uSwirlWords;
+
+// The quotient is below 512. A half-unit bias covers reciprocal rounding and
+// leaves at most one extra divisor, which can be subtracted after the last word.
+uint reduceSwirlWord(uint value, uint divisor, float invDivisor) {
+    uint quotient = uint(max(0., float(value) * invDivisor - .5));
+    return value - quotient * divisor;
+}
+
+float swirlAngle(float radius) {
+    // The 10.5-block mist gives a Q23 divisor at most 2.26 * 2^23.
+    // Even a partial remainder of 1.6 divisors fits in uint after a seven-bit shift.
+    uint divisor = uint((1. + radius * .12) * 8388608.);
+    float invDivisor = 1. / float(divisor);
+    uvec2 words = uvec2(uSwirlWords);
+    uint remainder;
+    if (words.x == 0u) {
+        remainder = reduceSwirlWord(words.y, divisor, invDivisor);
+    } else {
+        remainder = reduceSwirlWord(words.x, divisor, invDivisor);
+        remainder = reduceSwirlWord((remainder << 4u) | (words.y >> 28u), divisor, invDivisor);
+        for (int shift = 21; shift >= 0; shift -= 7)
+            remainder = reduceSwirlWord((remainder << 7u) | ((words.y >> uint(shift)) & 127u), divisor, invDivisor);
+    }
+    if (remainder >= divisor) remainder -= divisor;
+    return 6.28318530718 * (float(remainder) / float(divisor));
+}
+
 // p is in eye-centred blocks; de is the approximate distance to the eye surface.
 float mistDensity(vec3 p, out float de) {
     vec3 s = uEyeScale;
@@ -47,7 +75,7 @@ float mistDensity(vec3 p, out float de) {
     float prof = max(pool, climb);
     if (prof < .02)
         return 0.;
-    float a = uSwirl / (1. + r * .12), cs = cos(a), sn = sin(a);
+    float a = swirlAngle(r), cs = cos(a), sn = sin(a);
     vec3 q = vec3(cs * p.x - sn * p.y, sn * p.x + cs * p.y, p.z * .7 - uRise);
     q += (sampleVolumeNoise(q * .03 + vec3(.13, .71, .37)).rgb - .5) * (2.6 + 3. * uStir);
     float nz = sampleVolumeNoise(q * .05).a * .5 + sampleVolumeNoise(q * .11 + .31).r * .32 + sampleVolumeNoise(q * .24 + .57).g * .18;

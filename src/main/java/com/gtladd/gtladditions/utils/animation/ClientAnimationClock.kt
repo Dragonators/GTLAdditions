@@ -12,7 +12,9 @@ class ClientAnimationClock {
     }
 
     fun start(elapsedTicks: Double, renderTick: Double, smooth: Boolean, running: Boolean) {
-        clock = ContinuousAnimationClock().also { it.restore(elapsedTicks, sourceTime(renderTick, smooth), running) }
+        smoothAnimations = smooth
+        lastTick = renderTick
+        clock = ContinuousAnimationClock().also { it.restore(elapsedTicks, renderTick, running) }
     }
 
     fun setRunning(running: Boolean, renderTick: Double, smooth: Boolean) {
@@ -20,6 +22,9 @@ class ClientAnimationClock {
     }
 
     fun sample(renderTick: Double, smooth: Boolean): Double? = clock?.sample(sourceTime(renderTick, smooth))
+
+    fun sampleOrStart(renderTick: Double, smooth: Boolean, initialTicks: Double): Double =
+        sample(renderTick, smooth) ?: initialTicks.coerceAtLeast(0.0).also { start(it, renderTick, smooth, true) }
 
     private fun sourceTime(tick: Double, smooth: Boolean): Double {
         if (smoothAnimations != null && smoothAnimations != smooth) {

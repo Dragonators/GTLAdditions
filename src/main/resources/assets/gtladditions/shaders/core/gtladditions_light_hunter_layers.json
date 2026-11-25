@@ -94,10 +94,36 @@
       ]
     },
     {
-      "name": "Time",
+      "name": "AngularTime",
       "type": "float",
       "count": 1,
       "values": [
+        0
+      ]
+    },
+    {
+      "name": "ShieldOffset",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "PlasmaPhase",
+      "type": "float",
+      "count": 10,
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
         0
       ]
     },

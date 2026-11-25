@@ -98,7 +98,7 @@ vec4 volumeRing() {
     layerBegin(eyeView, dirView);
     vec3 light = vec3(0.0);
     float age = ringAge();
-    float pulse = pow(0.5 + 0.5 * sin(Time * 2.1 - age * 4.2), 3.0);
+    float pulse = pow(0.5 + 0.5 * sin(AngularTime * 2.1 - age * 4.2), 3.0);
     float gain = tint.a * mix(1.0, 0.56, age) * (0.80 + 0.38 * pulse);
     if (inner.y > inner.x && inner.y > outer.x && inner.x < outer.y) {
         integrateRingInterval(origin, direction, base, vec2(outer.x, min(outer.y, inner.x)), gain, light);

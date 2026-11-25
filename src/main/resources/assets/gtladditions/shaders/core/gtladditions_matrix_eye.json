@@ -18,7 +18,7 @@
     {"name": "uDilate", "type": "float", "count": 1, "values": [1]},
     {"name": "uPupilDepth", "type": "float", "count": 1, "values": [2.2]},
     {"name": "uRelief", "type": "float", "count": 1, "values": [1.2]},
-    {"name": "uTime", "type": "float", "count": 1, "values": [0]},
+    {"name": "uAngularTime", "type": "float", "count": 1, "values": [0]},
     {"name": "uGlow", "type": "float", "count": 1, "values": [1]},
     {"name": "uRim", "type": "float", "count": 1, "values": [5]},
     {"name": "uCamLight", "type": "float", "count": 3, "values": [0,0,1]},

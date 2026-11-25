@@ -71,7 +71,7 @@ vec3 spectrum(float x) {
     int i = int(x);
     float f = x - float(i);
     f = f * f * (3.0 - 2.0 * f);
-    return mix(SPECTRUM[i], SPECTRUM[(i + 1) % 6], f);
+    return mix(SPECTRUM[i % 6], SPECTRUM[(i + 1) % 6], f);
 }
 
 float mercator(float y) {

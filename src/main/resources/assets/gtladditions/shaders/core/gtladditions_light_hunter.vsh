@@ -4,7 +4,7 @@ in vec2 UV0;
 in vec4 Color;
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
-uniform float Time;
+uniform float AngularTime;
 uniform int Effect;
 out vec2 uv;
 out vec4 tint;
@@ -25,7 +25,7 @@ void main() {
     ringShape = UV0;
     if (Effect == 1) {
         // UV stores centre X and major radius. Animate the field, never its raster bounds.
-        ringShape.y *= 1.0 + 0.008 * sin(Time * 3.2 + ringShape.x * 0.11);
+        ringShape.y *= 1.0 + 0.008 * sin(AngularTime * 3.2 + ringShape.x * 0.11);
     }
     vec4 view = ModelViewMat * vec4(p, 1.0);
     localPosition = p;

@@ -3,6 +3,7 @@ package com.gtladd.gtladditions.client.render.machine
 import com.gregtechceu.gtceu.GTCEu
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.lighthunter.LightHunterVfxGeometry
 import com.gtladd.gtladditions.client.render.machine.lighthunter.LightHunterVfxRenderer
 import com.gtladd.gtladditions.common.machine.multiblock.controller.LightHunterSpaceStation
@@ -16,7 +17,6 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.config.ConfigHolder
-import org.gtlcore.gtlcore.utils.RenderUtil
 
 class LightHunterSpaceStationRenderer :
     WorkableCasingMachineRenderer(
@@ -42,8 +42,10 @@ class LightHunterSpaceStationRenderer :
             return
         }
 
-        val tick = LightHunterVfxRenderer.sampleAnimationTick(ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) {
-            RenderUtil.getSmoothTick(machine, partialTicks)
+        val smooth = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
+        val tick = LightHunterVfxRenderer.sampleAnimationTick(smooth) {
+            val source = RenderUtils.getSmoothTickDouble(machine, partialTicks)
+            if (smooth) source else source - blockEntity.offset
         }
 
         LightHunterVfxRenderer.enqueue(blockEntity, machine, tick)

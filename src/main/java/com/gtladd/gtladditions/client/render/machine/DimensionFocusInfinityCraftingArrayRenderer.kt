@@ -41,7 +41,7 @@ class DimensionFocusInfinityCraftingArrayRenderer :
             return
         }
 
-        val ticks = RenderUtils.getSmoothTickDouble(machine, partialTicks)
+        val ticks = RenderUtils.getContinuousRenderTick(machine, partialTicks)
         DimensionFocusOrbitRenderer.enqueue(blockEntity, machine, ticks)
         DimensionFocusPocketRenderer.enqueue(blockEntity, machine, ticks)
     }

@@ -8,7 +8,7 @@ in vec4 vA, vB, vC, vD;
 in float vSeed;
 uniform vec3 uW0, uW1, uW2, uPrimary, uSecondary;
 uniform vec2 uGazeDir;
-uniform float uTime, uLight, uIdle, uReveal, uFront, uGazeAmt, uOpen, uBright, uPhase;
+uniform float uFlickerPhase, uFlowPhase, uLight, uIdle, uReveal, uFront, uGazeAmt, uOpen, uBright, uPhase;
 const float PI = 3.14159265, TAU = 6.2831853;
 
 float profile(float d, vec3 W, float pix) {
@@ -84,7 +84,7 @@ void main() {
     float level = uIdle + (1. - uIdle) * lit * uLight;
     float front = uFront * exp(-pow((rr - uReveal) / 1.4, 2.));
     float gz = uGazeAmt * pow(max(dot(normalize(vWorld + 1e-4), uGazeDir), 0.), 8.) * .9;
-    float flick = vD.w > .5 ? .8 + .2 * sin(uTime * 1.3 + vSeed * TAU) : 1.;
+    float flick = vD.w > .5 ? .8 + .2 * sin(uFlickerPhase + vSeed * TAU) : 1.;
     float flow = 1.;
     int fm = int(vC.w + .5);
     if (fm == 1) {
@@ -92,7 +92,7 @@ void main() {
         float ext = dl > 0. ? .10 : .55;
         flow = .85 + .35 * (1. - smoothstep(0., ext, abs(dl)));
     } else if (fm >= 2) {
-        float x = param / 7. - uTime * 1.1 * (fm == 2 ? 1. : -1.);
+        float x = param / 7. - uFlowPhase * (fm == 2 ? 1. : -1.);
         flow = .7 + 1.1 * exp(-pow((fract(x) - .5) / .07, 2.)) * uLight;
     }
     vec3 col = mix(uPrimary, uSecondary, vC.y);

@@ -54,7 +54,7 @@ object LightHunterFusionRenderer {
             RenderUtils.uploadStaticBuffer(builder).also { volume = it }
         }
 
-        fun prepareField(tick: Float): LightHunterFusionFieldCache.Field? = field.prepare(tick)
+        fun prepareField(axialCell: Double): LightHunterFusionFieldCache.Field? = field.prepare(axialCell)
 
         override fun close() {
             volume?.close()
@@ -66,7 +66,7 @@ object LightHunterFusionRenderer {
     internal fun drawn(seconds: Float) = seconds > 0f
 
     /** For a colour-only target; the caller binds the scene depth to [shader]. */
-    fun draw(meshes: Meshes, shader: ShaderInstance, modelView: Matrix4f, projection: Matrix4f, seconds: Float, tick: Float) {
+    fun draw(meshes: Meshes, shader: ShaderInstance, modelView: Matrix4f, projection: Matrix4f, seconds: Float, tick: Double) {
         if (!drawn(seconds) || !visible(modelView, projection)) return
         HeartBlackHoleRenderState.withSavedState { render(meshes, shader, modelView, projection, seconds, tick, false) }
     }
@@ -77,7 +77,7 @@ object LightHunterFusionRenderer {
         modelView: Matrix4f,
         projection: Matrix4f,
         seconds: Float,
-        tick: Float,
+        tick: Double,
         depth: Int,
         count: Int,
         base: Int,
@@ -103,10 +103,13 @@ object LightHunterFusionRenderer {
         modelView: Matrix4f,
         projection: Matrix4f,
         seconds: Float,
-        tick: Float,
+        tick: Double,
         writeAlpha: Boolean
     ) {
-        shader.getUniform("Time")?.set(tick / 20f)
+        val time = tick / 20.0
+        val z = -time * 0.28
+        val axialCell = z / LightHunterFusionFieldCache.AXIAL_STEP
+        shader.getUniform("FusionAngles")?.set(RenderUtils.rotationRadians(time * 0.055), RenderUtils.rotationRadians(time * 0.45))
         shader.getUniform("Seconds")?.set(seconds)
         shader.getUniform("Effect")?.set(0)
         RenderSystem.disableDepthTest()
@@ -122,10 +125,14 @@ object LightHunterFusionRenderer {
         val hasSamplers = GL.getCapabilities().OpenGL33
         val previousSampler = if (hasSamplers) GL11C.glGetInteger(GL33C.GL_SAMPLER_BINDING) else 0
         try {
-            val field = if (seconds > 2.5f) meshes.prepareField(tick) else null
+            val field = if (seconds > 2.5f) meshes.prepareField(axialCell) else null
             shader.getUniform("FusionField")?.set(2)
             shader.getUniform("UseFusionField")?.set(if (field != null) 1 else 0)
-            if (field != null) shader.getUniform("FusionFieldOrigin")?.set(field.origin, field.originSlot)
+            if (field != null) {
+                shader.getUniform("FusionFieldOrigin")?.set((axialCell - requireNotNull(field.originCell)).toFloat(), field.originSlot)
+            } else {
+                shader.getUniform("FusionNoiseOffset")?.set(LightHunterFusionFieldCache.noiseOffsets(z))
+            }
             RenderSystem.activeTexture(GL13C.GL_TEXTURE2)
             GL11C.glBindTexture(GL12C.GL_TEXTURE_3D, field?.texture ?: 0)
             if (hasSamplers) GL33C.glBindSampler(2, 0)

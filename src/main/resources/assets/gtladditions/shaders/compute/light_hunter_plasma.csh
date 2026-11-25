@@ -3,7 +3,6 @@
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 4) in;
 layout(rgba16f, binding = 0) uniform writeonly image3D FieldOutput;
 uniform sampler2D PlasmaNoise;
-uniform float Time;
 uniform ivec3 FieldSize;
 
 #moj_import <gtladditions:light_hunter_plasma.glsl>

@@ -12,7 +12,9 @@
     {"name": "SceneViewport", "type": "float", "count": 2, "values": [0,0]},
     {"name": "PlasmaField", "type": "int", "count": 1, "values": [2]},
     {"name": "UsePlasmaField", "type": "int", "count": 1, "values": [0]},
-    {"name": "Time", "type": "float", "count": 1, "values": [0]},
+    {"name": "AngularTime", "type": "float", "count": 1, "values": [0]},
+    {"name": "ShieldOffset", "type": "float", "count": 2, "values": [0, 0]},
+    {"name": "PlasmaPhase", "type": "float", "count": 10, "values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]},
     {"name": "Effect", "type": "int", "count": 1, "values": [6]}
   ]
 }

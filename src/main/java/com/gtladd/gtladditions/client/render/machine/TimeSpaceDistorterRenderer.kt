@@ -47,10 +47,12 @@ class TimeSpaceDistorterRenderer :
         val machine = blockEntity.metaMachine as? TimeSpaceDistorter ?: return
         if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.shouldRenderMagicCircleEffect()) return
 
-        val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
+        val tick = RenderUtils.getContinuousRenderTick(machine, partialTicks)
         val center = getRotatedRenderPosition(Direction.SOUTH, machine.frontFacing, 0.0, -9.0, -5.0)
 
-        renderMagicCircle(tick, center, machine.renderCausalityDistortionLevel, poseStack, buffer)
+        val levelIndex = machine.renderCausalityDistortionLevel.coerceIn(1, 4) - 1
+        val speed = 0.62 + 0.08 * levelIndex / 3.0
+        renderMagicCircle(RenderUtils.rotationDegrees(machine, tick, speed), center, levelIndex, poseStack, buffer)
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -73,16 +75,12 @@ class TimeSpaceDistorterRenderer :
         private val LEVEL_BLUE = IntArray(4) { 255 }
 
         private fun renderMagicCircle(
-            tick: Double,
+            rotationDegrees: Float,
             center: Vec3,
-            distortionLevel: Int,
+            levelIndex: Int,
             poseStack: PoseStack,
             buffer: MultiBufferSource
         ) {
-            val levelIndex = distortionLevel.coerceIn(1, 4) - 1
-            val levelProgress = levelIndex / 3.0f
-            val rotationDegrees = ((tick * (0.62f + 0.08f * levelProgress)) % 360.0).toFloat()
-
             poseStack.withPose {
                 translate(center.x, center.y, center.z)
                 mulPose(Axis.YP.rotationDegrees(rotationDegrees))

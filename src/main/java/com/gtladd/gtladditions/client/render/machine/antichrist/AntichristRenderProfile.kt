@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.client.RenderMode
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper.getClientBeamAlpha
 import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper.getClientRenderColor
 import com.gtladd.gtladditions.client.render.machine.antichrist.ClientAnimationHelper.getClientRenderRadius
@@ -24,7 +25,8 @@ data class AntichristRenderProfile(
     val colorG: Float,
     val colorB: Float,
     val starRadius: Float,
-    val beamAlpha: Float
+    val beamAlpha: Float,
+    val starRotationDegrees: Float
 ) {
     val shouldRenderBeam: Boolean
         get() = beamAlpha > 0.001f
@@ -54,7 +56,8 @@ data class AntichristRenderProfile(
             colorG = 0f,
             colorB = 0f,
             starRadius = 0f,
-            beamAlpha = 0f
+            beamAlpha = 0f,
+            starRotationDegrees = 0f
         )
 
         fun create(
@@ -76,8 +79,15 @@ data class AntichristRenderProfile(
                 colorG = ((argb32 shr 8) and 0xFF) / 255.0f,
                 colorB = (argb32 and 0xFF) / 255.0f,
                 starRadius = BASE_STAR_RADIUS * radiusMultiplier,
-                beamAlpha = getClientBeamAlpha(machine, renderMode)
+                beamAlpha = getClientBeamAlpha(machine, renderMode),
+                starRotationDegrees = if (isWorking) RenderUtils.rotationDegrees(machine, tick, rotationSpeed(renderMode)) else 0f
             )
+        }
+
+        private fun rotationSpeed(mode: RenderMode): Double = when (mode) {
+            RenderMode.RAINBOW -> 1.7
+            RenderMode.COLLAPSING -> 2.6
+            else -> 1.0
         }
 
         private fun getRenderColorAndRadius(

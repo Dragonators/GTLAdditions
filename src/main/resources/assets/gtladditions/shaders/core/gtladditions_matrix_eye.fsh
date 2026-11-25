@@ -14,7 +14,7 @@ in vec3 vLocal, vWorld;
 uniform sampler2D uBase, uData, uNormal;
 uniform vec3 uScale, uTint, uSclera, uAbyss;
 uniform vec2 uGaze;
-uniform float uSeat, uIrisScale, uIrisDepth, uDilate, uPupilDepth, uRelief, uTime, uGlow, uRim;
+uniform float uSeat, uIrisScale, uIrisDepth, uDilate, uPupilDepth, uRelief, uAngularTime, uGlow, uRim;
 
 const float PI = 3.14159265;
 const vec3 L1 = vec3(-.3437, -.4296, .8594), L2 = vec3(.7372, .3686, .5660);
@@ -99,7 +99,7 @@ vec3 bandColor(vec2 pd, float diff, float breath) {
     vec3 deep = uTint * .05 * (.35 + .65 * diff);
     float glow = uGlow * breath;
     const float N = 28.;
-    float a = (atan(pd.y, pd.x) + uTime * .02) / 6.2831853 * N;
+    float a = (atan(pd.y, pd.x) + uAngularTime * .02) / 6.2831853 * N;
     float id = mod(floor(a), N), u = fract(a);
     float bandW = (1. - Ri) * uScale.x, arc = 6.2831853 * max(rp, Ri) * uScale.x / N;
     vec2 g = vec2((u - .5) * arc, (b - .5) * bandW) / (bandW * .62);
@@ -113,7 +113,7 @@ vec3 bandColor(vec2 pd, float diff, float breath) {
         d = min(d, seg(g, p0, p1));
     }
     float frame = min(abs(b - .12), abs(b - .88)) * bandW;
-    float flick = .75 + .25 * sin(uTime * 1.3 + id * 2.1);
+    float flick = .75 + .25 * sin(uAngularTime * 1.3 + id * 2.1);
     vec3 c = uTint * .04 * (.35 + .65 * diff);
     c += uTint * glow * flick * (exp(-d / .05) * .9 + exp(-d / .16) * .18) * step(.16, b) * step(b, .84);
     return c + uTint * glow * exp(-frame / .025) * .5;
@@ -159,7 +159,7 @@ void main() {
     float edge = smoothstep(.78, 1., tIr);
     float ao = mix(uRim < .5 ? .45 : .85, 1., (1. - smoothstep(.68, 1.02, tIr)));
     float outside = max(sd, 0.), collar = 1. - .6 * exp(-outside / .045), center = 1. - .35 * (1. - smoothstep(0., .22, tIr));
-    float breath = .9 + .1 * sin(uTime * .42);
+    float breath = .9 + .1 * sin(uAngularTime * .42);
     vec3 pigment = lin(base.rgb);
     pigment = max(mix(vec3(dot(pigment, vec3(.2126, .7152, .0722))), pigment, 1.25), 0.);
     if (uRim < .5)
@@ -202,7 +202,7 @@ void main() {
         }
         float fall = exp(-depth * 2.2);
         vec3 cav = wall ? lin(base.rgb) * .14 * fall * fall + uTint * .35 * exp(-depth * 14.) * uGlow
-                        : uAbyss * (.010 + .008 * sin(uTime * .6 + X.x * 1.7 + X.y * 1.3)) * uGlow;
+                        : uAbyss * (.010 + .008 * sin(uAngularTime * .6 + X.x * 1.7 + X.y * 1.3)) * uGlow;
         inside = mix(inside, cav, (1. - smoothstep(-.012, 0., sd)));
     }
     inside *= mix(uRim < .5 ? .35 : .75, 1., smoothstep(0., .3, vLocal.z));

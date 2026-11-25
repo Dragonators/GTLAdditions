@@ -14,7 +14,7 @@ in vec3 vLocal, vWorld;
 uniform sampler2D uBase;
 uniform vec3 uScale, uEyeScale, uTint, uSkin;
 uniform vec2 uGaze;
-uniform float uIrisScale, uDilate, uTime, uGlow, uSeam;
+uniform float uIrisScale, uDilate, uSeamPhase, uGlow, uSeam;
 
 const float PI = 3.14159265;
 const vec3 L1 = vec3(-.3437, -.4296, .8594), L2 = vec3(.7372, .3686, .5660);
@@ -68,6 +68,7 @@ vec2 irisCoord(vec2 xy) {
 }
 
 float hash3(vec3 p) {
+    p.y = mod(p.y + 512., 1024.) - 512.;
     p = fract(p * .3183099 + .1);
     p *= 17.;
     return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
@@ -118,7 +119,7 @@ void main() {
     float thin = .02 + .07 * exp(-lipS / .15);
     col += lin(ib.rgb) * ib.a * (1. - pupil) * thin * (.25 + .75 * uGlow) * tuck;
     float seamD = abs(phi - aU);
-    float along = (1. - smoothstep(.5, 1., abs(x))) * (.65 + .35 * vnoise(vec3(x * 7., uTime * .6, 3.1)));
+    float along = (1. - smoothstep(.5, 1., abs(x))) * (.65 + .35 * vnoise(vec3(x * 7., uSeamPhase, 3.1)));
     vec3 emis = uTint * uSeam * along * shut * (exp(-seamD / .010) * 1.6 + exp(-seamD / .06) * .22);
     emis += uTint * uGlow * exp(-s / .03) * .35 * (1. - shut);
     float F = .03 + .97 * pow(1. - NV, 5.);

@@ -58,11 +58,16 @@ object LightHunterShaders {
             GTLAdditions.id("gtladditions_light_hunter_paradox_model"),
             DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL
         ) { paradoxModel = it }
+        // MC 1.20.1 allocates float[10] uniforms unzeroed and only initializes element 0 via setSafe.
+        val zeroArray = FloatArray(10)
+        fun zeroUniform(shader: ShaderInstance?, name: String): ShaderInstance? =
+            shader?.also { it.getUniform(name)?.set(zeroArray) }
+
         RenderUtils.registerShader(
             event,
             GTLAdditions.id("gtladditions_light_hunter_fusion"),
             DefaultVertexFormat.POSITION_TEX_COLOR
-        ) { fusion = it }
+        ) { fusion = zeroUniform(it, "FusionNoiseOffset") }
         RenderUtils.registerShader(
             event,
             GTLAdditions.id("gtladditions_light_hunter_interior"),
@@ -72,18 +77,18 @@ object LightHunterShaders {
             event,
             GTLAdditions.id("gtladditions_light_hunter"),
             DefaultVertexFormat.POSITION_TEX_COLOR
-        ) { material = it }
+        ) { material = zeroUniform(it, "PlasmaPhase") }
         RenderUtils.registerShader(
             event,
             GTLAdditions.id("gtladditions_light_hunter_chart_field"),
             DefaultVertexFormat.POSITION_TEX_COLOR
-        ) { chartField = it }
+        ) { chartField = zeroUniform(it, "PlasmaPhase") }
         if (GL.getCapabilities().OpenGL33) {
             RenderUtils.registerShader(
                 event,
                 GTLAdditions.id("gtladditions_light_hunter_fusion_layers"),
                 DefaultVertexFormat.POSITION_TEX_COLOR
-            ) { fusionLayers = it }
+            ) { fusionLayers = zeroUniform(it, "FusionNoiseOffset") }
             RenderUtils.registerShader(
                 event,
                 GTLAdditions.id("gtladditions_light_hunter_paradox_layers"),
@@ -93,7 +98,7 @@ object LightHunterShaders {
                 event,
                 GTLAdditions.id("gtladditions_light_hunter_layers"),
                 DefaultVertexFormat.POSITION_TEX_COLOR
-            ) { layers = it }
+            ) { layers = zeroUniform(it, "PlasmaPhase") }
         }
     }
 

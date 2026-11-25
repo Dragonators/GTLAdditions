@@ -5,6 +5,7 @@ import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.machine.heart.HeartLayerImages
 import com.gtladd.gtladditions.common.machine.multiblock.controller.LightHunterSpaceStation
+import com.gtladd.gtladditions.utils.animation.ClientAnimationClock
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
@@ -29,6 +30,7 @@ import org.lwjgl.opengl.GL14C
 import org.lwjgl.opengl.GL30C
 import org.lwjgl.opengl.GL33C
 import org.lwjgl.system.MemoryUtil
+import kotlin.math.PI
 import kotlin.math.floor
 
 @OnlyIn(Dist.CLIENT)
@@ -36,11 +38,22 @@ object LightHunterVfxRenderer {
     // Shader-only material selector; the body reuses the existing SHIELDS mesh.
     private const val SHIELD_FIELD_EFFECT = 7
     internal val meshes = Meshes()
-    private var smoothFrameTick: Float? = null
+    internal val animationClock = ClientAnimationClock()
+    private var smoothFrameTick: Double? = null
 
-    fun sampleAnimationTick(smoothAnimations: Boolean, sample: () -> Float): Float {
-        if (!smoothAnimations) return sample()
-        return smoothFrameTick ?: sample().also { smoothFrameTick = it }
+    fun sampleAnimationTick(smoothAnimations: Boolean, sample: () -> Double): Double {
+        if (smoothAnimations) smoothFrameTick?.let { return it }
+        val source = sample()
+        val tick = animationClock.sampleOrStart(source, smoothAnimations, 0.0)
+        smoothFrameTick = if (smoothAnimations) tick else null
+        return tick
+    }
+
+    private fun setMaterialTime(shader: ShaderInstance, tick: Double) {
+        val seconds = tick / 20.0
+        // The angular rates in the ring, shield and navigation panel are integer hundredths.
+        shader.getUniform("AngularTime")?.set((seconds % (200.0 * PI)).toFloat())
+        shader.getUniform("ShieldOffset")?.set((seconds * -0.32 % 1024.0).toFloat(), (seconds * 0.14 % 1024.0).toFloat())
     }
 
     fun beginFrame() {
@@ -49,7 +62,7 @@ object LightHunterVfxRenderer {
         LightHunterFusionRenderer.meshes.beginFrame()
     }
 
-    fun enqueue(blockEntity: BlockEntity, machine: LightHunterSpaceStation, tick: Float) {
+    fun enqueue(blockEntity: BlockEntity, machine: LightHunterSpaceStation, tick: Double) {
         val frame = SceneRendering.frame() ?: return
         val entry = Entry(
             blockEntity,
@@ -80,7 +93,7 @@ object LightHunterVfxRenderer {
     internal data class Entry(
         val blockEntity: BlockEntity,
         val machine: LightHunterSpaceStation,
-        val tick: Float,
+        val tick: Double,
         val paradoxSeconds: Float? = null
     ) {
         // Set by this frame's OPAQUE pass, which runs before the composition draws the window.
@@ -96,7 +109,7 @@ object LightHunterVfxRenderer {
         shader: ShaderInstance,
         modelView: Matrix4f,
         projection: Matrix4f,
-        tick: Float,
+        tick: Double,
         depth: Int,
         count: Int,
         base: Int,
@@ -127,7 +140,7 @@ object LightHunterVfxRenderer {
             shader.getUniform("LayerMode")?.set(if (local) 1 else 0)
             shader.getUniform("LayerOrigin")?.set(if (local) rect[0].toFloat() else 0f, if (local) rect[1].toFloat() else 0f)
             shader.getUniform("LayerRect")?.set(rect[0].toFloat(), rect[1].toFloat(), rect[2].toFloat(), rect[3].toFloat())
-            shader.getUniform("Time")?.set(tick / 20f)
+            setMaterialTime(shader, tick)
             // ShaderInstance may retain this blend mode after another pass disables blending.
             // Ordered draws must establish the same premultiplied state as the offscreen bins.
             RenderSystem.enableBlend()
@@ -166,7 +179,7 @@ object LightHunterVfxRenderer {
         fieldShader: ShaderInstance?,
         modelView: Matrix4f,
         projection: Matrix4f,
-        tick: Float,
+        tick: Double,
         layerMask: Int,
         paradoxSeconds: Float
     ) {
@@ -197,10 +210,10 @@ object LightHunterVfxRenderer {
                 }
 
                 if (fieldShader != null) {
+                    setMaterialTime(fieldShader, tick)
                     // Transmitting blue film first; emissive chart marks then remain legible over its tint.
                     if (layerMask and (1 shl LightHunterVfxGeometry.CHART_FIELD) != 0) {
                         RenderSystem.defaultBlendFunc()
-                        fieldShader.getUniform("Time")?.set(tick / 20f)
                         fieldShader.getUniform("Effect")?.set(LightHunterVfxGeometry.CHART_FIELD)
                         val film = meshes.buffer(LightHunterVfxGeometry.CHART_FIELD)
                         RenderUtils.withBoundBuffer(film) { film.drawWithShader(modelView, projection, fieldShader) }
@@ -208,7 +221,6 @@ object LightHunterVfxRenderer {
 
                     if (layerMask and (1 shl LightHunterVfxGeometry.SHIELDS) != 0) {
                         RenderSystem.defaultBlendFunc()
-                        fieldShader.getUniform("Time")?.set(tick / 20f)
                         fieldShader.getUniform("Effect")?.set(SHIELD_FIELD_EFFECT)
                         val shields = meshes.buffer(LightHunterVfxGeometry.SHIELDS)
                         RenderUtils.withBoundBuffer(shields) { shields.drawWithShader(modelView, projection, fieldShader) }
@@ -216,7 +228,7 @@ object LightHunterVfxRenderer {
                 }
 
                 RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE)
-                shader.getUniform("Time")?.set(tick / 20f)
+                setMaterialTime(shader, tick)
 
                 for (layer in 0 until LightHunterVfxGeometry.LAYERS) {
                     if (layer == LightHunterVfxGeometry.CHART_FIELD || layerMask and (1 shl layer) == 0) continue
@@ -262,10 +274,10 @@ object LightHunterVfxRenderer {
         fun beginFrame() = plasmaField.beginFrame()
 
         /** Bind the returned 3D texture on unit 2 while consuming it. */
-        fun preparePlasmaField(shader: ShaderInstance, tick: Float): Int {
+        fun preparePlasmaField(shader: ShaderInstance, tick: Double): Int {
             val noise = plasmaNoise.bind(shader)
             val useField = shader.getUniform("UsePlasmaField") ?: return 0
-            val field = plasmaField.prepare(noise, tick)
+            val field = plasmaField.prepare(shader, noise, tick)
             shader.getUniform("PlasmaField")?.set(2)
             useField.set(if (field != 0) 1 else 0)
 
@@ -358,6 +370,7 @@ object LightHunterVfxLifecycle {
     @JvmStatic
     fun onLevelUnload(event: LevelEvent.Unload) {
         if (event.level.isClientSide) {
+            LightHunterVfxRenderer.animationClock.clear()
             LightHunterParadoxAnimation.clear()
             LightHunterVfxRenderer.releaseBuffers()
         }

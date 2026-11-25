@@ -17,27 +17,27 @@ import kotlin.math.sin
 
 @OnlyIn(Dist.CLIENT)
 object LightHunterInteriorRenderer {
-    const val FAN_REVOLUTION_TICKS = 80f
-    const val DISPLAY_SCAN_TICKS = 160f
+    const val FAN_REVOLUTION_TICKS = 80.0
+    const val DISPLAY_SCAN_TICKS = 160.0
     private val meshes = Meshes()
 
-    internal fun draw(modelView: Matrix4f, projection: Matrix4f, tick: Float): Boolean {
+    internal fun draw(modelView: Matrix4f, projection: Matrix4f, tick: Double): Boolean {
         val shader = LightHunterShaders.interior ?: return false
         draw(meshes, shader, modelView, projection, tick)
         return true
     }
 
-    fun draw(meshes: Meshes, shader: ShaderInstance, modelView: Matrix4f, projection: Matrix4f, tick: Float) {
+    fun draw(meshes: Meshes, shader: ShaderInstance, modelView: Matrix4f, projection: Matrix4f, tick: Double) {
         RenderUtils.withSavedRenderState {
             RenderSystem.enableDepthTest()
             RenderSystem.depthFunc(GL11C.GL_LEQUAL)
             RenderSystem.depthMask(true)
             RenderSystem.enableCull()
             RenderSystem.disableBlend()
-            val angle = (tick % FAN_REVOLUTION_TICKS) * (2 * PI / FAN_REVOLUTION_TICKS).toFloat()
-            shader.getUniform("FanRotation")?.set(cos(angle), sin(angle))
+            val angle = (tick % FAN_REVOLUTION_TICKS) * (2 * PI / FAN_REVOLUTION_TICKS)
+            shader.getUniform("FanRotation")?.set(cos(angle).toFloat(), sin(angle).toFloat())
             shader.getUniform("FanCenters")?.set(LightHunterInteriorGeometry.fanPositions[0], LightHunterInteriorGeometry.fanPositions[1])
-            shader.getUniform("DisplayTime")?.set((tick % DISPLAY_SCAN_TICKS) / 20f)
+            shader.getUniform("DisplayTime")?.set(((tick % DISPLAY_SCAN_TICKS) / 20.0).toFloat())
             val buffer = meshes.buffer()
             RenderUtils.withBoundBuffer(buffer) { buffer.drawWithShader(modelView, projection, shader) }
         }

@@ -46,7 +46,7 @@ class AntientropyCondensationRenderer :
             return
         }
 
-        val flowPhase = ((RenderUtils.getSmoothTickDouble(machine, partialTicks) % 80.0) / 20.0).toFloat()
+        val flowPhase = ((RenderUtils.getContinuousRenderTick(machine, partialTicks) % 80.0) / 20.0).toFloat()
         CondensationCoreRenderer.submit(blockEntity, machine, machine.condensationEffects.animationTicks(partialTicks), flowPhase)
     }
 

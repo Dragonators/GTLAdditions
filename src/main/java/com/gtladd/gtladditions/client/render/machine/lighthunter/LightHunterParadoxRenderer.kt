@@ -60,7 +60,7 @@ object LightHunterParadoxRenderer {
         modelView: Matrix4f,
         projection: Matrix4f,
         seconds: Float,
-        animationTick: Float,
+        animationTick: Double,
         key: Any
     ): Boolean {
         if (LightHunterParadoxTiming.window(seconds).reveal < 1f) return false
@@ -83,7 +83,7 @@ object LightHunterParadoxRenderer {
         modelView: Matrix4f,
         projection: Matrix4f,
         seconds: Float,
-        animationTick: Float,
+        animationTick: Double,
         key: Any,
         layered: Boolean,
         writeAlpha: Boolean,
@@ -100,7 +100,7 @@ object LightHunterParadoxRenderer {
                 samplers.indices.forEach { GL33C.glBindSampler(it, 0) }
                 val windowView = LightHunterParadoxModels.windowView(modelView)
                 val eye = windowView.eye
-                val angle = ((animationTick.toDouble() / 20.0 * LightHunterParadoxTiming.ROTATION_DEGREES_PER_SECOND) % 360.0 * PI / 180.0)
+                val angle = ((animationTick / 20.0 * LightHunterParadoxTiming.ROTATION_DEGREES_PER_SECOND) % 360.0 * PI / 180.0)
                     .toFloat()
                 val texture = if (assets != null) meshes.models().prepare(key, modelShader, assets, eye, angle) else 0
                 shader.setSampler("PortalMap", texture)

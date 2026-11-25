@@ -59,11 +59,9 @@ internal object RrfEffectRenderer {
     fun submit(blockEntity: BlockEntity, machine: MultiblockControllerMachine, kind: RrfEffectKind, partialTicks: Float) {
         val frame = SceneRendering.frame() ?: return
         val array = kind == RrfEffectKind.ARRAY
-        val ticks = if (ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) {
-            frame.renderTicks
-        } else {
-            RenderUtils.getSmoothTickDouble(machine, partialTicks)
-        }
+        val smooth = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
+        val source = if (smooth) frame.renderTicks else machine.offsetTimer.toDouble() + partialTicks
+        val ticks = RenderUtils.continuousRenderTick(machine, source, smooth)
 
         val placement = RrfEffectPlacement(machine.frontFacing, machine.upwardsFacing, machine.isFlipped, array)
         val renderer = if (array) ArrayParts else ModuleParts

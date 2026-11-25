@@ -149,8 +149,7 @@ object CommonUtils {
     ).withStyle(ChatFormatting.OBFUSCATED)
 
     private fun formattingComponent(component: MutableComponent, colours: Array<ChatFormatting>): MutableComponent {
-        val delay = 200.0
-        val offset = floor((System.currentTimeMillis() and 0x3FFFL) / delay).toInt() % colours.size
+        val offset = ((System.currentTimeMillis() / 200L) % colours.size).toInt()
         val color = colours[offset]
 
         return component.withStyle(color)

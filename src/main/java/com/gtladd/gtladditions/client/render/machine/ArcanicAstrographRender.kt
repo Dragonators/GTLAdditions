@@ -43,7 +43,7 @@ class ArcanicAstrographRender :
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? ArcanicAstrograph ?: return
         if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.isActive) return
 
-        val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
+        val tick = RenderUtils.getContinuousRenderTick(machine, partialTicks)
         val facing = machine.frontFacing
         // The level's own source, wrapped by Iris under a shaderpack; shadows, breaking overlays and custom sources are not.
         val mainView = !ShadowRenderingState.areShadowsCurrentlyBeingRendered() && BlockEntityDispatch.isMainView(blockEntity)

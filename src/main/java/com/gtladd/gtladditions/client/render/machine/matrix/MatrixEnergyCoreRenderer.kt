@@ -138,7 +138,20 @@ internal object MatrixEnergyCoreRenderer : LayeredPartRenderer<MatrixEnergyCore>
         val modelView = pose.last().pose()
         val eye = Matrix4f(modelView).invert().transformPosition(Vector3f())
         shader.getUniform("CameraPosition")?.set(eye.x, eye.y, eye.z)
-        shader.getUniform("Phase")?.set((ticks / 20.0 + PHASE_OFFSET).toFloat())
+        val phase = ticks / 20.0 + PHASE_OFFSET
+        val t = phase * 1.05
+        shader.getUniform("CircuitPhase")?.set(RenderUtils.rotationRadians(phase * 2.4))
+        // All angular velocities in the volume are integer hundredths of a radian per second.
+        shader.getUniform("VolumePhase")?.set((t % (200.0 * Math.PI)).toFloat())
+        fun cloudOffset(name: String, scale: Double) {
+            shader.getUniform(name)?.set(
+                ((t * -0.20 * scale) % 1024.0).toFloat(),
+                ((t * 0.17 * scale) % 1024.0).toFloat(),
+                ((t * 0.12 * scale) % 1024.0).toFloat()
+            )
+        }
+        cloudOffset("CloudOffset", 1.0)
+        cloudOffset("CloudDetailOffset", 2.07)
         shader.getUniform("SurfaceCoverage")?.set(SURFACE_COVERAGE)
         shader.getUniform("InteriorStrength")?.set(INTERIOR_STRENGTH)
         RenderSystem.setShaderTexture(0, texture)

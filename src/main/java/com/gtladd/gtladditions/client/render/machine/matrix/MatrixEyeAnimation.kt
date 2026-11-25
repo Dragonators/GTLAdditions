@@ -16,7 +16,7 @@ class MatrixEyeAnimation {
         val seam: Float,
         val shroud: Float,
         val stir: Float,
-        val swirl: Float,
+        val swirl: Double,
         val rise: Float,
         val gazeX: Float,
         val gazeY: Float,
@@ -88,7 +88,8 @@ class MatrixEyeAnimation {
 
         val c = current()
         swirl += dt * (0.035 + 0.30 * c.stir)
-        rise += dt * (0.10 + 0.60 * c.stir)
+        // The atlas reads rise at 0.03, 0.05, 0.11 and 0.24 turns per block.
+        rise = (rise + dt * (0.10 + 0.60 * c.stir)) % 100.0
         val gaze = gaze(elapsed)
         return Frame(
             elapsed,
@@ -98,7 +99,7 @@ class MatrixEyeAnimation {
             (c.seam * (0.72 + 0.28 * sin(elapsed * 0.9))).toFloat(),
             c.shroud.toFloat(),
             c.stir.toFloat(),
-            swirl.toFloat(),
+            swirl,
             rise.toFloat(),
             gaze.first,
             gaze.second,

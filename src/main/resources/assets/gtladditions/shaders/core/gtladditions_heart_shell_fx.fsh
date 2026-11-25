@@ -4,7 +4,8 @@
 
 uniform sampler2D Sampler0;
 uniform sampler2D Sampler1;
-uniform float Time;
+uniform float SweepPhase;
+uniform float WarmPhase;
 uniform float CircuitTime;
 uniform float Power;
 uniform float Gap;
@@ -125,7 +126,7 @@ void main() {
     float dist = length(LocalPos);
     float facing = dot(n, -LocalPos / dist);
     bool collector = (flags & 1) != 0;
-    vec3 warm = vec3(1.0, 0.76, 0.52) * (0.92 + 0.08 * sin(Time * 2.3));
+    vec3 warm = vec3(1.0, 0.76, 0.52) * (0.92 + 0.08 * sin(WarmPhase));
     vec3 add = base * warm * (0.55 + 0.45 * max(facing, 0.0)) * pow(40.0 / dist, 0.85) * 0.75 * Power
         * smoothstep(-0.25, 0.15, facing) * (collector ? 1.0 : 0.3) * LIT * (Layer < 1.5 ? INNER_LIT : 1.0);
 
@@ -178,7 +179,7 @@ void main() {
     }
 
     float ringA = MaxAngle - plateAngle;
-    float ringH = fract(Time / 5.0 - (Layer - 1.0) * 0.09) * (MaxAngle + 0.9) - 0.3;
+    float ringH = fract(SweepPhase - (Layer - 1.0) * 0.09) * (MaxAngle + 0.9) - 0.3;
     float ring = exp(-pow((ringA - ringH) / 0.30, 2.0)) * Power;
     if ((flags & 8) != 0) add += base * ring * 0.9;
 

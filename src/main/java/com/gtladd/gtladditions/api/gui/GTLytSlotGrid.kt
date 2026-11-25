@@ -235,13 +235,13 @@ class GTLytSlotGrid(private val width: Int, private val itemHeight: Int, fluidHe
         private fun getDisplayedItemStack(stacks: Array<ItemStack>) = if (stacks.isEmpty()) {
             ItemStack.EMPTY
         } else {
-            stacks[(System.nanoTime() / TimeUnit.MILLISECONDS.toNanos(2000L) % stacks.size.toLong()).toInt()]
+            stacks[Math.floorMod(System.nanoTime() / TimeUnit.MILLISECONDS.toNanos(2000L), stacks.size.toLong()).toInt()]
         }
 
         private fun getDisplayedFluidStack(stacks: Array<FluidStack>) = if (stacks.isEmpty()) {
             FluidStack.empty()
         } else {
-            stacks[(System.nanoTime() / TimeUnit.MILLISECONDS.toNanos(2000L) % stacks.size.toLong()).toInt()]
+            stacks[Math.floorMod(System.nanoTime() / TimeUnit.MILLISECONDS.toNanos(2000L), stacks.size.toLong()).toInt()]
         }
     }
 

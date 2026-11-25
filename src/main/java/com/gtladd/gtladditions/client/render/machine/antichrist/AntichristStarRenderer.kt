@@ -1,7 +1,6 @@
 package com.gtladd.gtladditions.client.render.machine.antichrist
 
 import com.gtladd.gtladditions.GTLAdditions
-import com.gtladd.gtladditions.client.RenderMode
 import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.client.render.withPose
 import com.mojang.blaze3d.systems.RenderSystem
@@ -61,13 +60,7 @@ object AntichristStarRenderer {
         baseRotation: Float,
         alpha: Float
     ) {
-        val rotationSpeedMultiplier = when (profile.renderMode) {
-            RenderMode.RAINBOW -> 1.7f
-            RenderMode.COLLAPSING -> 2.6f
-            else -> 1.0f
-        }
-
-        val rotationDegrees = ((baseRotation + profile.tick * rotationSpeedMultiplier) % 360.0).toFloat()
+        val rotationDegrees = baseRotation + profile.starRotationDegrees
 
         poseStack.withPose {
             translate(profile.starPos.x, profile.starPos.y, profile.starPos.z)

@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.machine.MetaMachine
 import com.gtladd.gtladditions.GTLAdditions
 import com.gtladd.gtladditions.mixin.gtlcore.client.GlobalRenderClockAccessor
 import com.gtladd.gtladditions.mixin.minecraft.client.BlendModeAccessor
+import com.gtladd.gtladditions.utils.animation.ClientAnimationClock
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferBuilder
@@ -32,6 +33,7 @@ import org.lwjgl.opengl.GL15C
 import org.lwjgl.opengl.GL20C
 import org.lwjgl.opengl.GL21C
 import org.lwjgl.opengl.GL30C
+import java.util.WeakHashMap
 import kotlin.math.*
 
 @Suppress("DuplicatedCode", "SameParameterValue")
@@ -41,8 +43,34 @@ object RenderUtils {
     /** Uses Core's pause-aware nanosecond clock. */
     fun getSmoothTickDouble(): Double = GlobalRenderClockAccessor.invokeGetElapsedNanos() / 50_000_000.0
 
+    private val renderClocks = WeakHashMap<MetaMachine, ClientAnimationClock>()
+    private val rotations = WeakHashMap<MetaMachine, Rotation>()
+    private class Rotation(var tick: Double, var angle: Double, var speed: Double)
+
+    /** Preserve the machine's current phase when the clock origin changes. */
+    fun getContinuousRenderTick(machine: MetaMachine, partialTick: Float): Double {
+        val smooth = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
+        val source = if (smooth) getSmoothTickDouble() else machine.offsetTimer.toDouble() + partialTick
+        return continuousRenderTick(machine, source, smooth)
+    }
+
+    /** Raw sample for animations which own their clock and handle a mode change themselves. */
     fun getSmoothTickDouble(machine: MetaMachine, partialTick: Float): Double =
         if (ConfigHolder.INSTANCE.graphics.enableSmoothAnimations) getSmoothTickDouble() else machine.offsetTimer.toDouble() + partialTick
+
+    internal fun continuousRenderTick(machine: MetaMachine, source: Double, smooth: Boolean): Double = renderClocks.getOrPut(machine, ::ClientAnimationClock).sampleOrStart(source, smooth, source)
+
+    /** Anchor a new rotation rate at the angle reached under the previous one. */
+    internal fun rotationDegrees(machine: MetaMachine, tick: Double, speed: Double): Float {
+        val state = rotations.getOrPut(machine) { Rotation(tick, (tick * speed) % 360.0, speed) }
+        val angle = (state.angle + (tick - state.tick) * state.speed) % 360.0
+        if (state.speed != speed) {
+            state.tick = tick
+            state.angle = angle
+            state.speed = speed
+        }
+        return angle.toFloat()
+    }
 
     // Narrow only a bounded final angle, so float matrices retain sub-frame motion in old worlds.
     fun rotationRadians(angle: Double): Float = angle.IEEErem(2 * PI).toFloat()

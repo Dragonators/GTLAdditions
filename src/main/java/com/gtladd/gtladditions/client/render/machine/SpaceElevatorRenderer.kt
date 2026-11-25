@@ -42,7 +42,7 @@ class SpaceElevatorRenderer(
         val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? SpaceElevatorMachine ?: return
         if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.isFormed) return
 
-        val ticks = RenderUtils.getSmoothTickDouble(machine, partialTicks)
+        val ticks = RenderUtils.getContinuousRenderTick(machine, partialTicks)
         // The shaft is the column three blocks behind the controller; the cable stands on the power core below it.
         val x = when (machine.frontFacing) {
             Direction.WEST -> 3.5

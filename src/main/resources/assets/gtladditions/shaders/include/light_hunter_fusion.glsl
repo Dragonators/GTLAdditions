@@ -2,7 +2,7 @@ uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
 uniform sampler2D SceneDepth;
 uniform vec2 SceneViewport;
-uniform float Time;
+uniform vec2 FusionAngles;
 uniform float Seconds;
 in vec3 localPosition;
 flat in vec3 localEye;
@@ -22,10 +22,10 @@ uniform sampler3D FusionField;
 uniform int UseFusionField;
 uniform vec2 FusionFieldOrigin;
 float sampleFusionWisp(float angle,float radial,float x){
-    if(UseFusionField==0)return fusionWispNoise(angle,radial,x,Time);
+    if(UseFusionField==0)return fusionWispDensity(fusionWispAtBase(angle-FusionAngles.x,radial,x*1.4));
     vec3 size=vec3(textureSize(FusionField,0));
-    float axialCell=(x*1.4-Time*.28-FusionFieldOrigin.x)/.078125+FusionFieldOrigin.y;
-    vec3 address=vec3((angle-Time*.055)/TAU+.5/size.x,
+    float axialCell=x*1.4/.078125+FusionFieldOrigin.x+FusionFieldOrigin.y;
+    vec3 address=vec3((angle-FusionAngles.x)/TAU+.5/size.x,
         ((radial+.90)/1.80*(size.y-1.0)+.5)/size.y,(axialCell+.5)/size.z);
     return fusionWispDensity(textureLod(FusionField,address,0.0).rg);
 }
@@ -59,7 +59,7 @@ vec3 coronaField(float angle,float radial,float x){
         float shoulder=exp(-radial*radial/.28-x*x/3.6);
         wisp=shoulder*sampleFusionWisp(angle,radial,x);
     }
-    float center=radial+.012*sin(angle*35.0-Time*.45);
+    float center=radial+.012*sin(angle*35.0-FusionAngles.y);
     float core=exp(-(x*x*2.2+center*center)/(.06075*1.75*1.75));
     float hot=exp(-(x*x*.9+center*center)/(.095*1.6*1.6));
     vec3 light=(vec3(.82,.93,1.0)*core*(6.666667/1.75)+vec3(.035,.40,1.0)*hot*(.30/1.6))*tubeGate*chargePulse;

@@ -82,7 +82,7 @@ void main() {
         color = mix(vec3(0.42,0.64,0.73), vec3(0.84,0.94,1.0), edge);
     } else if (material == INTERIOR_DIFFUSER) {
         float phase = fract(localPosition.x / 32.0 - DisplayTime / 8.0);
-        float wave = exp(-(1.0 - phase) * 4.0) * smoothstep(1.0, 0.96, phase);
+        float wave = exp(-(1.0 - phase) * 4.0) * (1.0 - smoothstep(0.96, 1.0, phase));
         color = mix(vec3(0.78,0.89,0.98), vec3(1.0), wave) + grain * 0.012;
     } else if (material == INTERIOR_RECESS) {
         color = fanBacklight();

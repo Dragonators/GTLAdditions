@@ -564,8 +564,9 @@ object HeartShellRenderer : PartRenderer<HeartShellRenderer.Overlay> {
                 for (part in parts) {
                     val overlay = part.payload
                     val time = overlay.time
-                    shader.getUniform("Time")?.set(time.toFloat())
-                    shader.getUniform("CircuitTime")?.set((time * CIRCUIT_SPEED % (GAP * 3600.0)).toFloat())
+                    shader.getUniform("SweepPhase")?.set(((time / 5.0) % 1.0).toFloat())
+                    shader.getUniform("WarmPhase")?.set(RenderUtils.rotationRadians(time * 2.3))
+                    shader.getUniform("CircuitTime")?.set((time * CIRCUIT_SPEED % GAP).toFloat())
                     shader.getUniform("Power")?.set(overlay.ease.toFloat())
                     shader.getUniform("Gap")?.set(GAP.toFloat())
                     shader.getUniform("Kappa")?.set(kappa.toFloat())

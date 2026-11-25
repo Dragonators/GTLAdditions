@@ -1,10 +1,5 @@
 #version 150
 
-#ifdef GL_ARB_conservative_depth
-#extension GL_ARB_conservative_depth : enable
-layout(depth_greater) out float gl_FragDepth;
-#endif
-
 // The Starkiller base: unit radius, weapon on +x, pole +z; positions are camera-relative world coordinates.
 // Vertex colours are sRGB; Sampler2 and Sampler3 hold the worn-metal picture and its normals, projected along the base's axes.
 #moj_import <gtladditions:heart_scene_hand.glsl>
@@ -16,7 +11,7 @@ uniform sampler2D Sampler3;
 uniform mat4 ModelMat;
 uniform vec3 Center;
 uniform float Power;
-uniform float Time;
+uniform float BreathPhase;
 uniform float Role;
 uniform float Metal;
 uniform float Rough;
@@ -71,7 +66,7 @@ void main() {
     vec3 v = normalize(-WorldPos);
     float nl = max(dot(n, l), 0.0);
     float mu = max(dot(n, v), 0.0);
-    float breath = 0.97 + 0.03 * sin(Time * 1.3);
+    float breath = 0.97 + 0.03 * sin(BreathPhase);
     float glow = 0.1 + 0.9 * Power;
     bool ice = Role > 0.5 && Role < 1.5;
     // Derivatives in uniform control flow, before any branch.
@@ -146,7 +141,7 @@ void main() {
 
     if (sceneHandOccluded(gl_FragCoord.xy)) discard;
 
-    // Round the interpolated depth once per pixel; the raster depth remains the lower bound for early rejection.
+    // Round the interpolated depth once per pixel without pulling fragments closer than the raster depth.
     float depth = gl_DepthRange.far - 0.5 * gl_DepthRange.diff * ClipDepthFromFar * gl_FragCoord.w;
     gl_FragDepth = max(gl_FragCoord.z, depth);
     fragColor = vec4(color, 1.0);

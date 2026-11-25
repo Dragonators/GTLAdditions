@@ -59,7 +59,7 @@ vec4 navigationPanel() {
     radar = max(radar, max(navStroke(q.x, 0.002), navStroke(q.y, 0.002)) * 0.20 * (1.0 - smoothstep(0.63, 0.66, radius)));
     vec2 grid = abs(fract(q / 0.22 + 0.5) - 0.5) * 0.22;
     radar = max(radar, navStroke(min(grid.x, grid.y), 0.0013) * 0.11 * (1.0 - smoothstep(0.62, 0.65, radius)));
-    vec2 scan = vec2(cos(Time * 0.38), sin(Time * 0.38));
+    vec2 scan = vec2(cos(AngularTime * 0.38), sin(AngularTime * 0.38));
     float sweep = navStroke(q.x * scan.y - q.y * scan.x, 0.006);
     sweep *= step(0.0, dot(q, scan)) * (1.0 - smoothstep(0.61, 0.66, radius));
     radar = max(radar, sweep * 0.68);
@@ -75,7 +75,7 @@ vec4 navigationPanel() {
         wire = max(wire, navStroke(navBox(p, center, vec2(0.25, 0.14)), 0.004) * 0.48);
         for (int bar = 0; bar < 6; ++bar) {
             vec2 b = center + vec2(-0.18 + float(bar) * 0.071, -0.015);
-            float h = 0.035 + 0.035 * sin(float(bar * 3 + row) + Time * 0.6);
+            float h = 0.035 + 0.035 * sin(float(bar * 3 + row) + AngularTime * 0.6);
             wire = max(wire, navSegment(p, b - vec2(0.0, h), b + vec2(0.0, h), 0.011) * 0.55);
         }
     }

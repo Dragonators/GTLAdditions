@@ -1,4 +1,5 @@
-uniform float Time;
+uniform float AngularTime;
+uniform vec2 ShieldOffset;
 uniform int Effect;
 in vec2 uv;
 in vec4 tint;
@@ -19,12 +20,15 @@ const float SHIELD_TINT_ALPHA = 0.66;
 float shieldHash(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
+float shieldLatticeHash(vec2 cell) {
+    return shieldHash(mod(cell + 512.0, 1024.0) - 512.0);
+}
 float shieldNoise(vec2 p) {
     vec2 cell = floor(p);
     vec2 f = fract(p);
     f = f * f * (3.0 - 2.0 * f);
-    return mix(mix(shieldHash(cell), shieldHash(cell + vec2(1.0, 0.0)), f.x),
-        mix(shieldHash(cell + vec2(0.0, 1.0)), shieldHash(cell + vec2(1.0, 1.0)), f.x), f.y);
+    return mix(mix(shieldLatticeHash(cell), shieldLatticeHash(cell + vec2(1.0, 0.0)), f.x),
+        mix(shieldLatticeHash(cell + vec2(0.0, 1.0)), shieldLatticeHash(cell + vec2(1.0, 1.0)), f.x), f.y);
 }
 // Local hex coordinates in xy, quantized lattice centre in zw.
 vec4 shieldHexCell(vec2 p) {
@@ -169,7 +173,7 @@ vec4 auxiliaryVolume(vec3 origin, vec3 direction, vec2 hit) {
         if (radial >= 1.0) continue;
         float edge = 1.0 - smoothstep(0.72, 1.0, radial);
         float life = pow(1.0 - u, 1.6) * (1.0 - smoothstep(0.62, 1.0, u));
-        float flow = 0.92 + 0.08 * sin(q.x * 1.4 - Time * 8.0);
+        float flow = 0.92 + 0.08 * sin(q.x * 1.4 - AngularTime * 8.0);
         float density = exp(-radial * radial * 5.0) * edge * life * flow;
         vec3 color = mix(vec3(0.14, 0.40, 1.30), vec3(0.50, 0.90, 1.42), exp(-u * 4.5));
         color = mix(color, vec3(0.90, 1.04, 1.30), exp(-radial * radial * 13.0) * (1.0 - u) * (1.0 - u) * 0.50);
@@ -262,10 +266,9 @@ void materialMain() {
         float rim = 1.0 - smoothstep(0.015, 0.11, border);
         float fresnel = shieldFresnel();
         if (Effect == SHIELD_FIELD_EFFECT) {
-            float t = Time * SHIELD_CHARGE_SPEED;
-            float field = shieldNoise(surface * 0.085 + vec2(-t * 0.08, t * 0.035));
+            float field = shieldNoise(surface * 0.085 + ShieldOffset);
             color = mix(vec3(0.02, 0.08, 0.38), vec3(0.035, 0.16, 0.62), field);
-            float charge = shieldCharge(shieldHexCell(surface / SHIELD_CELL_SIZE).zw, Time).x;
+            float charge = shieldCharge(shieldHexCell(surface / SHIELD_CELL_SIZE).zw, AngularTime).x;
             color = mix(color, vec3(0.06, 0.26, 0.74), charge * 0.16);
             color = mix(color, vec3(0.06, 0.22, 0.86), max(rim, fresnel) * 0.40);
             a = (0.27 + field * 0.08 + rim * 0.16 + fresnel * 0.20) * interior * tint.a / SHIELD_TINT_ALPHA;
@@ -275,7 +278,7 @@ void materialMain() {
         float seam = exp(-border / max(0.01, fwidth(border) * 1.2));
         float glow = exp(-border * 30.0);
         float ridge = exp(-abs(panelUv.y - 0.5) * 90.0);
-        float scan = pow(0.5 + 0.5 * sin(panelUv.x * 28.0 - Time * 0.65), 32.0);
+        float scan = pow(0.5 + 0.5 * sin(panelUv.x * 28.0 - AngularTime * 0.65), 32.0);
         float cells = pow(0.5 + 0.5 * sin(panelUv.x * 87.0 + sin(abs(panelUv.y - 0.5) * 40.0)), 16.0);
         a = mix(0.045, 0.022, interior) + seam * 0.85 + glow * 0.30 + ridge * 0.12;
         a += scan * 0.035 * (1.0 - interior) + cells * 0.02 * (1.0 - interior);
@@ -284,7 +287,7 @@ void materialMain() {
         color = mix(vec3(0.26, 0.42, 1.0), vec3(0.64, 0.76, 1.0), seam);
         color *= 1.45;
         // Model-space cells share one scale on all plates and stay fixed while charge moves.
-        vec4 honeycomb = shieldHoneycomb(surface, Time, max(rim, fresnel * 0.6));
+        vec4 honeycomb = shieldHoneycomb(surface, AngularTime, max(rim, fresnel * 0.6));
         float faceAlpha = honeycomb.a * interior * tint.a / SHIELD_TINT_ALPHA;
         if (faceAlpha > 0.0) {
             float edgeAlpha = clamp(a * tint.a, 0.0, 1.0);
@@ -303,7 +306,7 @@ void materialMain() {
         float d = dot(p, p);
         a = exp(-d * 16.0) + 0.2 * exp(-d * 3.0);
         a += 0.45 * exp(-abs(p.x * p.y) * 100.0) * exp(-d * 2.5);
-        a *= 0.85 + 0.15 * sin(Time * 1.1 + tint.b * 13.0);
+        a *= 0.85 + 0.15 * sin(AngularTime * 1.1 + tint.b * 13.0);
         color = mix(color, vec3(0.78, 0.96, 1.0), exp(-d * 30.0)) * 1.8;
     } else if (Effect == 5) {
         materialColor = refinedRoot();
@@ -312,7 +315,7 @@ void materialMain() {
         vec2 p = (uv - 0.5) * 2.0;
         float r = length(p);
         float edge = 1.0 - smoothstep(0.965, 1.0, r);
-        float drift = 0.5 + 0.5 * sin(p.x * 3.0 + p.y * 2.0 - Time * 0.16);
+        float drift = 0.5 + 0.5 * sin(p.x * 3.0 + p.y * 2.0 - AngularTime * 0.16);
         a = (0.28 + 0.04 * drift) * edge;
         color = mix(vec3(0.08, 0.28, 0.78), vec3(0.14, 0.46, 0.96), 0.5 + p.x * 0.5);
     }

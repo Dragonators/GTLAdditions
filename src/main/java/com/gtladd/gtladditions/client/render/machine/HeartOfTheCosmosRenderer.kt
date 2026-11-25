@@ -23,6 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import org.gtlcore.gtlcore.GTLCore
 import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.common.data.GTLBlocks.IRIDIUM_CASING
+import org.gtlcore.gtlcore.config.ConfigHolder
 
 class HeartOfTheCosmosRenderer :
     PartWorkableCasingMachineRenderer(
@@ -50,14 +51,15 @@ class HeartOfTheCosmosRenderer :
             return
         }
 
+        val smooth = ConfigHolder.INSTANCE.graphics.enableSmoothAnimations
         val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
         val working = machine.recipeLogic.isWorking
         val motion = HeartShellRenderer.motion(machine)
-        motion.advance(tick / 20.0, working)
+        motion.advance(tick / 20.0, working, smooth)
         HeartShellRenderer.submit(frame, blockEntity, machine, motion)
         if (machine.structureTier == HeartBlockLayout.tiers.maxTier) HeartFleetRenderer.submit(frame, machine, motion)
         if (!working) return
-        val profile = HeartBlackHoleRenderProfile.create(tick, machine.frontFacing, starOffset(machine))
+        val profile = HeartBlackHoleRenderProfile.create(RenderUtils.continuousRenderTick(machine, tick, smooth), machine.frontFacing, starOffset(machine))
         SceneVolumes.submit(frame, blockEntity, profile)
     }
 

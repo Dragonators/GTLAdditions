@@ -44,7 +44,7 @@ class ForgeOfAntichristRenderer(
         val isWorking = machine.isActiveOrStasisAnchored()
         if (!machine.isFormed && !isWorking) return
 
-        val tick = if (isWorking) RenderUtils.getSmoothTickDouble(machine, partialTicks) else 0.0
+        val tick = if (isWorking) RenderUtils.getContinuousRenderTick(machine, partialTicks) else 0.0
         val profile = AntichristRenderProfile.create(machine, tick, isWorking)
         AntichristDeferredRenderer.enqueue(
             blockEntity,

@@ -269,7 +269,7 @@ object HeartFleetRenderer {
                 shader.getUniform("ProjMat")?.set(projection)
                 shader.getUniform("Center")?.set(center)
                 shader.getUniform("Power")?.set(payload.ease.toFloat())
-                shader.getUniform("Time")?.set((payload.time % 3600.0).toFloat())
+                shader.getUniform("BreathPhase")?.set(RenderUtils.rotationRadians(payload.time * 1.3))
             }
 
             val t = payload.orbitTime

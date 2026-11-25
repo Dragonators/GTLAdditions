@@ -117,7 +117,7 @@ internal object DimensionFocusPocketRenderer {
         facing.transformInverse(cameraLocal)
 
         for (shader in arrayOf(pocket, needle)) {
-            shader.getUniform("Time")?.set((ticks / 20.0).toFloat())
+            shader.getUniform("Time")?.set(((ticks % 400.0) / 20.0).toFloat())
             shader.getUniform("Flow")?.set(sample.flow.toFloat())
             shader.getUniform("Spin")?.set(sample.spin)
             shader.getUniform("Level")?.set(sample.level)
@@ -182,6 +182,7 @@ internal object DimensionFocusPocketRenderer {
         state.level = ease(state.level, level, seconds, LEVEL_RISE_SECONDS, LEVEL_FALL_SECONDS)
         state.spin = ease(state.spin, spin, seconds, SPIN_RISE_SECONDS, SPIN_FALL_SECONDS)
         state.flow += seconds * (0.22 + 1.38 * state.spin) * 2.0 * PI / ORBIT_PERIOD_SECONDS
+        state.flow %= 200.0 * PI
 
         return Sample(state.level, state.spin, state.flow)
     }

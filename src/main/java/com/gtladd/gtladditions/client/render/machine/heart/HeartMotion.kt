@@ -13,17 +13,24 @@ class HeartMotion {
     var orbitTime = 0.0
         private set
     private var last = Double.NaN
+    private var lastSmoothAnimations = false
 
     val ease: Double
         get() = power * power * (3 - 2 * power)
 
-    fun advance(seconds: Double, working: Boolean) {
+    fun advance(seconds: Double, working: Boolean, smoothAnimations: Boolean) {
         if (last.isNaN()) {
             power = if (working) 1.0 else 0.0
+            lastSmoothAnimations = smoothAnimations
             last = seconds
             time = seconds
             orbitTime = seconds
             return
+        }
+
+        if (lastSmoothAnimations != smoothAnimations) {
+            lastSmoothAnimations = smoothAnimations
+            last = seconds
         }
 
         val dt = (seconds - last).coerceIn(0.0, 0.25)

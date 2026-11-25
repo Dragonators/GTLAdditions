@@ -17,7 +17,7 @@
     {"name": "uMist", "type": "float", "count": 1, "values": [1]},
     {"name": "uMistH", "type": "float", "count": 1, "values": [1]},
     {"name": "uShroud", "type": "float", "count": 1, "values": [0]},
-    {"name": "uSwirl", "type": "float", "count": 1, "values": [0]},
+    {"name": "uSwirlWords", "type": "int", "count": 2, "values": [0, 0]},
     {"name": "uRise", "type": "float", "count": 1, "values": [0]},
     {"name": "uStir", "type": "float", "count": 1, "values": [0]},
     {"name": "uLight", "type": "float", "count": 1, "values": [1]},

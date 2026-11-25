@@ -4,6 +4,7 @@ import com.gtladd.gtladditions.GTLAdditions
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.preprocessor.GlslPreprocessor
 import com.mojang.blaze3d.systems.RenderSystem
+import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceProvider
 import org.lwjgl.opengl.GL
@@ -21,7 +22,9 @@ class LightHunterPlasmaFieldCache : AutoCloseable {
     private var resources: ResourceProvider? = null
     private var program = 0
     private val fields = ArrayList<Field>(MAX_FIELDS)
-    private var timeUniform = -1
+    private var phaseUniform = -1
+    private val phase = FloatArray(10)
+
     private var noiseUniform = -1
     private var sizeUniform = -1
     private var frame = 0L
@@ -38,16 +41,34 @@ class LightHunterPlasmaFieldCache : AutoCloseable {
         unavailable = false
     }
 
-    fun prepare(noiseTexture: Int, tick: Float): Int {
+    private fun setPhases(shader: ShaderInstance, tick: Double) {
+        val seconds = tick / 20.0
+        fun offset(speed: Double) = (seconds * speed % 64.0).toFloat()
+        val fiber = -31.0 * 0.090
+        val wide = -31.0 * 0.065
+        phase[0] = offset(-31.0 * 0.055)
+        phase[1] = offset(fiber)
+        phase[2] = offset(fiber * 2.07)
+        phase[3] = offset(fiber * 4.19)
+        phase[4] = offset(wide)
+        phase[5] = offset(wide * 2.07)
+        phase[6] = offset(wide * 4.19)
+        phase[7] = offset(fiber * 2.25 - 1.4)
+        phase[8] = offset(0.42)
+        phase[9] = offset(-31.0 * 0.18)
+        shader.getUniform("PlasmaPhase")?.set(phase)
+    }
+
+    fun prepare(shader: ShaderInstance, noiseTexture: Int, tick: Double): Int {
+        setPhases(shader, tick)
         if (unavailable || !GL.getCapabilities().OpenGL43) return 0
         val provider = resources ?: return 0
-        val time = tick / 20f
         try {
             if (program == 0) initialize(provider)
-            val bits = time.toRawBits()
+            val bits = tick.toRawBits()
             val field = fields.firstOrNull { it.timeBits == bits && it.noiseTexture == noiseTexture } ?: nextField()
             if (field.timeBits != bits || field.noiseTexture != noiseTexture) {
-                update(field.texture, noiseTexture, time)
+                update(field.texture, noiseTexture)
                 field.timeBits = bits
                 field.noiseTexture = noiseTexture
             }
@@ -89,7 +110,7 @@ class LightHunterPlasmaFieldCache : AutoCloseable {
             GL20C.glAttachShader(program, compute)
             GL20C.glLinkProgram(program)
             check(GL20C.glGetProgrami(program, GL20C.GL_LINK_STATUS) != 0) { GL20C.glGetProgramInfoLog(program) }
-            timeUniform = GL20C.glGetUniformLocation(program, "Time")
+            phaseUniform = GL20C.glGetUniformLocation(program, "PlasmaPhase")
             noiseUniform = GL20C.glGetUniformLocation(program, "PlasmaNoise")
             sizeUniform = GL20C.glGetUniformLocation(program, "FieldSize")
         } finally {
@@ -125,7 +146,7 @@ class LightHunterPlasmaFieldCache : AutoCloseable {
         }
     }
 
-    private fun update(texture: Int, noiseTexture: Int, time: Float) {
+    private fun update(texture: Int, noiseTexture: Int) {
         val activeTexture = GL11C.glGetInteger(GL13C.GL_ACTIVE_TEXTURE)
         val previousProgram = GL11C.glGetInteger(GL20C.GL_CURRENT_PROGRAM)
         val image = GL30C.glGetIntegeri(GL42C.GL_IMAGE_BINDING_NAME, 0)
@@ -144,7 +165,7 @@ class LightHunterPlasmaFieldCache : AutoCloseable {
             GL33C.glBindSampler(1, 0)
             GlStateManager._glUseProgram(program)
             GL20C.glUniform1i(noiseUniform, 1)
-            GL20C.glUniform1f(timeUniform, time)
+            GL20C.glUniform1fv(phaseUniform, phase)
             GL20C.glUniform3i(sizeUniform, WIDTH, HEIGHT, HEIGHT)
             GL42C.glBindImageTexture(0, texture, 0, true, 0, GL15C.GL_WRITE_ONLY, GL30C.GL_RGBA16F)
             GL43C.glDispatchCompute(WIDTH / 8, HEIGHT / 4, HEIGHT / 4)
@@ -168,7 +189,7 @@ class LightHunterPlasmaFieldCache : AutoCloseable {
     }
 
     private class Field(val texture: Int) {
-        var timeBits: Int? = null
+        var timeBits: Long? = null
         var noiseTexture = 0
         var lastFrame = -1L
         var lastUse = 0L

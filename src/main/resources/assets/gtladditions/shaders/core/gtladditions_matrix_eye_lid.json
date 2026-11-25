@@ -15,7 +15,7 @@
     {"name": "uGaze", "type": "float", "count": 2, "values": [0,0]},
     {"name": "uIrisScale", "type": "float", "count": 1, "values": [0.8]},
     {"name": "uDilate", "type": "float", "count": 1, "values": [1]},
-    {"name": "uTime", "type": "float", "count": 1, "values": [0]},
+    {"name": "uSeamPhase", "type": "float", "count": 1, "values": [0]},
     {"name": "uGlow", "type": "float", "count": 1, "values": [1]},
     {"name": "uSeam", "type": "float", "count": 1, "values": [0]},
     {"name": "uCamLight", "type": "float", "count": 3, "values": [0,0,1]},

@@ -73,10 +73,28 @@
       ]
     },
     {
-      "name": "Time",
+      "name": "FusionAngles",
       "type": "float",
-      "count": 1,
+      "count": 2,
       "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "FusionNoiseOffset",
+      "type": "float",
+      "count": 10,
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
         0
       ]
     },
