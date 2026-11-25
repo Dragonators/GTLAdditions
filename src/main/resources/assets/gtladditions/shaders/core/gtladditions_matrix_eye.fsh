@@ -36,7 +36,10 @@ float softbox(vec3 r, vec3 l, vec2 s) {
     float c = dot(r, l);
     if (c <= 0.)
         return 0.;
-    vec3 u = normalize(cross(l, vec3(0., 0., 1.))), v = cross(u, l);
+    vec3 u = cross(l, vec3(0., 0., 1.));
+    float u2 = dot(u, u);
+    u = u2 > 1e-10 ? u * inversesqrt(max(u2, 1e-10)) : vec3(1., 0., 0.);
+    vec3 v = cross(u, l);
     vec2 q = vec2(dot(r, u), dot(r, v)) / c, e = s * .45;
     float box = (1. - smoothstep(s.x - e.x, s.x + e.x, abs(q.x))) * (1. - smoothstep(s.y - e.y, s.y + e.y, abs(q.y)));
     return box + .06 * exp(-length(q / s) * .9);
@@ -99,7 +102,7 @@ vec3 bandColor(vec2 pd, float diff, float breath) {
     vec3 deep = uTint * .05 * (.35 + .65 * diff);
     float glow = uGlow * breath;
     const float N = 28.;
-    float a = (atan(pd.y, pd.x) + uAngularTime * .02) / 6.2831853 * N;
+    float a = ((rp > 1e-6 ? atan(pd.y, pd.x) : 0.) + uAngularTime * .02) / 6.2831853 * N;
     float id = mod(floor(a), N), u = fract(a);
     float bandW = (1. - Ri) * uScale.x, arc = 6.2831853 * max(rp, Ri) * uScale.x / N;
     vec2 g = vec2((u - .5) * arc, (b - .5) * bandW) / (bandW * .62);
@@ -149,12 +152,14 @@ void main() {
     vec3 nm = texture(uNormal, uv).xyz * 2. - 1.;
     float w = .12 * uDilate, h = .80 + .05 * (uDilate - 1.), sd = slit(ir, w, h);
     vec3 Ni = normalize((Q - C) / (ai * ai));
-    vec3 Tg = normalize(vec3(1., 0., 0.) - Ni * Ni.x), Bg = cross(Ni, Tg);
+    vec3 refT = abs(Ni.x) < .99 ? vec3(1., 0., 0.) : vec3(0., 1., 0.);
+    vec3 Tg = normalize(refT - Ni * dot(Ni, refT)), Bg = cross(Ni, Tg);
     vec3 Nb = normalize(Ni * nm.z + (Tg * nm.x + Bg * nm.y) * uRelief);
     float enter1 = smoothstep(0., .8, dot(N, L1)), enter2 = smoothstep(0., .8, dot(N, L2));
     float diff = .12 + .80 * max(dot(Nb, L1), 0.) * enter1 + .22 * max(dot(Nb, L2), 0.) * enter2;
+    float cDot = tIr > 1e-6 ? max(dot(ir / tIr, -normalize(L1.xy)), 0.) : 0.;
     float caustic =
-        pow(max(dot(normalize(ir + 1e-4), -normalize(L1.xy)), 0.), 3.) * smoothstep(.35, .95, tIr) * (1. - smoothstep(.95, 1.02, tIr));
+        (cDot * cDot * cDot) * smoothstep(.35, .95, tIr) * (1. - smoothstep(.95, 1.02, tIr));
     // uRim: 0 dark limbus, 1 full-bleed iris, 2-5 smaller iris inside a band.
     float edge = smoothstep(.78, 1., tIr);
     float ao = mix(uRim < .5 ? .45 : .85, 1., (1. - smoothstep(.68, 1.02, tIr)));
@@ -169,7 +174,8 @@ void main() {
         pigment = mix(pigment, uTint * l * 1.15, edge * .6) * mix(1., .62, edge);
     }
     vec3 irisCol = pigment * diff * ao * collar * center + uTint * caustic * .16;
-    float ring = .55 * exp(-pow((outside - .035) / .03, 2.));
+    float ringD = (outside - .035) / .03;
+    float ring = .55 * exp(-(ringD * ringD));
     vec3 emis = uTint * (dat.g * collar * .32 + ring * .5) * uGlow * breath;
     vec3 scl = uRim < .5 ? uSclera * (.35 + .65 * diff) * ao : bandColor(Q.xy / uScale.xy, diff, breath);
     vec3 inside = mix(scl, irisCol + emis, base.a);
@@ -206,12 +212,15 @@ void main() {
         inside = mix(inside, cav, (1. - smoothstep(-.012, 0., sd)));
     }
     inside *= mix(uRim < .5 ? .35 : .75, 1., smoothstep(0., .3, vLocal.z));
-    float lx = vLocal.x, phi = atan(vLocal.z, vLocal.y);
+    float lx = vLocal.x, phi = abs(vLocal.y) + abs(vLocal.z) > 1e-6 ? atan(vLocal.z, vLocal.y) : 0.;
     float lidShade = smoothstep(0., .18, min(phi - lidU(lx), (PI - lidL(lx)) - phi));
     inside *= mix(.08, 1., lidShade);
-    float F = .04 + .96 * pow(1. - NV, 5.);
+    float f1 = max(1. - NV, 0.), f2 = f1 * f1;
+    float F = .04 + .96 * (f2 * f2 * f1);
     vec3 R = reflect(-V, N);
-    float sheen = pow(max(dot(N, normalize(L1 + V)), 0.), 60.) * .10;
+    vec3 hv = L1 + V;
+    float hv2 = dot(hv, hv);
+    float sheen = hv2 > 1e-10 ? pow(max(dot(N, hv * inversesqrt(hv2)), 0.), 60.) * .10 : 0.;
     vec3 col = inside * (1. - F) + (env(R, 1.) * F + vec3(1., .96, .9) * sheen) * mix(.35, 1., lidShade);
     fragColor = vec4(srgb(col), 1.);
 }

@@ -107,20 +107,24 @@ object SpaceElevatorCableRenderer {
                 val shader = RenderSystem.getShader() ?: return@withRenderType
                 // Like GTNH, the ribbons are double-sided: the inner wall shows through the slits.
                 RenderSystem.disableCull()
-                RenderUtils.withShaderBatch(shader, true) {
-                    for (entry in visible) {
-                        val mesh = meshes.getValue(entry.length)
-                        poseStack.withPose {
-                            translate(entry.axisX - camera.x, entry.bottomY - camera.y, entry.axisZ - camera.z)
-                            for ((facing, buffer) in mesh.withIndex()) {
-                                val shade = shades[facing]
-                                RenderSystem.setShaderColor(red * shade, green * shade, blue * shade, alpha)
-                                RenderUtils.withBoundBuffer(buffer) {
-                                    buffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+                try {
+                    RenderUtils.withShaderBatch(shader, true) {
+                        for (entry in visible) {
+                            val mesh = meshes.getValue(entry.length)
+                            poseStack.withPose {
+                                translate(entry.axisX - camera.x, entry.bottomY - camera.y, entry.axisZ - camera.z)
+                                for ((facing, buffer) in mesh.withIndex()) {
+                                    val shade = shades[facing]
+                                    RenderSystem.setShaderColor(red * shade, green * shade, blue * shade, alpha)
+                                    RenderUtils.withBoundBuffer(buffer) {
+                                        buffer.drawWithShader(last().pose(), RenderSystem.getProjectionMatrix(), shader)
+                                    }
                                 }
                             }
                         }
                     }
+                } finally {
+                    RenderSystem.enableCull()
                 }
             }
         } finally {

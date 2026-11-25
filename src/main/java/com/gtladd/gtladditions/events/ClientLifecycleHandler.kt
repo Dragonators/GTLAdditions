@@ -6,6 +6,7 @@ import com.gtladd.gtladditions.client.gui.StructureTierRenderer
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographOrbits
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographStarRenderer
 import com.gtladd.gtladditions.client.render.machine.SubspaceCorridorHubIndustrialArrayRenderer
+import com.gtladd.gtladditions.client.render.machine.heart.HeartShellRenderer
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixEyeRenderer
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixIrisStarRenderer
 import com.gtladd.gtladditions.client.render.machine.nexus.NexusScene
@@ -32,6 +33,7 @@ object ClientLifecycleHandler {
         val release = {
             ArcanicAstrographOrbits.clearCache()
             ArcanicAstrographStarRenderer.releaseBuffers()
+            HeartShellRenderer.onLevelUnload()
             MatrixEyeRenderer.releaseBuffers()
             MatrixIrisStarRenderer.releaseBuffers()
             SubspaceCorridorHubIndustrialArrayRenderer.clearCache()

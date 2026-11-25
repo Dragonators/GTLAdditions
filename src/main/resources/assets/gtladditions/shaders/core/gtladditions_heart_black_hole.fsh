@@ -62,7 +62,8 @@ vec3 rotateAroundAxis(vec3 vector, vec3 axis, float angle) {
 }
 
 vec2 sphericalUv(vec3 direction) {
-    return vec2(atan(direction.z, direction.x) / TAU + 0.5,
+    float azimuth = abs(direction.x) + abs(direction.z) > 1e-6 ? atan(direction.z, direction.x) : 0.0;
+    return vec2(azimuth / TAU + 0.5,
                 asin(clamp(direction.y, -0.999999, 0.999999)) / PI + 0.5);
 }
 

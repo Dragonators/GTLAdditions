@@ -37,22 +37,26 @@ float edgeAt(vec3 p){
 }
 vec4 surface(vec3 p,vec3 rd){
   vec3 normal=faceNormal(p);
-  float edge=edgeAt(p),fresnel=pow(1.0-abs(dot(normal,rd)),3.0);
+  float f1=max(1.0-abs(dot(normal,rd)),0.0);
+  float edge=edgeAt(p),fresnel=f1*f1*f1;
   float lighting=.5+.5*dot(normal,normalize(vec3(.55,.8,.6)));
   float alpha;vec3 color;
     vec2 uv=abs(normal.x)>.5?p.zy:(abs(normal.y)>.5?p.xz:p.xy);
     uv=uv*.5+.5;
     vec2 cell=floor(clamp(uv,0.0,.99999)*16.0);
-    vec4 trace=texture(Sampler0,(cell+.5)/16.0);
+    vec4 trace=textureLod(Sampler0,(cell+.5)/16.0,0.0);
     vec2 local=fract(clamp(uv,0.0,.99999)*16.0)-.5;
     float dist=max(abs(local.x),abs(local.y));
-    if(texture(Sampler0,(cell+vec2(-.5,.5))/16.0).r>.5)dist=min(dist,max(max(local.x,0.0),abs(local.y)));
-    if(texture(Sampler0,(cell+vec2(1.5,.5))/16.0).r>.5)dist=min(dist,max(max(-local.x,0.0),abs(local.y)));
-    if(texture(Sampler0,(cell+vec2(.5,-.5))/16.0).r>.5)dist=min(dist,max(abs(local.x),max(local.y,0.0)));
-    if(texture(Sampler0,(cell+vec2(.5,1.5))/16.0).r>.5)dist=min(dist,max(abs(local.x),max(-local.y,0.0)));
+    if(textureLod(Sampler0,(cell+vec2(-.5,.5))/16.0,0.0).r>.5)dist=min(dist,max(max(local.x,0.0),abs(local.y)));
+    if(textureLod(Sampler0,(cell+vec2(1.5,.5))/16.0,0.0).r>.5)dist=min(dist,max(max(-local.x,0.0),abs(local.y)));
+    if(textureLod(Sampler0,(cell+vec2(.5,-.5))/16.0,0.0).r>.5)dist=min(dist,max(abs(local.x),max(local.y,0.0)));
+    if(textureLod(Sampler0,(cell+vec2(.5,1.5))/16.0,0.0).r>.5)dist=min(dist,max(abs(local.x),max(-local.y,0.0)));
     float track=trace.r*(1.0-smoothstep(.17,.25,dist));
     float halo=trace.r*(1.0-smoothstep(.24,.44,dist));
-    float flow=pow(.5+.5*sin(CircuitPhase-trace.g*25.1327),8.0)*track;
+    float flow=max(0.0,.5+.5*sin(CircuitPhase-trace.g*25.1327));
+    flow*=flow;
+    flow*=flow;
+    flow=flow*flow*track;
     float rim=min(min(uv.x,uv.y),min(1.0-uv.x,1.0-uv.y));
     float border=(1.0-smoothstep(.009,.017,rim))*.36;
     alpha=clamp(mix(.36,.62,clamp(SurfaceCoverage/.85,0.0,1.0))+.37*track+.09*fresnel+edge*.42,0.0,.99);
@@ -63,8 +67,11 @@ vec4 surface(vec3 p,vec3 rd){
   return vec4(color,alpha);
 }
 vec4 coreMaterial(){
-  vec3 rd=normalize(LocalPosition-CameraPosition);
-  vec3 safeRd=sign(rd+vec3(.0000001))*max(abs(rd),vec3(.00001));
+  vec3 rayDelta=LocalPosition-CameraPosition;
+  float rayLen2=dot(rayDelta,rayDelta);
+  if(rayLen2<=1e-10)discard;
+  vec3 rd=rayDelta*inversesqrt(rayLen2);
+  vec3 safeRd=(step(vec3(0.0),rd)*2.0-1.0)*max(abs(rd),vec3(.00001));
   vec3 a=(-vec3(1.0)-CameraPosition)/safeRd,b=(vec3(1.0)-CameraPosition)/safeRd;
   vec3 lo=min(a,b),hi=max(a,b);
   float nearT=max(0.0,max(max(lo.x,lo.y),lo.z)),farT=min(min(hi.x,hi.y),hi.z);

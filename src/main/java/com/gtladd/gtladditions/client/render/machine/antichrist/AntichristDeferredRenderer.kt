@@ -13,7 +13,9 @@ import com.gtladd.gtladditions.api.client.scene.SceneRendering
 import com.gtladd.gtladditions.client.render.withPose
 import com.mojang.blaze3d.vertex.PoseStack
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap
+import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -29,6 +31,9 @@ import net.minecraftforge.fml.common.Mod
 )
 object AntichristDeferredRenderer {
     private val provider = SceneRendering.register(GTLAdditions.id("antichrist_star"))
+
+    // The outer ring reaches 63.5 blocks along its axis and 63.55 radially when tilted.
+    private val ringBounds = AABB(-64.0, -64.0, -64.0, 64.0, 64.0, 64.0)
     private val ringEntries = Long2ObjectLinkedOpenHashMap<Entry>()
     private val translucentDraws = ArrayList<RingTransparency.Instance>()
 
@@ -80,7 +85,7 @@ object AntichristDeferredRenderer {
         val camera = event.camera.position
         try {
             ringEntries.values.forEach { entry ->
-                renderRings(entry, event.poseStack, camera, translucent)
+                renderRings(entry, event.poseStack, camera, event.frustum, translucent)
             }
             // Oculus has now copied opaque depth and finished deferred. All FOA solids are present.
             if (translucent) RingTransparency.render(translucentDraws)
@@ -96,16 +101,16 @@ object AntichristDeferredRenderer {
         entry: Entry,
         poseStack: PoseStack,
         camera: Vec3,
+        frustum: Frustum,
         translucent: Boolean
     ) {
         val blockEntity = entry.blockEntity
         if (blockEntity.isRemoved) return
+        val pos = blockEntity.blockPos
+        val star = entry.profile.starPos
+        if (!frustum.isVisible(ringBounds.move(pos.x + star.x, pos.y + star.y, pos.z + star.z))) return
         poseStack.withPose {
-            translate(
-                blockEntity.blockPos.x - camera.x,
-                blockEntity.blockPos.y - camera.y,
-                blockEntity.blockPos.z - camera.z
-            )
+            translate(pos.x - camera.x, pos.y - camera.y, pos.z - camera.z)
             if (translucent) {
                 RingStructureVertexBuffer.collectTranslucent(entry.profile, this, translucentDraws)
             } else {

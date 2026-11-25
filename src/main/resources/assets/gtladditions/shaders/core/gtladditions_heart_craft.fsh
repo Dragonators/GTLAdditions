@@ -7,7 +7,6 @@ uniform sampler2D Sampler0;
 uniform sampler2D Sampler1;
 uniform sampler2D Sampler2;
 uniform sampler2D Sampler3;
-uniform mat4 ModelMat;
 uniform vec3 Center;
 uniform float Power;
 uniform vec3 BaseColor;
@@ -59,7 +58,11 @@ void main() {
     vec2 duy = dFdy(TexUv);
     vec3 n = normalize(WorldNormal);
     if (!gl_FrontFacing) n = -n;
-    if (NormalScale > 0.0) n = bend(n, dpx, dpy, dux, duy, normalize((bump * 2.0 - 1.0) * vec3(NormalScale, -NormalScale, 1.0)));
+    if (NormalScale > 0.0) {
+        vec3 m = (bump * 2.0 - 1.0) * vec3(NormalScale, -NormalScale, 1.0);
+        float m2 = dot(m, m);
+        n = bend(n, dpx, dpy, dux, duy, m2 > 1e-10 ? m * inversesqrt(m2) : vec3(0.0, 0.0, 1.0));
+    }
     vec3 base = lin(BaseColor * t.rgb);
     if (Wear > 0.5) {
         vec3 o = normalize(ObjectNormal);
@@ -86,13 +89,17 @@ void main() {
     vec3 v = normalize(-WorldPos);
     float nl = max(dot(n, l), 0.0);
     float mu = abs(dot(n, v));
+    float oneMinusMu = max(1.0 - mu, 0.0);
     vec3 diffuse = base * (1.0 - 0.45 * metal);
-    vec3 col = diffuse * (vec3(0.11, 0.12, 0.14) + vec3(0.05) * n.y + vec3(0.06, 0.08, 0.11) * pow(1.0 - mu, 2.0));
+    vec3 col = diffuse * (vec3(0.11, 0.12, 0.14) + vec3(0.05) * n.y + vec3(0.06, 0.08, 0.11) * (oneMinusMu * oneMinusMu));
     col += base * metal * vec3(0.05, 0.06, 0.08) * (0.6 + 0.4 * n.y);
     col += diffuse * vec3(1.0, 0.93, 0.84) * nl * (0.4 + 0.75 * Power);
     float shine = mix(6.0, 120.0, (1.0 - rough) * (1.0 - rough));
     // Never below the 4% of glass: the black "ReflectiveGlass" materials are marked fully metal and would reflect nothing at all.
-    col += max(mix(vec3(0.04), base, metal), vec3(0.04)) * pow(max(dot(n, normalize(l + v)), 0.0), shine) * (shine + 8.0) / 25.0 * nl * (0.4 + 0.6 * Power);
+    vec3 h = l + v;
+    float h2 = dot(h, h);
+    float ndh = h2 > 1e-10 ? max(dot(n, h * inversesqrt(h2)), 0.0) : 0.0;
+    col += max(mix(vec3(0.04), base, metal), vec3(0.04)) * pow(ndh, shine) * (shine + 8.0) / 25.0 * nl * (0.4 + 0.6 * Power);
     vec3 color = srgb(col) + Emissive * e * (0.45 + 0.55 * Power);
     if ((Cut > 0.0 && t.a < Cut) || sceneHandOccluded(gl_FragCoord.xy)) discard;
     fragColor = vec4(color, 1.0);

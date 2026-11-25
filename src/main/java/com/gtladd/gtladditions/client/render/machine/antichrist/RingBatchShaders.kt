@@ -20,13 +20,15 @@ import java.util.Optional
 
 @OnlyIn(Dist.CLIENT)
 object RingBatchShaders {
+    private const val MAX_PALETTE_BYTES = 65536
     private val vanillaId = GTLAdditions.id("${RingBatchShaderSources.PREFIX}vanilla")
     var vanilla: ShaderInstance? = null
 
     @JvmStatic
     fun capacity(): Int {
-        // Whole machines occupy three ring records.
-        return (GL31C.glGetInteger(GL31C.GL_MAX_UNIFORM_BLOCK_SIZE) / RingBatchShaderSources.BYTES_PER_RING / 3) * 3
+        // Whole machines occupy three ring records; cap at 64 KiB so drivers reporting multi-MB UBO limits do not oversize the block.
+        val blockBytes = minOf(GL31C.glGetInteger(GL31C.GL_MAX_UNIFORM_BLOCK_SIZE), MAX_PALETTE_BYTES)
+        return (blockBytes / RingBatchShaderSources.BYTES_PER_RING / 3) * 3
     }
 
     fun current(): ShaderInstance? {

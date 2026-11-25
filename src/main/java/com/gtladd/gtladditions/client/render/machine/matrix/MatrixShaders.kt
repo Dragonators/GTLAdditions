@@ -12,6 +12,7 @@ import net.minecraftforge.client.event.RegisterClientReloadListenersEvent
 import net.minecraftforge.client.event.RegisterShadersEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
+import org.lwjgl.opengl.GL
 
 @Mod.EventBusSubscriber(modid = GTLAdditions.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT])
 object MatrixShaders {
@@ -39,16 +40,18 @@ object MatrixShaders {
     fun register(event: RegisterShadersEvent) {
         MatrixEyeTextures.invalidate()
         RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_seal"), DefaultVertexFormat.POSITION_COLOR) { seal = it }
-        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_seal_layers"), DefaultVertexFormat.POSITION_COLOR) {
-            sealLayers = it
-        }
-
         RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_energy_core"), DefaultVertexFormat.POSITION) {
             energyCore = it
         }
 
-        RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_energy_core_layers"), DefaultVertexFormat.POSITION) {
-            energyCoreLayers = it
+        if (GL.getCapabilities().OpenGL33) {
+            RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_seal_layers"), DefaultVertexFormat.POSITION_COLOR) {
+                sealLayers = it
+            }
+
+            RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_energy_core_layers"), DefaultVertexFormat.POSITION) {
+                energyCoreLayers = it
+            }
         }
 
         RenderUtils.registerShader(event, GTLAdditions.id("gtladditions_matrix_eye"), DefaultVertexFormat.POSITION) { eye = it }

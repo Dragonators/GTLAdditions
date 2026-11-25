@@ -5,7 +5,7 @@ uniform mat4 SceneInverseProjection;
 
 // Window depth in [0, 1] at a scene pixel (gl_FragCoord.xy - SceneViewport); 1 is the sky.
 float sceneDepthAt(ivec2 scenePixel) {
-    return texelFetch(SceneDepth, clamp(scenePixel, ivec2(0), ivec2(SceneSize) - 1), 0).r;
+    return texelFetch(SceneDepth, clamp(scenePixel, ivec2(0), max(ivec2(SceneSize) - 1, ivec2(0))), 0).r;
 }
 
 vec3 sceneViewPosition(vec2 uv, float depth) {

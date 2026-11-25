@@ -35,7 +35,10 @@ object IrisTerrainShaderCompat {
         fragmentTree.root.replaceExpressions(transformer, classifiers.stream(), classifier(MODEL_NORMAL))
         fragmentTree.parseAndInjectNode(transformer, ASTInjectionPoint.BEFORE_DECLARATIONS, "flat in vec3 $MODEL_NORMAL;")
         vertexTree.parseAndInjectNode(transformer, ASTInjectionPoint.BEFORE_DECLARATIONS, "flat out vec3 $MODEL_NORMAL;")
-        vertexTree.prependMainFunctionBody(transformer, "$MODEL_NORMAL = normalize(iris_Normal);")
+        vertexTree.prependMainFunctionBody(
+            transformer,
+            "$MODEL_NORMAL = dot(iris_Normal, iris_Normal) > 1e-12 ? normalize(iris_Normal) : vec3(0.0);"
+        )
 
         return Sources(ASTPrinter.print(transformer.printType, vertexTree), ASTPrinter.print(transformer.printType, fragmentTree))
     }

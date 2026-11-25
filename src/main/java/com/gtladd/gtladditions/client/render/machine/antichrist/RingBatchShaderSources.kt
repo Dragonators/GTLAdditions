@@ -16,7 +16,13 @@ object RingBatchShaderSources {
     private const val NO_MODEL_VIEW = "FOA batching could not identify the terrain model-view uniform"
     private const val DRAW_LOCAL_IDS = "FOA batching cannot preserve draw-local vertex/primitive IDs for this program"
     private val main = Regex("""\bvoid\s+main\s*\(\s*(?:void\s*)?\)\s*\{""")
-    private val comments = Regex("""(?s)/\*.*?\*/|//[^\r\n]*""")
+    private val conditionalOpen = Regex("""#\s*if(?:n?def)?\b""")
+    private val conditionalBranch = Regex("""#\s*(?:else|elif)\b""")
+    private val conditionalClose = Regex("""#\s*endif\b""")
+    private val conditionalDirective = Regex("""#\s*(?:if(?:n?def)?|elif)\b""")
+    private val headerOnlyDirective = Regex("""#\s*(?:version|extension)\b""")
+    private val defineHeader = Regex("""#\s*define\s+[A-Za-z_]\w*(?:\([^)]*\))?""")
+    private val lineContinuation = Regex("""\\\r?\n""")
     private val drawLocalIds = Regex("""\bgl_(?:VertexID|PrimitiveID)\b""")
 
     private class Parameter(val name: String, val type: String, val definitions: List<String>) {
@@ -49,8 +55,10 @@ object RingBatchShaderSources {
     @JvmStatic
     fun patchVanilla(vertex: String, fragment: String, capacity: Int): Sources {
         require(capacity >= 3)
-        require(main.findAll(vertex).count() == 1 && main.findAll(fragment).count() == 1)
-        require(!drawLocalIds.containsMatchIn(comments.replace("$vertex\n$fragment", ""))) { DRAW_LOCAL_IDS }
+        val maskedVertex = maskComments(vertex)
+        val maskedFragment = maskComments(fragment)
+        require(main.findAll(maskedVertex).count() == 1 && main.findAll(maskedFragment).count() == 1)
+        require(!drawLocalIds.containsMatchIn(maskedVertex) && !drawLocalIds.containsMatchIn(maskedFragment)) { DRAW_LOCAL_IDS }
         return Sources(patchText(vertex, capacity, true), patchText(fragment, capacity, false))
     }
 
@@ -86,19 +94,33 @@ object RingBatchShaderSources {
         var result = source
         val replaced = parameters.filter { parameter ->
             val uniform = Regex("""\buniform\s+${parameter.type}\s+${parameter.name}\s*;""")
-            if (!uniform.containsMatchIn(result)) return@filter false
-            result = result.replace(uniform, "").replace(Regex("""\b${parameter.name}\b"""), parameter.call)
+            val beforeMasked = maskComments(result)
+            val splicedBefore = beforeMasked.replace(lineContinuation, "")
+            val declarations = uniform.findAll(beforeMasked).toList()
+            // Reject protected uniforms split across GLSL §3.1 line continuations before skipping absent parameters.
+            require(declarations.size == uniform.findAll(splicedBefore).count())
+            if (declarations.isEmpty()) {
+                val word = Regex("""\b${Regex.escape(parameter.name)}\b""")
+                require(word.findAll(splicedBefore).count() == word.findAll(beforeMasked).count())
+                return@filter false
+            }
+            result = replaceMatches(result, declarations, "")
+            val masked = maskComments(result)
+            require(!hasNameCollision(result, masked, parameter.name))
+            result = replaceMatches(result, Regex("""\b${parameter.name}\b""").findAll(masked).toList(), parameter.call)
             true
         }
 
         if (vertex) require(replaced.any { it.name.endsWith("ModelViewMat") }) { NO_MODEL_VIEW }
-        val header = headerEnd(result)
+        val maskedResult = maskComments(result)
+        val header = headerEnd(result, maskedResult)
+        require(headerOnlyDirective.find(maskedResult.substring(header).replace(lineContinuation, "")) == null)
         result = result.substring(0, header) +
             declarations(capacity, vertex, replaced).joinToString("\n", "\n", "\n\n") +
             result.substring(header)
         if (vertex) {
-            val entry = checkNotNull(main.find(result))
-            result = result.replaceRange(entry.range, "${entry.value}\n$VARYING = $ATTRIBUTE;\n")
+            val entry = checkNotNull(main.find(maskComments(result)))
+            result = result.replaceRange(entry.range, "${result.substring(entry.range)}\n$VARYING = $ATTRIBUTE;\n")
         }
 
         return result
@@ -134,23 +156,219 @@ object RingBatchShaderSources {
         }
     }
 
-    /** Keep #version, extension directives and vanilla #moj_import headers ahead of declarations. */
-    private fun headerEnd(source: String): Int {
+    private fun replaceMatches(source: String, matches: List<MatchResult>, replacement: String): String {
+        if (matches.isEmpty()) return source
+        val builder = StringBuilder(source.length)
+        var cursor = 0
+
+        for (match in matches) {
+            builder.append(source, cursor, match.range.first)
+            builder.append(replacement)
+            cursor = match.range.last + 1
+        }
+
+        builder.append(source, cursor, source.length)
+        return builder.toString()
+    }
+
+    /** Reject shaders where a replaced uniform name is redeclared, redefined, mutated, called, or accessed as a member. */
+    private fun hasNameCollision(source: String, masked: String, name: String): Boolean {
+        val escaped = Regex.escape(name)
+        val word = Regex("""\b$escaped\b""")
+        val spliced = masked.replace(lineContinuation, "")
+        val splicedCount = word.findAll(spliced).count()
+        if (splicedCount == 0) return false
+        // Reject identifiers split across GLSL §3.1 line continuations (e.g. Model\<newline>ViewMat) that regex rewrite would miss.
+        if (splicedCount != word.findAll(masked).count()) return true
+        val macroCollision = Regex(
+            """#\s*(?:define|undef)\s+$escaped\b|#\s*define\s+[A-Za-z_]\w*\([^)]*\b$escaped\b""" +
+                """|\bdefined\s*\(\s*$escaped\s*\)|\bdefined\s+$escaped\b"""
+        )
+        val codeOnly = StringBuilder(masked.length)
+        val macroBodies = StringBuilder()
         var index = 0
 
-        while (index < source.length) {
-            when {
-                source[index].isWhitespace() -> index++
-                source.startsWith("//", index) || source[index] == '#' -> {
-                    index = source.indexOf('\n', index).let { if (it < 0) source.length else it + 1 }
+        while (index < masked.length) {
+            if (masked[index] == '#') {
+                val end = directiveEnd(source, index)
+                // Splice GLSL §3.1 line continuations before directive matching without altering original replacement offsets.
+                val directive = masked.substring(index, end).replace(lineContinuation, "")
+                if (macroCollision.containsMatchIn(directive)) return true
+                if (conditionalDirective.matchAt(directive, 0) != null && word.containsMatchIn(directive)) return true
+                defineHeader.matchAt(directive, 0)?.let { header ->
+                    macroBodies.append("; ")
+                    macroBodies.append(directive.substring(header.range.last + 1))
+                    macroBodies.append(" ;\n")
                 }
-                source.startsWith("/*", index) -> {
-                    index = source.indexOf("*/", index + 2).also { require(it >= 0) } + 2
+                if (conditionalBranch.matchAt(directive, 0) != null) {
+                    codeOnly.append(";\n")
+                } else {
+                    codeOnly.append('\n')
                 }
-                else -> return index
+                index = end
+            } else {
+                codeOnly.append(masked[index++])
             }
         }
 
-        return index
+        val combined = (if (macroBodies.isEmpty()) codeOnly.toString() else "$codeOnly\n;\n$macroBodies")
+            .replace(lineContinuation, "")
+        val declarationCollision = Regex(
+            """\b(?!return\b|else\b|do\b|case\b)[A-Za-z_]\w*(?:\s*\[[^\]]*\])*\s+$escaped\b"""
+        )
+        val accessOrMutation = Regex(
+            """(?:\.|(?:\+\+|--))\s*$escaped\b|\b$escaped\s*\(""" +
+                """|\b$escaped(?:\s*(?:\.\s*[A-Za-z_]\w*|\[[^\]]*\]))*\s*(?:[+\-*/%&|^]?=(?!=)|<<=|>>=|\+\+|--)"""
+        )
+        return declarationCollision.containsMatchIn(combined) ||
+            accessOrMutation.containsMatchIn(combined) ||
+            hasCommaDeclarator(combined, name)
+    }
+
+    private fun hasCommaDeclarator(code: String, name: String): Boolean {
+        val commaName = Regex(""",\s*${Regex.escape(name)}(?:\s*\[[^\]]*\])*\s*(?:[,;]|=(?!=))""")
+        var parenDepth = 0
+        var forInitDepth = -1
+        var index = 0
+
+        while (index < code.length) {
+            when (code[index]) {
+                '(' -> {
+                    parenDepth++
+                    if (forInitDepth < 0 && precededByFor(code, index)) forInitDepth = parenDepth
+                }
+                ')' -> {
+                    if (parenDepth == forInitDepth) forInitDepth = -1
+                    if (parenDepth > 0) parenDepth--
+                }
+                ';' -> if (parenDepth == forInitDepth) forInitDepth = -1
+                ',' -> if ((parenDepth == 0 || parenDepth == forInitDepth) && commaName.matchAt(code, index) != null) {
+                    return true
+                }
+            }
+
+            index++
+        }
+
+        return false
+    }
+
+    private fun precededByFor(code: String, openParenIndex: Int): Boolean {
+        var end = openParenIndex
+        while (end > 0 && code[end - 1].isWhitespace()) end--
+        return end >= 3 &&
+            code.regionMatches(end - 3, "for", 0, 3) &&
+            (end == 3 || !(code[end - 4].isLetterOrDigit() || code[end - 4] == '_'))
+    }
+
+    /** Mask comment contents with spaces while keeping line breaks so regexes match only code at identical offsets. */
+    private fun maskComments(source: String): String {
+        val chars = source.toCharArray()
+        var index = 0
+
+        while (index < chars.size) {
+            when {
+                chars[index] == '/' && index + 1 < chars.size && chars[index + 1] == '/' -> {
+                    val end = lineEnd(source, index)
+                    while (index < end) {
+                        if (chars[index] != '\n' && chars[index] != '\r') chars[index] = ' '
+                        index++
+                    }
+                }
+                chars[index] == '/' && index + 1 < chars.size && chars[index + 1] == '*' -> {
+                    chars[index++] = ' '
+                    chars[index++] = ' '
+                    while (index < chars.size && !(chars[index] == '*' && index + 1 < chars.size && chars[index + 1] == '/')) {
+                        if (chars[index] != '\n' && chars[index] != '\r') chars[index] = ' '
+                        index++
+                    }
+
+                    require(index + 1 < chars.size)
+                    chars[index++] = ' '
+                    chars[index++] = ' '
+                }
+                else -> index++
+            }
+        }
+
+        return String(chars)
+    }
+
+    /** Keep leading preprocessor headers and balanced directive-only #if blocks ahead of injected declarations. */
+    private fun headerEnd(source: String, masked: String): Int {
+        var index = 0
+        var depth = 0
+        var safeEnd = 0
+
+        while (index < source.length) {
+            when {
+                source[index].isWhitespace() -> {
+                    index++
+                    if (depth == 0) safeEnd = index
+                }
+                source.startsWith("//", index) -> {
+                    index = lineEnd(source, index)
+                    if (depth == 0) safeEnd = index
+                }
+                source.startsWith("/*", index) -> {
+                    index = source.indexOf("*/", index + 2).also { require(it >= 0) } + 2
+                    if (depth == 0) safeEnd = index
+                }
+                source[index] == '#' -> {
+                    val end = directiveEnd(source, index)
+                    val directive = masked.substring(index, end).replace(lineContinuation, "")
+                    when {
+                        conditionalOpen.matchAt(directive, 0) != null -> depth++
+                        conditionalBranch.matchAt(directive, 0) != null -> require(depth > 0)
+                        conditionalClose.matchAt(directive, 0) != null -> {
+                            require(depth > 0)
+                            depth--
+                        }
+                    }
+                    index = end
+                    if (depth == 0) safeEnd = index
+                }
+                else -> return safeEnd
+            }
+        }
+
+        require(depth == 0)
+        return safeEnd
+    }
+
+    private fun directiveEnd(source: String, start: Int): Int {
+        var index = start
+
+        while (index < source.length) {
+            when {
+                source.startsWith("//", index) -> return lineEnd(source, index)
+                source.startsWith("/*", index) -> {
+                    index = source.indexOf("*/", index + 2).also { require(it >= 0) } + 2
+                }
+                source[index] == '\\' && index + 1 < source.length && source[index + 1] == '\n' -> index += 2
+                source[index] == '\\' && index + 2 < source.length && source[index + 1] == '\r' && source[index + 2] == '\n' -> {
+                    index += 3
+                }
+                source[index] == '\n' -> return index + 1
+                else -> index++
+            }
+        }
+
+        return source.length
+    }
+
+    private fun lineEnd(source: String, start: Int): Int {
+        var index = start
+
+        while (index < source.length) {
+            val lineStart = index
+            val newline = source.indexOf('\n', index)
+            if (newline < 0) return source.length
+            val contentEnd = if (newline > lineStart && source[newline - 1] == '\r') newline - 1 else newline
+            index = newline + 1
+            if (contentEnd <= lineStart || source[contentEnd - 1] != '\\') return index
+        }
+
+        return source.length
     }
 }

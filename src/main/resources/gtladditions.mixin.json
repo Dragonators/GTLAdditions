@@ -63,7 +63,7 @@
     "gtlcore.machine.trait.MultipleRecipesLogicMixin",
     "gtlcore.recipe.BatchProcessingMixin",
     "gtlcore.recipe.RecipeRunnerMixin",
-    "gtmtings.WirelessEnergyManagerMixin",
+    "gtmtings.WirelessEnergyMonitorAccessor",
     "gtmtings.WirelessEnergyMonitorMixin",
     "gtmtings.WirelessOpticalComputationHatchMachineMixin",
     "guide.DefaultExtensionsMixin",

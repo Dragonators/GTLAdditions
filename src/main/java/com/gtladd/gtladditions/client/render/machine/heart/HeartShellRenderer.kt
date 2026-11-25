@@ -146,6 +146,11 @@ object HeartShellRenderer : PartRenderer<HeartShellRenderer.Overlay> {
         bakeFailed = false
     }
 
+    fun onLevelUnload() {
+        entries.clear()
+        if (!ready()) releaseGeometry()
+    }
+
     fun releaseBuffers() {
         entries.clear()
         releaseGeometry()

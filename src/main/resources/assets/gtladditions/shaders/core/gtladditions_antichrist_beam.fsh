@@ -16,7 +16,11 @@ float luminanceTransform(vec3 color) {
 }
 
 void main() {
-    float viewEffect = dot(normalize(CameraPosition.xy), normalize(localPosition));
+    float camLen2 = dot(CameraPosition.xy, CameraPosition.xy);
+    float posLen2 = dot(localPosition, localPosition);
+    float viewEffect = (camLen2 > 1e-10 && posLen2 > 1e-10)
+        ? dot(CameraPosition.xy * inversesqrt(camLen2), localPosition * inversesqrt(posLen2))
+        : 0.0;
     float angleAlpha = max((viewEffect - 0.5) * 2.0, 0.0);
     angleAlpha = pow(angleAlpha, Intensity);
 

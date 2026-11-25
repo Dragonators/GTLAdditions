@@ -49,10 +49,10 @@ bool sceneCoversHearts(ivec2 pixel) {
 
 void main() {
     if (HandMaskEnabled > 0.5 && texelFetch(HandMaskSampler, ivec2(gl_FragCoord.xy+CompositeOrigin), 0).r > 0.5) discard;
-    vec4 sharp = texture(EffectSampler, texCoord);
-    vec4 blurred = texture(BlurredEffectSampler, texCoord);
-    float mask = texture(MaskSampler, texCoord).a;
-    float blurredMask = texture(BlurredMaskSampler, texCoord).a;
+    vec4 sharp = textureLod(EffectSampler, texCoord, 0.0);
+    vec4 blurred = textureLod(BlurredEffectSampler, texCoord, 0.0);
+    float mask = textureLod(MaskSampler, texCoord, 0.0).a;
+    float blurredMask = textureLod(BlurredMaskSampler, texCoord, 0.0).a;
 
     float blurScale = max(max(BlurInputScale.x, BlurInputScale.y), 1.0);
     float hardMask = clamp(mask, 0.0, 1.0);
@@ -68,11 +68,11 @@ void main() {
     if (hardMask < 0.0005 && sceneCoversHearts(ivec2(gl_FragCoord.xy + CompositeOrigin))) discard;
     float alpha = clamp(color.a, 0.0, 1.0);
     vec3 radiance = color.rgb / max(alpha, 0.0005);
-    vec3 bloom = texture(BloomSampler, texCoord).rgb;
-    bloom += texture(BloomSampler1, texCoord).rgb * 0.8;
-    bloom += texture(BloomSampler2, texCoord).rgb * 0.6;
-    bloom += texture(BloomSampler3, texCoord).rgb * 0.4;
-    bloom += texture(BloomSampler4, texCoord).rgb * 0.2;
+    vec3 bloom = textureLod(BloomSampler, texCoord, 0.0).rgb;
+    bloom += textureLod(BloomSampler1, texCoord, 0.0).rgb * 0.8;
+    bloom += textureLod(BloomSampler2, texCoord, 0.0).rgb * 0.6;
+    bloom += textureLod(BloomSampler3, texCoord, 0.0).rgb * 0.4;
+    bloom += textureLod(BloomSampler4, texCoord, 0.0).rgb * 0.2;
     radiance += bloom * BLOOM_INTENSITY;
     fragColor = vec4(heartDisplayColor(radiance) * alpha, alpha);
 }
