@@ -48,6 +48,7 @@ public abstract class TransformPatcherMixin {
         }
         if (RingBatchShaderSources.isVariant(name)) {
             var batch = RingBatchShaderSources.patchIris(transformer, result.get(PatchShaderType.VERTEX), result.get(PatchShaderType.FRAGMENT), RingBatchShaders.capacity());
+            if (batch == null) throw new IllegalStateException("FOA batching cannot patch terrain program: " + name);
             result.put(PatchShaderType.VERTEX, batch.getVertex());
             result.put(PatchShaderType.FRAGMENT, batch.getFragment());
         }

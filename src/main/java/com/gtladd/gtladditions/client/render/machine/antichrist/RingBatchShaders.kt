@@ -13,6 +13,7 @@ import net.minecraft.server.packs.resources.Resource
 import net.minecraft.server.packs.resources.ResourceProvider
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import org.lwjgl.opengl.GL20C
 import org.lwjgl.opengl.GL31C
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
@@ -40,7 +41,12 @@ object RingBatchShaders {
         return vanilla
     }
 
-    fun createVanilla(resources: ResourceProvider): ShaderInstance {
+    fun isUsable(shader: ShaderInstance): Boolean =
+        GL20C.glGetProgrami(shader.id, GL20C.GL_LINK_STATUS) != 0 &&
+            GL20C.glGetAttribLocation(shader.id, RingBatchShaderSources.ATTRIBUTE) >= 0 &&
+            GL31C.glGetUniformBlockIndex(shader.id, RingBatchShaderSources.BLOCK) != GL31C.GL_INVALID_INDEX
+
+    fun createVanilla(resources: ResourceProvider): ShaderInstance? {
         fun text(id: ResourceLocation): String = resources.getResourceOrThrow(id).open().bufferedReader().use { it.readText() }
         val json = JsonParser.parseString(text(ResourceLocation("minecraft", "shaders/core/rendertype_translucent.json"))).asJsonObject
         fun stage(name: String, suffix: String): String {
@@ -48,21 +54,22 @@ object RingBatchShaders {
             return text(ResourceLocation(id.namespace, "shaders/core/${id.path}.$suffix"))
         }
 
-        val sources = RingBatchShaderSources.patchVanilla(stage("vertex", "vsh"), stage("fragment", "fsh"), capacity())
+        val sources = RingBatchShaderSources.patchVanilla(stage("vertex", "vsh"), stage("fragment", "fsh"), capacity()) ?: return null
         json.addProperty("vertex", vanillaId.toString())
         json.addProperty("fragment", vanillaId.toString())
+        val stages = mapOf("json" to json.toString(), "vsh" to sources.vertex, "fsh" to sources.fragment)
         val pack = PathPackResources("gtladditions-foa-batch", Path.of("."), false)
         val provider = ResourceProvider { id ->
-            if (id.namespace == vanillaId.namespace && id.path.startsWith("shaders/core/${vanillaId.path}.")) {
-                val source = when {
-                    id.path.endsWith(".json") -> json.toString()
-                    id.path.endsWith(".vsh") -> sources.vertex
-                    id.path.endsWith(".fsh") -> sources.fragment
-                    else -> error("Unexpected FOA shader resource: $id")
-                }
-                Optional.of(Resource(pack) { ByteArrayInputStream(source.toByteArray(Charsets.UTF_8)) })
+            val stage = if (id.namespace == vanillaId.namespace && id.path.substringBeforeLast('.') == "shaders/core/${vanillaId.path}") {
+                stages[id.path.substringAfterLast('.')]
             } else {
+                null
+            }
+
+            if (stage == null) {
                 resources.getResource(id)
+            } else {
+                Optional.of(Resource(pack) { ByteArrayInputStream(stage.toByteArray(Charsets.UTF_8)) })
             }
         }
 

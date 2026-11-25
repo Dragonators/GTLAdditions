@@ -191,7 +191,6 @@ object RingTransparency {
                 var consumed = false
                 try {
                     val state = rendered.drawState()
-                    check(state.mode() == VertexFormat.Mode.QUADS && state.vertexCount() % 4 == 0)
                     val vertices = rendered.vertexBuffer()
                     val owned = MemoryUtil.memAlloc(vertices.remaining()).put(vertices).flip()
                     copy = owned
@@ -242,7 +241,6 @@ object RingTransparency {
 
         init {
             val format = sources.first().vertexFormat
-            check(sources.all { it.vertexFormat == format })
             val vertexCount = sources.sumOf { it.centers.size * 4 } * instances
             indexCapacity = vertexCount / 4 * 6
             val meta = MemoryUtil.memAllocFloat(vertexCount * 2)
@@ -330,7 +328,6 @@ object RingTransparency {
 
             if (metadataShader !== shader) {
                 val location = GL20C.glGetAttribLocation(shader.id, RingBatchShaderSources.ATTRIBUTE)
-                check(location >= 0) { "FOA shader has no ring metadata: ${shader.name}" }
                 val previous = GL15C.glGetInteger(GL15C.GL_ARRAY_BUFFER_BINDING)
                 try {
                     // Preserve the layout that native upload actually installed. Re-running

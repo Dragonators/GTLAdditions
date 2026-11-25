@@ -21,18 +21,28 @@ class RrfEffectPlacement(front: Direction, up: Direction, flipped: Boolean, arra
     fun bounds(position: BlockPos, array: Boolean): AABB {
         val min = if (array) doubleArrayOf(-31.0, 0.6, -31.0) else doubleArrayOf(-3.7, -3.7, -17.2)
         val max = if (array) doubleArrayOf(31.0, 3.0, 31.0) else doubleArrayOf(3.7, 3.7, 0.7)
-        var bounds: AABB? = null
+        var minX = Double.POSITIVE_INFINITY
+        var minY = Double.POSITIVE_INFINITY
+        var minZ = Double.POSITIVE_INFINITY
+        var maxX = Double.NEGATIVE_INFINITY
+        var maxY = Double.NEGATIVE_INFINITY
+        var maxZ = Double.NEGATIVE_INFINITY
 
         for (corner in 0..7) {
-            val point = transform(
-                if (corner and 1 == 0) min[0] else max[0],
-                if (corner and 2 == 0) min[1] else max[1],
-                if (corner and 4 == 0) min[2] else max[2]
-            ).add(position.x + 0.5, position.y + 0.5, position.z + 0.5)
-            val single = AABB(point, point)
-            bounds = bounds?.minmax(single) ?: single
+            val lx = if (corner and 1 == 0) min[0] else max[0]
+            val ly = if (corner and 2 == 0) min[1] else max[1]
+            val lz = if (corner and 4 == 0) min[2] else max[2]
+            val x = position.x + 0.5 + right.stepX * lx + above.stepX * ly + forward.stepX * lz
+            val y = position.y + 0.5 + right.stepY * lx + above.stepY * ly + forward.stepY * lz
+            val z = position.z + 0.5 + right.stepZ * lx + above.stepZ * ly + forward.stepZ * lz
+            minX = minOf(minX, x)
+            minY = minOf(minY, y)
+            minZ = minOf(minZ, z)
+            maxX = maxOf(maxX, x)
+            maxY = maxOf(maxY, y)
+            maxZ = maxOf(maxZ, z)
         }
 
-        return requireNotNull(bounds)
+        return AABB(minX, minY, minZ, maxX, maxY, maxZ)
     }
 }

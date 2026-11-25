@@ -150,7 +150,6 @@ object RrfEffectGeometry {
     fun timeCursorPosition(seconds: Double): Double = -3.7 + 5.55 * jamProgress(seconds)
 
     fun module(kind: RrfEffectKind, seconds: Double, mesh: RrfEffectMesh) {
-        require(kind != RrfEffectKind.ARRAY)
         mesh.clear()
         val painter = Painter(mesh)
         painter.seal(kind, front, seconds)

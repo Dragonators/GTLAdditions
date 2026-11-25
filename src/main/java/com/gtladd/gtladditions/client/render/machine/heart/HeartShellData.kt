@@ -79,27 +79,18 @@ object HeartShellData {
             val axis = input.readVector()
             val sweep = input.readVector()
             val maxAngle = input.readFloat()
-            check(
-                axis.isFinite &&
-                    axis.lengthSquared() > 1e-8f &&
-                    sweep.isFinite &&
-                    sweep.lengthSquared() > 1e-8f &&
-                    maxAngle.isFinite()
-            ) { "Invalid Heart shell directions" }
             val levels = input.readUnsignedByte()
             val cubes = List(input.readUnsignedShort()) {
-                val cube = Cube(input.readByte().toInt(), input.readByte().toInt(), input.readUnsignedByte(), input.readUnsignedByte())
-                check(cube.depth < levels) { "Invalid Heart master cube" }
-                cube
+                Cube(input.readByte().toInt(), input.readByte().toInt(), input.readUnsignedByte(), input.readUnsignedByte())
             }
 
             val rows = ByteArray(ROWS * 2)
             input.readFully(rows)
 
             val count = input.readUnsignedShort()
-            check(count in 1..256) { "Invalid Heart plate count: $count" }
+            check(count in 1..HeartShellRenderer.MAX_PLATES) { "Invalid Heart plate count: $count" }
             val plates = List(count) {
-                val plate = Plate(
+                Plate(
                     input.readVector(),
                     input.readVector(),
                     input.readVector(),
@@ -108,10 +99,6 @@ object HeartShellData {
                     input.readUnsignedByte(),
                     input.readUnsignedByte() != 0
                 )
-                check(plate.tangent.isFinite && plate.bitangent.isFinite && plate.normal.isFinite && plate.center.isFinite) {
-                    "Invalid Heart plate"
-                }
-                plate
             }
 
             Shell(index + 1, axis, sweep, maxAngle, levels, cubes, rows, plates)

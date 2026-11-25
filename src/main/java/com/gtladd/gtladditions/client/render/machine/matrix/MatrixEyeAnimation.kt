@@ -62,7 +62,6 @@ class MatrixEyeAnimation {
     private var rise = 0.0
 
     fun sample(seconds: Double, active: Boolean, smoothAnimations: Boolean): Frame {
-        require(seconds.isFinite())
         if (lastTime.isNaN() || lastSmoothAnimations != smoothAnimations) {
             // Render and machine clocks have unrelated origins; preserve the eye's local phase when switching.
             lastTime = seconds

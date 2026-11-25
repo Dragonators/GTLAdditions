@@ -118,8 +118,6 @@ object RrfArrayGeometry {
         val pitch = DoubleArray(CORNERS)
     }
 
-    private class Topology(val indices: IntArray, val vertexCount: Int)
-
     private val topology by lazy {
         val draft = RrfArrayMesh(STRIDE)
         var base = 0
@@ -132,7 +130,7 @@ object RrfArrayGeometry {
             draft.triangle(base + core.indices[i], base + core.indices[i + 1], base + core.indices[i + 2])
         }
 
-        Topology(draft.indices.copyOf(draft.indexCount), base + core.vertexCount)
+        draft.indices.copyOf(draft.indexCount)
     }
 
     private data class V(val x: Double, val y: Double, val z: Double) {
@@ -150,8 +148,7 @@ object RrfArrayGeometry {
     }
 
     fun build(seconds: Double, mesh: RrfArrayMesh) {
-        val indices = topology
-        mesh.beginFixedGeometry(indices.indices)
+        mesh.beginFixedGeometry(topology)
         val work = mesh.scratch
         val angle = rotationAngle(seconds)
 
@@ -195,7 +192,6 @@ object RrfArrayGeometry {
         tube(work.points, 0, CORNERS, true, RING_RADIUS, blue, 0.7 * sin(PI * phase).pow(2), mesh)
 
         appendCore(seconds, mesh)
-        check(mesh.vertexCount == indices.vertexCount) { "RRF array topology does not match its vertices" }
     }
 
     private fun fraction(t: Double) = t - floor(t)

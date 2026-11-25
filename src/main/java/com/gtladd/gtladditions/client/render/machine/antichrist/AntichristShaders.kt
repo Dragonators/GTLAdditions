@@ -47,7 +47,18 @@ object AntichristShaders {
     fun register(event: RegisterShadersEvent) {
         RingBatchShaders.vanilla = null
         try {
-            event.registerShader(RingBatchShaders.createVanilla(event.resourceProvider)) { shader -> RingBatchShaders.vanilla = shader }
+            val candidate = RingBatchShaders.createVanilla(event.resourceProvider)
+            if (candidate == null) {
+                GTLAdditions.LOGGER.warn("Skipping FOA vanilla batch shader for unfamiliar rendertype_translucent")
+            } else {
+                event.registerShader(candidate) { shader ->
+                    if (RingBatchShaders.isUsable(shader)) {
+                        RingBatchShaders.vanilla = shader
+                    } else {
+                        GTLAdditions.LOGGER.warn("FOA vanilla batch shader failed link validation; using cached material groups")
+                    }
+                }
+            }
         } catch (error: Exception) {
             GTLAdditions.LOGGER.warn("FOA vanilla batch shader could not be created; using cached material groups", error)
         }

@@ -23,7 +23,6 @@ class RingBatchPalette : AutoCloseable {
 
     fun binding(shader: ShaderInstance): Int = bindings.getOrPut(shader) {
         val block = GL31C.glGetUniformBlockIndex(shader.id, RingBatchShaderSources.BLOCK)
-        check(block != GL31C.GL_INVALID_INDEX) { "FOA shader has no ring palette: ${shader.name}" }
         val used = HashSet<Int>()
         val count = GL31C.glGetProgrami(shader.id, GL31C.GL_ACTIVE_UNIFORM_BLOCKS)
         for (i in 0 until count) if (i != block) used.add(GL31C.glGetActiveUniformBlocki(shader.id, i, GL31C.GL_UNIFORM_BLOCK_BINDING))
