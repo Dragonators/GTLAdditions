@@ -1,0 +1,143 @@
+Subspace Corridor Nexus Industrial Array — asset sources
+
+The geometry, procedural GLSL and animation definitions were made for this
+mod. The shipped resources are native meshes, textures, GLSL and JSON. The
+entries below credit them by source key.
+
+Death Star (2)
+Author: Hj.Kj
+Source: https://sketchfab.com/3d-models/death-star-2-eadd05e23595432994b1c9fdf4471437
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Geometry: the existing GTLAdditions master death_star.bin.gz (LHP1), verified
+vertex-for-vertex against the reference: 6 parts, 45,840 vertices.
+Textures: the model's five highest-resolution source JPEGs, originally
+_1_-_Default1.JPG, _3_-_Default1.JPG, _7_-_Default1.JPG,
+_8_-_Default1.JPG and _8_-_Default1_0.JPG. Changes: repacked geometry and
+resource names; textures re-encoded from JPEG quality 100 to 92; scale,
+lighting, orbit and rotation applied by the renderer.
+The CC license attribution does not imply endorsement or trademark rights.
+
+planet:europa (Starkiller ice surface)
+Author: Hermes; Europa (2K), Celestia Motherlode, europa1_out.jpg
+Source: https://www.celestiamotherlode.net/addon/addon_995.html
+Archive: http://www.celestiamotherlode.net/creators/hermes/Europa2K.zip
+Listed permission: Free to use and edit. No Creative Commons license is claimed.
+Reference changes: resized to 1024x512 JPEG. Icy tint and the excavated red
+cannon aperture are procedural shader changes.
+
+planet:city; planet:gasCyan
+Author: vektorDex, Planetary Textures (2048x1024)
+Source: https://opengameart.org/content/planetary-textures-2048x1024
+License: CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/
+Original files: Oceanic-Clouds-EQUIRECTANGULAR-12-2048x1024.png;
+Gas Giant-EQUIRECTANGULAR-9-2048x1024.png.
+Reference changes: JPEG conversion; city 2048x1024, gasCyan 1024x512.
+City lights, traffic, atmospheres and cyan equatorial light are procedural.
+
+planet:exo5
+Author: cubicApocalypse, CelestiaContent, exo-class5.jpg
+Source: https://github.com/CelestiaProject/CelestiaContent
+License: CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
+Reference changes: 2048x1024 JPEG; violet hue/tint applied in the shader.
+
+planet:haumea; planet:ring (where referenced)
+Author: Solar System Scope
+Source: https://www.solarsystemscope.com/textures/
+License: CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
+Original files: 2k_haumea_fictional.jpg; 2k_saturn_ring_alpha.png.
+Reference changes: 1024x512 JPEG / 1024x64 ring map; shader tint.
+
+planet:moon; planet:moonH
+NASA Scientific Visualization Studio, CGI Moon Kit; LRO data:
+NASA/GSFC/Arizona State University.
+Source: https://svs.gsfc.nasa.gov/4720
+Public-domain U.S. Government source imagery, credited as supplied by the kit.
+Original files: lroc_color_2k.jpg; ldem_3_8bit.jpg.
+Reference changes: resized to 1024x512 JPEG; height-map bump shading.
+
+screen:SP2; screen:garble; screen:glyph
+Procedural screen art made for this mod. Roman-numeral glyphs were
+rasterized with Noto Sans SC (SIL Open Font License 1.1).
+Font source/license: https://github.com/notofonts/noto-cjk
+Only rasterized output is distributed; no font program is embedded.
+
+climber_fx
+Generated from primitives in Blender for this mod.
+Coordinates/envelope and the x4 scale follow the GTLCore climber.
+GTLCore credit: POWSDSSAG, EasterFG, Maple;
+https://github.com/GNSW/GTLCore (GTLCore 1.2.3.3 declares LGPL-3.0).
+Changes include the round traction collar, four-strand clearance, separate
+animated wheels/cargo/nozzles/beacons and three mesh detail levels.
+
+Three.js
+The build-time reference uses Three.js r160, MIT, copyright Three.js authors.
+Its full notice is retained in THREE-LICENSE.txt beside this file.
+Three.js is not shipped in the game runtime.
+
+Original block models/textures for the moving cabins remain owned by GTCEu,
+GTLCore and GTLAdditions and are resolved through their live block registries.
+This notice does not relicense any third-party asset.
+
+
+Asteroid belt — KA.KM1.KS100.KR30.KL100 (2026-11-04)
+Files: meshes/asteroid_rocks.bin.gz, meshes/asteroid_sprites.bin.gz,
+asteroid-belt.json and textures/asteroids/{normals,maps}/*.png.
+The 1700 centres and diameters retain the original asteroid_belt.bin.gz data.
+The scientific datasets supply shapes and surface imagery; the scene's sizes,
+spin rates, mixed surfaces, compressed brightness range and lighting are artistic.
+
+asteroid:shapes; asteroid:normals:bennu; asteroid:maps:bennu
+NASA Scientific Visualization Studio, "Asteroid Bennu 3D Models", item 5069.
+Source: https://svs.gsfc.nasa.gov/5069
+Credit: NASA's Scientific Visualization Studio.
+Data provided by NASA/University of Arizona/CSA/York University/MDA.
+Shape: OSIRIS-REx OLA v20 PTM, g_00880mm_alt_ptm_0000n00000_v020.glb;
+Daly et al. (2020). Mosaic: Bennu OSIRIS-REx OCAMS Global PAN Mosaic 5cm v1,
+Bennu_global_FB34_FB56_ShapeV28_GndControl_MinnaertPhase30_PAN_8bit_print.jpg;
+Bennett et al. (2020), "A high-resolution global Basemap of (101955) Bennu".
+NASA media guidance: https://www.nasa.gov/nasa-brand-center/images-and-media/
+
+asteroid:maps:ceres
+"Ceres Dawn FC Global Mosaic 140m", February 2016.
+Primary authors: NASA/JPL-Caltech/UCLA/MPS/DLR/IDA.
+Originator/publisher: USGS Astrogeology Science Center; mosaic produced by DLR.
+Source: https://astrogeology.usgs.gov/search/map/ceres_dawn_fc_global_mosaic_140m
+The product record lists no access constraints and asks users to cite authors.
+Reference: Roatsch et al. (2016), Planetary and Space Science 125, 103-107,
+https://doi.org/10.1016/j.pss.2016.05.011
+
+asteroid:maps:vesta
+"Vesta Dawn FC HAMO Global Mosaic 60m", 2013-12-10.
+Primary authors: NASA/JPL-Caltech/UCLA/MPS/DLR/IDA; originator: Dawn Team.
+Publisher: USGS Astrogeology Science Center.
+Source: https://astrogeology.usgs.gov/search/map/vesta_dawn_fc_hamo_global_mosaic_60m
+The product record lists no access constraints and asks users to cite authors.
+Reference: Roatsch et al. (2012), Planetary and Space Science 73, 283-286,
+https://doi.org/10.1016/j.pss.2012.08.021
+
+asteroid:shapes; asteroid:normals:{eros,itokawa,toutatis,geographos,golevka,kleopatra,mithra,hw1}
+NASA-3D-Resources, "3D Printing" STL files for 433 Eros, 25143 Itokawa,
+4179 Toutatis, 1620 Geographos, 6489 Golevka, 216 Kleopatra, 4486 Mithra
+and 8567 (1996 HW1).
+Source: https://github.com/nasa/NASA-3D-Resources/tree/master/3D%20Printing
+NASA's repository describes its assets as free and without copyright and links
+to NASA's usage guidelines. The precise upstream lineage of these individual
+STL files has not been established. Retained acknowledgement for radar models:
+"3D asteroid model courtesy of Scott Hudson, Washington State University."
+https://users.tricity.wsu.edu/~hudson/Research/Asteroids/models.html
+Hudson's page states non-commercial/non-profit use with acknowledgement;
+this notice does not assert that NASA's STL files were directly obtained there.
+
+Processing: the handoff rejoined Eros/Itokawa print halves, resampled shapes
+as radial fields (filling overhangs), and baked 80/320-triangle meshes and
+object-space normal maps. Fine relief on the six radar/lightcurve shapes
+comes from Bennu. Eros/Itokawa borrow surface mosaics from Bennu/Ceres/Vesta.
+Mosaic polar gaps were mirrored, broad lighting flattened and contrast clipped.
+The native renderer uses quality C: 256x128 textures, 136,000 triangles across the full belt.
+Texture reduction uses box filtering from the supplied 1024x512 pixels.
+Normals use RGB8 and grayscale mosaics use R8 with independent mipmaps.
+Mesh reduction uses constrained quadric edge collapse; original axis extrema
+and the farthest vertex are fixed, preserving bounds and maximum radius.
+Spin rates use 0.46875 degrees/second steps.
+Exporter: scripts/subspace_nexus/export_asteroid_belt.py.

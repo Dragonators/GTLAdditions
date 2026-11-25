@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.Mod
 object AntichristShaders {
     private val STAR_SHADER_ID = GTLAdditions.id("gtladditions_antichrist_star")
     private val STAR_OPAQUE_SHADER_ID = GTLAdditions.id("gtladditions_antichrist_star_opaque")
+    private val STAR_ORIGINAL_COLOR_SHADER_ID = GTLAdditions.id("gtladditions_antichrist_star_original_color")
     private val BEAM_SHADER_ID = GTLAdditions.id("gtladditions_antichrist_beam")
     internal val BEAM_VERTEX_FORMAT = VertexFormat(
         ImmutableMap.of(
@@ -37,6 +38,9 @@ object AntichristShaders {
     var starOpaqueShader: ShaderInstance? = null
         private set
 
+    var starOriginalColorShader: ShaderInstance? = null
+        private set
+
     var beamShader: ShaderInstance? = null
         private set
 
@@ -50,6 +54,11 @@ object AntichristShaders {
 
         RenderUtils.registerShader(event, STAR_SHADER_ID, DefaultVertexFormat.POSITION_TEX) { shader -> starShader = shader }
         RenderUtils.registerShader(event, STAR_OPAQUE_SHADER_ID, DefaultVertexFormat.POSITION_TEX) { shader -> starOpaqueShader = shader }
+        RenderUtils.registerShader(
+            event,
+            STAR_ORIGINAL_COLOR_SHADER_ID,
+            DefaultVertexFormat.POSITION_TEX
+        ) { shader -> starOriginalColorShader = shader }
 
         RenderUtils.registerShader(event, BEAM_SHADER_ID, BEAM_VERTEX_FORMAT) { shader -> beamShader = shader }
     }

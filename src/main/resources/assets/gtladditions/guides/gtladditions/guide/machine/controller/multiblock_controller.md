@@ -42,7 +42,7 @@ categories:
 * [Titan's Crip Earthbore](titan_crip_earthbore.md)
 * [Skeleton Shift Rift Engine](skeleton_shift_rift_engine.md)
 * [Space Scaling Instrument](space_scaling_instrument.md)
-* [Subspace Corridor Hub](subspace_corridor_hub_industrial_array.md)
+* [Subspace Corridor Nexus](subspace_corridor_nexus_industrial_array.md)
 * [Nexus Satellite Factory](nexus_satellite_factory.md)
 * [Macro Atomic Resonant Fragment Stripper](macro_atomic_resonant_fragment_stripper.md)
 * [Space Elevator MKII](space_elevator_mkii.md)

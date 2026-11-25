@@ -8,6 +8,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMEN
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HEART_OF_THE_UNIVERSE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIOFLARE_POWER_FORGE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBATOMIC_TRANSMUTATIOON_CORE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD
 import com.gtladd.gtladditions.integration.stargate.StargateContent
 import com.gtladd.gtladditions.integration.xei.machineinfo.MachineInfoJeiCategory
@@ -35,6 +36,7 @@ class GTJEIPlugin : IModPlugin {
                 it.`is`(ATOMIC_TRANSMUTATIOON_CORE.item) ||
                 it.`is`(APOCALYPTIC_TORSION_QUANTUM_MATRIX.item) ||
                 it.`is`(DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT.item) ||
+                it.`is`(SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY.item) ||
                 it.`is`(HEART_OF_THE_UNIVERSE.item)
         }
 

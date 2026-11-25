@@ -1,0 +1,2 @@
+uniform mat3 uRot;varying vec3 vN;varying vec3 vP;varying vec3 vO;
+void main(){vO=uRot*normalize(position);vP=(modelMatrix*vec4(position,1.)).xyz;vN=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*viewMatrix*vec4(vP,1.);}

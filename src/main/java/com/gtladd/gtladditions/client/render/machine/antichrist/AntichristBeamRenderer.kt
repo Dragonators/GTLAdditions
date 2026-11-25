@@ -74,6 +74,104 @@ object AntichristBeamRenderer {
     private val boundsBeam = SegmentBuffer()
     private val cameraPosition = Vector3f()
 
+    data class VerticalTaperBeamProfile(
+        val tick: Double,
+        val basePos: Vec3,
+        val height: Float,
+        val bottomRadius: Float,
+        val topRadius: Float,
+        val colorR: Float,
+        val colorG: Float,
+        val colorB: Float,
+        val beamAlpha: Float
+    )
+
+    fun drawVerticalTaper(profile: VerticalTaperBeamProfile, poseStack: PoseStack, blockPos: BlockPos, camera: Vec3): Boolean {
+        val shader = AntichristShaders.beamShader ?: return false
+        updateCameraPositionInVerticalBeamSpace(profile, blockPos, camera)
+        writeVerticalSoftBeamSegments(profile, softBeam)
+        writeVerticalIntenseBeamSegments(profile, intenseBeam)
+
+        poseStack.withPose {
+            translate(profile.basePos.x, profile.basePos.y, profile.basePos.z)
+            mulPose(Axis.XP.rotationDegrees(-90.0f))
+            RenderUtils.withSavedRenderState {
+                renderCurrentSegments(shader, profile.tick, profile.colorR, profile.colorG, profile.colorB, 1.0f, 1.0f, 1.0f)
+            }
+        }
+
+        return true
+    }
+
+    fun verticalTaperBounds(profile: VerticalTaperBeamProfile, blockPos: BlockPos): AABB {
+        var radius = 0f
+        var near = Float.MAX_VALUE
+        var far = -Float.MAX_VALUE
+
+        for (intense in booleanArrayOf(false, true)) {
+            if (intense) writeVerticalIntenseBeamSegments(profile, boundsBeam) else writeVerticalSoftBeamSegments(profile, boundsBeam)
+
+            for (endpoint in 0..boundsBeam.segmentCount) {
+                radius = max(radius, boundsBeam.radius(endpoint))
+                near = minOf(near, boundsBeam.offset(endpoint))
+                far = max(far, boundsBeam.offset(endpoint))
+            }
+        }
+
+        val x = blockPos.x + profile.basePos.x
+        val y = blockPos.y + profile.basePos.y
+        val z = blockPos.z + profile.basePos.z
+        return AABB(x - radius, y + near, z - radius, x + radius, y + far, z + radius)
+    }
+
+    private fun writeVerticalSoftBeamSegments(
+        profile: VerticalTaperBeamProfile,
+        segments: SegmentBuffer
+    ) {
+        segments.clear()
+
+        val fadeEndOffset = profile.height * 0.1f
+        val fadeEndRadius = interpolate(0.0f, profile.height, profile.bottomRadius, profile.topRadius, fadeEndOffset)
+
+        segments.add(profile.bottomRadius, 0.0f, 0.0f)
+        segments.add(fadeEndRadius, fadeEndOffset, profile.beamAlpha)
+        segments.add(profile.topRadius, profile.height, profile.beamAlpha * 0.85f)
+        segments.repeatLastEndpoint()
+    }
+
+    private fun writeVerticalIntenseBeamSegments(
+        profile: VerticalTaperBeamProfile,
+        segments: SegmentBuffer
+    ) {
+        segments.clear()
+
+        val fadeEndOffset = profile.height * 0.1f
+        val fadeEndRadius = interpolate(
+            0.0f,
+            profile.height,
+            profile.bottomRadius * 0.45f,
+            profile.topRadius * 0.5f,
+            fadeEndOffset
+        )
+
+        segments.add(profile.bottomRadius * 0.45f, 0.0f, 0.0f)
+        segments.add(fadeEndRadius, fadeEndOffset, profile.beamAlpha * 0.55f)
+        segments.add(profile.topRadius * 0.5f, profile.height, profile.beamAlpha * 0.85f)
+        segments.repeatLastEndpoint()
+    }
+
+    private fun updateCameraPositionInVerticalBeamSpace(profile: VerticalTaperBeamProfile, blockPos: BlockPos, camera: Vec3) {
+        val relativeX = camera.x - blockPos.x - profile.basePos.x
+        val relativeY = camera.y - blockPos.y - profile.basePos.y
+        val relativeZ = camera.z - blockPos.z - profile.basePos.z
+
+        cameraPosition.set(
+            relativeX.toFloat(),
+            -relativeZ.toFloat(),
+            relativeY.toFloat()
+        )
+    }
+
     fun draw(profile: AntichristRenderProfile, poseStack: PoseStack, blockPos: BlockPos, camera: Vec3): Boolean {
         val shader = AntichristShaders.beamShader ?: return false
         updateCameraPositionInBeamSpace(profile, blockPos, camera)

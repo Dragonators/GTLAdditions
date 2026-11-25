@@ -54,6 +54,7 @@ import com.gtladd.gtladditions.client.render.machine.PartWorkableCasingMachineRe
 import com.gtladd.gtladditions.client.render.machine.RecursiveReverseRenderer
 import com.gtladd.gtladditions.client.render.machine.SpaceElevatorRenderer
 import com.gtladd.gtladditions.client.render.machine.SubspaceCorridorHubIndustrialArrayRenderer
+import com.gtladd.gtladditions.client.render.machine.SubspaceCorridorNexusIndustrialArrayRenderer
 import com.gtladd.gtladditions.client.render.machine.TimeSpaceDistorterRenderer
 import com.gtladd.gtladditions.client.render.machine.rrf.RrfEffectKind
 import com.gtladd.gtladditions.common.blocks.GTLAddBlocks.CENTRAL_GRAVITON_FLOW_REGULATOR
@@ -184,6 +185,7 @@ object MultiBlockMachine {
     val HEART_OF_THE_UNIVERSE: MultiblockMachineDefinition
     val HEART_OF_THE_COSMOS: MultiblockMachineDefinition
     val SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY: MultiblockMachineDefinition
+    val SUBSPACE_CORRIDOR_NEXUS_INDUSTRIAL_ARRAY: MultiblockMachineDefinition
     val DIMENSION_FOCUS_INFINITY_CRAFTING_ARRAY: MultiblockMachineDefinition
     val SPACE_INFINITY_INTEGRATED_ORE_PROCESSOR: MultiblockMachineDefinition
     val MACRO_ATOMIC_RESONANT_FRAGMENT_STRIPPER: MultiblockMachineDefinition
@@ -2195,16 +2197,20 @@ object MultiBlockMachine {
             Function { SubspaceCorridorHubIndustrialArray(it) }
         )
             .nonYAxisRotation()
-            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.0".toComponent)
-            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.1".toComponent)
-            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.2".toComponent)
-            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.3".toComponent)
-            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.4".toComponent)
-            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.5".toComponent)
-            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.6".toComponent)
-            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_hub_industrial_array.tooltip.7".toComponent)
+            .tooltipTextKey("tooltip.gtladditions.discontinued".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.1".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.2".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.3".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.4".toComponent)
+            .tooltipTextKey(
+                "gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.5".toComponent(
+                    "138".literal.withStyle(ChatFormatting.GOLD)
+                )
+            )
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.6".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.7".toComponent)
             .tooltipTextKey("tooltip.gtlcore.structure.source".toComponent("BV11x4y1L7GZ"))
-            .tooltipTextRecipeTypes(INTER_STELLAR)
             .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
             .recipeType(INTER_STELLAR)
             .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
@@ -2259,6 +2265,63 @@ object MultiBlockMachine {
                     .build()
             }
             .renderer { SubspaceCorridorHubIndustrialArrayRenderer() }
+            .hasTESR(true)
+            .register()
+
+        SUBSPACE_CORRIDOR_NEXUS_INDUSTRIAL_ARRAY = REGISTRATE.multiblock(
+            "subspace_corridor_nexus_industrial_array",
+            Function { SubspaceCorridorNexusIndustrialArray(it) }
+        )
+            .nonYAxisRotation()
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.0".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.1".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.2".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.3".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.4".toComponent)
+            .tooltipTextKey(
+                "gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.5".toComponent(
+                    "144".literal.withStyle(ChatFormatting.GOLD)
+                )
+            )
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.6".toComponent)
+            .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.7".toComponent)
+            .tooltipBuilder(GTLAddMachines.GTLAdd_ADD)
+            .recipeType(INTER_STELLAR)
+            .recipeModifier(GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic(1.0, 1.0, false)))
+            .appearanceBlock(HIGH_POWER_CASING)
+            .pattern { definition: MultiblockMachineDefinition? ->
+                MultiBlockStructure.SUBSPACE_CORRIDOR_NEXUS_INDUSTRIAL_ARRAY!!
+                    .where("~", controller(blocks(definition!!.get())))
+                    .where("A", blocks(getBlock("gtladditions:gravity_stabilization_casing")))
+                    .where("B", blocks(getBlock("gtladditions:extreme_density_casing")))
+                    .where("C", blocks(getBlock("gtlcore:hyper_mechanical_casing")))
+                    .where("D", blocks(getBlock("gtlcore:antifreeze_heatproof_machine_casing")))
+                    .where("E", blocks(getBlock("gtceu:nonconducting_casing")))
+                    .where("F", blocks(getBlock("gtlcore:fission_reactor_casing")))
+                    .where("G", blocks(getBlock("kubejs:module_base")))
+                    .where("H", blocks(getBlock("kubejs:high_strength_concrete")))
+                    .where("I", blocks(getBlock("kubejs:space_elevator_internal_support")))
+                    .where("J", blocks(getBlock("gtlcore:ultimate_stellar_containment_casing")))
+                    .where("K", blocks(getBlock("gtlcore:qft_coil")))
+                    .where("L", blocks(getBlock("gtceu:yellow_stripes_block_a")))
+                    .where("M", blocks(getBlock("gtlcore:dimensionally_transcendent_casing")))
+                    .where("N", blocks(getBlock("kubejs:module_connector")))
+                    .where("O", blocks(getBlock("gtceu:fusion_glass")))
+                    .where("S", blocks(getBlock("gtlcore:space_elevator_support")))
+                    .where("T", blocks(getBlock("kubejs:spacetime_assembly_line_unit")))
+                    .where("U", blocks(getBlock("kubejs:dyson_control_toroid")))
+                    .where("X", blocks(getBlock("gtlcore:graviton_field_constraint_casing")))
+                    .where("Y", blocks(getBlock("gtlcore:power_core")))
+                    .where("q", blocks(getBlock("gtceu:computer_heat_vent")))
+                    .where(
+                        "h",
+                        blocks(HIGH_POWER_CASING.get())
+                            .or(abilities(IMPORT_ITEMS).setPreviewCount(1))
+                            .or(abilities(INPUT_ENERGY).setMaxGlobalLimited(1).setPreviewCount(1))
+                    )
+                    .build()
+            }
+            .renderer { SubspaceCorridorNexusIndustrialArrayRenderer() }
             .hasTESR(true)
             .register()
 

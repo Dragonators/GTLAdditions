@@ -169,19 +169,6 @@ object IndustrialArrayPosHelper {
         }
     }
 
-    fun calculatePossibleHostPositions(modulePos: BlockPos): Array<BlockPos> {
-        val result = mutableListOf<BlockPos>()
-
-        for ((_, offsets) in offsetsByDirection) {
-            for (offset in offsets) {
-                val hostPos = modulePos.offset(-offset[0], -offset[1], -offset[2])
-                result.add(hostPos)
-            }
-        }
-
-        return result.toTypedArray()
-    }
-
     @Suppress("SameParameterValue")
     private fun rotateOffsets(offsets: Array<IntArray>, rotation: Int): Array<IntArray> = Array(offsets.size) { i ->
         val (x, y, z) = offsets[i]

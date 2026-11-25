@@ -1,0 +1,3 @@
+attribute float aRole;attribute vec2 aUV;uniform vec3 uCam;uniform float uPix;uniform float uBoostM;
+varying vec3 vP;varying vec3 vN;varying vec3 vT;varying float vRole;varying vec2 vUV;varying float vBoost;varying float vLod;varying float vRad;
+void main(){vec4 w=modelMatrix*vec4(position,1.);vP=w.xyz;vN=mat3(modelMatrix)*normal;vT=vec3(0.,0.,1.);vRole=aRole;vUV=aUV;vRad=0.;vBoost=uBoostM;vLod=1.;gl_Position=projectionMatrix*viewMatrix*w;}

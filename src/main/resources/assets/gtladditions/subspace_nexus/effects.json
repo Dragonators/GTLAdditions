@@ -1,0 +1,423 @@
+{
+ "selection": {
+  "pstop": "IP3",
+  "pad": "PH2",
+  "star": "S4",
+  "throat": "H2",
+  "crown": "W0",
+  "beam": "M3",
+  "rbeam": "R4",
+  "flowGap": 155,
+  "flowSpeed": 40,
+  "glory": "G0",
+  "flash": "B1",
+  "diamond": "D1",
+  "ecl": "E8",
+  "planets": "PM",
+  "pmat": "A1",
+  "neg": 2,
+  "fall": "Z10",
+  "shell": "Y0",
+  "tumble": "U3",
+  "tspd": 44,
+  "tamp": 35,
+  "spal": "Q3",
+  "trail": "T1",
+  "belt": "K1",
+  "chords": "L2",
+  "helix": "X0",
+  "fix": "F1",
+  "orbN": 4,
+  "orbI": 0,
+  "orbP": "OP1",
+  "pScale": 65,
+  "rspin": 74,
+  "pulse": "BP3",
+  "pulseK": 160,
+  "pulseL": 70,
+  "rbK": 70,
+  "rlit": "ZL0",
+  "rmat": "ZM5",
+  "rglyph": "ZG1",
+  "rasm": "ZA1",
+  "rtick": "ZT0",
+  "rinner": "ZI1",
+  "rdep": 200,
+  "rcount": "ZK0",
+  "rcoll": "ZC1",
+  "dline": "DLN",
+  "dflow": "DF0",
+  "dmark": "DM2",
+  "ddash": 36,
+  "dbright": 80,
+  "dspeed": 3,
+  "dthick": 40,
+  "dcut": "DC0",
+  "oline": "OL1",
+  "pstat": "PS3",
+  "pcage": "PC4",
+  "pcore": "PK1",
+  "dstar": "PD2",
+  "dsize": 90,
+  "dspin": 44,
+  "ptraffic": "PT1",
+  "flr": "FL1",
+  "spage": "SP2",
+  "stear": "TR2",
+  "sched": "SC1",
+  "sside": "SE8",
+  "sopa": 90,
+  "sfreq": 50,
+  "sgar": "GA8",
+  "sglitch": 100
+ },
+ "ship_rig": {
+  "units": "climber model units; renderer scales x4 (1 unit = 4 blocks)",
+  "frames": {
+   "preview": "Z up: +Y cargo side, +X/-X/-Y pods",
+   "mc": "original climber OBJ frame, Y up (x, z, -y)"
+  },
+  "materials": {
+   "hull": {
+    "zh": "白色舱壳",
+    "srgb": "#E4E9EE",
+    "emissive": null
+   },
+   "panel": {
+    "zh": "浅灰罐体",
+    "srgb": "#A7B1BA",
+    "emissive": null
+   },
+   "frame": {
+    "zh": "黑色骨架",
+    "srgb": "#17191C",
+    "emissive": null
+   },
+   "mech": {
+    "zh": "机构灰",
+    "srgb": "#646D75",
+    "emissive": null
+   },
+   "glow": {
+    "zh": "青色灯带",
+    "srgb": "#0E2A33",
+    "emissive": "#5FE0FF"
+   },
+   "cargo": {
+    "zh": "货舱窗（装载时亮）",
+    "srgb": "#10313A",
+    "emissive": "#9AF6FF"
+   },
+   "warm": {
+    "zh": "信标暖光",
+    "srgb": "#3A2410",
+    "emissive": "#FFB45A"
+   },
+   "nozzle": {
+    "zh": "推进口",
+    "srgb": "#1A2E36",
+    "emissive": "#C6F3FF"
+   }
+  },
+  "triangles": {
+   "climber_fx_hull": 4356,
+   "climber_fx_glow": 940,
+   "climber_fx_fins": 48,
+   "climber_fx_cargo": 144,
+   "climber_fx_nozzle": 84,
+   "climber_fx_beacon": 84,
+   "climber_fx_wheel": 108,
+   "climber_fx_static": 5656,
+   "climber_fx_lod1": 1832,
+   "climber_fx_lod2": 540
+  },
+  "preview": {
+   "wheels": [
+    {
+     "pos": [
+      0.0,
+      0.229,
+      0.24
+     ],
+     "axle": [
+      -1.0,
+      0.0,
+      -0.0
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      0.0,
+      0.229,
+      0.46
+     ],
+     "axle": [
+      -1.0,
+      0.0,
+      -0.0
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      -0.19832,
+      -0.1145,
+      0.24
+     ],
+     "axle": [
+      0.5,
+      -0.86603,
+      0.0
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      -0.19832,
+      -0.1145,
+      0.46
+     ],
+     "axle": [
+      0.5,
+      -0.86603,
+      0.0
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      0.19832,
+      -0.1145,
+      0.24
+     ],
+     "axle": [
+      0.5,
+      0.86603,
+      0.0
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      0.19832,
+      -0.1145,
+      0.46
+     ],
+     "axle": [
+      0.5,
+      0.86603,
+      0.0
+     ],
+     "radius": 0.1035
+    }
+   ],
+   "anchors": {
+    "Beacon_E": [
+     2.8,
+     0.0,
+     1.64
+    ],
+    "Beacon_S": [
+     0.0,
+     -3.15,
+     1.64
+    ],
+    "Beacon_W": [
+     -2.8,
+     0.0,
+     1.64
+    ],
+    "Cargo": [
+     0.0,
+     2.93,
+     0.38
+    ],
+    "Rail": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "Retro_E": [
+     2.8,
+     0.0,
+     1.6
+    ],
+    "Retro_S": [
+     0.0,
+     -3.15,
+     1.6
+    ],
+    "Retro_W": [
+     -2.8,
+     0.0,
+     1.6
+    ],
+    "Thruster_E": [
+     2.8,
+     0.0,
+     -0.7
+    ],
+    "Thruster_S": [
+     0.0,
+     -3.15,
+     -0.7
+    ],
+    "Thruster_W": [
+     -2.8,
+     0.0,
+     -0.7
+    ],
+    "Transfer": [
+     0.0,
+     0.0,
+     0.98
+    ]
+   }
+  },
+  "mc": {
+   "wheels": [
+    {
+     "pos": [
+      0.0,
+      0.24,
+      -0.229
+     ],
+     "axle": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      0.0,
+      0.46,
+      -0.229
+     ],
+     "axle": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      -0.19832,
+      0.24,
+      0.1145
+     ],
+     "axle": [
+      0.5,
+      0.0,
+      0.86603
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      -0.19832,
+      0.46,
+      0.1145
+     ],
+     "axle": [
+      0.5,
+      0.0,
+      0.86603
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      0.19832,
+      0.24,
+      0.1145
+     ],
+     "axle": [
+      0.5,
+      0.0,
+      -0.86603
+     ],
+     "radius": 0.1035
+    },
+    {
+     "pos": [
+      0.19832,
+      0.46,
+      0.1145
+     ],
+     "axle": [
+      0.5,
+      0.0,
+      -0.86603
+     ],
+     "radius": 0.1035
+    }
+   ],
+   "anchors": {
+    "Beacon_E": [
+     2.8,
+     1.64,
+     -0.0
+    ],
+    "Beacon_S": [
+     0.0,
+     1.64,
+     3.15
+    ],
+    "Beacon_W": [
+     -2.8,
+     1.64,
+     -0.0
+    ],
+    "Cargo": [
+     0.0,
+     0.38,
+     -2.93
+    ],
+    "Rail": [
+     0.0,
+     0.0,
+     -0.0
+    ],
+    "Retro_E": [
+     2.8,
+     1.6,
+     -0.0
+    ],
+    "Retro_S": [
+     0.0,
+     1.6,
+     3.15
+    ],
+    "Retro_W": [
+     -2.8,
+     1.6,
+     -0.0
+    ],
+    "Thruster_E": [
+     2.8,
+     -0.7,
+     -0.0
+    ],
+    "Thruster_S": [
+     0.0,
+     -0.7,
+     3.15
+    ],
+    "Thruster_W": [
+     -2.8,
+     -0.7,
+     -0.0
+    ],
+    "Transfer": [
+     0.0,
+     0.98,
+     -0.0
+    ]
+   }
+  }
+ }
+}

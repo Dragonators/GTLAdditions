@@ -127,6 +127,16 @@ object MultiBlockStructure {
         )
     }
 
+    val SUBSPACE_CORRIDOR_NEXUS_INDUSTRIAL_ARRAY: FactoryBlockPattern? by lazy(LazyThreadSafetyMode.NONE) {
+        StructureResourceLoader.loadFactoryPattern(
+            "multiblock/subspace_corridor_nexus_industrial_array.bin",
+            "subspace_corridor_nexus_industrial_array",
+            RelativeDirection.LEFT,
+            RelativeDirection.UP,
+            RelativeDirection.BACK
+        )
+    }
+
     val SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY_MODULE: FactoryBlockPattern? by lazy(LazyThreadSafetyMode.NONE) {
         StructureResourceLoader.loadFactoryPattern(
             "multiblock/subspace_corridor_hub_industrial_array_module.bin",

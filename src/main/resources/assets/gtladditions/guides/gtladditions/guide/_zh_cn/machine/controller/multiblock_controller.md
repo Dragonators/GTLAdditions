@@ -42,7 +42,7 @@ categories:
 * [泰坦之握凿地机](titan_crip_earthbore.md)
 * [骸变速隙机](skeleton_shift_rift_engine.md)
 * [空间缩放仪](space_scaling_instrument.md)
-* [亚空间航道枢纽](subspace_corridor_hub_industrial_array.md)
+* [亚空间航道枢纽](subspace_corridor_nexus_industrial_array.md)
 * [枢纽卫星工厂](nexus_satellite_factory.md)
 * [宏原子谐振碎片剥离器](macro_atomic_resonant_fragment_stripper.md)
 * [太空电梯MK2](space_elevator_mkii.md)

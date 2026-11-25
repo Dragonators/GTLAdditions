@@ -19,10 +19,10 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-* <Color color="#FFFF00">**UXV**</Color> 阶段的 <ItemLink id="gtladditions:subspace_corridor_hub_industrial_array" /> 系列模块。
-* 枢纽卫星工厂必须安装至 <ItemLink id="gtladditions:subspace_corridor_hub_industrial_array" /> 才能运行；未连接主站时不会执行配方。
+* <Color color="#FFFF00">**UXV**</Color> 阶段的 <ItemLink id="gtladditions:subspace_corridor_nexus_industrial_array" /> 系列模块。
+* 枢纽卫星工厂必须连接至 <ItemLink id="gtladditions:subspace_corridor_nexus_industrial_array" /> 才能运行；未连接主站时不会执行配方。
 * 主站未成型、未供能或未保持有效工作状态时，已连接模块也会停止工作。
-* 单台 <ItemLink id="gtladditions:subspace_corridor_hub_industrial_array" /> 最多连接 138 个枢纽卫星工厂模块。
+* 单台 <ItemLink id="gtladditions:subspace_corridor_nexus_industrial_array" /> 最多连接 144 个枢纽卫星工厂模块。
 
 </Column>
 
@@ -43,7 +43,7 @@ item_ids:
 
 * 枢纽卫星工厂支持激光供能，并允许安装 <ItemLink id="gtladditions:thread_modifier_hatch" />。
 * 常规状态下，模块按自身等级、结构和已安装部件提供并行能力。
-* 当主站嵌入满 64 个 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} /> 并解锁悖论实现理论后，已连接模块会从主站获得无限并行和无限线程。1 个 <ItemLink id="gtladditions:compressed_astral_array" link={false} linkColor={true} /> 会直接填满这个上限。
+* 当主站嵌入满 512 个 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} /> 并解锁悖论实现理论后，已连接模块会从主站获得无限并行和无限线程。1 个 <ItemLink id="gtladditions:compressed_astral_array" link={false} linkColor={true} /> 会直接填满这个上限。
 
 </Column>
 

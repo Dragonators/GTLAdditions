@@ -69,11 +69,11 @@ GTLAdditions adds the following active multiblock controllers.
 | Recursive Reverse Array | Recursive Reverse Array system | Binds modules and Forge of the Antichrist state for endgame buffs |
 | Heart of the Universe | Genesis Engine | 3-tier endgame wireless generator annihilating planes with fuel rods, auxiliary fluids, and plane-count scaling |
 | Dimension Focus Infinity Crafting Array | Nightmare Crafting | Infinity Catalyst crafting automation and Molecular Assembler boost module |
-| Subspace Corridor Hub Industrial Array | Interstellar | Main controller for up to 138 Nexus Satellite Factory modules, with Paradoxical Attainment mode |
+| Subspace Corridor Hub Industrial Array | Interstellar | Main controller for up to 144 Nexus Satellite Factory modules, with Paradoxical Attainment mode |
 | Space Infinity Integrated Ore Processor | Space Ore Processor | Endgame version of integrated ore processing |
 | Macro Atomic Resonant Fragment Stripper | Element Copying, optional Star Core Stripper | Endgame fragment stripping and element-copying machine |
 
-Legacy discontinued controllers (`Atomic Transmutation Core`, `Advanced Chemical Plant`, `Apocalyptic Torsion Quantum Matrix`, and the legacy `Heart of the Universe`) remain registered for existing-world compatibility only and cannot be crafted.
+Legacy discontinued controllers (`Atomic Transmutation Core`, `Advanced Chemical Plant`, `Apocalyptic Torsion Quantum Matrix`, the legacy `Heart of the Universe`, and the legacy `Subspace Corridor Hub Industrial Array`) remain registered for existing-world compatibility only and cannot be crafted.
 
 ### Recursive Reverse Array Modules
 

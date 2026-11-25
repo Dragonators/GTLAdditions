@@ -1,0 +1,4 @@
+attribute float aS;attribute float aSide;attribute vec3 iA;attribute vec3 iB;attribute vec2 iR;uniform vec3 uCam;uniform float uPix;uniform float uHaloW;
+varying float vLen;varying float vTo;varying vec2 vR;varying float vS;varying float vW;varying float vPx;
+void main(){vec3 ax=iB-iA;float L=length(ax);vec3 T=ax/max(L,1e-5),P=iA+ax*aS,V=uCam-P;float dist=length(V);V/=dist;vec3 s=cross(T,V);float l=length(s);s=l>1e-4?s/l:normalize(cross(T,vec3(.3,.5,.8)));
+  float px=uPix*dist,w=max(uHaloW,4.*px);vLen=aS*L;vTo=(1.-aS)*L;vR=iR;vS=aSide;vW=w;vPx=px;gl_Position=projectionMatrix*viewMatrix*vec4(P+s*aSide*w,1.);}

@@ -7,6 +7,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.DIMEN
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HEART_OF_THE_UNIVERSE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.HELIOFLARE_POWER_FORGE
 import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBATOMIC_TRANSMUTATIOON_CORE
+import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD
 import com.gtladd.gtladditions.integration.stargate.StargateContent
 import com.gtladd.gtladditions.integration.xei.machineinfo.MachineInfoEmiCategory
@@ -31,6 +32,7 @@ class GTEMIPlugin : EmiPlugin {
                     key == ATOMIC_TRANSMUTATIOON_CORE.item ||
                     key == APOCALYPTIC_TORSION_QUANTUM_MATRIX.item ||
                     key == DIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT.item ||
+                    key == SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY.item ||
                     key == HEART_OF_THE_UNIVERSE.item
                 is Fluid -> StargateContent.isDisabledFluid(key)
                 else -> false

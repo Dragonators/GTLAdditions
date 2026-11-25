@@ -1,4 +1,4 @@
-﻿---
+---
 navigation:
   title: Nexus Satellite Factory
   icon: nexus_satellite_factory_mk1
@@ -19,10 +19,10 @@ item_ids:
 
 <Column gap="2" fullWidth={true}>
 
-* A <Color color="#FFFF00">**UXV**</Color> stage module series for <ItemLink id="gtladditions:subspace_corridor_hub_industrial_array" />.
-* Nexus Satellite Factory must be installed on <ItemLink id="gtladditions:subspace_corridor_hub_industrial_array" /> to run. It will not execute recipes when disconnected from the main station.
-* If the main station is not formed, not powered, or not kept in a valid working state, connected modules also stop working.
-* One <ItemLink id="gtladditions:subspace_corridor_hub_industrial_array" /> can connect at most 138 Nexus Satellite Factory modules.
+* A <Color color="#FFFF00">**UXV**</Color> stage module series for <ItemLink id="gtladditions:subspace_corridor_nexus_industrial_array" />.
+* Nexus Satellite Factory must connect to <ItemLink id="gtladditions:subspace_corridor_nexus_industrial_array" /> to run. It will not execute recipes when disconnected.
+* If the nexus is not formed, not powered, or not kept in a valid working state, connected modules also stop working.
+* One <ItemLink id="gtladditions:subspace_corridor_nexus_industrial_array" /> can connect at most 144 Nexus Satellite Factory modules.
 
 </Column>
 
@@ -43,7 +43,7 @@ item_ids:
 
 * Nexus Satellite Factory supports laser power and can install <ItemLink id="gtladditions:thread_modifier_hatch" />.
 * Under normal conditions, modules provide parallel capability based on their own tier, structure, and installed parts.
-* When the main station embeds a full 64 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} /> and unlocks Paradoxical Attainment Theory, connected modules receive infinite parallel and infinite threads from the main station. One <ItemLink id="gtladditions:compressed_astral_array" link={false} linkColor={true} /> fills this cap.
+* When the nexus embeds a full 512 <ItemLink id="gtladditions:astral_array" link={false} linkColor={true} /> and unlocks Paradoxical Attainment Theory, connected modules receive infinite parallel and infinite threads from the nexus. One <ItemLink id="gtladditions:compressed_astral_array" link={false} linkColor={true} /> fills this cap.
 
 </Column>
 

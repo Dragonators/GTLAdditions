@@ -161,7 +161,7 @@ GTLAdditions 自有机器：
 <Row>
     <BlockImage id="gtladditions:heliothermal_plasma_fabricator" scale="3" />
     <BlockImage id="gtladditions:heliophase_leyline_crystallizer" scale="3" />
-    <BlockImage id="gtladditions:subspace_corridor_hub_industrial_array" scale="3" />
+    <BlockImage id="gtladditions:subspace_corridor_nexus_industrial_array" scale="3" />
     <BlockImage id="gtladditions:nexus_satellite_factory_mk1" scale="3" />
     <BlockImage id="gtladditions:nexus_satellite_factory_mk2" scale="3" />
 </Row>

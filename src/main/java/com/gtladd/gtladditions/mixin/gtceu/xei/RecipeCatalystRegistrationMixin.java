@@ -18,6 +18,7 @@ public abstract class RecipeCatalystRegistrationMixin {
     private <T> void gtladditions$hideLegacyMachines(IIngredientType<T> ingredientType, T ingredient, RecipeType<?>[] recipeTypes, CallbackInfo ci) {
         if (ingredient instanceof ItemStack stack &&
                 (stack.is(MultiBlockMachine.INSTANCE.getAPOCALYPTIC_TORSION_QUANTUM_MATRIX().getItem()) ||
+                        stack.is(MultiBlockMachine.INSTANCE.getSUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY().getItem()) ||
                         stack.is(MultiBlockMachine.INSTANCE.getHEART_OF_THE_UNIVERSE().getItem()) ||
                         stack.is(MultiBlockMachine.INSTANCE.getATOMIC_TRANSMUTATIOON_CORE().getItem()) ||
                         stack.is(MultiBlockMachine.INSTANCE.getDIMENSIONALLY_TRANSCENDENT_CHEMICAL_PLANT().getItem()))) {

@@ -5,10 +5,10 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.client.renderer.GTRenderTypes
 import com.gregtechceu.gtceu.client.renderer.machine.WorkableCasingMachineRenderer
 import com.gtladd.gtladditions.GTLAdditions
+import com.gtladd.gtladditions.client.RenderUtils
 import com.gtladd.gtladditions.common.data.CircularMotionParams
 import com.gtladd.gtladditions.common.data.RotationParams
 import com.gtladd.gtladditions.common.machine.multiblock.controller.SubspaceCorridorHubIndustrialArray
-import com.gtladd.gtladditions.utils.RenderUtils
 import com.mojang.blaze3d.vertex.PoseStack
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import net.minecraft.client.renderer.LightTexture
@@ -28,7 +28,6 @@ import net.minecraftforge.client.model.data.ModelData
 import org.gtlcore.gtlcore.GTLCore
 import org.gtlcore.gtlcore.client.ClientUtil
 import org.gtlcore.gtlcore.client.renderer.RenderBufferHelper
-import org.gtlcore.gtlcore.utils.RenderUtil
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import java.util.*
@@ -56,22 +55,16 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
         if (blockEntity is IMachineBlockEntity) {
             val machine = blockEntity.metaMachine as? SubspaceCorridorHubIndustrialArray ?: return
             if (machine.recipeLogic.isWorking) {
-                val tick = RenderUtil.getSmoothTick(machine, partialTicks)
+                val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
                 val seed = blockEntity.blockPos.asLong()
 
-                val (x, y, z) = when (machine.frontFacing) {
-                    Direction.NORTH -> Triple(0.5, -94.5, 105.5)
-                    Direction.SOUTH -> Triple(0.5, -94.5, -104.5)
-                    Direction.WEST -> Triple(105.5, -94.5, 0.5)
-                    Direction.EAST -> Triple(-104.5, -94.5, 0.5)
-                    else -> Triple(0.5, -94.5, 0.5)
-                }
+                val center = center(machine.frontFacing)
 
-                val cache = getOrCreateCache(seed, machine.frontFacing, Vec3(x, y, z))
+                val cache = getOrCreateCache(seed, machine.frontFacing, center)
 
                 renderBeamCylinders(poseStack, buffer, machine.frontFacing, tick)
 
-                SubspaceCorridorHubBeamRenderer.enqueue(blockEntity, tick, Vec3(x, y, z), Vec3(x, y - 36, z))
+                SubspaceCorridorHubBeamRenderer.enqueue(blockEntity, tick, center, center.add(0.0, -36.0, 0.0))
 
                 renderOrbit(poseStack, buffer, cache, tick)
             }
@@ -93,6 +86,22 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
 
     @OnlyIn(Dist.CLIENT)
     override fun getViewDistance(): Int = 384
+
+    @OnlyIn(Dist.CLIENT)
+    /** Measured from the orbits' centre, not from the controller at the hub's edge. */
+    override fun shouldRender(blockEntity: BlockEntity, cameraPos: Vec3): Boolean {
+        val facing = (blockEntity as IMachineBlockEntity).metaMachine.frontFacing
+        return center(facing).add(Vec3.atLowerCornerOf(blockEntity.blockPos)).closerThan(cameraPos, viewDistance.toDouble())
+    }
+
+    /** The orbits' centre relative to the controller block's corner. */
+    private fun center(facing: Direction): Vec3 = when (facing) {
+        Direction.NORTH -> Vec3(0.5, -94.5, 105.5)
+        Direction.SOUTH -> Vec3(0.5, -94.5, -104.5)
+        Direction.WEST -> Vec3(105.5, -94.5, 0.5)
+        Direction.EAST -> Vec3(-104.5, -94.5, 0.5)
+        else -> Vec3(0.5, -94.5, 0.5)
+    }
 
     @OnlyIn(Dist.CLIENT)
     private class RenderCache(seed: Long, centerPos: Vec3) {
@@ -148,7 +157,7 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
             poseStack: PoseStack,
             buffer: MultiBufferSource,
             facing: Direction,
-            tick: Float
+            tick: Double
         ) {
             for (offset in BEAM_CYLINDER_OFFSETS) {
                 poseStack.pushPose()
@@ -206,7 +215,7 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
             poseStack: PoseStack,
             buffer: MultiBufferSource,
             cache: RenderCache,
-            tick: Float
+            tick: Double
         ) {
             for (i in ORBIT_OBJECTS.indices) {
                 val motionParams = cache.orbitParams[i]

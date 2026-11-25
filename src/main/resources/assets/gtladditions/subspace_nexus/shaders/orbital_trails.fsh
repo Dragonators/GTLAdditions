@@ -1,0 +1,2 @@
+uniform vec3 uCol;uniform float uGlow;varying vec2 vV;varying float vA;
+void main(){float v=vV.x/vV.y,h=(exp(-v*v*2.4)-.0907)/.9093,c=exp(-v*v*9.);float a=vA*(.54*h+.46*c)*uGlow;gl_FragColor=vec4(min(mix(uCol,vec3(1.),.4*c)*a,vec3(1.)),a);}

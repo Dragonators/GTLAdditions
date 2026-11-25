@@ -1,0 +1,1 @@
+varying vec3 vP;varying vec2 vXY;void main(){vXY=position.xy;vP=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(vP,1.);}

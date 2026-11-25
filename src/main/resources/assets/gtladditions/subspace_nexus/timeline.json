@@ -1,0 +1,1833 @@
+{
+ "_readme": {
+  "what": "定稿用到的状态、驱动量关键帧、飞船模式和阶段说明。数值和预览同源。",
+  "keys": "track = [[t, value, ease], ...]; ease shapes the run from the previous key into this one: lin | sine | in | out | step. Before the first key the first value holds, after the last key the last value holds.",
+  "clocks": "见 SHOW-AND-STATES.md §1",
+  "tracks": "track = [[t, value, ease], ...]，ease 决定从上一个关键帧到这一个的走法：lin、sine、in、out、step；第一帧之前取第一帧的值，最后一帧之后取最后一帧的值。base 是这个状态里没有 track 的驱动量的值。默认值 power 0、packets 0、chartSpin 1、orbitDraw 1、railSweep 1、rim 1、glitchK 1，其他 0。",
+  "ships": "mode：normal、unison 都按 R7_ship_schedule 的随机相位表（unison 是悖论班次，历史名称，不是同相）；recall 平滑归港；docked 停靠；waitslot 等下一个班次；carry 保持当前运动。",
+  "derived": "不在 tracks 里、由 τ 或其他驱动量算出来的量，公式在 effects-final.json。"
+ },
+ "padOrder": [
+  5,
+  4,
+  3,
+  2,
+  1,
+  0
+ ],
+ "states": {
+  "normal": {
+   "label": "普通运行",
+   "base": {
+    "power": 1,
+    "packets": 1,
+    "chartSpin": 1
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "normal"
+    }
+   ]
+  },
+  "unlock": {
+   "label": "解锁演出",
+   "duration": 36,
+   "base": {
+    "power": 1,
+    "packets": 1,
+    "chartSpin": 1
+   },
+   "phases": [
+    {
+     "id": "trigger",
+     "t0": 0,
+     "t1": 1.5,
+     "label": "触发确认",
+     "note": "第 512 个星阵嵌入：恒星脉冲，调度环全白，三面投屏闪白切到解锁页，白色冲击环掠过整机"
+    },
+    {
+     "id": "recall",
+     "t0": 1.5,
+     "t1": 10,
+     "label": "召回会合",
+     "note": "六船回港；行星加速多绕一圈，在 τ10 排成一线指向主机控制器方位；投屏上行星同步排齐；光束降到 40%、缆灯降到 60%"
+    },
+    {
+     "id": "countdown",
+     "t0": 10,
+     "t1": 16,
+     "label": "倒数",
+     "note": "投屏平面图外圈 6 段逐段点亮，发射台不动；恒星收缩变白；τ15 起黑色遮挡盘滑入，恒星的光收成朝控制器一侧的细月牙，τ15.85 缩成钻石环亮点"
+    },
+    {
+     "id": "ignition",
+     "t0": 16,
+     "t1": 16.6,
+     "label": "全食（峰值）",
+     "note": "全食（峰值）：钻石环熄灭，恒星翻成负像金边，上百条直细线日冕从边缘喷出，内缘一道彩色闪光环；第一艘船随点火起飞，其余 37 s 内按不规则间隔陆续起飞，飞船转深蓝黑剪影加金轮廓，缆身转黑；缆上和光束的前锋直冲天际；六座发射台的光环同时转白，一道细光圈向外扩散，1.4 s 内平滑回到青色"
+    },
+    {
+     "id": "unfold",
+     "t0": 16,
+     "t1": 24,
+     "label": "负像与日冕",
+     "note": "行星 τ16.2 起依次（间隔 0.3 s）螺旋坠入恒星，每颗 2.3 s；轨道 τ16.5–18.7 碎成虚线后消失；三面屏 τ16.3–19.3 从中缝撕开，窗里是悬在屏后的日蚀；τ18.6–20.6 画面故障；三道铭文环 τ19.2–23.4 用线框扫描组装"
+    },
+    {
+     "id": "settle",
+     "t0": 24,
+     "t1": 36,
+     "label": "稳定",
+     "note": "亮度回落，光束虹色继续淡入（到 τ30），进入悖论稳定态"
+    }
+   ],
+   "tracks": {
+    "ack": [
+     [
+      0,
+      0
+     ],
+     [
+      0.15,
+      1,
+      "out"
+     ],
+     [
+      1.5,
+      0,
+      "in"
+     ]
+    ],
+    "packets": [
+     [
+      1.5,
+      1
+     ],
+     [
+      2.5,
+      0,
+      "lin"
+     ]
+    ],
+    "recall": [
+     [
+      1.5,
+      0
+     ],
+     [
+      10,
+      1,
+      "sine"
+     ],
+     [
+      16,
+      1
+     ],
+     [
+      16.2,
+      0,
+      "lin"
+     ]
+    ],
+    "align": [
+     [
+      1.5,
+      0
+     ],
+     [
+      10,
+      1,
+      "sine"
+     ],
+     [
+      16,
+      1
+     ],
+     [
+      16.8,
+      0,
+      "out"
+     ]
+    ],
+    "countdown": [
+     [
+      10,
+      0
+     ],
+     [
+      10.5,
+      1,
+      "step"
+     ],
+     [
+      11.4,
+      2,
+      "step"
+     ],
+     [
+      12.3,
+      3,
+      "step"
+     ],
+     [
+      13.2,
+      4,
+      "step"
+     ],
+     [
+      14.1,
+      5,
+      "step"
+     ],
+     [
+      15.0,
+      6,
+      "step"
+     ],
+     [
+      16.5,
+      6
+     ],
+     [
+      18,
+      0,
+      "lin"
+     ]
+    ],
+    "charge": [
+     [
+      10,
+      0
+     ],
+     [
+      15.8,
+      1,
+      "in"
+     ],
+     [
+      16.0,
+      1
+     ],
+     [
+      16.6,
+      0,
+      "out"
+     ]
+    ],
+    "flash": [
+     [
+      15.9,
+      0
+     ],
+     [
+      16.0,
+      1,
+      "lin"
+     ],
+     [
+      17.5,
+      0.3,
+      "out"
+     ],
+     [
+      24,
+      0,
+      "out"
+     ]
+    ],
+    "split": [
+     [
+      16,
+      0
+     ],
+     [
+      23,
+      1,
+      "sine"
+     ]
+    ],
+    "helix": [
+     [
+      16.2,
+      0
+     ],
+     [
+      21.5,
+      1,
+      "out"
+     ]
+    ],
+    "spectral": [
+     [
+      17,
+      0
+     ],
+     [
+      30,
+      1,
+      "sine"
+     ]
+    ],
+    "paradox": [
+     [
+      16,
+      0
+     ],
+     [
+      36,
+      1,
+      "sine"
+     ]
+    ],
+    "beamDim": [
+     [
+      1.5,
+      0
+     ],
+     [
+      10,
+      0.6,
+      "sine"
+     ],
+     [
+      16,
+      0.6
+     ],
+     [
+      16.01,
+      0,
+      "step"
+     ]
+    ],
+    "railDim": [
+     [
+      1.5,
+      0
+     ],
+     [
+      10,
+      0.4,
+      "sine"
+     ],
+     [
+      16,
+      0.4
+     ],
+     [
+      16.2,
+      0,
+      "lin"
+     ]
+    ],
+    "invert": [
+     [
+      15.95,
+      0
+     ],
+     [
+      16.6,
+      1,
+      "out"
+     ]
+    ],
+    "tear": [
+     [
+      16.3,
+      0
+     ],
+     [
+      19.3,
+      1,
+      "sine"
+     ]
+    ],
+    "screenShow": [
+     [
+      1.4,
+      0
+     ],
+     [
+      2.0,
+      1,
+      "lin"
+     ],
+     [
+      16.0,
+      1
+     ],
+     [
+      16.4,
+      0,
+      "lin"
+     ]
+    ],
+    "diamond": [
+     [
+      15.0,
+      0
+     ],
+     [
+      15.85,
+      1,
+      "in"
+     ],
+     [
+      16.02,
+      0,
+      "lin"
+     ]
+    ],
+    "corona": [
+     [
+      16.0,
+      0
+     ],
+     [
+      17.4,
+      1,
+      "out"
+     ]
+    ]
+   },
+   "events": {
+    "shock": [
+     0.05,
+     16.0
+    ],
+    "surge": [
+     16.0,
+     16.45,
+     16.9
+    ]
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "normal"
+    },
+    {
+     "t0": 1.5,
+     "mode": "recall",
+     "until": 10
+    },
+    {
+     "t0": 10,
+     "mode": "docked"
+    },
+    {
+     "t0": 16,
+     "mode": "unison",
+     "epoch": 16
+    }
+   ],
+   "chart": "unlock"
+  },
+  "paradox": {
+   "label": "悖论稳定态",
+   "base": {
+    "power": 1,
+    "packets": 1,
+    "chartSpin": 1,
+    "split": 1,
+    "helix": 1,
+    "spectral": 1,
+    "paradox": 1,
+    "invert": 1,
+    "tear": 1,
+    "corona": 1
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "unison"
+    }
+   ],
+   "chart": "paradox"
+  },
+  "idle": {
+   "label": "待机（已成型、未运行）",
+   "base": {
+    "power": 0,
+    "packets": 0,
+    "ember": 1,
+    "beamRetract": 1,
+    "orbitFade": 1,
+    "markerFade": 1,
+    "eFade": 1,
+    "railFade": 1,
+    "chartSpin": 0
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "docked"
+    }
+   ]
+  },
+  "idleP": {
+   "label": "已解锁停机 · 独日",
+   "chart": "paradox",
+   "base": {
+    "split": 1,
+    "helix": 0,
+    "spectral": 1,
+    "paradox": 1,
+    "invert": 1,
+    "power": 0,
+    "packets": 0,
+    "chartSpin": 0,
+    "tear": 0,
+    "corona": 0,
+    "eFade": 1,
+    "markerFade": 1,
+    "railFade": 1,
+    "beamRetract": 1,
+    "rim": 0.25,
+    "glitchK": 0.3
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "docked"
+    }
+   ]
+  },
+  "stopN": {
+   "label": "停机（未解锁）",
+   "duration": 12,
+   "base": {
+    "power": 1,
+    "packets": 0,
+    "chartSpin": 1
+   },
+   "phases": [
+    {
+     "id": "drop",
+     "t0": 0,
+     "t1": 1.2,
+     "label": "失电",
+     "note": "光轨闪两下，投屏画面抖动，地槽导管停止送包"
+    },
+    {
+     "id": "dock",
+     "t0": 0,
+     "t1": 10,
+     "label": "归港",
+     "note": "所有飞船从当前位置平滑回到发射台（≤10 s）"
+    },
+    {
+     "id": "wind",
+     "t0": 1,
+     "t1": 10.5,
+     "label": "收束",
+     "note": "投屏自上而下熄灭、投影光线收回；行星减速停转后缩小消失；光束从天际一路收回，穿过恒星继续向下，收成一束进入底座"
+    },
+    {
+     "id": "ember",
+     "t0": 8,
+     "t1": 12,
+     "label": "余烬",
+     "note": "恒星收缩成暗靛余烬，调度环已关闭，光轨熄灭；飞船停泊、只留暗灯"
+    }
+   ],
+   "tracks": {
+    "power": [
+     [
+      0,
+      1
+     ],
+     [
+      0.25,
+      0.55,
+      "lin"
+     ],
+     [
+      0.45,
+      1,
+      "lin"
+     ],
+     [
+      0.75,
+      0.5,
+      "lin"
+     ],
+     [
+      1.0,
+      1,
+      "lin"
+     ],
+     [
+      10,
+      0.6,
+      "lin"
+     ],
+     [
+      12,
+      0,
+      "lin"
+     ]
+    ],
+    "eFade": [
+     [
+      1,
+      0
+     ],
+     [
+      4,
+      1,
+      "lin"
+     ]
+    ],
+    "chartSpin": [
+     [
+      2,
+      1
+     ],
+     [
+      8,
+      0,
+      "out"
+     ]
+    ],
+    "orbitFade": [
+     [
+      6,
+      0
+     ],
+     [
+      9,
+      1,
+      "lin"
+     ]
+    ],
+    "markerFade": [
+     [
+      2,
+      0
+     ],
+     [
+      4,
+      1,
+      "lin"
+     ]
+    ],
+    "beamRetract": [
+     [
+      5.5,
+      0
+     ],
+     [
+      10.5,
+      1,
+      "lin"
+     ]
+    ],
+    "ember": [
+     [
+      8,
+      0
+     ],
+     [
+      12,
+      1,
+      "sine"
+     ]
+    ],
+    "railFade": [
+     [
+      10,
+      0
+     ],
+     [
+      12,
+      1,
+      "lin"
+     ]
+    ]
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "recall",
+     "until": 10
+    },
+    {
+     "t0": 10,
+     "mode": "docked"
+    }
+   ]
+  },
+  "stopP": {
+   "label": "停机（悖论态 · 独日）",
+   "duration": 13,
+   "chart": "paradox",
+   "base": {
+    "split": 1,
+    "helix": 1,
+    "spectral": 1,
+    "paradox": 1,
+    "invert": 1,
+    "power": 1,
+    "packets": 0,
+    "chartSpin": 1,
+    "tear": 1,
+    "corona": 1,
+    "glitchK": 0.3
+   },
+   "phases": [
+    {
+     "id": "drop",
+     "t0": 0,
+     "t1": 1.2,
+     "label": "失电",
+     "note": "光轨闪两下，发包停止，飞船开始归港"
+    },
+    {
+     "id": "close",
+     "t0": 1,
+     "t1": 3.5,
+     "label": "合屏",
+     "note": "三面屏的页面熄灭，撕裂完全合上；投影、地面流光、调度环一起关闭"
+    },
+    {
+     "id": "unbuild",
+     "t0": 2,
+     "t1": 6.5,
+     "label": "拆环",
+     "note": "三道环用组装时的线框扫描倒着收掉，只留黑色恒星"
+    },
+    {
+     "id": "retract",
+     "t0": 4,
+     "t1": 9,
+     "label": "收束",
+     "note": "光束从天际一路收回，穿过恒星继续向下，收成一束进入底座；日冕收回"
+    },
+    {
+     "id": "cold",
+     "t0": 9,
+     "t1": 13,
+     "label": "转冷",
+     "note": "金边暗成发丝，缆灯熄灭，飞船停泊只留暗灯"
+    }
+   ],
+   "tracks": {
+    "power": [
+     [
+      0,
+      1
+     ],
+     [
+      0.25,
+      0.55,
+      "lin"
+     ],
+     [
+      0.45,
+      1,
+      "lin"
+     ],
+     [
+      0.75,
+      0.5,
+      "lin"
+     ],
+     [
+      1.0,
+      1,
+      "lin"
+     ],
+     [
+      10,
+      0.6,
+      "lin"
+     ],
+     [
+      13,
+      0,
+      "lin"
+     ]
+    ],
+    "eFade": [
+     [
+      1,
+      0
+     ],
+     [
+      3.5,
+      1,
+      "lin"
+     ]
+    ],
+    "tear": [
+     [
+      1,
+      1
+     ],
+     [
+      3.5,
+      0,
+      "sine"
+     ]
+    ],
+    "markerFade": [
+     [
+      1.5,
+      0
+     ],
+     [
+      3.5,
+      1,
+      "lin"
+     ]
+    ],
+    "helix": [
+     [
+      2,
+      1
+     ],
+     [
+      6.5,
+      0,
+      "sine"
+     ]
+    ],
+    "chartSpin": [
+     [
+      2,
+      1
+     ],
+     [
+      9,
+      0,
+      "out"
+     ]
+    ],
+    "corona": [
+     [
+      3,
+      1
+     ],
+     [
+      7,
+      0,
+      "in"
+     ]
+    ],
+    "beamRetract": [
+     [
+      4,
+      0
+     ],
+     [
+      9,
+      1,
+      "lin"
+     ]
+    ],
+    "rim": [
+     [
+      6,
+      1
+     ],
+     [
+      12,
+      0.25,
+      "sine"
+     ]
+    ],
+    "railFade": [
+     [
+      10.5,
+      0
+     ],
+     [
+      13,
+      1,
+      "lin"
+     ]
+    ]
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "recall",
+     "until": 10
+    },
+    {
+     "t0": 10,
+     "mode": "docked"
+    }
+   ]
+  },
+  "startN": {
+   "label": "启动（未解锁）",
+   "duration": 8,
+   "base": {
+    "power": 1,
+    "packets": 0,
+    "chartSpin": 1
+   },
+   "phases": [
+    {
+     "id": "ignite",
+     "t0": 0,
+     "t1": 2,
+     "label": "点火",
+     "note": "余烬长回恒星"
+    },
+    {
+     "id": "raise",
+     "t0": 1,
+     "t1": 4.4,
+     "label": "升起",
+     "note": "光束从底座收成一束升起，穿过恒星直上天际；光轨自下而上点亮；轨道逐条画出、行星淡入加速"
+    },
+    {
+     "id": "resume",
+     "t0": 3,
+     "t1": 8,
+     "label": "复航",
+     "note": "投影器点亮、三面投屏自下而上亮起，τ5 恢复送包；飞船在发射台等各自的下一个班次（全局时间）"
+    }
+   ],
+   "tracks": {
+    "ember": [
+     [
+      0,
+      1
+     ],
+     [
+      2,
+      0,
+      "sine"
+     ]
+    ],
+    "beamRetract": [
+     [
+      0.6,
+      1
+     ],
+     [
+      3.8,
+      0,
+      "lin"
+     ]
+    ],
+    "orbitFade": [
+     [
+      2,
+      1
+     ],
+     [
+      4,
+      0,
+      "lin"
+     ]
+    ],
+    "orbitDraw": [
+     [
+      2,
+      0
+     ],
+     [
+      4.4,
+      1,
+      "lin"
+     ]
+    ],
+    "chartSpin": [
+     [
+      2,
+      0
+     ],
+     [
+      6,
+      1,
+      "in"
+     ]
+    ],
+    "railFade": [
+     [
+      1,
+      1
+     ],
+     [
+      1.01,
+      0,
+      "step"
+     ]
+    ],
+    "railSweep": [
+     [
+      1,
+      0
+     ],
+     [
+      3,
+      1,
+      "lin"
+     ]
+    ],
+    "eFade": [
+     [
+      3,
+      1
+     ],
+     [
+      5,
+      0,
+      "lin"
+     ]
+    ],
+    "packets": [
+     [
+      5,
+      0
+     ],
+     [
+      5.01,
+      1,
+      "step"
+     ]
+    ],
+    "markerFade": [
+     [
+      3,
+      1
+     ],
+     [
+      5,
+      0,
+      "lin"
+     ]
+    ],
+    "power": [
+     [
+      0,
+      0
+     ],
+     [
+      0.4,
+      0.2,
+      "lin"
+     ],
+     [
+      3,
+      1,
+      "lin"
+     ]
+    ]
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "docked"
+    },
+    {
+     "t0": 4,
+     "mode": "waitslot",
+     "sched": "normal"
+    }
+   ]
+  },
+  "startP": {
+   "label": "启动（已解锁 · 独日复燃）",
+   "duration": 11,
+   "chart": "paradox",
+   "base": {
+    "split": 1,
+    "helix": 1,
+    "spectral": 1,
+    "paradox": 1,
+    "invert": 1,
+    "power": 1,
+    "packets": 0,
+    "chartSpin": 1,
+    "tear": 1,
+    "corona": 1
+   },
+   "phases": [
+    {
+     "id": "flare",
+     "t0": 0,
+     "t1": 2.4,
+     "label": "复燃",
+     "note": "金边从发丝烧回全亮，日冕 1.4 s 长满，闪光环亮起"
+    },
+    {
+     "id": "raise",
+     "t0": 0.6,
+     "t1": 3.8,
+     "label": "通流",
+     "note": "光束从底座收成一束升起，穿过恒星直上天际；缆灯自下而上点亮"
+    },
+    {
+     "id": "resume",
+     "t0": 3,
+     "t1": 6,
+     "label": "复工",
+     "note": "三面屏重新撕开，投影、地面流光、调度环回来；飞船等各自的下一个班次"
+    },
+    {
+     "id": "build",
+     "t0": 4,
+     "t1": 9,
+     "label": "组装",
+     "note": "三道环按原来的线框扫描重新组装，没有行星和全食"
+    }
+   ],
+   "tracks": {
+    "power": [
+     [
+      0,
+      0
+     ],
+     [
+      0.4,
+      0.2,
+      "lin"
+     ],
+     [
+      3,
+      1,
+      "lin"
+     ]
+    ],
+    "rim": [
+     [
+      0,
+      0.25
+     ],
+     [
+      1.3,
+      1.5,
+      "in"
+     ],
+     [
+      3.2,
+      1,
+      "sine"
+     ]
+    ],
+    "corona": [
+     [
+      1,
+      0
+     ],
+     [
+      2.4,
+      1,
+      "out"
+     ]
+    ],
+    "beamRetract": [
+     [
+      0.6,
+      1
+     ],
+     [
+      3.8,
+      0,
+      "lin"
+     ]
+    ],
+    "railFade": [
+     [
+      1,
+      1
+     ],
+     [
+      1.01,
+      0,
+      "step"
+     ]
+    ],
+    "railSweep": [
+     [
+      1,
+      0
+     ],
+     [
+      3,
+      1,
+      "lin"
+     ]
+    ],
+    "chartSpin": [
+     [
+      2,
+      0
+     ],
+     [
+      6,
+      1,
+      "in"
+     ]
+    ],
+    "eFade": [
+     [
+      3,
+      1
+     ],
+     [
+      5,
+      0,
+      "lin"
+     ]
+    ],
+    "markerFade": [
+     [
+      3,
+      1
+     ],
+     [
+      5,
+      0,
+      "lin"
+     ]
+    ],
+    "tear": [
+     [
+      3,
+      0
+     ],
+     [
+      6,
+      1,
+      "sine"
+     ]
+    ],
+    "packets": [
+     [
+      5,
+      0
+     ],
+     [
+      5.01,
+      1,
+      "step"
+     ]
+    ],
+    "helix": [
+     [
+      4,
+      0
+     ],
+     [
+      9,
+      1,
+      "out"
+     ]
+    ]
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "docked"
+    },
+    {
+     "t0": 4,
+     "mode": "waitslot",
+     "sched": "unison"
+    }
+   ]
+  },
+  "abort": {
+   "label": "演出被打断（倒数中失电）",
+   "duration": 12,
+   "blendIn": 1.0,
+   "base": {
+    "power": 1,
+    "packets": 0,
+    "chartSpin": 0
+   },
+   "phases": [
+    {
+     "id": "abort",
+     "t0": 0,
+     "t1": 1.2,
+     "label": "中止",
+     "note": "倒数灯、投屏倒数页与恒星蓄能在 1 s 内回落；状态仍记为已解锁"
+    },
+    {
+     "id": "stop",
+     "t0": 0,
+     "t1": 12,
+     "label": "停机",
+     "note": "飞船归港，走普通停机的收束与余烬，恒星还是恒星；再次启动时接回演出的 τ10 倒数"
+    }
+   ],
+   "tracks": {
+    "countdown": [
+     [
+      0,
+      3
+     ],
+     [
+      1.2,
+      0,
+      "lin"
+     ]
+    ],
+    "charge": [
+     [
+      0,
+      0.4
+     ],
+     [
+      1,
+      0,
+      "out"
+     ]
+    ],
+    "power": [
+     [
+      0,
+      1
+     ],
+     [
+      0.25,
+      0.55,
+      "lin"
+     ],
+     [
+      0.45,
+      1,
+      "lin"
+     ],
+     [
+      10,
+      0.6,
+      "lin"
+     ],
+     [
+      12,
+      0,
+      "lin"
+     ]
+    ],
+    "eFade": [
+     [
+      1,
+      0
+     ],
+     [
+      4,
+      1,
+      "lin"
+     ]
+    ],
+    "orbitFade": [
+     [
+      5,
+      0
+     ],
+     [
+      8,
+      1,
+      "lin"
+     ]
+    ],
+    "markerFade": [
+     [
+      1,
+      0
+     ],
+     [
+      3,
+      1,
+      "lin"
+     ]
+    ],
+    "beamRetract": [
+     [
+      5.5,
+      0
+     ],
+     [
+      10.5,
+      1,
+      "lin"
+     ]
+    ],
+    "ember": [
+     [
+      8,
+      0
+     ],
+     [
+      12,
+      1,
+      "sine"
+     ]
+    ],
+    "railFade": [
+     [
+      10,
+      0
+     ],
+     [
+      12,
+      1,
+      "lin"
+     ]
+    ],
+    "beamDim": [
+     [
+      0,
+      0.6
+     ],
+     [
+      2,
+      0.6
+     ]
+    ],
+    "railDim": [
+     [
+      0,
+      0.4
+     ],
+     [
+      2,
+      0.4
+     ]
+    ],
+    "screenShow": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      0,
+      "lin"
+     ]
+    ]
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "recall",
+     "until": 8.5,
+     "keepDocked": true
+    },
+    {
+     "t0": 8.5,
+     "mode": "docked"
+    }
+   ],
+   "chart": "frozen"
+  },
+  "startU": {
+   "label": "启动（已解锁、还没全食：接回倒数）",
+   "duration": 8,
+   "chart": "frozen",
+   "base": {
+    "power": 1,
+    "packets": 0,
+    "chartSpin": 0,
+    "recall": 1,
+    "align": 1,
+    "beamDim": 0.6,
+    "railDim": 0.4
+   },
+   "phases": [
+    {
+     "id": "ignite",
+     "t0": 0,
+     "t1": 2,
+     "label": "点火",
+     "note": "余烬长回恒星，这时还是普通恒星：全食没有发生过"
+    },
+    {
+     "id": "raise",
+     "t0": 1,
+     "t1": 4.4,
+     "label": "升起",
+     "note": "光束、缆灯、轨道依次回来，行星已经排成一线"
+    },
+    {
+     "id": "resume",
+     "t0": 3,
+     "t1": 8,
+     "label": "接回",
+     "note": "屏幕回到解锁页，下一段直接从演出的 τ10 倒数开始；飞船留在台上"
+    }
+   ],
+   "tracks": {
+    "ember": [
+     [
+      0,
+      1
+     ],
+     [
+      2,
+      0,
+      "sine"
+     ]
+    ],
+    "beamRetract": [
+     [
+      0.6,
+      1
+     ],
+     [
+      3.8,
+      0,
+      "lin"
+     ]
+    ],
+    "orbitFade": [
+     [
+      2,
+      1
+     ],
+     [
+      4,
+      0,
+      "lin"
+     ]
+    ],
+    "orbitDraw": [
+     [
+      2,
+      0
+     ],
+     [
+      4.4,
+      1,
+      "lin"
+     ]
+    ],
+    "railFade": [
+     [
+      1,
+      1
+     ],
+     [
+      1.01,
+      0,
+      "step"
+     ]
+    ],
+    "railSweep": [
+     [
+      1,
+      0
+     ],
+     [
+      3,
+      1,
+      "lin"
+     ]
+    ],
+    "eFade": [
+     [
+      3,
+      1
+     ],
+     [
+      5,
+      0,
+      "lin"
+     ]
+    ],
+    "markerFade": [
+     [
+      3,
+      1
+     ],
+     [
+      5,
+      0,
+      "lin"
+     ]
+    ],
+    "power": [
+     [
+      0,
+      0
+     ],
+     [
+      0.4,
+      0.2,
+      "lin"
+     ],
+     [
+      3,
+      1,
+      "lin"
+     ]
+    ],
+    "screenShow": [
+     [
+      5,
+      0
+     ],
+     [
+      6,
+      1,
+      "lin"
+     ]
+    ]
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "docked"
+    }
+   ]
+  },
+  "resumeP": {
+   "label": "恢复工作（停机途中）",
+   "duration": 6,
+   "blendIn": 3,
+   "chart": "paradox",
+   "base": {
+    "split": 1,
+    "helix": 1,
+    "spectral": 1,
+    "paradox": 1,
+    "invert": 1,
+    "power": 1,
+    "packets": 0,
+    "chartSpin": 1,
+    "tear": 1,
+    "corona": 1
+   },
+   "phases": [
+    {
+     "id": "back",
+     "t0": 0,
+     "t1": 3,
+     "label": "回升",
+     "note": "所有量从当前值 3 s 内平滑回到悖论稳定态；飞船先完成归港，再等各自的下一个班次"
+    }
+   ],
+   "tracks": {
+    "packets": [
+     [
+      3,
+      0
+     ],
+     [
+      3.01,
+      1,
+      "step"
+     ]
+    ]
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "carry"
+    },
+    {
+     "t0": 5,
+     "mode": "waitslot",
+     "sched": "unison"
+    }
+   ]
+  },
+  "refail": {
+   "label": "再次失电（启动途中）",
+   "duration": 8,
+   "blendIn": 5,
+   "chart": "paradox",
+   "base": {
+    "split": 1,
+    "helix": 0,
+    "spectral": 1,
+    "paradox": 1,
+    "invert": 1,
+    "power": 0,
+    "packets": 0,
+    "chartSpin": 0,
+    "tear": 0,
+    "corona": 0,
+    "eFade": 1,
+    "markerFade": 1,
+    "railFade": 1,
+    "beamRetract": 1,
+    "rim": 0.25,
+    "glitchK": 0.3
+   },
+   "ships": [
+    {
+     "t0": 0,
+     "mode": "recall",
+     "until": 6
+    },
+    {
+     "t0": 6,
+     "mode": "docked"
+    }
+   ],
+   "phases": [
+    {
+     "id": "back",
+     "t0": 0,
+     "t1": 5,
+     "label": "回落",
+     "note": "所有量从当前值平滑落到已解锁停机"
+    }
+   ]
+  }
+ },
+ "events": {
+  "shock": "冲击环和冲击壳：环 r18→170、tube .4→2.4、α.55(1−k)²，1.6 s；壳 r40→320、α.85(1−age/1.2)，1.2 s；τ>5 的为金色",
+  "surge": "光束脉冲（每个）；第一个同时是点火时钟 b 的零点：缆上前锋和发射台光环"
+ },
+ "derived": {
+  "occlude": {
+   "range": [
+    15,
+    15.85
+   ],
+   "out": [
+    16.3,
+    16.6
+   ],
+   "formula": "R8_diamond"
+  },
+  "fall": {
+   "t0": 16.2,
+   "stagger": 0.3,
+   "dur": 2.3,
+   "planets": 4,
+   "formula": "R8_fall"
+  },
+  "vanish": {
+   "range": [
+    16.5,
+    18.7
+   ],
+   "formula": "R8_fall"
+  },
+  "glitch": {
+   "range": [
+    18.6,
+    20.6
+   ],
+   "also": "2.4·build·(1−build)",
+   "formula": "R8_fall"
+  },
+  "build": {
+   "range": [
+    19.2,
+    23.4
+   ],
+   "outside_show": "helix",
+   "formula": "R8_fall"
+  },
+  "pad_burst": {
+   "t0": 16.0,
+   "dur": 1.4,
+   "formula": "R7_pad_lights"
+  },
+  "rope_front": {
+   "t0": 16.0,
+   "dur": 2.2,
+   "speed": 260,
+   "length": 40,
+   "formula": "R3_contact_pulse"
+  },
+  "ship_launch_after_ignition_s": {
+   "rail0": 36.6,
+   "rail1": 13.2,
+   "rail2": 16.1,
+   "rail3": 0,
+   "rail4": 32.3,
+   "rail5": 5.2,
+   "formula": "R7_ship_schedule"
+  },
+  "block_active": {
+   "on": [
+    "normal",
+    "unlock",
+    "paradox",
+    "startN",
+    "startP",
+    "startU",
+    "resumeP"
+   ],
+   "off": [
+    "idle",
+    "idleP",
+    "stopN",
+    "stopP",
+    "abort",
+    "refail"
+   ],
+   "formula": "R10_block_active"
+  }
+ },
+ "preview_scenarios": [
+  {
+   "id": "V1_normal",
+   "label": "普通运行（100.5 s 循环）"
+  },
+  {
+   "id": "V1_unlock",
+   "label": "解锁演出（前 8 s 普通态 + 36 s 演出 + 稳定态）"
+  },
+  {
+   "id": "V1_paradox",
+   "label": "悖论稳定态（100.5 s 循环）"
+  },
+  {
+   "id": "V1_stopN",
+   "label": "停机（未解锁）"
+  },
+  {
+   "id": "V1_stopP",
+   "label": "停机（悖论态）"
+  },
+  {
+   "id": "V1_startN",
+   "label": "启动（未解锁，飞船按班次复航）"
+  },
+  {
+   "id": "V1_startP",
+   "label": "启动（已解锁，不重播演出）"
+  },
+  {
+   "id": "V1_abort",
+   "label": "演出中失电（倒数中，还没全食 → 普通停机 → 启动接回倒数）"
+  },
+  {
+   "id": "V1_abortEarly",
+   "label": "演出中失电（召回中，行星还没排齐 → 普通停机 → 启动接回倒数）"
+  },
+  {
+   "id": "V1_stopS",
+   "label": "演出中失电（τ18.5 已全食，环还没组装 → 已解锁停机 → 重启）"
+  },
+  {
+   "id": "V1_idleP",
+   "label": "已解锁停机（读档或靠近时机器已经停着）"
+  },
+  {
+   "id": "V1_resumeP",
+   "label": "悖论态停机途中恢复工作（停机第 5 s）"
+  },
+  {
+   "id": "V1_refailP",
+   "label": "已解锁启动途中再次失电（启动第 4 s）"
+  },
+  {
+   "id": "V1_joinStop",
+   "label": "中途进入（靠近时已经停机 6 s）"
+  },
+  {
+   "id": "V1_joinStart",
+   "label": "中途进入（靠近时已经启动 4 s）"
+  },
+  {
+   "id": "V1_join",
+   "label": "中途进入（演出第 20 s 才加载区块）"
+  }
+ ]
+}

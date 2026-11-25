@@ -1,0 +1,3 @@
+attribute float aW;attribute float aSide;attribute float aA;attribute vec3 aT;uniform vec3 uCam;uniform float uPix;varying vec2 vV;varying float vA;
+void main(){vec3 C=position,V=normalize(uCam-C),s=cross(normalize(aT+vec3(1e-6)),V);float l=length(s);s=l>1e-4?s/l:vec3(1.,0.,0.);
+  float w=max(aW,1.4*uPix*length(uCam-C));vA=aA*min(1.,aW/max(w,1e-4))*smoothstep(.05,.32,l);vV=vec2(aSide*w,w);gl_Position=projectionMatrix*viewMatrix*vec4(C+s*aSide*w,1.);}

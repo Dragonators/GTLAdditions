@@ -161,7 +161,7 @@ GTLAdditions-owned machines:
 <Row>
     <BlockImage id="gtladditions:heliothermal_plasma_fabricator" scale="3" />
     <BlockImage id="gtladditions:heliophase_leyline_crystallizer" scale="3" />
-    <BlockImage id="gtladditions:subspace_corridor_hub_industrial_array" scale="3" />
+    <BlockImage id="gtladditions:subspace_corridor_nexus_industrial_array" scale="3" />
     <BlockImage id="gtladditions:nexus_satellite_factory_mk1" scale="3" />
     <BlockImage id="gtladditions:nexus_satellite_factory_mk2" scale="3" />
 </Row>
@@ -192,7 +192,7 @@ Notes:
 
 * At tier 1, only the Synthesis Nexus of the <ItemLink id="gtladditions:exotic_chemical_complex" /> runs, and all recipes count toward its even-distribution limit. At tier 2, all 12 outer units activate automatically, each with its own even-distribution limit that by default counts only UV and higher recipes. At tier 3, parallel is infinite by default, outer units can use manual limits, and all units can individually select Large Chemical Reactor or Deep Chemical Distortion recipes.
 * <ItemLink id="gtladditions:subatomic_transmutatioon_core" /> converts blocks through the ME Transmutation Bus Hatch. Coil temperature and the installed card determine the conversion capacity per cycle; the card determines the cycle duration.
-* Subspace Corridor Hub modules use even distribution before the special station state is unlocked; after that, they calculate each recipe independently and use special per-recipe parallel limits.
+* Subspace Corridor Nexus modules use even distribution before the special state is unlocked; after that, they calculate each recipe independently and use special per-recipe parallel limits.
 * Forge of the Antichrist and its modules calculate runnable recipes separately, with behavior affected by the host's output multiplier, wireless energy, and module rules.
 * Space Scaling Instrument, Space Infinity Integrated Ore Processor, and Macro Atomic Resonant Fragment Stripper calculate parallel independently for each recipe.
 * Dimension Focus Infinity Crafting Array itself belongs to even distribution; as a Molecular Assembler Matrix module, it enables special infinity crafting behavior for that host.

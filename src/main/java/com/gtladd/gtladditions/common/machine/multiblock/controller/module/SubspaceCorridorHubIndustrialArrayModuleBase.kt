@@ -9,34 +9,29 @@ import com.gtladd.gtladditions.api.machine.logic.GTLAddMultipleRecipesLogic
 import com.gtladd.gtladditions.api.machine.multiblock.GTLAddWorkableElectricMultipleRecipesMachine
 import com.gtladd.gtladditions.common.data.ParallelData
 import com.gtladd.gtladditions.common.machine.multiblock.controller.SubspaceCorridorHubIndustrialArray
+import com.gtladd.gtladditions.common.machine.multiblock.controller.SubspaceCorridorNexusIndustrialArray
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
-import com.gtladd.gtladditions.utils.IndustrialArrayPosHelper
-import com.gtladd.gtladditions.utils.RecipeCalculationHelper
-import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
-import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
+import com.gtladd.gtladditions.utils.recipe.RecipeCalculationHelper
 import net.minecraft.ChatFormatting
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 
 class SubspaceCorridorHubIndustrialArrayModuleBase(holder: IMachineBlockEntity) :
     GTLAddWorkableElectricMultipleRecipesMachine(holder),
     IModularMachineModule<SubspaceCorridorHubIndustrialArray, SubspaceCorridorHubIndustrialArrayModuleBase>,
     IMachineLife {
-    @field:Persisted
-    private var hostPosition: BlockPos? = null
     private var host: SubspaceCorridorHubIndustrialArray? = null
 
-    override fun getHostPosition(): BlockPos? = hostPosition
-    override fun setHostPosition(pos: BlockPos?) {
-        hostPosition = pos
-    }
+    override fun getHostPosition(): BlockPos? = host?.pos
+    override fun setHostPosition(pos: BlockPos?) = Unit
     override fun getHost(): SubspaceCorridorHubIndustrialArray? = host
     override fun setHost(host: SubspaceCorridorHubIndustrialArray?) {
         this.host = host
     }
     override fun getHostType(): Class<SubspaceCorridorHubIndustrialArray> = SubspaceCorridorHubIndustrialArray::class.java
-    override fun getHostScanPositions(): Array<BlockPos> = IndustrialArrayPosHelper.calculatePossibleHostPositions(pos)
+    override fun getHostScanPositions(): Array<BlockPos> = emptyArray()
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = SubspaceCorridorHubIndustrialArrayModuleBaseLogic(this)
 
@@ -77,12 +72,40 @@ class SubspaceCorridorHubIndustrialArrayModuleBase(holder: IMachineBlockEntity) 
     // SubspaceCorridorHubIndustrialArray connection
     // ===============================================
 
+    override fun findAndConnectToHost(): Boolean {
+        val world = level as? ServerLevel ?: return false
+        return SubspaceCorridorHubIndustrialArray.MODULE_CONNECTIONS.slotsAt(world.dimension(), pos).any {
+            it.host.tryConnectModule(it.index, this)
+        }
+    }
+
+    private fun unregisterModule() {
+        (level as? ServerLevel)?.let {
+            SubspaceCorridorHubIndustrialArray.MODULE_CONNECTIONS.removeModule(it.dimension(), pos, this)
+        }
+        removeFromHost(host)
+    }
+
     override fun onConnected(host: SubspaceCorridorHubIndustrialArray) {
+        (host as? SubspaceCorridorNexusIndustrialArray)?.onModuleConnected(this)
         recipeLogic.updateTickSubscription()
+    }
+
+    override fun removeFromHost(host: SubspaceCorridorHubIndustrialArray?) {
+        super.removeFromHost(host)
+        (host as? SubspaceCorridorNexusIndustrialArray)?.onModuleDisconnected(this)
+    }
+
+    override fun notifyStatusChanged(oldStatus: RecipeLogic.Status, newStatus: RecipeLogic.Status) {
+        super.notifyStatusChanged(oldStatus, newStatus)
+        if ((oldStatus == RecipeLogic.Status.WORKING) != (newStatus == RecipeLogic.Status.WORKING)) {
+            (host as? SubspaceCorridorNexusIndustrialArray)?.onModuleActivityChanged(this, newStatus == RecipeLogic.Status.WORKING)
+        }
     }
 
     override fun onStructureFormed() {
         super.onStructureFormed()
+        (level as? ServerLevel)?.let { SubspaceCorridorHubIndustrialArray.MODULE_CONNECTIONS.addModule(it.dimension(), pos, this) }
         if (!findAndConnectToHost()) {
             removeFromHost(this.host)
         }
@@ -90,30 +113,28 @@ class SubspaceCorridorHubIndustrialArrayModuleBase(holder: IMachineBlockEntity) 
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
-        removeFromHost(this.host)
+        unregisterModule()
     }
 
     override fun onPartUnload() {
         super.onPartUnload()
-        removeFromHost(this.host)
+        unregisterModule()
     }
 
     override fun onMachineRemoved() {
-        removeFromHost(this.host)
+        unregisterModule()
+    }
+
+    override fun onUnload() {
+        unregisterModule()
+        super.onUnload()
     }
 
     override fun needConfirmMEStock(): Boolean = true
 
-    override fun getFieldHolder(): ManagedFieldHolder = MANAGED_FIELD_HOLDER
-
     companion object {
-        val MANAGED_FIELD_HOLDER: ManagedFieldHolder = ManagedFieldHolder(
-            SubspaceCorridorHubIndustrialArrayModuleBase::class.java,
-            GTLAddWorkableElectricMultipleRecipesMachine.Companion.MANAGED_FIELD_HOLDER
-        )
-
         val BEFORE_WORKING = Predicate { machine: IRecipeLogicMachine ->
-            (machine as SubspaceCorridorHubIndustrialArrayModuleBase).host?.let { it -> return@let it.isActive } ?: false
+            (machine as SubspaceCorridorHubIndustrialArrayModuleBase).host?.isActive == true
         }
 
         open class SubspaceCorridorHubIndustrialArrayModuleBaseLogic(

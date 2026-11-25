@@ -43,6 +43,13 @@ object AntichristStarRenderer {
         return true
     }
 
+    fun drawOriginalColor(profile: AntichristRenderProfile, poseStack: PoseStack, texture: ResourceLocation): Boolean {
+        val shader = AntichristShaders.starOriginalColorShader ?: return false
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+        drawLayer(shader, profile, poseStack, texture, profile.starRadius, LAYER_0_AXIS, 130f, 1.0f)
+        return true
+    }
+
     fun drawTransparent(profile: AntichristRenderProfile, poseStack: PoseStack): Boolean {
         val shader = AntichristShaders.starShader ?: return false
         drawLayer(shader, profile, poseStack, STAR_LAYER_1, profile.starRadius * 1.02f, LAYER_1_AXIS, -49f, 0.4f)

@@ -1,0 +1,1 @@
+attribute float aCoil;varying vec3 vP;varying vec3 vN;varying float vC;void main(){vP=position;vN=normal;vC=aCoil;gl_Position=projectionMatrix*viewMatrix*vec4(position,1.);}

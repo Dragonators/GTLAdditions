@@ -1,0 +1,2 @@
+attribute vec2 aSec;uniform float uRl;varying vec3 vP;varying vec3 vN;varying float vU;varying float vY;varying float vRole;varying float vRad;
+void main(){vU=uv.x;vY=uv.y;vRole=aSec.y;vRad=uRl+aSec.x;vec4 wp=modelMatrix*vec4(position,1.);vP=wp.xyz;vN=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*viewMatrix*wp;}
