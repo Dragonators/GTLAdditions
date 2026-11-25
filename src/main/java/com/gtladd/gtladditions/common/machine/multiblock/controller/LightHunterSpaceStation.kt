@@ -108,6 +108,14 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
         releaseSlots()
     }
 
+    override fun onPartUnload() {
+        super.onPartUnload()
+        releaseSlots()
+        interiorLightSubscription?.unsubscribe()
+        interiorLightSubscription = null
+        interiorLightingPending = false
+    }
+
     override fun onMachineRemoved() {
         stopInteriorLighting()
         releaseSlots()
@@ -173,15 +181,10 @@ class LightHunterSpaceStation(holder: IMachineBlockEntity, vararg args: Any?) :
     }
 
     private fun releaseSlots() {
-        val world = level as? ServerLevel
-        val slots = registeredSlots
-        if (world != null && slots != null) MODULE_CONNECTIONS.unregister(world.dimension(), this, slots)
+        val slots = registeredSlots ?: return
+        (level as? ServerLevel)?.let { MODULE_CONNECTIONS.unregister(it.dimension(), this, slots) }
         registeredSlots = null
-        val previous = modules.toList()
         safeClearModules()
-        previous.filterIsInstance<LightHunterSpaceStationModuleBase>().forEach {
-            if (it.isRecipeLogicAvailable) it.findAndConnectToHost()
-        }
     }
 
     override fun getModulesForRendering(): List<ModuleRenderInfo> = listOf(

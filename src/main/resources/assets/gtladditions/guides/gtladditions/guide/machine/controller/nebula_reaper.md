@@ -20,6 +20,7 @@ item_ids:
 
 * <ItemLink id="gtladditions:nebula_reaper" /> is a module machine for <ItemLink id="gtceu:space_elevator" /> and mainly processes space mining and space drilling recipes.
 * It must establish a connection with <ItemLink id="gtceu:space_elevator" />. If the <ItemLink id="gtceu:space_elevator" /> does not satisfy its running conditions, the module will not continue progressing recipes.
+* Each voltage tier of the connected space elevator above UV multiplies module recipe duration by 80%; once connected, the UI shows the current duration multiplier.
 * The machine supports laser power and cross-recipe parallelization.
 * The structure can install <ItemLink id="gtladditions:thread_modifier_hatch" />.
 

@@ -21,6 +21,8 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec2
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.InputEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.TickEvent
@@ -260,6 +262,7 @@ object ExoticChemicalProvider : IBlockComponentProvider, IServerDataProvider<Blo
      * Truncates long output names in the compact tooltip so they do not widen the whole panel.
      * The Shift view keeps names whole; one ellipsis marks both a cut name and further outputs.
      */
+    @OnlyIn(Dist.CLIENT)
     private fun shortName(o: ExoticChemicalOutput, more: Boolean): Component {
         val font = Minecraft.getInstance().font
         val raw = name(o).string

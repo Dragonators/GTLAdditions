@@ -283,6 +283,7 @@ open class MutableRecipesLogic<T> :
     protected open fun checkBeforeWorking(): Boolean {
         if (!machine.hasProxies()) return false
         if (getMachine().overclockVoltage <= 0) return false
+        if (getMachine().getWirelessNetworkEnergyHandler()?.isOnline == false) return false
         return true
     }
 
