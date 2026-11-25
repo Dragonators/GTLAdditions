@@ -16,7 +16,7 @@ vec3 worley(vec3 p){vec3 i=floor(p),f=fract(p);float d1=8.,d2=8.,id=0.;
   return vec3(sqrt(d1),sqrt(d2),id);}
 vec3 hsv(float h,float s,float v){vec3 k=clamp(abs(mod(h*6.+vec3(0.,4.,2.),6.)-3.)-1.,0.,1.);return v*mix(vec3(1.),k,s);}
 void main(){
-  vec3 o=normalize(vO),n=normalize(vN),V=normalize(uCam-vP);float mu=max(0.,dot(n,V));
+  vec3 o=normalize(vO),n=normalize(vN),V=normalize(uCam-vP);float mu=clamp(dot(n,V),0.,1.),fm=1.-mu,fm2=fm*fm;
   vec3 q=o*2.4;float warp=fbm3(q*1.4+7.1,true),plasma=fbm(q*1.6+warp*1.2,uPlasmaPhase);
   vec3 w1=worley(o*uGran+warp*.35+vec3(uGranulePhase.x,0.,0.)),w2=worley(o*uGran*2.15+vec3(0.,uGranulePhase.y,warp*.5));
   float c1=1.-smoothstep(.0,.95,w1.x),c2=1.-smoothstep(.0,.95,w2.x),px=length(fwidth(o))*uGran;
@@ -26,15 +26,15 @@ void main(){
   float sf=fbm(o*1.7+vec3(13.,2.,5.),uSpotPhase);
   float um=smoothstep(.705,.735,sf)*band*uSpots,pen=smoothstep(.645,.705,sf)*band*uSpots;
   float I=.86+.24*(gran-.5)+.3*(plasma-.5)+.07*net;I*=1.-.4*pen;I*=1.-.8*um;
-  float ld=1.-uLimbK.x*(1.-mu)-uLimbK.y*(1.-mu)*(1.-mu);
+  float ld=1.-uLimbK.x*fm-uLimbK.y*fm2;
   vec3 col=mix(uLane,uMid,smoothstep(.55,.9,I));col=mix(col,uCore,smoothstep(.86,1.08,I));col=mix(col,uSpot,um*.9);
-  col*=ld*uBright*1.12;col=mix(col,uLimb*(.55+.6*ld),pow(1.-mu,1.6)*.6);
-  col+=uCore*.2*smoothstep(.6,.82,plasma)*pow(1.-mu,1.5)*(1.-um);
+  col*=ld*uBright*1.12;col=mix(col,uLimb*(.55+.6*ld),pow(fm,1.6)*.6);
+  col+=uCore*.2*smoothstep(.6,.82,plasma)*pow(fm,1.5)*(1.-um);
   col+=uRim*(1.0 - smoothstep(.0,.15,mu))*.6;
   col=mix(col,vec3(1.,.98,.95),uWhite);col=mix(col,col*uEmberK,uEmber);
-  vec3 anti=vec3(.015,.012,.02)+vec3(1.,.82,.55)*pow(1.-mu,5.)*2.2*uRimK;
+  vec3 anti=vec3(.015,.012,.02)+vec3(1.,.82,.55)*fm2*fm2*fm*2.2*uRimK;
   col=mix(col,anti,uAnti);
-  if(uEclK>0.){float d=dot(n,uEclAx),fw=fwidth(d),ph=atan(dot(n,cross(uEclAx,uEclE1)),dot(n,uEclE1))/6.2831853;   // The ecliptic stays fixed in space.
+  if(uEclK>0.){float d=dot(n,uEclAx),fw=max(fwidth(d),1e-5),ex=dot(n,uEclE1),ey=dot(n,cross(uEclAx,uEclE1)),ph=(abs(ex)+abs(ey)>1e-6?atan(ey,ex):0.)/6.2831853;   // The ecliptic stays fixed in space.
     float ln=1.-smoothstep(.0025,.0025+fw*1.5,abs(d)),tk=step(fract(ph*72.),.05)*(1.-smoothstep(.008,.008+fw,abs(d)))+step(fract(ph*12.+.006),.012)*(1.-smoothstep(.02,.02+fw,abs(d)));
     col+=uEclCol*(ln+tk*.7)*uEclK*smoothstep(.0,.12,mu);}
   gl_FragColor=vec4(col,1.);}

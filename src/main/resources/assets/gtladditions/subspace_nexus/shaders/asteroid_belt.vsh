@@ -11,5 +11,8 @@ vec4 fallen(vec3 c) {
     return vec4(r*cos(a), r*sin(a), mix(c.z, 88., e), (1. - smoothstep(.8, 1., p))*(1. - .3*e));
 }
 void main(){vec4 f=fallen(position);vec4 mv=modelViewMatrix*vec4(f.xyz,1.);gl_Position=projectionMatrix*mv;float s=aSize*f.w*uScale/max(.1,-mv.z);vCol=aCol;vSeed=aSeed;
-  vec4 sc=projectionMatrix*viewMatrix*vec4(uStarC,1.);vec2 d=sc.xy/sc.w-gl_Position.xy/gl_Position.w;vLd=normalize(vec2(d.x,-d.y)+1e-5);
+  vec4 sv=viewMatrix*vec4(uStarC,1.),sc=projectionMatrix*sv;vec2 d;
+  if(sc.w>1e-4&&gl_Position.w>1e-4){vec2 h=sc.xy*gl_Position.w-gl_Position.xy*sc.w;d=vec2(h.x,-h.y);}
+  else d=vec2(sv.x-mv.x,mv.y-sv.y);
+  float dl=length(d);vLd=dl>1e-10?d/dl:vec2(1.,0.);
   if(s<2.5){vCol.a*=s/2.5;s=2.5;}gl_PointSize=min(s,600.);}

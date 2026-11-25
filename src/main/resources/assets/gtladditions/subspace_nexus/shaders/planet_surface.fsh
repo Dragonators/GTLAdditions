@@ -18,19 +18,20 @@ vec3 worley(vec3 p){vec3 i=floor(p),f=fract(p);float d1=8.,d2=8.,id=0.;
   return vec3(sqrt(d1),sqrt(d2),id);}
 vec3 hsv(float h,float s,float v){vec3 k=clamp(abs(mod(h*6.+vec3(0.,4.,2.),6.)-3.)-1.,0.,1.);return v*mix(vec3(1.),k,s);}
 float sphLight(float nc,float sa){float ca=sqrt(1.-sa*sa),a=ca*nc,b=sa*sqrt(max(0.,1.-nc*nc));return (a>=b?a:a<=-b?0.:(a*acos(clamp(-a/max(b,1e-5),-1.,1.))+sqrt(max(b*b-a*a,0.)))/3.14159265)/ca;}
-float cityLights(vec3 o,float land){
-  float fw=length(fwidth(o)),D=smoothstep(.4,.66,fbm3(o*3.1+uSeed*3.))*smoothstep(.34,.72,fbm3(o*13.+uSeed*7.))*mix(.42,1.,land);
+float safeAtan(float y,float x){return abs(x)+abs(y)>1e-6?atan(y,x):0.;}
+float cityLights(vec3 o,float land,float fw){
+  float D=smoothstep(.4,.66,fbm3(o*3.1+uSeed*3.))*smoothstep(.34,.72,fbm3(o*13.+uSeed*7.))*mix(.42,1.,land);
   vec3 g1=o*150.+uSeed*3.,g2=o*62.+uSeed*5.;
   float p1=step(1.-D*.8,h31(floor(g1)))*(1.-smoothstep(.2,.48,length(fract(g1)-.5))),p2=step(1.-D*.3,h31(floor(g2)+3.))*(1.-smoothstep(.22,.5,length(fract(g2)-.5)));
   return mix(D*.34,max(p1,p2*1.4),1.-smoothstep(.006,.016,fw));}
 float ringDen(float x){return (.55+.45*sin(x*41.+uSeed*7.))*smoothstep(.0,.05,abs(x-.63))*(.2+.8*smoothstep(.0,.025,abs(x-.3)));}
 vec3 rgb2hsv(vec3 c){vec4 K=vec4(0.,-1./3.,2./3.,-1.);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x);}
 vec4 texEq(sampler2D m,vec3 o){   // equirectangular lookup; derivatives taken from whichever longitude chart has no wrap here, so there is no seam line
-  vec2 uv=vec2(atan(o.y,o.x)/6.2831853+.5,asin(clamp(o.z,-1.,1.))/3.14159265+.5);float u2=fract(uv.x+.5);
+  vec2 uv=vec2(safeAtan(o.y,o.x)/6.2831853+.5,asin(clamp(o.z,-1.,1.))/3.14159265+.5);float u2=fract(uv.x+.5);
   vec2 dx=vec2(dFdx(uv.x),dFdx(uv.y)),dy=vec2(dFdy(uv.x),dFdy(uv.y));float dx2=dFdx(u2),dy2=dFdy(u2);
   if(abs(dx2)<abs(dx.x))dx.x=dx2;if(abs(dy2)<abs(dy.x))dy.x=dy2;return textureGrad(m,uv,dx,dy);}
 void main(){
-  vec3 o=normalize(vO),n=normalize(vN),V=normalize(uCam-vP),L=normalize(uStarC-vP);float mu=max(0.,dot(n,V)),k=uKind;
+  vec3 o=normalize(vO),n=normalize(vN),V=normalize(uCam-vP),L=normalize(uStarC-vP);float oFw=length(fwidth(o)),mu=clamp(dot(n,V),0.,1.),k=uKind;
   vec3 base=uC1,emis=vec3(0.);float spec=0.,pat=.5,bump=0.;
   if(k<.5){            // 0 rocky, cratered
     float h=fbm(o*3.2+uSeed);vec3 w=worley(o*4.6+uSeed*3.);float cr=(1.0 - smoothstep(.06,.42,w.x)),rim=(1.0 - smoothstep(.0,.1,abs(w.x-.4)));
@@ -47,8 +48,8 @@ void main(){
   }else if(k<3.5){     // 3 banded giant
     float tu=fbm(vec3(o.xy*3.,o.z*9.)+uSeed,true);float b=sin(o.z*uBandF+tu*2.6);
     base=mix(uC1,uC2,smoothstep(-.6,.6,b));base=mix(base,uC3,smoothstep(.55,.95,sin(o.z*uBandF*.5+tu*4.)));
-    vec2 sp=vec2(atan(o.y,o.x)-.9,(o.z+.32)*3.2);float st=exp(-dot(sp*vec2(1.6,1.),sp*vec2(1.6,1.))*4.);base=mix(base,uC3*1.15,st*.8);pat=b*.5+.5;
-    emis=uEmisCol*uEmis*(1.-smoothstep(.0,.035,abs(o.z)))*(.75+.25*sin(atan(o.y,o.x)*6.-uBandPhase));
+    float lon3=safeAtan(o.y,o.x);vec2 sp=vec2(lon3-.9,(o.z+.32)*3.2);float st=exp(-dot(sp*vec2(1.6,1.),sp*vec2(1.6,1.))*4.);base=mix(base,uC3*1.15,st*.8);pat=b*.5+.5;
+    emis=uEmisCol*uEmis*(1.-smoothstep(.0,.035,abs(o.z)))*(.75+.25*sin(lon3*6.-uBandPhase));
   }else if(k<4.5){     // 4 crystal world.
     vec3 w=worley(o*3.6+uSeed),w2=worley(o*8.+uSeed*2.);vec3 fn=normalize(h33(vec3(w.z*91.,w.z*17.,w.z*53.))-.5),fn2=normalize(h33(vec3(w2.z*37.,w2.z*71.,w2.z*13.))-.5);n=normalize(n+fn*.5+fn2*.18);
     float lit=step(.45,h31(vec3(w.z*13.,3.,7.)));base=mix(uC1,uC2,w.z);spec=1.;pat=w.z;
@@ -64,21 +65,22 @@ void main(){
     vec3 tc=texEq(uMap,o).rgb;if(uHue!=0.){vec3 hv=rgb2hsv(tc);tc=hsv(hv.x+uHue,hv.y,hv.z);}tc*=uTint;
     if(k>1.5&&k<2.5){float sea=smoothstep(.03,.18,tc.b-max(tc.r,tc.g));spec=sea;base=mix(tc,vec3(.92,.95,.98),smoothstep(.86,.96,abs(o.z))*.55);}
     else if(k>4.5&&k<5.5){float land=smoothstep(.0,.1,tc.g-tc.b*.8);base=tc;
-      if(uCityK>.5){float cl=smoothstep(.5,.74,fbm(o*3.4+uSeed*2.,true));base=mix(base,vec3(.93,.95,.97),cl*.75);emis=dot(n,L)<.1?uEmisCol*cityLights(o,land)*uEmis*(1.-.7*cl)*(1.0 - smoothstep(-.2,.1,dot(n,L))):vec3(0.);}
+      if(uCityK>.5){float cl=smoothstep(.5,.74,fbm(o*3.4+uSeed*2.,true));base=mix(base,vec3(.93,.95,.97),cl*.75);emis=dot(n,L)<.1?uEmisCol*cityLights(o,land,oFw)*uEmis*(1.-.7*cl)*(1.0 - smoothstep(-.2,.1,dot(n,L))):vec3(0.);}
       else emis=uEmisCol*step(.78,h31(floor(o*58.)))*smoothstep(.5,.62,fbm(o*5.+uSeed*3.))*land*uEmis*(1.0 - smoothstep(-.25,.05,dot(n,L)));}
     else base=tc;
     pat=dot(tc,vec3(.3,.5,.2));
   }
-  if(uHK>0.){float hh=texEq(uHMap,o).r;vec3 dpx=dFdx(vP),dpy=dFdy(vP),r1=cross(dpy,n),r2=cross(n,dpx);float det=dot(dpx,r1);
-    n=normalize(abs(det)*n-sign(det)*(dFdx(hh)*r1+dFdy(hh)*r2)*(uBumpFix>0.?uHK*.05*uBumpFix:uHK));}
+  if(uHK>0.){float hh=texEq(uHMap,o).r,hx=dFdx(hh),hy=dFdy(hh);vec3 dpx=dFdx(vP),dpy=dFdy(vP),r1=cross(dpy,n),r2=cross(n,dpx);float det=dot(dpx,r1);
+    if(abs(det)>1e-10)n=normalize(abs(det)*n-sign(det)*(hx*r1+hy*r2)*(uBumpFix>0.?uHK*.05*uBumpFix:uHK));}
   float nl=dot(n,L),diff=max(0.,nl*.92+.08)*(1.+.15*bump);if(uBumpFix>0.)diff*=smoothstep(-.1,.12,dot(normalize(vN),L));if(uCityK>.5)diff=sphLight(nl,min(.92,uStarR/length(uStarC-vP)));
   if(uShadW>0.){float sd=0.;for(int i=0;i<4;i++){vec4 Rs=uShad[i];if(Rs.w<=0.)continue;float den=dot(L,Rs.xyz);if(abs(den)<1e-3)continue;float tt=dot(uShadC-vP,Rs.xyz)/den;if(tt<=0.)continue;float rr=length(vP+L*tt-uShadC);sd=max(sd,1.-smoothstep(uShadW*.6,uShadW*2.2,abs(rr-Rs.w)));}diff*=1.-.55*sd;}
   if(uRingN.w>.5){float den=dot(L,uRingN.xyz);if(abs(den)>1e-3){float tt=dot(uRingC-vP,uRingN.xyz)/den;if(tt>0.){float rr=length(vP+L*tt-uRingC);
-    if(rr>uRingR.x&&rr<uRingR.y){float xr=(rr-uRingR.x)/(uRingR.y-uRingR.x);diff*=1.-.72*(uRingTexK>.5?texture2D(uRingTex,vec2(xr,.5)).a:ringDen(xr));}}}}
+    if(rr>uRingR.x&&rr<uRingR.y){float xr=(rr-uRingR.x)/(uRingR.y-uRingR.x);diff*=1.-.72*(uRingTexK>.5?textureLod(uRingTex,vec2(xr,.5),0.).a:ringDen(xr));}}}}
   vec3 col=base*(uAmb+diff*uLight*1.08)+emis;
-  vec3 H=normalize(L+V);col+=uLight*pow(max(0.,dot(n,H)),k>3.5&&k<4.5?90.:48.)*spec*(k>3.5&&k<4.5?1.2:.55)*step(0.,nl);
-  col+=uAtmo*uAtmoK*pow(1.-mu,2.6)*smoothstep(-.25,.45,nl);if(uCityK>.5)col+=uAtmo*uAtmoK*.7*pow(1.-mu,4.)*smoothstep(0.,.9,-dot(V,L));
+  vec3 hv=L+V;float hl2=dot(hv,hv);if(nl>0.&&spec>0.&&hl2>1e-10){vec3 H=hv*inversesqrt(hl2);col+=uLight*pow(max(0.,dot(n,H)),k>3.5&&k<4.5?90.:48.)*spec*(k>3.5&&k<4.5?1.2:.55);}
+  float fm=1.-mu,fm2=fm*fm,fm4=fm2*fm2;
+  col+=uAtmo*uAtmoK*pow(fm,2.6)*smoothstep(-.25,.45,nl);if(uCityK>.5)col+=uAtmo*uAtmoK*.7*fm4*smoothstep(0.,.9,-dot(V,L));
   vec3 neg=vec3(.008,.007,.01)+uGold*.05*(1.-pat);
   col=mix(col,neg,uNeg);
-  col+=uGold*uRimG*(pow(1.-mu,7.)*1.25+(1.0 - smoothstep(.0,.09,mu))*.85);
+  col+=uGold*uRimG*(fm4*fm2*fm*1.25+(1.0 - smoothstep(.0,.09,mu))*.85);
   gl_FragColor=vec4(col,1.);}

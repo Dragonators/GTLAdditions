@@ -2,7 +2,6 @@ uniform float uModules[144];
 uniform float uScreenR;
 // 0..9 glitch timing and frame ids, 10..12 angular phases, 13..17 noise lattice offsets.
 uniform float uGlitchClock[18];
-precision highp float;
 uniform vec3 uCam;uniform float uTime;uniform float uGlow;uniform float uW;uniform float uH;uniform float uAlpha;uniform float uBack;
 uniform vec3 uCol;uniform vec3 uHot;uniform vec3 uGold;uniform float uScan;uniform float uShow;uniform float uCount;uniform float uTear;uniform float uInv;uniform float uSeed;uniform float uStarA;uniform float uBay;
 uniform float uTearK;uniform float uPage;uniform vec2 uHi;uniform float uShips[6];uniform float uShipU[6];uniform float uMk[9];uniform vec4 uPl[4];uniform vec4 uPlB[4];uniform vec3 uPk;uniform float uRot;uniform float uBelt;uniform float uOrbA;uniform vec3 uNum;
@@ -14,6 +13,7 @@ float AA;vec2 PDX,PDY;
 float h1(float n){return fract(sin(n*127.1)*43758.5453);}
 float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float h3(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453);}
+float safeAtan(float y,float x){return abs(x)+abs(y)>1e-6?atan(y,x):0.;}
 float stars(vec3 d,float k){vec3 p=d*k,i=floor(p),f=fract(p)-.5;float s=step(.972,h3(i));vec3 o=vec3(h3(i+1.),h3(i+2.),h3(i+3.))-.5;return s*(1.0 - smoothstep(0.,.16,length(f-o*.6)))*(.4+.6*h3(i+4.));}
 float periodicNoise(float x,float period){
   float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);
@@ -75,7 +75,7 @@ float garbage(vec2 p,float dens,out float cls){
   cls=fract(rl2*13.7);vec2 q=vec2(fract(gx),fract(p.y/cs.y));
   return uGar<1.5?gtile(q,ch,cs):ln(gly(vec2(q.x*.72,q.y),ch*1.7)*cs.y,.05*cs.y);}
 vec3 skyChart(vec2 pp,vec3 cc,vec3 hot){
-  vec3 add=vec3(0.);float S=uMC.z;vec2 m=(pp-uMC.xy)/vec2(S,S*uMC.w);float r=length(m),a=atan(m.y,m.x),mkb=smoothstep(16.6,18.2,r);
+  vec3 add=vec3(0.);float S=uMC.z;vec2 m=(pp-uMC.xy)/vec2(S,S*uMC.w);float r=length(m),a=safeAtan(m.y,m.x),mkb=smoothstep(16.6,18.2,r);
   if(mkb>0.){
     float fa=abs(fract(a*12./TAU+.5)-.5)/12.*TAU*r*S,rr=abs(fract(r/2.4+.5)-.5)*2.4*S;add+=cc*(ln(fa,.014)*.13+ln(rr,.012)*.09)*mkb;
     vec2 gc=pp/5.2,gi=floor(gc);
@@ -154,7 +154,7 @@ vec2 shift8(vec2 uv,float G){
 void over8(inout vec3 add,vec2 pp,float live,vec3 cc,vec3 hot){
   if(gA>1.5)add*=gA<2.5?vec3(1.25,.45,.3):gA<3.5?vec3(.35,.85,1.2):vec3(1.);
   if(gK>.5&&uSide>7.5&&uSide<8.5){float dc=.42;add+=(skyChart(pp+vec2(dc,0.),cc,hot)*vec3(.9,.1,.05)+skyChart(pp-vec2(dc,0.),cc,hot)*vec3(.05,.45,.6))*live;}}
-float gauge(vec2 p,vec2 c,float R,float f){vec2 d=p-c;float l=length(d);if(l>R+.3)return 0.;float fa=fract(.25-atan(d.y,d.x)/TAU);return ln(abs(l-R),.018)*.4+ln(abs(l-R*.76),.08)*step(fa,f)*.9;}
+float gauge(vec2 p,vec2 c,float R,float f){vec2 d=p-c;float l=length(d);if(l>R+.3)return 0.;float fa=fract(.25-safeAtan(d.y,d.x)/TAU);return ln(abs(l-R),.018)*.4+ln(abs(l-R*.76),.08)*step(fa,f)*.9;}
 vec3 windowStarCenter(){
   // One centre per panel side, independent of the fragment on its curved surface.
   float back=step(uScreenR,dot(uCam,uAxisW));
@@ -206,7 +206,7 @@ void main(){
     add+=cc*(glyph(pp-vec2(0.,hb),vec2(9.85,33.68),1.28,15.,1.)+num(pp-vec2(0.,hb),vec2(10.62,33.68),1.28,uBay+1.,1.,0.))*live*.95;}
   // uMC: xy page centre, z chart scale, w foreshortening.
   vec2 MC=uMC.xy;float S=uMC.z,K=uMC.w,plan=step(.99,K);
-  vec2 m=(pp-MC)/vec2(S,S*K);float r=length(m),a=atan(m.y,m.x),gr=length(vec2(m.x,m.y/K))/max(r,1e-3),tp=S/gr,az=a+uRot;   // tp: chart radius difference to page distance
+  vec2 m=(pp-MC)/vec2(S,S*K);float r=length(m),a=safeAtan(m.y,m.x),gr=r>1e-4?length(vec2(m.x,m.y/K))/r:1.,tp=S/gr,az=a+uRot;   // tp: chart radius difference to page distance
   float sr=length(pp-MC)/S;
   if(live>.001&&r<16.4){
     float dep=mix(1.,1.+.28*(-m.y/max(r,.01)),1.-plan);
@@ -227,7 +227,7 @@ void main(){
       if(r>12.16&&r<13.48&&deg>10.&&deg<42.64&&page>.001){float fk=(deg-10.)/2.72,kk=floor(fk),rw=floor((r-12.16)/.66),al=2.72/57.29578*r*S;vec2 ql=vec2(fract(fk)*al,fract((r-12.16)/.66)*.66*S);
         float sdc=da<0.?-1.:1.,own=step(abs(bb),.5),cell=rect(ql,vec2(.07,.07),vec2(al-.07,.66*S-.07)),seedc=kk+rw*17.+sdc*31.+bb*53.+uSeed*7.,act=uModules[int(mod(bb+3.,3.))*48+(sdc<0.?0:24)+int(kk)*2+int(rw)],fq=(uScan*9.-kk)/1.4,fl=uScan<1.6?exp(-fq*fq)*own:0.;
         add+=mix(cc,hot,fl)*cell*(.08+.46*act+fl)*(.38+.62*own)*page;}
-      {vec2 c=15.*vec2(cos(ai-uRot),sin(ai-uRot)),dc=m-c;float ld=length(dc);if(ld<1.05){float f=clamp(uShips[int(ri)],0.,1.),hi=(abs(ri-uHi.x)<.5||abs(ri-uHi.y)<.5)?1.:0.,fa=fract(.25-atan(dc.y,dc.x)/TAU);
+      {vec2 c=15.*vec2(cos(ai-uRot),sin(ai-uRot)),dc=m-c;float ld=length(dc);if(ld<1.05){float f=clamp(uShips[int(ri)],0.,1.),hi=(abs(ri-uHi.x)<.5||abs(ri-uHi.y)<.5)?1.:0.,fa=fract(.25-safeAtan(dc.y,dc.x)/TAU);
         add+=mix(cc,hot,hi*.6)*(ln(abs(ld-.82)*S,.032)*.55+ln(abs(ld-.66)*S,.075)*step(fa,f)*(.55+.45*hi))*(1.-uShow*.5)*live;
         if(uSide<.5)add+=mix(cc,hot,hi)*glyph(pp,MC+c*S-vec2(.27,.45),.9,11.+ri,1.)*(.55+.45*hi)*live;
         else if(uSide>2.5&&uSide<3.5)add+=mix(cc,hot,hi)*gstr(pp,MC+c*S-vec2(.29,.4),.8,1.,61.+ri)*(.55+.45*hi)*live;
@@ -245,7 +245,7 @@ void main(){
     float full=step(5.99,uCount)*uShow,Rs=1.28*(1.+.12*sin(uGlitchClock[11])*full);
     vec2 sn=(pp-MC)/(S*Rs);float mu=sqrt(max(0.,1.-dot(sn,sn))),gran=.9+.2*vn2(sn*7.+uGlitchClock[14])*vn2(sn*15.+uGlitchClock[15]+4.);
     vec3 cn=mix(vec3(.3,.38,.98),vec3(.96,.98,1.),pow(mu,.62))*gran,gw=vec3(.36,.44,1.);
-    float sa=atan(pp.y-MC.y,pp.x-MC.x),th=sa*36./TAU,ci=floor(th),raysN=(1.0 - smoothstep(.12,.5,abs(fract(th)-.5)))*step(sr,Rs+.55+.75*h1(ci+3.))*step(Rs,sr);
+    float sa=safeAtan(pp.y-MC.y,pp.x-MC.x),th=sa*36./TAU,ci=floor(th),raysN=(1.0 - smoothstep(.12,.5,abs(fract(th)-.5)))*step(sr,Rs+.55+.75*h1(ci+3.))*step(Rs,sr);
     add+=gw*(exp(-sr*sr/1.9)*.34+raysN*.34*exp(-(sr-Rs)*1.6))*(1.-uInv)*live;
     float mk=clamp((Rs-sr)*S/AA+.5,0.,1.);add=add*(1.-mk*.9);over=max(over,mk*.9*live);
     add+=mix(cn*1.08,vec3(0.),uInv)*mk*live;
@@ -254,12 +254,12 @@ void main(){
   if(live>.001)for(int k=0;k<4;k++){
     float vis=uPl[k].w;if(vis<=.003)continue;vec2 c=uPl[k].xy,dc=pp-c;float Rp=uPl[k].z,dl=length(dc);if(dl>Rp*3.4+1.2)continue;
     vec3 tint=k==0?vec3(.84,.9,.96):k==1?vec3(.55,.82,1.):k==2?vec3(.74,.66,1.):vec3(.45,.96,1.);tint=mix(tint,uGold,uInv);
-    if(k==1){for(int j=0;j<3;j++){float fj=float(j),rl=Rp*(1.32+.2*fj),th=.5+1.5*fj,inc=j==0?.5:j==1?.72:.3,ct=cos(th),st=sin(th);vec2 e=vec2(ct*dc.x+st*dc.y,(-st*dc.x+ct*dc.y)/inc);float el=length(e),gg=length(vec2(e.x,e.y/inc))/max(el,.001);
-        float ang=atan(e.y,e.x),ph=fract((uPlB[1].z*(1.-.25*fj)+fj*2.-ang)/TAU),ta=exp(-ph*5.);add+=cc*ln(abs(el-rl)/gg,.016)*(.1+.75*ta)*vis*live;}}
+    if(k==1){for(int j=0;j<3;j++){float fj=float(j),rl=Rp*(1.32+.2*fj),th=.5+1.5*fj,inc=j==0?.5:j==1?.72:.3,ct=cos(th),st=sin(th);vec2 e=vec2(ct*dc.x+st*dc.y,(-st*dc.x+ct*dc.y)/inc);float el=length(e),gg=el>1e-4?length(vec2(e.x,e.y/inc))/el:1.;
+        float ang=safeAtan(e.y,e.x),ph=fract((uPlB[1].z*(1.-.25*fj)+fj*2.-ang)/TAU),ta=exp(-ph*5.);add+=cc*ln(abs(el-rl)/gg,.016)*(.1+.75*ta)*vis*live;}}
     if(k==3){float th=uPlB[3].w;vec2 cs=c+Rp*2.05*vec2(cos(th),sin(th)*.8),ds=pp-cs;float ls=length(ds),Rm=max(.2,Rp*.2);add+=cc*ln(abs(length(vec2(dc.x,dc.y/.8))-Rp*2.05)*.9,.012)*.32*vis*live;
       float mm=clamp((Rm-ls)/AA+.5,0.,1.);add=add*(1.-mm);add+=tint*(.28+.9*max(dot(normalize(MC-cs+.001),ds/Rm),0.))*mm*vis*live;add+=vec3(.9,1.,1.)*(1.0 - smoothstep(.02,.09,length(ds/Rm-vec2(.36,.36))))*mm*vis*live;}
     float mk=clamp((Rp-dl)/AA+.5,0.,1.);
-    if(mk>0.){vec2 nn=dc/Rp;float nz=sqrt(max(0.,1.-dot(nn,nn)));vec2 L2=normalize(MC-c+.0001);vec3 L=normalize(vec3(L2,.5));float lit=max(dot(vec3(nn,nz),L),0.),spin=uPlB[k].z,lat=nn.y*.94+nn.x*.34,lon=atan(nn.x,nz)+spin,alb=.6;
+    if(mk>0.){vec2 nn=dc/Rp;float nz=sqrt(max(0.,1.-dot(nn,nn)));vec2 L2=normalize(MC-c+.0001);vec3 L=normalize(vec3(L2,.5));float lit=max(dot(vec3(nn,nz),L),0.),spin=uPlB[k].z,lat=nn.y*.94+nn.x*.34,lon=safeAtan(nn.x,nz)+spin,alb=.6;
       if(k==0)alb=.42+.4*planetNoise(lon,lat,2.4,3.);else if(k==1)alb=.34+.75*smoothstep(.42,.62,planetNoise(lon,lat,1.7,9.)+.35*planetNoise(lon,lat,5.,0.));else if(k==2)alb=.4+.45*(.5+.5*sin(lat*12.+1.6*planetNoise(lon,lat,1.2,5.)));else alb=.42+.4*(.5+.5*sin(lat*17.+planetNoise(lon,lat,1.4,0.)));
       vec3 col=tint*alb*(.1+1.08*lit);
       if(k>=2)col+=mix(vec3(.55,.97,1.),uGold,uInv)*ln(abs(lat)*Rp,.018+.012*Rp)*(.5+.5*lit)*1.1;
@@ -294,7 +294,7 @@ void main(){
         vec3 tint=mix(ptint(k),uGold,uInv),pc=vec3(uPl[k].xy,uPl[k].z);
         if(vis>.003){vec2 dp=normalize(pc.xy-tag);add+=tint*ln(seg(pp,tag+dp*.75,pc.xy-dp*(pc.z+.1)),.014)*.3*vis*live*(1.-uShow*.5);}
         vec2 dv=pp-c;float dl=length(dv);if(dl>F+1.2)continue;
-        float boxT=rect(pp,tag-vec2(.62,.56),tag+vec2(.62,.56)),fa=fract(.25-atan(dv.y,dv.x)/TAU),tk=abs(fract(fa*24.+.5)-.5)/24.*TAU*F;
+        float boxT=rect(pp,tag-vec2(.62,.56),tag+vec2(.62,.56)),fa=fract(.25-safeAtan(dv.y,dv.x)/TAU),tk=abs(fract(fa*24.+.5)-.5)/24.*TAU*F;
         add+=cc*(ln(abs(dl-F),.022)*.5+ln(tk,.014)*step(F,dl)*step(dl,F+.24)*.5)*(1.-boxT)*live;
         add+=tint*ln(abs(dl-F-.42),.05)*step(fa,ph)*(.3+.5*vis)*(1.-boxT)*live;
         add=add*(1.-boxT*.85);add+=tint*glyph(pp,tag-vec2(.6,.5),1.,17.+fk*2.,2.)*live;
@@ -311,7 +311,7 @@ void main(){
           if(k>=2)col+=mix(vec3(.55,.97,1.),uGold,uInv)*(ln(abs(lat)*R,.026+.008*R)*(.35+.65*lit)*1.2);
           col+=mix(tint,hot,.3)*pow(1.-nz,3.)*(.15+.85*lit)*(k==0?.3:.75);
           add=add*(1.-mk)+col*mk*vis*live;over=max(over,mk*vis*live);}
-        if(k==1&&vis>.003&&dl<R*1.9+.2)for(int j=0;j<3;j++){float fj=float(j),rl=R*(1.32+.17*fj),th=.5+1.5*fj,inc=j==0?.5:j==1?.72:.3,ca2=cos(th),sa2=sin(th);vec2 e=vec2(ca2*dv.x+sa2*dv.y,(-sa2*dv.x+ca2*dv.y)/inc);float el=length(e),gg=length(vec2(e.x,e.y/inc))/max(el,.001),ang=atan(e.y,e.x),pj=fract((uPlB[1].z*(1.-.25*fj)+fj*2.-ang)/TAU),behind=step(0.,-sa2*dv.x+ca2*dv.y)*step(dl,R);
+        if(k==1&&vis>.003&&dl<R*1.9+.2)for(int j=0;j<3;j++){float fj=float(j),rl=R*(1.32+.17*fj),th=.5+1.5*fj,inc=j==0?.5:j==1?.72:.3,ca2=cos(th),sa2=sin(th);vec2 e=vec2(ca2*dv.x+sa2*dv.y,(-sa2*dv.x+ca2*dv.y)/inc);float el=length(e),gg=el>1e-4?length(vec2(e.x,e.y/inc))/el:1.,ang=safeAtan(e.y,e.x),pj=fract((uPlB[1].z*(1.-.25*fj)+fj*2.-ang)/TAU),behind=step(0.,-sa2*dv.x+ca2*dv.y)*step(dl,R);
             add+=cc*ln(abs(el-rl)/gg,.016)*(.12+.8*exp(-pj*5.))*(1.-behind)*vis*live;}
         if(k==3&&vis>.003){float th=uPlB[3].w;vec2 cs=c+R*1.5*vec2(cos(th),sin(th)*.72),ds=pp-cs;float ls=length(ds),Rm=.52,mm=clamp((Rm-ls)/AA+.5,0.,1.);add+=cc*ln(abs(length(vec2(dv.x,dv.y/.72))-R*1.5)*.85,.012)*.3*vis*step(R,dl)*live;
           if(mm>0.&&(sin(th)<0.||dl>R)){vec2 ns=ds/Rm;float zs=sqrt(max(0.,1.-dot(ns,ns))),ls2=max(dot(vec3(ns,zs),normalize(vec3(normalize(MC-pc.xy+.0001),.4))),0.);vec3 cm=mix(vec3(.62,.66,.72),uGold,uInv)*(.08+1.05*ls2);cm*=1.-.6*(1.0 - smoothstep(.02,.06,abs(ns.y)));cm*=1.-.8*(1.0 - smoothstep(.24,.3,length(ns-vec2(.32,.38))));add=add*(1.-mm)+cm*mm*vis*live;over=max(over,mm*vis*live);}}
@@ -441,7 +441,7 @@ void main(){
       vec4 hit=windowStarRay(rd);vec3 dv=hit.xyz;float tc=hit.w,ds=length(dv),Rs=uStarR;
       vec3 oc=windowStarCenter()-uCam,view=-oc/max(length(oc),1e-5),e1=vec3(-view.y,view.x,0.);
       e1=dot(e1,e1)>1e-12?normalize(e1):vec3(1.,0.,0.);
-      vec3 e2=cross(view,e1);float ang=atan(dot(dv,e2),dot(dv,e1));
+      vec3 e2=cross(view,e1);float ang=safeAtan(dot(dv,e2),dot(dv,e1));
       float rays=smoothstep(.72,1.,sin(ang*44.+h1(floor((ang+PI)*7.))*5.))*(1.0 - smoothstep(Rs*1.04,Rs*2.5,ds))*step(Rs,ds);
       float starA=tc>0.?uStarA:0.;
       win=mix(win,vec3(.006),(1.0 - smoothstep(Rs-.3,Rs,ds))*starA);win+=uGold*((1.0 - smoothstep(0.,.55,abs(ds-Rs)))*1.5+(1.0 - smoothstep(Rs,Rs*1.5,ds))*step(Rs,ds)*.22+rays*.42)*starA;

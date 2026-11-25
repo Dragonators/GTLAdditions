@@ -20,18 +20,20 @@ float tile(vec2 p, float layer) {
     float m = abs(fract(p.y*.5)*2.-1.);
     return texture(uMaps,vec3(p.x,.25+.5*m,layer)).r;
 }
-vec2 latlon(vec3 d) {
-    float u = atan(d.y,d.x)/6.28318530718;
-    float a = fract(u), b = fract(u+.5)-.5;
-    return vec2(fwidth(a)<=fwidth(b)?a:b, acos(clamp(d.z,-1.,1.))/3.14159265359);
-}
 void main() {
-    vec2 ll = latlon(normalize(vObj));
-    vec3 no = normalize(texture(uNormals,vec3(ll,vInfo.w)).xyz*2.-1.);
+    vec3 d = normalize(vObj);
+    float u = (dot(d.xy,d.xy)>1e-12?atan(d.y,d.x):0.)/6.28318530718;
+    float a = fract(u), b = fract(u+.5);
+    vec2 ll = vec2(a,acos(clamp(d.z,-1.,1.))/3.14159265359);
+    vec2 dx = dFdx(ll), dy = dFdy(ll);
+    float dx2 = dFdx(b), dy2 = dFdy(b);
+    if (abs(dx2)<abs(dx.x)) dx.x = dx2;
+    if (abs(dy2)<abs(dy.x)) dy.x = dy2;
+    vec3 no = normalize(textureGrad(uNormals,vec3(ll,vInfo.w),dx,dy).xyz*2.-1.);
     vec3 ns = normalize(textureLod(uNormals,vec3(ll,vInfo.w),2.).xyz*2.-1.);
     float tex;
     if (vInfo.z>.5) {
-        tex = texture(uMaps,vec3(ll,vInfo.x)).r;
+        tex = textureGrad(uMaps,vec3(ll,vInfo.x),dx,dy).r;
     } else {
         vec3 w = pow(abs(ns),vec3(4.));
         w /= max(w.x+w.y+w.z,1e-6);

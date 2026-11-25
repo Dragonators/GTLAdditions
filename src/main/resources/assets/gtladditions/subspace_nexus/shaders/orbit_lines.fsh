@@ -5,7 +5,7 @@ void main(){
   if(fract(vTh-uArc.x)>uArc.y)discard;
   if(uDash.x>.5&&fract(vTh*uDash.x)>uDash.y)discard;
   float C=6.2831853*uR,b=fract(uDir*(vTh-uTh0)),gd=min(b,1.-b)*C,gapK=uGap<0.?1.:smoothstep(uGap,uGap+1.2,gd);if(gapK<=0.)discard;
-  float y=abs(vS)*vW,px=vPx,cw=max(uCoreW,.55*px),coreA=min(1.,uCoreW/cw),core=(1.-smoothstep(cw*.35,cw+.6*px,y))*coreA;
+  float y=abs(vS)*vW,px=max(vPx,1e-5),cw=max(uCoreW,.55*px),coreA=min(1.,uCoreW/cw),core=(1.-smoothstep(cw*.35,cw+.6*px,y))*coreA;
   float hw=max(uHaloW*.5,1.6*px),halo=exp(-y*y/(hw*hw))*min(1.,uHaloW*.5/hw)*(1.-smoothstep(.75,1.,abs(vS)));
   float tail=mix(uFloor,1.,pow(1.-b,uFade)),I=core+uHaloA*halo;
   if(uFlow>0.){float n=max(1.,floor(C/22.+.5)),gs=C/n,ph=fract((vTh*C+uDir*uTime*5.)/gs)-.5,pu=exp(-ph*ph*gs*gs/9.);I*=1.+uFlow*pu;tail=max(tail,uFloor+uFlow*.35*pu);}

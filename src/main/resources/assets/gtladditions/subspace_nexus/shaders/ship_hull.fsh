@@ -12,15 +12,15 @@ float crack(vec3 p){vec3 i=floor(p),f=fract(p),c1=vec3(0.),c2=vec3(0.);float d1=
   return keep*((1.-smoothstep(0.,.04,e))+.22*(1.-smoothstep(0.,.22,e)));}
 void main(){vec3 n=normalize(vN);float s=.6*n.x*n.x+.8*n.y*n.y+(n.z>0.?1.:.5)*n.z*n.z;vec3 base=vC*s*uAmb;vec3 col=base;
   if(uEmissive>.5){float k=clamp(nexusIntensityValue,0.,1.);col=mix(base,vE,k)+vE*max(nexusIntensityValue-1.,0.)*.35;}
-  if(uNeg>0.){vec3 V=normalize(uCam-vP);float mu=abs(dot(n,V));vec3 alt;
+  if(uNeg>0.){vec3 V=normalize(uCam-vP);float mu=clamp(abs(dot(n,V)),0.,1.),fm=1.-mu,fm2=fm*fm;vec3 alt;
     float ring=uTRing*step(length(vO.xy),1.62)*step(-.05,vO.z)*step(vO.z,.75);   // the round collar (+ hub) in model units
-    if(uTMode<.5)alt=uEmissive>.5?uNegCol*uNegGlow+vec3(.02):vec3(.02,.025,.035)+uNegCol*pow(1.-mu,3.)*1.4;
+    if(uTMode<.5)alt=uEmissive>.5?uNegCol*uNegGlow+vec3(.02):vec3(.02,.025,.035)+uNegCol*fm2*fm*1.4;
     else if(uEmissive>.5)alt=mix(uTEmiKeep>.5?vE:uTEmi,uTRingEmi,ring)*uTEmiGain*(.3+.7*clamp(nexusIntensityValue,0.,1.4))+vec3(.015);
     else{float tb=smoothstep(.15,.85,dot(vC,vec3(.3,.59,.11)));vec3 b=tb<.5?mix(uTDark,uTMid,tb*2.):mix(uTMid,uTBright,tb*2.-1.);
       float lr=ring*tb;b=mix(b,uTRingCol,lr);
-      vec3 L=normalize(vec3(.35,-.45,.82));float sp=pow(max(dot(n,normalize(L+V)),0.),36.)*uTSpec;
-      alt=b*mix(1.,s*(.35+.65*uAmb)*1.3,max(uTLit,lr))+mix(vec3(1.),mix(uTBright,uTRingCol,lr),.6)*sp*(.4+.6*uAmb)+uTRim*pow(1.-mu,uTRimPow)*uTRimGain;
-      if(uTEnv>0.){vec3 rr=reflect(-V,n);alt+=mix(uTEnvLo,uTEnvHi,smoothstep(-.35,.65,rr.z))*(.05+.95*pow(1.-mu,4.))*uTEnv;}
+      vec3 L=normalize(vec3(.35,-.45,.82)),hv=L+V;float hl2=dot(hv,hv),sp=hl2>1e-10?pow(max(dot(n,hv*inversesqrt(hl2)),0.),36.)*uTSpec:0.;
+      alt=b*mix(1.,s*(.35+.65*uAmb)*1.3,max(uTLit,lr))+mix(vec3(1.),mix(uTBright,uTRingCol,lr),.6)*sp*(.4+.6*uAmb)+uTRim*pow(fm,uTRimPow)*uTRimGain;
+      if(uTEnv>0.){vec3 rr=reflect(-V,n);alt+=mix(uTEnvLo,uTEnvHi,smoothstep(-.35,.65,rr.z))*(.05+.95*fm2*fm2)*uTEnv;}
       if(uTVein>0.)alt+=uTVeinCol*crack(vO*uTVeinScale)*uTVein*(.75+.25*sin(uTime*1.6+dot(vO,vec3(3.,2.,5.))));}
     col=mix(col,alt,uNeg);}
   gl_FragColor=vec4(col,1.);}

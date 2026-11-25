@@ -75,7 +75,7 @@ void main() {
     }
 
     vec3 V = normalize(cameraPosition - vW);
-    float fres = pow(1.0 - abs(dot(n, V)), 2.2);
+    float fres = pow(max(0.0, 1.0 - abs(dot(n, V))), 2.2);
     float metal = clamp(vMat.x, 0.0, 1.0), rough = clamp(vMat.y, 0.08, 1.0);
     vec3 L = normalize(uCenter - vW);
     float nl = max(dot(n, L), 0.0);
@@ -85,7 +85,11 @@ void main() {
     col += base * metal * vec3(0.05, 0.06, 0.08) * (0.6 + 0.4 * n.z);
     col += diffuse * vec3(1.0, 0.93, 0.84) * nl * (0.4 + 0.75 * uPower);
     float shine = mix(6.0, 120.0, (1.0 - rough) * (1.0 - rough));
-    col += max(mix(vec3(0.04), base, metal), vec3(0.04)) * pow(max(dot(n, normalize(L + V)), 0.0), shine) * (shine + 8.0) / 25.0 * nl * (0.4 + 0.6 * uPower);
+    vec3 hv = L + V;
+    float hl2 = dot(hv, hv);
+    if (nl > 0.0 && hl2 > 1e-10) {
+        col += max(mix(vec3(0.04), base, metal), vec3(0.04)) * pow(max(dot(n, hv * inversesqrt(hl2)), 0.0), shine) * (shine + 8.0) / 25.0 * nl * (0.4 + 0.6 * uPower);
+    }
     vec3 lit = srgb(col) + vEmit * (0.45 + 0.55 * uPower);
 
     lit += mix(uHot, uRim, 0.5 + 0.5 * fres) * vWave * (0.35 + 0.95 * fres);

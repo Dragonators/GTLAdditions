@@ -8,7 +8,7 @@ void main(){
   float x=fract(s/uL-uFlowPhase),pu=x*x*x*(1.-smoothstep(.9,1.,x));
   float line,wash;
   if(uMode<1.5){line=exp(-v*v/.5);wash=exp(-v*v/3.2);}
-  else if(uMode<2.5){line=exp(-pow((ab-.62)/.17,2.));wash=(1.-smoothstep(.55,.8,ab))*.22+exp(-v*v/3.)*.45;}
+  else if(uMode<2.5){float d2=(ab-.62)/.17;line=exp(-d2*d2);wash=(1.-smoothstep(.55,.8,ab))*.22+exp(-v*v/3.)*.45;}
   else{line=exp(-v*v/.035);wash=exp(-v*v/2.4);}
   float far=smoothstep(.12,.42,fv);
   line=mix(line,exp(-v*v/1.1)*.6,far);

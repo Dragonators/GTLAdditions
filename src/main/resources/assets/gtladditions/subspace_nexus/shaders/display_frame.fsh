@@ -25,8 +25,8 @@ void main(){
     float wk=mix(.4,1.,1.-min(1.,s*s)),v=abs(vV)/wk,c=exp(-v*v*sharp),h=exp(-vV*vV*2.6);
     I=(c*.95+h*.2)*body*mix(.5,1.,near)+exp(-vV*vV*min(46.,sharp*3.))*.1;hot=c*body;
   }else if(uMode<2.5){
-    float fv=fwidth(vV),edge=1.-smoothstep(.012,.012+fv*1.2,abs(abs(vV)-.95));
-    float x2=x*2.,f2=fw*2.,q=mod(floor(x2+.5),6.),th=q<.5?.42:(q<3.5&&q>2.5?-.12:-.52),dt=abs(fract(x2+.5)-.5),tk=(1.-smoothstep(.028,.028+f2,dt))*(1.-smoothstep(th,th+fv,vV));tk=mix(tk,.056*(th+.95)/1.9,smoothstep(.2,.5,f2));
+    float fv=max(fwidth(vV),1e-5),edge=1.-smoothstep(.012,.012+fv*1.2,abs(abs(vV)-.95));
+    float x2=x*2.,f2=max(fw*2.,1e-5),q=mod(floor(x2+.5),6.),th=q<.5?.42:(q<3.5&&q>2.5?-.12:-.52),dt=abs(fract(x2+.5)-.5),tk=(1.-smoothstep(.028,.028+f2,dt))*(1.-smoothstep(th,th+fv,vV));tk=mix(tk,.056*(th+.95)/1.9,smoothstep(.2,.5,f2));
     float u=(fract(x)-.5)/.27,s=abs(u),row=(1.-smoothstep(.45,1.,s))*mix(1.,mix(.3,1.,smoothstep(-1.,.6,u)),uDir)*(1.-smoothstep(.022,.022+fv,abs(vV-.68)));row=mix(row,.27*.05,smoothstep(.3,.7,fw));
     I=edge*.6+tk*.62+row*.72+.028*(1.-vV*.6);hot=max(edge,max(tk,row))*.5;
   }else if(uMode<3.5){
@@ -38,7 +38,7 @@ void main(){
     }else if(uMode<5.5){
       float u=fract(x)/.84;if(u<1.){float wk=max(.04,pow(u,.7)*.62*sqrt(max(0.,1.-pow(u,6.)))),v=ab/wk,c=exp(-v*v*1.5);I=c*(.18+.82*u*u)+halo*.14*u*u*u*(1.-u);hot=c*u*u*.6;}
     }else if(uMode<7.5){   // (vV+1)/2 is height above the ring.
-      float up=(vV+1.)*.5,s=abs(fract(x)-.5)/.33,body=1.-smoothstep(.6,1.,s),fv=fwidth(up);I=body*(pow(1.-up,2.4)*.62+exp(-up*up/max(.0016,fv*fv*2.))*.7);hot=body*exp(-up*up/.003)*.5;
+      float up=(vV+1.)*.5,s=abs(fract(x)-.5)/.33,body=1.-smoothstep(.6,1.,s),fv=fwidth(up);I=body*(pow(max(0.,1.-up),2.4)*.62+exp(-up*up/max(.0016,fv*fv*2.))*.7);hot=body*exp(-up*up/.003)*.5;
     }else if(uMode<8.5){
       if(arm>0.){float wk=mix(.5,1.,pow(arm,.5)),c=exp(-pow(ab/(.46*wk),2.6));I=c*(.3+.7*pow(arm,.4))*smoothstep(0.,.14,arm)+halo*.18*arm;hot=c*arm*.55;}
     }else if(uMode<9.5){
@@ -60,7 +60,7 @@ void main(){
     }else if(uMode<16.5){
       I=prof*(.5+.42*near)+halo*.16;hot=prof*(.2+.3*near);
     }else{
-      float fv=fwidth(vV),l=exp(-pow((ab-.44)/.135,2.)),f=(1.-smoothstep(.44,.54,ab))*.16;I=l*.9+f+halo*.05;I=mix(I,exp(-vV*vV*3.)*.55,smoothstep(.1,.3,fv));hot=l*.45*(1.-smoothstep(.1,.3,fv));
+      float fv=fwidth(vV),d4=(ab-.44)/.135,l=exp(-d4*d4),f=(1.-smoothstep(.44,.54,ab))*.16;I=l*.9+f+halo*.05;I=mix(I,exp(-vV*vV*3.)*.55,smoothstep(.1,.3,fv));hot=l*.45*(1.-smoothstep(.1,.3,fv));
     }
   }
   float gn=uMode>3.5?1.+.6*boost:1.+boost,a=uAlpha*vK*I*gn*gap*uGlow;gl_FragColor=vec4(mix(uCol,vec3(1.),hot*min(.85,uMode>3.5?.1+.38*boost:.28+.5*boost))*a,a);}

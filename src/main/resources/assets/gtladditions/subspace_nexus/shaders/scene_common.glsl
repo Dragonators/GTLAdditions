@@ -18,7 +18,7 @@ in vec3 color;
 in vec2 uv;
 #else
 #define varying in
-out vec4 nexusColor;
+layout(location = 0) out vec4 nexusColor;
 #define gl_FragColor nexusColor
 #define main nexusMaterialMain
 #endif

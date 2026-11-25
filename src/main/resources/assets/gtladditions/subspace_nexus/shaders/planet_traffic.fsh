@@ -10,7 +10,7 @@ float fbm3(vec3 p,bool moving){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*vnoise(
 float sgm(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;return length(pa-ba*clamp(dot(pa,ba)/dot(ba,ba),0.,1.));}
 void main(){
   vec3 n=normalize(vN),V=normalize(uCam-vP);if(dot(n,V)<0.)n=-n;
-  vec3 L=normalize(uStarC-vP);float role=floor(vRole+.5),u=vU,C=6.2831853*vRad*uW,px=uPix*length(uCam-vP),y=vY*uW;
+  vec3 L=normalize(uStarC-vP);float role=floor(vRole+.5),u=vU,C=6.2831853*vRad*uW,px=max(uPix*length(uCam-vP),1e-5),y=vY*uW;
   bool outer=role<.5,inner=abs(role-3.)<.5,side=abs(role-2.)<.5,joint=abs(role-6.)<.5;
   vec3 alb=uSteel,emi=vec3(0.);float ks=1.;
   float g=u*uSegN,cell=mod(floor(g),uSegN),f=fract(g),sd=min(f,1.-f)*C/uSegN,var=hh(cell*7.31+uSeed*3.1),pl=smoothstep(2.5,6.,(C/uSegN)/px);
@@ -36,9 +36,9 @@ void main(){
     float edge=smoothstep(.8,.9,abs(yy));alb=mix(alb,uSteel*.5,edge);ks=.12+.8*edge;
     vec2 gg=vec2(u*1100.,yy*18.);float lod=1.-smoothstep(.006,.016,px),cc=step(.78,h31(vec3(floor(gg),3.)))*(1.-smoothstep(.2,.48,length(fract(gg)-.5)))*mix(.25,1.,land)*(1.-.7*cl);emi+=vec3(1.,.8,.55)*(1.0 - smoothstep(-.2,.1,nl))*(cc*lod+.09*mix(.25,1.,land)*(1.-lod))*(1.-edge);}
   vec3 oc=vP-uPC;float b=dot(oc,L),dc=sqrt(max(0.,dot(oc,oc)-b*b)),sh=b<0.?1.-smoothstep(uPR*.9,uPR*1.08,dc):0.;
-  float diff=max(0.,nl*.85+.15)*(1.-sh),NV=abs(dot(n,V));
+  float diff=max(0.,nl*.85+.15)*(1.-sh),NV=clamp(abs(dot(n,V)),0.,1.),fm=1.-NV,fm2=fm*fm;
   vec3 key=uLight*1.05,fill=vec3(.05,.065,.1)*(.6+.4*n.z)+uAmb*.25,R=reflect(-V,n);float rA=acos(clamp(dot(R,L),-1.,1.)),hl=exp(-rA*rA/.22)*(1.-sh);
-  vec3 F0=clamp(alb*.8+.04,0.,.6),F=F0+(1.-F0)*pow(1.-NV,5.),env=mix(vec3(.008,.01,.018),vec3(.05,.07,.12),smoothstep(-.2,.8,R.z));
+  vec3 F0=clamp(alb*.8+.04,0.,.6),F=F0+(1.-F0)*fm2*fm2*fm,env=mix(vec3(.008,.01,.018),vec3(.05,.07,.12),smoothstep(-.2,.8,R.z));
   vec3 col=alb*.62*(fill+key*diff)+F*(env+key*hl*.9*ks)*min(ks,1.)+emi;
-  col=mix(col,vec3(.012,.011,.015)+emi*.5,uNeg);col+=uGold*uRimG*pow(1.-NV,3.)*.6;
+  col=mix(col,vec3(.012,.011,.015)+emi*.5,uNeg);col+=uGold*uRimG*fm2*fm*.6;
   gl_FragColor=vec4(col,1.);}

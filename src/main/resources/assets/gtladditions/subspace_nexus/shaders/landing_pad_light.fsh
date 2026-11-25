@@ -5,7 +5,7 @@ float hair(float x,float w,float px){float e=max(w,px*.9);return exp(-x*x/(e*e))
 float sq(float x){return x*x;}
 void main(){
   vec2 q=vP.xy-uC;
-  float r=length(q),px=max(fwidth(r),1e-4),u=fract(atan(q.y,q.x)/6.2831853+1.);
+  float r=length(q),px=max(fwidth(r),1e-4),u=fract((r>1e-6?atan(q.y,q.x):0.)/6.2831853+1.);
   float x=clamp(uB,0.,1.),on=step(0.,uB)*step(uB,1.);
   float W=on*smoothstep(0.,.08,x)*(1.-smoothstep(.18,1.,x)),F=on*smoothstep(0.,.05,x)*pow(1.-x,3.);
   float deck=1.-smoothstep(28.3,28.9,vP.z),spill=sq(1.-smoothstep(9.,15.5,r));
