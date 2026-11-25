@@ -46,8 +46,8 @@ class LightHunterFusionFieldCache : AutoCloseable {
         val originCell = floor(axialCell / ORIGIN_STRIDE).toLong() * ORIGIN_STRIDE - AXIAL_PADDING
         try {
             if (program == 0) initialize(provider)
-            val field = fields.firstOrNull { it.originCell == originCell } ?: nextField()
-            if (field.originCell != originCell) {
+            val field = fields.firstOrNull { it.lastUse != 0L && it.originCell == originCell } ?: nextField()
+            if (field.lastUse == 0L || field.originCell != originCell) {
                 update(field, originCell)
                 field.originCell = originCell
             }
@@ -127,10 +127,11 @@ class LightHunterFusionFieldCache : AutoCloseable {
     }
 
     private fun update(field: Field, originCell: Long) {
+        val initialized = field.lastUse != 0L
         val previousOrigin = field.originCell
         // The axial axis is a ring buffer.
-        val delta = if (previousOrigin == null) AXIAL.toLong() else originCell - previousOrigin
-        val partial = previousOrigin != null && abs(delta) < AXIAL
+        val delta = if (!initialized) AXIAL.toLong() else originCell - previousOrigin
+        val partial = initialized && abs(delta) < AXIAL
         val count = if (partial) abs(delta).toInt() else AXIAL
         val first = if (partial && delta > 0) previousOrigin + AXIAL else originCell
         val activeTexture = GL11C.glGetInteger(GL13C.GL_ACTIVE_TEXTURE)
@@ -169,10 +170,10 @@ class LightHunterFusionFieldCache : AutoCloseable {
     }
 
     class Field internal constructor(val texture: Int) {
-        internal var originCell: Long? = null
+        internal var originCell = 0L
         internal var lastFrame = -1L
         internal var lastUse = 0L
-        val originSlot: Float get() = Math.floorMod(requireNotNull(originCell), AXIAL).toFloat()
+        val originSlot: Float get() = Math.floorMod(originCell, AXIAL).toFloat()
     }
 
     companion object {

@@ -44,13 +44,6 @@ internal class HeartLayerImages : AutoCloseable {
         ensure(width, height, count, List(count) { intArrayOf(0, 0, width, height) })
 
     fun ensure(width: Int, height: Int, count: Int, rects: List<IntArray>) {
-        require(count > 0 && rects.size == count)
-        require(count <= GL11C.glGetInteger(GL30C.GL_MAX_ARRAY_TEXTURE_LAYERS))
-        rects.forEach { rect ->
-            require(rect.size == 4 && rect[0] >= 0 && rect[1] >= 0 && rect[2] >= 0 && rect[3] >= 0)
-            require(rect[0] + rect[2] <= width && rect[1] + rect[3] <= height)
-        }
-
         val requiredWidth = rects.maxOf { it[2] }.coerceAtLeast(1)
         val requiredHeight = rects.maxOf { it[3] }.coerceAtLeast(1)
         val sameFrame = this.width == width && this.height == height
@@ -163,7 +156,6 @@ internal class HeartLayerImages : AutoCloseable {
     fun bindLayer(index: Int) {
         GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, layerFramebuffer)
         GL30C.glFramebufferTextureLayer(GL30C.GL_FRAMEBUFFER, GL30C.GL_COLOR_ATTACHMENT0, colors, 0, index)
-        check(GL30C.glCheckFramebufferStatus(GL30C.GL_FRAMEBUFFER) == GL30C.GL_FRAMEBUFFER_COMPLETE)
         RenderSystem.viewport(0, 0, width, height)
         HeartBlackHoleRenderState.disableScissor()
         HeartBlackHoleRenderState.prepareColorWrite()

@@ -28,7 +28,13 @@ class RingBatchShaderProgram {
             val name = RingBatchShaderSources.PREFIX + Integer.toHexString(System.identityHashCode(pipeline)) + "_water"
             // Native creation retains samplers, uniforms, blend settings and both gbuffer targets.
             // It also registers the variant in loadedShaders for pipeline-owned destruction.
-            shader = factory.create(name, source, key)
+            val candidate = factory.create(name, source, key)
+            if (RingBatchShaders.isUsable(candidate)) {
+                shader = candidate
+            } else {
+                failed = true
+                GTLAdditions.LOGGER.warn("FOA batched glass program failed link validation; using cached material groups")
+            }
         } catch (error: IOException) {
             onFailure(error)
         } catch (error: RuntimeException) {

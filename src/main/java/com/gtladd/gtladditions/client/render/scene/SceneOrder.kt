@@ -432,10 +432,10 @@ internal object SceneOrder {
             y1 = maxOf(y1, y)
         }
 
-        val left = maxOf(0, floor(x0).toInt() - pad)
-        val bottom = maxOf(0, floor(y0).toInt() - pad)
-        val right = minOf(width, ceil(x1).toInt() + pad)
-        val top = minOf(height, ceil(y1).toInt() + pad)
+        val left = floor(x0 - pad).coerceIn(0f, width.toFloat()).toInt()
+        val bottom = floor(y0 - pad).coerceIn(0f, height.toFloat()).toInt()
+        val right = ceil(x1 + pad).coerceIn(0f, width.toFloat()).toInt()
+        val top = ceil(y1 + pad).coerceIn(0f, height.toFloat()).toInt()
         return intArrayOf(left, bottom, maxOf(0, right - left), maxOf(0, top - bottom))
     }
 

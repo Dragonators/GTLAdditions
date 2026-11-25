@@ -648,7 +648,7 @@ object HeartShellRenderer : PartRenderer<HeartShellRenderer.Overlay> {
      * - rows 1024..1055: the long-run circuit tile, red = links of node (x, row)
      * - rows 1056..1059: each shell's collector rows y = -16..15, (x0, x1)
      */
-    private const val MAX_PLATES = 256
+    internal const val MAX_PLATES = 256
     private const val TEXTURE_WIDTH = 32
     private const val TEXTURE_HEIGHT = SHELLS * MAX_PLATES + HeartShellData.TILE + SHELLS
 

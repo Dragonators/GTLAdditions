@@ -49,12 +49,10 @@ internal object LightHunterParadoxAssets {
         DataInputStream(GZIPInputStream(resources.getResourceOrThrow(location).open()).buffered(1 shl 16)).use { data ->
             check(data.readInt() == 0x4c485031) { "Invalid Light Hunter model: $location" }
             val count = data.readInt()
-            require(count in 1..32)
             return List(count) {
                 val textureName = data.readUTF()
                 val color = IntArray(4) { data.readUnsignedByte() }
                 val vertices = data.readInt()
-                require(vertices in 3..500000 && vertices % 3 == 0)
                 val texture = if (textureName.isEmpty()) {
                     null
                 } else {
@@ -62,9 +60,7 @@ internal object LightHunterParadoxAssets {
                 }
 
                 // Position, UV and normal of each vertex, in file order.
-                val values = FloatArray(vertices * 8) {
-                    data.readFloat().also { value -> require(value.isFinite()) { "Non-finite vertex in $location" } }
-                }
+                val values = FloatArray(vertices * 8) { data.readFloat() }
 
                 PreparedPart(texture, color, values)
             }

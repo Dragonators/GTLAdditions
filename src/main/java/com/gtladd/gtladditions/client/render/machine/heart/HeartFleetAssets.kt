@@ -196,19 +196,17 @@ object HeartFleetAssets {
                 }
 
                 wear = IntArray(2) { input.readShort().toInt() }
-                check(wear.all { it in images.indices }) { "Invalid Heart fleet data: $location" }
                 repeat(input.readUnsignedByte()) { models.add(readModel(input)) }
                 repeat(input.readUnsignedByte()) { parts.add(readPart(input)) }
                 check(input.read() == -1) { "Trailing bytes in $location" }
                 val names = models.map { it.name }.toSet()
-                require(names.size == models.size) { "Duplicate Heart model" }
-                require(
+                check(
                     names.containsAll(listOf("tie", "interceptor", "advanced", "phantom", "decimator", "gozanti", "destroyer"))
                 ) { "Missing Heart model" }
 
                 for (model in models) {
                     for (material in model.materials) {
-                        require(
+                        check(
                             listOf(material.map, material.emap, material.normalMap, material.metalMap)
                                 .all { it == -1 || it in images.indices }
                         ) {
@@ -261,18 +259,19 @@ object HeartFleetAssets {
         try {
             repeat(input.readUnsignedByte()) {
                 val material = input.readUnsignedByte()
+                check(material in materials.indices) { "Invalid Heart material index: $material" }
                 val verts = input.readInt()
                 val tris = input.readInt()
-                require(verts in 1..1_000_000 && tris in 1..1_000_000)
                 val pos = FloatArray(verts * 3) { input.readFloat() }
                 val nrm = ByteArray(verts * 3).also(input::readFully)
                 val uv = FloatArray(verts * 2) { input.readFloat() }
+                val rawIndices = IntArray(tris * 3) {
+                    input.readInt().also { index -> check(index in 0 until verts) { "Invalid Heart vertex index: $index" } }
+                }
                 val stride = CRAFT_FORMAT.vertexSize
                 val vertices = MemoryUtil.memAlloc(verts * stride)
                 var indices: ByteBuffer? = null
                 try {
-                    require(material in materials.indices) { "Invalid Heart material index: $material" }
-
                     for (v in 0 until verts) {
                         vertices.putFloat(pos[v * 3]).putFloat(pos[v * 3 + 1]).putFloat(pos[v * 3 + 2])
                         vertices.putFloat(uv[v * 2]).putFloat(uv[v * 2 + 1])
@@ -281,16 +280,10 @@ object HeartFleetAssets {
                     }
 
                     vertices.flip()
-                    val elementData = MemoryUtil.memAlloc(tris * 12).also { indices = it }
-
-                    repeat(tris * 3) {
-                        val index = input.readInt()
-                        require(index in 0 until verts) { "Invalid Heart vertex index: $index" }
-                        elementData.putInt(index)
-                    }
-
+                    val elementData = MemoryUtil.memAlloc(rawIndices.size * 4).also { indices = it }
+                    for (index in rawIndices) elementData.putInt(index)
                     elementData.flip()
-                    groups.add(material to PreparedMesh(vertices, elementData, tris * 3))
+                    groups.add(material to PreparedMesh(vertices, elementData, rawIndices.size))
                 } catch (error: Throwable) {
                     MemoryUtil.memFree(vertices)
                     indices?.let(MemoryUtil::memFree)
@@ -313,10 +306,12 @@ object HeartFleetAssets {
         val emission = input.readFloat()
         val verts = input.readInt()
         val count = input.readInt()
-        require(verts in 1..1_000_000 && count in 3..3_000_000)
         val pos = ShortArray(verts * 3) { input.readShort() }
         val nrm = ByteArray(verts * 3).also(input::readFully)
         val col = ByteArray(verts * 4).also(input::readFully)
+        val rawIndices = IntArray(count) {
+            input.readInt().also { index -> check(index in 0 until verts) { "Invalid Heart vertex index: $index" } }
+        }
         val vertices = MemoryUtil.memAlloc(verts * STARKILLER_FORMAT.vertexSize)
         var indices: ByteBuffer? = null
         try {
@@ -330,20 +325,14 @@ object HeartFleetAssets {
             }
 
             vertices.flip()
-            repeat(count) {
-                val index = input.readInt()
-                require(index in 0 until verts) { "Invalid Heart vertex index: $index" }
-                elements.putInt(index)
-            }
-
+            for (index in rawIndices) elements.putInt(index)
             elements.flip()
+            return PreparedPart(name, metal, rough, emission, PreparedMesh(vertices, elements, count))
         } catch (error: Throwable) {
             MemoryUtil.memFree(vertices)
             indices?.let(MemoryUtil::memFree)
             throw error
         }
-
-        return PreparedPart(name, metal, rough, emission, PreparedMesh(vertices, checkNotNull(indices), count))
     }
 
     private fun upload(prepared: Prepared): Loaded {

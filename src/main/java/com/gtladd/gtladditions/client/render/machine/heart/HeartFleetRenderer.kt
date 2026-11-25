@@ -300,9 +300,10 @@ object HeartFleetRenderer {
                 instances.getOrPut(model, ::mutableListOf).add(Matrix4f(study).mul(local))
             }
 
-            val instanced = HeartFxShaders.craftInstanceAttributes != null &&
-                (GL.getCapabilities().OpenGL33 || GL.getCapabilities().GL_ARB_instanced_arrays)
-            if (instanced) {
+            val instanceAttributes = HeartFxShaders.craftInstanceAttributes?.takeIf {
+                GL.getCapabilities().OpenGL33 || GL.getCapabilities().GL_ARB_instanced_arrays
+            }
+            if (instanceAttributes != null) {
                 val data = MemoryUtil.memCallocFloat(instanceCapacity * 32)
                 try {
                     for ((model, matrices) in instances) {
@@ -325,7 +326,16 @@ object HeartFleetRenderer {
                     craft.getUniform("Instanced")?.set(1)
 
                     for ((model, matrices) in instances) {
-                        drawModel(craft, assets, model, null, view, matrices.size, instanceOffsets.getValue(model) * 128)
+                        drawModel(
+                            craft,
+                            assets,
+                            model,
+                            null,
+                            view,
+                            matrices.size,
+                            instanceOffsets.getValue(model) * 128,
+                            instanceAttributes
+                        )
                     }
                 } finally {
                     craft.getUniform("Instanced")?.set(0)
@@ -374,7 +384,8 @@ object HeartFleetRenderer {
             modelMat: Matrix4f?,
             view: Matrix4f,
             count: Int = 1,
-            offset: Int = 0
+            offset: Int = 0,
+            instanceAttributes: IntArray? = null
         ) {
             if (modelMat != null) {
                 shader.getUniform("ModelMat")?.set(modelMat)
@@ -413,8 +424,8 @@ object HeartFleetRenderer {
                 shader.getUniform("Metal")?.set(m.metal)
                 shader.getUniform("Rough")?.set(m.rough)
                 shader.getUniform("Wear")?.set(if (m.worn) 1f else 0f)
-                if (modelMat == null) {
-                    group.mesh.drawInstanced(shader, instanceBuffer, offset, count, checkNotNull(HeartFxShaders.craftInstanceAttributes))
+                if (instanceAttributes != null) {
+                    group.mesh.drawInstanced(shader, instanceBuffer, offset, count, instanceAttributes)
                 } else {
                     group.mesh.draw(shader)
                 }

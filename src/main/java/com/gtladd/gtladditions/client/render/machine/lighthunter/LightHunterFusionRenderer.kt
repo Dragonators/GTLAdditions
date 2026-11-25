@@ -129,7 +129,7 @@ object LightHunterFusionRenderer {
             shader.getUniform("FusionField")?.set(2)
             shader.getUniform("UseFusionField")?.set(if (field != null) 1 else 0)
             if (field != null) {
-                shader.getUniform("FusionFieldOrigin")?.set((axialCell - requireNotNull(field.originCell)).toFloat(), field.originSlot)
+                shader.getUniform("FusionFieldOrigin")?.set((axialCell - field.originCell).toFloat(), field.originSlot)
             } else {
                 shader.getUniform("FusionNoiseOffset")?.set(LightHunterFusionFieldCache.noiseOffsets(z))
             }

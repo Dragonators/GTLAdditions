@@ -31,6 +31,7 @@ import kotlin.math.sqrt
 object AntichristBeamRenderer {
     private const val MAX_SEGMENTS = 10
     private const val SEGMENT_QUADS = 16
+    private const val MAX_BEAM_LAYERS = 6
     private const val ENDPOINT_FLOATS = (MAX_SEGMENTS + 1) * 3
     private const val PI = 3.1415927f
     private const val ALPHA_PACK_SCALE = 10000.0f
@@ -60,11 +61,11 @@ object AntichristBeamRenderer {
     }
 
     private val beamLayerBuffer: IndexedEffectVertexBuffer by lazy { IndexedEffectVertexBuffer() }
-    private val beamViews = FloatArray(6 * 16)
-    private val beamCameraX = FloatArray(6)
-    private val beamCameraY = FloatArray(6)
+    private val beamViews = FloatArray(MAX_BEAM_LAYERS * 16)
+    private val beamCameraX = FloatArray(MAX_BEAM_LAYERS)
+    private val beamCameraY = FloatArray(MAX_BEAM_LAYERS)
 
-    private val beamLayerIndices = IntArray(6 * SEGMENT_QUADS * 6) { index ->
+    private val beamLayerIndices = IntArray(MAX_BEAM_LAYERS * SEGMENT_QUADS * 6) { index ->
         val layer = index / (SEGMENT_QUADS * 6)
         beamIndices[index % (SEGMENT_QUADS * 6)] + layer * 2 * (SEGMENT_QUADS + 1)
     }
@@ -112,7 +113,12 @@ object AntichristBeamRenderer {
 
         val turn = Axis.YP.rotationDegrees(profile.beamYawDegrees)
         val corner = Vector3f()
-        var bounds: AABB? = null
+        var minX = Double.POSITIVE_INFINITY
+        var minY = Double.POSITIVE_INFINITY
+        var minZ = Double.POSITIVE_INFINITY
+        var maxX = Double.NEGATIVE_INFINITY
+        var maxY = Double.NEGATIVE_INFINITY
+        var maxZ = Double.NEGATIVE_INFINITY
 
         for (i in 0..7) {
             turn.transform(
@@ -125,10 +131,15 @@ object AntichristBeamRenderer {
             val x = blockPos.x + profile.starPos.x + corner.x
             val y = blockPos.y + profile.starPos.y + corner.y
             val z = blockPos.z + profile.starPos.z + corner.z
-            bounds = bounds?.minmax(AABB(x, y, z, x, y, z)) ?: AABB(x, y, z, x, y, z)
+            minX = minOf(minX, x)
+            minY = minOf(minY, y)
+            minZ = minOf(minZ, z)
+            maxX = maxOf(maxX, x)
+            maxY = maxOf(maxY, y)
+            maxZ = maxOf(maxZ, z)
         }
 
-        return requireNotNull(bounds)
+        return AABB(minX, minY, minZ, maxX, maxY, maxZ)
     }
 
     fun renderVerticalLayers(
@@ -142,7 +153,6 @@ object AntichristBeamRenderer {
         shader: ShaderInstance,
         camera: Vec3
     ) {
-        require(origins.size <= 6)
         if (origins.isEmpty() || height <= 0.001f) return
 
         val rotation = Quaternionf().rotationTo(0f, 0f, 1f, 0f, 1f, 0f)
