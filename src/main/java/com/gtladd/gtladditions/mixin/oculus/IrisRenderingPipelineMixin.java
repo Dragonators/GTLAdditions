@@ -16,6 +16,7 @@ import com.gtladd.gtladditions.client.render.machine.elevator.SpaceElevatorCable
 import com.gtladd.gtladditions.client.render.machine.heart.HeartHandDepthMask;
 import com.gtladd.gtladditions.client.render.machine.heart.HeartShellRenderer;
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixFrameTerrainRenderer;
+import com.gtladd.gtladditions.client.render.machine.nexus.NexusCabins;
 import com.gtladd.gtladditions.client.render.scene.IrisPipelineBridge;
 import com.gtladd.gtladditions.client.render.scene.SceneScheduler;
 import org.spongepowered.asm.mixin.Final;
@@ -67,6 +68,7 @@ public abstract class IrisRenderingPipelineMixin {
         DimensionFocusOrbitRenderer.useShaderCompatibleTerrainUploadMode();
         SpaceElevatorCableRenderer.useShaderCompatibleTerrainUploadMode();
         HeartShellRenderer.useShaderCompatibleTerrainUploadMode();
+        NexusCabins.useShaderCompatibleTerrainUploadMode();
         SceneScheduler.INSTANCE.pipelineChanged();
     }
 
@@ -77,6 +79,7 @@ public abstract class IrisRenderingPipelineMixin {
         DimensionFocusOrbitRenderer.useVanillaCompatibleTerrainUploadMode();
         SpaceElevatorCableRenderer.useVanillaCompatibleTerrainUploadMode();
         HeartShellRenderer.useVanillaCompatibleTerrainUploadMode();
+        NexusCabins.useVanillaCompatibleTerrainUploadMode();
         HeartHandDepthMask.destroy();
         SceneScheduler.INSTANCE.pipelineChanged();
     }

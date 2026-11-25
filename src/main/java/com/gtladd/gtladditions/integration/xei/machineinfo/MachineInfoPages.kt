@@ -9,10 +9,6 @@ import com.gtladd.gtladditions.common.machine.multiblock.controller.rrf.Supratem
 object MachineInfoPages {
     fun pages(): List<MachineInfoPage> = listOf(
         MachineInfoPage(
-            MultiBlockMachine.SUBSPACE_CORRIDOR_HUB_INDUSTRIAL_ARRAY,
-            SubspaceCorridorHubIndustrialArray.UPKEEP_EUT
-        ),
-        MachineInfoPage(
             MultiBlockMachine.SUBSPACE_CORRIDOR_NEXUS_INDUSTRIAL_ARRAY,
             SubspaceCorridorHubIndustrialArray.UPKEEP_EUT
         ),

@@ -8,11 +8,10 @@ import com.gtladd.gtladditions.client.render.machine.matrix.MatrixFrameModels
 import com.gtladd.gtladditions.client.render.withPose
 import com.gtladd.gtladditions.common.machine.multiblock.controller.SubspaceCorridorNexusIndustrialArray
 import com.gtladd.gtladditions.utils.SubspaceNexusAnimationClock
+import com.gtladd.gtladditions.utils.SubspaceNexusLayout
 import com.gtladd.gtladditions.utils.SubspaceNexusTimeline
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.irisshaders.iris.Iris
-import net.irisshaders.iris.pipeline.ShaderRenderingPipeline
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.core.BlockPos
@@ -20,6 +19,7 @@ import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.properties.BooleanProperty
+import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -38,12 +38,13 @@ object NexusCabins {
         val active: Boolean
     )
 
+    // Sweeping the scaled cabin corners around Y reaches radius 80.442 and heights 98.82 to 123.
+    private val cabinBounds = AABB(-81.0, 98.0, -81.0, 81.0, 123.0, 81.0)
     private val entries = linkedMapOf<BlockPos, Entry>()
     private val buffers = mutableMapOf<Boolean, StructureRenderBuffers.GroupedTerrainLayer>()
     private val lighting = StructureBlockLighting.CacheState()
     private val shades = FloatArray(StructureBlockLighting.FaceGroup.entries.size)
     private var shaderMode = false
-    private var shaderPipeline: Any? = null
 
     fun enqueue(blockEntity: BlockEntity, machine: SubspaceCorridorNexusIndustrialArray, animation: SubspaceNexusAnimationClock.Frame) {
         val clock = SubspaceNexusTimeline.chartClock(animation.animationState, animation.tick)
@@ -60,6 +61,18 @@ object NexusCabins {
     fun releaseGeometry() {
         buffers.values.forEach(StructureRenderBuffers.GroupedTerrainLayer::close)
         buffers.clear()
+    }
+
+    @JvmStatic
+    fun useShaderCompatibleTerrainUploadMode() {
+        releaseGeometry()
+        shaderMode = true
+    }
+
+    @JvmStatic
+    fun useVanillaCompatibleTerrainUploadMode() {
+        releaseGeometry()
+        shaderMode = false
     }
 
     private fun build(active: Boolean): StructureRenderBuffers.GroupedTerrainLayer {
@@ -134,13 +147,7 @@ object NexusCabins {
     fun render(event: RenderLevelStageEvent) {
         if (event.stage != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES || entries.isEmpty()) return
 
-        val pipeline = Iris.getPipelineManager().pipelineNullable
-        val useShader = (pipeline as? ShaderRenderingPipeline)?.shouldOverrideShaders() == true
-        if (lighting.changed() || pipeline !== shaderPipeline || useShader != shaderMode) {
-            releaseGeometry()
-            shaderMode = useShader
-            shaderPipeline = pipeline
-        }
+        if (lighting.changed()) releaseGeometry()
 
         try {
             for (entry in entries.values) {
@@ -151,6 +158,9 @@ object NexusCabins {
                     continue
                 }
 
+                val pos = entry.blockEntity.blockPos
+                val center = SubspaceNexusLayout.point(0.0, 0.0, 0.0, entry.machine.frontFacing)
+                if (!event.frustum.isVisible(cabinBounds.move(pos.x + center.x, pos.y + center.y, pos.z + center.z))) continue
                 val buffer = buffers.getOrPut(entry.active) { build(entry.active) }
 
                 val world = PoseStack()
@@ -162,7 +172,6 @@ object NexusCabins {
                     shades[group.ordinal] = group.shade(level, normal)
                 }
 
-                val pos = entry.blockEntity.blockPos
                 val camera = event.camera.position
                 event.poseStack.withPose {
                     translate(pos.x - camera.x, pos.y - camera.y, pos.z - camera.z)

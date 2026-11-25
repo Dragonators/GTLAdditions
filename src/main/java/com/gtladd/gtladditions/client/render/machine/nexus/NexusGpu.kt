@@ -11,6 +11,8 @@ import net.minecraft.server.packs.resources.ResourceProvider
 import org.joml.Matrix3f
 import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL12.GL_TEXTURE_MAX_LEVEL
+import org.lwjgl.opengl.GL12.GL_TEXTURE_MAX_LOD
 import org.lwjgl.opengl.GL13.*
 import org.lwjgl.opengl.GL14.*
 import org.lwjgl.opengl.GL15.*
@@ -819,6 +821,8 @@ internal object NexusGpu {
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapS)
                         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrapT)
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000)
+                        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, 1000f)
                         glGenerateMipmap(GL_TEXTURE_2D)
                     }
                 } else {
