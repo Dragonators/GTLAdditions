@@ -27,7 +27,6 @@ import net.minecraftforge.fml.common.Mod
 import org.joml.Matrix4f
 import org.joml.Vector3d
 import org.joml.Vector3f
-import org.lwjgl.opengl.GL11.*
 
 @Mod.EventBusSubscriber(modid = GTLAdditions.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT])
 object NexusScene {
@@ -92,6 +91,13 @@ object NexusScene {
         Parts.submit(SceneRendering.frame() ?: return, blockEntity, machine, animation)
     }
 
+    fun clearLevel() {
+        scenes.clear()
+        NexusGpu.current?.clearSceneBindings()
+        NexusIndexPages.release()
+        NexusCabins.clearEntries()
+    }
+
     @SubscribeEvent
     @JvmStatic
     fun reload(event: RegisterClientReloadListenersEvent) {
@@ -110,10 +116,9 @@ object NexusScene {
 
         override fun apply(prepared: () -> NexusGpu.Prepared, resources: ResourceManager, profiler: ProfilerFiller) =
             NexusGpu.replace(prepared) {
-                scenes.clear()
+                clearLevel()
                 unavailable = false
-                NexusIndexPages.release()
-                NexusCabins.release()
+                NexusCabins.releaseGeometry()
             }
     }
 
@@ -129,7 +134,6 @@ object NexusScene {
                 }
             )
         )
-        if (machine.isFlipped) pose.scale(-1f, 1f, 1f)
         pose.translate(-21.5, -31.5, -130.5)
     }
 
@@ -211,18 +215,12 @@ object NexusScene {
 
         private fun render(draw: Draw, opaque: Boolean, handMask: Int) {
             NexusGpu.preserve {
-                val winding = glGetInteger(GL_FRONT_FACE)
-                try {
-                    if (draw.machine.isFlipped) glFrontFace(GL_CW)
-                    val projection = RenderSystem.getProjectionMatrix()
-                    val sky = (draw.blockEntity.level?.skyDarken ?: 0) / 11f
-                    val ambient = 0.2f + 0.8f * (1 - sky.coerceIn(0f, 1f))
+                val projection = RenderSystem.getProjectionMatrix()
+                val sky = (draw.blockEntity.level?.skyDarken ?: 0) / 11f
+                val ambient = 0.2f + 0.8f * (1 - sky.coerceIn(0f, 1f))
 
-                    for (node in if (opaque) draw.scene.opaque else draw.scene.transparent) {
-                        node.draw(draw.view, projection, draw.camera, draw.frame.time, draw.frame.glow.toFloat(), ambient, handMask)
-                    }
-                } finally {
-                    glFrontFace(winding)
+                for (node in if (opaque) draw.scene.opaque else draw.scene.transparent) {
+                    node.draw(draw.view, projection, draw.camera, draw.frame.time, draw.frame.glow.toFloat(), ambient, handMask)
                 }
             }
         }

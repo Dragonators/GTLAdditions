@@ -5,8 +5,10 @@ import com.gtladd.gtladditions.client.gui.StructureTierPreview
 import com.gtladd.gtladditions.client.gui.StructureTierRenderer
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographOrbits
 import com.gtladd.gtladditions.client.render.machine.ArcanicAstrographStarRenderer
+import com.gtladd.gtladditions.client.render.machine.SubspaceCorridorHubIndustrialArrayRenderer
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixEyeRenderer
 import com.gtladd.gtladditions.client.render.machine.matrix.MatrixIrisStarRenderer
+import com.gtladd.gtladditions.client.render.machine.nexus.NexusScene
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent
@@ -32,6 +34,8 @@ object ClientLifecycleHandler {
             ArcanicAstrographStarRenderer.releaseBuffers()
             MatrixEyeRenderer.releaseBuffers()
             MatrixIrisStarRenderer.releaseBuffers()
+            SubspaceCorridorHubIndustrialArrayRenderer.clearCache()
+            NexusScene.clearLevel()
         }
 
         if (RenderSystem.isOnRenderThread()) release() else RenderSystem.recordRenderCall { release() }

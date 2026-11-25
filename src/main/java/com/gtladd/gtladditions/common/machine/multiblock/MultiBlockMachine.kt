@@ -2197,6 +2197,7 @@ object MultiBlockMachine {
             Function { SubspaceCorridorHubIndustrialArray(it) }
         )
             .nonYAxisRotation()
+            .allowFlip(false)
             .tooltipTextKey("tooltip.gtladditions.discontinued".toComponent)
             .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.1".toComponent)
@@ -2273,6 +2274,7 @@ object MultiBlockMachine {
             Function { SubspaceCorridorNexusIndustrialArray(it) }
         )
             .nonYAxisRotation()
+            .allowFlip(false)
             .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.0".toComponent)
             .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.1".toComponent)
             .tooltipTextKey("gtladditions.multiblock.subspace_corridor_industrial_array.tooltip.2".toComponent)

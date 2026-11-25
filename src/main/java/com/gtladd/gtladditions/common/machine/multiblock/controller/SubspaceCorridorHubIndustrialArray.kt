@@ -1,6 +1,7 @@
 package com.gtladd.gtladditions.common.machine.multiblock.controller
 
 import com.gregtechceu.gtceu.api.GTValues
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine
@@ -17,7 +18,6 @@ import com.gtladd.gtladditions.common.machine.multiblock.controller.module.Subsp
 import com.gtladd.gtladditions.utils.CommonUtils.createLanguageRainbowComponentOnServer
 import com.gtladd.gtladditions.utils.IndustrialArrayPosHelper
 import com.gtladd.gtladditions.utils.module.ModuleConnectionRegistry
-import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
@@ -26,6 +26,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineHost
 import org.gtlcore.gtlcore.api.machine.multiblock.IModularMachineModule
 import org.gtlcore.gtlcore.utils.datastructure.ModuleRenderInfo
@@ -35,13 +36,11 @@ open class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, varar
     IModularMachineHost<SubspaceCorridorHubIndustrialArray>,
     IAstralArrayInteractionMachine,
     IMachineLife {
-    private val modules: MutableSet<IModularMachineModule<SubspaceCorridorHubIndustrialArray, *>> =
-        ReferenceOpenHashSet<IModularMachineModule<SubspaceCorridorHubIndustrialArray, *>>()
+    private val modules = ReferenceOpenHashSet<IModularMachineModule<SubspaceCorridorHubIndustrialArray, *>>()
 
     private var registeredSlots: Array<BlockPos>? = null
 
     @field:Persisted
-    @field:DescSynced
     override var astralArrayCount: Int = 0
     private var mam = 0
 
@@ -58,6 +57,11 @@ open class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, varar
     fun unlockParadoxical(): Boolean = astralArrayCount == MAX_ASTRAL_ARRAY_COUNT
 
     override fun createRecipeLogic(vararg args: Any): RecipeLogic = UpkeepRecipeLogic(this, UPKEEP_RECIPE)
+
+    override fun attachConfigurators(configuratorPanel: ConfiguratorPanel) {
+        super.attachConfigurators(configuratorPanel)
+        IGTLRenderDisabled.attachConfigurator(configuratorPanel, this as IGTLRenderDisabled)
+    }
 
     override fun notifyStatusChanged(oldStatus: RecipeLogic.Status, newStatus: RecipeLogic.Status) {
         super.notifyStatusChanged(oldStatus, newStatus)
@@ -104,7 +108,6 @@ open class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, varar
 
     fun tryConnectModule(slot: Int, module: SubspaceCorridorHubIndustrialArrayModuleBase): Boolean {
         if (!isFormed ||
-            !module.isFormed ||
             !module.isRecipeLogicAvailable ||
             registeredSlots?.getOrNull(slot) != module.pos ||
             !acceptsModuleInSlot(slot, module)
@@ -126,15 +129,10 @@ open class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, varar
     }
 
     private fun releaseSlots() {
-        val world = level as? ServerLevel
-        val slots = registeredSlots
-        if (world != null && slots != null) MODULE_CONNECTIONS.unregister(world.dimension(), this, slots)
+        val slots = registeredSlots ?: return
+        (level as? ServerLevel)?.let { MODULE_CONNECTIONS.unregister(it.dimension(), this, slots) }
         registeredSlots = null
-        val previous = modules.toList()
         safeClearModules()
-        previous.filterIsInstance<SubspaceCorridorHubIndustrialArrayModuleBase>().forEach {
-            if (it.isRecipeLogicAvailable) it.findAndConnectToHost()
-        }
     }
 
     override fun getModulesForRendering(): List<ModuleRenderInfo?> = listOf(
@@ -238,6 +236,11 @@ open class SubspaceCorridorHubIndustrialArray(holder: IMachineBlockEntity, varar
 
     override fun onStructureInvalid() {
         super.onStructureInvalid()
+        releaseSlots()
+    }
+
+    override fun onPartUnload() {
+        super.onPartUnload()
         releaseSlots()
     }
 

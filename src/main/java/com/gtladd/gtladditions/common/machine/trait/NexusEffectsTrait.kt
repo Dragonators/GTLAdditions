@@ -33,7 +33,7 @@ class NexusEffectsTrait(machine: SubspaceCorridorNexusIndustrialArray) : Machine
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT) {
                 Runnable { com.gtladd.gtladditions.client.render.machine.nexus.NexusClientTracker.track(getMachine()) }
             }
-            onAnimationStateChanged(effectAnimation)
+            onAnimationStateChanged(effectAnimation, null)
         } else if (getMachine().isFormed) {
             wake()
         }
@@ -172,7 +172,7 @@ class NexusEffectsTrait(machine: SubspaceCorridorNexusIndustrialArray) : Machine
 
     @Suppress("unused", "UNUSED_PARAMETER")
     @OnlyIn(Dist.CLIENT)
-    fun onAnimationStateChanged(newState: CompoundTag, oldState: CompoundTag? = null) {
+    fun onAnimationStateChanged(newState: CompoundTag, oldState: CompoundTag?) {
         if (!machine.isRemote) return
         clientClock.synchronize(
             newState,

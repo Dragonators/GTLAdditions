@@ -11,6 +11,7 @@ import com.gtladd.gtladditions.common.data.RotationParams
 import com.gtladd.gtladditions.common.machine.multiblock.controller.SubspaceCorridorHubIndustrialArray
 import com.mojang.blaze3d.vertex.PoseStack
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import net.irisshaders.iris.shadows.ShadowRenderingState
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
@@ -26,6 +27,7 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.data.ModelData
 import org.gtlcore.gtlcore.GTLCore
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.client.ClientUtil
 import org.gtlcore.gtlcore.client.renderer.RenderBufferHelper
 import org.joml.Quaternionf
@@ -52,23 +54,20 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
         combinedLight: Int,
         combinedOverlay: Int
     ) {
-        if (blockEntity is IMachineBlockEntity) {
-            val machine = blockEntity.metaMachine as? SubspaceCorridorHubIndustrialArray ?: return
-            if (machine.recipeLogic.isWorking) {
-                val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
-                val seed = blockEntity.blockPos.asLong()
-
-                val center = center(machine.frontFacing)
-
-                val cache = getOrCreateCache(seed, machine.frontFacing, center)
-
-                renderBeamCylinders(poseStack, buffer, machine.frontFacing, tick)
-
-                SubspaceCorridorHubBeamRenderer.enqueue(blockEntity, tick, center, center.add(0.0, -36.0, 0.0))
-
-                renderOrbit(poseStack, buffer, cache, tick)
-            }
+        val machine = (blockEntity as? IMachineBlockEntity)?.metaMachine as? SubspaceCorridorHubIndustrialArray ?: return
+        if (IGTLRenderDisabled.isRenderDisabled(machine) || !machine.recipeLogic.isWorking ||
+            ShadowRenderingState.areShadowsCurrentlyBeingRendered()
+        ) {
+            return
         }
+
+        val tick = RenderUtils.getSmoothTickDouble(machine, partialTicks)
+        val facing = machine.frontFacing
+        val center = center(facing)
+        val cache = getOrCreateCache(blockEntity.blockPos.asLong(), facing, center)
+        renderBeamCylinders(poseStack, buffer, facing, tick)
+        SubspaceCorridorHubBeamRenderer.enqueue(blockEntity, tick, center, center.add(0.0, -36.0, 0.0))
+        renderOrbit(poseStack, buffer, cache, tick)
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -152,6 +151,8 @@ class SubspaceCorridorHubIndustrialArrayRenderer :
         )
 
         private val CACHE_MAP: ConcurrentHashMap<Long, RenderCache> = ConcurrentHashMap()
+
+        fun clearCache() = CACHE_MAP.clear()
 
         private fun renderBeamCylinders(
             poseStack: PoseStack,

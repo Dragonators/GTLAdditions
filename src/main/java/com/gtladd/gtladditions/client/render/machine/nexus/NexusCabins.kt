@@ -25,7 +25,6 @@ import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.registries.ForgeRegistries
-import org.lwjgl.opengl.GL11.*
 import java.util.zip.GZIPInputStream
 import kotlin.math.PI
 import kotlin.math.sin
@@ -35,23 +34,32 @@ object NexusCabins {
     private data class Entry(
         val blockEntity: BlockEntity,
         val machine: SubspaceCorridorNexusIndustrialArray,
-        val animation: SubspaceNexusAnimationClock.Frame
+        val angle: Float,
+        val active: Boolean
     )
 
     private val entries = linkedMapOf<BlockPos, Entry>()
     private val buffers = mutableMapOf<Boolean, StructureRenderBuffers.GroupedTerrainLayer>()
     private val lighting = StructureBlockLighting.CacheState()
+    private val shades = FloatArray(StructureBlockLighting.FaceGroup.entries.size)
     private var shaderMode = false
     private var shaderPipeline: Any? = null
 
     fun enqueue(blockEntity: BlockEntity, machine: SubspaceCorridorNexusIndustrialArray, animation: SubspaceNexusAnimationClock.Frame) {
-        entries[blockEntity.blockPos] = Entry(blockEntity, machine, animation)
+        val clock = SubspaceNexusTimeline.chartClock(animation.animationState, animation.tick)
+        val angle = (32 * sin(PI * clock / 10)).toFloat()
+        entries[blockEntity.blockPos] = Entry(blockEntity, machine, angle, machine.recipeLogic.isWorking)
     }
 
-    fun release() {
-        buffers.values.forEach { it.close() }
+    fun enqueueStatic(blockEntity: BlockEntity, machine: SubspaceCorridorNexusIndustrialArray) {
+        entries[blockEntity.blockPos] = Entry(blockEntity, machine, 0f, active = false)
+    }
+
+    fun clearEntries() = entries.clear()
+
+    fun releaseGeometry() {
+        buffers.values.forEach(StructureRenderBuffers.GroupedTerrainLayer::close)
         buffers.clear()
-        entries.clear()
     }
 
     private fun build(active: Boolean): StructureRenderBuffers.GroupedTerrainLayer {
@@ -128,9 +136,8 @@ object NexusCabins {
 
         val pipeline = Iris.getPipelineManager().pipelineNullable
         val useShader = (pipeline as? ShaderRenderingPipeline)?.shouldOverrideShaders() == true
-        if (pipeline !== shaderPipeline || useShader != shaderMode || lighting.changed()) {
-            buffers.values.forEach { it.close() }
-            buffers.clear()
+        if (lighting.changed() || pipeline !== shaderPipeline || useShader != shaderMode) {
+            releaseGeometry()
             shaderMode = useShader
             shaderPipeline = pipeline
         }
@@ -144,30 +151,24 @@ object NexusCabins {
                     continue
                 }
 
-                val clock = SubspaceNexusTimeline.chartClock(entry.animation.animationState, entry.animation.tick)
-                val angle = (32 * sin(PI * clock / 10)).toFloat()
-                val buffer = buffers.getOrPut(entry.machine.recipeLogic.isWorking) { build(entry.machine.recipeLogic.isWorking) }
+                val buffer = buffers.getOrPut(entry.active) { build(entry.active) }
 
                 val world = PoseStack()
                 NexusScene.applyController(world, entry.machine)
-                world.mulPose(Axis.YP.rotationDegrees(angle))
-                val shades = FloatArray(StructureBlockLighting.FaceGroup.entries.size) { index ->
-                    StructureBlockLighting.FaceGroup.entries[index].shade(checkNotNull(entry.blockEntity.level), world.last().normal())
+                world.mulPose(Axis.YP.rotationDegrees(entry.angle))
+                val level = checkNotNull(entry.blockEntity.level)
+                val normal = world.last().normal()
+                for (group in StructureBlockLighting.FaceGroup.entries) {
+                    shades[group.ordinal] = group.shade(level, normal)
                 }
 
                 val pos = entry.blockEntity.blockPos
                 val camera = event.camera.position
-                val winding = glGetInteger(GL_FRONT_FACE)
-                try {
-                    if (entry.machine.isFlipped) glFrontFace(GL_CW)
-                    event.poseStack.withPose {
-                        translate(pos.x - camera.x, pos.y - camera.y, pos.z - camera.z)
-                        NexusScene.applyController(this, entry.machine)
-                        mulPose(Axis.YP.rotationDegrees(angle))
-                        buffer.draw(last(), shades, batchShader = true)
-                    }
-                } finally {
-                    glFrontFace(winding)
+                event.poseStack.withPose {
+                    translate(pos.x - camera.x, pos.y - camera.y, pos.z - camera.z)
+                    NexusScene.applyController(this, entry.machine)
+                    mulPose(Axis.YP.rotationDegrees(entry.angle))
+                    buffer.draw(last(), shades, batchShader = true)
                 }
             }
         } finally {

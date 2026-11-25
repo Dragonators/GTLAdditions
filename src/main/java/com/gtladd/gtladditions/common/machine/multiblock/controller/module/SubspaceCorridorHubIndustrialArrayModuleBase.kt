@@ -134,7 +134,7 @@ class SubspaceCorridorHubIndustrialArrayModuleBase(holder: IMachineBlockEntity) 
 
     companion object {
         val BEFORE_WORKING = Predicate { machine: IRecipeLogicMachine ->
-            (machine as SubspaceCorridorHubIndustrialArrayModuleBase).host?.isActive == true
+            (machine as SubspaceCorridorHubIndustrialArrayModuleBase).host?.recipeLogic?.isWorking == true
         }
 
         open class SubspaceCorridorHubIndustrialArrayModuleBaseLogic(

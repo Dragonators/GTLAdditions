@@ -310,6 +310,15 @@ internal object NexusGpu {
 
         internal fun array(spec: JsonObject): NexusTextureArray = arrays.getValue(spec.toString())
 
+        fun clearSceneBindings() {
+            val vao = glGetInteger(GL_VERTEX_ARRAY_BINDING)
+            try {
+                for (binding in geometry.values) binding.clearSceneBinding()
+            } finally {
+                glBindVertexArray(vao)
+            }
+        }
+
         fun shipBatch(data: JsonObject): Node {
             val program = programs.getValue(data.get("shader").asString)
             val descriptor = data.getAsJsonObject("geometry")
@@ -547,6 +556,15 @@ internal object NexusGpu {
             } else if (streamedIndices) {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.elements)
                 streamedIndices = false
+            }
+        }
+
+        fun clearSceneBinding() {
+            uploadedNode = null
+            if (streamedIndices) {
+                // A shared VAO keeps the scene's EBO alive until its element binding is replaced.
+                glBindVertexArray(vao)
+                bindIndices(null)
             }
         }
     }

@@ -11,6 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
+import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -52,7 +53,11 @@ object NexusClientTracker {
 
             if (!machine.isFormed || !star(machine).closerThan(event.camera.position, VIEW_DISTANCE)) continue
 
-            NexusScene.enqueue(blockEntity, machine, event.partialTick)
+            if (IGTLRenderDisabled.isRenderDisabled(machine)) {
+                NexusCabins.enqueueStatic(blockEntity, machine)
+            } else {
+                NexusScene.enqueue(blockEntity, machine, event.partialTick)
+            }
         }
     }
 
