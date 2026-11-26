@@ -63,4 +63,4 @@ Without GTL Additions three things must hold, and each fails in its own way if i
 ## Version
 
 The `versionRange` in `mods.toml` names the oldest GTL Additions release the example accepts. API version 1 is included
-starting in `3.6Custom`, so the example requires `[3.6Custom,)`.
+starting in `3.6.2Custom`, so the example requires `[3.6.2Custom,)`.

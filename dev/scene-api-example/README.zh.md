@@ -55,4 +55,4 @@
 
 ## 版本
 
-`mods.toml` 里的 `versionRange` 写的是示例接受的最早的 GTL Additions 版本。接口版本 1 从 `3.6Custom` 开始提供，因此示例将版本下限设为 `[3.6Custom,)`。
+`mods.toml` 里的 `versionRange` 写的是示例接受的最早的 GTL Additions 版本。接口版本 1 从 `3.6.2Custom` 开始提供，因此示例将版本下限设为 `[3.6.2Custom,)`。
