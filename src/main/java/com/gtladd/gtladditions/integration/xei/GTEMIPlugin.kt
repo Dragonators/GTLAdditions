@@ -11,6 +11,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBSP
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD
 import com.gtladd.gtladditions.integration.stargate.StargateContent
 import com.gtladd.gtladditions.integration.xei.machineinfo.MachineInfoEmiCategory
+import com.gtladd.gtladditions.integration.xei.structureupgrade.StructureUpgradeEmiCategory
 import com.lowdragmc.lowdraglib.LDLib
 import dev.emi.emi.api.EmiEntrypoint
 import dev.emi.emi.api.EmiPlugin
@@ -46,6 +47,7 @@ class GTEMIPlugin : EmiPlugin {
         )
 
         MachineInfoEmiCategory.register(registry)
+        StructureUpgradeEmiCategory.register(registry)
 
         if (LDLib.isReiLoaded() || LDLib.isJeiLoaded()) return
 

@@ -2,6 +2,7 @@ package com.gtladd.gtladditions.client.render.frame
 
 import com.gtladd.gtladditions.client.GTLAddRenderTypes
 import com.gtladd.gtladditions.client.RenderUtils
+import com.gtladd.gtladditions.mixin.embeddium.FrameOverlayBufferBuilderAccessor
 import com.gtladd.gtladditions.mixin.embeddium.FrameOverlayWorldRendererAccessor
 import me.jellysquid.mods.sodium.client.gl.device.RenderDevice
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer
@@ -63,7 +64,8 @@ object FrameOverlayTerrainPass {
 
     /** Growth stays in vertex units: Embeddium 0.3.x's grow path mixes units. */
     private class FrameBuffer(type: ChunkVertexType) : ChunkMeshBufferBuilder(type, 0, false) {
-        private val encoder = type.encoder
+        @Suppress("CAST_NEVER_SUCCEEDS")
+        private val encoder = (this as FrameOverlayBufferBuilderAccessor).encoder
         private val stride = type.vertexFormat.stride
         private var data: ByteBuffer? = null
         private var capacity = 0

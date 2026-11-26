@@ -38,6 +38,13 @@ ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies."${mod_id}"]]
+modId = "embeddium"
+mandatory = true
+versionRange = "[0.3.19,)"
+ordering = "AFTER"
+side = "CLIENT"
+
+[[dependencies."${mod_id}"]]
 modId = "oculus"
 mandatory = true
 versionRange = "[1.7.0,)"

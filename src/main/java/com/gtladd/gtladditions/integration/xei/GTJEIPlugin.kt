@@ -12,6 +12,7 @@ import com.gtladd.gtladditions.common.machine.multiblock.MultiBlockMachine.SUBSP
 import com.gtladd.gtladditions.common.recipe.GTLAddRecipesTypes.EM_RESONANCE_CONVERSION_FIELD
 import com.gtladd.gtladditions.integration.stargate.StargateContent
 import com.gtladd.gtladditions.integration.xei.machineinfo.MachineInfoJeiCategory
+import com.gtladd.gtladditions.integration.xei.structureupgrade.StructureUpgradeJeiCategory
 import com.lowdragmc.lowdraglib.LDLib
 import mezz.jei.api.IModPlugin
 import mezz.jei.api.JeiPlugin
@@ -48,11 +49,13 @@ class GTJEIPlugin : IModPlugin {
     override fun registerCategories(registration: IRecipeCategoryRegistration) {
         if (LDLib.isReiLoaded() || LDLib.isEmiLoaded()) return
         MachineInfoJeiCategory.registerCategories(registration)
+        StructureUpgradeJeiCategory.registerCategories(registration)
     }
 
     override fun registerRecipes(registration: IRecipeRegistration) {
         if (LDLib.isReiLoaded() || LDLib.isEmiLoaded()) return
         MachineInfoJeiCategory.registerRecipes(registration)
+        StructureUpgradeJeiCategory.registerRecipes(registration)
     }
 
     override fun registerRecipeCatalysts(registration: IRecipeCatalystRegistration) {

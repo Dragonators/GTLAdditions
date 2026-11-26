@@ -20,6 +20,7 @@ import com.gregtechceu.gtceu.data.recipe.CustomTags
 import com.gregtechceu.gtceu.utils.GTUtil
 import com.gtladd.gtladditions.api.machine.ITimeSpaceDistorterSource
 import com.gtladd.gtladditions.api.machine.feature.IStructureTierMachine
+import com.gtladd.gtladditions.api.machine.feature.StructureTierSpec
 import com.gtladd.gtladditions.api.machine.feature.TierCost
 import com.gtladd.gtladditions.api.machine.feature.TierRequirement
 import com.gtladd.gtladditions.api.machine.gui.ExoticChemicalMainPage
@@ -40,14 +41,10 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.tags.TagKey
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.crafting.Ingredient
 import org.gtlcore.gtlcore.api.machine.ISuspendableMachine
 import org.gtlcore.gtlcore.api.machine.trait.IRecipeCapabilityMachine
 import org.gtlcore.gtlcore.integration.monitor.IMonitorRecipeType
 import org.gtlcore.gtlcore.mixin.gtm.cover.MachineControllerCoverAccessorMixin
-import org.gtlcore.gtlcore.utils.Registries.getItem
 
 class ExoticChemicalComplex(holder: IMachineBlockEntity) :
     GTLAddWirelessCoilWorkableElectricMultipleRecipesMultiblockMachine(holder),
@@ -110,7 +107,7 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
 
     override fun checkPattern(): Boolean = structureTierTrait.checkPattern()
 
-    override fun tierRequirement(tier: Int): TierRequirement? = REQUIREMENTS.getOrNull(tier - 2)
+    override fun tierRequirement(tier: Int): TierRequirement? = TIER_SPEC.requirement(tier)
 
     fun stockingPeers(part: IMultiPart): List<IMultiPart> {
         val owner = unitOwner(part) ?: return emptyList()
@@ -273,46 +270,46 @@ class ExoticChemicalComplex(holder: IMachineBlockEntity) :
             GTLAddWirelessWorkableElectricMultipleRecipesMachine.MANAGED_FIELD_HOLDER
         )
 
-        private fun cost(id: String, amount: Long) = TierCost({ Ingredient.of(getItem(id)) }, amount)
-
-        private fun cost(tag: TagKey<Item>, amount: Long) = TierCost({ Ingredient.of(tag) }, amount)
-
-        private val REQUIREMENTS = listOf(
-            TierRequirement(
-                listOf(
-                    cost("gtceu:large_chemical_plant", 64),
-                    cost("gtceu:dimensionally_transcendent_mixer", 16),
-                    cost("gtladditions:me_super_pattern_buffer", 12),
-                    cost("gtladditions:super_input_dual_hatch", 12),
-                    cost("gtceu:uxv_parallel_hatch", 8),
-                    cost("gtlcore:insanely_max_battery", 32),
-                    cost(CustomTags.OpV_CIRCUITS, 64),
-                    cost("gtceu:uxv_electric_pump", 32),
-                    cost("gtceu:uxv_fluid_regulator", 32),
-                    cost("gtceu:uxv_field_generator", 16),
-                    cost("kubejs:quantumchromodynamic_protective_plating", 32),
-                    cost("gtceu:draconium_nanoswarm", 32),
-                    cost("kubejs:awakened_core", 12),
-                    cost("kubejs:recursively_folded_negative_space", 12)
-                )
-            ),
-            TierRequirement(
-                listOf(
-                    cost("gtceu:chemical_distort", 256),
-                    cost("gtceu:qft", 64),
-                    cost("gtladditions:arcanic_astrograph", 4),
-                    cost("gtladditions:thread_modifier_hatch", 12),
-                    cost("gtladditions:super_parallel_hatch", 12),
-                    cost("gtladditions:infinity_input_dual_hatch", 12),
-                    cost("gtlcore:max_electric_pump", 64),
-                    cost("gtlcore:max_fluid_regulator", 64),
-                    cost("gtlcore:max_field_generator", 32),
-                    cost("kubejs:create_ultimate_battery", 16),
-                    cost(CustomTags.MAX_CIRCUITS, 64),
-                    cost("gtladditions:primary_soc", 128),
-                    cost("gtladditions:astral_array", 32),
-                    cost("gtladditions:spatially_transcendent_gravitational_lens", 12),
-                    cost("gtceu:transcendentmetal_nanoswarm", 64)
+        val TIER_SPEC = StructureTierSpec(
+            ExoticChemicalBlockLayout.tiers.minTier,
+            ExoticChemicalBlockLayout.tiers.maxTier,
+            listOf(
+                TierRequirement(
+                    listOf(
+                        TierCost.of("gtceu:large_chemical_plant", 64),
+                        TierCost.of("gtceu:dimensionally_transcendent_mixer", 16),
+                        TierCost.of("gtladditions:me_super_pattern_buffer", 12),
+                        TierCost.of("gtladditions:super_input_dual_hatch", 12),
+                        TierCost.of("gtceu:uxv_parallel_hatch", 8),
+                        TierCost.of("gtlcore:insanely_max_battery", 32),
+                        TierCost.of(CustomTags.OpV_CIRCUITS, 64),
+                        TierCost.of("gtceu:uxv_electric_pump", 32),
+                        TierCost.of("gtceu:uxv_fluid_regulator", 32),
+                        TierCost.of("gtceu:uxv_field_generator", 16),
+                        TierCost.of("kubejs:quantumchromodynamic_protective_plating", 32),
+                        TierCost.of("gtceu:draconium_nanoswarm", 32),
+                        TierCost.of("kubejs:awakened_core", 12),
+                        TierCost.of("kubejs:recursively_folded_negative_space", 12)
+                    )
+                ),
+                TierRequirement(
+                    listOf(
+                        TierCost.of("gtceu:chemical_distort", 256),
+                        TierCost.of("gtceu:qft", 64),
+                        TierCost.of("gtladditions:arcanic_astrograph", 4),
+                        TierCost.of("gtladditions:thread_modifier_hatch", 12),
+                        TierCost.of("gtladditions:super_parallel_hatch", 12),
+                        TierCost.of("gtladditions:infinity_input_dual_hatch", 12),
+                        TierCost.of("gtlcore:max_electric_pump", 64),
+                        TierCost.of("gtlcore:max_fluid_regulator", 64),
+                        TierCost.of("gtlcore:max_field_generator", 32),
+                        TierCost.of("kubejs:create_ultimate_battery", 16),
+                        TierCost.of(CustomTags.MAX_CIRCUITS, 64),
+                        TierCost.of("gtladditions:primary_soc", 128),
+                        TierCost.of("gtladditions:astral_array", 32),
+                        TierCost.of("gtladditions:spatially_transcendent_gravitational_lens", 12),
+                        TierCost.of("gtceu:transcendentmetal_nanoswarm", 64)
+                    )
                 )
             )
         )
