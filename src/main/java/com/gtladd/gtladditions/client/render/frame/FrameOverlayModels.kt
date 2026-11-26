@@ -38,12 +38,8 @@ object FrameOverlayModels {
     private var snapshot = Snapshot(emptySet(), emptySet())
 
     @JvmStatic
-    fun separate(state: BlockState, model: BakedModel, layer: RenderType?): Boolean =
-        FrameOverlayRenderer.enabled && layer === RenderType.translucent() && eligible(state, model)
-
-    fun candidate(state: BlockState): Boolean = state.block in snapshot.blocks
-
-    fun eligible(state: BlockState, model: BakedModel): Boolean {
+    fun separate(state: BlockState, model: BakedModel, layer: RenderType?): Boolean {
+        if (!FrameOverlayRenderer.enabled || layer !== RenderType.translucent()) return false
         val current = snapshot
         return state.block in current.blocks && model in current.models
     }
@@ -66,7 +62,6 @@ object FrameOverlayModels {
         }
 
         snapshot = Snapshot(models, blocks)
-        FrameOverlayRenderer.requestReset()
         GTLAdditions.LOGGER.info("Enabled color-only overlays for {} GT frame models", models.size)
     }
 
