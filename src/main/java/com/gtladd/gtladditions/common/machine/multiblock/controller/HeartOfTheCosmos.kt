@@ -13,6 +13,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe
 import com.gregtechceu.gtceu.api.recipe.content.Content
 import com.gregtechceu.gtceu.utils.FormattingUtil
 import com.gtladd.gtladditions.api.machine.feature.IStructureTierMachine
+import com.gtladd.gtladditions.api.machine.feature.StructureTierSpec
 import com.gtladd.gtladditions.api.machine.feature.TierCondition
 import com.gtladd.gtladditions.api.machine.feature.TierCost
 import com.gtladd.gtladditions.api.machine.feature.TierRequirement
@@ -39,7 +40,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2IntArrayMap
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
-import net.minecraft.world.item.crafting.Ingredient
 import org.gtlcore.gtlcore.api.machine.IGTLRenderDisabled
 import org.gtlcore.gtlcore.api.recipe.IParallelLogic
 import org.gtlcore.gtlcore.api.recipe.RecipeExtensionCopier
@@ -48,7 +48,6 @@ import org.gtlcore.gtlcore.common.data.GTLMaterials.DimensionallyTranscendentRes
 import org.gtlcore.gtlcore.common.data.GTLMaterials.ExcitedDtec
 import org.gtlcore.gtlcore.common.data.GTLMaterials.ExcitedDtsc
 import org.gtlcore.gtlcore.common.data.GTLMaterials.Miracle
-import org.gtlcore.gtlcore.utils.Registries.getItem
 import java.math.BigDecimal
 import java.math.BigInteger
 
@@ -87,7 +86,7 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
     // Structure tier
     // ========================================
 
-    override fun tierRequirement(tier: Int): TierRequirement? = REQUIREMENTS.getOrNull(tier - 2)
+    override fun tierRequirement(tier: Int): TierRequirement? = TIER_SPEC.requirement(tier)
 
     class PlaneCountCondition(private val threshold: Long) : TierCondition {
         override fun test(machine: IStructureTierMachine): Boolean = (machine as HeartOfTheCosmos).annihilatedPlanes >= threshold
@@ -97,6 +96,9 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
                 FormattingUtil.formatNumbers((machine as HeartOfTheCosmos).annihilatedPlanes),
                 FormattingUtil.formatNumbers(threshold)
             )
+
+        override fun describeRequirement(): Component =
+            "gtladditions.structure_tier.condition.planes.required".toComponent(FormattingUtil.formatNumbers(threshold))
     }
 
     // ========================================
@@ -193,37 +195,39 @@ class HeartOfTheCosmos(holder: IMachineBlockEntity) :
             else -> 0
         }
 
-        private fun cost(id: String, amount: Long) = TierCost({ Ingredient.of(getItem(id)) }, amount)
-
-        private val REQUIREMENTS = listOf(
-            TierRequirement(
-                listOf(
-                    cost("gtmthings:creative_energy_hatch", 16),
-                    cost("gtmthings:creative_laser_hatch", 16),
-                    cost("gtlcore:max_field_generator", 64),
-                    cost("gtladditions:astral_array", 16),
-                    cost("gtladditions:heliothermal_plasma_fabricator", 1),
-                    cost("gtlcore:create_casing", 64),
-                    cost("gtladditions:wireless_energy_network_output_terminal", 16),
-                    cost("gtladditions:super_parallel_hatch", 4),
-                    cost("gtladditions:spacetime_lens", 16),
-                    cost("gtladditions:primary_soc_wafer", 64)
+        val TIER_SPEC = StructureTierSpec(
+            HeartBlockLayout.tiers.minTier,
+            HeartBlockLayout.tiers.maxTier,
+            listOf(
+                TierRequirement(
+                    listOf(
+                        TierCost.of("gtmthings:creative_energy_hatch", 16),
+                        TierCost.of("gtmthings:creative_laser_hatch", 16),
+                        TierCost.of("gtlcore:max_field_generator", 64),
+                        TierCost.of("gtladditions:astral_array", 16),
+                        TierCost.of("gtladditions:heliothermal_plasma_fabricator", 1),
+                        TierCost.of("gtlcore:create_casing", 64),
+                        TierCost.of("gtladditions:wireless_energy_network_output_terminal", 16),
+                        TierCost.of("gtladditions:super_parallel_hatch", 4),
+                        TierCost.of("gtladditions:spacetime_lens", 16),
+                        TierCost.of("gtladditions:primary_soc_wafer", 64)
+                    ),
+                    listOf(PlaneCountCondition(1L shl 16))
                 ),
-                listOf(PlaneCountCondition(1L shl 16))
-            ),
-            TierRequirement(
-                listOf(
-                    cost("gtladditions:compressed_astral_array", 2),
-                    cost("gtladditions:arcanic_astrograph", 8),
-                    cost("kubejs:create_aggregatione_core", 32),
-                    cost("kubejs:two_way_foil", 128),
-                    cost("kubejs:cosmic_singularity", 64),
-                    cost("gtceu:cosmic_nanoswarm", 64),
-                    cost("gtladditions:relativistic_heat_capacitor", 16),
-                    cost("gtladditions:create_data", 16),
-                    cost("gtladditions:heliofusion_exoticizer", 1)
-                ),
-                listOf(PlaneCountCondition(1L shl 18))
+                TierRequirement(
+                    listOf(
+                        TierCost.of("gtladditions:compressed_astral_array", 2),
+                        TierCost.of("gtladditions:arcanic_astrograph", 8),
+                        TierCost.of("kubejs:create_aggregatione_core", 32),
+                        TierCost.of("kubejs:two_way_foil", 128),
+                        TierCost.of("kubejs:cosmic_singularity", 64),
+                        TierCost.of("gtceu:cosmic_nanoswarm", 64),
+                        TierCost.of("gtladditions:relativistic_heat_capacitor", 16),
+                        TierCost.of("gtladditions:create_data", 16),
+                        TierCost.of("gtladditions:heliofusion_exoticizer", 1)
+                    ),
+                    listOf(PlaneCountCondition(1L shl 18))
+                )
             )
         )
 

@@ -109,6 +109,8 @@
     "ae2.client.AEBaseScreenAccessor",
     "ae2.client.WidgetContainerAccessor",
     "ae2.client.JeiGhostIngredientHandlerMixin",
+    "ae2.client.EncodePatternTransferHandlerMixin",
+    "ae2.client.EmiEncodePatternHandlerMixin",
     "minecraft.client.BlendModeAccessor",
     "minecraft.client.BlockEntityRenderDispatcherMixin",
     "minecraft.client.BufferSourceAccessor",
