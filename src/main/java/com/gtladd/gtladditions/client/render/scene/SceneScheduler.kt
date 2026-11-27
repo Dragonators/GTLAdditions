@@ -156,7 +156,7 @@ internal object SceneScheduler {
         if (!frame.needsDepth || frame.shaderpackActive || frame.fabulous) return
         val main = Minecraft.getInstance().mainRenderTarget
         SceneTargets.ensure(frame.viewportWidth, frame.viewportHeight, main.depthTextureId, frame.shaderpackActive)
-        SceneTargets.copyDepth(main.frameBufferId, SceneTargets.opaqueDepth)
+        SceneTargets.copyDepth(main.frameBufferId, main.depthTextureId, SceneTargets.opaqueDepth)
     }
 
     /** Right before rain and snow, so falling rain stays in front. */
@@ -289,7 +289,7 @@ internal object SceneScheduler {
         if (!frame.needsDepth || frame.fabulous) return
         val main = Minecraft.getInstance().mainRenderTarget
         SceneTargets.ensure(frame.viewportWidth, frame.viewportHeight, main.depthTextureId, frame.shaderpackActive)
-        SceneTargets.copyDepth(main.frameBufferId, SceneTargets.translucentDepth)
+        SceneTargets.copyDepth(main.frameBufferId, main.depthTextureId, SceneTargets.translucentDepth)
     }
 
     @SubscribeEvent
