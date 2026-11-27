@@ -353,6 +353,7 @@
   "gtladditions.structure_tier.condition.planes": "Planes annihilated %s / %s",
   "gtladditions.structure_tier.condition.planes.required": "Planes annihilated ≥ %s",
   "gtladditions.structure_tier.button.unlock": "Unlock (From Inventory)",
+  "gtladditions.structure_tier.button.unlock_creative": "Unlock (Creative)",
   "gtladditions.structure_tier.button.unlocked": "Unlocked",
   "gtladditions.structure_tier.button.locked": "Locked",
   "gtladditions.structure_tier.button.activate": "Activate",

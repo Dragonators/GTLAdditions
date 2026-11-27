@@ -354,6 +354,7 @@
   "gtladditions.structure_tier.condition.planes": "累计湮灭位面 %s / %s",
   "gtladditions.structure_tier.condition.planes.required": "累计湮灭位面 ≥ %s",
   "gtladditions.structure_tier.button.unlock": "解锁（从背包扣取）",
+  "gtladditions.structure_tier.button.unlock_creative": "解锁（创造模式）",
   "gtladditions.structure_tier.button.unlocked": "已解锁",
   "gtladditions.structure_tier.button.locked": "未开放解锁",
   "gtladditions.structure_tier.button.activate": "激活",

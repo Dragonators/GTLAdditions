@@ -586,6 +586,8 @@ class StructureTierPage(private val machine: IStructureTierMachine) : IFancyUIPr
         private fun drawBottomActions(g: GuiGraphics, mx: Double, my: Double) {
             val unlockEnabled = enabled(Action.UNLOCK, unlockedTier, hasPendingTier)
             val unlockLabel = when {
+                selectedTier == unlockedTier + 1 && gui.entityPlayer?.isCreative == true ->
+                    "gtladditions.structure_tier.button.unlock_creative".toComponent
                 selectedTier == unlockedTier + 1 -> "gtladditions.structure_tier.button.unlock".toComponent
                 selectedTier <= unlockedTier -> "gtladditions.structure_tier.button.unlocked".toComponent
                 else -> "gtladditions.structure_tier.button.locked".toComponent
