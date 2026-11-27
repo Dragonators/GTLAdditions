@@ -51,6 +51,52 @@ class StructureTierLayout(
     fun position(cell: Int, controller: MultiblockControllerMachine, flipped: Boolean = controller.isFlipped): BlockPos =
         offset(cell, controller.frontFacing, controller.upwardsFacing, flipped).offset(controller.pos)
 
+    /** Walks every cell in [tier] as world coordinates `(x, y, z)` without allocating per-cell [BlockPos] instances. */
+    inline fun forEachPosition(
+        tier: Int,
+        originX: Int,
+        originY: Int,
+        originZ: Int,
+        facing: Direction,
+        upwards: Direction,
+        flipped: Boolean,
+        action: (x: Int, y: Int, z: Int) -> Unit
+    ) {
+        val cells = cells(tier)
+        if (cells.isEmpty()) return
+
+        val accessor = pattern as BlockPatternAccessor
+        val center = accessor.centerOffset
+        val colStep = accessor.invokeSetActualRelativeOffset(1, 0, 0, facing, upwards, flipped)
+        val rowStep = accessor.invokeSetActualRelativeOffset(0, 1, 0, facing, upwards, flipped)
+        val aisleStep = accessor.invokeSetActualRelativeOffset(0, 0, 1, facing, upwards, flipped)
+
+        val ox = originX - center[0] * colStep.x - center[1] * rowStep.x - center[4] * aisleStep.x
+        val oy = originY - center[0] * colStep.y - center[1] * rowStep.y - center[4] * aisleStep.y
+        val oz = originZ - center[0] * colStep.z - center[1] * rowStep.z - center[4] * aisleStep.z
+
+        val cx = colStep.x
+        val cy = colStep.y
+        val cz = colStep.z
+        val rx = rowStep.x
+        val ry = rowStep.y
+        val rz = rowStep.z
+        val ax = aisleStep.x
+        val ay = aisleStep.y
+        val az = aisleStep.z
+
+        for (cell in cells) {
+            val aisle = aisle(cell)
+            val row = row(cell)
+            val col = column(cell)
+            action(
+                ox + col * cx + row * rx + aisle * ax,
+                oy + col * cy + row * ry + aisle * ay,
+                oz + col * cz + row * rz + aisle * az
+            )
+        }
+    }
+
     fun template(keep: (tier: Int) -> Boolean): AdvancedBlockPattern = templateCells { tier, _ -> keep(tier) }
 
     fun templateCells(keep: (tier: Int, cell: Int) -> Boolean): AdvancedBlockPattern {
@@ -80,9 +126,10 @@ class StructureTierLayout(
 
     fun positions(tiers: IntRange, controller: MultiblockControllerMachine): List<BlockPos> =
         buildList(tiers.sumOf { cells(it).size }) {
+            val origin = controller.pos
             for (tier in tiers) {
-                for (cell in cells(tier)) {
-                    add(position(cell, controller))
+                forEachPosition(tier, origin.x, origin.y, origin.z, controller.frontFacing, controller.upwardsFacing, controller.isFlipped) { x, y, z ->
+                    add(BlockPos(x, y, z))
                 }
             }
         }

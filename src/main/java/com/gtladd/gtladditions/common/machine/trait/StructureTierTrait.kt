@@ -139,6 +139,8 @@ class StructureTierTrait(
         val tier = unlockedTier + 1
         val requirement = requirement(tier) ?: return emptyList()
 
+        if (player.isCreative) return completeUnlock(tier)
+
         val items = player.inventory.items
         val paid = LongArray(requirement.costs.size) { paid(tier, it) }
         var consumed = false
@@ -162,17 +164,11 @@ class StructureTierTrait(
 
         val unpaid = requirement.costs.indices.count { paid[it] < requirement.costs[it].amount }
         val unmet = requirement.conditions.filterNot { it.test(machine as IStructureTierMachine) }
-        if (unpaid == 0 && unmet.isEmpty()) {
-            unlockedTier = tier
-            payment = LongArray(0)
-            onChanged()
-        } else if (consumed) {
+        if (unpaid == 0 && unmet.isEmpty()) return completeUnlock(tier)
+
+        if (consumed) {
             payment = paid
             onChanged()
-        }
-
-        if (unlockedTier == tier) {
-            return listOf("gtladditions.structure_tier.unlocked".toComponent(tier).withStyle(ChatFormatting.GREEN))
         }
 
         return buildList {
@@ -187,6 +183,13 @@ class StructureTierTrait(
                 )
             }
         }
+    }
+
+    private fun completeUnlock(tier: Int): List<Component> {
+        unlockedTier = tier
+        payment = LongArray(0)
+        onChanged()
+        return listOf("gtladditions.structure_tier.unlocked".toComponent(tier).withStyle(ChatFormatting.GREEN))
     }
 
     // ========================================

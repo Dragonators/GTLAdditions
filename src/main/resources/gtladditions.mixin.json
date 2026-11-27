@@ -97,6 +97,8 @@
     "gtlcore.client.GlobalRenderClockAccessor",
     "gtlcore.client.PatternPreviewPatternAccessor",
     "gtlcore.client.PatternPreviewWidgetMixin",
+    "gtlcore.client.PreviewControlsAccessor",
+    "gtlcore.client.PreviewPatternPanelAccessor",
     "gtlcore.client.SparsePreviewShapeAccessor",
     "gtlcore.client.WorldPreviewMixin",
     "gtceu.xei.EmiRegistryImplMixin",
