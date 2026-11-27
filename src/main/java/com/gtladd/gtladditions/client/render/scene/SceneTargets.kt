@@ -10,9 +10,11 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.renderer.ShaderInstance
 import org.joml.Matrix4f
 import org.joml.Matrix4fc
+import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL12C
 import org.lwjgl.opengl.GL30C
+import org.lwjgl.opengl.GL43C
 import org.lwjgl.system.MemoryStack
 import java.nio.ByteBuffer
 
@@ -79,13 +81,18 @@ internal object SceneTargets {
         generation++
     }
 
-    /** A same-format copy is exact; glCopyTexSubImage does not draw, so no write or blend lock applies. */
-    fun copyDepth(framebuffer: Int, texture: Int) {
+    /** Direct same-format image copy; avoids packed `GL_DEPTH32F_STENCIL8` corruption under `glCopyTexSubImage2D` on NVIDIA 621.x. */
+    fun copyDepth(framebuffer: Int, source: Int, target: Int) {
+        if (GL.getCapabilities().glCopyImageSubData != 0L) {
+            GL43C.glCopyImageSubData(source, GL11C.GL_TEXTURE_2D, 0, 0, 0, 0, target, GL11C.GL_TEXTURE_2D, 0, 0, 0, 0, width, height, 1)
+            return
+        }
+
         val read = GL11C.glGetInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING)
         val bound = GL11C.glGetInteger(GL11C.GL_TEXTURE_BINDING_2D)
         try {
             GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, framebuffer)
-            GlStateManager._bindTexture(texture)
+            GlStateManager._bindTexture(target)
             GL11C.glCopyTexSubImage2D(GL11C.GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height)
         } finally {
             GlStateManager._bindTexture(bound)
